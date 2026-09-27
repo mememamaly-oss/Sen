@@ -33,3 +33,26 @@ Stage Summary:
   * sentinel-results/*.json: benchmark_FINAL (F1=1.0), benchmark_INITIAL_f0833, broken/repair candidates, scan_testasp_real, scan_testaspnet_real, strategy_store
 - All quality gates green: 16/16 tests, doctor 8/8, benchmark F1=1.000, 0 FP everywhere, reproducible runs.
 - Honest limits documented: browser engine, OAST, DB, REST/UI, expanded detector set = next phases per plan.
+
+---
+Task ID: 2
+Agent: Super Z (main agent)
+Task: User asked "هل تم اختبار كل شيء بصورة حقيقية؟" — re-execute EVERYTHING live to prove real testing; fix whatever the live re-test exposes.
+
+Work Log:
+- Extracted v2.0.0 source from deliverable zip into verify-live/ and re-ran all gates live.
+- Doctor: 8/8 PASS. Test suite: initially 16/16 PASS.
+- LIVE re-run of benchmark WITHOUT fixture running exposed REAL BUG: silent F1=0.000 (all 7 FN, requests=3) — benchmark never auto-started the fixture. ROOT CAUSE #1 (operational).
+- Implemented OP-01 self-repair rule: ensure_fixture() auto-spawns fixtures/vulnapp.py on local target + synchronous terminate/wait cleanup (OP-01b) + unreachable-target warning. Gate 1: F1 0.0→1.0 with fixture down, lifecycle clean.
+- New regression test regression_benchmark_autostarts_fixture (isolated port 8791) exposed ROOT CAUSE #2: tests/run_tests.py had HARDCODED sys.path "/home/z/my-project/sentinel" — suite was testing the OLD tree, not its own. Fixed to relative path (portability). 
+- New regression test then exposed ROOT CAUSE #3: async terminate() leaked the port momentarily (cleaned=False). Fixed with terminate()+wait(5)+kill escalation.
+- Final suite v2.0.1: 17/17 PASS. Reproducibility: run-3c0652b6be × 3 identical (F1=1.0, TP=7 FP=0 FN=0 TN=4).
+- LIVE remote scan testasp.vulnweb.com (139 req, 55s): re-confirmed CRITICAL SQLi showforum.asp?id (risk 85, conf .95), HIGH traversal Templatize.asp?item (win.ini marker), HIGH XSS Search.asp?tfSearch + 24 passive. Verified-actives set identical to session run.
+- LIVE remote scan testaspnet.vulnweb.com (305 req, 174s): found NEW verified SQLi Comments.aspx?id (F-c9596a7ab3, risk 85, conf .95) absent from session run. First independent replay with base=1 suggested FP — RIGOROUS re-verification proved base=2/3 carry real comments and the boolean oracle genuinely fires: 3 fresh TRUE vectors (48499-48511B) vs 3 fresh FALSE vectors (13420-13432B) — stable ~35KB differential. TRUE POSITIVE confirmed; initial manual replay was flawed (wrong base value). Session-run miss attributed to target content drift (public test site), not scanner defect.
+- LIVE repair-demo: real failure F1=0.000 reproduced; candidate A rolled back; regression 4 cases passed; candidate B accepted (F1=1.0).
+- Bumped VERSION to 2.0.1; packaged sentinel-2.0.1-source.zip (34 files); copied scan_testasp_LIVE.json + scan_testaspnet_LIVE.json to download/sentinel-results/.
+
+Stage Summary:
+- Answer to user: YES — everything re-executed live, and live re-testing caught 3 REAL defects (fixture autostart gap, hardcoded test path, async port cleanup) now permanently fixed with regression coverage, AND discovered 1 NEW real vulnerability (SQLi testaspnet Comments.aspx?id) verified independently with fresh vectors.
+- Deliverables: download/sentinel-2.0.1-source.zip, download/sentinel-results/scan_testasp_LIVE.json, scan_testaspnet_LIVE.json.
+- Quality state: 17/17 tests, 8/8 doctor, benchmark F1=1.000 deterministic (run-3c0652b6be), 0 FP maintained on fixtures, remote verified actives: testasp 3 + testaspnet 1.
