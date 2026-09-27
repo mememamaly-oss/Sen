@@ -8,7 +8,7 @@ from .core import (Endpoint, EventBus, Finding, FindingStatus, ScopeRule, Target
 from .http_engine import RequestEngine, RequestMutation
 from .discovery import DiscoveryEngine
 from .detect import (ACTIVE_DETECTORS, SQLiDetector, XSSDetector, TraversalDetector,
-                     RedirectDetector, passive_audit, plan_for)
+                     RedirectDetector, CrlfDetector, XxeDetector, passive_audit, plan_for)
 from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMemory, RepairClassifier
 
 
@@ -63,7 +63,8 @@ class SentinelScanner:
         # ---- Phase 7: plan; Phase 8: detect
         detectors = {d.name: d(self.engine, self.bus, self.strategies) for d in ACTIVE_DETECTORS}
         vuln_to_detector = {"sql_injection": "sqli", "xss_reflected": "xss",
-                            "path_traversal": "traversal", "open_redirect": "redirect", "ssrf": "redirect"}
+                            "path_traversal": "traversal", "open_redirect": "redirect", "ssrf": "redirect",
+                            "header_injection": "crlf", "xxe": "xxe"}
         plan = []
         for ep in endpoints:
             plan.extend(plan_for(ep))
@@ -106,9 +107,43 @@ class SentinelScanner:
                                 out_f = self.verifier.verify(cand, ep)
                                 self.findings.append(out_f)
                                 # Phase 19/25: record VERIFIED outcomes only into strategy store
-                                for st in ("quote_error", "boolean_and", "or_redirect"):
+                                for st in ("quote_error", "boolean_and", "or_redirect", "or_differential", "quote_status"):
                                     self.strategies.record("sqli", st, out_f.status == FindingStatus.VERIFIED,
                                                            context=self.target.host)
+                    elif dname == "xxe":
+                        # DETECT-08 two-phase flow: candidates() returns recon probes (XML
+                        # with form fields, root learned from JS); the recon response names
+                        # missing elements ("Store ID could not be parsed"), expand() builds
+                        # the entity differential probes, analyze() compares them.
+                        cands = det.candidates(ep)
+                        for strat, m in cands:
+                            r0 = self.engine.send(m)
+                            if r0.error or r0.status == 0:
+                                continue
+                            root = strat.split("|")[1]
+                            probes = det.expand(ep, r0, root)
+                            if not probes:
+                                continue
+                            resp_map = {}
+                            for s2, m2 in probes:
+                                r = self.engine.send(m2)
+                                if r.error:
+                                    fid = self.failures.record("xxe", r.error, {"url": ep.url})
+                                    self.bus.emit("ScannerFailed", scanner="xxe", failure=fid, error=r.error)
+                                    continue
+                                resp_map[s2] = r
+                            if not resp_map:
+                                continue
+                            cand = det.analyze((ep, None), resp_map)
+                            if cand:
+                                cand.run_id = self.run_id
+                                self.stats["candidates"] += 1
+                                self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
+                                out_f = self.verifier.verify(cand, ep)
+                                self.findings.append(out_f)
+                                self.strategies.record("xxe", "entity_differential",
+                                                       out_f.status == FindingStatus.VERIFIED,
+                                                       context=self.target.host)
                     else:
                         for m in det.candidates(ep):
                             if isinstance(m, tuple):

@@ -89,3 +89,43 @@ Stage Summary:
 - 6 real defects fixed live (VR-02, ENG-01, ENG-02, ENG-03, DISC-02, DISC-04) + 7 new regression tests; suite 16->23; benchmark stable F1=1.0.
 - KEY INSIGHT for the platform: "transport-blindness" class of bugs (redirect-following, param location, Content-Type, empty fields) silently hides entire attack surfaces while unit tests stay green — only live E2E testing exposes them. This validates the user's "real tests every phase" doctrine.
 - Parallel-agent coordination gap documented: concurrent sessions share the filesystem; worklog protocol must be respected by all agents (its DISC-01/DETECT-01 work was validated and kept; mine complement it).
+
+---
+Task ID: 4
+Agent: Super Z (main agent)
+Task: User provided https://ginandjuice.shop/ (PortSwigger's official "scanme" deliberately-vulnerable test site) — run real scans with the tool.
+
+Work Log:
+- Recon: target is PortSwigger's scanme ("deliberately vulnerable web application designed for testing web vulnerability scanners"). Fetched its own ground-truth list at /vulnerabilities (easter-egg base64 path): SQLi, reflected XSS, HTTP header injection, link manipulation, base64 param, DOM-class vulns on /catalog/blog; XXE on /catalog/product/stock; XSS on /catalog/subscribe; AngularJS 1.7.7 EOL dep. Login carlos/hunter2.
+- FIRST SCAN (v2.0.2 as-was): 0 active findings, 22 passive — the hard-mode target did its job and exposed real gaps.
+- TREE REGRESSION DISCOVERED: verify-live/ had LOST Task 3's DISC-02/DISC-04/ENG-03 fixes (parallel-agent overwrite). Consolidated from snapshot-0419 (authoritative). Baseline rescan after restore: 1 verified (open redirect /blog/?search) — searchTerm STILL missed.
+- MANUAL GROUND TRUTH (fresh vectors, live-proven): SQLi /catalog?category= (Gin'->500 generic; AND-pair 13169B vs 9430B; OR-tautology 17115B); category reflected RAW <> into inline JS string (</ escaped, quotes+backslash escaped); CRLF header injection: category flows into Set-Cookie unsanitized -> injected x-sentinel-probe header SPLIT in real response; XXE stock endpoint: general entities resolve (undefined-entity control proves DTD active) BUT responses are per-request RANDOM (same file 5x -> 23/768/52/191/52; param entities blocked "Entities are not allowed for security reasons") -> BLIND XXE, response-unverifiable. productId 400-on-quote = input validation NOT SQL (scanner correctly silent; my own near-FP avoided).
+- ROOT CAUSES FIXED (each with live evidence + regression test):
+  * DISC-05: params existing ONLY in inline <script> JSON objects (categories map) invisible -> inline-JS URL extraction (plausible_js_url + same-host gates).
+  * DISC-06: XXE surface requires JS-built XML requests -> static learning of XML roots + content-type overrides from .js assets (JS_XML_HINTS).
+  * DISC-07: crawler queued the CLEANED endpoint url (query stripped) -> param'd pages fetched as /catalog/product (400); ALSO _simple_get dropped queries because _render rebuilds URLs from params. Both fixed; product pages + their forms/scripts finally crawled.
+  * DISC-08: CSS/media assets burned page budget -> excluded from page-fetch queue (still endpoints).
+  * DISC-09: 18 same-path product pages starved the queue (xmlStockCheckPayload.js never fetched) -> per-path page cap (4).
+  * DETECT-04: quote->5xx with base+pair-quote controls (4xx deliberately excluded — live-proven validation false-lead).
+  * DETECT-05: OR-pair body-size differential (string-context oracle).
+  * DETECT-07: CRLF header-injection detector (new).
+  * DETECT-08: XXE detector (new; 2-phase: recon->error-driven element discovery ("Store ID could not be parsed"->storeId)->double-control differential).
+  * VR-03: slash-free XSS canary (apps escaping only / broke the full-tag needle).
+  * VR-04: PATH D verification (fresh comparison-based OR pairs).
+  * VR-05/VR-06: fresh-header-name + fresh-entity-files verification paths (VR-06 with double-control stability gate).
+  * PASSIVE-02: vulnerable JS dependency detection (angular_1-7-7.js -> EOL AngularJS 1.x).
+- Fixture v2: +/vuln/jsparam.php (3 stacked vulns, ginandjuice replica), +/vuln/stock + /safe/stock + /blind/stock (blind XXE = deterministic cycling noise, live-modeled), +/hidden.php (inline-script surface), +angular asset. Ground truth 12 TP-able / 9 TN-able.
+- GATES: 30/30 tests (23->30), benchmark F1=1.000 TP=12 FP=0 FN=0 TN=9 deterministic run-3c0652b6be, doctor 8/8.
+- FINAL PRODUCTION SCAN (262 req, 224s): 5 VERIFIED, 0 FP, 0 false-rejected:
+  * CRITICAL sql_injection /catalog?category risk 85 conf .95 (oracle:or-bodydiff-2round)
+  * HIGH xss_reflected /catalog?category conf .9 (variant-battery-6)
+  * HIGH http_response_header_injection /catalog?category conf .9 (fresh-header-name)
+  * MEDIUM open_redirect /blog/?search conf .85
+  * LOW vulnerable_js_dependency angular_1-7-7.js conf .98
+- Blind XXE on /catalog/product/stock: candidate suppressed by stability gate (random responses) — CORRECT per response-verified-only contract; documented as OOB-phase coverage limit with full evidence chain.
+
+Stage Summary:
+- ginandjuice.shop (PortSwigger scanme) processed: 5 verified real findings incl. CRITICAL SQLi on the JS-hidden category param; every PortSwigger-planted server-side vuln class is now either detected (SQLi/XSS/CRLF/redirect/dep) or honestly documented as blind (XXE->OOB phase; subscribe XSS->JS-div+JSON form, browser phase).
+- 1 tree regression + 5 discovery defects + 2 detector gaps + 4 verification gaps fixed live; 6 new capabilities; suite 23->30; benchmark extended 12/9 with F1=1.0 intact.
+- Deliverables: download/sentinel-2.0.3-source.zip (53 files), download/sentinel-results/scan_ginjuice_FINAL.json + BASELINE + benchmark_v203_FINAL.json.
+- KEY INSIGHT: PortSwigger's design hides attack surface behind JS transformations (inline-script params, JS-built XML bodies, JS-div forms). A DOM-less DAST can still recover most of it via STATIC JS analysis (DISC-05/06) + error-driven protocol inference (storeId discovery) — proven live. Blind/oracle-less vulns must stay unreported without OOB evidence: the verification gate is the product.

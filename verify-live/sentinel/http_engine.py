@@ -84,7 +84,13 @@ class RequestEngine:
             if not hit and eff_loc == ParamLocation.QUERY:
                 q.append((m.param_name, m.param_value))
             if eff_loc == ParamLocation.BODY and not m.body_override:
-                fields = [(p.name, p.value) for p in ep.parameters if p.location == ParamLocation.BODY]
+                # DISC-04 (live-caught on demo.testfire.net/doLogin): sibling body fields
+                # with EMPTY default values made apps reject early (Altoro requires a
+                # non-empty password before the SQL path is even reached) — the oracle
+                # never fired. Deterministic fill: empty sibling body fields get a
+                # benign constant so the app processes the request normally.
+                fields = [(p.name, p.value or "sentinel") for p in ep.parameters
+                          if p.location == ParamLocation.BODY]
                 if not any(f[0] == m.param_name for f in fields):
                     fields.append((m.param_name, m.param_value))
                 fields = [(m.param_name, m.param_value) if f[0] == m.param_name else f for f in fields]
@@ -95,6 +101,11 @@ class RequestEngine:
         if m.param_location == ParamLocation.PATH and m.param_name:
             url = url.replace("{" + m.param_name + "}", urllib.parse.quote(m.param_value, safe=""))
         headers = {"User-Agent": "Mozilla/5.0 (compatible; Sentinel/2.0; +security-scanner)"}
+        # ENG-03 (live-caught on demo.testfire.net/doLogin): http.client does NOT add
+        # Content-Type for bodies — Tomcat then never parses the POST body, silently
+        # hiding the entire POST attack surface. Required per HTML form spec.
+        if body and (m.method or ep.method) in ("POST", "PUT", "PATCH"):
+            headers.setdefault("Content-Type", "application/x-www-form-urlencoded")
         headers.update(ep.headers); headers.update(m.extra_headers)
         return url, m.method or ep.method, headers, body
 

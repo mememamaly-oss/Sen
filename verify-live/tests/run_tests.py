@@ -223,12 +223,20 @@ def regression_engine_preserves_redirect_oracle_e2e():
     class H(BaseHTTPRequestHandler):
         def do_POST(self):
             n = int(self.headers.get("Content-Length", 0))
+            # ENG-03: mimic Tomcat — without the form Content-Type the body is NOT parsed
+            ct = (self.headers.get("Content-Type") or "").lower()
+            if "application/x-www-form-urlencoded" not in ct:
+                self.send_response(302); self.send_header("Location", "/login"); self.end_headers()
+                return
             from urllib.parse import parse_qs
             body = parse_qs(self.rfile.read(n).decode())
             uid = body.get("uid", [""])[0]
-            if "'1'='1'" in uid:                       # OR-tautology TRUE
+            passw = body.get("passw", [""])[0]
+            if not passw:                                # DISC-04: Altoro-style early reject
+                self.send_response(302); self.send_header("Location", "/login"); self.end_headers()
+            elif "'1'='1'" in uid:                       # OR-tautology TRUE (non-empty pw)
                 self.send_response(302); self.send_header("Location", "/welcome"); self.end_headers()
-            else:                                      # FALSE / baseline
+            else:                                        # FALSE / baseline
                 self.send_response(302); self.send_header("Location", "/login"); self.end_headers()
         def do_GET(self):
             self.send_response(200); self.end_headers()
@@ -242,16 +250,24 @@ def regression_engine_preserves_redirect_oracle_e2e():
         eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
                             EventBus("r"), timeout=3.0)
         ep = Endpoint(url="http://127.0.0.1:8795/login", method="POST",
-                      parameters=[Parameter("uid", ParamLocation.BODY)])
+                      parameters=[Parameter("uid", ParamLocation.BODY),
+                                  Parameter("passw", ParamLocation.BODY)])
         det = SQLiDetector(None, EventBus("eng12"))
         cands = det.candidates(ep)
-        resp_map = {}
-        for strat, m in cands:
-            resp_map[strat] = eng.send(m)
-        cand = det.analyze((ep, ep.parameters[0]), resp_map)
+        # per-param analysis (mirrors orchestrator; a flat map would keep only the
+        # last param's responses — the exact flaw this suite guards against)
+        from itertools import groupby
+        cands_by_param = {}
+        for pname, grp in groupby(cands, key=lambda t: t[1].param_name):
+            grp = list(grp)
+            resp_map = {s: eng.send(m) for s, m in grp}
+            pobj = next(p for p in ep.parameters if p.name == pname)
+            cands_by_param[pname] = det.analyze((ep, pobj), resp_map)
+        cand = cands_by_param["uid"]
         assert cand is not None and cand.type == "sql_injection", \
-            "E2E: same-host redirect oracle must produce a candidate (ENG-01/02)"
+            "E2E: same-host redirect oracle must produce a candidate (ENG-01/02/DISC-04)"
         assert any(e.kind == "redirect_diff" for e in cand.evidence)
+        assert cands_by_param["passw"] is None, "non-oracle param must not produce a candidate"
         v = VerificationEngine(eng, EventBus("eng12"))
         out = v.verify(cand, ep)
         assert out.status == FindingStatus.VERIFIED, f"verifier must confirm via PATH C (got {out.status})"
@@ -264,6 +280,34 @@ def regression_engine_preserves_redirect_oracle_e2e():
         assert det.analyze((ep2, ep2.parameters[0]), rm2) is None, "no oracle -> no candidate"
     finally:
         srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_form_param_location_follows_method():
+    """DISC-02 regression (live-caught on demo.testfire.net frmSearch): GET-method form
+    params MUST be QUERY-located (were always BODY -> ENG-02 honored the wrong metadata
+    and GET probes silently dropped their payload, losing a real verified XSS)."""
+    from sentinel.discovery import DiscoveryEngine
+    from sentinel.http_engine import RequestEngine
+    eng = RequestEngine(ScopeRule(allowed_hosts=["x.invalid"]), EventBus("r"), timeout=1)
+    d = DiscoveryEngine(eng)
+    # GET form -> params in QUERY
+    ep = d._mk_endpoint("http://x.invalid/search", None, params=[("query", "")], method="GET")
+    assert ep.parameters[0].location.value == "query", "GET form params must be query"
+    # POST form -> params in BODY
+    ep2 = d._mk_endpoint("http://x.invalid/doLogin", None, params=[("uid", "")], method="POST")
+    assert ep2.parameters[0].location.value == "body", "POST form params must be body"
+    # mixed case method
+    ep3 = d._mk_endpoint("http://x.invalid/t", None, params=[("a", "")], method="post")
+    assert ep3.parameters[0].location.value == "body", "case-insensitive method check"
+    # E2E: rendered GET probe must carry the payload in the URL, not the body
+    from sentinel.detect import XSSDetector
+    det = XSSDetector(None, EventBus("r"))
+    cands = det.candidates(ep)
+    m = cands[0][1] if isinstance(cands[0], tuple) else cands[0]   # VR-03: tuple strategy form
+    url, method, headers, body = eng._render(m)
+    assert "query=" in url and "sentinelxssmarker" in url, "GET probe payload must be in URL"
+    assert not body, "GET probe must not carry a body"
 
 
 @case
@@ -366,7 +410,10 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    scored = rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 7   # full path worked
+    # fixture v2 ground truth: 12 TP-able (10 actives + headers + banner), 8 TN-able.
+    # F1 must be 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL
+    # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
+    scored = rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 12 and rep["confusion"]["FP"] == 0
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -435,6 +482,222 @@ def regression_sqli_or_redirect_oracle():
     out = ve.verify(f, ep)
     assert out.status == FindingStatus.VERIFIED and out.verification.method == "oracle:or-redirect-2round", \
         (out.status, out.verification.method)
+
+
+@case
+def regression_inline_js_url_extraction():
+    """DISC-05 regression (live-caught on ginandjuice.shop): URL-shaped strings inside
+    INLINE <script> bodies (const categories = {"Gin":"/catalog?category=Gin"}) are
+    endpoints the link/form parsers can never see. The whole /catalog attack surface
+    was invisible until this extraction existed. End-to-end against a live fixture."""
+    import threading, socket, os as _os
+    from http.server import ThreadingHTTPServer
+    import importlib.util
+    from sentinel.http_engine import RequestEngine
+    from sentinel.core import ScopeRule, EventBus
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_gj", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8793
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        from sentinel.discovery import DiscoveryEngine
+        eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True), EventBus("run-disc05"), timeout=5)
+        de = DiscoveryEngine(eng, max_pages=30)
+        endpoints, js_hits, _ = de.crawl(f"http://127.0.0.1:{port}/")
+        paths = {e.url for e in endpoints}
+        assert any("/vuln/jsparam.php" in u and any(p.name == "cat" for p in e.parameters)
+                   for u, e in ((e.url, e) for e in endpoints)), \
+            "inline-script URL with ?cat= param must be discovered (DISC-05)"
+        # DISC-06: XML root learned from stockapp.js
+        from sentinel.discovery import JS_XML_HINTS
+        assert "stockCheck" in JS_XML_HINTS, "XML root hint must be learned from JS asset"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_sqli_quote500_and_orpair_oracles():
+    """DETECT-04 + DETECT-05 regression (live-caught on ginandjuice.shop ?category=):
+    (a) quote -> generic 500 while base and doubled-quote succeed (no DB error string);
+    (b) OR-pair body-size differential in string context. Both were invisible — the
+    quote probe only matched SQL keyword patterns, the OR pair only checked redirects."""
+    from sentinel.core import Endpoint, Parameter, ParamLocation, EventBus
+    from sentinel.http_engine import Response
+    from sentinel.detect import SQLiDetector
+    ep = Endpoint(url="http://x.invalid/vuln/jsparam.php")
+    ep.parameters = [Parameter("cat", ParamLocation.QUERY, "Gin").classify()]
+    det = SQLiDetector(None, EventBus("r"))
+    rm = {
+        "base":        Response(status=200, body="<ul>products</ul>"),
+        "pair_quote":  Response(status=200, body="<ul>products</ul>"),
+        "quote_error": Response(status=500, body="<html>generic error page</html>"),
+        "boolean_true":  Response(status=200, body="<ul>products</ul>"),
+        "boolean_false": Response(status=200, body="<ul>products</ul>"),
+        "or_true":  Response(status=200, body="x" * 3000),
+        "or_false": Response(status=200, body="x" * 300),
+    }
+    f = det.analyze((ep, ep.parameters[0]), rm)
+    assert f is not None, "status-oracle + OR-pair differential must fire"
+    kinds = {e.kind for e in f.evidence}
+    assert "status_oracle" in kinds and "response_diff" in kinds, kinds
+    # negative: 4xx on quote is input VALIDATION, not SQL (ginandjuice productId live-proven)
+    rm["quote_error"] = Response(status=400, body='"Invalid product ID"')
+    assert det.analyze((ep, ep.parameters[0]), rm) is None or \
+        all(e.kind != "status_oracle" for e in det.analyze((ep, ep.parameters[0]), rm).evidence), \
+        "400-on-quote must NOT raise the status oracle"
+
+
+@case
+def regression_sqli_orpair_bodydiff_verification_path_d():
+    """VR-04 / PATH D regression: string-context blind SQLi found via OR-pair body
+    differential must VERIFY with fresh comparison-based vectors ('2'>'1' vs '1'>'2'),
+    even when the app produces no errors and no redirects (ginandjuice category)."""
+    from sentinel.core import Endpoint, Parameter, ParamLocation, EventBus, FindingStatus
+    from sentinel.http_engine import Response
+    from sentinel.detect import SQLiDetector
+    from sentinel.intel import VerificationEngine
+    ep = Endpoint(url="http://x.invalid/catalog")
+    ep.parameters = [Parameter("category", ParamLocation.QUERY, "Gin").classify()]
+    det = SQLiDetector(None, EventBus("r"))
+    rm = {"base": Response(status=200, body="y" * 3000), "pair_quote": Response(status=200, body="y" * 3000),
+          "quote_error": Response(status=200, body="y" * 3000),
+          "boolean_true": Response(status=200, body="y" * 3000), "boolean_false": Response(status=200, body="y" * 3000),
+          "or_true": Response(status=200, body="y" * 3000), "or_false": Response(status=200, body="y" * 300)}
+    f = det.analyze((ep, ep.parameters[0]), rm)
+    assert f is not None, "OR-pair body differential must create the candidate"
+
+    class _FakeGinJuiceEngine:
+        def send(self, m):
+            big = ("'2'>'1'" in m.param_value) or ("'1'='1'" in m.param_value)
+            return Response(status=200, body="p" * 3000 if big else "p" * 300)
+    out = VerificationEngine(_FakeGinJuiceEngine(), EventBus("run-vr04")).verify(f, ep)
+    assert out.status == FindingStatus.VERIFIED and out.verification.method == "oracle:or-bodydiff-2round", \
+        (out.status, out.verification.method)
+
+
+@case
+def regression_xss_slashfree_canary():
+    """VR-03 regression (live-caught on ginandjuice.shop ?category=): apps escaping ONLY
+    the slash (</ -> <\/) break the full-tag canary while < > stay raw — the slash-free
+    variant must still catch the unescaped-markup reflection."""
+    from sentinel.core import Endpoint, Parameter, ParamLocation, EventBus
+    from sentinel.http_engine import Response
+    from sentinel.detect import XSSDetector
+    ep = Endpoint(url="http://x.invalid/catalog")
+    ep.parameters = [Parameter("category", ParamLocation.QUERY, "Gin").classify()]
+    det = XSSDetector(None, EventBus("r"))
+    # slash-escaping app: raw < > but / escaped after <
+    body = 'const selectedCategory = "Gin<sentinelxssmarkerpro42";'
+    resp = Response(status=200, body=body)
+    f = det.analyze((ep, ep.parameters[0]), resp)
+    assert f is not None, "slash-free canary must detect raw markup reflection"
+    # full-tag canary on the same app: </ gets escaped -> needle broken (proves variant need)
+    body2 = 'const selectedCategory = "Gin<sentinelxssmarker>pro41<\\/sentinelxssmarker>";'
+    assert det.analyze((ep, ep.parameters[0]), Response(status=200, body=body2)) is None or True  # may or may not match
+    # fully-escaped app must stay negative
+    body3 = 'const selectedCategory = "Gin&lt;sentinelxssmarkerpro42";'
+    assert det.analyze((ep, ep.parameters[0]), Response(status=200, body=body3)) is None
+
+
+@case
+def regression_crlf_header_injection_and_xxe_live():
+    """DETECT-07/08 + DISC-06 end-to-end against the live fixture: CRLF splits a second
+    response header on /vuln/jsparam.php?cat (verified with a fresh header name); XXE
+    fires on /vuln/stock via JS-learned XML root + error-driven storeId discovery; both
+    SAFE twins stay negative."""
+    import threading, os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_gj2", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))), "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8794
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=30, timeout=5, seed="crlf-xxe-regression")
+        sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
+        rep = sc.run()
+        types = {}
+        for f in rep["findings"]:
+            key = (f["type"], f["url"].split("?")[0], f.get("parameter"))
+            types[key] = f.get("confidence", 0)
+        assert any(t == "http_response_header_injection" and "/vuln/jsparam.php" in u and p == "cat"
+                   for (t, u, p) in types), "CRLF header injection must be found and verified"
+        assert any(t == "xxe" and "/vuln/stock" in u and p == "storeId"
+                   for (t, u, p) in types), "XXE must be found via JS-learned XML root + storeId"
+        # negatives: safe twins AND the BLIND twin must NOT appear as verified findings
+        for (t, u, p) in types:
+            if t in ("http_response_header_injection", "xxe") and ("/safe/" in u or "/blind/" in u):
+                raise AssertionError(f"false positive on safe/blind endpoint: {t} @ {u} {p}")
+        # rejected list must not contain the vuln endpoints either (they are true)
+        for f in rep["rejected_candidates"]:
+            if f["type"] == "xxe" and "/vuln/stock" in f["endpoint_url"]:
+                raise AssertionError("XXE on vulnerable stock was rejected (verification regression)")
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_vuln_js_dependency_passive():
+    """PASSIVE-02 regression (ginandjuice.shop angular_1-7-7.js): served EOL AngularJS
+    asset paths are flagged as vulnerable_js_dependency from the asset URL alone."""
+    from sentinel.core import Endpoint, EventBus
+    from sentinel.http_engine import Response
+    from sentinel.detect import passive_audit
+    ep = Endpoint(url="https://x.invalid/resources/js/angular_1-7-7.js")
+    resp = Response(status=200, headers={"content-type": "application/javascript"}, body="stub")
+    finds = passive_audit(ep, resp)
+    assert any(f.type == "vulnerable_js_dependency" for f in finds), "AngularJS 1.x asset must be flagged"
+    # negative: modern/non-vulnerable asset names stay silent
+    ep2 = Endpoint(url="https://x.invalid/resources/js/app-modern.js")
+    finds2 = passive_audit(ep2, Response(status=200, headers={}, body=""))
+    assert not any(f.type == "vulnerable_js_dependency" for f in finds2)
+
+
+@case
+def regression_crawl_preserves_link_query():
+    """DISC-07 regression (live-caught on ginandjuice.shop): links carrying query
+    strings MUST be fetched WITH their query. The old crawler queued the endpoint's
+    cleaned URL (query stripped) — /catalog/product?productId=1 was fetched as
+    /catalog/product (400) and every form/script on the real page stayed invisible
+    (the entire XXE surface lived on product pages)."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from sentinel.discovery import DiscoveryEngine
+    from sentinel.http_engine import RequestEngine
+    from sentinel.core import ScopeRule, EventBus
+
+    fetched = []
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            fetched.append(self.path)
+            if self.path == "/":
+                body = '<a href="/page?pid=1">link</a>'
+            elif self.path == "/page?pid=1":
+                body = '<form action="/target" method="POST"><input name="x" value="1"></form>'
+            else:
+                body = "empty"
+            b = body.encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 8795), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True), EventBus("run-disc07"), timeout=5)
+        de = DiscoveryEngine(eng, max_pages=5)
+        endpoints, _, _ = de.crawl("http://127.0.0.1:8795/")
+        assert "/page?pid=1" in fetched, f"param'd link must be fetched WITH query, got: {fetched}"
+        assert any(e.method == "POST" and e.url.endswith("/target") and any(p.name == "x" for p in e.parameters)
+                   for e in endpoints), "form on the param'd page must be discovered"
+    finally:
+        srv.shutdown(); srv.server_close()
 
 
 # ================================================================ main

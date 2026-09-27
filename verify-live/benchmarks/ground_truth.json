@@ -1,6 +1,6 @@
 {
-  "benchmark": "local-fixture-v1",
-  "version": "1.0.0",
+  "benchmark": "local-fixture-v2",
+  "version": "2.0.0",
   "sha256_self_check": true,
   "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope)",
   "ground_truth": [
@@ -9,10 +9,20 @@
     {"type": "xss_reflected",       "endpoint": "/vuln/xss.php",        "parameter": "q",   "present": true},
     {"type": "path_traversal",      "endpoint": "/vuln/traversal.php",  "parameter": "file","present": true},
     {"type": "open_redirect",       "endpoint": "/vuln/redirect.php",   "parameter": "url", "present": true},
+    {"type": "sql_injection",       "endpoint": "/vuln/jsparam.php",    "parameter": "cat", "present": true},
+    {"type": "xss_reflected",       "endpoint": "/vuln/jsparam.php",    "parameter": "cat", "present": true},
+    {"type": "http_response_header_injection", "endpoint": "/vuln/jsparam.php", "parameter": "cat", "present": true},
+    {"type": "xxe",                 "endpoint": "/vuln/stock",          "parameter": "storeId", "present": true},
+    {"type": "vulnerable_js_dependency", "endpoint": "/angular_1-7-7.js", "parameter": "", "present": true},
     {"type": "sql_injection",       "endpoint": "/safe/item.php",       "parameter": "id",  "present": false},
     {"type": "xss_reflected",       "endpoint": "/safe/search.php",     "parameter": "q",   "present": false},
     {"type": "path_traversal",      "endpoint": "/safe/read.php",       "parameter": "file","present": false},
     {"type": "open_redirect",       "endpoint": "/safe/go.php",         "parameter": "url", "present": false},
+    {"type": "sql_injection",       "endpoint": "/safe/jsparam.php",    "parameter": "cat", "present": false},
+    {"type": "xss_reflected",       "endpoint": "/safe/jsparam.php",    "parameter": "cat", "present": false},
+    {"type": "http_response_header_injection", "endpoint": "/safe/jsparam.php", "parameter": "cat", "present": false},
+    {"type": "xxe",                 "endpoint": "/safe/stock",          "parameter": "storeId", "present": false},
+    {"type": "xxe",                 "endpoint": "/blind/stock",         "parameter": "storeId", "present": false, "note": "BLIND XXE: entities resolve but responses are per-request noise — no response-based oracle exists (ginandjuice.shop live behavior); OOB phase required, must NOT produce a response-verified finding"},
     {"type": "missing_security_headers", "endpoint": "*", "parameter": "", "present": true},
     {"type": "server_banner_disclosure", "endpoint": "*", "parameter": "", "present": true}
   ]
