@@ -1,6 +1,6 @@
 {
-  "benchmark": "local-fixture-v2",
-  "version": "2.0.0",
+  "benchmark": "local-fixture-v3",
+  "version": "2.1.0",
   "sha256_self_check": true,
   "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope)",
   "ground_truth": [
@@ -13,6 +13,7 @@
     {"type": "xss_reflected",       "endpoint": "/vuln/jsparam.php",    "parameter": "cat", "present": true},
     {"type": "http_response_header_injection", "endpoint": "/vuln/jsparam.php", "parameter": "cat", "present": true},
     {"type": "xxe",                 "endpoint": "/vuln/stock",          "parameter": "storeId", "present": true},
+    {"type": "xxe",                 "endpoint": "/vuln/oob-stock",     "parameter": "storeId", "present": true, "note": "BLIND XXE with out-of-band fetch: response is cycling noise (no response oracle); ONLY the OAST callback can confirm (Phase 49). Benchmark must run with OAST enabled."},
     {"type": "vulnerable_js_dependency", "endpoint": "/angular_1-7-7.js", "parameter": "", "present": true},
     {"type": "sql_injection",       "endpoint": "/safe/item.php",       "parameter": "id",  "present": false},
     {"type": "xss_reflected",       "endpoint": "/safe/search.php",     "parameter": "q",   "present": false},
@@ -22,6 +23,7 @@
     {"type": "xss_reflected",       "endpoint": "/safe/jsparam.php",    "parameter": "cat", "present": false},
     {"type": "http_response_header_injection", "endpoint": "/safe/jsparam.php", "parameter": "cat", "present": false},
     {"type": "xxe",                 "endpoint": "/safe/stock",          "parameter": "storeId", "present": false},
+    {"type": "xxe",                 "endpoint": "/safe/oob-stock",     "parameter": "storeId", "present": false},
     {"type": "xxe",                 "endpoint": "/blind/stock",         "parameter": "storeId", "present": false, "note": "BLIND XXE: entities resolve but responses are per-request noise — no response-based oracle exists (ginandjuice.shop live behavior); OOB phase required, must NOT produce a response-verified finding"},
     {"type": "missing_security_headers", "endpoint": "*", "parameter": "", "present": true},
     {"type": "server_banner_disclosure", "endpoint": "*", "parameter": "", "present": true}

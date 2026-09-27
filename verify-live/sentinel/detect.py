@@ -381,6 +381,55 @@ class XxeDetector(Detector):
                     status=FindingStatus.CANDIDATE)
         return None
 
+    # ------------------------------------------------------------ OOB (Phase 49)
+    def _oob_iid(self, ep, elem: str, tag: str) -> str:
+        """Deterministic interaction id: same endpoint+element+tag -> same id across
+        runs (evidence stays reproducible; the listener port never leaks into it)."""
+        import hashlib
+        return "oob-" + hashlib.sha1(f"{ep.url}|{elem}|{tag}".encode()).hexdigest()[:12]
+
+    def _elements_for(self, ep, recon_body: str) -> list[str]:
+        """Element targeting for the OOB path: error-discovered elements FIRST (the
+        app's own error names the real content target — live-proven on ginandjuice:
+        'Store ID could not be parsed' -> storeId), then form params as fallback."""
+        params = [p.name for p in ep.parameters]
+        discovered = []
+        for m in re.finditer(r"([A-Za-z][a-z]{1,20}) ID could not be parsed", recon_body or ""):
+            word = m.group(1)
+            cand = word[0].lower() + word[1:] + "Id"
+            if cand not in discovered:
+                discovered.append(cand)
+        return discovered + [p for p in params if p not in discovered]
+
+    def oob_attempt(self, ep, root: str, recon_resp, oast) -> Finding | None:
+        """BLIND-XXE path (live-proven necessity on ginandjuice.shop stock): when the
+        response carries NO entity-content information (stability gate failed above),
+        the only evidence channel is an OUT-OF-BAND fetch. Send an external entity
+        pointing at our OAST listener; a callback proves server-side entity
+        resolution — response-independent, so it works exactly where the response
+        oracle cannot. Request economy: first 2 elements only, one probe each."""
+        elements = self._elements_for(ep, (recon_resp.body or "") if recon_resp else "")[:2]
+        for elem in elements:
+            iid = self._oob_iid(ep, elem, "detect")
+            fields = [(p.name, p.value or "1") for p in ep.parameters]
+            xml = self._xml(root, fields, oast.url(iid), elem)
+            m = self._mutation(ep, xml)
+            r = self.engine.send(m)
+            if r.error:
+                continue
+            hit = oast.poll(iid, timeout=2.0)
+            if hit:
+                h = hit[0]
+                return Finding("xxe", Severity.CRITICAL, ep.url, elem, "POST",
+                    [Evidence("oob_callback",
+                              f"target fetched the external entity out-of-band "
+                              f"(interaction {iid} via {h.get('method', 'GET')} at t+{h.get('t', 0):.0f}) — "
+                              f"blind XXE: entity resolution proven with NO response oracle. "
+                              f"recipe: root={root} element={elem} iid={iid}",
+                              r.request_id)],
+                    status=FindingStatus.CANDIDATE)
+        return None
+
 
 # ------------------------------------------------------------ Passive detectors
 SECURITY_HEADERS = ["strict-transport-security", "content-security-policy", "x-frame-options",

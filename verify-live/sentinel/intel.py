@@ -14,8 +14,8 @@ class VerificationEngine:
     """Candidate -> re-test with independent variant -> evidence -> confidence -> verdict.
     A candidate is NEVER a finding until this passes (spec: Candidate != Truth)."""
 
-    def __init__(self, engine: RequestEngine, bus: EventBus):
-        self.engine, self.bus = engine, bus
+    def __init__(self, engine: RequestEngine, bus: EventBus, oast=None):
+        self.engine, self.bus, self.oast = engine, bus, oast
 
     def _replay(self, ep: Endpoint, param: str, value: str):
         return self.engine.send(RequestMutation(endpoint=ep, param_name=param, param_value=value))
@@ -151,6 +151,36 @@ class VerificationEngine:
             f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
 
         elif f.type == "xxe":
+            # VR-07 (Phase 49): OOB-confirmed blind XXE — independent replay with a
+            # FRESH interaction id. The first callback proved the target fetches
+            # external entities; the second, with a never-used id, proves it is
+            # reproducible and not a coincidental single fetch. Response-independent
+            # by construction: the evidence channel is the callback itself.
+            if any(e.kind == "oob_callback" for e in f.evidence) and self.oast is not None:
+                import re as _re7
+                ev7 = " ".join(e.detail for e in f.evidence)
+                mroot = _re7.search(r"root=(\w+)", ev7)
+                root = mroot.group(1) if mroot else "request"
+                elem = f.parameter or "storeId"
+                from .detect import XxeDetector
+                xd = XxeDetector(self.engine, self.bus)
+                fields = [(p.name, p.value or "1") for p in ep.parameters] if ep else []
+                iid = xd._oob_iid(ep, elem, "verify")
+                xml = xd._xml(root, fields, self.oast.url(iid), elem)
+                rv = self.engine.send(RequestMutation(
+                    endpoint=ep, body_override=xml, method="POST",
+                    extra_headers={"Content-Type": "application/xml"}))
+                hit = self.oast.poll(iid, timeout=2.0) if not rv.error else None
+                ok = hit is not None
+                v = Verification(method="re-test:fresh-interaction-id", passed=ok,
+                                 confidence=0.9 if ok else 0.15, rounds=1,
+                                 notes=f"fresh interaction id {iid} fetched out-of-band: {ok}")
+                f.verification, f.confidence = v, v.confidence
+                f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+                self.bus.emit("VerificationCompleted", finding=f.id, type=f.type,
+                              passed=f.verification.passed if f.verification else False,
+                              status=f.status.value, confidence=f.confidence)
+                return f
             # VR-06 (live-caught on ginandjuice.shop /catalog/product/stock): independent
             # replay with FRESH files (/etc/group, /etc/lsb-release) and a fresh control.
             # Entity resolution is confirmed only if the control is STABLE (probed twice,
@@ -199,8 +229,10 @@ class VerificationEngine:
 
 
 # ============================================================ FINDING PIPELINE (Phase 12)
-RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "path_traversal": 7, "open_redirect": 4,
-                "missing_security_headers": 2, "server_banner_disclosure": 1, "tech_banner_disclosure": 1}
+RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "path_traversal": 7, "xxe": 9,
+                "open_redirect": 4, "http_response_header_injection": 6,
+                "missing_security_headers": 2, "server_banner_disclosure": 1,
+                "tech_banner_disclosure": 1, "vulnerable_js_dependency": 2}
 
 class FindingPipeline:
     def __init__(self, bus: EventBus):

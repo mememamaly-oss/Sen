@@ -410,10 +410,13 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    # fixture v2 ground truth: 12 TP-able (10 actives + headers + banner), 8 TN-able.
-    # F1 must be 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL
-    # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
-    scored = rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 12 and rep["confusion"]["FP"] == 0
+    # fixture v3 ground truth (v2.1.0): 13 TP-able (11 actives incl. OOB blind-XXE
+    # + headers + banner), 10 TN-able. F1 must be 1.0 with zero FP/FN — the OP-01
+    # autostart path must deliver the FULL benchmark, not a silently-empty scan
+    # (the original F1=0.0 failure mode).
+    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 13
+              and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
+              and rep["confusion"]["TN"] == 10)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -698,6 +701,254 @@ def regression_crawl_preserves_link_query():
                    for e in endpoints), "form on the param'd page must be discovered"
     finally:
         srv.shutdown(); srv.server_close()
+
+
+# ================================================================ v2.1.0 PHASE (persistence / API / OAST)
+@case
+def unit_oast_server_records_interactions():
+    """Phase 49 unit: the OOB listener records hits keyed by interaction id; poll
+    returns immediately once a hit landed, and times out cleanly when nothing calls."""
+    import urllib.request
+    from sentinel.oast import OastServer
+    oast = OastServer()
+    try:
+        assert oast.poll("never-called", timeout=0.3) is None, "no callback -> timeout None"
+        u = oast.url("probe-42")
+        assert u.endswith("/probe-42") and u.startswith("http://127.0.0.1:")
+        with urllib.request.urlopen(u, timeout=5) as r:
+            assert r.status == 200
+        hits = oast.poll("probe-42", timeout=2.0)
+        assert hits and hits[0].get("method") == "GET", f"interaction must be recorded: {hits}"
+        assert "probe-42" in oast.hits()
+        # determinism: same id -> same URL (evidence stays reproducible across runs)
+        assert oast.url("probe-42") == u
+    finally:
+        oast.stop()
+
+
+@case
+def regression_store_persistence_and_intelligence():
+    """Phase 46 regression: SQLite persistence + cross-run intelligence. Two runs of
+    the same (fake) app: recurring>0, delta one-sided; filters behave; fingerprint
+    identity is query-string independent."""
+    import tempfile, os as _os
+    from sentinel.store import Store, finding_fingerprint
+    st = Store(_os.path.join(tempfile.mkdtemp(), "reg.db"))
+
+    def fake_run(run_id, extra_type=None, drop_type=None):
+        finds = [
+            {"id": "F-1", "type": "sql_injection", "severity": "critical", "status": "verified",
+             "url": "http://t/vuln/sqli.php?id=1", "parameter": "id", "method": "GET",
+             "confidence": 0.95, "risk": 85, "evidence": [{"kind": "db_error", "detail": "x"}],
+             "verification": {"method": "m", "passed": True}},
+            {"id": "F-2", "type": "xss_reflected", "severity": "high", "status": "verified",
+             "url": "http://t/vuln/xss.php?q=1", "parameter": "q", "method": "GET",
+             "confidence": 0.9, "risk": 70, "evidence": [{"kind": "unescaped_reflection", "detail": "y"}],
+             "verification": {"method": "m", "passed": True}},
+        ]
+        if extra_type:
+            finds.append({"id": "F-3", "type": extra_type, "severity": "low", "status": "verified",
+                          "url": "http://t/vuln/new.php", "parameter": "z", "method": "GET",
+                          "confidence": 0.9, "risk": 30, "evidence": [], "verification": {}})
+        if drop_type:
+            finds = [f for f in finds if f["type"] != drop_type]
+        return {"run_id": run_id, "seed": "s", "scanner": "test", "target": "http://t",
+                "stats": {"requests": 10}, "findings": finds, "rejected_candidates": []}
+
+    st.save_run(fake_run("run-aaa"))
+    st.save_run(fake_run("run-bbb"))
+    rec = st.recurring()
+    assert {r["type"] for r in rec} == {"sql_injection", "xss_reflected"} and \
+        all(r["n_runs"] == 2 for r in rec), f"both vulns recurring: {rec}"
+    d = st.delta("run-aaa", "run-bbb")
+    assert d["new"] == [] and d["fixed"] == [] and len(d["recurring"]) == 2
+    # run with an extra vuln + a dropped one
+    st.save_run(fake_run("run-ccc", extra_type="open_redirect", drop_type="xss_reflected"))
+    d2 = st.delta("run-bbb", "run-ccc")
+    assert len(d2["new"]) == 1 and len(d2["fixed"]) == 1, f"new=open_redirect, fixed=xss: {d2}"
+    # filters
+    assert len(st.list_findings(type_="sql_injection")) == 3
+    assert all(f["risk"] >= 80 for f in st.list_findings(min_risk=80))
+    # fingerprint identity: query string irrelevant, param relevant
+    a = finding_fingerprint("sql_injection", "GET", "http://t/x.php?id=1", "id")
+    b = finding_fingerprint("sql_injection", "GET", "http://t/x.php?id=999", "id")
+    assert a == b
+    assert a != finding_fingerprint("sql_injection", "GET", "http://t/x.php?id=1", "q")
+    # get_run round-trip
+    got = st.get_run("run-ccc")
+    assert got["run_id"] == "run-ccc" and len(got["findings"]) == 2
+
+
+@case
+def regression_report_builder_outputs():
+    """Phase 47 regression: HTML report is self-contained (inline CSS, no external
+    assets), carries findings + verification methods + the honesty footer."""
+    import tempfile, os as _os
+    from sentinel.store import Store
+    from sentinel.report import build_html, build_report
+    st = Store(_os.path.join(tempfile.mkdtemp(), "rep.db"))
+    st.save_run({"run_id": "run-xyz", "seed": "s", "scanner": "t", "target": "http://t",
+                 "stats": {"requests": 5},
+                 "findings": [{"id": "F-1", "type": "sql_injection", "severity": "critical",
+                               "status": "verified", "url": "http://t/v.php?id=1", "parameter": "id",
+                               "method": "GET", "confidence": 0.95, "risk": 85,
+                               "evidence": [{"kind": "db_error", "detail": "boom"}],
+                               "verification": {"method": "oracle:replay-2round", "passed": True}}],
+                 "rejected_candidates": []})
+    html = build_html(st, "run-xyz")
+    assert "sql_injection" in html and "oracle:replay-2round" in html and "verification-gated" in html
+    assert "<style>" in html and "http://" not in html.split("<style>")[1].split("</style>")[0], \
+        "CSS must be inline, no external assets"
+    j = build_report(st, "")
+    assert j["kind"] == "overview" and j["summary"]["runs"] == 1
+
+
+@case
+def regression_oob_blind_xxe_end_to_end():
+    """Phase 49 E2E: the vuln class that is UNVERIFIABLE by any response oracle
+    (cycling-noise responses — ginandjuice.shop live behavior) is confirmed via the
+    OAST out-of-band channel: detect (oob_callback) + verify (fresh-interaction-id).
+    Safe twin (DTD rejected) and response-blind twin (no http fetch) stay negative."""
+    import threading, os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_oob", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                     "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8796
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=30, timeout=5,
+                         seed="oob-e2e-regression", oast=oast)
+        sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
+        rep = sc.run()
+        oob = [f for f in rep["findings"]
+               if f["type"] == "xxe" and "/vuln/oob-stock" in f["url"]]
+        assert oob, "blind XXE on /vuln/oob-stock MUST be found via OOB callback"
+        f = oob[0]
+        assert any(e["kind"] == "oob_callback" for e in f["evidence"]), "evidence channel must be OOB"
+        assert f["verification"]["method"] == "re-test:fresh-interaction-id", f["verification"]
+        assert f["verification"]["passed"] is True and f["status"] == "verified"
+        # negatives: safe twin + response-blind twin (no http fetch) must stay silent
+        for x in rep["findings"]:
+            if x["type"] == "xxe" and ("/safe/" in x["url"] or "/blind/" in x["url"]):
+                raise AssertionError(f"OOB false positive: {x['url']}")
+        # the response-oracle twin still verifies the classic way (regression guard)
+        assert any(f["type"] == "xxe" and "/vuln/stock" in f["url"]
+                   and f["verification"]["method"] == "re-test:fresh-entity-files"
+                   for f in rep["findings"]), "response-oracle XXE path must not regress"
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_rest_api_server():
+    """Phase 48 regression: the API server (in-process) serves health/UI/runs/findings,
+    rejects bad input, enforces the token policy on non-loopback semantics, and a
+    POST-launched scan against the local fixture persists + completes end-to-end."""
+    import threading, tempfile, os as _os, json as _json, urllib.request, urllib.error
+    from http.server import ThreadingHTTPServer
+    from sentinel.api import ApiHandler, dashboard_html
+    from sentinel.store import Store
+    from sentinel.cli import ensure_fixture
+
+    db = _os.path.join(tempfile.mkdtemp(), "api.db")
+    ApiHandler.store = Store(db)
+    ApiHandler.token = ""
+    port = 8797
+    srv = ThreadingHTTPServer(("127.0.0.1", port), ApiHandler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    fixture = ensure_fixture("http://127.0.0.1:8777")
+
+    def api(p, method="GET", body=None, raw=False):
+        req = urllib.request.Request(f"http://127.0.0.1:{port}{p}", method=method,
+                                     data=_json.dumps(body).encode() if body is not None else None,
+                                     headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=15) as r:
+                data = r.read().decode()
+                return r.status, (data if raw else _json.loads(data))
+        except urllib.error.HTTPError as e:
+            return e.code, _json.loads(e.read().decode())
+
+    try:
+        s, h = api("/api/health")
+        assert s == 200 and h["status"] == "ok" and h["version"] == "2.1.0"
+        s, ui = api("/", raw=True)
+        assert "SENTINEL" in ui and "/api/scans" in ui
+        s, e = api("/api/nope")
+        assert s == 404
+        s, e = api("/api/scans", "POST", {"target": "ftp://x"})
+        assert s == 400
+        # a tiny real scan through the API (fixture): launches async, completes, persists
+        s, r = api("/api/scans", "POST", {"target": "http://127.0.0.1:8777",
+                                          "max_pages": 2, "allow_private": True})
+        assert s == 202 and "run_id" in r
+        import time as _t
+        for _ in range(120):
+            s, st = api(f"/api/scans/{r['run_id']}")
+            if st.get("state") in ("done", "failed"):
+                break
+            _t.sleep(1)
+        assert st["state"] == "done", st.get("error")
+        s, runs = api("/api/runs")
+        assert any(x["run_id"] == r["run_id"] for x in runs["runs"]), "auto-persist failed"
+        s, f = api("/api/findings")
+        assert f["count"] >= 1
+        s, stats = api("/api/stats")
+        assert stats["summary"]["runs"] >= 1
+    finally:
+        srv.shutdown(); srv.server_close()
+        if fixture is not None:
+            fixture.terminate()
+            try:
+                fixture.wait(timeout=5)
+            except Exception:
+                fixture.kill()
+
+
+@case
+def regression_cli_script_mode_all_subcommands():
+    """CLI smoke test in SCRIPT mode (python3 sentinel/cli.py ...): the full argument
+    surface must import + parse + run. Live-caught gap: a relative import in main()
+    (`from .core import ...`) crashed `scan` while every in-process test stayed green
+    — only script-mode execution exposes it. Covers scan/findings/report/serve --help
+    + a real script-mode mini-scan with --db persistence."""
+    import subprocess, sys, tempfile, os as _os, json as _json
+    root = _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    cli = _os.path.join(root, "sentinel", "cli.py")
+    for args in (["scan", "--help"], ["findings", "--help"], ["report", "--help"],
+                 ["serve", "--help"], ["benchmark", "--help"], ["doctor"], ["repair-demo", "--help"]):
+        r = subprocess.run([sys.executable, cli, *args], capture_output=True, text=True,
+                           timeout=120, cwd=root)
+        assert r.returncode == 0, f"script-mode CLI failed: {args}: {r.stderr[-300:]}"
+    # real script-mode mini-scan against the fixture + --db persistence round-trip
+    from sentinel.cli import ensure_fixture
+    fixture = ensure_fixture("http://127.0.0.1:8777")
+    try:
+        db = _os.path.join(tempfile.mkdtemp(), "cli.db")
+        out = _os.path.join(tempfile.mkdtemp(), "scan.json")
+        r = subprocess.run([sys.executable, cli, "scan", "http://127.0.0.1:8777",
+                            "--allow-private", "--max-pages", "3", "--out", out, "--db", db],
+                           capture_output=True, text=True, timeout=180, cwd=root)
+        assert r.returncode == 0, f"script-mode scan crashed: {r.stderr[-400:]}"
+        # stdout = one JSON summary object followed by human finding lines
+        dec = _json.JSONDecoder()
+        summary, _ = dec.raw_decode(r.stdout.lstrip())
+        assert summary.get("db") == db and summary.get("persisted", 0) >= 1, summary
+        from sentinel.store import Store
+        assert len(Store(db).list_runs()) == 1, "scan --db must persist the run"
+    finally:
+        if fixture is not None:
+            fixture.terminate()
+            try:
+                fixture.wait(timeout=5)
+            except Exception:
+                fixture.kill()
 
 
 # ================================================================ main

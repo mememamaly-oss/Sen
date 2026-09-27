@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""SENTINEL CLI — scan / benchmark / doctor / findings / report / repair-demo.
+"""SENTINEL CLI — scan / benchmark / doctor / findings / report / serve / repair-demo.
 Phase 16/29: Benchmark Registry with ground-truth comparison, TP/FP/FN/TN + P/R/F1.
+Phase 46+: persistence (--db), findings query, report export, REST API server.
 """
 from __future__ import annotations
 import argparse, json, os, signal, socket, subprocess, sys, time, hashlib
@@ -66,10 +67,17 @@ def run_benchmark(base_url="http://127.0.0.1:8777", out="results/benchmark.json"
 
 def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
     gt = json.load(open(os.path.join(os.path.dirname(__file__), "..", "benchmarks", "ground_truth.json")))
-    cfg = ScanConfig(allow_private=True, max_pages=30, timeout=timeout,
-                     strategy_path=strategy_path, seed="benchmark-fixed-seed")
-    sc = SentinelScanner(base_url, cfg)
-    result = sc.run()
+    # Phase 49: the benchmark exercises the FULL platform — OAST armed, so the blind
+    # XXE ground-truth entry (/vuln/oob-stock) is confirmable out-of-band.
+    from sentinel.oast import OastServer
+    oast = OastServer()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=30, timeout=timeout,
+                         strategy_path=strategy_path, seed="benchmark-fixed-seed", oast=oast)
+        sc = SentinelScanner(base_url, cfg)
+        result = sc.run()
+    finally:
+        oast.stop()
     findings = result["findings"]
 
     # ---- score
@@ -205,10 +213,27 @@ def main():
     s.add_argument("--max-pages", type=int, default=25); s.add_argument("--timeout", type=float, default=12.0)
     s.add_argument("--no-crawl", action="store_true"); s.add_argument("--seed")
     s.add_argument("--out", default="results/scan.json"); s.add_argument("--strategy-path")
+    s.add_argument("--db", default="", help="persist run+findings to this SQLite store")
+    s.add_argument("--no-oast", action="store_true",
+                   help="disable the local OAST listener (OOB blind-vuln confirmation)")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     sub.add_parser("doctor")
     sub.add_parser("repair-demo")
+    # ---- Phase 46+: findings / report / serve
+    fnd = sub.add_parser("findings", help="query persisted findings across runs")
+    fnd.add_argument("--db", default="results/sentinel.db")
+    fnd.add_argument("--run-id", default=""); fnd.add_argument("--type", default="")
+    fnd.add_argument("--min-risk", type=int, default=0); fnd.add_argument("--status", default="verified")
+    fnd.add_argument("--recurring", action="store_true", help="only fingerprints seen in >1 run")
+    fnd.add_argument("--delta", action="store_true", help="diff the two most recent runs")
+    rep = sub.add_parser("report", help="export an HTML/JSON report from the store")
+    rep.add_argument("--db", default="results/sentinel.db"); rep.add_argument("--run-id", default="")
+    rep.add_argument("--out", default="results/report.html"); rep.add_argument("--format", choices=["html", "json"], default="html")
+    srv = sub.add_parser("serve", help="REST API + web UI (Phase: REST/UI)")
+    srv.add_argument("--host", default="127.0.0.1"); srv.add_argument("--port", type=int, default=8022)
+    srv.add_argument("--db", default="results/sentinel.db")
+    srv.add_argument("--token", default="", help="required when binding non-loopback")
     a = ap.parse_args()
 
     if a.cmd == "doctor":
@@ -217,12 +242,34 @@ def main():
         cfg = ScanConfig(allow_private=a.allow_private, max_pages=a.max_pages,
                          crawl=not a.no_crawl, timeout=a.timeout, seed=a.seed,
                          strategy_path=a.strategy_path)
-        sc = SentinelScanner(a.target, cfg)
-        rep = sc.run()
+        # Phase 49: auto-arm OAST for targets that can reach our loopback listener
+        # (local/lab fixtures). Remote targets cannot call back to 127.0.0.1 — arming
+        # it there only burns poll timeouts; a public collaborator bind is the
+        # documented upgrade path.
+        oast = None
+        from urllib.parse import urlparse as _up
+        from sentinel.core import is_private_ip as _ispriv
+        if not a.no_oast and _ispriv(_up(a.target).hostname or ""):
+            from sentinel.oast import OastServer
+            oast = OastServer()
+            cfg.oast = oast
+        try:
+            sc = SentinelScanner(a.target, cfg)
+            rep = sc.run()
+        finally:
+            if oast is not None:
+                oast.stop()
         os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
         json.dump(rep, open(a.out, "w"), indent=1)
-        print(json.dumps({"target": rep["target"], "stats": rep["stats"],
-                          "verified_findings": len(rep["findings"])}, indent=1))
+        if a.db:
+            from sentinel.store import Store
+            n = Store(a.db).save_run(rep)
+            print(json.dumps({"target": rep["target"], "stats": rep["stats"],
+                              "verified_findings": len(rep["findings"]),
+                              "persisted": n, "db": a.db}, indent=1))
+        else:
+            print(json.dumps({"target": rep["target"], "stats": rep["stats"],
+                              "verified_findings": len(rep["findings"])}, indent=1))
         for f in sorted(rep["findings"], key=lambda x: -x["risk"]):
             print(f"  [{f['severity'].upper():8s}] {f['type']:26s} {f['url'][:60]:60s} param={f['parameter']:6s} risk={f['risk']}")
     elif a.cmd == "benchmark":
@@ -238,6 +285,33 @@ def main():
             print(f"  {d['cell']}: {d['case']}")
     elif a.cmd == "repair-demo":
         repair_demo()
+    elif a.cmd == "findings":
+        from sentinel.store import Store
+        st = Store(a.db)
+        if a.delta:
+            print(json.dumps(st.delta(), indent=1))
+        elif a.recurring:
+            print(json.dumps(st.recurring(), indent=1))
+        else:
+            rows = st.list_findings(run_id=a.run_id, type_=a.type,
+                                    min_risk=a.min_risk, status=a.status)
+            print(json.dumps({"count": len(rows), "findings": rows}, indent=1))
+            for f in rows:
+                print(f"  [{f['severity'].upper():8s}] {f['type']:30s} {f['url'][:58]:58s} "
+                      f"param={f['parameter']:8s} risk={f['risk']:3d} run={f.get('run_id', '')}")
+    elif a.cmd == "report":
+        from sentinel.store import Store
+        from sentinel.report import build_report, build_html
+        st = Store(a.db)
+        os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
+        if a.format == "json":
+            json.dump(build_report(st, a.run_id), open(a.out, "w"), indent=1)
+        else:
+            open(a.out, "w").write(build_html(st, a.run_id))
+        print(json.dumps({"report": a.out, "format": a.format, "run_id": a.run_id or "overview"}))
+    elif a.cmd == "serve":
+        from sentinel.api import run_server
+        run_server(a.host, a.port, a.db, token=a.token)
 
 
 if __name__ == "__main__":

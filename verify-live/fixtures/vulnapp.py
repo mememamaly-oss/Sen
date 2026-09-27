@@ -11,6 +11,8 @@ GROUND TRUTH (see benchmarks/ground_truth.json):
                                   http_response_header_injection (Set-Cookie CRLF)
                                   [param only discoverable via inline <script> URLs — DISC-05]
   /vuln/stock POST XML         -> xxe (JS-transformed request; entity file-read differential)
+  /vuln/oob-stock POST XML     -> xxe BLIND (noise response; confirmable ONLY out-of-band)
+  /safe/oob-stock POST XML     -> NEGATIVE (DTD rejected — no entity fetch, no callback)
   /angular_1-7-7.js            -> vulnerable_js_dependency (passive)
   /safe/search.php?q           -> NEGATIVE (escaped)
   /safe/item.php?id            -> NEGATIVE (parameterized)
@@ -69,7 +71,7 @@ function payload(data) {
 """
 
 # The page that hides the /vuln/jsparam.php?cat surface inside an inline <script>
-# (only reachable via DISC-05 inline-JS URL extraction) and carries the XML stock form.
+# (only reachable via DISC-05 inline-JS URL extraction) and carries the XML stock forms.
 HIDDEN_PAGE = """<h2>Products</h2>
 <script type="text/javascript">
     const categories = {"Gin":"/vuln/jsparam.php?cat=Gin","Books":"/vuln/jsparam.php?cat=Books"};
@@ -80,6 +82,8 @@ HIDDEN_PAGE = """<h2>Products</h2>
 <form action="/vuln/stock" method="POST"><input type="hidden" name="productId" value="1"><button>Check stock</button></form>
 <form action="/safe/stock" method="POST"><input type="hidden" name="productId" value="1"><button>Safe stock</button></form>
 <form action="/blind/stock" method="POST"><input type="hidden" name="productId" value="1"><button>Blind stock</button></form>
+<form action="/vuln/oob-stock" method="POST"><input type="hidden" name="productId" value="1"><button>Blind stock (OOB)</button></form>
+<form action="/safe/oob-stock" method="POST"><input type="hidden" name="productId" value="1"><button>Safe blind stock</button></form>
 """
 
 ANGULAR_JS = "/* AngularJS v1.7.7 stub — EOL branch served for passive dependency detection */\n"
@@ -243,6 +247,30 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length).decode("utf-8", "replace") if length else ""
         ctype = (self.headers.get("Content-Type") or "").lower()
+
+        # ---- OOB stock pair (Phase 49 / blind-XXE-with-callback): the parser FETCHES
+        # http(s) external entities for real (loopback-only in the fixture) but the
+        # response is cycling noise — no response oracle exists, ONLY out-of-band
+        # evidence can confirm. /safe twin rejects DTD outright.
+        if path in ("/vuln/oob-stock", "/safe/oob-stock"):
+            if "xml" not in ctype:
+                return self._send(400, '"XML parsing error"')
+            if "<!DOCTYPE" in raw or "<!ENTITY" in raw:
+                if path == "/safe/oob-stock":
+                    return self._send(400, '"DTD declarations are not allowed"')   # hardened parser
+                import urllib.request as _ur
+                for _n, sysid in re.findall(r'<!ENTITY\s+(\w+)\s+SYSTEM\s+"([^"]+)"\s*>', raw):
+                    if sysid.startswith(("http://127.0.0.1:", "http://localhost:")):
+                        try:
+                            _ur.urlopen(sysid, timeout=3).read()      # THE out-of-band fetch
+                        except Exception:
+                            pass                                        # fetch failed silently
+            fields0 = dict(re.findall(r"<(\w+)>([^<]*)</\1>", raw))
+            if "storeId" not in fields0:
+                return self._send(400, '"Store ID could not be parsed from XML"')
+            Handler._blind_seq_n += 1
+            n = _BLIND_SEQ[Handler._blind_seq_n % len(_BLIND_SEQ)]
+            return self._send(200, f"{n} units", {"Content-Type": "text/plain"})
 
         if path not in ("/vuln/stock", "/safe/stock", "/blind/stock"):
             return self._send(404, "<p>404</p>")

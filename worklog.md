@@ -129,3 +129,30 @@ Stage Summary:
 - 1 tree regression + 5 discovery defects + 2 detector gaps + 4 verification gaps fixed live; 6 new capabilities; suite 23->30; benchmark extended 12/9 with F1=1.0 intact.
 - Deliverables: download/sentinel-2.0.3-source.zip (53 files), download/sentinel-results/scan_ginjuice_FINAL.json + BASELINE + benchmark_v203_FINAL.json.
 - KEY INSIGHT: PortSwigger's design hides attack surface behind JS transformations (inline-script params, JS-built XML bodies, JS-div forms). A DOM-less DAST can still recover most of it via STATIC JS analysis (DISC-05/06) + error-driven protocol inference (storeId discovery) — proven live. Blind/oracle-less vulns must stay unreported without OOB evidence: the verification gate is the product.
+
+---
+Task ID: 5
+Agent: Super Z (main agent)
+Task: User directive "لنتلزم بالمعمارية ولنكمل البناء" (stick to the architecture, continue building) — implement the documented remaining architecture phases: DB persistence, REST API + Web UI, OAST/OOB engine; close the CLI findings/report gap.
+
+Work Log:
+- Baseline verification before building: tree intact at v2.0.3 state (30/30 tests, doctor 8/8, benchmark F1=1.000 TP=12/FP=0/FN=0/TN=9). GAP FOUND: cli.py docstring promised findings/report commands since v2.0.x — never implemented.
+- BUILT Phase 46 (Persistence): sentinel/store.py — SQLite (stdlib) runs+findings store, WAL, thread-safe per-call connections; rejected candidates persisted as audit trail; cross-run intelligence: recurring() (fingerprint seen in >1 run), delta() (new/fixed/recurring), filterable queries, stats_summary. Fingerprint identity = type|method|path|param (query-string independent).
+- BUILT Phase 47 (Reporting): sentinel/report.py — self-contained HTML (inline CSS, zero external assets) + JSON; single-run or cross-run overview with recurring/delta intelligence. CLI: report --format html|json.
+- BUILT Phase 48 (REST API + UI): sentinel/api.py — ThreadingHTTPServer, GET /api/health|runs|runs/{id}|findings|stats|scans/{id}, POST /api/scans (background scan threads, MAX_CONCURRENT=2, auto-persisted); embedded dark-mode dashboard at / (launch scans, live polling, recurring/delta panel). Security: loopback-only bind by default; non-loopback REQUIRES --token (refuses to start otherwise). CLI: serve.
+- BUILT Phase 49 (OAST): sentinel/oast.py — OOB interaction server (ephemeral port, interaction-id-keyed, deterministic poll). XxeDetector.oob_attempt(): when response oracle impossible (cycling-noise stability-gate failure), send external entity pointing at OAST; callback = server-side execution proof. VR-07 verification: fresh-interaction-id replay. Orchestrator OOB fallback branch; ScanConfig.oast; auto-arm for local/private targets only (remote targets can't reach loopback — documented; public_base plug point for future public collaborator).
+- Fixture v3: +/vuln/oob-stock (blind XXE, real loopback HTTP fetch on entity resolution, cycling-noise response — confirmable ONLY OOB) +/safe/oob-stock (DTD rejected). Ground truth 21→23 entries (13 TP-able / 10 TN-able), benchmark name local-fixture-v3.
+- LIVE defects caught & fixed during this build (each verified live + permanent regression case):
+  * API access logs printed to STDOUT — corrupted the test-suite JSON verdict consumed by repair gate (json.loads(stdout)); moved to stderr.
+  * Relative import in cli.py main() (`from .core import`) crashed script-mode `scan` — caught live on the real ginandjuice scan; fixed + new regression_cli_script_mode_all_subcommands (subprocess-mode smoke test of the FULL CLI surface — coverage gap: no prior test executed CLI as a script).
+  * Benchmark autostart regression expected old confusion matrix — updated to fixture-v3 expectation (legitimate).
+  * Test-side fixes (not product bugs): report path ROOT, delta ordering race (scope-gated scan completes before full scan — direction-agnostic assertion), benchmark stdout parsing (CLI prints human detail lines after JSON — raw_decode).
+- Gates (all live): 36/36 tests (30→36: oast unit, store persistence+intelligence, report builder, OOB blind-XXE E2E, REST API in-process E2E, CLI script-mode); doctor 9/9 (new persistence_layer round-trip check); benchmark F1=1.000 TP=13 FP=0 FN=0 TN=10 deterministic run-3c0652b6be ×2 identical findings sets; repair-demo full loop (real F1=0.0 failure, rule-only ROLLBACK, rule+floor ACCEPTED).
+- REAL remote validation: ginandjuice.shop (PortSwigger scanme) with v2.1.0 (270 req, 238s): same 5 verified active findings as v2.0.3 — CRITICAL SQLi /catalog?category risk 85 conf .95 (oracle:or-bodydiff-2round), HIGH XSS + header injection (variant-battery-6 / fresh-header-name), MEDIUM redirect, LOW angular dep — ZERO regression on real target; risk scores now better calibrated (header injection 27→54 with new RISK_WEIGHTS incl. xxe=9, header_injection=6, vulnerable_js_dependency=2).
+- Packaged sentinel-2.1.0-source.zip (25 files: 12 sentinel modules + fixtures + benchmarks + tests + CHANGELOG + release results) — zip self-sufficiency verified by extracting to clean dir: doctor 9/9 + benchmark F1=1.0 from the packaged tree itself.
+
+Stage Summary:
+- v2.1.0 "Platform Services" complete: DB persistence + findings/report CLI + REST API + Web dashboard + OAST blind-XXE engine. The previously-documented "honest limits" (DB, REST/UI, OAST) are now implemented and live-tested; remaining phases: browser/DOM engine, authenticated-scan depth, public OAST endpoint.
+- Blind-XXE class now VERIFIABLE: /vuln/oob-stock (noise response, no response oracle) confirmed via OOB callback + fresh-id replay — the vuln class ginandjuice.shop proved undetectable-by-response in v2.0.3.
+- 4 live-caught defects fixed (CLI gap, stdout pollution, script-mode import crash, expectation drift); suite 30→36; benchmark 12/9→13/10 TP/TN with F1=1.0 intact; real-target scan zero-regression.
+- Deliverables: download/sentinel-2.1.0-source.zip; download/sentinel-results/{scan_ginjuice_v210.json, benchmark_v210.json, report_v210_ginjuice.html, sentinel.db}.

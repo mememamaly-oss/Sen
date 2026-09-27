@@ -1,14 +1,14 @@
 {
- "benchmark": "local-fixture-v1",
+ "benchmark": "local-fixture-v3",
  "label": "broken-transport",
- "scanner": "sentinel-core/2.0.0",
+ "scanner": "sentinel-core/2.1.0",
  "run_id": "run-3c0652b6be",
  "seed": "benchmark-fixed-seed",
  "confusion": {
   "TP": 0,
   "FP": 0,
-  "FN": 7,
-  "TN": 4
+  "FN": 13,
+  "TN": 10
  },
  "precision": 0.0,
  "recall": 0.0,
@@ -47,6 +47,30 @@
    "cell": "FN"
   },
   {
+   "case": "sql_injection@/vuln/jsparam.php:cat",
+   "cell": "FN"
+  },
+  {
+   "case": "xss_reflected@/vuln/jsparam.php:cat",
+   "cell": "FN"
+  },
+  {
+   "case": "http_response_header_injection@/vuln/jsparam.php:cat",
+   "cell": "FN"
+  },
+  {
+   "case": "xxe@/vuln/stock:storeId",
+   "cell": "FN"
+  },
+  {
+   "case": "xxe@/vuln/oob-stock:storeId",
+   "cell": "FN"
+  },
+  {
+   "case": "vulnerable_js_dependency@/angular_1-7-7.js:",
+   "cell": "FN"
+  },
+  {
    "case": "sql_injection@/safe/item.php:id",
    "cell": "TN"
   },
@@ -63,6 +87,30 @@
    "cell": "TN"
   },
   {
+   "case": "sql_injection@/safe/jsparam.php:cat",
+   "cell": "TN"
+  },
+  {
+   "case": "xss_reflected@/safe/jsparam.php:cat",
+   "cell": "TN"
+  },
+  {
+   "case": "http_response_header_injection@/safe/jsparam.php:cat",
+   "cell": "TN"
+  },
+  {
+   "case": "xxe@/safe/stock:storeId",
+   "cell": "TN"
+  },
+  {
+   "case": "xxe@/safe/oob-stock:storeId",
+   "cell": "TN"
+  },
+  {
+   "case": "xxe@/blind/stock:storeId",
+   "cell": "TN"
+  },
+  {
    "case": "missing_security_headers@*:",
    "cell": "FN"
   },
@@ -72,5 +120,5 @@
   }
  ],
  "findings": [],
- "ground_truth_sha256": "cfba80697cc867d2"
+ "ground_truth_sha256": "4c8ed24eb992da00"
 }

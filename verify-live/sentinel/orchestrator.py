@@ -15,13 +15,14 @@ from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMe
 class ScanConfig:
     def __init__(self, allow_private=False, max_pages=25, crawl=True, active=True,
                  passive=True, timeout=12.0, seed=None, strategy_path=None,
-                 allowed_domains=None):
+                 allowed_domains=None, oast=None):
         self.allow_private = allow_private
         self.max_pages = max_pages
         self.crawl, self.active, self.passive = crawl, active, passive
         self.timeout, self.seed = timeout, seed
         self.strategy_path = strategy_path
         self.allowed_domains = allowed_domains or []
+        self.oast = oast          # OastServer | None — enables OOB (blind-XXE) confirmation
 
 
 class SentinelScanner:
@@ -33,7 +34,7 @@ class SentinelScanner:
         self.scope = ScopeRule(allowed_domains=[self.target.host] + self.cfg.allowed_domains,
                                allow_private=self.cfg.allow_private)
         self.engine = RequestEngine(self.scope, self.bus, timeout=self.cfg.timeout)
-        self.verifier = VerificationEngine(self.engine, self.bus)
+        self.verifier = VerificationEngine(self.engine, self.bus, oast=self.cfg.oast)
         self.pipeline = FindingPipeline(self.bus)
         self.strategies = StrategyStore(self.cfg.strategy_path)
         self.failures = FailureMemory()
@@ -135,13 +136,21 @@ class SentinelScanner:
                             if not resp_map:
                                 continue
                             cand = det.analyze((ep, None), resp_map)
+                            # Phase 49 — OOB fallback: response oracle impossible (noise /
+                            # non-deterministic answers) but an OAST listener is armed ->
+                            # the target itself becomes the evidence channel (blind XXE).
+                            if cand is None and self.cfg.oast is not None:
+                                self.bus.emit("OobAttemptStarted", scanner="xxe", url=ep.url)
+                                cand = det.oob_attempt(ep, root, r0, self.cfg.oast)
                             if cand:
                                 cand.run_id = self.run_id
                                 self.stats["candidates"] += 1
                                 self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
                                 out_f = self.verifier.verify(cand, ep)
                                 self.findings.append(out_f)
-                                self.strategies.record("xxe", "entity_differential",
+                                strat_name = ("oob_callback" if any(e.kind == "oob_callback" for e in cand.evidence)
+                                              else "entity_differential")
+                                self.strategies.record("xxe", strat_name,
                                                        out_f.status == FindingStatus.VERIFIED,
                                                        context=self.target.host)
                     else:
@@ -232,6 +241,24 @@ def doctor(allow_private=False) -> dict:
     add("detector_registry", len(ACTIVE_DETECTORS) >= 4, f"{len(ACTIVE_DETECTORS)} active detectors registered")
     # strategy store
     add("strategy_store", True, "verified-outcome Wilson ordering enabled")
+    # persistence layer (Phase 46): sqlite3 available + schema initializes + round-trip
+    try:
+        import tempfile, os as _os, sqlite3
+        from .store import Store
+        p = _os.path.join(tempfile.mkdtemp(), "doctor.db")
+        st = Store(p)
+        st.save_run({"run_id": "run-doctor", "seed": "s", "scanner": "doctor",
+                     "target": "http://doctor.local", "stats": {"requests": 1},
+                     "findings": [{"id": "F-d", "type": "missing_security_headers",
+                                   "severity": "low", "status": "verified",
+                                   "url": "http://doctor.local/", "parameter": "", "method": "GET",
+                                   "confidence": 0.98, "risk": 20, "evidence": [], "verification": {}}],
+                     "rejected_candidates": []})
+        ok = len(st.list_findings()) == 1 and st.stats_summary()["runs"] == 1
+        add("persistence_layer", ok,
+            f"SQLite store OK (schema + write + query round-trip) at {sqlite3.sqlite_version}")
+    except Exception as e:
+        add("persistence_layer", False, str(e)[:80])
     # repair registry
     add("repair_registry", len(RepairClassifier.RULES) >= 3, f"{len(RepairClassifier.RULES)} repair rules loaded")
     passed = sum(1 for c in checks if c["status"] == "PASS")
