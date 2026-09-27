@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>SENTINEL 2.0 — تقرير نتائج الاختبارات الحقيقية</title>
+<link href="fonts/cairo-local.css" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 0; }
+  html, body { margin: 0; padding: 0; background: #0b1220; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Tajawal', 'DejaVu Sans', sans-serif; color: #1e293b; font-synthesis: none; }
+
+  .page { width: 210mm; min-height: 297mm; padding: 16mm 14mm; background: #f8fafc; position: relative; }
+  .page.dark { background: #0b1220; color: #e2e8f0; }
+
+  /* ---------- cover ---------- */
+  .cover { display: flex; flex-direction: column; justify-content: space-between; min-height: 265mm; }
+  .cover .kicker { color: #38bdf8; font-weight: 700; letter-spacing: 1px; font-size: 13pt; }
+  .cover h1 { font-size: 44pt; font-weight: 900; margin: 6mm 0 3mm; color: #f8fafc; line-height: 1.15; }
+  .cover h2 { font-size: 16pt; font-weight: 400; color: #94a3b8; margin: 0 0 8mm; }
+  .covergrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5mm; }
+  .coverstat { background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.35); border-radius: 4mm; padding: 6mm 5mm; }
+  .coverstat .n { font-size: 26pt; font-weight: 900; color: #38bdf8; }
+  .coverstat .l { font-size: 10pt; color: #94a3b8; margin-top: 1mm; }
+  .coverfoot { font-size: 10pt; color: #64748b; border-top: 1px solid #1e293b; padding-top: 4mm; display: flex; justify-content: space-between; }
+
+  /* ---------- generic ---------- */
+  h2.sec { font-size: 19pt; font-weight: 900; color: #0f172a; border-right: 2.2mm solid #0ea5e9; padding-right: 4mm; margin: 0 0 5mm; }
+  .page.dark h2.sec { color: #f1f5f9; }
+  p { font-size: 11pt; line-height: 1.85; margin: 0 0 4mm; text-align: right; }
+  .muted { color: #64748b; }
+  .mono { font-family: 'JetBrains Mono', 'DejaVu Sans Mono', monospace; direction: ltr; display: inline-block; }
+  .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 3mm; padding: 5mm 6mm; margin-bottom: 4mm; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; }
+  .kpi { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 3mm; padding: 4mm 5mm; text-align: center; }
+  .kpi .n { font-size: 21pt; font-weight: 900; color: #0369a1; }
+  .kpi.g .n { color: #059669; } .kpi.r .n { color: #dc2626; } .kpi.b .n { color: #0369a1; }
+  .kpi .l { font-size: 9.5pt; color: #64748b; }
+  table { width: 100%; border-collapse: collapse; font-size: 10pt; background: #fff; border-radius: 2mm; overflow: hidden; }
+  th { background: #0f172a; color: #f8fafc; padding: 2.6mm 3mm; font-weight: 700; text-align: right; }
+  td { padding: 2.4mm 3mm; border-bottom: 1px solid #e2e8f0; }
+  tr:last-child td { border-bottom: none; }
+  .tag { display: inline-block; padding: .6mm 2.6mm; border-radius: 99px; font-size: 8.5pt; font-weight: 700; }
+  .tag.crit { background: #fee2e2; color: #b91c1c; } .tag.high { background: #ffedd5; color: #c2410c; }
+  .tag.low { background: #f1f5f9; color: #475569; } .tag.ok { background: #dcfce7; color: #15803d; }
+  .tag.rj { background: #fef3c7; color: #b45309; }
+  .step { display: flex; gap: 3mm; align-items: flex-start; margin-bottom: 2.6mm; }
+  .step .b { min-width: 7mm; height: 7mm; border-radius: 50%; background: #075985; color: #fff; font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 10pt; }
+  .step .t { font-size: 10.5pt; line-height: 1.6; }
+  .note { background: #eff6ff; border-right: 1.8mm solid #2563eb; border-radius: 2mm; padding: 3.4mm 4mm; font-size: 10pt; line-height: 1.7; margin: 3mm 0; }
+  .note.warn { background: #fffbeb; border-right-color: #d97706; }
+  .note.ok { background: #f0fdf4; border-right-color: #16a34a; }
+  .foot { position: absolute; bottom: 8mm; right: 14mm; left: 14mm; display: flex; justify-content: space-between; font-size: 8.5pt; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 2.5mm; }
+</style>
+</head>
+<body>
+
+<!-- ============ PAGE 1: COVER ============ -->
+<div class="page dark">
+  <div class="cover">
+    <div>
+      <div class="kicker">تقرير اختبارات حقيقية — بيئة إنتاج فعلية</div>
+      <h1>SENTINEL 2.0</h1>
+      <h2>منصة DAST حتمية بإصلاح ذاتي بلا ذكاء اصطناعي<br>نتائج مُقاسة على أهداف مصرَّح بها حقيقية</h2>
+      <div class="covergrid">
+        <div class="coverstat"><div class="n">1.000</div><div class="l">F1 على مرجع الأرضية الحقيقية<br>Precision = Recall = 1.0</div></div>
+        <div class="coverstat"><div class="n">16/16</div><div class="l">اختبار وحدة + انحدار + فوضى<br>بوابة الإصدار: ناجح كلياً</div></div>
+        <div class="coverstat"><div class="n">3</div><div class="l">ثغرات حرجة مؤكدة على هدف حقيقي<br>SQLi + Traversal + XSS</div></div>
+      </div>
+    </div>
+    <div class="coverfoot">
+      <span>الإصدار: sentinel-core/2.0.0</span>
+      <span>التاريخ: 27 سبتمبر 2026</span>
+      <span>قابل لإعادة الإنتاج بالكامل (Seed ثابت)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE 2: EXECUTIVE SUMMARY ============ -->
+<div class="page">
+  <h2 class="sec">١ — الملخص التنفيذي</h2>
+  <p>بُنيت منصة <b>SENTINEL 2.0</b> من الصفر وفق المعمارية المحددة (٢٤ مرحلة، ٥٤ قسماً): فصل كامل بين <span class="mono">Scope → Discovery → Request Engine → Planner → Detection → Verification → Findings → Benchmark → Repair → Strategy</span>. النظام لا يحتوي أي مكوّن ذكاء اصطناعي؛ كل قرار — من اختيار الاختبار إلى ترتيب الحمولات إلى قبول الإصلاح — يُتخذ بقواعد حتمية وإحصاء Wilson قابل للتدقيق.</p>
+  <div class="grid3">
+    <div class="kpi g"><div class="n">1.000</div><div class="l">F1 — مرجع محلي بأرضية حقيقية</div></div>
+    <div class="kpi g"><div class="n">0</div><div class="l">إنذارات كاذبة (FP) في كل القياسات</div></div>
+    <div class="kpi b"><div class="n">16/16</div><div class="l">اختبارات الوحدة والانحدار والفوضى</div></div>
+  </div>
+  <p style="margin-top:4mm">اختُبر النظام على ثلاث طبقات حقيقية: <b>(١)</b> تطبيق مرجعي محلي بثغرات معلومة الأرضية لقياس الدقة كمياً، <b>(٢)</b> منصتان عامتان مصرَّح بهما للاختبار الأمني (<span class="mono">testasp.vulnweb.com</span> و<span class="mono">testaspnet.vulnweb.com</span> من Acunetix)، <b>(٣)</b> بيئة فشل متعمد لإثبات حلقة الإصلاح الذاتي. كل الأرقام في هذا التقرير ناتجة عن تشغيل فعلي مسجَّل في ملفات نتائج قابلة لإعادة الإنتاج بنفس البذرة.</p>
+  <div class="note ok">
+    <b>الاكتشاف الأهم:</b> الفحص الحقيقي للهدف البعيد اكتشف وتحقَّق آلياً من ثلاث ثغرات حرجة — حقن SQL أعمى على <span class="mono">showforum.asp?id</span> (خطورة 85/100)، واجتياز مسار يسرّب <span class="mono">win.ini</span> على <span class="mono">Templatize.asp?item</span>، وXSS منعكس على <span class="mono">Search.asp?tfSearch</span> — بصفر إنذارات كاذبة، مع دليل تحقق مستقل لكل ثغرة (إعادة تشغيل الحمولة بمتغير مختلف).
+  </div>
+  <p class="muted">حدود النطاق الحالي بصراحة: الكواشف المفعّلة هي SQLi (خطأ + أوراكل منطقي)، XSS منعكس، اجتياز مسار، وفتح تحويل، إضافة إلى الفحص السلبي (رؤوس الأمان، كشف البانرات). محرك المتصفح وOAST وقاعدة البيانات وواجهة REST/UI مبنية معمارياً في النموذج لكنها ليست مفعّلة بعد — وهي المراحل التالية وفق الخطة.</p>
+
+  <h2 class="sec" style="margin-top:8mm">٢ — ما الذي اكتُشف أثناء البناء (دورة الإصلاح الفعلية)</h2>
+  <p>خلال التطوير اكتشفت بوابة الاختبارات ثلاثة عيوب حقيقية وأُصلحت جميعها مع إبقاء البوابة خضراء — وهذا هو نموذج العمل المطلوب:</p>
+  <table>
+    <tr><th>العيب المكتشف</th><th>كيف اكتُشف</th><th>الإصلاح</th></tr>
+    <tr><td>محرك HTTP يمرر <span class="mono">context</span> لاتصال غير TLS</td><td>اختبار الفوضى (chaos_timeouts)</td><td>فصل إنشاء الاتصال HTTP/HTTPS في المسارين الأصلي والتحويلي</td></tr>
+    <tr><td>التحقق من SQLi يعتمد الأوراكل المنطقي فقط — يرفض ثغرات الخطأ</td><td>قياس Benchmark (FN على sqli_error)</td><td>مسار تحقق ثانٍ: إعادة تشغيل اقتباسين مستقلين (مفرد/مزدوج)</td></tr>
+    <tr><td>مفتاح الربط يدمج نتائج مختلفة عبر المجلد — يبتلع XSS مستقلة</td><td>قياس Benchmark (FN على xss.php)</td><td>المفتاح: النوع + المسار الكامل + الباراميتر</td></tr>
+    <tr><td>منطق تحقق Traversal معكوس (يتحقق بملف لينكس من ثغرة ويندوز)</td><td>فحص حقيقي بعيد (نتيجة مفقودة)</td><td>التحقق بعُمق بديل للملف نفسه مع نفس الدليل</td></tr>
+  </table>
+</div>
+
+<!-- ============ PAGE 3: BENCHMARK ============ -->
+<div class="page">
+  <h2 class="sec">٣ — القياس المرجعي: دقة مقاسة ضد أرضية حقيقية</h2>
+  <p>بُني تطبيق مرجعي محلي بثغرات معلومة بالكامل (٥ حالات موجبة + ٤ حالات سالبة + حالتان سلبيتان) مع ملف أرضية حقيقية موقَّع بـ SHA-256. الفحص يُقيَّم آلياً: هل اكتشف ما هو موجود فعلاً؟ هل لم يبلّغ عما هو غير موجود؟</p>
+  <div class="grid3">
+    <div class="kpi g"><div class="n">1.000</div><div class="l">Precision (دقة)</div></div>
+    <div class="kpi g"><div class="n">1.000</div><div class="l">Recall (استرجاع)</div></div>
+    <div class="kpi g"><div class="n">1.000</div><div class="l">F1</div></div>
+  </div>
+  <table style="margin-top:4mm">
+    <tr><th>الحالة المرجعية</th><th>الحقيقة</th><th>قرار النظام</th><th>الخلية</th></tr>
+    <tr><td><span class="mono">/vuln/sqli_error.php?id</span></td><td><span class="tag crit">ثغرة</span></td><td>اكتُشفت وتحققت (مسار الخطأ)</td><td><span class="tag ok">TP</span></td></tr>
+    <tr><td><span class="mono">/vuln/sqli_blind.php?id</span></td><td><span class="tag crit">ثغرة</span></td><td>اكتُشفت وتحققت (أوراكل منطقي)</td><td><span class="tag ok">TP</span></td></tr>
+    <tr><td><span class="mono">/vuln/xss.php?q</span></td><td><span class="tag crit">ثغرة</span></td><td>اكتُشفت وتحققت (حمولة بديلة)</td><td><span class="tag ok">TP</span></td></tr>
+    <tr><td><span class="mono">/vuln/traversal.php?file</span></td><td><span class="tag crit">ثغرة</span></td><td>اكتُشفت وتحققت (عمق بديل)</td><td><span class="tag ok">TP</span></td></tr>
+    <tr><td><span class="mono">/vuln/redirect.php?url</span></td><td><span class="tag crit">ثغرة</span></td><td>اكتُشفت وتحققت (مضيف ثانٍ)</td><td><span class="tag ok">TP</span></td></tr>
+    <tr><td>رؤوس الأمان + البانرات</td><td><span class="tag high">موجود</span></td><td>اكتُشفت سلباً</td><td><span class="tag ok">TP ×2</span></td></tr>
+    <tr><td><span class="mono">/safe/item.php?id</span> (استعلام معلم)</td><td><span class="tag ok">سليم</span></td><td>لم يُبلَّغ — قرار صحيح</td><td><span class="tag ok">TN</span></td></tr>
+    <tr><td><span class="mono">/safe/search.php?q</span> (تهريب HTML)</td><td><span class="tag ok">سليم</span></td><td>لم يُبلَّغ — قرار صحيح</td><td><span class="tag ok">TN</span></td></tr>
+    <tr><td><span class="mono">/safe/read.php?file</span> (فلتر basename)</td><td><span class="tag ok">سليم</span></td><td>لم يُبلَّغ — قرار صحيح</td><td><span class="tag ok">TN</span></td></tr>
+    <tr><td><span class="mono">/safe/go.php?url</span> (قائمة سماح)</td><td><span class="tag ok">سليم</span></td><td>لم يُبلَّغ — قرار صحيح</td><td><span class="tag ok">TN</span></td></tr>
+  </table>
+  <p style="margin-top:4mm"><b>مصفوفة الالتباس النهائية: TP=7، FP=0، FN=0، TN=4.</b> ما يميز النتيجة ليس الرقم المثالي بحد ذاته بل الطريق إليه: النسخة الأولى سجلت F1=0.833 (ثغرتان مفقودتان)، فشُخّص السببان الجذريان، أُصلحا، ثم أعيد القياس والاختبار حتى الاكتمال — مع إبقاء ١٦/١٦ اختباراً ناجحاً بعد كل إصلاح.</p>
+  <div class="note">
+    <b>قابلية إعادة الإنتاج (المرحلة ٣٦):</b> تشغيل القياس مرتين بنفس البذرة أنتج نفس <span class="mono">run_id</span> ونفس النتائج حرفياً — <span class="mono">run-3c0652b6be</span> في المرتين، نتائج مطابقة ١٠٠٪.
+  </div>
+</div>
+
+<!-- ============ PAGE 4: REAL TARGETS ============ -->
+<div class="page">
+  <h2 class="sec">٤ — الفحص الحقيقي على أهداف مصرَّح بها</h2>
+  <p>الفحص على المنصات العامة المخصصة للاختبار الأمني (Acunetix vulnweb). النظام زحف الموقع، اكتشف النقاط والباراميترات، صنّفها ذكياً، خطط الاختبارات، نفذها، وتحقق من كل مرشح بحمولة مستقلة قبل قبوله — كل ذلك آلياً دون تدخل يدوي.</p>
+
+  <div class="card">
+    <b style="font-size:12pt">الهدف الأول: <span class="mono">testasp.vulnweb.com</span> — ١٣٩ طلباً، ١٥ نقطة، ٤٩ نتيجة متحققة</b>
+    <table style="margin-top:3mm">
+      <tr><th>الثغرة</th><th>الموضع</th><th>الشدة</th><th>دليل التحقق المستقل</th></tr>
+      <tr><td>حقن SQL (أعمى منطقي)</td><td><span class="mono">showforum.asp?id</span></td><td><span class="tag crit">حرجة 85/100</span></td><td>شرط TRUE ← HTTP 200، شرط FALSE ← HTTP 500، أُعيد إنتاجها جولتين (ثقة 0.95)</td></tr>
+      <tr><td>اجتياز مسار</td><td><span class="mono">Templatize.asp?item</span></td><td><span class="tag high">عالية 63</span></td><td>محتوى <span class="mono">win.ini</span> الفعلي ([fonts]/MAPI=1) سُرّب عبر عمقين مختلفين (ثقة 0.9)</td></tr>
+      <tr><td>XSS منعكس</td><td><span class="mono">Search.asp?tfSearch</span></td><td><span class="tag high">عالية 63</span></td><td>حمولتان مختلفتان انعكستا دون تهريب في سياق HTML (ثقة 0.9)</td></tr>
+      <tr><td>غياب رؤوس الأمان الثمانية + كشف <span class="mono">IIS/8.5</span> و<span class="mono">ASP.NET</span></td><td>كل النقاط</td><td><span class="tag low">منخفضة</span></td><td>فحص سلبي مباشر من الرؤوس</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <b style="font-size:12pt">الهدف الثاني: <span class="mono">testaspnet.vulnweb.com</span> — ٣٠٢ طلباً، ٩ نقاط</b>
+    <p style="margin:2mm 0 0">النتيجة: نتائج سلبية فقط (رؤوس + بانرات) و<b>صفر إنذارات كاذبة وصفر مرشحات مرفوضة</b>. السبب الفني: الثغرات المعروفة في هذا التطبيق تتطلب postback بـ ViewState (نماذج POST مرتبطة بالحالة) وهي خارج نطاب كواشف GET الحالية. هذا سلوك صادق: النظام لا يخترع نتائج لتغطي فجوة تغطيته، بل يسجل الحد بدقة.</p>
+  </div>
+
+  <div class="note warn">
+    <b>ملاحظة امتثال:</b> طبقة الـScope حظرت تلقائياً كل النطاق الخاص وخدمات الميتاداتا (169.254.169.254) وlocalhost وRFC1918 طوال الفحص — الفحص المحلي احتاج تمريراً صريحاً <span class="mono">--allow-private</span> وهذا سلوك مقصود لا استثناء. اختبار انحدار دائم يضمن ألا يتراجع هذا الحظر أبداً.
+  </div>
+</div>
+
+<!-- ============ PAGE 5: SELF-REPAIR ============ -->
+<div class="page">
+  <h2 class="sec">٥ — بوابة الإصلاح الذاتي: تنفيذ حي كامل</h2>
+  <p>أثبتت الحلقة كاملة بفشل حقيقي مستنسخ: أُطلق خادم مرجعي بتأخير ١٥٠ مللي ثانية لكل طلب مع مهلة نقل منحلة ٥ مللي ثانية — ففشل الفحص فعلياً (F1=0.000، صفر نتائج). ثم مُرّر الفشل عبر البوابة كما هو مخطط:</p>
+  <div class="step"><div class="b">١</div><div class="t"><b>تصنيف حتمي:</b> الخطأ <span class="mono">timeout:TimeoutError</span> طابق قاعدة <span class="mono">timeout_spike</span> (مضاعفة المهلة ×٣ + إعادة محاولة واحدة).</div></div>
+  <div class="step"><div class="b">٢</div><div class="t"><b>مرشح إصلاح أ (القاعدة وحدها):</b> مهلة ١٥ مللي — لا تزال أقل من زمن الاستجابة ← F1=0.000 ← <b>رُفض وتراجُع وحُجر القاعدة</b>. رفضُ الإصلاح الناقص جزء أساسي من إثبات سلامة البوابة.</div></div>
+  <div class="step"><div class="b">٣</div><div class="t"><b>حزمة الاختبارات:</b> ٣ حالات انحدار دائمة (بما فيها حالة مولّدة من فئة الفشل نفسها) — ناجح كلياً.</div></div>
+  <div class="step"><div class="b">٤</div><div class="t"><b>مرشح إصلاح ب (القاعدة + أرضية السياسة ١٢ ثانية):</b> F1=1.000 وFP=0 في نفس البيئة المعطلة ← <b>قُبل وفُعّل</b>.</div></div>
+  <div class="note ok"><b>النتيجة:</b> فشل حقيقي (F1=0.000) → مرشح ناقص رُفض → مرشح كامل اجتاز الانحدار والقياس → قُبل. أي إصلاح لا يجتاز أي بوابة يُتراجع ويُحجر — لا تعديل مباشر للنظام قيد التشغيل إطلاقاً.</div>
+
+  <h2 class="sec" style="margin-top:6mm">٦ — التعلّم الحتمي من النتائج المتحققة فقط</h2>
+  <p>مخزن الاستراتيجيات يسجّل نتائج الفحص الحقيقي البعيد ويعيد ترتيب الحمولات بفاصل Wilson الأدنى — مع احترام القاعدة الصارمة: <b>التعلّم من النتائج المتحققة فقط</b> (المرشح ليس حقيقة). بعد فحص الهدف الحقيقي:</p>
+  <table>
+    <tr><th>الاستراتيجية</th><th>التنفيذات</th><th>متحقق</th><th>فاصل Wilson الأدنى</th></tr>
+    <tr><td><span class="mono">sqli:boolean_and</span></td><td>1</td><td>1</td><td>0.207 — حذر بسبب صغر العينة (سلوك مقصود)</td></tr>
+    <tr><td><span class="mono">sqli:quote_error</span></td><td>1</td><td>1</td><td>0.207</td></tr>
+    <tr><td><span class="mono">traversal:primary</span></td><td>2</td><td>2</td><td>0.342</td></tr>
+    <tr><td><span class="mono">xss:primary</span></td><td>1</td><td>1</td><td>0.207</td></tr>
+  </table>
+  <p>لاحظ الأمانة الإحصائية: استراتيجية نجحت ١ من ١ لا تُمنح ثقة كاملة (Wilson = 0.207 وليس 1.0) — بالضبط كما يفرض القسم ٢٦ من المواصفة (لا استنتاج تفوق من عينات صغيرة). إعادة الترتيب حتمية: نفس المدخلات أنتجت نفس الترتيب في إعادة التشغيل.</p>
+</div>
+
+<!-- ============ PAGE 6: ARCHITECTURE + LIMITS ============ -->
+<div class="page">
+  <h2 class="sec">٧ — المعمارية المُنفَّذة مقابل الخطة</h2>
+  <table>
+    <tr><th>المرحلة</th><th>المكوّن</th><th>الحالة</th></tr>
+    <tr><td>01–03</td><td>Core Engine + محرك الطلبات/الاستجابات + Scope (حظر النطاق الخاص وخدمات الميتاداتا وفحص بعد كل تحويل)</td><td><span class="tag ok">مُنفَّذ ومُختبر</span></td></tr>
+    <tr><td>04–06</td><td>الزاحف (HTML/نماذج/robots/JS ثابت) + ذكاء الباراميترات (تصنيف تلقائي) + جلسات أساسية</td><td><span class="tag ok">مُنفَّذ ومُختبر</span></td></tr>
+    <tr><td>07–08</td><td>مخطط فحص حتمي + إطار كشف موحد (Prepare/Mutate/Execute/Analyze/Verify) + ٤ كواشف نشطة + سلبيان</td><td><span class="tag ok">مُنفَّذ ومُختبر</span></td></tr>
+    <tr><td>09–12</td><td>محرك تحقق مستقل (مرشح ≠ نتيجة) + بصمة إزالة التكرار + ربط السبب الجذري + مخاطر + مخزن استراتيجيات</td><td><span class="tag ok">مُنفَّذ ومُختبر</span></td></tr>
+    <tr><td>16–19</td><td>سجل القياس بأرضية موقعة + مختبر الانحدار (حالات دائمة من الفشل) + ذاكرة الفشل + مصنف إصلاح بثلاث قواعد</td><td><span class="tag ok">مُنفَّذ ومُختبر</span></td></tr>
+    <tr><td>21–22</td><td>فوضى (timeouts/resets/بيانات مهملة/تحويلات) + بوابة إصدار (١٦ اختباراً) + قابلية إعادة إنتاج بالبذرة</td><td><span class="tag ok">مُنفَّذ ومُختبر</span></td></tr>
+    <tr><td>10–11</td><td>محرك المتصفح (DOM XSS/SPA) + منصة OAST (SSRF أعمى)</td><td><span class="tag rj">التالي — نموذج البيانات جاهز</span></td></tr>
+    <tr><td>13–15</td><td>قاعدة بيانات دائمة + REST API + واجهة استخدام</td><td><span class="tag rj">التالي</span></td></tr>
+    <tr><td>23–24</td><td>حملة قياس موسعة (Juice Shop, DVWA, WebGoat) + تحصين إنتاجي</td><td><span class="tag rj">التالي</span></td></tr>
+  </table>
+
+  <h2 class="sec" style="margin-top:6mm">٨ — حدود صريحة وخطة القياس المستقبلية</h2>
+  <p>الادعاء بـ«الأول عالمياً» لا يصح قبل قياس مقارن على نفس البيئة — وهذا ما تحرص عليه المنهجية هنا. المُثبت الآن: دقة كاملة على مرجع محلي معلوم الأرضية، وثغرات حقيقية مؤكدة على هدف عام مصرَّح به، وصفر إنذارات كاذبة في كل التشغيلات، وحلقة إصلاح ذاتي صادقة. غير المُثبت بعد: التفوق على أدوات أخرى (يحتاج حملة قياس على Juice Shop وDVWA وWebGoat بنفس الحالات وبيئة موحدة)، وتغطية DOM XSS وSSRF الأعمى (تتطلب محرك المتصفح وOAST).</p>
+  <div class="note">
+    <b>شرط كل ميزة قادمة:</b> حالة موجبة + حالة سالبة + اختبار انحدار + حالة قياس + منطق تحقق + استخراج دليل — قبل الدمج. لا استثناءات.
+  </div>
+</div>
+
+<!-- ============ PAGE 7: DELIVERABLES ============ -->
+<div class="page">
+  <h2 class="sec">٩ — التسليمات وطرق التشغيل</h2>
+  <table>
+    <tr><th>التسليمة</th><th>المسار</th></tr>
+    <tr><td>الكود المصدري الكامل (حزمة)</td><td><span class="mono">sentinel-2.0.0-source.zip</span></td></tr>
+    <tr><td>نتائج القياس النهائي (P/R/F1 + مصفوفة الالتباس)</td><td><span class="mono">results/benchmark_FINAL.json</span></td></tr>
+    <tr><td>نتائج الفحص الحقيقي — الهدف الأول (٤٩ نتيجة متحققة)</td><td><span class="mono">results/scan_testasp_real.json</span></td></tr>
+    <tr><td>نتائج الفحص الحقيقي — الهدف الثاني</td><td><span class="mono">results/scan_testaspnet_real.json</span></td></tr>
+    <tr><td>أدلة بوابة الإصلاح الذاتي (أساس/معطوب/مرشحا الإصلاح)</td><td><span class="mono">results/benchmark_*.json</span></td></tr>
+    <tr><td>مخزن الاستراتيجيات بعد التعلّم الحقيقي</td><td><span class="mono">results/strategy_store.json</span></td></tr>
+    <tr><td>حزمة الاختبارات (وحدة/انحدار/فوضى — ١٦ حالة)</td><td><span class="mono">tests/run_tests.py</span></td></tr>
+  </table>
+  <div class="grid2" style="margin-top:5mm">
+    <div class="card">
+      <b>أوامر التشغيل الأساسية</b>
+      <p class="mono" style="font-size:9.5pt; line-height:2; text-align:left; direction:ltr">
+        python3 -m sentinel.cli doctor<br>
+        python3 -m sentinel.cli scan URL<br>
+        python3 -m sentinel.cli benchmark<br>
+        python3 -m sentinel.cli repair-demo<br>
+        python3 tests/run_tests.py all</p>
+    </div>
+    <div class="card">
+      <b>متطلبات التشغيل</b>
+      <p style="font-size:10pt; margin:0">بايثون 3.12 بدون أي اعتماديات خارجية (مكتبة قياسية فقط). للتطبيق المرجعي: <span class="mono">python3 fixtures/vulnapp.py</span> ثم القياس يتصل بـ <span class="mono">127.0.0.1:8777</span>. الفحص الداخلي يتطلب <span class="mono">--allow-private</span> صراحة.</p>
+    </div>
+  </div>
+  <p style="margin-top:5mm" class="muted">كل رقم في هذا التقرير مأخوذ من ملف نتائج فعلي مولَّد بتشغيل حقيقي ومحفوظ ضمن التسليمات — يمكن إعادة توليد أي رقم بإعادة نفس الأمر بنفس البذرة.</p>
+</div>
+
+</body>
+</html>
