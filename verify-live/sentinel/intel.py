@@ -37,27 +37,58 @@ class VerificationEngine:
                 f.verification, f.confidence = v, v.confidence
                 f.status = FindingStatus.VERIFIED
             else:
-                # PATH B — error-based replay: quote payload must reproduce DB error (independent variant: double-quote)
-                from .detect import SQL_ERR_PATTERNS
-                import re as _re
-                alt_quot = base + '"' if "'" in str(f.evidence) else base + "'"
-                r3 = self._replay(ep, p, base + '"')
-                r4 = self._replay(ep, p, base + "'")
-                err_repro = any((not r.ok and r.status >= 500) or any(pat.search(r.body or "") for pat in SQL_ERR_PATTERNS)
-                                for r in (r3, r4) if r.status)
-                v = Verification(method="error:replay-2variants", passed=err_repro,
-                                 confidence=0.9 if err_repro else 0.15, rounds=2,
-                                 notes=f"single+double quote variants reproduce DB error: {err_repro}")
-                f.verification, f.confidence = v, v.confidence
-                f.status = FindingStatus.VERIFIED if err_repro else FindingStatus.REJECTED
+                # PATH C — DETECT-01: OR-tautology redirect differential replay (auth bypass,
+                # string context; live-proven on demo.testfire.net/doLogin)
+                # ENG-01: hop_location() is chain-aware — works even though the engine
+                # auto-follows same-host redirects (old code read only final headers).
+                r5 = self._replay(ep, p, f"{base}' OR '1'='1' -- ")
+                r6 = self._replay(ep, p, f"{base}' OR '1'='2' -- ")
+                l5, l6 = (r5.hop_location() if r5 else ""), (r6.hop_location() if r6 else "")
+                if l5 and l6 and l5 != l6:
+                    v = Verification(method="oracle:or-redirect-2round", passed=True, confidence=0.95, rounds=2,
+                                     notes=f"replay OR TRUE -> {l5}, FALSE -> {l6}")
+                    f.verification, f.confidence = v, v.confidence
+                    f.status = FindingStatus.VERIFIED
+                else:
+                    # PATH B — error-based replay: quote payload must reproduce DB error (independent variant: double-quote)
+                    from .detect import SQL_ERR_PATTERNS
+                    import re as _re
+                    alt_quot = base + '"' if "'" in str(f.evidence) else base + "'"
+                    r3 = self._replay(ep, p, base + '"')
+                    r4 = self._replay(ep, p, base + "'")
+                    err_repro = any((not r.ok and r.status >= 500) or any(pat.search(r.body or "") for pat in SQL_ERR_PATTERNS)
+                                    for r in (r3, r4) if r.status)
+                    v = Verification(method="error:replay-2variants", passed=err_repro,
+                                     confidence=0.9 if err_repro else 0.15, rounds=2,
+                                     notes=f"single+double quote variants reproduce DB error: {err_repro}")
+                    f.verification, f.confidence = v, v.confidence
+                    f.status = FindingStatus.VERIFIED if err_repro else FindingStatus.REJECTED
 
         elif f.type == "xss_reflected":
-            alt = "<img src=x onerror=sentinel42()>"
-            r = self._replay(ep, f.parameter, alt)
-            executed_ctx = alt in (r.body or "")
-            v = Verification(method="re-test:variant-payload", passed=executed_ctx,
-                             confidence=0.9 if executed_ctx else 0.25, rounds=1,
-                             notes="second independent payload also reflected unescaped")
+            # VR-02 fix (2026-09-27, live-caught on demo.testfire.net): a single fixed
+            # variant payload (<img onerror>) let pattern-blacklist WAFs veto genuinely
+            # exploitable reflections (FN). Deterministic fix: VECTOR DIVERSITY — a
+            # battery of event-handler-distinct probes; verified if ANY reflects raw,
+            # confidence scaled by how many independent contexts confirmed.
+            variants = [
+                "<img src=x onerror=sentinel42()>",              # classic img/onerror
+                "<details open ontoggle=sentinel42()>",          # auto-fires on toggle
+                "<svg><animate onbegin=sentinel42() attributeName=x>",  # svg onbegin
+                "<svg\nonload=sentinel42()>",                    # newline separator
+                "<iframe srcdoc=sentinel42()>",                  # srcdoc context
+                "<sentinelxssmarker>vr2</sentinelxssmarker>",    # raw-tag canary re-check
+            ]
+            passed_vecs = 0
+            for alt in variants:
+                r = self._replay(ep, f.parameter, alt)
+                if r is not None and alt in (r.body or ""):
+                    passed_vecs += 1
+            executed_ctx = passed_vecs >= 1
+            conf = 0.9 if passed_vecs >= 2 else (0.75 if passed_vecs == 1 else 0.15)
+            v = Verification(method="re-test:variant-battery-6", passed=executed_ctx,
+                             confidence=conf, rounds=len(variants),
+                             notes=f"{passed_vecs}/{len(variants)} diverse vectors reflected raw "
+                                   "(WAF-resistant verification)")
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if executed_ctx else FindingStatus.REJECTED
 

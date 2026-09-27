@@ -77,6 +77,11 @@ class SQLiDetector(Detector):
             out.append(("quote_error", RequestMutation(endpoint=ep, param_name=p.name, param_value=base + "'")))
             out.append(("boolean_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base} AND 1=1")))
             out.append(("boolean_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base} AND 1=2")))
+            # DETECT-01 (live-proven on demo.testfire.net/doLogin): string-context OR-tautology
+            # pair with trailing comment — fires on login/auth endpoints where the numeric
+            # AND-pair cannot (values quoted as strings in SQL).
+            out.append(("or_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' OR '1'='1' -- ")))
+            out.append(("or_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' OR '1'='2' -- ")))
         return out
 
     def analyze(self, pair, resp_map) -> Finding | None:
@@ -104,6 +109,17 @@ class SQLiDetector(Detector):
                 oracle = True
                 ev.append(Evidence("response_diff",
                     f"body-size differential {len(rt.body)}B vs {len(rf.body)}B on condition flip", rt.request_id))
+        # 3) DETECT-01 — OR-tautology redirect differential (auth-bypass oracle, string context)
+        # ENG-01: hop_location() reads the FIRST-HOP target even when the engine
+        # auto-followed the redirect (old code saw only the final 200 — oracle destroyed).
+        ot, of = resp_map.get("or_true"), resp_map.get("or_false")
+        if ot is not None and of is not None and ot.status and of.status:
+            lt, lf = ot.hop_location(), of.hop_location()
+            if lt and lf and lt != lf:
+                oracle = True
+                ev.append(Evidence("redirect_diff",
+                    f"OR-tautology redirect differential: TRUE -> {lt}, FALSE -> {lf} — auth-bypass oracle",
+                    ot.request_id))
         if not ev:
             return None
         return Finding(type="sql_injection", severity=self.severity, endpoint_url=ep.url,
@@ -172,7 +188,7 @@ class RedirectDetector(Detector):
     def analyze(self, pair, resp):
         ep, p = pair
         if resp is None: return None
-        loc = resp.headers.get("location", "")
+        loc = resp.hop_location()   # ENG-01: chain-aware (same-host followed redirects included)
         if loc and "sentinel-redirect-check.example.org" in loc:
             return Finding("open_redirect", Severity.MEDIUM, ep.url, p.name, ep.method,
                            [Evidence("header_value", f"Location redirects off-site to {loc[:100]}", resp.request_id)],

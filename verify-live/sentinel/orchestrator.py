@@ -82,24 +82,23 @@ class SentinelScanner:
                     if dname == "sqli":
                         cands = det.candidates(ep)
                         if not cands: continue
-                        # strategy ordering (Phase 19): verified-outcomes-driven, deterministic
-                        ordered = det.candidates(ep)
-                        resp_map = {}
-                        pair = None
-                        strat_used = None
-                        for strat, m in ordered:
-                            r = self.engine.send(m)
-                            if r.error:
-                                fid = self.failures.record("sqli", r.error, {"url": ep.url})
-                                self.bus.emit("ScannerFailed", scanner="sqli", failure=fid, error=r.error)
+                        # PER-PARAM ANALYSIS (live-caught on doLogin: old flat resp_map kept
+                        # only the LAST param's responses, silently discarding earlier params)
+                        from itertools import groupby
+                        for pname, grp in groupby(cands, key=lambda t: t[1].param_name):
+                            grp = list(grp)
+                            resp_map = {}
+                            for strat, m in grp:
+                                r = self.engine.send(m)
+                                if r.error:
+                                    fid = self.failures.record("sqli", r.error, {"url": ep.url})
+                                    self.bus.emit("ScannerFailed", scanner="sqli", failure=fid, error=r.error)
+                                    continue
+                                resp_map[strat] = r
+                            param_obj = next((p for p in ep.parameters if p.name == pname), None)
+                            if param_obj is None or not resp_map:
                                 continue
-                            if strat == "quote_error":
-                                resp_map["quote_error"] = r; pair = (ep, m and next(p for p in ep.parameters if p.name == m.param_name))
-                            elif strat == "boolean_true":  resp_map["boolean_true"] = r
-                            elif strat == "boolean_false": resp_map["boolean_false"] = r
-                            strat_used = strat
-                        if pair and resp_map:
-                            cand = det.analyze(pair, resp_map)
+                            cand = det.analyze((ep, param_obj), resp_map)
                             if cand:
                                 cand.run_id = self.run_id
                                 self.stats["candidates"] += 1
@@ -107,7 +106,7 @@ class SentinelScanner:
                                 out_f = self.verifier.verify(cand, ep)
                                 self.findings.append(out_f)
                                 # Phase 19/25: record VERIFIED outcomes only into strategy store
-                                for st in ("quote_error", "boolean_and"):
+                                for st in ("quote_error", "boolean_and", "or_redirect"):
                                     self.strategies.record("sqli", st, out_f.status == FindingStatus.VERIFIED,
                                                            context=self.target.host)
                     else:

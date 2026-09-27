@@ -41,6 +41,29 @@ JS_PATTERNS = [
 ]
 QUERY_RE = re.compile(r"[?&]([A-Za-z_][\w]*)=([^&#\s]*)")
 
+# DISC-01 (live-caught on demo.testfire.net swagger-ui-bundle.js): minified webpack code
+# satisfies JS_PATTERNS with code fragments like  url:",s.default.createElement("  or
+# url:"responseURL"  -> these became phantom endpoints and polluted findings/requests.
+# Deterministic plausibility gate for JS-extracted strings (HTML href/src stay exempt).
+_JS_URL_FORBIDDEN = set('(){}<>"\'`\\ \t\n\r;')
+_JS_URL_PATHISH = re.compile(r"\.[A-Za-z0-9]{2,5}$")
+
+
+def plausible_js_url(s: str) -> bool:
+    """A JS-extracted string is a plausible endpoint URL iff it is code-free and path-like.
+    Rejects: function-call fragments, comma/plus-glued minified code, bare identifiers
+    (e.g. 'responseURL', 'string'), anything with whitespace/quotes/braces."""
+    s = s.strip()
+    if not s or len(s) > 500:
+        return False
+    if any(c in _JS_URL_FORBIDDEN for c in s):
+        return False
+    if s.startswith(("/", "http://", "https://", "ws://", "wss://")):
+        return True
+    # relative candidate: must carry real path structure (a '/', a '?', or a file
+    # extension) — bare JS identifiers carry none.
+    return ("/" in s) or ("?" in s) or (_JS_URL_PATHISH.search(s) is not None)
+
 
 class DiscoveryEngine:
     def __init__(self, engine: RequestEngine, max_pages: int = 25):
@@ -102,6 +125,8 @@ class DiscoveryEngine:
             if norm.endswith(".js") or "javascript" in resp.headers.get("content-type", ""):
                 for pat in JS_PATTERNS:
                     for match in pat.findall(resp.body):
+                        if not plausible_js_url(match):            # DISC-01 gate
+                            continue
                         n = self._normalize(norm, match)
                         if n and urllib.parse.urlsplit(n).netloc == seed_host:
                             js_hits.append(match)

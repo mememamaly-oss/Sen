@@ -1,0 +1,1170 @@
+{
+ "run_id": "run-28f36a684d",
+ "seed": "5d125403",
+ "scanner": "sentinel-core/2.0.2",
+ "target": "http://demo.testfire.net",
+ "stats": {
+  "requests": 212,
+  "endpoints": 23,
+  "candidates": 5,
+  "verified": 51,
+  "rejected": 0,
+  "duration": 128.1,
+  "crawl": {
+   "pages": 16,
+   "unique_endpoints": 23
+  }
+ },
+ "findings": [
+  {
+   "id": "F-9ec5993a85",
+   "type": "sql_injection",
+   "severity": "critical",
+   "status": "verified",
+   "confidence": 0.95,
+   "method": "POST",
+   "url": "http://demo.testfire.net/doLogin",
+   "parameter": "uid",
+   "evidence": [
+    {
+     "kind": "redirect_diff",
+     "detail": "OR-tautology redirect differential: TRUE -> http://demo.testfire.net/bank/main.jsp, FALSE -> http://demo.testfire.net/login.jsp \u2014 auth-bypass oracle"
+    }
+   ],
+   "verification": {
+    "method": "oracle:or-redirect-2round",
+    "passed": true,
+    "confidence": 0.95,
+    "rounds": 2
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "run-28f36a684d",
+   "risk": 85
+  },
+  {
+   "id": "F-55d979e34b",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "GET",
+   "url": "http://demo.testfire.net/index.jsp",
+   "parameter": "content",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026 \t\t \t\t\t \t\t\t<p>Failed due to The requested resource (/static/<sentinelxssmarker>pro41</sentinelxssmarker>) is not available</p>  \t\t    \u2026"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "run-28f36a684d",
+   "risk": 63
+  },
+  {
+   "id": "F-ab06feedff",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "GET",
+   "url": "http://demo.testfire.net/search.jsp",
+   "parameter": "query",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026 \t\t<p>No results were found for the query:<br /><br /> \t\t \t\t<sentinelxssmarker>pro41</sentinelxssmarker> \t\t \t\t</div>         </td>\t </\u2026"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "run-28f36a684d",
+   "risk": 63
+  },
+  {
+   "id": "F-bd3e383f9f",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "POST",
+   "url": "http://demo.testfire.net/sendFeedback",
+   "parameter": "name",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026\t <h1>Thank You</h1> \t\t  \t\t <p>Thank you for your comments, <sentinelxssmarker>pro41</sentinelxssmarker>.  They will be reviewed by ou\u2026"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "run-28f36a684d",
+   "risk": 63
+  },
+  {
+   "id": "F-341c763d60",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "POST",
+   "url": "http://demo.testfire.net/sendFeedback",
+   "parameter": "email_addr",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026 deserve.  \t\t  \t\t\tHowever, the email you gave is incorrect (<sentinelxssmarker>pro41</sentinelxssmarker>) and you will not receive a r\u2026"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "run-28f36a684d",
+   "risk": 63
+  },
+  {
+   "id": "F-37a146c941",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-0193d2cb64",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/style.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-5a3ca5785d",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/index.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-7c6850ee70",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/login.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-64fed87083",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/feedback.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-2faae976c9",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/cgi.exe",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-17c4d714c8",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/subscribe.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-e9164f87e4",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/default.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-08644eea46",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/survey_questions.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-dc8ea067d0",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/status_check.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-563c1b69f0",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/index.html",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-4aae20f69b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/search.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-34e490128a",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://demo.testfire.net/doLogin",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-7089dca38f",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://demo.testfire.net/sendFeedback",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-d76db114f5",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://demo.testfire.net/doSubscribe",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-60925d4b61",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/swagger-ui.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-33383c082b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/favicon-32x32.png",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-4adab2d5d6",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/favicon-16x16.png",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-d36e79bd95",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/swagger-ui-bundle.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-297009da39",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/swagger-ui-standalone-preset.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-40356478d3",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-9d7f036ff8",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/style.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-51cee1bffb",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/index.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-60615319fc",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/login.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-862d5512ea",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/feedback.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-91a422b612",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/cgi.exe",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-23ef9b2eea",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/subscribe.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-dbb1c36ed1",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/default.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-dc44eabbc1",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/survey_questions.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-d0fd8ac33c",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/status_check.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-dbdb198c05",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/index.html",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-8544a04d4c",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/search.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-d5ae1c9b72",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://demo.testfire.net/doLogin",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-4b252ed65e",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://demo.testfire.net/sendFeedback",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-c3785ba01d",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://demo.testfire.net/doSubscribe",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-764cf0d8cf",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/swagger-ui.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-9e9cb9454f",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/favicon-32x32.png",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-73e9598b5a",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/favicon-16x16.png",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-89ed30866c",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/swagger-ui-bundle.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-bc729805f8",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/swagger/swagger-ui-standalone-preset.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.0.2",
+   "run_id": "",
+   "risk": 9
+  }
+ ],
+ "rejected_candidates": []
+}

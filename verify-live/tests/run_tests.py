@@ -133,6 +133,140 @@ def regression_verification_rejects_false_candidate():
 
 
 @case
+def regression_xss_verifier_waf_bypass():
+    """VR-02 regression (live-caught on demo.testfire.net 2026-09-27): a WAF that
+    blocks onerror=/<script must NOT cause rejection of a genuinely exploitable
+    raw reflection. Old single-vector logic produced a real FN; battery must verify."""
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlparse, parse_qs, unquote
+    from sentinel.intel import VerificationEngine
+    from sentinel.http_engine import RequestEngine
+
+    BLOCK = ("onerror=", "<script", "onload=")      # blacklist like Altoro's WAF
+
+    class H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            q = parse_qs(urlparse(self.path).query).get("q", [""])[0]
+            if any(b in q.lower() for b in BLOCK):
+                self.send_response(200); self.end_headers()
+                self.wfile.write(b"<html><body>blocked</body></html>"); return
+            self.send_response(200); self.end_headers()
+            self.wfile.write(("<html><body>echo: " + q + "</body></html>").encode())
+        def log_message(self, *a): pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 8793), H)
+    import threading as _th
+    _th.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+                            EventBus("r"), timeout=3.0)
+        v = VerificationEngine(eng, EventBus("r"))
+        f = Finding("xss_reflected", endpoint_url="http://127.0.0.1:8793/t", parameter="q",
+                    evidence=[Evidence("unescaped_reflection", "canary reflected raw")])
+        ep = Endpoint(url="http://127.0.0.1:8793/t",
+                      parameters=[Parameter("q", ParamLocation.QUERY, "hi")])
+        out = v.verify(f, ep)
+        assert out.status.value == "verified", \
+            f"WAF-blacklist site must still verify (got {out.status.value}; old logic FN)"
+        assert out.confidence >= 0.75, "single-bypass verification deserves >=0.75"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_xss_verifier_rejects_encoded_only():
+    """VR-02 counterpart: reflection that HTML-ENCODES everything must STILL be
+    rejected (diversity must not create FPs). Same battery, no raw reflection."""
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlparse, parse_qs
+    from html import escape
+    from sentinel.intel import VerificationEngine
+    from sentinel.http_engine import RequestEngine
+
+    class H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            q = parse_qs(urlparse(self.path).query).get("q", [""])[0]
+            self.send_response(200); self.end_headers()
+            self.wfile.write(("<html><body>echo: " + escape(q) + "</body></html>").encode())
+        def log_message(self, *a): pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 8794), H)
+    import threading as _th
+    _th.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+                            EventBus("r"), timeout=3.0)
+        v = VerificationEngine(eng, EventBus("r"))
+        f = Finding("xss_reflected", endpoint_url="http://127.0.0.1:8794/t", parameter="q",
+                    evidence=[Evidence("unescaped_reflection", "candidate")])
+        ep = Endpoint(url="http://127.0.0.1:8794/t",
+                      parameters=[Parameter("q", ParamLocation.QUERY, "hi")])
+        out = v.verify(f, ep)
+        assert out.status.value == "rejected", "fully-encoded reflection must stay rejected (0 FP)"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_engine_preserves_redirect_oracle_e2e():
+    """ENG-01+ENG-02 regression (live-caught on demo.testfire.net/doLogin): a POST login
+    whose OR-tautology produces SAME-HOST 302 differentials must be detected end-to-end
+    through the REAL engine. Old engine (a) followed the redirect and returned the final
+    200, destroying the Location oracle, and (b) sent body-param payloads as URL query
+    with an empty body — the payload never reached the app."""
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from sentinel.core import FindingStatus
+    from sentinel.intel import VerificationEngine
+    from sentinel.http_engine import RequestEngine
+    from sentinel.detect import SQLiDetector
+
+    class H(BaseHTTPRequestHandler):
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0))
+            from urllib.parse import parse_qs
+            body = parse_qs(self.rfile.read(n).decode())
+            uid = body.get("uid", [""])[0]
+            if "'1'='1'" in uid:                       # OR-tautology TRUE
+                self.send_response(302); self.send_header("Location", "/welcome"); self.end_headers()
+            else:                                      # FALSE / baseline
+                self.send_response(302); self.send_header("Location", "/login"); self.end_headers()
+        def do_GET(self):
+            self.send_response(200); self.end_headers()
+            self.wfile.write(b"<html>page</html>")
+        def log_message(self, *a): pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 8795), H)
+    import threading as _th
+    _th.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+                            EventBus("r"), timeout=3.0)
+        ep = Endpoint(url="http://127.0.0.1:8795/login", method="POST",
+                      parameters=[Parameter("uid", ParamLocation.BODY)])
+        det = SQLiDetector(None, EventBus("eng12"))
+        cands = det.candidates(ep)
+        resp_map = {}
+        for strat, m in cands:
+            resp_map[strat] = eng.send(m)
+        cand = det.analyze((ep, ep.parameters[0]), resp_map)
+        assert cand is not None and cand.type == "sql_injection", \
+            "E2E: same-host redirect oracle must produce a candidate (ENG-01/02)"
+        assert any(e.kind == "redirect_diff" for e in cand.evidence)
+        v = VerificationEngine(eng, EventBus("eng12"))
+        out = v.verify(cand, ep)
+        assert out.status == FindingStatus.VERIFIED, f"verifier must confirm via PATH C (got {out.status})"
+        assert out.verification.method == "oracle:or-redirect-2round"
+        # negative control: a param with NO tautology effect must not verify
+        ep2 = Endpoint(url="http://127.0.0.1:8795/login", method="POST",
+                       parameters=[Parameter("other", ParamLocation.BODY)])
+        cands2 = det.candidates(ep2)
+        rm2 = {s: eng.send(m) for s, m in cands2}
+        assert det.analyze((ep2, ep2.parameters[0]), rm2) is None, "no oracle -> no candidate"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
 def regression_scope_blocks_metadata_service():
     """SSRF guard regression: metadata endpoints never scannable by default."""
     from sentinel.http_engine import RequestEngine
@@ -235,6 +369,72 @@ def regression_benchmark_autostarts_fixture():
     scored = rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 7   # full path worked
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
+
+
+@case
+def regression_js_url_extraction_rejects_code_fragments():
+    """DISC-01 regression (live-caught on demo.testfire.net): minified webpack code
+    fragments matched by JS_PATTERNS (url:",s.default.createElement(" ... ) must NOT
+    become endpoints; legit API paths must survive the gate."""
+    from sentinel.discovery import plausible_js_url, JS_PATTERNS
+    # exact garbage classes observed live in swagger-ui-bundle.js
+    garbage = [",s.default.createElement(", "+encodeURIComponent(this.st",
+               ",l.default.createElement(", ",t,n,", "responseURL", "string",
+               "new Error(e)", "a&&b", "this.options"]
+    # real endpoints that MUST be kept (incl. relative fetch-style paths)
+    legit = ["/api/users", "/logout", "api/v1/accounts", "/bank/transaction?acc=1",
+             "https://demo.testfire.net/search.jsp", "ws://localhost/ws", "custom.js",
+             "http://x.y/api"]
+    for g in garbage:
+        assert not plausible_js_url(g), f"garbage accepted as URL: {g!r}"
+    for l in legit:
+        assert plausible_js_url(l), f"legit rejected as URL: {l!r}"
+    # end-to-end: pattern extraction on a minified-webpack-like body
+    body = ('u={url:"string"},v={url:",s.default.createElement("},w=url+",t,n,",'
+            'x={url:"responseURL"};fetch("/api/accounts");'
+            'axios.get("api/transactions");new WebSocket("ws://h/ws");')
+    hits = [m for pat in JS_PATTERNS for m in pat.findall(body) if plausible_js_url(m)]
+    assert sorted(hits) == ["/api/accounts", "api/transactions", "ws://h/ws"], hits
+
+
+@case
+def regression_sqli_or_redirect_oracle():
+    """DETECT-01 regression (live-proven on demo.testfire.net/doLogin): string-context
+    OR-tautology pair must (a) be emitted, (b) create a candidate on redirect
+    differential, (c) be VERIFIED via PATH C replay, (d) stay silent when Locations
+    are identical (no false positives)."""
+    from sentinel.core import Endpoint, Parameter, ParamLocation, FindingStatus, EventBus
+    from sentinel.detect import SQLiDetector
+    from sentinel.http_engine import Response
+    from sentinel.intel import VerificationEngine
+
+    ep = Endpoint(url="http://t/doLogin", method="POST",
+                  parameters=[Parameter("uid", ParamLocation.BODY).classify()])
+    det = SQLiDetector(None, EventBus("run-det01"))
+    strats = [s for s, _ in det.candidates(ep)]
+    assert "or_true" in strats and "or_false" in strats, strats
+
+    # (b) positive: redirect differential -> candidate with redirect_diff evidence
+    rm = {"or_true": Response(status=302, headers={"Location": "/bank/main.jsp"}),
+          "or_false": Response(status=302, headers={"Location": "login.jsp"})}
+    f = det.analyze((ep, ep.parameters[0]), rm)
+    assert f is not None and f.type == "sql_injection"
+    assert any(e.kind == "redirect_diff" for e in f.evidence)
+
+    # (d) negative: identical Locations -> NO candidate (FP guard)
+    rm2 = {"or_true": Response(status=302, headers={"Location": "login.jsp"}),
+           "or_false": Response(status=302, headers={"Location": "login.jsp"})}
+    assert det.analyze((ep, ep.parameters[0]), rm2) is None
+
+    # (c) PATH C verification with a fake engine reproducing the live oracle
+    class _FakeLoginEngine:
+        def send(self, m):
+            loc = "/bank/main.jsp" if "'1'='1'" in m.param_value else "login.jsp"
+            return Response(status=302, headers={"Location": loc})
+    ve = VerificationEngine(_FakeLoginEngine(), EventBus("run-det01"))
+    out = ve.verify(f, ep)
+    assert out.status == FindingStatus.VERIFIED and out.verification.method == "oracle:or-redirect-2round", \
+        (out.status, out.verification.method)
 
 
 # ================================================================ main

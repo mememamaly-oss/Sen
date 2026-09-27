@@ -56,3 +56,36 @@ Stage Summary:
 - Answer to user: YES — everything re-executed live, and live re-testing caught 3 REAL defects (fixture autostart gap, hardcoded test path, async port cleanup) now permanently fixed with regression coverage, AND discovered 1 NEW real vulnerability (SQLi testaspnet Comments.aspx?id) verified independently with fresh vectors.
 - Deliverables: download/sentinel-2.0.1-source.zip, download/sentinel-results/scan_testasp_LIVE.json, scan_testaspnet_LIVE.json.
 - Quality state: 17/17 tests, 8/8 doctor, benchmark F1=1.000 deterministic (run-3c0652b6be), 0 FP maintained on fixtures, remote verified actives: testasp 3 + testaspnet 1.
+
+---
+Task ID: 3
+Agent: Super Z (main agent)
+Task: User provided 2 authorized targets (testphp.vulnweb.com, demo.testfire.net) — run REAL scans with the tool.
+
+Work Log:
+- testphp.vulnweb.com: DNS OK (44.228.249.3) but TCP+HTTP dead (30s timeouts) — provider-side outage, same as previous session. Documented, not scannable.
+- demo.testfire.net (Altoro/HCL): UP. First full scan (v2.0.2 partial): 186 req, 1 verified XSS (search.jsp?query), 1 REJECTED candidate (index.jsp?content XSS).
+- Independent WAF analysis on index.jsp?content: pattern-blacklist WAF blocks onerror=/<script/onload= BUT passes <details open ontoggle>, <animate onbegin>, <svg\nonload (newline sep) — multiple auto-executing vectors => the verifier's rejection was a FALSE NEGATIVE.
+- FIX VR-02 (intel.py): replaced single-vector XSS verification (<img onerror>) with 6-vector battery (ontoggle/onbegin/newline-onload/srcdoc/canary); confidence 0.9/0.75/0.15 by pass count. +2 regression tests (WAF-bypass fixture + encoded-only-stays-rejected).
+- DISCOVERED PARALLEL WORKSTREAM: files modified at 03:54-04:15 that I did not write (DISC-01 plausible_js_url gate in discovery.py; DETECT-01 or_true/or_false redirect-differential detector + PATH C verifier + per-param orchestrator analysis). Cross-validated: its changes pass, benchmark stayed F1=1.0, no worklog entry (parallel agent did not document; I document here). Also experienced mid-write race reads (garbled line) and a DISPLAY PHANTOM: '[m' in 'body[max(' rendered as ANSI escape making files LOOK corrupted — proved file valid via ast.parse + 'in' checks. Lesson: verify file state with repr/'in' checks, not raw display.
+- Manual ground truth on /doLogin: uid="' OR '1'='1' -- " -> 302 /bank/main.jsp (AUTH BYPASS, admin'-- also works); uid="1' OR '1'='2' --" -> login.jsp. REAL SQLi, scanner missed E2E => hunt.
+- Chain diagnosis found 4 stacked root causes (each fix revealed the next):
+  * ENG-01 (http_engine): engine auto-follows same-host redirects and returns final 200 — Location oracle destroyed. FIX: Response.redirect_chain + hop_location(); DETECT-01/PATH C/RedirectDetector now chain-aware.
+  * ENG-02 (http_engine): RequestMutation.param_location defaulted QUERY — POST body payloads went into URL query with empty body. FIX: _render inherits the param's real location from the endpoint.
+  * DISC-02 (discovery): _mk_endpoint assigned BODY to ALL form params regardless of method — GET form (frmSearch method=get) got body params; ENG-02 honored wrong metadata => GET probes dropped payload (lost search.jsp XSS). FIX: location follows form method. +regression test.
+  * DISC-04 (http_engine): empty sibling body fields (passw="") made Altoro reject before SQL path. FIX: empty sibling body fields filled with benign constant. E2E test strengthened (Altoro-style early reject).
+  * ENG-03 (http_engine): http.client does NOT auto-add Content-Type; Tomcat then ignores POST bodies entirely — the WHOLE POST attack surface was invisible. FIX: set Content-Type for bodied POST/PUT/PATCH. (My earlier "CT not needed" isolation was wrong — urllib auto-adds it; http.client does not.)
+  * Also fixed my own E2E test's flat resp_map (same per-param flaw the parallel agent fixed in orchestrator).
+- Gates after all fixes: suite 23/23 PASS; benchmark F1=1.000 deterministic run-3c0652b6be; doctor 8/8.
+- FINAL PRODUCTION LIVE SCAN demo.testfire.net (run-28f36a684d, 212 req, 128s): 5 VERIFIED ACTIVE, 0 rejected, 0 FP:
+  * CRITICAL sql_injection /doLogin uid (risk 85, conf .95, oracle:or-redirect-2round) — auth bypass
+  * HIGH xss search.jsp?query, index.jsp?content, sendFeedback name, sendFeedback email_addr (conf .9, variant-battery-6)
+  * sendFeedback XSS x2 = NEW surface unlocked by ENG-03 (POST reflections were invisible before)
+  * Independent fresh-canary verification of sendFeedback (zk91<>q7 raw) = TRUE POSITIVE.
+- Packaged sentinel-2.0.2-source.zip (37 files) from snapshot-0419 (frozen tree immune to parallel writes); copied scan_testfire_PRODUCTION.json to download/sentinel-results/.
+
+Stage Summary:
+- 2 authorized targets processed: testphp (provider-down, honest) + testfire (5 verified findings incl. CRITICAL auth-bypass SQLi).
+- 6 real defects fixed live (VR-02, ENG-01, ENG-02, ENG-03, DISC-02, DISC-04) + 7 new regression tests; suite 16->23; benchmark stable F1=1.0.
+- KEY INSIGHT for the platform: "transport-blindness" class of bugs (redirect-following, param location, Content-Type, empty fields) silently hides entire attack surfaces while unit tests stay green — only live E2E testing exposes them. This validates the user's "real tests every phase" doctrine.
+- Parallel-agent coordination gap documented: concurrent sessions share the filesystem; worklog protocol must be respected by all agents (its DISC-01/DETECT-01 work was validated and kept; mine complement it).

@@ -32,9 +32,19 @@ class Response:
     url: str = ""
     error: str = ""
     request_id: str = ""
+    redirect_chain: list = field(default_factory=list)   # ENG-01: [(status, absolute_url)] per followed hop
 
     @property
     def ok(self): return 200 <= self.status < 300
+
+    def hop_location(self) -> str:
+        """ENG-01: first-hop redirect target, whether the engine followed it or not.
+        The engine auto-follows same-host redirects and returns the FINAL response —
+        the original Location (e.g. a login-bypass oracle 302) used to be destroyed.
+        This restores it deterministically without changing follow behavior."""
+        if self.redirect_chain:
+            return self.redirect_chain[0][1]
+        return (self.headers or {}).get("location") or (self.headers or {}).get("Location") or ""
 
 
 class RequestEngine:
@@ -54,18 +64,29 @@ class RequestEngine:
         q = [(p.name, p.value) for p in ep.parameters if p.location == ParamLocation.QUERY]
         body = m.body_override
         if m.param_name:
+            # ENG-02: inherit the param's ACTUAL location from the endpoint definition.
+            # Old code trusted m.param_location (default QUERY), so probes aimed at POST
+            # body params were sent as URL query with an EMPTY body — the payload never
+            # reached the app (live-caught: doLogin auth-bypass oracle invisible).
+            eff_loc = m.param_location
+            for p in ep.parameters:
+                if p.name == m.param_name:
+                    eff_loc = p.location
+                    break
             hit = False
             q = []
             for p in ep.parameters:
                 if p.location == ParamLocation.QUERY:
-                    if p.name == m.param_name:
+                    if p.name == m.param_name and eff_loc == ParamLocation.QUERY:
                         q.append((p.name, m.param_value)); hit = True
                     else:
                         q.append((p.name, p.value))
-            if not hit and m.param_location == ParamLocation.QUERY:
+            if not hit and eff_loc == ParamLocation.QUERY:
                 q.append((m.param_name, m.param_value))
-            if m.param_location == ParamLocation.BODY and not m.body_override:
+            if eff_loc == ParamLocation.BODY and not m.body_override:
                 fields = [(p.name, p.value) for p in ep.parameters if p.location == ParamLocation.BODY]
+                if not any(f[0] == m.param_name for f in fields):
+                    fields.append((m.param_name, m.param_value))
                 fields = [(m.param_name, m.param_value) if f[0] == m.param_name else f for f in fields]
                 body = urllib.parse.urlencode(fields)
         parsed = urllib.parse.urlsplit(ep.url)
@@ -117,8 +138,10 @@ class RequestEngine:
             hdrs = {k.lower(): v for k, v in r.getheaders()}
             # ---- redirect handling with scope re-check (Phase 3 requirement)
             hops = 0
+            chain = []                                        # ENG-01: preserve oracle info
             while r.status in (301, 302, 303, 307, 308) and "location" in hdrs and hops < self.scope.max_redirects:
                 nxt = urllib.parse.urljoin(url, hdrs["location"])
+                chain.append((r.status, nxt))
                 ok2, why2 = self._scope_ok(nxt)
                 if not ok2:
                     self.bus.emit("RedirectBlockedByScope", url=nxt, reason=why2)
@@ -137,7 +160,8 @@ class RequestEngine:
                 url = nxt; hops += 1
             conn.close()
             resp = Response(status=r.status, headers=hdrs, body=raw.decode("utf-8", "replace"),
-                            elapsed=time.time() - t0, url=url, request_id=rid)
+                            elapsed=time.time() - t0, url=url, request_id=rid,
+                            redirect_chain=chain)
             self.bus.emit("ResponseReceived", request_id=rid, url=url, status=r.status,
                           bytes=len(raw), ms=int(resp.elapsed * 1000))
             return resp
