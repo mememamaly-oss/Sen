@@ -156,3 +156,19 @@ Stage Summary:
 - Blind-XXE class now VERIFIABLE: /vuln/oob-stock (noise response, no response oracle) confirmed via OOB callback + fresh-id replay — the vuln class ginandjuice.shop proved undetectable-by-response in v2.0.3.
 - 4 live-caught defects fixed (CLI gap, stdout pollution, script-mode import crash, expectation drift); suite 30→36; benchmark 12/9→13/10 TP/TN with F1=1.0 intact; real-target scan zero-regression.
 - Deliverables: download/sentinel-2.1.0-source.zip; download/sentinel-results/{scan_ginjuice_v210.json, benchmark_v210.json, report_v210_ginjuice.html, sentinel.db}.
+
+---
+Task ID: 6
+Agent: Super Z (main agent)
+Task: User directive "يرجي حفظ كل شيء في ملفات التنزيل" (save everything to the download files) — consolidate ALL artifacts into /home/z/my-project/download/.
+
+Work Log:
+- Verified tree health before packaging: 36/36 tests PASS, doctor 9/9 PASS (tree identical to packaged v2.1.0 source — zip currency confirmed by byte-level diff of all 15 source files).
+- Identified gaps in download/: 16 scan artifacts, 14 benchmark-evolution files, live-test report, WORKLOG, CHANGELOG, ground truth, and 3 test scripts were not in download/.
+- Built scripts/save_all_to_download.sh (persisted, re-runnable): copies every result artifact, docs, scripts; assembles sentinel-2.1.0-complete-bundle.zip (70 files: source + results/scans + results/benchmarks + results/reports + database + docs + bundle README); verifies bundle integrity by extracting to clean dir and running doctor from inside it.
+- Bundle self-check: doctor 9/9 PASS from the extracted bundle (self-sufficiency proven).
+- Rewrote download/README.md as a complete Arabic index: main bundle first, source-zip history, flat-results inventory (scans/benchmarks/reports/state/docs), quality gates (36/36, 9/9, F1=1.000, 4 real targets, 14 verified findings, 0 FP), quick-start commands.
+
+Stage Summary:
+- download/ now contains EVERYTHING: sentinel-2.1.0-complete-bundle.zip (70 files, self-verified) + 5 source zips (2.0.0→2.1.0) + sentinel-results/ with 50 files (all 16 real-target scans, full benchmark evolution v1→v210, repair candidates, repro proofs, reports AR/EN, sentinel.db, strategy store, ground truth, WORKLOG, CHANGELOG, test scripts) + comprehensive Arabic README index.
+- Quality state at save time: 36/36 tests, 9/9 doctor, F1=1.000 (run-3c0652b6be), zero false positives maintained across all real targets.
