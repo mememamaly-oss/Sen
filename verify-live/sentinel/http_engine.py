@@ -48,12 +48,18 @@ class Response:
 
 
 class RequestEngine:
-    """Owns transport, timeouts, redirects, scope re-check after every hop."""
+    """Owns transport, timeouts, redirects, scope re-check after every hop.
+    ENG-05: session cookie jar — Set-Cookie harvested from responses is replayed
+    on subsequent same-host requests, mirroring a real browser session. This is
+    the substrate that makes CSRF-protected flows and (Phase 51) authenticated
+    scanning reachable; without it the server rejects every request that needs
+    a session before the vulnerable code path is ever exercised."""
     def __init__(self, scope: ScopeRule, bus: EventBus, timeout: float = DEFAULT_TIMEOUT,
                  adaptive_timeout: float | None = None):
         self.scope, self.bus, self.timeout = scope, bus, adaptive_timeout or timeout
         self.base_timeout = timeout
         self.requests_sent = 0
+        self.cookie_jar: dict[str, dict[str, str]] = {}   # host -> {name: value}
         self._ctx = ssl.create_default_context()
         self._ctx.check_hostname = False
         self._ctx.verify_mode = ssl.CERT_NONE
@@ -95,17 +101,33 @@ class RequestEngine:
                     fields.append((m.param_name, m.param_value))
                 fields = [(m.param_name, m.param_value) if f[0] == m.param_name else f for f in fields]
                 body = urllib.parse.urlencode(fields)
+            # ENG-04 (live-proven on ginandjuice.shop /catalog/subscribe): JS-built
+            # forms POST JSON (JSON.stringify + Content-Type application/json) — a
+            # body-param endpoint silently sent x-www-form-urlencoded is rejected
+            # by every JSON API, hiding the whole surface. Params with JSON location
+            # render as a JSON object; siblings (e.g. harvested CSRF tokens) ride along.
+            elif eff_loc == ParamLocation.JSON and not m.body_override:
+                obj = {p.name: (p.value if p.value else "") for p in ep.parameters
+                       if p.location == ParamLocation.JSON}
+                obj[m.param_name] = m.param_value
+                import json as _json
+                body = _json.dumps(obj)
         parsed = urllib.parse.urlsplit(ep.url)
         base = urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, "", ""))
         url = base + ("?" + urllib.parse.urlencode(q) if q else "")
         if m.param_location == ParamLocation.PATH and m.param_name:
             url = url.replace("{" + m.param_name + "}", urllib.parse.quote(m.param_value, safe=""))
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; Sentinel/2.0; +security-scanner)"}
+        headers = {"User-Agent": "Mozilla/5.0 (compatible; Sentinel/2.2; +security-scanner)"}
         # ENG-03 (live-caught on demo.testfire.net/doLogin): http.client does NOT add
         # Content-Type for bodies — Tomcat then never parses the POST body, silently
         # hiding the entire POST attack surface. Required per HTML form spec.
+        # ENG-04: JSON-location bodies get application/json (the request shape the
+        # target's own JavaScript would have produced).
         if body and (m.method or ep.method) in ("POST", "PUT", "PATCH"):
-            headers.setdefault("Content-Type", "application/x-www-form-urlencoded")
+            if not m.body_override and any(p.location == ParamLocation.JSON for p in ep.parameters):
+                headers.setdefault("Content-Type", "application/json")
+            else:
+                headers.setdefault("Content-Type", "application/x-www-form-urlencoded")
         headers.update(ep.headers); headers.update(m.extra_headers)
         return url, m.method or ep.method, headers, body
 
@@ -127,6 +149,23 @@ class RequestEngine:
             return False, f"private/localhost host {host} blocked by scope policy"
         return True, ""
 
+    def _harvest_cookies(self, getheaders, host: str):
+        """ENG-05: collect every Set-Cookie (http.client yields them as separate
+        header tuples — a dict comprehension silently keeps only the LAST one)."""
+        for k, v in getheaders():
+            if k.lower() != "set-cookie":
+                continue
+            first = v.split(";", 1)[0]
+            if "=" in first:
+                n, _, val = first.partition("=")
+                self.cookie_jar.setdefault(host, {})[n.strip()] = val.strip()
+
+    def _cookie_header(self, host: str) -> str:
+        ck = self.cookie_jar.get(host)
+        if not ck:
+            return ""
+        return "; ".join(f"{k}={v}" for k, v in sorted(ck.items()))
+
     def send(self, m: RequestMutation) -> Response:
         url, method, headers, body = self._render(m)
         ok, why = self._scope_ok(url)
@@ -138,6 +177,10 @@ class RequestEngine:
         self.requests_sent += 1
         try:
             parsed = urllib.parse.urlsplit(url)
+            # ENG-05: replay session cookies for this host (browser-equivalent session)
+            ck = self._cookie_header(parsed.hostname or "")
+            if ck:
+                headers.setdefault("Cookie", ck)
             if parsed.scheme == "https":
                 conn = http.client.HTTPSConnection(parsed.hostname, parsed.port, timeout=self.timeout, context=self._ctx)
             else:
@@ -146,6 +189,7 @@ class RequestEngine:
             conn.request(method, path, body=body if method in ("POST", "PUT", "PATCH") else None, headers=headers)
             r = conn.getresponse()
             raw = r.read(2_000_000)
+            self._harvest_cookies(r.getheaders, parsed.hostname or "")
             hdrs = {k.lower(): v for k, v in r.getheaders()}
             # ---- redirect handling with scope re-check (Phase 3 requirement)
             hops = 0
@@ -167,6 +211,7 @@ class RequestEngine:
                     conn = http.client.HTTPConnection(pu.hostname, pu.port, timeout=self.timeout)
                 conn.request("GET", pu.path + ("?" + pu.query if pu.query else ""), headers=headers)
                 r = conn.getresponse(); raw = r.read(2_000_000)
+                self._harvest_cookies(r.getheaders, pu.hostname or "")
                 hdrs = {k.lower(): v for k, v in r.getheaders()}
                 url = nxt; hops += 1
             conn.close()

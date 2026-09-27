@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urlsplit
 
-VERSION = "2.1.0"
+VERSION = "2.2.0"
 SCANNER_VERSION = "sentinel-core/" + VERSION
 
 
@@ -23,6 +23,7 @@ class FindingStatus(str, Enum):
 class DiscoverySource(str, Enum):
     SEED = "seed"; CRAWL_HTML = "crawl:html"; CRAWL_FORM = "crawl:form"; ROBOTS = "robots.txt"
     JS_STATIC = "js:static"; SITEMAP = "sitemap"; MANUAL = "manual"
+    DOM = "dom:browser"     # Phase 50: discovered only by rendering in a real browser
 
 
 # ---------------------------------------------------------------- Target / Scope
@@ -87,7 +88,14 @@ class Parameter:
 
     def classify(self) -> "Parameter":
         v, n = (self.value or "").strip(), (self.name or "").lower()
-        if any(k in n for k in ("url","redirect","return","next","goto","dest","continue")): self.kind = ParamKind.URL
+        # Phase 50: CSRF/anti-CSRF tokens are flow-control values, never injection
+        # targets — mutating them breaks the request (token mismatch) and can only
+        # produce noise. They are carried verbatim as siblings so protected flows
+        # stay reachable (live-proven on ginandjuice.shop /catalog/subscribe).
+        if any(k in n for k in ("csrf", "token", "nonce", "authenticity")):
+            self.kind = ParamKind.TOKEN
+            return self
+        if any(k in n for k in ("url", "redirect", "return", "next", "goto", "dest", "continue")): self.kind = ParamKind.URL
         elif any(k in n for k in ("file","path","page","template","item","doc","load")): self.kind = ParamKind.FILENAME
         elif any(k in n for k in ("id","uid","pid","ref","num")) and v.isdigit(): self.kind = ParamKind.NUMERIC
         elif v.isdigit(): self.kind = ParamKind.NUMERIC

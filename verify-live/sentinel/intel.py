@@ -14,8 +14,9 @@ class VerificationEngine:
     """Candidate -> re-test with independent variant -> evidence -> confidence -> verdict.
     A candidate is NEVER a finding until this passes (spec: Candidate != Truth)."""
 
-    def __init__(self, engine: RequestEngine, bus: EventBus, oast=None):
+    def __init__(self, engine: RequestEngine, bus: EventBus, oast=None, browser=None):
         self.engine, self.bus, self.oast = engine, bus, oast
+        self.browser = browser     # Phase 50: BrowserEngine | None — xss_dom re-probes
 
     def _replay(self, ep: Endpoint, param: str, value: str):
         return self.engine.send(RequestMutation(endpoint=ep, param_name=param, param_value=value))
@@ -105,6 +106,27 @@ class VerificationEngine:
                                    "(WAF-resistant verification)")
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if executed_ctx else FindingStatus.REJECTED
+
+        elif f.type == "xss_dom":
+            # BR-01 (Phase 50): the candidate fired with canary A via a real browser
+            # execution proof (window flag set by onerror). Verification = INDEPENDENT
+            # re-probe with a FRESH canary B — both must execute. Deterministic:
+            # the flag can only be set if the browser parsed our payload as markup.
+            if self.browser is None:
+                v = Verification(method="re-probe:fresh-canary", passed=False, confidence=0.1,
+                                 rounds=0, notes="browser engine unavailable — cannot re-verify DOM execution")
+            else:
+                import hashlib as _h9
+                fresh = ("dom" + _h9.sha1(f"{f.id}|{f.run_id}|br01".encode()).hexdigest()[:8])
+                r = self.browser.probe_dom_xss(f.endpoint_url, f.parameter, fresh,
+                                               source=next((e.detail.split("source=")[-1].split()[0]
+                                                            for e in f.evidence if "source=" in e.detail), "search"))
+                ok = bool(r and r.get("fired"))
+                v = Verification(method="re-probe:fresh-canary", passed=ok,
+                                 confidence=0.9 if ok else 0.15, rounds=1,
+                                 notes=f"fresh canary {fresh!r} executed as markup: {ok}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if v.passed else FindingStatus.REJECTED
 
         elif f.type == "path_traversal":
             ev = str(f.evidence)
@@ -229,7 +251,7 @@ class VerificationEngine:
 
 
 # ============================================================ FINDING PIPELINE (Phase 12)
-RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "path_traversal": 7, "xxe": 9,
+RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "xss_dom": 7, "path_traversal": 7, "xxe": 9,
                 "open_redirect": 4, "http_response_header_injection": 6,
                 "missing_security_headers": 2, "server_banner_disclosure": 1,
                 "tech_banner_disclosure": 1, "vulnerable_js_dependency": 2}

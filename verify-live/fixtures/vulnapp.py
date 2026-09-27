@@ -46,7 +46,10 @@ HEADER_TMPL = """<!DOCTYPE html><html><head><title>Sentinel Fixture</title></hea
  - <a href="/vuln/traversal.php?file=notes.txt">traversal</a> - <a href="/vuln/redirect.php?url=https://example.com">redirect</a>
  - <a href="/safe/search.php?q=test">safe search</a> - <a href="/safe/item.php?id=1">safe item</a>
  - <a href="/safe/read.php?file=notes.txt">safe read</a> - <a href="/hidden.php">hidden</a>
- - <a href="/safe/jsparam.php?cat=Books">safe jsparam</a> - <a href="/app.js">app.js</a></div>
+ - <a href="/safe/jsparam.php?cat=Books">safe jsparam</a> - <a href="/app.js">app.js</a>
+ - <a href="/vuln/dom-write">dom-write</a> - <a href="/safe/dom-text?search=test">safe dom-text</a>
+ - <a href="/vuln/divform">divform</a> - <a href="/safe/divform">safe divform</a>
+ - <a href="/vuln/csrfdivform">csrf divform</a> - <a href="/vuln/jsform">jsform</a></div>
 {body}
 </body></html>"""
 
@@ -88,6 +91,102 @@ HIDDEN_PAGE = """<h2>Products</h2>
 
 ANGULAR_JS = "/* AngularJS v1.7.7 stub — EOL branch served for passive dependency detection */\n"
 
+# ==================== Phase 50 (fixture v4): browser/DOM surfaces ====================
+# The server NEVER reflects ?search= on either page below — the param is read
+# client-side from URLSearchParams and passed to a sink. /vuln/dom-write uses a
+# dangerous sink (mirrors ginandjuice.shop /blog?search: document.write into an
+# attribute context); /safe/dom-text uses textContent. ONLY a real browser can
+# separate them — the DOM-engine ground truth pair.
+DOM_WRITE_PAGE = """<h2>Search tracker</h2>
+<form action="/vuln/dom-write" method="GET"><input type="text" name="search" value="test"><button>Track</button></form>
+<script>
+function trackSearch(query) {
+    document.write('<img src="/tracker.gif?searchTerms=' + query + '">');
+}
+var query = (new URLSearchParams(window.location.search)).get('search');
+if (query) { trackSearch(query); }
+</script>
+<div>Search tracked.</div>"""
+
+# Param-less variant: like ginandjuice.shop /blog/ (index) vs /blog?search= (results)
+# — the DOM source->sink script is server-side CONDITIONAL, so the param-less page
+# carries no script at all. Reaching the script REQUIRES DISC-12 form-target queueing.
+DOM_WRITE_PAGE_PLAIN = """<h2>Search tracker</h2>
+<form action="/vuln/dom-write" method="GET"><input type="text" name="search" value="test"><button>Track</button></form>
+<div>Enter a search term.</div>"""
+
+DOM_TEXT_PAGE = """<h2>Search echo</h2>
+<div id="out"></div>
+<script>
+var q = new URLSearchParams(window.location.search).get('search');
+if (q) { document.getElementById('out').textContent = q; }
+</script>"""
+
+# Mirrors ginandjuice.shop subscribeNow.js: div-based pseudo-forms are serialized
+# as JSON (JSON.stringify + Content-Type application/json) — DISC-10 learns the
+# transformation statically from this asset, ENG-04 replays it deterministically.
+JSBUILD_JS = """
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('div[data-action]').forEach(function (f) {
+        var btn = f.querySelector('button');
+        if (!btn) return;
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            var value = {};
+            f.querySelectorAll('input').forEach(function (i) { value[i.name] = i.value; });
+            var xhr = new XMLHttpRequest();
+            xhr.open(f.dataset.method, f.dataset.action);
+            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+            xhr.send(JSON.stringify(value));
+        });
+    });
+});
+"""
+
+DIVFORM_PAGE = """<h2>Subscribe</h2>
+<script src="/jsbuild.js"></script>
+<div id="subscribe" class="form" data-method="post" data-action="/vuln/json-reflect">
+<input required type="text" name="name" placeholder="Name">
+<button class="button" type="submit">Subscribe</button>
+</div>"""
+
+SAFE_DIVFORM_PAGE = """<h2>Subscribe (safe)</h2>
+<script src="/jsbuild.js"></script>
+<div id="subscribe" class="form" data-method="post" data-action="/safe/json-reflect">
+<input required type="text" name="name" placeholder="Name">
+<button class="button" type="submit">Subscribe</button>
+</div>"""
+
+# CSRF-protected flow (ENG-05 ground truth): the page sets a deterministic session
+# cookie and embeds the matching token; the POST endpoint rejects requests without
+# BOTH. Without the engine cookie jar this surface is unreachable ("Invalid CSRF").
+import hashlib as _hl
+CSRF_SESSION = "fixedsess123"
+CSRF_TOKEN = _hl.sha1((CSRF_SESSION + "|csrf").encode()).hexdigest()[:16]
+
+CSRF_DIVFORM_PAGE = """<h2>Newsletter</h2>
+<script src="/jsbuild.js"></script>
+<div id="subscribe" class="form" data-method="post" data-action="/vuln/csrf-reflect">
+<input required type="text" name="note" placeholder="Note">
+<input required type="hidden" name="csrf" value="%s">
+<button class="button" type="submit">Subscribe</button>
+</div>""" % CSRF_TOKEN
+
+# Runtime-built form (browser-only discovery): no <form> markup exists statically —
+# the form is created by JS on DOMContentLoaded, exactly like React/Angular apps.
+JSFORM_PAGE = """<h2>Feedback</h2>
+<script>
+window.addEventListener('DOMContentLoaded', function () {
+    var f = document.createElement('form');
+    f.action = '/vuln/jsform-reflect'; f.method = 'POST';
+    var i = document.createElement('input'); i.name = 'msg'; i.value = 'hello';
+    var b = document.createElement('button'); b.type = 'submit';
+    f.appendChild(i); f.appendChild(b);
+    document.body.appendChild(f);
+});
+</script>
+<div>Feedback form below.</div>"""
+
 PRODUCTS_ALL = "<ul>" + "<li>Gin bottle product item with a long description</li>" * 40 + "</ul>"
 PRODUCTS_NONE = "<ul><li>No products match your filters.</li></ul>"
 PRODUCTS_ONE = "<ul><li>One product in this category.</li></ul>"
@@ -127,8 +226,28 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, STOCKAPP_JS, {"Content-Type": "application/javascript"})
         if path == "/angular_1-7-7.js":
             return self._send(200, ANGULAR_JS, {"Content-Type": "application/javascript"})
+        if path == "/jsbuild.js":
+            return self._send(200, JSBUILD_JS, {"Content-Type": "application/javascript"})
         if path == "/hidden.php":
             return self._send(200, HEADER_TMPL.format(body=HIDDEN_PAGE))
+        # ---- Phase 50 (fixture v4): browser/DOM surfaces
+        if path == "/vuln/dom-write":
+            # ginandjuice.shop-accurate conditional: the vulnerable script is served ONLY
+            # on the param'd (search-results) page — the param-less page has no script.
+            body = DOM_WRITE_PAGE if "search" in q else DOM_WRITE_PAGE_PLAIN
+            return self._send(200, HEADER_TMPL.format(body=body))
+        if path == "/safe/dom-text":
+            return self._send(200, HEADER_TMPL.format(body=DOM_TEXT_PAGE))
+        if path == "/vuln/divform":
+            return self._send(200, HEADER_TMPL.format(body=DIVFORM_PAGE))
+        if path == "/safe/divform":
+            return self._send(200, HEADER_TMPL.format(body=SAFE_DIVFORM_PAGE))
+        if path == "/vuln/csrfdivform":
+            # deterministic session + matching CSRF token embedded in the div-form
+            return self._send(200, HEADER_TMPL.format(body=CSRF_DIVFORM_PAGE),
+                              {"Set-Cookie": "session=" + CSRF_SESSION + "; Path=/"})
+        if path == "/vuln/jsform":
+            return self._send(200, HEADER_TMPL.format(body=JSFORM_PAGE))
         if path == "/admin/":
             return self._send(200, HEADER_TMPL.format(body="<h2>admin</h2>"))
         if path == "/backup/db.sql":
@@ -247,6 +366,49 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length).decode("utf-8", "replace") if length else ""
         ctype = (self.headers.get("Content-Type") or "").lower()
+
+        # ---------------- JSON/div-form endpoints (Phase 50) ----------------
+        # /vuln/json-reflect: div-form POST whose JS serializes inputs as JSON
+        # (DISC-10 + ENG-04 chain); response is text/html and reflects the name
+        # field RAW — the subscribe-style XSS.
+        if path == "/vuln/json-reflect":
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            name = str(data.get("name", ""))
+            return self._send(200, f"<div>Hello {name}</div>")
+        if path == "/safe/json-reflect":
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            name = str(data.get("name", "")).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            return self._send(200, f"<div>Hello {name}</div>")
+        # /vuln/csrf-reflect: requires the session cookie AND the matching CSRF
+        # token (ENG-05 jar + TOKEN-preservation chain). Without both: 403.
+        if path == "/vuln/csrf-reflect":
+            cookie = (self.headers.get("Cookie") or "")
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            if CSRF_SESSION not in cookie or str(data.get("csrf", "")) != CSRF_TOKEN:
+                return self._send(403, '"Invalid CSRF token"')
+            note = str(data.get("note", ""))
+            return self._send(200, f"<div>Noted: {note}</div>")
+        # /vuln/jsform-reflect: standard form POST target of the RUNTIME-built form
+        # (browser render-merge discovery; statically invisible — no <form> markup).
+        if path == "/vuln/jsform-reflect":
+            form = parse_qs(raw, keep_blank_values=True)
+            msg = (form.get("msg") or [""])[0]
+            return self._send(200, f"<div>Feedback: {msg}</div>")
 
         # ---- OOB stock pair (Phase 49 / blind-XXE-with-callback): the parser FETCHES
         # http(s) external entities for real (loopback-only in the fixture) but the

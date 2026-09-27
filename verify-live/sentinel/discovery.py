@@ -12,7 +12,10 @@ class _LinkParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
         self.links, self.forms = [], []   # forms: (action, method, [params])
+        self.divforms = []                # DISC-10: div-based pseudo-forms
         self._cur_form = None
+        self._cur_divform = None
+        self._div_depth = 0
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -27,10 +30,30 @@ class _LinkParser(HTMLParser):
                 self._cur_form["params"].append((a["name"], a.get("value", "")))
         elif tag == "textarea" and self._cur_form is not None and a.get("name"):
             self._cur_form["params"].append((a["name"], ""))
+        # ---- DISC-10 (live-caught on ginandjuice.shop #subscribe): JS-driven
+        # "forms" are <div data-action=... data-method=post> blocks, NOT <form>
+        # elements — a form-only parser is structurally blind to the whole
+        # subscribe surface. Track inputs inside such divs (nested divs counted).
+        if tag == "div":
+            if self._cur_divform is not None:
+                self._div_depth += 1
+            elif a.get("data-action") or (a.get("data-method") and "form" in (a.get("class") or "")):
+                self._cur_divform = {"action": a.get("data-action", ""),
+                                     "method": (a.get("data-method") or "POST").upper(), "params": []}
+                self._div_depth = 1
+        elif self._cur_divform is not None and tag == "input":
+            if a.get("type") not in ("submit", "button", "reset") and a.get("name"):
+                self._cur_divform["params"].append((a["name"], a.get("value", "")))
 
     def handle_endtag(self, tag):
         if tag == "form" and self._cur_form:
             self.forms.append(self._cur_form); self._cur_form = None
+        elif tag == "div" and self._cur_divform is not None:
+            self._div_depth -= 1
+            if self._div_depth <= 0:
+                if self._cur_divform["params"]:
+                    self.divforms.append(self._cur_divform)
+                self._cur_divform = None
 
 
 # JS endpoint heuristics (static pass; AST-lite for fetch/axios/XHR/WebSocket)
@@ -92,12 +115,23 @@ def plausible_js_url(s: str) -> bool:
     return ("/" in s) or ("?" in s) or (_JS_URL_PATHISH.search(s) is not None)
 
 
+# DISC-10: a div-form's JS usually serializes inputs as JSON (live-proven on
+# ginandjuice.shop subscribeNow.js: JSON.stringify(value) + Content-Type
+# application/json;charset=UTF-8). Statically learnable from fetched JS assets;
+# div-form params are upgraded to ParamLocation.JSON when the hint is present.
+_JS_JSON_CT = re.compile(r"['\"]application/json", re.I)
+_JS_JSONIFY = re.compile(r"JSON\.stringify")
+
+
 class DiscoveryEngine:
     SAME_PATH_PAGE_CAP = 4    # DISC-09: max queued fetches per URL path (see below)
 
     def __init__(self, engine: RequestEngine, max_pages: int = 25):
         self.engine, self.max_pages = engine, max_pages
-        self._path_queued: dict = {}   # path -> queued count (DISC-09 template cap)
+        self._path_queued: dict = {}   # path -> FETCHED page count (DISC-09 template cap)
+        self.dom_sinks: list = []      # DISC-11: static DOM source->sink candidates
+        self._js_bodies: list[tuple[str, str]] = []   # (url, body) of fetched JS assets
+        self.script_pages: list[str] = []  # Phase 50: HTML pages carrying <script> — render candidates
 
     def _normalize(self, base: str, href: str) -> str:
         href = href.strip()
@@ -135,6 +169,17 @@ class DiscoveryEngine:
             seen_pages.add(norm)
             ok, _ = self.engine._scope_ok(norm)
             if not ok: continue
+            # DISC-09 fix (live-caught via traced crawl): the per-path cap used to
+            # count QUEUE INSERTIONS — the same menubar link appearing on every page
+            # queued 4 duplicate copies, burned the whole path budget, and STARVED the
+            # form-target URL (?search=...) that DISC-12 queued later: the DOM surface
+            # was unreachable even though every gate individually passed. Counting
+            # actual FETCHES keeps the template-page cap honest while duplicates
+            # dedupe for free at pop-time via seen_pages.
+            fpath = urllib.parse.urlsplit(norm).path or "/"
+            if self._path_queued.get(fpath, 0) >= self.SAME_PATH_PAGE_CAP:
+                continue
+            self._path_queued[fpath] = self._path_queued.get(fpath, 0) + 1
             resp = self.engine.send(self.engine.__class__ and _simple_get(norm))
             pages += 1
             if resp.error or not resp.body: continue
@@ -163,19 +208,54 @@ class DiscoveryEngine:
                     # path; links beyond the cap stay ENDPOINTS (still probed), just not
                     # page-fetched.
                     if n not in seen_pages and not n.lower().endswith(_SKIP_AS_PAGE):
-                        p_path = urllib.parse.urlsplit(n).path or "/"
-                        if self._path_queued.get(p_path, 0) < self.SAME_PATH_PAGE_CAP:
-                            self._path_queued[p_path] = self._path_queued.get(p_path, 0) + 1
-                            queue.append(n)
+                        queue.append(n)
             for form in hp.forms:
                 action = self._normalize(norm, form["action"] or norm)
                 if not action: continue
                 e3 = self._mk_endpoint(action, DiscoverySource.CRAWL_FORM,
                                        params=form["params"], method=form["method"])
                 if e3.id not in endpoints: endpoints[e3.id] = e3
+                # DISC-12 (live-caught on ginandjuice.shop /blog?search=): a GET form's
+                # action URL IS a reachable page — the search-results page carries the
+                # DOM source->sink script while the param-less index does NOT
+                # (server-side conditional rendering). Forms only created ENDPOINTS,
+                # never page-fetches, so the whole DOM surface was invisible: the
+                # sink scanner never saw the script. Queue the form target with its
+                # default params (same budget gates as links).
+                if (form["method"] or "GET").upper() == "GET" and form["params"]:
+                    sep = "&" if "?" in action else "?"
+                    fq = action + sep + urllib.parse.urlencode(
+                        [(n, v or "1") for n, v in form["params"][:6]])
+                    if fq not in seen_pages and not fq.lower().endswith(_SKIP_AS_PAGE):
+                        queue.append(fq)
+            # DISC-10: div-based pseudo-forms (JS-driven submit) are real POST
+            # surfaces — tagged so the JSON upgrade pass can find them later.
+            for df in hp.divforms:
+                action = self._normalize(norm, df["action"] or norm)
+                if not action: continue
+                e3b = self._mk_endpoint(action, DiscoverySource.CRAWL_FORM,
+                                        params=df["params"], method=df["method"])
+                e3b.tags.append("divform")
+                if e3b.id not in endpoints: endpoints[e3b.id] = e3b
+            # DISC-11: static DOM source->sink scan (inline scripts of THIS page)
+            from .browser import scan_html_dom_sinks
+            for sink in scan_html_dom_sinks(norm, resp.body):
+                if sink.key() not in {s.key() for s in self.dom_sinks}:
+                    self.dom_sinks.append(sink)
+            # Phase 50: script-bearing HTML pages are the render candidates — runtime
+            # forms/DOM logic only exist where scripts run (live-caught: the JS-built
+            # form page fell outside a naive first-N selection and its surface was missed).
+            if "<script" in resp.body.lower() and norm not in self.script_pages:
+                self.script_pages.append(norm)
 
             # ---- JS static extraction
             if norm.endswith(".js") or "javascript" in resp.headers.get("content-type", ""):
+                self._js_bodies.append((norm, resp.body))
+                # DISC-11: DOM sinks in external JS assets too
+                from .browser import scan_dom_sinks
+                for sink in scan_dom_sinks(norm, resp.body):
+                    if sink.key() not in {s.key() for s in self.dom_sinks}:
+                        self.dom_sinks.append(sink)
                 for pat in JS_PATTERNS:
                     for match in pat.findall(resp.body):
                         if not plausible_js_url(match):            # DISC-01 gate
@@ -190,6 +270,10 @@ class DiscoveryEngine:
                     for root in _JS_XML_ROOT.findall(resp.body):
                         JS_XML_HINTS.add(root)
             else:
+                # DISC-10 (part 2): the JSON-serialization hint may live in the
+                # div-form page's OWN inline scripts (not only in external .js).
+                if _JS_JSON_CT.search(resp.body) and _JS_JSONIFY.search(resp.body):
+                    self._js_bodies.append((norm, resp.body))
                 for m in re.findall(r'<script[^>]+src=["\']([^"\']+)["\']', resp.body):
                     n = self._normalize(norm, m)
                     if n and urllib.parse.urlsplit(n).netloc == seed_host and n not in seen_pages \
@@ -206,7 +290,17 @@ class DiscoveryEngine:
                         if n and urllib.parse.urlsplit(n).netloc == seed_host:
                             e5 = self._mk_endpoint(n, DiscoverySource.JS_STATIC)
                             if e5.id not in endpoints: endpoints[e5.id] = e5
-        return list(endpoints.values()), js_hits, {"pages": pages, "unique_endpoints": len(endpoints)}
+        # ---- DISC-10 upgrade pass: div-forms whose JS serializes inputs as JSON
+        # get ParamLocation.JSON (ENG-04 then renders them as JSON bodies — the
+        # request shape the target's own JavaScript produces). Hint learned from
+        # ANY fetched JS asset (deterministic set, same crawl order every run).
+        if any(_JS_JSON_CT.search(b) and _JS_JSONIFY.search(b) for _, b in self._js_bodies):
+            for ep in endpoints.values():
+                if "divform" in ep.tags:
+                    for p in ep.parameters:
+                        p.location = ParamLocation.JSON
+        return list(endpoints.values()), js_hits, {"pages": pages, "unique_endpoints": len(endpoints),
+                                                   "dom_sink_candidates": len(self.dom_sinks)}
 
     def robots(self, base: str) -> list[Endpoint]:
         resp = self.engine.send(_simple_get(base.rstrip("/") + "/robots.txt"))

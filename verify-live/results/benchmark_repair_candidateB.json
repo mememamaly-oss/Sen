@@ -1,29 +1,32 @@
 {
- "benchmark": "local-fixture-v3",
+ "benchmark": "local-fixture-v4",
  "label": "repair-B-with-floor",
  "scanner": "sentinel-core/2.1.0",
  "run_id": "run-3c0652b6be",
  "seed": "benchmark-fixed-seed",
  "confusion": {
-  "TP": 13,
+  "TP": 17,
   "FP": 0,
   "FN": 0,
-  "TN": 10
+  "TN": 12
  },
  "precision": 1.0,
  "recall": 1.0,
  "f1": 1.0,
  "stats": {
-  "requests": 396,
-  "endpoints": 25,
-  "candidates": 17,
-  "verified": 68,
+  "requests": 592,
+  "endpoints": 37,
+  "candidates": 24,
+  "verified": 99,
   "rejected": 0,
-  "duration": 71.97,
+  "duration": 125.79,
   "crawl": {
-   "pages": 15,
-   "unique_endpoints": 23
-  }
+   "pages": 22,
+   "unique_endpoints": 34,
+   "dom_sink_candidates": 1
+  },
+  "browser_pages": 15,
+  "browser_probes": 2
  },
  "details": [
   {
@@ -117,6 +120,30 @@
   {
    "case": "server_banner_disclosure@*:",
    "cell": "TP"
+  },
+  {
+   "case": "xss_dom@/vuln/dom-write:search",
+   "cell": "TP"
+  },
+  {
+   "case": "xss_reflected@/vuln/json-reflect:name",
+   "cell": "TP"
+  },
+  {
+   "case": "xss_reflected@/vuln/csrf-reflect:note",
+   "cell": "TP"
+  },
+  {
+   "case": "xss_reflected@/vuln/jsform-reflect:msg",
+   "cell": "TP"
+  },
+  {
+   "case": "xss_dom@/safe/dom-text:search",
+   "cell": "TN"
+  },
+  {
+   "case": "xss_reflected@/safe/json-reflect:name",
+   "cell": "TN"
   }
  ],
  "findings": [
@@ -157,7 +184,7 @@
    "evidence": [
     {
      "kind": "response_diff",
-     "detail": "TRUE probe -> HTTP 200 (1095B), FALSE probe -> HTTP 500 (31B) \u2014 boolean oracle"
+     "detail": "TRUE probe -> HTTP 200 (1373B), FALSE probe -> HTTP 500 (31B) \u2014 boolean oracle"
     }
    ],
    "verification": {
@@ -207,7 +234,7 @@
    "evidence": [
     {
      "kind": "oob_callback",
-     "detail": "target fetched the external entity out-of-band (interaction oob-8e9ffc56e6b6 via GET at t+1790514145) \u2014 blind XXE: entity resolution proven with NO response oracle. recipe: root=stockCheck element=storeId iid=oob-8e9ffc56e6b6"
+     "detail": "target fetched the external entity out-of-band (interaction oob-8e9ffc56e6b6 via GET at t+1790547280) \u2014 blind XXE: entity resolution proven with NO response oracle. recipe: root=stockCheck element=storeId iid=oob-8e9ffc56e6b6"
     }
    ],
    "verification": {
@@ -236,7 +263,7 @@
     },
     {
      "kind": "response_diff",
-     "detail": "OR-pair body-size differential on condition flip: TRUE 3002B vs FALSE 802B (string-context boolean oracle)"
+     "detail": "OR-pair body-size differential on condition flip: TRUE 3280B vs FALSE 1080B (string-context boolean oracle)"
     }
    ],
    "verification": {
@@ -290,11 +317,11 @@
    "evidence": [
     {
      "kind": "unescaped_reflection",
-     "detail": "canary reflected raw in context: \u2026- <a href=\"/app.js\">app.js</a></div> <div>You searched for '<sentinelxssmarker>pro41</sentinelxssmarker>'</div> </body></html>\u2026"
+     "detail": "canary reflected raw in context: \u2026href=\"/vuln/jsform\">jsform</a></div> <div>You searched for '<sentinelxssmarker>pro41</sentinelxssmarker>'</div> </body></html>\u2026"
     },
     {
      "kind": "unescaped_reflection",
-     "detail": "canary reflected raw in context: \u2026- <a href=\"/app.js\">app.js</a></div> <div>You searched for '<sentinelxssmarkerpro42'</div> </body></html>\u2026"
+     "detail": "canary reflected raw in context: \u2026href=\"/vuln/jsform\">jsform</a></div> <div>You searched for '<sentinelxssmarkerpro42'</div> </body></html>\u2026"
     }
    ],
    "verification": {
@@ -319,19 +346,19 @@
    "evidence": [
     {
      "kind": "file_marker",
-     "detail": "content of win.ini leaked (marker '[fonts]' at offset 681)"
+     "detail": "content of win.ini leaked (marker '[fonts]' at offset 959)"
     },
     {
      "kind": "file_marker",
-     "detail": "content of /etc/passwd leaked (marker 'root:x:0:0:' at offset 681)"
+     "detail": "content of /etc/passwd leaked (marker 'root:x:0:0:' at offset 959)"
     },
     {
      "kind": "file_marker",
-     "detail": "content of win.ini leaked (marker '[fonts]' at offset 681)"
+     "detail": "content of win.ini leaked (marker '[fonts]' at offset 959)"
     },
     {
      "kind": "file_marker",
-     "detail": "content of /etc/passwd leaked (marker 'root:x:0:0:' at offset 681)"
+     "detail": "content of /etc/passwd leaked (marker 'root:x:0:0:' at offset 959)"
     }
    ],
    "verification": {
@@ -364,6 +391,118 @@
     "passed": true,
     "confidence": 0.9,
     "rounds": 6
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "run-3c0652b6be",
+   "risk": 63
+  },
+  {
+   "id": "F-c05a33d913",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/json-reflect",
+   "parameter": "name",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026<div>Hello <sentinelxssmarker>pro41</sentinelxssmarker></div>\u2026"
+    },
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026<div>Hello <sentinelxssmarkerpro42</div>\u2026"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "run-3c0652b6be",
+   "risk": 63
+  },
+  {
+   "id": "F-b57c5f4e51",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/csrf-reflect",
+   "parameter": "note",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026<div>Noted: <sentinelxssmarker>pro41</sentinelxssmarker></div>\u2026"
+    },
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026<div>Noted: <sentinelxssmarkerpro42</div>\u2026"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "run-3c0652b6be",
+   "risk": 63
+  },
+  {
+   "id": "F-8463fa1862",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/jsform-reflect",
+   "parameter": "msg",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026<div>Feedback: <sentinelxssmarker>pro41</sentinelxssmarker></div>\u2026"
+    },
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026<div>Feedback: <sentinelxssmarkerpro42</div>\u2026"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "run-3c0652b6be",
+   "risk": 63
+  },
+  {
+   "id": "F-721ecd6091",
+   "type": "xss_dom",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/dom-write?search=test",
+   "parameter": "search",
+   "evidence": [
+    {
+     "kind": "dom_execution",
+     "detail": "source=search sink=document.write \u2014 payload executed as markup via attr_breakout_double \u2014 window.__SENTINEL_XSS__ set in live DOM; static flow: function trackSearch(query) { document.write('<img src=\"/tracker.gif?searchTerms=' + query + '\">'); } var query = (new URLSearchPa"
+    }
+   ],
+   "verification": {
+    "method": "re-probe:fresh-canary",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 1
    },
    "scanner": "sentinel-core/2.1.0",
    "run_id": "run-3c0652b6be",
@@ -749,6 +888,156 @@
    "risk": 19
   },
   {
+   "id": "F-b80cf03869",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/dom-write",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-185b6d724a",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/safe/dom-text",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-050ed814c3",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/divform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-d3306fd084",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/safe/divform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-0e60395e5c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/csrfdivform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-0fa97ce240",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/jsform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
    "id": "F-54aa8669c0",
    "type": "missing_security_headers",
    "severity": "low",
@@ -1024,6 +1313,131 @@
    "risk": 19
   },
   {
+   "id": "F-619676053f",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/tracker.gif",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-ec1ed01b93",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/jsbuild.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-b318fe9126",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/json-reflect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-df02302682",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/safe/json-reflect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-8454854408",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/csrf-reflect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
    "id": "F-a870062008",
    "type": "missing_security_headers",
    "severity": "low",
@@ -1056,6 +1470,31 @@
    "confidence": 0.98,
    "method": "GET",
    "url": "http://127.0.0.1:8778/backup/db.sql",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 19
+  },
+  {
+   "id": "F-1b63190260",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/jsform-reflect",
    "parameter": "",
    "evidence": [
     {
@@ -1399,6 +1838,156 @@
    "risk": 9
   },
   {
+   "id": "F-8ea97cb034",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/dom-write",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-384475c0e0",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/safe/dom-text",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-93255b1d11",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/divform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-b8e9c2821a",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/safe/divform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-36ffa927eb",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/csrfdivform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-90dda52de0",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/vuln/jsform",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
    "id": "F-1eba7faa4b",
    "type": "server_banner_disclosure",
    "severity": "low",
@@ -1649,6 +2238,131 @@
    "risk": 9
   },
   {
+   "id": "F-052df139c1",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/tracker.gif",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-a50d3f39f0",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8778/jsbuild.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-3e223fe3ce",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/json-reflect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-ebcc5d60a8",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/safe/json-reflect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
+   "id": "F-7f55576b0c",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/csrf-reflect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
+  },
+  {
    "id": "F-f9c6217afd",
    "type": "server_banner_disclosure",
    "severity": "low",
@@ -1697,7 +2411,32 @@
    "scanner": "sentinel-core/2.1.0",
    "run_id": "",
    "risk": 9
+  },
+  {
+   "id": "F-8952e27e78",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8778/vuln/jsform-reflect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Sentinel-Fixture/1.0"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1
+   },
+   "scanner": "sentinel-core/2.1.0",
+   "run_id": "",
+   "risk": 9
   }
  ],
- "ground_truth_sha256": "4c8ed24eb992da00"
+ "ground_truth_sha256": "fb20fed2c73be21a"
 }

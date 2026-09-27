@@ -73,6 +73,8 @@ class SQLiDetector(Detector):
     def candidates(self, ep: Endpoint):
         out = []
         for p in ep.parameters:
+            if p.kind == ParamKind.TOKEN:
+                continue          # Phase 50: CSRF tokens ride along verbatim, never mutated
             base = p.value if p.value.isdigit() else "1"
             # DETECT-04 (live-caught on ginandjuice.shop /catalog?category=): quote ->
             # HTTP 500 with a GENERIC error page (no SQL keywords anywhere) — the old
@@ -165,6 +167,8 @@ class XSSDetector(Detector):
     def candidates(self, ep: Endpoint):
         out = []
         for p in ep.parameters:
+            if p.kind == ParamKind.TOKEN:
+                continue          # Phase 50: mutating a CSRF token only breaks the flow
             # VR-03 (live-caught on ginandjuice.shop /catalog?category=): the full-tag
             # canary carries a closing tag </sentinelxssmarker> — apps that escape only
             # the '/' (e.g. </ -> <\/ as JS-string hardening) break the needle match
@@ -179,6 +183,15 @@ class XSSDetector(Detector):
     def analyze(self, pair, resp):
         ep, p = pair
         if resp is None or not resp.body: return None
+        # DETECT-10 (live-proven on ginandjuice.shop /catalog/subscribe): the email
+        # param reflects RAW inside an application/json response — but a JSON body is
+        # parsed as data by the browser, never as markup. Flagging it would be a
+        # FALSE POSITIVE; the real verdict belongs to the browser submit-flow (does
+        # the client render the response value into an HTML sink?). Only HTML-ish
+        # (or unspecified) response types are candidate XSS reflections here.
+        ct = (resp.headers or {}).get("content-type", "")
+        if "json" in ct.lower() and "html" not in ct.lower():
+            return None
         for needle in (f"<{self.CANARY}>pro41</{self.CANARY}>", f"<{self.CANARY}pro42"):
             if needle in resp.body:
                 i = resp.body.find(needle)
@@ -202,7 +215,8 @@ class TraversalDetector(Detector):
             payloads.append("../" * depth + "etc/passwd")
         payloads.append("....//....//....//windows/win.ini")
         return [(pl, RequestMutation(endpoint=ep, param_name=p.name, param_value=pl))
-                for p in ep.parameters for pl in payloads[:4]]
+                for p in ep.parameters if p.kind != ParamKind.TOKEN
+                for pl in payloads[:4]]
 
     def analyze(self, pair, resp):
         ep, p = pair
@@ -224,7 +238,8 @@ class RedirectDetector(Detector):
     def candidates(self, ep: Endpoint):
         ev = "sentinel-redirect-check.example.org"
         return [(v, RequestMutation(endpoint=ep, param_name=p.name, param_value=v))
-                for p in ep.parameters for v in (f"https://{ev}/probe", f"//{ev}/probe")]
+                for p in ep.parameters if p.kind != ParamKind.TOKEN
+                for v in (f"https://{ev}/probe", f"//{ev}/probe")]
 
     def analyze(self, pair, resp):
         ep, p = pair
@@ -258,7 +273,7 @@ class CrlfDetector(Detector):
 
     def candidates(self, ep: Endpoint):
         return [RequestMutation(endpoint=ep, param_name=p.name, param_value=self.PROBE_VALUE)
-                for p in ep.parameters if p.kind != ParamKind.NUMERIC]
+                for p in ep.parameters if p.kind not in (ParamKind.NUMERIC, ParamKind.TOKEN)]
 
     def analyze(self, pair, resp):
         ep, p = pair

@@ -410,13 +410,14 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    # fixture v3 ground truth (v2.1.0): 13 TP-able (11 actives incl. OOB blind-XXE
-    # + headers + banner), 10 TN-able. F1 must be 1.0 with zero FP/FN — the OP-01
-    # autostart path must deliver the FULL benchmark, not a silently-empty scan
-    # (the original F1=0.0 failure mode).
-    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 13
+    # fixture v4 ground truth (Phase 50): 17 TP-able (13 static/browserless incl. OOB
+    # blind-XXE + headers + banner, PLUS 4 browser-phase TPs: DOM XSS, div-form JSON
+    # reflection, CSRF-protected reflection, runtime-built form), 12 TN-able. F1 must
+    # be 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL benchmark,
+    # not a silently-empty scan (the original F1=0.0 failure mode).
+    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 17
               and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
-              and rep["confusion"]["TN"] == 10)
+              and rep["confusion"]["TN"] == 12)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -876,8 +877,9 @@ def regression_rest_api_server():
             return e.code, _json.loads(e.read().decode())
 
     try:
+        from sentinel.core import VERSION as _VER
         s, h = api("/api/health")
-        assert s == 200 and h["status"] == "ok" and h["version"] == "2.1.0"
+        assert s == 200 and h["status"] == "ok" and h["version"] == _VER
         s, ui = api("/", raw=True)
         assert "SENTINEL" in ui and "/api/scans" in ui
         s, e = api("/api/nope")
@@ -949,6 +951,183 @@ def regression_cli_script_mode_all_subcommands():
                 fixture.wait(timeout=5)
             except Exception:
                 fixture.kill()
+
+
+# ================================================================ Phase 50 (browser/DOM engine)
+@case
+def unit_disc10_divform_parsing():
+    """JS-driven pseudo-forms are <div data-action data-method> blocks, not <form>
+    elements — the exact ginandjuice.shop #subscribe markup. The parser must recover
+    action+method+inputs (nested-div safe) while real <form>s stay unaffected."""
+    from sentinel.discovery import _LinkParser
+    html = """<html><body>
+<div id="subscribe" class="form" data-method="post" data-action="/catalog/subscribe">
+  <input required type=email name=email placeholder="Email address">
+  <input required type=hidden name=csrf value="ABC123">
+  <button class="button" type=submit>Subscribe</button>
+</div>
+<form action="/old" method="GET"><input name=q value="1"></form>
+</body></html>"""
+    p = _LinkParser(); p.feed(html)
+    assert p.divforms and p.divforms[0]["action"] == "/catalog/subscribe"
+    assert p.divforms[0]["method"] == "POST"
+    assert [n for n, _ in p.divforms[0]["params"]] == ["email", "csrf"], p.divforms[0]
+    assert p.forms and p.forms[0]["params"] == [("q", "1")], "real forms must not regress"
+    # csrf params must classify as TOKEN (never mutated, carried as sibling)
+    from sentinel.core import Parameter, ParamKind
+    assert Parameter("csrf", ParamLocation.BODY, "ABC123").classify().kind == ParamKind.TOKEN
+    assert Parameter("authenticity_token", ParamLocation.BODY, "x").classify().kind == ParamKind.TOKEN
+
+
+@case
+def unit_disc11_dom_sink_scanner():
+    """Static source->sink analysis: the ginandjuice.shop /blog?search pattern
+    (URLSearchParams -> document.write) is identified with its param name;
+    safe textContent sinks produce NO candidate (precision)."""
+    from sentinel.browser import scan_dom_sinks, scan_html_dom_sinks
+    js = """function trackSearch(query) {
+    document.write('<img src="/resources/images/tracker.gif?searchTerms='+query+'">');
+}
+var query = (new URLSearchParams(window.location.search)).get('search');
+if(query) { trackSearch(query); }"""
+    sinks = scan_dom_sinks("https://t.example/blog", js)
+    assert any(s.sink == "document.write" and s.params == ["search"] and s.source == "search"
+               for s in sinks), sinks
+    safe = """var q = new URLSearchParams(window.location.search).get('search');
+if(q){ document.getElementById('out').textContent = q; }"""
+    assert scan_dom_sinks("https://t.example/safe", safe) == [], "textContent is not a dangerous sink"
+    # hash-source page (location.hash -> innerHTML) is a candidate too
+    h = "var h = location.hash.substring(1); document.getElementById('x').innerHTML = h;"
+    hs = scan_dom_sinks("https://t.example/hash", h)
+    assert any(s.source == "hash" and s.sink == "innerHTML" for s in hs), hs
+    # inline-block extraction works on full HTML pages
+    page = f"<html><body><script>{js}</script></body></html>"
+    assert len(scan_html_dom_sinks("u", page)) >= 1
+
+
+@case
+def unit_eng04_json_body_render():
+    """ENG-04: params with JSON location render as a JSON body with
+    Content-Type application/json — the request shape subscribeNow-style JS
+    produces. Siblings (CSRF tokens) ride along verbatim."""
+    import json as _json
+    from sentinel.core import Endpoint, Parameter, ParamLocation
+    from sentinel.http_engine import RequestEngine, RequestMutation, RequestMutation as RM
+    from sentinel.core import ScopeRule, EventBus
+    eng = RequestEngine(ScopeRule(allowed_domains=["t.example"], allow_private=False), EventBus("t"))
+    ep = Endpoint(url="http://t.example/subscribe", method="POST", parameters=[
+        Parameter("email", ParamLocation.JSON, "a@b.example"),
+        Parameter("csrf", ParamLocation.JSON, "TOK123"),
+    ])
+    url, method, headers, body = eng._render(
+        RM(endpoint=ep, param_name="email", param_value="<img src=x onerror=1>"))
+    sent = _json.loads(body)
+    assert sent == {"email": "<img src=x onerror=1>", "csrf": "TOK123"}, sent
+    assert headers.get("Content-Type") == "application/json", headers
+    assert method == "POST"
+    # form-body endpoints keep the urlencoded Content-Type (no regression)
+    ep2 = Endpoint(url="http://t.example/login", method="POST", parameters=[
+        Parameter("uid", ParamLocation.BODY, "admin")])
+    _, _, h2, b2 = eng._render(RM(endpoint=ep2, param_name="uid", param_value="admin' -- "))
+    assert h2.get("Content-Type") == "application/x-www-form-urlencoded"
+    assert "uid=" in b2
+
+
+@case
+def unit_eng05_cookie_jar_session_continuity():
+    """ENG-05: Set-Cookie harvested from a response is replayed on the next
+    same-host request — without the jar the CSRF-protected endpoint answers 403
+    for every request (the whole surface unreachable), with it the flow works."""
+    import threading, os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.core import Endpoint, Parameter, ParamLocation, ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    from sentinel.core import ParamKind
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_cj", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                    "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8797
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        def mk_engine():
+            return RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                                 EventBus("cj"))
+        # 1) without visiting the form page first: no session, no token -> 403
+        e0 = mk_engine()
+        ep0 = Endpoint(url=f"http://127.0.0.1:{port}/vuln/csrf-reflect", method="POST", parameters=[
+            Parameter("note", ParamLocation.JSON, "x"), Parameter("csrf", ParamLocation.JSON, "WRONG")])
+        r0 = e0.send(RequestMutation(endpoint=ep0, param_name="note", param_value="x",
+                                     extra_headers={"Content-Type": "application/json"},
+                                     body_override='{"note":"x","csrf":"WRONG"}'))
+        assert r0.status == 403, f"expected 403 without session, got {r0.status}"
+        # 2) with the jar: GET the form page (sets cookie, page embeds token),
+        #    then POST with harvested session + token -> 200 reflection
+        e1 = mk_engine()
+        page = e1.send(RequestMutation(
+            endpoint=Endpoint(url=f"http://127.0.0.1:{port}/vuln/csrfdivform")))
+        assert "session" in e1.cookie_jar.get("127.0.0.1", {}), e1.cookie_jar
+        import re as _re
+        tok = _re.search(r'name="csrf" value="([0-9a-f]+)"', page.body).group(1)
+        ep1 = Endpoint(url=f"http://127.0.0.1:{port}/vuln/csrf-reflect", method="POST", parameters=[
+            Parameter("note", ParamLocation.JSON, "zk51probe"),
+            Parameter("csrf", ParamLocation.JSON, tok)])
+        r1 = e1.send(RequestMutation(endpoint=ep1, param_name="note", param_value="zk51probe"))
+        assert r1.status == 200 and "zk51probe" in r1.body, (r1.status, r1.body[:80])
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def e2e_browser_phase_full():
+    """Phase 50 E2E (real Chromium): the four browser-phase ground truths in ONE
+    full scan — DOM XSS proven by execution + fresh-canary re-probe (BR-01),
+    div-form JSON reflection (DISC-10+ENG-04), CSRF-protected reflection (ENG-05),
+    runtime-built form (render-merge) — while both safe twins stay silent (0 FP)."""
+    import threading, os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.browser import browser_available
+    if not browser_available():
+        raise AssertionError("playwright/chromium required for the Phase 50 E2E gate "
+                             "(doctor check browser_engine reports availability)")
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_br", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                    "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8798
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=30, timeout=6,
+                         seed="phase50-e2e", browser=True)
+        sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
+        rep = sc.run()
+        got = {(f["type"], f["url"].split("?")[0], f["parameter"]): f for f in rep["findings"]}
+        # (1) DOM XSS via document.write — browser-only, execution-proven, BR-01 verified
+        dom = got.get(("xss_dom", f"http://127.0.0.1:{port}/vuln/dom-write", "search"))
+        assert dom, f"xss_dom missing; got {sorted(got)}"
+        assert dom["verification"]["method"] == "re-probe:fresh-canary"
+        assert dom["verification"]["passed"] is True and dom["status"] == "verified"
+        # (2) div-form JSON reflection (subscribe-style chain)
+        assert ("xss_reflected", f"http://127.0.0.1:{port}/vuln/json-reflect", "name") in got, \
+            f"div-form JSON chain missing; got {sorted(got)}"
+        # (3) CSRF-protected reflection (cookie jar + token preservation)
+        assert ("xss_reflected", f"http://127.0.0.1:{port}/vuln/csrf-reflect", "note") in got, \
+            f"CSRF-protected surface missing; got {sorted(got)}"
+        # (4) runtime-built form (statically invisible — render-merge only)
+        assert ("xss_reflected", f"http://127.0.0.1:{port}/vuln/jsform-reflect", "msg") in got, \
+            f"runtime form surface missing; got {sorted(got)}"
+        # negatives: safe DOM sink + escaped JSON reflection must stay silent
+        for t, u, p in got:
+            if t == "xss_dom" and "/safe/dom-text" in u:
+                raise AssertionError("FP: safe textContent sink flagged")
+            if t == "xss_reflected" and "/safe/json-reflect" in u:
+                raise AssertionError("FP: escaped JSON reflection flagged")
+        assert rep["stats"].get("browser_pages", 0) > 0, "browser render pass must run"
+    finally:
+        srv.shutdown(); srv.server_close()
 
 
 # ================================================================ main

@@ -1,114 +1,80 @@
 #!/bin/bash
-# Save ALL SENTINEL artifacts to /home/z/my-project/download/
-# Task 6: "يرجي حفظ كل شيء في ملفات التنزيل"
+# Save ALL SENTINEL artifacts to /home/z/my-project/download/ (v2.2.0 update)
 set -e
-
 BASE=/home/z/my-project
 LIVE=$BASE/verify-live
 DL=$BASE/download
 RES=$DL/sentinel-results
 
-echo "=== [1/5] Copy missing result artifacts to download/sentinel-results/ ==="
-
-# --- Real-target scans (all versions, historical evolution) ---
-for f in scan_testasp_real.json scan_testasp_LIVE.json \
-         scan_testaspnet_real.json scan_testaspnet_LIVE.json \
-         scan_altoro_LIVE.json scan_altoro_FIXED.json scan_altoro_v202.json \
-         scan_testfire_LIVE.json scan_testfire_FINAL.json scan_testfire_PRODUCTION.json \
-         scan_ginjuice_LIVE.json scan_ginjuice_probe.json scan_ginjuice_BASELINE.json \
-         scan_ginjuice_PRODUCTION.json scan_ginjuice_FINAL.json scan_ginjuice_v210.json; do
+echo "=== [1/4] Copy v2.2.0 + Phase-50 artifacts to download/sentinel-results/ ==="
+for f in scan_ginjuice_v220_BROWSER.json scan_ginjuice_v220_FINAL.json \
+         scan_ginjuice_v220_FINAL2.json scan_ginjuice_v220_PRODUCTION.json \
+         benchmark_v4_live1.json benchmark_v4_live2.json benchmark_v4_repro1.json \
+         benchmark_v4_repro2.json benchmark_v4_disc12.json benchmark_v4_BR02.json \
+         benchmark_v4_FINAL.json; do
   [ -f "$LIVE/results/$f" ] && cp -f "$LIVE/results/$f" "$RES/$f"
 done
-
-# --- Benchmark evolution (v1 -> v210) ---
-for f in benchmark_v1.json benchmark_v2.json benchmark_v3.json benchmark_FINAL.json \
-         benchmark_INITIAL_f0833.json benchmark_v203.json benchmark_v203b.json \
-         benchmark_v203c.json benchmark_v203d.json benchmark_v203e.json \
-         benchmark_v203_FINAL.json benchmark_v210.json benchmark_v210_repro.json \
-         benchmark_baseline.json bench_baseline_v21.json bench_d01.json \
-         bench_postdisc.json vr02_bench.json eng_bench.json \
-         benchmark_broken.json benchmark_repair_candidate.json \
-         benchmark_repair_candidateA.json benchmark_repair_candidateB.json \
-         repro_a.json repro_b.json; do
-  [ -f "$LIVE/results/$f" ] && cp -f "$LIVE/results/$f" "$RES/$f"
-done
-
-# --- Reports ---
-cp -f "$LIVE/results/report_live_test.html" "$RES/report_live_test.html" 2>/dev/null || true
-
-# --- Database + strategy state (latest) ---
 cp -f "$LIVE/results/sentinel.db" "$RES/sentinel.db"
-cp -f "$LIVE/results/strategy_store.json" "$RES/strategy_store.json"
-
-echo "=== [2/5] Copy docs: WORKLOG + CHANGELOG + test scripts ==="
-mkdir -p "$RES/test-scripts"
-cp -f "$BASE/worklog.md" "$RES/WORKLOG.md"
-cp -f "$LIVE/CHANGELOG.md" "$RES/CHANGELOG.md"
-cp -f "$LIVE/scripts_test_api.py" "$RES/test-scripts/scripts_test_api.py" 2>/dev/null || true
-cp -f "$LIVE/scripts_test_store.py" "$RES/test-scripts/scripts_test_store.py" 2>/dev/null || true
-cp -f "$LIVE/scripts_strategy_demo.py" "$RES/test-scripts/scripts_strategy_demo.py" 2>/dev/null || true
 cp -f "$LIVE/benchmarks/ground_truth.json" "$RES/ground_truth.json"
+cp -f "$LIVE/CHANGELOG.md" "$RES/CHANGELOG.md"
+cp -f "$BASE/worklog.md" "$RES/WORKLOG.md"
 
-echo "=== [3/5] Build complete bundle: sentinel-2.1.0-complete-bundle.zip ==="
-STAGE=/tmp/sentinel-bundle
-rm -rf "$STAGE" && mkdir -p "$STAGE/sentinel-2.1.0-complete"
-B="$STAGE/sentinel-2.1.0-complete"
-
-# Source tree (same as verified 2.1.0 zip + test scripts)
-mkdir -p "$B/source"
+echo "=== [2/4] Rebuild complete bundle (v2.2.0) ==="
+STAGE=/tmp/sentinel-bundle-220
+rm -rf "$STAGE" && mkdir -p "$STAGE/sentinel-2.2.0-complete"
+B="$STAGE/sentinel-2.2.0-complete"
+mkdir -p "$B/source" "$B/results/scans" "$B/results/benchmarks" "$B/results/reports" "$B/database" "$B/docs"
 cd "$LIVE" && cp -r sentinel fixtures tests benchmarks CHANGELOG.md "$B/source/"
 rm -rf "$B/source/sentinel/__pycache__" "$B/source/fixtures/__pycache__" "$B/source/tests/__pycache__"
-cp -f "$LIVE"/scripts_*.py "$B/source/"
-
-# Results organized
-mkdir -p "$B/results/scans" "$B/results/benchmarks" "$B/results/reports" "$B/database" "$B/docs"
+cp -f "$LIVE"/scripts_*.py "$B/source/" 2>/dev/null || true
 cp -f "$RES"/scan_*.json "$B/results/scans/"
 cp -f "$RES"/benchmark*.json "$RES"/bench_*.json "$RES"/vr02_*.json "$RES"/eng_*.json "$RES"/repro_*.json "$B/results/benchmarks/" 2>/dev/null || true
-cp -f "$RES"/*.html "$B/results/reports/"
-cp -f "$RES"/SENTINEL_Results_Report_AR.pdf "$B/results/reports/" 2>/dev/null || true
+cp -f "$RES"/*.html "$RES"/SENTINEL_Results_Report_AR.pdf "$B/results/reports/" 2>/dev/null || true
 cp -f "$RES"/sentinel.db "$RES"/strategy_store.json "$B/database/"
 cp -f "$RES"/ground_truth.json "$B/results/benchmarks/"
 cp -f "$RES"/WORKLOG.md "$RES"/CHANGELOG.md "$B/docs/"
 
-# Bundle README (index)
 cat > "$B/README.md" <<'EOF'
-# SENTINEL 2.1.0 — Complete Bundle
+# SENTINEL 2.2.0 — Complete Bundle
 
 Deterministic self-healing DAST platform + full real-test campaign artifacts.
+Phase 50 (v2.2.0): Browser/DOM engine — Playwright/Chromium rendering, DOM XSS
+execution proofs, div-form + JSON-body discovery, session cookie jar, CSRF-token
+preservation. Real-target proof: ginandjuice.shop /blog?search DOM XSS verified
+via WAF-bypassing attribute-injection vector.
 
 ## Contents
-- source/            Full platform source (13 modules, fixtures, 36-case test suite, ground truth)
-- results/scans/     All real-target scans (testasp, testaspnet, testfire/Altoro, ginandjuice/PortSwigger)
-- results/benchmarks/ Benchmark evolution v1 -> v2.1.0 (F1 0.833 -> 1.000) + repair candidates + repro
-- results/reports/   HTML + PDF reports (Arabic + English)
+- source/            Full platform source (14 modules incl. browser.py, fixtures v4,
+                     41-case test suite, ground truth 17TP/12TN)
+- results/scans/     All real-target scans (testasp, testaspnet, testfire/Altoro,
+                     ginandjuice/PortSwigger incl. v2.2.0 browser-phase production runs)
+- results/benchmarks/ Benchmark evolution v1 -> v2.2.0 (F1 0.833 -> 1.000) + repair + repro
+- results/reports/   HTML + PDF reports
 - database/          sentinel.db (SQLite runs+findings store) + strategy_store.json
-- docs/              WORKLOG.md (full build/fix history) + CHANGELOG.md
+- docs/              WORKLOG.md + CHANGELOG.md
 
 ## Quick start
     cd source
-    python3 sentinel/cli.py doctor
-    python3 sentinel/cli.py benchmark          # F1=1.000 expected (auto-starts fixture)
+    python3 sentinel/cli.py doctor            # 10/10 (browser_engine included)
+    python3 sentinel/cli.py benchmark         # F1=1.000 (TP=17 FP=0 FN=0 TN=12)
     python3 sentinel/cli.py scan <authorized-target> --max-pages 25 --out results/scan.json
-    python3 sentinel/cli.py serve              # REST API + dashboard at http://127.0.0.1:8787
+    python3 sentinel/cli.py serve             # REST + dashboard at 127.0.0.1:8022
 
-Only scan targets you are explicitly authorized to test.
+Requires: Python 3.10+ stdlib; optional Playwright+Chromium for the DOM phase
+(graceful degradation without it). Only scan targets you are authorized to test.
 EOF
 
-cd "$STAGE" && rm -f "$DL/sentinel-2.1.0-complete-bundle.zip"
-zip -rq "$DL/sentinel-2.1.0-complete-bundle.zip" sentinel-2.1.0-complete
-echo "Bundle created."
+cd "$STAGE" && rm -f "$DL/sentinel-2.2.0-complete-bundle.zip"
+zip -rq "$DL/sentinel-2.2.0-complete-bundle.zip" sentinel-2.2.0-complete
 
-echo "=== [4/5] Verify bundle integrity ==="
-mkdir -p /tmp/bundle-verify && rm -rf /tmp/bundle-verify/* && cd /tmp/bundle-verify
-unzip -q "$DL/sentinel-2.1.0-complete-bundle.zip"
-FILES=$(find sentinel-2.1.0-complete -type f | wc -l)
-echo "Bundle file count: $FILES"
-# Smoke: run doctor from the extracted bundle itself
-cd sentinel-2.1.0-complete/source && python3 sentinel/cli.py doctor 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); p=sum(1 for c in d['checks'] if c['status']=='PASS'); print(f'Bundle self-check: doctor {p}/{len(d[\"checks\"])} PASS')"
+echo "=== [3/4] Verify bundle ==="
+mkdir -p /tmp/bundle-verify-220 && rm -rf /tmp/bundle-verify-220/* && cd /tmp/bundle-verify-220
+unzip -q "$DL/sentinel-2.2.0-complete-bundle.zip"
+FILES=$(find sentinel-2.2.0-complete -type f | wc -l)
+echo "bundle files: $FILES"
+cd sentinel-2.2.0-complete/source && python3 sentinel/cli.py doctor 2>/dev/null | python3 -c "import json,sys; d=json.load(sys.stdin); print('bundle self-check doctor:', d['passed'],'/',d['total'])"
 
-echo "=== [5/5] Final inventory ==="
-echo "--- download/ ---"
-ls -la "$DL"
-echo "--- download/sentinel-results/ ---"
-ls "$RES" | sort
+echo "=== [4/4] Inventory ==="
+ls "$DL" | sort
+echo "sentinel-results count: $(ls "$RES" | wc -l)"
 echo "DONE"

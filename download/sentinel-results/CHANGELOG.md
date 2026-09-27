@@ -77,3 +77,44 @@ python3 sentinel/cli.py repair-demo          # live self-repair gate loop
 - Browser/DOM engine (DOM-XSS, JS-rendered forms) — next architecture phase.
 - Authenticated crawling depth (session replay exists in the engine; scanner
   surface is anonymous-context by default).
+
+## 2.2.0 — Phase 50: Browser/DOM Engine
+- NEW sentinel/browser.py: static DomSinkScanner (source->sink flows, param extraction)
+  + BrowserEngine (Playwright/Chromium, scope-gated) — render, runtime form/link
+  discovery, network capture, DOM XSS execution proofs (window-flag canary), BR-01
+  fresh-canary verification, BR-02 WAF-resistant 5-variant probe battery.
+- DISC-10: div[data-action] pseudo-form parsing (ginandjuice #subscribe markup) +
+  static JSON-serialization learning (JSON.stringify + application/json hints).
+- DISC-11: static DOM source->sink scan on inline scripts + JS assets.
+- DISC-12: GET-form action URLs queued as crawl pages with default params
+  (live-caught: /blog?search= script is server-side conditional — the param-less
+  index carries no script at all).
+- DISC-09 fix (live-caught via traced crawl): per-path cap now counts FETCHES not
+  queue insertions — duplicate menubar links used to burn the whole path budget
+  and starve the DISC-12 form-target URL (every gate passed, surface unreachable).
+- ENG-04: ParamLocation.JSON rendering (JSON body + Content-Type application/json;
+  siblings like CSRF tokens ride along verbatim).
+- ENG-05: session cookie jar (multi Set-Cookie harvest — dict comprehension kept
+  only the last one — + same-host Cookie replay). Substrate for CSRF-protected
+  flows and the future authenticated-scan phase.
+- DETECT-10: XSS detector content-type gate — raw reflection inside an
+  application/json response is data, not markup (subscribe email would have been
+  an FP); the browser submit-flow owns that verdict.
+- TOKEN param kind (csrf/token/nonce): never mutated, carried as sibling — all
+  detectors skip it.
+- Doctor: browser_engine check (10 checks now; WARN-with-degraded when playwright
+  absent — static fallback stays active).
+- CLI: scan --no-browser.
+- Fixture v4 (ground truth 17 TP / 12 TN): /vuln/dom-write (conditional DOM-XSS
+  script — reachable only via DISC-12) + /safe/dom-text (TN), /vuln/json-reflect
+  + /safe/json-reflect (div-form JSON chain), /vuln/csrf-reflect (session+CSRF
+  gated), /vuln/jsform + runtime-built form page (render-merge only).
+- Tests 36 -> 41 (div-form parsing, sink scanner, JSON render, cookie jar E2E,
+  full browser-phase E2E). Benchmark local-fixture-v4: F1=1.000 TP=17 FP=0 FN=0
+  TN=12, deterministic run-3c0652b6be x3 identical — WITH a real browser in the loop.
+- REAL TARGET (ginandjuice.shop, PortSwigger scanme): the documented browser-phase
+  gap is CLOSED — xss_dom /blog/ param=search VERIFIED (execution proof +
+  fresh-canary re-probe). Live WAF hunt on the target: tag-name + event-handler
+  blacklist (400 on <img/<svg/<x onfocus=...); defeated by the BR-02
+  attribute-injection vector (" onload="... — no '<' at all) after mapping the
+  filter empirically. 5 verified actives total, 0 FP, 0 rejected.

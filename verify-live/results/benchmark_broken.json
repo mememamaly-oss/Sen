@@ -1,5 +1,5 @@
 {
- "benchmark": "local-fixture-v3",
+ "benchmark": "local-fixture-v4",
  "label": "broken-transport",
  "scanner": "sentinel-core/2.1.0",
  "run_id": "run-3c0652b6be",
@@ -7,8 +7,8 @@
  "confusion": {
   "TP": 0,
   "FP": 0,
-  "FN": 13,
-  "TN": 10
+  "FN": 17,
+  "TN": 12
  },
  "precision": 0.0,
  "recall": 0.0,
@@ -19,11 +19,13 @@
   "candidates": 0,
   "verified": 0,
   "rejected": 0,
-  "duration": 0.02,
+  "duration": 0.44,
   "crawl": {
    "pages": 1,
-   "unique_endpoints": 0
-  }
+   "unique_endpoints": 0,
+   "dom_sink_candidates": 0
+  },
+  "browser_pages": 0
  },
  "details": [
   {
@@ -117,8 +119,32 @@
   {
    "case": "server_banner_disclosure@*:",
    "cell": "FN"
+  },
+  {
+   "case": "xss_dom@/vuln/dom-write:search",
+   "cell": "FN"
+  },
+  {
+   "case": "xss_reflected@/vuln/json-reflect:name",
+   "cell": "FN"
+  },
+  {
+   "case": "xss_reflected@/vuln/csrf-reflect:note",
+   "cell": "FN"
+  },
+  {
+   "case": "xss_reflected@/vuln/jsform-reflect:msg",
+   "cell": "FN"
+  },
+  {
+   "case": "xss_dom@/safe/dom-text:search",
+   "cell": "TN"
+  },
+  {
+   "case": "xss_reflected@/safe/json-reflect:name",
+   "cell": "TN"
   }
  ],
  "findings": [],
- "ground_truth_sha256": "4c8ed24eb992da00"
+ "ground_truth_sha256": "fb20fed2c73be21a"
 }

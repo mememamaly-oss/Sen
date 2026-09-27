@@ -172,3 +172,37 @@ Work Log:
 Stage Summary:
 - download/ now contains EVERYTHING: sentinel-2.1.0-complete-bundle.zip (70 files, self-verified) + 5 source zips (2.0.0→2.1.0) + sentinel-results/ with 50 files (all 16 real-target scans, full benchmark evolution v1→v210, repair candidates, repro proofs, reports AR/EN, sentinel.db, strategy store, ground truth, WORKLOG, CHANGELOG, test scripts) + comprehensive Arabic README index.
 - Quality state at save time: 36/36 tests, 9/9 doctor, F1=1.000 (run-3c0652b6be), zero false positives maintained across all real targets.
+
+---
+Task ID: 7
+Agent: Super Z (main agent)
+Task: User directive "لنكمل" (continue building per architecture) — implement Phase 50: Browser/DOM Engine, the first documented remaining phase; validate live on the real authorized target; save everything to download.
+
+Work Log:
+- Pre-build recon on ginandjuice.shop (the documented browser-phase gap): /catalog/subscribe is a div[data-action] pseudo-form (NOT a <form>) POSTing JSON with a session-bound CSRF token; /blog?search reads the param client-side via URLSearchParams and writes it into document.write — server NEVER reflects it (DOM XSS provable only in a browser).
+- Environment: Playwright + Chromium 143 available. Built sentinel/browser.py:
+  * DomSinkScanner (STATIC, browserless): source->sink flow analysis (location.search/hash, URLSearchParams, referrer -> document.write/innerHTML/eval...), param-name extraction; safe sinks (textContent) produce no candidate.
+  * BrowserEngine (Playwright, scope-gated): render() with runtime form/link extraction + XHR capture; render_merge() adds browser-only endpoints; probe_dom_xss() EXECUTION proof — canary sets window.__SENTINEL_XSS__ inside an event handler, flag exists only if the browser parsed the payload as markup.
+  * BR-01 verification: fresh-canary independent re-probe. BR-02: 5-variant probe battery.
+- Engine fixes: ENG-04 (ParamLocation.JSON bodies + Content-Type application/json, siblings ride along), ENG-05 (session cookie jar — multi Set-Cookie harvest, same-host replay).
+- Discovery: DISC-10 (div-form parsing + static JSON-serialization learning from JS assets/inline scripts), DISC-11 (DOM sink collection), DISC-12 (GET-form action URLs queued as pages with default params).
+- DETECT-10: XSS detector content-type gate (raw reflection in application/json = data not markup — prevented a would-be FP on subscribe email). TOKEN param kind (csrf/token/nonce never mutated). Doctor +browser_engine (10 checks). CLI --no-browser.
+- LIVE-CAUGHT DEFECTS during build (each fixed + permanent regression):
+  * ScopeRule has no _scope_ok (browser delegated to RequestEngine).
+  * Naive first-10 render selection missed the JS-form page -> script_pages priority ordering.
+  * DISC-09 per-path cap counted QUEUE INSERTIONS: the same menubar link queued 4 duplicates from 4 pages, burned the whole path budget, and STARVED the DISC-12 form-target URL — traced crawl proved every gate passed individually while the surface stayed unreachable. Fix: count FETCHES (dupes dedupe free at pop-time).
+  * Fixture v4 made the dom-write script server-side CONDITIONAL (param-less page carries no script) so the benchmark TP is reachable ONLY via the full DISC-12 chain — real regression protection.
+  * REST API test asserted literal version 2.1.0 -> now imports VERSION.
+- Fixture v4 + ground truth 17 TP / 12 TN (local-fixture-v4): dom-write/dom-text pair, json-reflect + safe twin (div-form JSON chain), csrf-reflect (session+CSRF gated), jsform-reflect (runtime-built form, render-merge only).
+- Gates: tests 36->41 all PASS; doctor 10/10; benchmark F1=1.000 TP=17 FP=0 FN=0 TN=12 deterministic run-3c0652b6be x3 IDENTICAL — with a real browser in the loop; repair-demo full loop OK.
+- REAL-TARGET WAF HUNT (ginandjuice.shop /blog?search, authorized): empirical filter mapping — 400 on ANY known tag name (<img <svg <a <b <div <style...) AND on <anytag + known handler (onfocus/onerror/onload/onanimationstart...); unknown tags + unknown handlers + handler-without-< all pass. ALL standard breakout vectors blocked (img/svg/details/video/marquee/input/custom+known-handler). BREAKTHROUGH: attribute injection with NO '<' at all — " onload="flag" injects the handler into the SERVER'S OWN img tag; tracker.gif returns 200 so onload fires. Live-executed in Chromium: flag set.
+- BR-02 implemented (attr_inject_onerror/attr_inject_onload first in battery). FINAL PRODUCTION SCAN v2.2.0 (433 req, 393s, 15 browser pages, 4 probes): 5 VERIFIED actives, 0 FP, 0 rejected — CRITICAL SQLi /catalog?category; HIGH xss_reflected + header injection /catalog?category; **HIGH xss_dom /blog/ param=search (source=search sink=document.write, attr_inject_onload, re-probe:fresh-canary PASSED)**; MEDIUM open_redirect. The v2.0.3-documented browser-phase gap is CLOSED on the real target.
+- Honest negative: /catalog/subscribe email reflects raw in application/json but renders via textContent — correctly NOT reported (DETECT-10 gate + no browser-side execution).
+- Packaged sentinel-2.2.0-source.zip (26 files, self-sufficient: doctor 10/10 + benchmark F1=1.0 from extracted zip); rebuilt sentinel-2.2.0-complete-bundle.zip (82 files, self-check doctor 10/10); saved all new artifacts to download/sentinel-results/ (63 files now); README index updated.
+
+Stage Summary:
+- Phase 50 complete: real-browser DOM engine with execution-proof verification, WAF-resistant probe battery, div-form/JSON/CSRF/session coverage, and 4 new discovery/transport capabilities — every one live-proven on fixtures AND the real target.
+- The flagship result: ginandjuice.shop DOM XSS on /blog?search — invisible to the entire DOM-less toolchain (server never reflects), blocked to every standard vector by a real tag+handler blacklist, verified end-to-end via attribute-injection onload execution + fresh-canary re-probe.
+- Quality state: 41/41 tests, 10/10 doctor, F1=1.000 (17/12 TP/TN) deterministic with browser in loop, 0 FP maintained everywhere; real-target actives now 15 across 4 platforms.
+- Remaining architecture phases: authenticated-scan depth (ENG-05 jar is the substrate), public OAST endpoint.
+- Deliverables: download/{sentinel-2.2.0-source.zip, sentinel-2.2.0-complete-bundle.zip}, sentinel-results/ updated (scan_ginjuice_v220_*.json x4, benchmark_v4_*.json x7, sentinel.db, ground_truth v4, WORKLOG, CHANGELOG).

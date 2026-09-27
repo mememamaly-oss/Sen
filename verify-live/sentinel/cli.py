@@ -216,6 +216,8 @@ def main():
     s.add_argument("--db", default="", help="persist run+findings to this SQLite store")
     s.add_argument("--no-oast", action="store_true",
                    help="disable the local OAST listener (OOB blind-vuln confirmation)")
+    s.add_argument("--no-browser", action="store_true",
+                   help="disable the browser/DOM engine (Phase 50: JS-built forms + DOM XSS)")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     sub.add_parser("doctor")
@@ -241,7 +243,7 @@ def main():
     elif a.cmd == "scan":
         cfg = ScanConfig(allow_private=a.allow_private, max_pages=a.max_pages,
                          crawl=not a.no_crawl, timeout=a.timeout, seed=a.seed,
-                         strategy_path=a.strategy_path)
+                         strategy_path=a.strategy_path, browser=not a.no_browser)
         # Phase 49: auto-arm OAST for targets that can reach our loopback listener
         # (local/lab fixtures). Remote targets cannot call back to 127.0.0.1 — arming
         # it there only burns poll timeouts; a public collaborator bind is the
