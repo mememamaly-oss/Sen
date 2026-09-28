@@ -1,4 +1,4 @@
-"""Phase 49 (architecture continuation): OAST engine — out-of-band interaction server.
+"""Phase 49 + Phase 52: OAST engine — out-of-band interaction channels.
 
 Closes the documented v2.0.x coverage gap: "blind XXE needs OOB/Collaborator
 confirmation". Some vulnerability classes have NO response-based oracle (the
@@ -7,23 +7,33 @@ live-proven on ginandjuice.shop /catalog/product/stock, where five identical
 probes returned 23/768/52/191/52 units). The ONLY evidence channel for such
 vulns is the target making an outbound callback to a listener WE control.
 
-Design (Burp-Collaborator-class semantics, deterministic and local):
-  - OastServer binds 127.0.0.1:<ephemeral> and records every HTTP hit as an
-    interaction keyed by a caller-chosen interaction id (the id IS the URL path,
-    so one listener serves many concurrent probes without port sprawl).
-  - poll(iid, timeout) blocks until the interaction arrives or timeout — the
-    detector side stays synchronous and deterministic.
-  - `public_base` attribute marks the URL the TARGET must reach: loopback works
-    for lab/local targets; scanning a remote host requires a public listener
-    (plug in by constructing OastServer on a public interface or by a port
-    forward) — the detector code never changes.
+Two interchangeable providers (same 3-call protocol: url / poll / stop —
+the detector and verifier code never change):
+  - OastServer (Phase 49): binds 127.0.0.1:<ephemeral> and records every HTTP
+    hit as an interaction keyed by a caller-chosen id (the id IS the URL path).
+    Optimal for lab/local targets: zero latency, fully deterministic.
+  - PublicWebhookProvider (Phase 52): a PUBLIC channel via the webhook.site
+    REST service — Burp-Collaborator-class semantics WITHOUT owning any
+    infrastructure. One channel token per scan; the interaction id rides in
+    the callback's query string (?i=<id>); poll() reads the service's request
+    log. Live-proven end-to-end: ginandjuice.shop's blind XXE fetched a
+    webhook.site entity URL from 54.170.155.72 (the target's own AWS egress)
+    with UA "ginandjuice.shop; support@portswigger.net" while the HTTP
+    response stayed a content-free 400.
+
+make_oast(): the selection policy. auto = local listener for targets that can
+reach loopback, public channel for remote targets (degrades honestly to None
+if the public service is unreachable — the scan proceeds exactly as before,
+blind-OOB confirmation simply stays unavailable, as documented in v2.0.x).
 
 Honesty contract preserved: an OOB callback IS independent evidence of
 server-side payload execution (the fetch left the target's process), so an
 OOB-confirmed finding is VERIFIED — never merely "candidate".
 """
 from __future__ import annotations
+import json as _json
 import threading, time
+import urllib.request as _urlreq
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
