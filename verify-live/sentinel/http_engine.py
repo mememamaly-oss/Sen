@@ -69,6 +69,21 @@ class RequestEngine:
         ep = m.endpoint
         q = [(p.name, p.value) for p in ep.parameters if p.location == ParamLocation.QUERY]
         body = m.body_override
+        # ENG-06 (live-caught on demo.testfire.net/doLogin): a request with NO mutation
+        # target (param_name empty — baseline fetches, and Phase 51 login requests) used
+        # to go out with an EMPTY body even when the endpoint carried BODY/JSON params,
+        # so credential POSTs transmitted nothing and the app rejected every one. The
+        # engine must serialize the endpoint's own body fields in the request shape the
+        # endpoint declares, exactly like a browser submitting that form.
+        if not m.param_name and not m.body_override and (m.method or ep.method) in ("POST", "PUT", "PATCH"):
+            bfields = [p for p in ep.parameters
+                       if p.location in (ParamLocation.BODY, ParamLocation.JSON)]
+            if bfields:
+                if all(p.location == ParamLocation.JSON for p in bfields):
+                    import json as _json
+                    body = _json.dumps({p.name: (p.value or "") for p in bfields})
+                else:
+                    body = urllib.parse.urlencode([(p.name, p.value or "") for p in bfields])
         if m.param_name:
             # ENG-02: inherit the param's ACTUAL location from the endpoint definition.
             # Old code trusted m.param_location (default QUERY), so probes aimed at POST
@@ -209,7 +224,18 @@ class RequestEngine:
                     conn = http.client.HTTPSConnection(pu.hostname, pu.port, timeout=self.timeout, context=self._ctx)
                 else:
                     conn = http.client.HTTPConnection(pu.hostname, pu.port, timeout=self.timeout)
-                conn.request("GET", pu.path + ("?" + pu.query if pu.query else ""), headers=headers)
+                # ENG-07 (live-caught via fixture v5 /doLogin): the hop request used to
+                # reuse the ORIGINAL request's Cookie header, so cookies issued ON the
+                # redirect response (login flows rotate the session: Set-Cookie SESS=s2
+                # + AUTH=... on a 302) never reached the landing page — the hop arrived
+                # anonymous and bounced straight back to the login gate. Rebuild the
+                # Cookie header from the CURRENT jar for every hop, exactly like a
+                # browser following a redirect chain.
+                hop_headers = dict(headers)
+                ck2 = self._cookie_header(pu.hostname or "")
+                if ck2:
+                    hop_headers["Cookie"] = ck2
+                conn.request("GET", pu.path + ("?" + pu.query if pu.query else ""), headers=hop_headers)
                 r = conn.getresponse(); raw = r.read(2_000_000)
                 self._harvest_cookies(r.getheaders, pu.hostname or "")
                 hdrs = {k.lower(): v for k, v in r.getheaders()}

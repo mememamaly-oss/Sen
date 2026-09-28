@@ -10,12 +10,13 @@ from .discovery import DiscoveryEngine
 from .detect import (ACTIVE_DETECTORS, SQLiDetector, XSSDetector, TraversalDetector,
                      RedirectDetector, CrlfDetector, XxeDetector, passive_audit, plan_for)
 from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMemory, RepairClassifier
+from .auth import AuthProfile, AuthEngine, AuthedEngineProxy
 
 
 class ScanConfig:
     def __init__(self, allow_private=False, max_pages=25, crawl=True, active=True,
                  passive=True, timeout=12.0, seed=None, strategy_path=None,
-                 allowed_domains=None, oast=None, browser=True):
+                 allowed_domains=None, oast=None, browser=True, auth=None):
         self.allow_private = allow_private
         self.max_pages = max_pages
         self.crawl, self.active, self.passive = crawl, active, passive
@@ -24,6 +25,7 @@ class ScanConfig:
         self.allowed_domains = allowed_domains or []
         self.oast = oast          # OastServer | None — enables OOB (blind-XXE) confirmation
         self.browser = browser    # Phase 50: DOM engine (graceful skip when unavailable)
+        self.auth = auth          # Phase 51: AuthProfile | None — authenticated scanning
 
 
 class SentinelScanner:
@@ -51,11 +53,37 @@ class SentinelScanner:
         self.bus.emit("ScanStarted", target=self.target.url, run=self.run_id,
                       scanner=SCANNER_VERSION, seed=self.seed)
 
-        # ---- Phase 4: discovery
+        # ---- Phase 51: authenticate BEFORE discovery — the session cookie (ENG-05
+        # jar) then rides every later request, and the authenticated landing page
+        # becomes a second crawl seed (the post-login surface is linked ONLY from
+        # post-login pages: /bank/* on Altoro is invisible from the anonymous home).
+        auth_seeds: list[str] = []
+        self.auth_engine = None
+        if self.cfg.auth is not None:
+            self.auth_engine = AuthEngine(self.cfg.auth, self.engine, self.bus)
+            ok = self.auth_engine.login()
+            self.stats["authenticated"] = ok
+            if ok:
+                # AUTH-03 watchdog proxy: from here on, session loss anywhere in
+                # the scan (discovery, detectors, verifier, browser) self-heals.
+                self.engine = AuthedEngineProxy(self.engine, self.auth_engine)
+                self.verifier.engine = self.engine
+                auth_seeds.append(self.auth_engine.state.landing_url)
+                # the authenticated crawl genuinely has more surface — grow budget
+                # deterministically (fixed 1.5x, no heuristics)
+                self.cfg.max_pages = int(self.cfg.max_pages * 1.5)
+            else:
+                self.bus.emit("ScanContinuesUnauthenticated",
+                              reason=self.auth_engine.state.last_error)
+
+        # ---- Phase 4: discovery (extra_seeds carry the authenticated landing;
+        # the login page itself is excluded from page-fetches — re-fetching it
+        # clobbers the authenticated session cookie with a fresh anonymous one)
         d = DiscoveryEngine(self.engine, self.cfg.max_pages)
         endpoints: list[Endpoint] = [Endpoint(url=self.target.url, source=DiscoverySource.SEED)]
         if self.cfg.crawl:
-            found, js, crawl_stats = d.crawl(self.target.url)
+            found, js, crawl_stats = d.crawl(self.target.url, extra_seeds=auth_seeds,
+                                             exclude_urls=[self.cfg.auth.login_url] if self.cfg.auth else None)
             endpoints.extend(e for e in found if e.id != endpoints[0].id)
             robots = d.robots(self.target.url)
             endpoints.extend(e for e in robots if all(e.id != x.id for x in endpoints))
@@ -267,6 +295,14 @@ class SentinelScanner:
         self.stats.update({"requests": self.engine.requests_sent,
                            "verified": len(verified), "rejected": len(rejected),
                            "duration": round(time.time() - t0, 2)})
+        if self.auth_engine is not None:
+            self.stats["auth"] = {
+                "authenticated": self.auth_engine.state.authenticated,
+                "landing": self.auth_engine.state.landing_url,
+                "logins": self.auth_engine.state.logins,
+                "reauths": self.auth_engine.state.reauths,
+                "failed_reauths": self.auth_engine.state.failed_reauths,
+            }
         ded = self.pipeline.dedup(verified)
         final = self.pipeline.correlate(ded)
         for f in final:
@@ -358,6 +394,23 @@ def doctor(allow_private=False) -> dict:
                 "(static sink analysis remains active; install playwright + chromium to enable)")
     except Exception as e:
         add("browser_engine", False, "warn: " + str(e)[:120])
+    # auth engine (Phase 51): AuthProfile/AuthEngine/AuthedEngineProxy importable
+    # and the ENG-06 body serialization they depend on behaves (no-param POST
+    # requests with BODY fields must carry a non-empty form body).
+    try:
+        from .auth import AuthProfile, AuthEngine, AuthedEngineProxy
+        from .core import ParamLocation, Parameter as _P
+        eng = RequestEngine(ScopeRule(allowed_domains=["auth.doctor.local"]),
+                            EventBus("doctor-auth"), timeout=2)
+        m = RequestMutation(endpoint=Endpoint(
+            url="http://auth.doctor.local/doLogin", method="POST",
+            parameters=[_P("uid", ParamLocation.BODY, "u"), _P("passw", ParamLocation.BODY, "p")]))
+        _, _, hdrs, body = eng._render(m)
+        add("auth_engine", bool(body) and "uid=u" in body and "passw=p" in body,
+            f"login flow engine OK (form body serialized: {bool(body)}; "
+            f"watchdog proxy + budget-capped re-auth available)")
+    except Exception as e:
+        add("auth_engine", False, str(e)[:120])
     passed = sum(1 for c in checks if c["status"] == "PASS")
     return {"overall": "PASS" if passed == len(checks) else "DEGRADED",
             "passed": passed, "total": len(checks), "checks": checks}

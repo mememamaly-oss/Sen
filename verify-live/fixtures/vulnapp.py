@@ -49,7 +49,7 @@ HEADER_TMPL = """<!DOCTYPE html><html><head><title>Sentinel Fixture</title></hea
  - <a href="/safe/jsparam.php?cat=Books">safe jsparam</a> - <a href="/app.js">app.js</a>
  - <a href="/vuln/dom-write">dom-write</a> - <a href="/safe/dom-text?search=test">safe dom-text</a>
  - <a href="/vuln/divform">divform</a> - <a href="/safe/divform">safe divform</a>
- - <a href="/vuln/csrfdivform">csrf divform</a> - <a href="/vuln/jsform">jsform</a></div>
+ - <a href="/vuln/csrfdivform">csrf divform</a> - <a href="/vuln/jsform">jsform</a> - <a href="/login">sign in</a></div>
 {body}
 </body></html>"""
 
@@ -164,6 +164,58 @@ import hashlib as _hl
 CSRF_SESSION = "fixedsess123"
 CSRF_TOKEN = _hl.sha1((CSRF_SESSION + "|csrf").encode()).hexdigest()[:16]
 
+# ======================= Phase 51 (fixture v5): AUTHENTICATED SURFACE =======================
+# Real Altoro-style flow, engineered to exercise every auth capability:
+#   GET  /login          -> Set-Cookie SESS=s1 + form with hidden csrfToken (AUTH-01:
+#                           the token is session-bound and CHANGES every GET — a
+#                           hard-coded-fields login can never pass)
+#   POST /doLogin        -> validates SESS+csrf+creds, then ROTATES the session:
+#                           Set-Cookie SESS=s2 + AUTH=granted-s2 on a 302 to /home.
+#                           The redirect hop itself needs the fresh cookies (ENG-07:
+#                           the engine must rebuild the Cookie header per hop).
+#   /home                -> authenticated landing ("Sign Off" marker) — the ONLY
+#                           page linking the authenticated surface (like Altoro /bank/*)
+#   /account?q=          -> auth-gated RAW reflection        [TP xss_reflected]
+#   /account?tab=        -> auth-gated ESCAPED reflection    [TN xss_reflected]
+#   /vault/transfer?acct -> auth-gated boolean SQLi oracle   [TP sql_injection]
+#   AUTH_TTL=<n> env     -> server-side session expiry after n authenticated requests
+#                           (AUTH-03 watchdog: mid-scan session loss -> re-auth)
+AUTH_USER, AUTH_PASS = "demo", "demo123"
+AUTH_TTL = int(os.environ.get("AUTH_TTL", "0"))   # 0 = never expires
+SESSIONS: dict[str, dict] = {}                     # sess_id -> {csrf, authed, hits}
+
+def _new_session() -> str:
+    sid = _hl.sha1((str(time.time()) + str(os.getpid()) + _hl.md5(str(time.time_ns()).encode()).hexdigest()).encode()).hexdigest()[:12]
+    SESSIONS[sid] = {"csrf": _hl.sha1((sid + "|csrf").encode()).hexdigest()[:16],
+                     "authed": False, "hits": 0}
+    return sid
+
+def _sess_authed(self):
+    """Resolve the caller's session; None when anonymous/expired. Applies TTL."""
+    cookie = self.headers.get("Cookie") or ""
+    m = re.search(r"SESS=([0-9a-f]{12})", cookie)
+    if not m: return None
+    sid = m.group(1)
+    s = SESSIONS.get(sid)
+    if s is None or not s.get("authed"): return None
+    if f"AUTH=granted-{sid}" not in cookie: return None
+    if AUTH_TTL and s["hits"] >= AUTH_TTL:
+        SESSIONS.pop(sid, None)                    # server-side expiry
+        return None
+    s["hits"] += 1
+    return sid
+
+AUTH_MENUBAR = '''<div class="menubar"><a href="/home">home</a> - <a href="/account?q=John">account q</a>
+ - <a href="/account?tab=profile">account tab</a> - <a href="/vault/transfer?acct=1001&amount=250">transfer</a></div>'''
+
+LOGIN_PAGE = '''<h1>Sign in</h1>
+<form action="doLogin" method="post">
+  <input type="text" name="uid" value="">
+  <input type="password" name="passw">
+  <input type="hidden" name="csrfToken" value="{csrf}">
+  <input type="submit" name="btnSubmit" value="Login">
+</form>'''
+
 CSRF_DIVFORM_PAGE = """<h2>Newsletter</h2>
 <script src="/jsbuild.js"></script>
 <div id="subscribe" class="form" data-method="post" data-action="/vuln/csrf-reflect">
@@ -212,6 +264,15 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _redirect(self, location: str, cookies: list | None = None):
+        """302 with optional fresh Set-Cookie lines (login rotation sets two)."""
+        if DELAY_MS: time.sleep(DELAY_MS / 1000.0)
+        self.send_response(302)
+        self.send_header("Location", location)
+        self.send_header("Content-Length", "0")
+        for c in (cookies or []): self.send_header("Set-Cookie", c)
+        self.end_headers()
+
     def do_GET(self):
         u = urlparse(self.path); q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
         path = unquote(u.path)
@@ -252,6 +313,46 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, HEADER_TMPL.format(body="<h2>admin</h2>"))
         if path == "/backup/db.sql":
             return self._send(200, HEADER_TMPL.format(body="-- dump"))
+
+        # ---------------- Phase 51: authenticated surface ----------------
+        if path == "/login":
+            # realistic session policy (Altoro behaves the same): a client that
+            # already holds a live session KEEPS it — a new anonymous session is
+            # issued only to session-less clients. Without this, every failed
+            # doLogin probe's redirect-hop through /login would clobber the
+            # scanner's authenticated session cookie (ENG-05 jar) and force a
+            # re-login per probe.
+            cm = re.search(r"SESS=([0-9a-f]{12})", self.headers.get("Cookie") or "")
+            if cm and cm.group(1) in SESSIONS:
+                return self._send(200, LOGIN_PAGE.format(csrf=SESSIONS[cm.group(1)]["csrf"]))
+            sid = _new_session()
+            return self._send(200, LOGIN_PAGE.format(csrf=SESSIONS[sid]["csrf"]),
+                              {"Set-Cookie": f"SESS={sid}; Path=/"})
+        if path == "/home":
+            if _sess_authed(self) is None:
+                return self._redirect("/login")
+            return self._send(200, AUTH_MENUBAR +
+                              "<h1>My Bank</h1><p>Sign Off</p><p>Welcome, demo.</p>")
+        if path == "/account":
+            if _sess_authed(self) is None:
+                return self._redirect("/login")
+            if "tab" in q:                      # escaped twin — TN
+                tab = q["tab"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                return self._send(200, AUTH_MENUBAR + f"<div>Tab: {tab}</div>")
+            name = q.get("q", "")                # raw reflection — TP
+            return self._send(200, AUTH_MENUBAR + f"<div>You searched for '{name}'</div>")
+        if path == "/vault/transfer":
+            if _sess_authed(self) is None:
+                return self._redirect("/login")
+            acct = q.get("acct", "0")
+            m = re.match(r"^\s*(\d+)\s+AND\s+(1=1|1=2)", acct)
+            if m and m.group(2) == "1=1":
+                return self._send(200, AUTH_MENUBAR + "<p>Transfer pending ... " * 12 + "</p>")
+            if m and m.group(2) == "1=2":
+                return self._send(500, "<html><body>SQL error</body></html>")
+            if "'" in acct:
+                return self._send(500, "<html><body>SQL error</body></html>")
+            return self._send(200, AUTH_MENUBAR + f"<p>Transfer to account {acct} queued.</p>")
 
         # ---------------- VULNERABLE ----------------
         if path == "/vuln/sqli_error.php":
@@ -366,6 +467,25 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length).decode("utf-8", "replace") if length else ""
         ctype = (self.headers.get("Content-Type") or "").lower()
+
+        # ---------------- Phase 51: login POST ----------------
+        if path == "/doLogin":
+            form = parse_qs(raw, keep_blank_values=True)
+            cookie = self.headers.get("Cookie") or ""
+            m = re.search(r"SESS=([0-9a-f]{12})", cookie)
+            sid = m.group(1) if m else ""
+            s = SESSIONS.get(sid)
+            if (s is None or "json" in ctype
+                    or form.get("csrfToken", [""])[0] != s["csrf"]
+                    or form.get("uid", [""])[0] != AUTH_USER
+                    or form.get("passw", [""])[0] != AUTH_PASS):
+                return self._redirect("/login")          # rejected: back to the gate
+            # success: ROTATE the session (fixation defense) and grant AUTH
+            SESSIONS.pop(sid, None)
+            s2 = _new_session()
+            SESSIONS[s2]["authed"] = True
+            return self._redirect("/home", cookies=[f"SESS={s2}; Path=/",
+                                                    f"AUTH=granted-{s2}; Path=/"])
 
         # ---------------- JSON/div-form endpoints (Phase 50) ----------------
         # /vuln/json-reflect: div-form POST whose JS serializes inputs as JSON

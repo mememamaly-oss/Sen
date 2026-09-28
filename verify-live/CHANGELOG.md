@@ -118,3 +118,83 @@ python3 sentinel/cli.py repair-demo          # live self-repair gate loop
   blacklist (400 on <img/<svg/<x onfocus=...); defeated by the BR-02
   attribute-injection vector (" onload="... — no '<' at all) after mapping the
   filter empirically. 5 verified actives total, 0 FP, 0 rejected.
+
+# SENTINEL v2.3.0 — "Authenticated Depth" Release
+
+Phase 51 of the 55-section architecture: authenticated scanning. The session
+cookie (ENG-05 jar) becomes a first-class scan dimension — login before
+discovery, authenticated crawl seed, mid-scan session self-healing.
+
+## What v2.3.0 adds
+
+1. **Authentication Engine — `sentinel/auth.py` (Phase 51)**
+   - **AUTH-01 form-intelligent login**: GET the login page (primes the session),
+     parse the REAL form (action + hidden fields — session-bound CSRF tokens ride
+     verbatim as TOKEN params), POST credentials. Live-proven necessity: testfire's
+     public demo account transmits nothing without ENG-06.
+   - **AUTH-02 deterministic success oracle**: success = first-hop redirect
+     (ENG-01 preserved) lands OFF the login path + landing body carries the
+     marker. Landing URL becomes the authenticated crawl seed — /bank/* is
+     linked ONLY from post-login pages.
+   - **AUTH-03 session-loss watchdog**: transparent engine proxy inspects EVERY
+     response; a non-login request redirected to a login-marked path = session
+     died -> budget-capped re-login -> ONE replay of the same mutation. No
+     silent degradation. Live-proven: testfire expired the session 3x mid-scan,
+     all self-healed (reauths=3, failed=0); fixture AUTH_TTL proves it E2E.
+   - **AUTH-04 browser session continuity**: the Playwright context receives the
+     engine jar's cookies before every navigation — the DOM phase sees the
+     authenticated surface too.
+
+2. **Engine fixes (both live-caught on demo.testfire.net)**
+   - **ENG-06**: requests with NO mutation target (login POSTs, passive baselines
+     of POST endpoints) went out with an EMPTY body — credentials transmitted as
+     nothing. Now BODY/JSON params serialize in the endpoint's declared shape.
+   - **ENG-07**: redirect hops replayed the ORIGINAL Cookie header, so cookies
+     issued ON a 302 (login session rotation) never reached the landing page —
+     the hop arrived anonymous and bounced to the gate. Cookie header is now
+     rebuilt from the jar for every hop.
+
+3. **Discovery / orchestration / CLI**
+   - Crawl accepts `extra_seeds` (the authenticated landing joins the BFS queue
+     under the SAME deterministic gates — no privileged path) and `exclude_urls`
+     (the login page is never page-fetched once authenticated: re-fetching it
+     clobbers the session cookie with a fresh anonymous one — live-caught in the
+     first v5 benchmark run: logins=2, healed but wasteful; now logins=1).
+   - ScanConfig(auth=...); CLI `scan --auth-user --auth-pass --auth-url
+     --auth-user-field --auth-pass-field --auth-success-marker`. Failed login =
+     explicit ScanContinuesUnauthenticated event (scan still runs, honestly
+     labeled). stats.auth = {authenticated, landing, logins, reauths,
+     failed_reauths}. Budget: max_reauth=5 (anti-hammering). Auth crawl budget
+     1.5x (deterministic constant).
+   - Doctor: auth_engine check (11 checks now).
+
+4. **Fixture v5 (ground truth 19 TP / 13 TN)**
+   Altoro-style login: session-bound CSRF (changes every GET), session rotation
+   on success (Set-Cookie on the 302 — the ENG-07 forcing function), auth-gated
+   TPs reachable ONLY behind the session (/account?q raw reflection,
+   /vault/transfer?acct boolean SQLi) + escaped twin (/account?tab, TN), plus a
+   realistic session policy (live sessions are kept; failed logins never clobber).
+   AUTH_TTL env = deterministic mid-scan expiry for the AUTH-03 test.
+
+5. **Quality gates**
+   - Tests 41 -> 46 (ENG-06 unit, ENG-07 unit, AUTH-01 unit incl. wrong-credential
+     negative, authenticated-vs-anonymous E2E delta with negative control, AUTH-03
+     mid-scan expiry E2E). 46/46 PASS.
+   - Benchmark local-fixture-v5: **F1=1.000 TP=19 FP=0 FN=0 TN=13** as an
+     AUTHENTICATED scan, deterministic run-3c0652b6be x3 identical (694 requests,
+     logins=1, reauths=0).
+   - Doctor 11/11.
+
+6. **REAL TARGET (demo.testfire.net / AltoroJ, public demo account jsmith)**
+   The authenticated scan reached 10 /bank/* endpoints invisible anonymously
+   (695 requests vs 190 anonymous) and produced 4 NEW verified findings,
+   independently re-confirmed with fresh vectors + fresh canaries:
+   - CRITICAL sql_injection /bank/ccApply param=passwd (quote->500 / base->200 /
+     doubled-quote->200 oracle, reproduced independently via POST)
+   - HIGH xss_reflected /bank/customize.jsp param=lang (raw reflection, fresh
+     canary)
+   - HIGH xss_reflected /bank/queryxpath.jsp param=query (raw reflection, fresh
+     canary)
+   - MEDIUM open_redirect /bank/customize.jsp param=content (off-site Location)
+   Anonymous negative control: the same probes bounce to login.jsp. Session
+   expired 3x under scan load; AUTH-03 healed all three (failed_reauths=0).

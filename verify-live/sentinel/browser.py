@@ -160,6 +160,27 @@ class BrowserEngine:
         self._context = self._browser.new_context(ignore_https_errors=True,
                                                   user_agent="Mozilla/5.0 (compatible; Sentinel/2.2; +security-scanner)")
 
+    def _sync_session_cookies(self, url: str):
+        """AUTH-04: the browser context must carry the SAME session as the HTTP
+        engine — otherwise every render of an auth-gated page bounces to the
+        login form and the whole authenticated DOM surface is invisible to the
+        browser phase (live-caught class: jar cookies exist, Chromium starts
+        anonymous). Syncs the engine jar into the Playwright context before each
+        navigation; Playwright keeps cookies per-domain, mirroring the jar."""
+        try:
+            jar = getattr(self.engine, "cookie_jar", None) or {}
+            host = urllib.parse.urlsplit(url).hostname or ""
+            cks = []
+            for jh, pairs in jar.items():
+                if jh != host:
+                    continue
+                for n, v in pairs.items():
+                    cks.append({"name": n, "value": v, "domain": jh, "path": "/"})
+            if cks:
+                self._context.add_cookies(cks)
+        except Exception as e:
+            self.bus.emit("BrowserCookieSyncError", error=f"{type(e).__name__}: {e}"[:150])
+
     def close(self):
         # explicit ordered teardown (attributes may be partially initialized)
         try:
@@ -186,6 +207,7 @@ class BrowserEngine:
         if not self._ok(url):
             return None
         self._ensure()
+        self._sync_session_cookies(url)
         xhrs: list[dict] = []
         page = self._context.new_page()
         page.on("request", lambda req: xhrs.append({
@@ -275,6 +297,7 @@ class BrowserEngine:
             if not self._ok(target):
                 return None
             self._ensure()
+            self._sync_session_cookies(target)
             page = self._context.new_page()
             try:
                 page.goto(target, wait_until="load", timeout=int(self.timeout * 1000))

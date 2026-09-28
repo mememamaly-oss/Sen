@@ -156,16 +156,27 @@ class DiscoveryEngine:
         clean = urllib.parse.urlunsplit((p.scheme, p.netloc, p.path, "", ""))
         return Endpoint(url=clean, method=method, parameters=plist, source=source)
 
-    def crawl(self, seed_url: str):
-        """BFS crawl same-host; returns (endpoints, js_findings, crawl_stats)."""
+    def crawl(self, seed_url: str, extra_seeds: list | None = None, exclude_urls: list | None = None):
+        """BFS crawl same-host; returns (endpoints, js_findings, crawl_stats).
+        Phase 51: extra_seeds (e.g. the authenticated landing page) join the BFS
+        queue at position 0 — same normalization, same budget gates, so the
+        authenticated surface is discovered by the exact same deterministic rules
+        as the anonymous one (no separate privileged code path).
+        Phase 51b: exclude_urls are never PAGE-FETCHED once authenticated —
+        re-fetching the login page makes the server issue a fresh ANONYMOUS
+        session cookie that clobbers the authenticated one in the jar (live-caught:
+        the benchmark self-healed via AUTH-03 but burned a login per fetch). The
+        page's endpoints remain reachable through the form-parse discovery."""
         seen_pages, endpoints, js_hits = set(), {}, []
         seed_host = urllib.parse.urlsplit(seed_url).netloc
-        queue = [seed_url]
+        queue = list(extra_seeds or []) + [seed_url]
+        excluded = {self._normalize(seed_url, u) for u in (exclude_urls or []) if u}
         pages = 0
         while queue and pages < self.max_pages:
             url = queue.pop(0)
             norm = self._normalize(seed_url, url)
             if not norm or norm in seen_pages: continue
+            if excluded and norm in excluded: continue
             seen_pages.add(norm)
             ok, _ = self.engine._scope_ok(norm)
             if not ok: continue

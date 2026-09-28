@@ -410,14 +410,15 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    # fixture v4 ground truth (Phase 50): 17 TP-able (13 static/browserless incl. OOB
-    # blind-XXE + headers + banner, PLUS 4 browser-phase TPs: DOM XSS, div-form JSON
-    # reflection, CSRF-protected reflection, runtime-built form), 12 TN-able. F1 must
-    # be 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL benchmark,
-    # not a silently-empty scan (the original F1=0.0 failure mode).
-    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 17
+    # fixture v5 ground truth (Phase 51): 19 TP-able (v4's 17 PLUS the two
+    # auth-gated surfaces: /account?q raw reflection + /vault/transfer?acct
+    # boolean SQLi — both 302-gated for anonymous clients, so the benchmark now
+    # exercises the AUTH-01/02 login chain end-to-end), 13 TN-able. F1 must be
+    # 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL
+    # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
+    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 19
               and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
-              and rep["confusion"]["TN"] == 12)
+              and rep["confusion"]["TN"] == 13)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -1131,6 +1132,183 @@ def e2e_browser_phase_full():
 
 
 # ================================================================ main
+# ---- Phase 51 (authenticated scanning) unit + regression suite
+
+@case
+def unit_eng06_body_serialization_without_mutation():
+    """ENG-06 (live-caught on demo.testfire.net/doLogin): a POST endpoint with
+    BODY/JSON params but NO mutation target (baseline fetch, login request)
+    used to go out with an EMPTY body — credentials transmitted as nothing.
+    The engine must serialize the endpoint's own body fields in both encodings."""
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    eng = RequestEngine(ScopeRule(allowed_domains=["x.local"]), EventBus("t-eng06"), timeout=2)
+    ep = Endpoint(url="http://x.local/doLogin", method="POST", parameters=[
+        Parameter("uid", ParamLocation.BODY, "jsmith"),
+        Parameter("passw", ParamLocation.BODY, "demo1234")])
+    _, _, h, body = eng._render(RequestMutation(endpoint=ep))
+    assert body == "uid=jsmith&passw=demo1234", body
+    assert h.get("Content-Type") == "application/x-www-form-urlencoded", h.get("Content-Type")
+    # JSON-location variant (ENG-04 semantics for plain sends)
+    ep2 = Endpoint(url="http://x.local/api/login", method="POST", parameters=[
+        Parameter("user", ParamLocation.JSON, "a"), Parameter("pw", ParamLocation.JSON, "b")])
+    _, _, h2, body2 = eng._render(RequestMutation(endpoint=ep2))
+    import json as _j
+    assert _j.loads(body2) == {"user": "a", "pw": "b"}, body2
+    assert h2.get("Content-Type") == "application/json", h2.get("Content-Type")
+
+
+@case
+def unit_eng07_cookie_refresh_across_redirect_hops():
+    """ENG-07 (live-caught via the fixture-v5 login rotation): cookies issued ON
+    a 302 response (Set-Cookie on the login POST) must reach the redirect hop
+    target — the old code replayed the ORIGINAL Cookie header, so the hop
+    arrived anonymous and bounced back to the gate."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    seen = {}
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _r(self, code, loc="", cookie=""):
+            self.send_response(code)
+            if loc: self.send_header("Location", loc)
+            if cookie: self.send_header("Set-Cookie", cookie)
+            self.send_header("Content-Length", "0"); self.end_headers()
+        def do_POST(self):
+            self.rfile.read(int(self.headers.get("Content-Length") or 0))
+            self._r(302, "/land", "AUTH=granted-xyz; Path=/")
+        def do_GET(self):
+            seen["cookie_on_land"] = self.headers.get("Cookie") or ""
+            if "AUTH=granted-xyz" in seen["cookie_on_land"]:
+                self._r(200)
+            else:
+                self._r(302, "/login")
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                            EventBus("t-eng07"), timeout=5)
+        ep = Endpoint(url=f"http://127.0.0.1:{port}/doLogin", method="POST", parameters=[
+            Parameter("uid", ParamLocation.BODY, "u"), Parameter("passw", ParamLocation.BODY, "p")])
+        r = eng.send(RequestMutation(endpoint=ep))
+        assert r.status == 200, (r.status, seen)
+        assert "AUTH=granted-xyz" in seen["cookie_on_land"], seen
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_auth01_form_intelligent_login():
+    """AUTH-01: the login form's session-bound CSRF token changes every GET —
+    a login that hard-codes fields can never pass; the engine must harvest the
+    form (action + hidden token) and succeed in one flow."""
+    import threading, os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.http_engine import RequestEngine
+    from sentinel.auth import AuthProfile, AuthEngine
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_a1", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                    "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), mod.Handler)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                            EventBus("t-a1"), timeout=5)
+        ok = AuthEngine(AuthProfile(login_url=f"http://127.0.0.1:{port}/login",
+                                    username="demo", password="demo123",
+                                    success_marker="Sign Off"), eng, EventBus("t-a1")).login()
+        assert ok, "form-intelligent login must succeed"
+        # wrong credentials -> deterministic rejection (AUTH-02 negative)
+        eng2 = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                             EventBus("t-a1b"), timeout=5)
+        ae2 = AuthEngine(AuthProfile(login_url=f"http://127.0.0.1:{port}/login",
+                                     username="demo", password="WRONG",
+                                     success_marker="Sign Off"), eng2, EventBus("t-a1b"))
+        assert not ae2.login() and "rejected" in ae2.state.last_error, ae2.state.last_error
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+def _spawn_fixture(name, port, auth_ttl=0):
+    import threading, os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    spec = importlib.util.spec_from_file_location(
+        name, _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                            "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    if auth_ttl:
+        mod.AUTH_TTL = auth_ttl
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+
+@case
+def regression_auth_scan_finds_gated_surface_and_anonymous_does_not():
+    """Phase 51 E2E gate: with credentials the scanner logs in (AUTH-01/02),
+    crawls the authenticated landing, and finds BOTH auth-gated TPs
+    (/account?q raw reflection, /vault/transfer?acct boolean SQLi) with the
+    escaped /account?tab twin staying silent; the SAME scan without
+    credentials finds NONE of the gated surface (negative control)."""
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.auth import AuthProfile
+    port = 8801
+    srv = _spawn_fixture("vulnapp_auth_e2e", port)
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=25, timeout=6,
+                         seed="phase51-e2e", browser=False,
+                         auth=AuthProfile(login_url=f"http://127.0.0.1:{port}/login",
+                                          username="demo", password="demo123",
+                                          success_marker="Sign Off"))
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        got = {(f["type"], f["url"].split("?")[0], f["parameter"]) for f in rep["findings"]}
+        base = f"http://127.0.0.1:{port}"
+        assert rep["stats"]["auth"]["authenticated"] is True, rep["stats"].get("auth")
+        assert ("xss_reflected", f"{base}/account", "q") in got, f"auth-gated XSS missing: {sorted(got)[:8]}"
+        assert ("sql_injection", f"{base}/vault/transfer", "acct") in got, f"auth-gated SQLi missing: {sorted(got)[:8]}"
+        assert ("xss_reflected", f"{base}/account", "tab") not in got, "FP: escaped auth twin flagged"
+        # ---- anonymous negative control: same target, no credentials
+        cfg2 = ScanConfig(allow_private=True, max_pages=25, timeout=6,
+                          seed="phase51-anon", browser=False)
+        rep2 = SentinelScanner(f"http://127.0.0.1:{port}", cfg2).run()
+        got2 = {(f["type"], f["url"].split("?")[0], f["parameter"]) for f in rep2["findings"]}
+        assert ("xss_reflected", f"{base}/account", "q") not in got2, "gated surface must be invisible anonymously"
+        assert ("sql_injection", f"{base}/vault/transfer", "acct") not in got2, "gated SQLi must be invisible anonymously"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_auth03_watchdog_reauth_midscan():
+    """AUTH-03: the server expires sessions after N authenticated requests
+    (AUTH_TTL); mid-scan session loss must self-heal (re-login + replay) and
+    the auth-gated TPs must STILL be found — degradation without false
+    positives, exactly like OP-01's spirit but for transport identity."""
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.auth import AuthProfile
+    port = 8802
+    srv = _spawn_fixture("vulnapp_ttl", port, auth_ttl=30)
+    try:
+        p = AuthProfile(login_url=f"http://127.0.0.1:{port}/login",
+                        username="demo", password="demo123",
+                        success_marker="Sign Off", max_reauth=25)
+        cfg = ScanConfig(allow_private=True, max_pages=25, timeout=6,
+                         seed="phase51-ttl", browser=False, auth=p)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        auth = rep["stats"]["auth"]
+        assert auth["reauths"] >= 1, f"watchdog must re-authenticate: {auth}"
+        got = {(f["type"], f["url"].split("?")[0], f["parameter"]) for f in rep["findings"]}
+        base = f"http://127.0.0.1:{port}"
+        assert ("xss_reflected", f"{base}/account", "q") in got, "gated XSS lost after expiry"
+        assert ("sql_injection", f"{base}/vault/transfer", "acct") in got, "gated SQLi lost after expiry"
+        assert ("xss_reflected", f"{base}/account", "tab") not in got, "FP after session churn"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

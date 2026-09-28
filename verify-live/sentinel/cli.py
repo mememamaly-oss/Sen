@@ -72,8 +72,17 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
     from sentinel.oast import OastServer
     oast = OastServer()
     try:
+        # Phase 51: the benchmark is now an AUTHENTICATED scan — /account and
+        # /vault/transfer (ground truth v5) are 302-gated for anonymous clients,
+        # so the login flow (AUTH-01/02) is exercised by the benchmark itself.
+        from sentinel.auth import AuthProfile
+        auth = AuthProfile(login_url=base_url.rstrip("/") + "/login",
+                           username="demo", password="demo123",
+                           user_field="uid", pass_field="passw",
+                           success_marker="Sign Off")
         cfg = ScanConfig(allow_private=True, max_pages=30, timeout=timeout,
-                         strategy_path=strategy_path, seed="benchmark-fixed-seed", oast=oast)
+                         strategy_path=strategy_path, seed="benchmark-fixed-seed",
+                         oast=oast, auth=auth)
         sc = SentinelScanner(base_url, cfg)
         result = sc.run()
     finally:
@@ -218,6 +227,13 @@ def main():
                    help="disable the local OAST listener (OOB blind-vuln confirmation)")
     s.add_argument("--no-browser", action="store_true",
                    help="disable the browser/DOM engine (Phase 50: JS-built forms + DOM XSS)")
+    s.add_argument("--auth-user", default="", help="Phase 51: enable authenticated scanning — username")
+    s.add_argument("--auth-pass", default="", help="Phase 51: password")
+    s.add_argument("--auth-url", default="", help="login page carrying the form (default: <target>/login.jsp)")
+    s.add_argument("--auth-user-field", default="uid")
+    s.add_argument("--auth-pass-field", default="passw")
+    s.add_argument("--auth-success-marker", default="",
+                   help="substring expected on the landing page after login (optional hard gate)")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     sub.add_parser("doctor")
@@ -241,9 +257,17 @@ def main():
     if a.cmd == "doctor":
         print(json.dumps(doctor(), indent=1))
     elif a.cmd == "scan":
+        auth = None
+        if a.auth_user:
+            from sentinel.auth import AuthProfile
+            login_url = a.auth_url or (a.target.rstrip("/") + "/login.jsp")
+            auth = AuthProfile(login_url=login_url, username=a.auth_user, password=a.auth_pass,
+                               user_field=a.auth_user_field, pass_field=a.auth_pass_field,
+                               success_marker=a.auth_success_marker)
         cfg = ScanConfig(allow_private=a.allow_private, max_pages=a.max_pages,
                          crawl=not a.no_crawl, timeout=a.timeout, seed=a.seed,
-                         strategy_path=a.strategy_path, browser=not a.no_browser)
+                         strategy_path=a.strategy_path, browser=not a.no_browser,
+                         auth=auth)
         # Phase 49: auto-arm OAST for targets that can reach our loopback listener
         # (local/lab fixtures). Remote targets cannot call back to 127.0.0.1 — arming
         # it there only burns poll timeouts; a public collaborator bind is the

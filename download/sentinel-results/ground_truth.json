@@ -1,8 +1,8 @@
 {
- "benchmark": "local-fixture-v4",
- "version": "2.1.0",
+ "benchmark": "local-fixture-v5",
+ "version": "2.3.0",
  "sha256_self_check": true,
- "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope)",
+ "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) \u2014 /account and /vault/transfer 302 to /login for anonymous clients",
  "ground_truth": [
   {
    "type": "sql_injection",
@@ -178,6 +178,24 @@
    "type": "xss_reflected",
    "endpoint": "/safe/json-reflect",
    "parameter": "name",
+   "present": false
+  },
+  {
+   "type": "xss_reflected",
+   "endpoint": "/account",
+   "parameter": "q",
+   "present": true
+  },
+  {
+   "type": "sql_injection",
+   "endpoint": "/vault/transfer",
+   "parameter": "acct",
+   "present": true
+  },
+  {
+   "type": "xss_reflected",
+   "endpoint": "/account",
+   "parameter": "tab",
    "present": false
   }
  ]
