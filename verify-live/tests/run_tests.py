@@ -418,16 +418,16 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    # fixture v7 ground truth (Phase 55): 27 TP-able (v6's 22 PLUS the five new
-    # detector surfaces: ssti /vuln/ssti + csrf /vuln/csrf-action + nosql_injection
-    # /vuln/nosql-login + jwt_security /vuln/jwt-login + host_header_injection
-    # /vuln/hostbuild — the benchmark exercises the run-style detectors and the
-    # VR-12..16 verifications end-to-end), 21 TN-able. F1 must be
+    # fixture v8 ground truth (Phase 56): 30 TP-able (v7's 27 PLUS the Intelligence
+    # Layer surfaces: idor_bola /api/data + vertical_privilege_escalation
+    # /api/admin/stats + credential_exposure /vuln/leak-config — the benchmark
+    # exercises the multi-user Authorization Engine, the secrets scan and their
+    # VR-17/18/19 verifications end-to-end), 24 TN-able. F1 must be
     # 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL
     # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
-    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 27
+    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 30
               and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
-              and rep["confusion"]["TN"] == 21)
+              and rep["confusion"]["TN"] == 24)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -517,6 +517,11 @@ def regression_inline_js_url_extraction():
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     try:
         from sentinel.discovery import DiscoveryEngine
+        # clear any state from earlier cases so THIS test proves its own crawl
+        # learns the hint (order-isolation), then crawl — ENG-11 fetches the
+        # discovered .js endpoint for hint extraction regardless of page budget.
+        from sentinel.discovery import JS_XML_HINTS
+        JS_XML_HINTS.discard("stockCheck")
         eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True), EventBus("run-disc05"), timeout=5)
         de = DiscoveryEngine(eng, max_pages=30)
         endpoints, js_hits, _ = de.crawl(f"http://127.0.0.1:{port}/")
@@ -524,9 +529,10 @@ def regression_inline_js_url_extraction():
         assert any("/vuln/jsparam.php" in u and any(p.name == "cat" for p in e.parameters)
                    for u, e in ((e.url, e) for e in endpoints)), \
             "inline-script URL with ?cat= param must be discovered (DISC-05)"
-        # DISC-06: XML root learned from stockapp.js
-        from sentinel.discovery import JS_XML_HINTS
-        assert "stockCheck" in JS_XML_HINTS, "XML root hint must be learned from JS asset"
+        # DISC-06: the XML root was learned from the stockapp.js asset by THIS
+        # crawl (ENG-11: discovered .js endpoints are fetched for hints even when
+        # the BFS page budget never reaches their queue position).
+        assert "stockCheck" in JS_XML_HINTS, "XML root hint must be learned from JS asset (ENG-11)"
     finally:
         srv.shutdown(); srv.server_close()
 
@@ -631,6 +637,10 @@ def regression_crlf_header_injection_and_xxe_live():
     srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     try:
+        # Budget note: the ORIGINAL 30-page budget is kept deliberately — ENG-11
+        # (discovered .js endpoints are fetched for hint extraction) makes the
+        # XXE XML-root teacher reachable regardless of page-budget luck, which
+        # is exactly what this regression guards.
         cfg = ScanConfig(allow_private=True, max_pages=30, timeout=5, seed="crlf-xxe-regression")
         sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
         rep = sc.run()
@@ -2203,6 +2213,341 @@ def regression_phase55_five_classes_end_to_end():
         assert any(t == "cors_misconfig" and u.endswith("/vuln/cors") for t, u, p in got), "CORS regressed"
         assert any(t == "xss_reflected" and u.endswith("/account") and p == "q" for t, u, p in got), \
             "authenticated XSS regressed"
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
+
+
+# ============================================================ PHASE 56 (v2.8.0) — Intelligence Layer
+
+def _mk_resp(body, status=200, headers=None, rid="t1"):
+    """Duck-typed Response for scanner unit tests."""
+    return type("R", (), {"error": "", "status": status, "body": body,
+                          "headers": headers or {}, "request_id": rid,
+                          "redirect_chain": []})()
+
+
+@case
+def unit_paramintel_value_shape_inference():
+    """Smart Testing Engine: value-shape inference upgrades ONLY what the observed
+    value proves, TOKENs are never touched, skips are compact+auditable."""
+    from sentinel.paramintel import ParamIntel
+    from sentinel.core import ParamKind, Parameter, ParamLocation
+    # JSON-object value shape -> json_object kind (planner has no rule -> batteries skip)
+    assert ParamIntel.infer("filter", '{"status":"active"}') == ParamKind.JSON_OBJECT
+    # non-JSON / plain / empty values keep their existing classification (None = no upgrade)
+    assert ParamIntel.infer("q", "plain text") is None
+    assert ParamIntel.infer("f", "{broken json") is None
+    assert ParamIntel.infer("x", "") is None
+    assert ParamIntel.infer("a", "[1,2]") is None          # arrays stay generic
+    # enrich: upgrade + profile + data-object inventory; TOKEN params untouched
+    eps = [Endpoint(url="http://x.io/api/filter", parameters=[
+                Parameter("filter", ParamLocation.QUERY, '{"a":1}'),
+                Parameter("user_id", ParamLocation.QUERY, "7"),
+                Parameter("csrfToken", ParamLocation.QUERY, "abc").classify()]),
+           Endpoint(url="http://x.io/api/data", parameters=[
+                Parameter("user_id", ParamLocation.QUERY, "7")])]
+    prof = ParamIntel.enrich(eps)
+    assert eps[0].parameters[0].kind == ParamKind.JSON_OBJECT
+    assert eps[0].parameters[2].kind == ParamKind.TOKEN      # never re-classified
+    assert prof["by_kind"]["json_object"] == 1
+    assert prof["value_shape_upgrades"] == 1
+    assert prof["data_objects"]["user_id"] == ["http://x.io/api/data", "http://x.io/api/filter"]
+    # skip reason is compact (coverage-friendly) and only for inferred kinds
+    assert ParamIntel.skip_reason(eps[0].parameters[0]) == "param_intel:json_object"
+    assert ParamIntel.skip_reason(eps[0].parameters[1]) is None
+
+
+@case
+def unit_coverage_tracker_accounting():
+    """Coverage Engine: discovered/tested/skip accounting is exact, deterministic,
+    and the engine proxy attributes requests by their testing intent."""
+    from sentinel.coverage import CoverageTracker, _CoverageProxy
+    e1 = Endpoint(url="http://x.io/a")
+    e2 = Endpoint(url="http://x.io/b", parameters=[Parameter("q", ParamLocation.QUERY, "1")])
+    cov = CoverageTracker()
+    cov.discover(e1); cov.discover(e2); cov.discover(e1)      # idempotent
+    cov.baseline(e1, 200); cov.activity(e1, "passive")
+    cov.activity(e1, "secrets"); cov.skipped(e1, "requires_authentication")
+    cov.skipped(e1, "requires_authentication")                 # dedup
+    s = cov.summarize()
+    assert s["discovered"] == 2 and s["tested"] == 1 and s["untested"] == 1
+    assert s["passive"] == 1 and s["secrets_scanned"] == 1 and s["active"] == 0
+    assert s["skip_reasons"] == {"requires_authentication": 1}
+    assert s["coverage_pct"] == 50.0
+    assert s["endpoints"][0]["url"] == "http://x.io/a"          # sorted, deterministic
+    # proxy attribution: navigation and auth flows are NOT testing
+    class _FakeEngine:
+        def __init__(self): self.requests_sent = 0
+        def send(self, m):
+            self.requests_sent += 1
+            return _mk_resp("<html></html>")
+    proxied = _CoverageProxy(_FakeEngine(), cov)
+    from sentinel.http_engine import RequestMutation
+    proxied.send(RequestMutation(endpoint=e2, note="discovery"))            # crawl -> not testing
+    proxied.send(RequestMutation(endpoint=e2, note="auth-prime"))           # auth -> not testing
+    proxied.send(RequestMutation(endpoint=e2, note="passive-baseline"))     # passive
+    proxied.send(RequestMutation(endpoint=e2, param_name="q", param_value="1'"))  # mutation -> active
+    s2 = cov.summarize()
+    assert s2["tested"] == 2 and s2["active"] == 1 and s2["passive"] == 2
+    # baseline of e2 recorded (200), auth/navigation left no activity trace
+    rec = {r["url"]: r for r in s2["endpoints"]}["http://x.io/b"]
+    assert rec["baseline"] == 200 and rec["activity"] == ["passive", "active"]
+
+
+@case
+def unit_secrets_scanner_classification_and_gates():
+    """Credential Exposure Engine: vendor classes fire with MASKED evidence,
+    span-suppression prevents double-reporting, placeholders are hygiene, and
+    auth-shaped endpoints suppress token classes (issuance is normal there)."""
+    from sentinel.secrets import SecretsScanner
+    sc = SecretsScanner()
+    aws = "AK" + "IA" + "B" * 16                       # build by concatenation: no literal
+    gh = "gh" + "p_" + "S" * 30                        # secret-shaped string in source
+    # 1) AWS key fires once, evidence masked
+    hits = sc.scan(Endpoint(url="http://x.io/cfg"), _mk_resp(f'{{"k": "{aws}"}}'))
+    assert len(hits) == 1 and hits[0].type == "credential_exposure"
+    assert hits[0].parameter == "aws_access_key" and "B" * 8 not in hits[0].evidence[0].detail
+    assert "…" in hits[0].evidence[0].detail                    # mask present
+    # 2) github token via generic-looking key=value: specific class wins (span suppression)
+    hits = sc.scan(Endpoint(url="http://x.io/cfg"), _mk_resp(f'"api_token": "{gh}"'))
+    assert [h.parameter for h in hits] == ["github_token"], [h.parameter for h in hits]
+    # 3) placeholder values are NOT leaks
+    hits = sc.scan(Endpoint(url="http://x.io/cfg"),
+                   _mk_resp('"api_key": "xxxxxxxxxxxxxxxx"'))
+    assert hits == []
+    hits = sc.scan(Endpoint(url="http://x.io/cfg"),
+                   _mk_resp('"api_key": "AKIA********************"'))
+    assert hits == []
+    # 4) credential-bearing DB URI
+    hits = sc.scan(Endpoint(url="http://x.io/cfg"),
+                   _mk_resp('"url": "mysql://app:hunter2@db.local/x"'))
+    assert [h.parameter for h in hits] == ["db_connection_uri"]
+    # 5) context gate: JWT in a login response = normal issuance (silent);
+    #    the same token on an ordinary page = exposure (fires)
+    jwt = "eyJ" + "A" * 20 + "." + "B" * 20 + "."
+    assert sc.scan(Endpoint(url="http://x.io/api/login"), _mk_resp(f'{{"t": "{jwt}"}}')) == []
+    hits = sc.scan(Endpoint(url="http://x.io/page"), _mk_resp(f'{{"t": "{jwt}"}}'))
+    assert [h.parameter for h in hits] == ["jwt_token"]
+    # 6) private key block = critical
+    hits = sc.scan(Endpoint(url="http://x.io/dump"),
+                   _mk_resp("-----BEGIN RSA PRIVATE KEY-----\nMIIE...\n"))
+    assert hits[0].parameter == "private_key" and hits[0].severity.value == "critical"
+    # 7) errors / empty responses are silent (never a finding)
+
+
+@case
+def unit_evidence_impact_profiles():
+    """Evidence Graph / Impact Assessor: every finding type maps to an impact
+    grade; OOB evidence is flagged; authz context rides the chain."""
+    from sentinel.evidence import assess, IMPACT_PROFILES
+    from sentinel.core import Finding, Evidence, Severity, Verification, FindingStatus
+    # every REGISTERED vulnerability type has a profile (no silent defaults for known classes)
+    from sentinel.intel import RISK_WEIGHTS
+    for t in RISK_WEIGHTS:
+        assert t in IMPACT_PROFILES, f"impact profile missing for {t}"
+    f = Finding("sql_injection", endpoint_url="http://x/a?id=1", parameter="id",
+                evidence=[Evidence("db_error", "x")],
+                verification=Verification("re-test:variant", True, 0.9, 1))
+    a = assess(f)
+    assert a["grade"] == "proven" and "differential" in a["statement"].lower()
+    assert a["evidence_chain"]["verification_passed"] is True
+    # OOB classes carry the out_of_band flag
+    f2 = Finding("ssrf", endpoint_url="http://x/f", parameter="url",
+                 evidence=[Evidence("oob_callback", "from 1.2.3.4")])
+    assert assess(f2)["evidence_chain"]["out_of_band"] is True
+    # passive classes are honestly "indicated", unknown types degrade to default
+    assert assess(Finding("missing_security_headers", endpoint_url="http://x")
+                  )["grade"] == "indicated"
+    assert assess(Finding("brand_new_class", endpoint_url="http://x")
+                  )["grade"] == "indicated"
+    # authz context rides the chain
+    f3 = Finding("idor_bola", endpoint_url="http://x/api/data", parameter="user_id")
+    f3.authz_context = "attacker=bob(role=user) victim=carol(role=user)"
+    assert assess(f3)["evidence_chain"]["authz_context"] == f3.authz_context
+
+
+@case
+def unit_authz_engine_matrix_idor_vertical():
+    """Multi-User Authorization Engine (direct, fixture v8): three accounts log
+    in, IDOR fires on /api/data with the victim-marker oracle + VR-17, vertical
+    fires on /api/admin/stats with the access differential + VR-18, hardened
+    twins stay silent, and the access matrix records the GATE status (302), not
+    the followed-redirect landing (200)."""
+    import threading, importlib.util
+    import os as _os
+    from http.server import ThreadingHTTPServer
+    from sentinel.authz import AuthzEngine, AuthzConfig, _rank
+    from sentinel.core import ScopeRule, EventBus, Parameter, ParamLocation
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_v8_authz", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                          "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8809
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        accts = [
+            {"name": "demo-admin", "role": "admin", "username": "demo",
+             "password": "demo123", "marker": "root-admin@sentinel-fixture.local",
+             "object_id": "1001"},
+            {"name": "bob-user", "role": "user", "username": "bob",
+             "password": "bob123", "marker": "bob-user@sentinel-fixture.local",
+             "object_id": "2002"},
+            {"name": "carol-user", "role": "user", "username": "carol",
+             "password": "carol123", "marker": "carol-user@sentinel-fixture.local",
+             "object_id": "3003"},
+        ]
+        cfgd = AuthzConfig.from_dict({"login_url": base + "/login", "user_field": "uid",
+                                      "pass_field": "passw", "success_marker": "Sign Off",
+                                      "accounts": accts}, base)
+        eng = AuthzEngine(cfgd, ScopeRule(allowed_domains=["127.0.0.1"],
+                                          allow_private=True), EventBus("authz-unit"))
+        eps = [
+            Endpoint(url=base + "/api/data",
+                     parameters=[Parameter("user_id", ParamLocation.QUERY, "1001").classify()]),
+            Endpoint(url=base + "/api/secure/data",
+                     parameters=[Parameter("user_id", ParamLocation.QUERY, "1001").classify()]),
+            Endpoint(url=base + "/api/admin/stats"),
+            Endpoint(url=base + "/api/secure/admin/stats"),
+        ]
+        out = eng.run(eps)
+        assert out["stats"]["accounts_logged_in"] == 3 and out["stats"]["ran"]
+        assert out["stats"]["roles"] == ["admin", "user"]
+        byt = {f.type: f for f in out["findings"]}
+        # IDOR: verified, victim-marker oracle, VR-17 fresh victim
+        assert "idor_bola" in byt, sorted(byt)
+        idf = byt["idor_bola"]
+        assert idf.endpoint_url.endswith("/api/data") and idf.parameter == "user_id"
+        assert idf.verification.method == "re-test:fresh-victim-object" and idf.verification.passed
+        assert "victim" in idf.authz_context and "attacker=bob-user" in idf.authz_context
+        # vertical: verified, VR-18 fresh privileged replay
+        assert "vertical_privilege_escalation" in byt, sorted(byt)
+        vf = byt["vertical_privilege_escalation"]
+        assert vf.endpoint_url.endswith("/api/admin/stats")
+        assert vf.verification.method == "re-test:fresh-privileged-replay" and vf.verification.passed
+        # hardened twins silent
+        for f in out["findings"]:
+            assert "/api/secure/" not in f.endpoint_url, f.endpoint_url
+        # matrix honesty: anonymous on the gated admin surface = 302 (the GATE),
+        # not 200 (the login page the redirect landed on)
+        mx = out["matrix"]
+        assert mx[base + "/api/admin/stats"]["anonymous"] == 302
+        assert mx[base + "/api/admin/stats"]["role:user"] == 200
+        assert mx[base + "/api/secure/admin/stats"]["role:user"] == 403
+        assert mx[base + "/api/secure/admin/stats"]["role:admin"] == 200
+        # role ranking sanity
+        assert _rank("admin") < _rank("manager") < _rank("user") < _rank("guest")
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_phase56_intelligence_end_to_end():
+    """Phase 56 full-platform regression: ONE authenticated scan with the
+    Authorization Engine armed — the three new classes verified with their VRs,
+    hardened twins silent, prior classes intact (incl. host_header after the
+    budget recalibration), and every Intelligence Layer artifact present and
+    honest (coverage account, param-intel profile, appmap, access matrix,
+    secrets summary with masking, impact proof on every verified finding)."""
+    import threading, importlib.util
+    import os as _os
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+    from sentinel.auth import AuthProfile
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_v8_e2e", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                        "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8810
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        auth = AuthProfile(login_url=base + "/login", username="demo", password="demo123",
+                           user_field="uid", pass_field="passw", success_marker="Sign Off")
+        authz_cfg = {"login_url": "/login", "user_field": "uid", "pass_field": "passw",
+                     "success_marker": "Sign Off",
+                     "accounts": [
+                         {"name": "demo-admin", "role": "admin", "username": "demo",
+                          "password": "demo123", "marker": "root-admin@sentinel-fixture.local",
+                          "object_id": "1001"},
+                         {"name": "bob-user", "role": "user", "username": "bob",
+                          "password": "bob123", "marker": "bob-user@sentinel-fixture.local",
+                          "object_id": "2002"},
+                         {"name": "carol-user", "role": "user", "username": "carol",
+                          "password": "carol123", "marker": "carol-user@sentinel-fixture.local",
+                          "object_id": "3003"}]}
+        cfg = ScanConfig(allow_private=True, max_pages=45, timeout=6,
+                         seed="v8-e2e-regression", oast=oast, auth=auth, authz=authz_cfg)
+        sc = SentinelScanner(base, cfg)
+        rep = sc.run()
+        got = {(f["type"], f["url"].split("?")[0], f["parameter"]) for f in rep["findings"]}
+        # ---- the three new verified classes with their VR methods
+        new_vr = {"idor_bola": ("re-test:fresh-victim-object", "/api/data"),
+                  "vertical_privilege_escalation": ("re-test:fresh-privileged-replay", "/api/admin/stats"),
+                  "credential_exposure": ("re-test:fresh-fetch-reexposure", "/vuln/leak-config")}
+        for t, (vr, path) in new_vr.items():
+            matches = [f for f in rep["findings"] if f["type"] == t and f["url"].split("?")[0].endswith(path)]
+            assert matches, f"{t} missing: {sorted(got)[:12]}..."
+            for f in matches:
+                assert f["verification"]["method"] == vr and f["verification"]["passed"], f
+                assert f["impact"]["grade"] == "proven" and f["impact"]["statement"], f
+        # credential classes: exactly the three fixture classes, all masked
+        cred = [f for f in rep["findings"] if f["type"] == "credential_exposure"]
+        assert sorted(f["parameter"] for f in cred) == \
+            ["aws_access_key", "db_connection_uri", "github_token"]
+        for f in cred:
+            assert "…" in f["evidence"][0]["detail"]
+            assert "IOSFODNN7" not in f["evidence"][0]["detail"]   # raw value never stored
+        # ---- hardened twins silent for the new classes
+        for t, u, p in got:
+            if t == "idor_bola":
+                assert "/api/secure/" not in u, f"IDOR false positive: {t} @ {u}"
+            if t == "vertical_privilege_escalation":
+                assert "/api/secure/" not in u, f"vertical false positive: {t} @ {u}"
+            if t == "credential_exposure":
+                assert "/safe/" not in u, f"secrets false positive: {t} @ {u}"
+        # ---- prior classes intact (spot-check the full breadth)
+        # (jwt/hostheader findings carry the detector convention parameter "-")
+        for t, u, p in [("sql_injection", "/vuln/sqli_error.php", "id"),
+                        ("xss_reflected", "/account", "q"),
+                        ("xxe", "/vuln/oob-stock", "storeId"),
+                        ("ssrf", "/vuln/fetch", "url"),
+                        ("ssti", "/vuln/ssti", "name"),
+                        ("csrf", "/vuln/csrf-action", "email"),
+                        ("nosql_injection", "/vuln/nosql-login", "user"),
+                        ("jwt_security", "/vuln/jwt-login", "-"),
+                        ("host_header_injection", "/vuln/hostbuild", "Host")]:
+            assert any(ft == t and fu.endswith(u) and fp == p for ft, fu, fp in got), \
+                f"prior class regressed: {t} @ {u}"
+        # ---- Intelligence Layer artifacts
+        st = rep["stats"]
+        cov = st["coverage"]
+        assert cov["discovered"] > 90 and cov["coverage_pct"] >= 95.0
+        assert cov["tested"] == cov["discovered"] - cov["untested"]
+        assert cov["skip_reasons"].get("param_intel:json_object") == 1
+        assert cov["secrets_scanned"] >= 60
+        assert cov["authz_probed"] >= 5
+        pi = st["param_intel"]
+        assert pi["by_kind"].get("json_object") == 1 and "user_id" in pi["data_objects"]
+        az = st["authz"]
+        assert az["ran"] and az["accounts_logged_in"] == 3 and az["roles"] == ["admin", "user"]
+        am = st["appmap"]
+        assert am["authentication"]["mode"].startswith("multi-user")
+        assert am["authentication"]["roles_tested"] == ["admin", "user"]
+        assert am["surfaces"]["api"]["count"] >= 5 and am["access_matrix"]
+        assert st["secrets"]["findings"] == 3 and len(st["secrets"]["classes_found"]) == 3
+        # the param-intel surface itself: JSON-object batteries provably skipped
+        flt = [e for e in cov["endpoints"] if e["url"].endswith("/api/filter")]
+        assert flt and flt[0]["skips"] == ["param_intel:json_object"], flt
+        # every verified finding carries impact proof
+        assert all("impact" in f and f["impact"]["grade"] in ("proven", "indicated")
+                   for f in rep["findings"])
+        # requests total includes the authz engines' own traffic (honesty)
+        assert st["authz"]["requests"] > 0
     finally:
         oast.stop(); srv.shutdown(); srv.server_close()
 

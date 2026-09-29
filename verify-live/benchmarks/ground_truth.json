@@ -1,8 +1,8 @@
 {
- "benchmark": "local-fixture-v7",
- "version": "2.7.0",
+ "benchmark": "local-fixture-v8",
+ "version": "2.8.0",
  "sha256_self_check": true,
- "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) \u2014 /account and /vault/transfer 302 to /login for anonymous clients; OAST armed \u2014 blind classes (xxe / ssrf / command_injection) are OOB-confirmed only; Phase 55 surfaces on /lab (csrf/nosql/jwt) + /vuln/ssti + /vuln/hostbuild",
+ "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) - /account and /vault/transfer 302 to /login for anonymous clients; OAST armed - blind classes (xxe / ssrf / command_injection) are OOB-confirmed only; Phase 55 surfaces on /lab (csrf/nosql/jwt) + /vuln/ssti + /vuln/hostbuild; Phase 56 intelligence surfaces: multi-user authorization matrix (demo=admin, bob/carol=user via benchmarks/authz_accounts.json - idor_bola /api/data + vertical_privilege_escalation /api/admin/stats with secure twins), credential exposure (/vuln/leak-config: aws + github-token + db-uri classes; /safe twin masked), param-intel JSON-object surface (/api/filter)",
  "ground_truth": [
   {
    "type": "sql_injection",
@@ -130,7 +130,7 @@
    "endpoint": "/blind/stock",
    "parameter": "storeId",
    "present": false,
-   "note": "BLIND XXE: entities resolve but responses are per-request noise \u2014 no response-based oracle exists (ginandjuice.shop live behavior); OOB phase required, must NOT produce a response-verified finding"
+   "note": "BLIND XXE: entities resolve but responses are per-request noise — no response-based oracle exists (ginandjuice.shop live behavior); OOB phase required, must NOT produce a response-verified finding"
   },
   {
    "type": "missing_security_headers",
@@ -292,6 +292,42 @@
    "type": "host_header_injection",
    "endpoint": "/safe/hostbuild",
    "parameter": "Host",
+   "present": false
+  },
+  {
+   "type": "idor_bola",
+   "endpoint": "/api/data",
+   "parameter": "user_id",
+   "present": true
+  },
+  {
+   "type": "idor_bola",
+   "endpoint": "/api/secure/data",
+   "parameter": "user_id",
+   "present": false
+  },
+  {
+   "type": "vertical_privilege_escalation",
+   "endpoint": "/api/admin/stats",
+   "parameter": "",
+   "present": true
+  },
+  {
+   "type": "vertical_privilege_escalation",
+   "endpoint": "/api/secure/admin/stats",
+   "parameter": "",
+   "present": false
+  },
+  {
+   "type": "credential_exposure",
+   "endpoint": "/vuln/leak-config",
+   "parameter": "",
+   "present": true
+  },
+  {
+   "type": "credential_exposure",
+   "endpoint": "/safe/leak-config",
+   "parameter": "",
    "present": false
   }
  ]

@@ -48,6 +48,10 @@ SARIF_RULES = {
     "missing_security_headers":         "SEN-HDR-002",
     "vulnerable_js_dependency":         "SEN-DEP-001",
     "idor":                             "SEN-IDOR-001",
+    # Phase 56 (v2.8.0): the Intelligence Layer classes
+    "idor_bola":                        "SEN-IDOR-001",
+    "vertical_privilege_escalation":    "SEN-AUT-001",
+    "credential_exposure":              "SEN-SEC-001",
 }
 SARIF_LEVEL = {"critical": "error", "high": "error", "medium": "warning",
                "low": "note", "info": "note"}
@@ -164,6 +168,36 @@ def _build_html(store: Store, run_id: str) -> str:
         f"— seen in <b>{r['n_runs']}</b> runs</li>" for r in store.recurring())
     delta = store.delta()
     title, subtitle, stats = head
+    # Phase 56: Coverage & Application Map section (present when the run carried
+    # the Intelligence Layer stats — older runs degrade gracefully to absent).
+    cov = stats.get("coverage") if isinstance(stats, dict) else None
+    amap = stats.get("appmap") if isinstance(stats, dict) else None
+    intel_html = ""
+    if cov or amap:
+        cov_box = ""
+        if cov:
+            reasons = ", ".join(f"{e(str(k))}: {v}" for k, v in (cov.get("skip_reasons") or {}).items())
+            cov_box = (f"<div class='box'>Discovered <b>{cov.get('discovered', 0)}</b> · "
+                       f"tested <b>{cov.get('tested', 0)}</b> "
+                       f"({cov.get('coverage_pct', 0)}%) · passive {cov.get('passive', 0)} · "
+                       f"active {cov.get('active', 0)} · authz {cov.get('authz_probed', 0)} · "
+                       f"untested <b>{cov.get('untested', 0)}</b>"
+                       + (f"<br>Skip reasons — {reasons}" if reasons else "") + "</div>")
+        amap_box = ""
+        if amap:
+            surf = amap.get("surfaces") or {}
+            roles = ", ".join((amap.get("authentication") or {}).get("roles_tested", [])) or "—"
+            dobj = ", ".join(sorted((amap.get("data_objects") or {}).keys())) or "—"
+            amap_box = (f"<div class='box' style='margin-top:10px'>"
+                        f"Surfaces — pages {surf.get('page', {}).get('count', 0)}, "
+                        f"APIs {surf.get('api', {}).get('count', 0)}, "
+                        f"actions {surf.get('form_or_action', {}).get('count', 0)}, "
+                        f"statics {surf.get('static', {}).get('count', 0)}"
+                        f"<br>Auth mode: {e(str((amap.get('authentication') or {}).get('mode', '—')))} · "
+                        f"roles tested: {e(roles)}"
+                        f"<br>Data objects: {e(dobj)}</div>")
+        intel_html = (f"<section><h2>Coverage & Application Map (Phase 56)</h2>"
+                      f"{cov_box}{amap_box}</section>")
     stat_items = "".join(f"<div class='stat'><b>{e(str(v))}</b><span>{e(str(k))}</span></div>"
                          for k, v in (stats.items() if isinstance(stats, dict)
                                       else zip(["requests", "endpoints", "verified", "rejected"],
@@ -191,6 +225,7 @@ def _build_html(store: Store, run_id: str) -> str:
 </style></head><body>
 <header><h1>{e(title)}</h1><div class="sub">{e(str(subtitle))}</div></header>
 <section><h2>Statistics</h2><div class="stats">{stat_items}</div></section>
+{intel_html}
 <section><h2>Verified findings ({len(findings)})</h2>
 <table><tr><th>Sev</th><th>Type</th><th>URL</th><th>Param</th><th>Risk</th><th>Conf</th><th>Evidence</th><th>Verification</th></tr>
 {''.join(rows) or '<tr><td colspan="8">None</td></tr>'}</table></section>

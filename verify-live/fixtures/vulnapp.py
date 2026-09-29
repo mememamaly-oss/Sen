@@ -27,6 +27,21 @@ GROUND TRUTH (see benchmarks/ground_truth.json):
   /safe/jsparam.php?cat        -> NEGATIVE (inline-JS-discoverable but safe)
   /safe/stock POST XML         -> NEGATIVE (DTD rejected — no entity resolution)
   all pages                    -> missing_security_headers (positive, passive)
+
+Fixture v8 (Phase 56 — Intelligence Layer ground truth):
+  /api/data?user_id            -> idor_bola (no object-level authz: any authed
+                                   account reads ANY profile; victim marker oracle)
+  /api/secure/data?user_id     -> NEGATIVE (ownership enforced -> 403)
+  /api/admin/stats             -> vertical_privilege_escalation (authed, NO role
+                                   check: any user gets the admin view)
+  /api/secure/admin/stats      -> NEGATIVE (admin role enforced -> 403)
+  /vuln/leak-config            -> credential_exposure (AWS key + GitHub token +
+                                   credential-bearing DB URI in one config doc)
+  /safe/leak-config            -> NEGATIVE (values masked — placeholders, not secrets)
+  /api/filter?filter={...}     -> param-intel surface (JSON-object valued param:
+                                   string batteries provably skipped, nothing lost)
+  Multi-user auth: demo/demo123 (admin), bob/bob123 (user), carol/carol123 (user)
+  — the Authorization Engine's login matrix (AUTHZ-01..04).
 """
 import json, os, re, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -61,7 +76,9 @@ HEADER_TMPL = """<!DOCTYPE html><html><head><title>Sentinel Fixture</title></hea
  - <a href="/vuln/csrfdivform">csrf divform</a> - <a href="/vuln/jsform">jsform</a> - <a href="/login">sign in</a>
  - <a href="/vuln/fetch?url=http://api.local/feed">ssrf</a> - <a href="/safe/fetch?url=http://api.local/feed">safe fetch</a>
  - <a href="/vuln/ping?host=localhost">cmdi</a> - <a href="/safe/ping?host=localhost">safe ping</a>
- - <a href="/vuln/cors">cors api</a> - <a href="/safe/cors">safe cors</a></div>
+ - <a href="/vuln/cors">cors api</a> - <a href="/safe/cors">safe cors</a>
+ - <a href="/vuln/leak-config">debug config</a> - <a href="/safe/leak-config">safe config</a>
+ - <a href="/api/filter?filter=%7B%22status%22%3A%22active%22%7D">api filter</a></div>
 {body}
 </body></html>"""
 
@@ -192,9 +209,40 @@ CSRF_TOKEN = _hl.sha1((CSRF_SESSION + "|csrf").encode()).hexdigest()[:16]
 #   /vault/transfer?acct -> auth-gated boolean SQLi oracle   [TP sql_injection]
 #   AUTH_TTL=<n> env     -> server-side session expiry after n authenticated requests
 #                           (AUTH-03 watchdog: mid-scan session loss -> re-auth)
-AUTH_USER, AUTH_PASS = "demo", "demo123"
+# ==================== Phase 56 (fixture v8): MULTI-USER authorization surface ====================
+# Three real accounts with distinct roles and distinct private markers — the
+# substrate the Authorization Engine tests (AUTHZ-01..04):
+#   demo  / demo123  -> role=admin, object 1001, marker root-admin@…
+#   bob   / bob123   -> role=user,  object 2002, marker bob-user@…
+#   carol / carol123 -> role=user,  object 3003, marker carol-user@…
+# The markers are UNIQUE substrings that appear ONLY in that account's profile
+# response — the victim-marker oracle for IDOR (plus a listing guard: a page
+# carrying several markers at once is a directory, not object-level access).
+AUTH_USERS = {
+    "demo":  {"pass": "demo123",  "role": "admin", "uid": "1001",
+              "email": "root-admin@sentinel-fixture.local"},
+    "bob":   {"pass": "bob123",   "role": "user",  "uid": "2002",
+              "email": "bob-user@sentinel-fixture.local"},
+    "carol": {"pass": "carol123", "role": "user",  "uid": "3003",
+              "email": "carol-user@sentinel-fixture.local"},
+}
+PROFILES = {u["uid"]: {"user_id": uid, "username": name, "email": u["email"],
+                       "role": u["role"]}
+            for name, u in AUTH_USERS.items() for uid in [u["uid"]]}
+ADMIN_STATS = {"admins": 3, "monthly_revenue": "9137", "flag": "ADMIN-ONLY-VIEW"}
+# credential-exposure surfaces: one config doc leaking three REAL-shaped
+# secret classes (AWS key / GitHub token / credential-bearing DB URI), and a
+# hardened twin whose values are masked placeholders (hygiene, NOT secrets).
+LEAK_CONFIG = {"app": "fixture", "env": "prod",
+               "aws_access_key_id": "AKIAIOSFODNN7EXAMPLE",
+               "github_token": "ghp_SENTINELFIXTUREGHPTOKEN1234567890",
+               "database_url": "mysql://app:s3nt1nelDbPw@10.0.0.5:3306/fixture"}
+SAFE_LEAK_CONFIG = {"app": "fixture", "env": "prod",
+                    "aws_access_key_id": "AKIA********************",
+                    "github_token": "ghp_********************",
+                    "database_url": "internal-only (credentials vaulted)"}
 AUTH_TTL = int(os.environ.get("AUTH_TTL", "0"))   # 0 = never expires
-SESSIONS: dict[str, dict] = {}                     # sess_id -> {csrf, authed, hits}
+SESSIONS: dict[str, dict] = {}                     # sess_id -> {csrf, authed, hits, user, role, uid}
 
 def _new_session() -> str:
     sid = _hl.sha1((str(time.time()) + str(os.getpid()) + _hl.md5(str(time.time_ns()).encode()).hexdigest()).encode()).hexdigest()[:12]
@@ -217,8 +265,26 @@ def _sess_authed(self):
     s["hits"] += 1
     return sid
 
-AUTH_MENUBAR = '''<div class="menubar"><a href="/home">home</a> - <a href="/account?q=John">account q</a>
- - <a href="/account?tab=profile">account tab</a> - <a href="/vault/transfer?acct=1001&amount=250">transfer</a></div>'''
+def _sess_user(self):
+    """Resolve the caller's AUTHENTICATED session record (or None)."""
+    sid = _sess_authed(self)
+    return (sid, SESSIONS[sid]) if sid else None
+
+def _menubar_for(sess: dict) -> str:
+    """Role-aware navigation: every authenticated account sees the common
+    banking links plus its OWN profile links (own object id); ONLY the admin
+    role sees the admin-stats surfaces. The privileged-only links are what the
+    Authorization Engine's differential landing crawl keys on."""
+    own = sess["uid"]
+    bar = ('<div class="menubar"><a href="/home">home</a> - <a href="/account?q=John">account q</a>'
+           ' - <a href="/account?tab=profile">account tab</a>'
+           ' - <a href="/vault/transfer?acct=1001&amount=250">transfer</a>'
+           f' - <a href="/api/data?user_id={own}">my profile</a>'
+           f' - <a href="/api/secure/data?user_id={own}">my profile (secure)</a>')
+    if sess["role"] == "admin":
+        bar += (' - <a href="/api/admin/stats">admin stats</a>'
+                ' - <a href="/api/secure/admin/stats">admin stats (secure)</a>')
+    return bar + "</div>"
 
 LOGIN_PAGE = '''<h1>Sign in</h1>
 <form action="doLogin" method="post">
@@ -434,7 +500,66 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/backup/db.sql":
             return self._send(200, HEADER_TMPL.format(body="-- dump"))
 
-        # ---------------- Phase 51: authenticated surface ----------------
+        # ---------------- Phase 51+56: authenticated surface ----------------
+        if path == "/api/data":
+            # VULNERABLE (object-level): ANY authenticated account can read ANY
+            # user's profile — no ownership check on the requested object id.
+            su = _sess_user(self)
+            if su is None:
+                return self._redirect("/login")
+            prof = PROFILES.get(q.get("user_id", ""))
+            if prof is None:
+                return self._send(404, json.dumps({"error": "no such object"}),
+                                  {"Content-Type": "application/json"})
+            return self._send(200, json.dumps(prof), {"Content-Type": "application/json"})
+        if path == "/api/secure/data":
+            # Hardened twin: object-level authorization — the requested id must
+            # be the session's OWN object.
+            su = _sess_user(self)
+            if su is None:
+                return self._redirect("/login")
+            _, s = su
+            uid = q.get("user_id", "")
+            prof = PROFILES.get(uid)
+            if prof is None:
+                return self._send(404, json.dumps({"error": "no such object"}),
+                                  {"Content-Type": "application/json"})
+            if uid != s["uid"]:
+                return self._send(403, json.dumps({"error": "not your object"}),
+                                  {"Content-Type": "application/json"})
+            return self._send(200, json.dumps(prof), {"Content-Type": "application/json"})
+        if path == "/api/admin/stats":
+            # VULNERABLE (role-level): authentication WITHOUT a role check —
+            # any logged-in user receives the admin-only view.
+            su = _sess_user(self)
+            if su is None:
+                return self._redirect("/login")
+            return self._send(200, json.dumps(ADMIN_STATS), {"Content-Type": "application/json"})
+        if path == "/api/secure/admin/stats":
+            # Hardened twin: admin role enforced — lower roles get 403.
+            su = _sess_user(self)
+            if su is None:
+                return self._redirect("/login")
+            _, s = su
+            if s["role"] != "admin":
+                return self._send(403, json.dumps({"error": "admin role required"}),
+                                  {"Content-Type": "application/json"})
+            return self._send(200, json.dumps(ADMIN_STATS), {"Content-Type": "application/json"})
+        if path == "/api/filter":
+            # Param-intel surface: the filter param's observed value IS a JSON
+            # object. Safe by design (constant response, no reflection) — its
+            # ground truth is the Smart Testing Engine's provable skip.
+            return self._send(200, json.dumps({"matched": 2, "filter_applied": True}),
+                              {"Content-Type": "application/json"})
+        if path == "/vuln/leak-config":
+            # VULNERABLE: debug config endpoint leaking three REAL-shaped secret
+            # classes in one document (AWS access key / GitHub token /
+            # credential-bearing database URI).
+            return self._send(200, json.dumps(LEAK_CONFIG), {"Content-Type": "application/json"})
+        if path == "/safe/leak-config":
+            # Hardened twin: same keys, masked placeholder values — hygiene,
+            # not exposure.
+            return self._send(200, json.dumps(SAFE_LEAK_CONFIG), {"Content-Type": "application/json"})
         if path == "/login":
             # realistic session policy (Altoro behaves the same): a client that
             # already holds a live session KEEPS it — a new anonymous session is
@@ -449,30 +574,36 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, LOGIN_PAGE.format(csrf=SESSIONS[sid]["csrf"]),
                               {"Set-Cookie": f"SESS={sid}; Path=/"})
         if path == "/home":
-            if _sess_authed(self) is None:
+            su = _sess_user(self)
+            if su is None:
                 return self._redirect("/login")
-            return self._send(200, AUTH_MENUBAR +
-                              "<h1>My Bank</h1><p>Sign Off</p><p>Welcome, demo.</p>")
+            _, s = su
+            return self._send(200, _menubar_for(s) +
+                              f"<h1>My Bank</h1><p>Sign Off</p><p>Welcome, {s['user']}.</p>")
         if path == "/account":
-            if _sess_authed(self) is None:
+            su = _sess_user(self)
+            if su is None:
                 return self._redirect("/login")
+            _, s = su
             if "tab" in q:                      # escaped twin — TN
                 tab = q["tab"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-                return self._send(200, AUTH_MENUBAR + f"<div>Tab: {tab}</div>")
+                return self._send(200, _menubar_for(s) + f"<div>Tab: {tab}</div>")
             name = q.get("q", "")                # raw reflection — TP
-            return self._send(200, AUTH_MENUBAR + f"<div>You searched for '{name}'</div>")
+            return self._send(200, _menubar_for(s) + f"<div>You searched for '{name}'</div>")
         if path == "/vault/transfer":
-            if _sess_authed(self) is None:
+            su = _sess_user(self)
+            if su is None:
                 return self._redirect("/login")
+            _, s = su
             acct = q.get("acct", "0")
             m = re.match(r"^\s*(\d+)\s+AND\s+(1=1|1=2)", acct)
             if m and m.group(2) == "1=1":
-                return self._send(200, AUTH_MENUBAR + "<p>Transfer pending ... " * 12 + "</p>")
+                return self._send(200, _menubar_for(s) + "<p>Transfer pending ... " * 12 + "</p>")
             if m and m.group(2) == "1=2":
                 return self._send(500, "<html><body>SQL error</body></html>")
             if "'" in acct:
                 return self._send(500, "<html><body>SQL error</body></html>")
-            return self._send(200, AUTH_MENUBAR + f"<p>Transfer to account {acct} queued.</p>")
+            return self._send(200, _menubar_for(s) + f"<p>Transfer to account {acct} queued.</p>")
 
         # ---------------- VULNERABLE ----------------
         if path == "/vuln/sqli_error.php":
@@ -731,22 +862,25 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, json.dumps({"token": token, "ok": True}),
                               {"Content-Type": "application/json"})
 
-        # ---------------- Phase 51: login POST ----------------
+        # ---------------- Phase 51/56: login POST (multi-user) ----------------
         if path == "/doLogin":
             form = parse_qs(raw, keep_blank_values=True)
             cookie = self.headers.get("Cookie") or ""
             m = re.search(r"SESS=([0-9a-f]{12})", cookie)
             sid = m.group(1) if m else ""
             s = SESSIONS.get(sid)
+            uid_in = form.get("uid", [""])[0]
+            pw_in = form.get("passw", [""])[0]
+            u = AUTH_USERS.get(uid_in)
             if (s is None or "json" in ctype
                     or form.get("csrfToken", [""])[0] != s["csrf"]
-                    or form.get("uid", [""])[0] != AUTH_USER
-                    or form.get("passw", [""])[0] != AUTH_PASS):
+                    or u is None or pw_in != u["pass"]):
                 return self._redirect("/login")          # rejected: back to the gate
-            # success: ROTATE the session (fixation defense) and grant AUTH
+            # success: ROTATE the session (fixation defense) and grant AUTH + role
             SESSIONS.pop(sid, None)
             s2 = _new_session()
-            SESSIONS[s2]["authed"] = True
+            SESSIONS[s2].update({"authed": True, "user": uid_in,
+                                 "role": u["role"], "uid": u["uid"]})
             return self._redirect("/home", cookies=[f"SESS={s2}; Path=/",
                                                     f"AUTH=granted-{s2}; Path=/"])
 

@@ -80,9 +80,22 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
                            username="demo", password="demo123",
                            user_field="uid", pass_field="passw",
                            success_marker="Sign Off")
-        cfg = ScanConfig(allow_private=True, max_pages=30, timeout=timeout,
+        # Phase 56: the benchmark exercises the FULL platform including the
+        # multi-user Authorization Engine — benchmarks/authz_accounts.json is
+        # the fixture's three-account matrix (admin + two users).
+        authz_cfg = None
+        _azp = os.path.join(os.path.dirname(__file__), "..", "benchmarks", "authz_accounts.json")
+        if os.path.exists(_azp):
+            authz_cfg = json.load(open(_azp))
+        # Phase 56: fixture v8 grew the crawl surface (7 new linked pages:
+        # leak-config x2, api/filter, api/data, api/secure/data, admin stats x2)
+        # — the old 30-page budget (x1.5 auth = 45) capped the BFS exactly at the
+        # edge and starved the late-queued DOM pages out of the crawl (live-caught
+        # by this very benchmark going FN on xss_dom). Budget recalibrated to track
+        # the fixture, same doctrine as the Phase 55 browser-budget recalibration.
+        cfg = ScanConfig(allow_private=True, max_pages=36, timeout=timeout,
                          strategy_path=strategy_path, seed="benchmark-fixed-seed",
-                         oast=oast, auth=auth)
+                         oast=oast, auth=auth, authz=authz_cfg)
         sc = SentinelScanner(base_url, cfg)
         result = sc.run()
     finally:
@@ -252,6 +265,17 @@ def main():
                    help="disable OpenAPI/Swagger document auto-probing")
     s.add_argument("--openapi-spec", default="",
                    help="path/URL of an explicit OpenAPI/Swagger JSON document to seed endpoints")
+    # ---- Phase 56 (v2.8.0): the Intelligence Layer
+    s.add_argument("--authz-accounts", default="",
+                   help="Phase 56: multi-user authorization testing — JSON file with "
+                        "accounts (name/role/username/password/marker/object_id) + "
+                        "login flow; enables IDOR/BOLA + vertical-escalation "
+                        "detection and the role x endpoint access matrix")
+    s.add_argument("--no-secrets", action="store_true",
+                   help="disable the credential-exposure scan of passive baselines")
+    s.add_argument("--secrets-report", default="",
+                   help="also write a standalone credential-exposure report (masked "
+                        "values only) to this path")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     sub.add_parser("doctor")
@@ -299,10 +323,15 @@ def main():
                 openapi_spec = json.loads(_ur.urlopen(a.openapi_spec, timeout=a.timeout).read().decode("utf-8", "replace"))
             else:
                 openapi_spec = json.load(open(a.openapi_spec))
+        # Phase 56: multi-user authorization config (accounts + login flow)
+        authz_cfg = None
+        if a.authz_accounts:
+            authz_cfg = json.load(open(a.authz_accounts))
         cfg = ScanConfig(allow_private=a.allow_private, max_pages=a.max_pages,
                          crawl=not a.no_crawl, timeout=a.timeout, seed=a.seed,
                          strategy_path=a.strategy_path, browser=not a.no_browser,
-                         auth=auth, openapi=not a.no_openapi, openapi_spec=openapi_spec)
+                         auth=auth, openapi=not a.no_openapi, openapi_spec=openapi_spec,
+                         authz=authz_cfg, secrets=not a.no_secrets)
         # Phase 52: channel-aware OAST arming. auto = local listener for targets
         # that can reach loopback (lab fixtures), PUBLIC webhook channel for remote
         # targets (live-proven: ginandjuice.shop blind XXE confirmed via webhook.site
@@ -322,6 +351,19 @@ def main():
                 oast.stop()
         os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
         json.dump(rep, open(a.out, "w"), indent=1)
+        # Phase 56: standalone credential-exposure report (masked values only —
+        # the data-minimization discipline: secrets get their own channel and
+        # never appear unmasked in ANY artifact).
+        if a.secrets_report:
+            cred = [f for f in rep["findings"] if f["type"] == "credential_exposure"]
+            os.makedirs(os.path.dirname(a.secrets_report) or ".", exist_ok=True)
+            json.dump({"run_id": rep["run_id"], "target": rep["target"],
+                       "generated_by": rep["scanner"],
+                       "policy": "masked evidence only — raw secret values are never "
+                                 "stored or transmitted by SENTINEL",
+                       "summary": rep.get("stats", {}).get("secrets", {}),
+                       "findings": cred},
+                      open(a.secrets_report, "w"), indent=1)
         if a.db:
             from sentinel.store import Store
             n = Store(a.db).save_run(rep)

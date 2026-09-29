@@ -939,7 +939,11 @@ class HostHeaderDetector(Detector):
     silent. VR-16 re-tests with a FRESH canary host."""
     name, vuln_type = "hostheader", "host_header_injection"
     severity = Severity.MEDIUM
-    MAX_ENDPOINTS = 10
+    # Budget recalibrated for the fixture-v8 surface (Phase 56): the authenticated
+    # landing now contributes 4 API endpoints that sort BEFORE the classic pages,
+    # pushing /vuln/hostbuild past the old 10-endpoint cap — live-caught by the
+    # benchmark going FN on host_header_injection the moment the surface grew.
+    MAX_ENDPOINTS = 16
     SKIP_EXT = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".gif", ".ico", ".woff", ".woff2", ".map")
 
     def __init__(self, engine, bus, strategy_store=None):

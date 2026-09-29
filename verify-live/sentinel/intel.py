@@ -451,6 +451,26 @@ class VerificationEngine:
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok16 else FindingStatus.REJECTED
 
+        elif f.type == "credential_exposure":
+            # VR-19 (Phase 56): a FRESH fetch of the endpoint must re-expose the
+            # SAME credential class — reproducible exposure, not a one-off
+            # accident (e.g. a transient error page that happened to contain a
+            # key-shaped string).
+            from .secrets import SecretsScanner
+            r19 = self.engine.send(RequestMutation(endpoint=ep, note="secrets-verify"))
+            ok19 = False
+            if r19 is not None and not r19.error and r19.status:
+                for cand in SecretsScanner().scan(ep, r19):
+                    if cand.parameter == f.parameter:      # same credential class
+                        ok19 = True
+                        break
+            v = Verification(method="re-test:fresh-fetch-reexposure", passed=ok19,
+                             confidence=0.9 if ok19 else 0.15, rounds=1,
+                             notes=f"fresh fetch re-exposed credential class "
+                                   f"{f.parameter!r}: {ok19}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok19 else FindingStatus.REJECTED
+
         else:  # passive findings: single-response evidence, verified by definition of presence
             v = Verification(method="single-response-evidence", passed=True, confidence=0.98, rounds=1)
             f.verification, f.confidence = v, v.confidence
@@ -467,6 +487,8 @@ RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "xss_dom": 7, "path_trav
                 "command_injection": 9, "ssrf": 7, "cors_misconfig": 6,
                 "ssti": 9, "nosql_injection": 9, "csrf": 5, "jwt_security": 5,
                 "host_header_injection": 5,
+                "idor_bola": 8, "vertical_privilege_escalation": 9,
+                "credential_exposure": 8,
                 "open_redirect": 4, "http_response_header_injection": 6,
                 "missing_security_headers": 2, "server_banner_disclosure": 1,
                 "tech_banner_disclosure": 1, "vulnerable_js_dependency": 2}

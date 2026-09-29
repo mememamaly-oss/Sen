@@ -13,13 +13,19 @@ from .detect import (ACTIVE_DETECTORS, SQLiDetector, XSSDetector, TraversalDetec
 from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMemory, RepairClassifier
 from .auth import AuthProfile, AuthEngine, AuthedEngineProxy, TokenAuthEngine, TokenWatchdogProxy
 from .fingerprint import FingerprintCollector
+from .coverage import CoverageTracker, _CoverageProxy
+from .paramintel import ParamIntel
+from .secrets import SecretsScanner
+from .evidence import assess as assess_impact
+from .appmap import build_appmap
+from .authz import AuthzConfig, AuthzEngine
 
 
 class ScanConfig:
     def __init__(self, allow_private=False, max_pages=25, crawl=True, active=True,
                  passive=True, timeout=12.0, seed=None, strategy_path=None,
                  allowed_domains=None, oast=None, browser=True, auth=None,
-                 openapi=True, openapi_spec=None):
+                 openapi=True, openapi_spec=None, authz=None, secrets=True):
         self.allow_private = allow_private
         self.max_pages = max_pages
         self.crawl, self.active, self.passive = crawl, active, passive
@@ -31,6 +37,8 @@ class ScanConfig:
         self.auth = auth          # Phase 51: AuthProfile | None — authenticated scanning
         self.openapi = openapi    # DISC-13: auto-probe well-known OpenAPI/Swagger docs
         self.openapi_spec = openapi_spec   # explicit spec dict/url seed (None = auto only)
+        self.authz = authz        # Phase 56: multi-user authorization config (dict | None)
+        self.secrets = secrets    # Phase 56: credential-exposure scan of passive baselines
 
 
 class _FingerprintingProxy:
@@ -124,6 +132,13 @@ class SentinelScanner:
         # replays ALL pass through observe() — zero extra requests, passive only.
         self.engine = _FingerprintingProxy(self.engine, self.fp)
         self.verifier.engine = self.engine
+        # ---- Phase 56: Coverage Engine — every request the scan sends is
+        # attributed to its endpoint (passive baseline / secrets scan / active
+        # probe / verification replay). Navigation (crawl) and auth-flow
+        # requests are intentionally NOT endpoint testing and are excluded.
+        self.coverage = CoverageTracker()
+        self.engine = _CoverageProxy(self.engine, self.coverage)
+        self.verifier.engine = self.engine
 
         # ---- Phase 4: discovery (extra_seeds carry the authenticated landing;
         # the login page itself is excluded from page-fetches — re-fetching it
@@ -198,6 +213,20 @@ class SentinelScanner:
                 self.bus.emit("BrowserUnavailable",
                               note="playwright/chromium not installed — static fallback active")
 
+        # ---- Phase 56: Smart Testing Engine (value-shape parameter intelligence)
+        # + the Coverage Engine's discovery ledger. enrich() only UPGRADES param
+        # kinds when the observed value proves a more specific shape (JSON object);
+        # every skip it causes is recorded as an auditable coverage reason.
+        for ep in endpoints:
+            self.coverage.discover(ep)
+        self.param_profile = ParamIntel.enrich(endpoints)
+        for ep in endpoints:
+            for p in ep.parameters:
+                reason = ParamIntel.skip_reason(p)
+                if reason:
+                    self.coverage.skipped(ep, reason)
+        self.stats["param_intel"] = self.param_profile
+
         # ---- Phase 7: plan; Phase 8: detect
         detectors = {d.name: d(self.engine, self.bus, self.strategies) for d in ACTIVE_DETECTORS}
         # Phase 53: OAST-channel detectors (SSRF / blind command injection) receive
@@ -220,9 +249,33 @@ class SentinelScanner:
         for ep in endpoints:
             if self.cfg.passive:
                 r = self.engine.send(RequestMutation(endpoint=ep, note="passive-baseline"))
+                if r.error:
+                    self.coverage.skipped(ep, "transport_error")
+                else:
+                    # Phase 56 honesty gate: an ANONYMOUS scan that cannot open an
+                    # endpoint (401/403, or bounced to a login gate) is an
+                    # explicitly-accounted untested surface. With credentials
+                    # configured the endpoint WAS tested — a 401 there is the
+                    # application's answer (e.g. a login form rejecting wrong
+                    # creds), not missing coverage.
+                    hop = r.hop_location()
+                    if self.cfg.auth is None and (r.status in (401, 403)
+                                                  or (hop and "login" in hop.lower())):
+                        self.coverage.skipped(ep, "requires_authentication")
                 if not r.error:
                     for f in passive_audit(ep, r):
                         self.findings.append(self.verifier.verify(f, ep))
+                    # ---- Phase 56: Credential Exposure Engine — secrets scan of
+                    # the response the scan ALREADY fetched (zero extra requests;
+                    # VR-19 re-fetches only for candidates).
+                    if self.cfg.secrets:
+                        self.coverage.activity(ep, "secrets", "secrets-passive-scan")
+                        for sf in SecretsScanner().scan(ep, r):
+                            sf.run_id = self.run_id
+                            self.stats["candidates"] += 1
+                            self.bus.emit("CandidateCreated", type=sf.type, url=ep.url,
+                                          param=sf.parameter)
+                            self.findings.append(self.verifier.verify(sf, ep))
             if not self.cfg.active:
                 continue
             for dname, det in detectors.items():
@@ -389,6 +442,41 @@ class SentinelScanner:
             except Exception:
                 pass
 
+        # ---- Phase 56: Multi-User Authorization Engine. Runs AFTER the active
+        # phases with its OWN per-account engines (isolated cookie jars — no
+        # session cross-contamination with the main scan session): logins every
+        # configured account, builds the role x endpoint access matrix, and
+        # tests the two authorization failure classes (IDOR/BOLA via victim-
+        # marker oracle + vertical escalation via differential-landing
+        # candidates). GET-only replays; every finding carries its own VR
+        # (VR-17 fresh-victim / VR-18 fresh-privileged-replay).
+        authz_result = None
+        if self.cfg.authz:
+            try:
+                acfg = AuthzConfig.from_dict(self.cfg.authz, self.target.url)
+                aeng = AuthzEngine(acfg, self.scope, self.bus, timeout=self.cfg.timeout)
+                authz_result = aeng.run(endpoints)
+                for f in authz_result["findings"]:
+                    f.run_id = self.run_id
+                    self.stats["candidates"] += 1
+                    self.bus.emit("CandidateCreated", type=f.type, url=f.endpoint_url,
+                                  param=f.parameter)
+                self.findings.extend(authz_result["findings"])
+                # authz probes touched these endpoints — record it in the ledger
+                by_url = {e.url.split("?")[0]: e for e in endpoints}
+                for url in authz_result.get("matrix", {}):
+                    ep = by_url.get(url.split("?")[0])
+                    if ep is not None:
+                        self.coverage.activity(ep, "authz", "authz-matrix")
+            except Exception as e:
+                fid = self.failures.record("authz", f"{type(e).__name__}: {e}", {})
+                self.bus.emit("ScannerFailed", scanner="authz", failure=fid,
+                              error=str(e)[:200])
+                authz_result = authz_result or {"stats": {"ran": False,
+                                                          "error": str(e)[:160]}}
+            if authz_result:
+                self.stats["authz"] = dict(authz_result.get("stats", {}))
+
         # ---- Phase 12: dedup + correlation + risk
         verified = [f for f in self.findings if f.status == FindingStatus.VERIFIED]
         rejected = [f for f in self.findings if f.status == FindingStatus.REJECTED]
@@ -428,6 +516,10 @@ class SentinelScanner:
             except Exception:
                 self.stats["oast"] = {"channel": getattr(self.cfg.oast, "channel", "local"),
                                       "interactions": -1}
+        # Phase 56: authz-engine requests ride their OWN engines — add them to
+        # the total so the report's request count is the whole truth.
+        if authz_result and authz_result.get("stats", {}).get("requests"):
+            self.stats["requests"] += authz_result["stats"]["requests"]
         ded = self.pipeline.dedup(verified)
         final = self.pipeline.correlate(ded)
         for f in final:
@@ -436,6 +528,24 @@ class SentinelScanner:
         for f in final:
             self.bus.emit("FindingCreated", id=f.id, type=f.type, url=f.endpoint_url,
                           param=f.parameter, risk=self.pipeline.risk(f))
+        # ---- Phase 56: Coverage account + Application Map + secrets summary +
+        # impact proof on every verified finding. All deterministic, all derived
+        # from artifacts the scan already produced.
+        self.stats["coverage"] = self.coverage.summarize()
+        auth_mode = ("multi-user(" + ",".join(self.stats.get("authz", {}).get("roles", [])) + ")"
+                     if self.stats.get("authz", {}).get("ran") else
+                     "form-session" if self.auth_engine is not None else
+                     "token" if self.token_engine is not None else "anonymous")
+        self.stats["appmap"] = build_appmap(endpoints, param_profile=self.param_profile,
+                                            authz_result=authz_result,
+                                            coverage_summary=self.stats["coverage"],
+                                            auth_mode=auth_mode)
+        cred_classes = sorted({f.parameter for f in final if f.type == "credential_exposure"})
+        if cred_classes or self.cfg.secrets:
+            self.stats["secrets"] = {"classes_found": cred_classes,
+                                     "findings": sum(1 for f in final
+                                                     if f.type == "credential_exposure"),
+                                     "masking": "raw values never stored (prefix+length only)"}
         self.bus.emit("ScanCompleted", **self.stats)
         return self.report()
 
@@ -453,7 +563,8 @@ class SentinelScanner:
         return {
             "run_id": self.run_id, "seed": self.seed, "scanner": SCANNER_VERSION,
             "target": self.target.url, "stats": self.stats,
-            "findings": [f.to_dict() | {"risk": self.pipeline.risk(f)} for f in self.findings
+            "findings": [f.to_dict() | {"risk": self.pipeline.risk(f),
+                                        "impact": assess_impact(f)} for f in self.findings
                          if f.status == FindingStatus.VERIFIED],
             "rejected_candidates": [f.to_dict() for f in self.findings
                                     if f.status == FindingStatus.REJECTED],
@@ -567,6 +678,49 @@ def doctor(allow_private=False) -> dict:
         add("oast_providers", public_ok if public_ok is not None else False, public_detail)
     except Exception as e:
         add("oast_providers", False, str(e)[:80])
+    # Intelligence Layer (Phase 56): coverage / param-intel / secrets / evidence
+    # / appmap / authz modules importable AND their core invariants hold.
+    try:
+        from .coverage import CoverageTracker
+        from .paramintel import ParamIntel
+        from .secrets import SecretsScanner, mask
+        from .evidence import assess
+        from .appmap import build_appmap
+        from .authz import AuthzConfig, ROLE_RANK
+        from .core import ParamKind          # NOTE: Endpoint stays module-level — a
+                                             # local import would shadow it for the
+                                             # WHOLE function and break the auth_engine
+                                             # check above (live-caught: UnboundLocalError)
+        # param-intel: JSON-object value shape is recognized and auditable
+        assert ParamIntel.infer("filter", '{"a": 1}') == ParamKind.JSON_OBJECT
+        assert ParamIntel.infer("q", "plain") is None
+        # coverage: discovered/tested/skip math is exact
+        cov = CoverageTracker()
+        ep = Endpoint(url="http://x.local/a")
+        cov.discover(ep); cov.activity(ep, "passive"); cov.skipped(ep, "demo_reason")
+        s = cov.summarize()
+        assert s["discovered"] == 1 and s["tested"] == 1 and s["skip_reasons"]["demo_reason"] == 1
+        # secrets: signature fires, value is masked, placeholders rejected
+        sc = SecretsScanner()
+        hits = sc.scan(Endpoint(url="http://x.local/cfg"),
+                       type("R", (), {"error": "", "status": 200, "body":
+                            '{"aws_access_key_id": "AKIA' + "B" * 16 + '"}',
+                            "headers": {}, "request_id": "r1"})())
+        assert len(hits) == 1 and "…" in hits[0].evidence[0].detail and "BBBB" not in hits[0].evidence[0].detail
+        # evidence: impact assessment maps every registered finding type
+        assert assess(type("F", (), {"type": "sql_injection", "evidence": [],
+                                     "verification": None, "parameter": "x",
+                                     "method": "GET", "endpoint_url": "http://x"})())["grade"] == "proven"
+        # authz: role ranking + config parsing
+        assert ROLE_RANK["admin"] < ROLE_RANK["user"]
+        acfg = AuthzConfig.from_dict({"login_url": "/login", "accounts": [
+            {"name": "a", "role": "admin", "username": "u", "password": "p",
+             "marker": "m", "object_id": "1"}]}, "http://t.local")
+        assert acfg.login_url == "http://t.local/login" and len(acfg.accounts) == 1
+        add("intelligence_engines", True,
+            "coverage / param-intel / secrets (masked) / evidence-impact / appmap / authz OK")
+    except Exception as e:
+        add("intelligence_engines", False, str(e)[:120])
     passed = sum(1 for c in checks if c["status"] == "PASS")
     return {"overall": "PASS" if passed == len(checks) else "DEGRADED",
             "passed": passed, "total": len(checks), "checks": checks}

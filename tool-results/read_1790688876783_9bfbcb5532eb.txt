@@ -1,0 +1,862 @@
+     1→#!/usr/bin/env python3
+     2→"""SENTINEL Benchmark Fixture v1 — locally-hosted intentionally vulnerable app.
+     3→GROUND TRUTH (see benchmarks/ground_truth.json):
+     4→  /vuln/sqli_error.php?id      -> sql_injection (error-based)
+     5→  /vuln/sqli_blind.php?id      -> sql_injection (boolean oracle 200/500)
+     6→  /vuln/xss.php?q              -> xss_reflected (raw reflection)
+     7→  /vuln/traversal.php?file     -> path_traversal (reads SENTINEL-SECRET-FILE)
+     8→  /vuln/redirect.php?url       -> open_redirect (Location header)
+     9→  /vuln/jsparam.php?cat        -> sql_injection (500-on-quote, no DB string) +
+    10→                                  xss_reflected (slash-escaping app: <> raw, / escaped) +
+    11→                                  http_response_header_injection (Set-Cookie CRLF)
+    12→                                  [param only discoverable via inline <script> URLs — DISC-05]
+    13→  /vuln/stock POST XML         -> xxe (JS-transformed request; entity file-read differential)
+    14→  /vuln/oob-stock POST XML     -> xxe BLIND (noise response; confirmable ONLY out-of-band)
+    15→  /safe/oob-stock POST XML     -> NEGATIVE (DTD rejected — no entity fetch, no callback)
+    16→  /vuln/fetch?url              -> ssrf (blind server-side fetch; OOB-confirmed only)
+    17→  /safe/fetch?url              -> NEGATIVE (allowlist — no fetch of attacker URLs)
+    18→  /vuln/ping?host              -> command_injection (shell=True interpolation; OOB-confirmed)
+    19→  /safe/ping?host              -> NEGATIVE (argv list, no shell — injection impossible)
+    20→  /vuln/cors                   -> cors_misconfig (arbitrary Origin reflected + credentials)
+    21→  /safe/cors                   -> NEGATIVE (fixed allowlisted origin)
+    22→  /angular_1-7-7.js            -> vulnerable_js_dependency (passive)
+    23→  /safe/search.php?q           -> NEGATIVE (escaped)
+    24→  /safe/item.php?id            -> NEGATIVE (parameterized)
+    25→  /safe/read.php?file          -> NEGATIVE (basename filter)
+    26→  /safe/go.php?url             -> NEGATIVE (allowlist)
+    27→  /safe/jsparam.php?cat        -> NEGATIVE (inline-JS-discoverable but safe)
+    28→  /safe/stock POST XML         -> NEGATIVE (DTD rejected — no entity resolution)
+    29→  all pages                    -> missing_security_headers (positive, passive)
+    30→"""
+    31→import json, os, re, time
+    32→from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    33→from urllib.parse import urlparse, parse_qs, unquote
+    34→
+    35→DELAY_MS = float(os.environ.get("DELAY_MS", "0"))   # for chaos/repair demos: artificial per-request latency
+    36→
+    37→SECRET_FILE = "SENTINEL-SECRET-FILE: benchmark-fixture-secret-do-not-leak\n"
+    38→
+    39→# Fake filesystem for the XXE endpoint (entity resolution simulation — the real
+    40→# ginandjuice.shop oracle behaved exactly like this: distinct response per readable
+    41→# file, failed/unreadable entities equal the nonexistent control).
+    42→FAKE_FS = {
+    43→    "/etc/hostname": "fixture-host-01",
+    44→    "/etc/passwd": "root:x:0:0:root:/root:/bin/sh\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nologin\n",
+    45→    "/etc/group": "root:x:0:\ndaemon:x:1:\nbin:x:2:\n",
+    46→    "/etc/lsb-release": "DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=22.04\n",
+    47→}
+    48→
+    49→HEADER_TMPL = """<!DOCTYPE html><html><head><title>Sentinel Fixture</title></head><body>
+    50→<div class="menubar"><a href="/">home</a>
+    51→ - <a href="/vuln/ssti?name=world">ssti</a> - <a href="/safe/ssti?name=world">safe ssti</a>
+    52→ - <a href="/vuln/hostbuild">host header</a> - <a href="/safe/hostbuild">safe host</a>
+    53→ - <a href="/lab">lab</a> - <a href="/vuln/sqli_error.php?id=1">sqli err</a>
+    54→ - <a href="/vuln/sqli_blind.php?id=1">sqli blind</a> - <a href="/vuln/xss.php?q=test">xss</a>
+    55→ - <a href="/vuln/traversal.php?file=notes.txt">traversal</a> - <a href="/vuln/redirect.php?url=https://example.com">redirect</a>
+    56→ - <a href="/safe/search.php?q=test">safe search</a> - <a href="/safe/item.php?id=1">safe item</a>
+    57→ - <a href="/safe/read.php?file=notes.txt">safe read</a> - <a href="/hidden.php">hidden</a>
+    58→ - <a href="/safe/jsparam.php?cat=Books">safe jsparam</a> - <a href="/app.js">app.js</a>
+    59→ - <a href="/vuln/dom-write">dom-write</a> - <a href="/safe/dom-text?search=test">safe dom-text</a>
+    60→ - <a href="/vuln/divform">divform</a> - <a href="/safe/divform">safe divform</a>
+    61→ - <a href="/vuln/csrfdivform">csrf divform</a> - <a href="/vuln/jsform">jsform</a> - <a href="/login">sign in</a>
+    62→ - <a href="/vuln/fetch?url=http://api.local/feed">ssrf</a> - <a href="/safe/fetch?url=http://api.local/feed">safe fetch</a>
+    63→ - <a href="/vuln/ping?host=localhost">cmdi</a> - <a href="/safe/ping?host=localhost">safe ping</a>
+    64→ - <a href="/vuln/cors">cors api</a> - <a href="/safe/cors">safe cors</a></div>
+    65→{body}
+    66→</body></html>"""
+    67→
+    68→NOTES = "These are public notes. Nothing secret here.\n"
+    69→APP_JS = """
+    70→const API_BASE = "/api/";
+    71→fetch(API_BASE + "items?id=1");
+    72→$.ajax({url: "/api/users?id=2"});
+    73→new WebSocket("wss://localhost/ws");
+    74→"""
+    75→
+    76→# Mirrors ginandjuice.shop xmlStockCheckPayload.js: JS rebuilds the form POST as XML.
+    77→STOCKAPP_JS = """
+    78→window.contentType = 'application/xml';
+    79→function payload(data) {
+    80→    var xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    81→    xml += '<stockCheck>';
+    82→    for(var pair of data.entries()) { xml += '<' + pair[0] + '>' + pair[1] + '</' + pair[0] + '>'; }
+    83→    xml += '</stockCheck>';
+    84→    return xml;
+    85→}
+    86→"""
+    87→
+    88→# The page that hides the /vuln/jsparam.php?cat surface inside an inline <script>
+    89→# (only reachable via DISC-05 inline-JS URL extraction) and carries the XML stock forms.
+    90→HIDDEN_PAGE = """<h2>Products</h2>
+    91→<script type="text/javascript">
+    92→    const categories = {"Gin":"/vuln/jsparam.php?cat=Gin","Books":"/vuln/jsparam.php?cat=Books"};
+    93→    const selectedCategory = "All";
+    94→</script>
+    95→<script src="/stockapp.js"></script>
+    96→<script src="/angular_1-7-7.js"></script>
+    97→<form action="/vuln/stock" method="POST"><input type="hidden" name="productId" value="1"><button>Check stock</button></form>
+    98→<form action="/safe/stock" method="POST"><input type="hidden" name="productId" value="1"><button>Safe stock</button></form>
+    99→<form action="/blind/stock" method="POST"><input type="hidden" name="productId" value="1"><button>Blind stock</button></form>
+   100→<form action="/vuln/oob-stock" method="POST"><input type="hidden" name="productId" value="1"><button>Blind stock (OOB)</button></form>
+   101→<form action="/safe/oob-stock" method="POST"><input type="hidden" name="productId" value="1"><button>Safe blind stock</button></form>
+   102→"""
+   103→
+   104→ANGULAR_JS = "/* AngularJS v1.7.7 stub — EOL branch served for passive dependency detection */\n"
+   105→
+   106→# ==================== Phase 50 (fixture v4): browser/DOM surfaces ====================
+   107→# The server NEVER reflects ?search= on either page below — the param is read
+   108→# client-side from URLSearchParams and passed to a sink. /vuln/dom-write uses a
+   109→# dangerous sink (mirrors ginandjuice.shop /blog?search: document.write into an
+   110→# attribute context); /safe/dom-text uses textContent. ONLY a real browser can
+   111→# separate them — the DOM-engine ground truth pair.
+   112→DOM_WRITE_PAGE = """<h2>Search tracker</h2>
+   113→<form action="/vuln/dom-write" method="GET"><input type="text" name="search" value="test"><button>Track</button></form>
+   114→<script>
+   115→function trackSearch(query) {
+   116→    document.write('<img src="/tracker.gif?searchTerms=' + query + '">');
+   117→}
+   118→var query = (new URLSearchParams(window.location.search)).get('search');
+   119→if (query) { trackSearch(query); }
+   120→</script>
+   121→<div>Search tracked.</div>"""
+   122→
+   123→# Param-less variant: like ginandjuice.shop /blog/ (index) vs /blog?search= (results)
+   124→# — the DOM source->sink script is server-side CONDITIONAL, so the param-less page
+   125→# carries no script at all. Reaching the script REQUIRES DISC-12 form-target queueing.
+   126→DOM_WRITE_PAGE_PLAIN = """<h2>Search tracker</h2>
+   127→<form action="/vuln/dom-write" method="GET"><input type="text" name="search" value="test"><button>Track</button></form>
+   128→<div>Enter a search term.</div>"""
+   129→
+   130→DOM_TEXT_PAGE = """<h2>Search echo</h2>
+   131→<div id="out"></div>
+   132→<script>
+   133→var q = new URLSearchParams(window.location.search).get('search');
+   134→if (q) { document.getElementById('out').textContent = q; }
+   135→</script>"""
+   136→
+   137→# Mirrors ginandjuice.shop subscribeNow.js: div-based pseudo-forms are serialized
+   138→# as JSON (JSON.stringify + Content-Type application/json) — DISC-10 learns the
+   139→# transformation statically from this asset, ENG-04 replays it deterministically.
+   140→JSBUILD_JS = """
+   141→document.addEventListener('DOMContentLoaded', function () {
+   142→    document.querySelectorAll('div[data-action]').forEach(function (f) {
+   143→        var btn = f.querySelector('button');
+   144→        if (!btn) return;
+   145→        btn.addEventListener('click', function (e) {
+   146→            e.preventDefault();
+   147→            var value = {};
+   148→            f.querySelectorAll('input').forEach(function (i) { value[i.name] = i.value; });
+   149→            var xhr = new XMLHttpRequest();
+   150→            xhr.open(f.dataset.method, f.dataset.action);
+   151→            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+   152→            xhr.send(JSON.stringify(value));
+   153→        });
+   154→    });
+   155→});
+   156→"""
+   157→
+   158→DIVFORM_PAGE = """<h2>Subscribe</h2>
+   159→<script src="/jsbuild.js"></script>
+   160→<div id="subscribe" class="form" data-method="post" data-action="/vuln/json-reflect">
+   161→<input required type="text" name="name" placeholder="Name">
+   162→<button class="button" type="submit">Subscribe</button>
+   163→</div>"""
+   164→
+   165→SAFE_DIVFORM_PAGE = """<h2>Subscribe (safe)</h2>
+   166→<script src="/jsbuild.js"></script>
+   167→<div id="subscribe" class="form" data-method="post" data-action="/safe/json-reflect">
+   168→<input required type="text" name="name" placeholder="Name">
+   169→<button class="button" type="submit">Subscribe</button>
+   170→</div>"""
+   171→
+   172→# CSRF-protected flow (ENG-05 ground truth): the page sets a deterministic session
+   173→# cookie and embeds the matching token; the POST endpoint rejects requests without
+   174→# BOTH. Without the engine cookie jar this surface is unreachable ("Invalid CSRF").
+   175→import hashlib as _hl
+   176→CSRF_SESSION = "fixedsess123"
+   177→CSRF_TOKEN = _hl.sha1((CSRF_SESSION + "|csrf").encode()).hexdigest()[:16]
+   178→
+   179→# ======================= Phase 51 (fixture v5): AUTHENTICATED SURFACE =======================
+   180→# Real Altoro-style flow, engineered to exercise every auth capability:
+   181→#   GET  /login          -> Set-Cookie SESS=s1 + form with hidden csrfToken (AUTH-01:
+   182→#                           the token is session-bound and CHANGES every GET — a
+   183→#                           hard-coded-fields login can never pass)
+   184→#   POST /doLogin        -> validates SESS+csrf+creds, then ROTATES the session:
+   185→#                           Set-Cookie SESS=s2 + AUTH=granted-s2 on a 302 to /home.
+   186→#                           The redirect hop itself needs the fresh cookies (ENG-07:
+   187→#                           the engine must rebuild the Cookie header per hop).
+   188→#   /home                -> authenticated landing ("Sign Off" marker) — the ONLY
+   189→#                           page linking the authenticated surface (like Altoro /bank/*)
+   190→#   /account?q=          -> auth-gated RAW reflection        [TP xss_reflected]
+   191→#   /account?tab=        -> auth-gated ESCAPED reflection    [TN xss_reflected]
+   192→#   /vault/transfer?acct -> auth-gated boolean SQLi oracle   [TP sql_injection]
+   193→#   AUTH_TTL=<n> env     -> server-side session expiry after n authenticated requests
+   194→#                           (AUTH-03 watchdog: mid-scan session loss -> re-auth)
+   195→AUTH_USER, AUTH_PASS = "demo", "demo123"
+   196→AUTH_TTL = int(os.environ.get("AUTH_TTL", "0"))   # 0 = never expires
+   197→SESSIONS: dict[str, dict] = {}                     # sess_id -> {csrf, authed, hits}
+   198→
+   199→def _new_session() -> str:
+   200→    sid = _hl.sha1((str(time.time()) + str(os.getpid()) + _hl.md5(str(time.time_ns()).encode()).hexdigest()).encode()).hexdigest()[:12]
+   201→    SESSIONS[sid] = {"csrf": _hl.sha1((sid + "|csrf").encode()).hexdigest()[:16],
+   202→                     "authed": False, "hits": 0}
+   203→    return sid
+   204→
+   205→def _sess_authed(self):
+   206→    """Resolve the caller's session; None when anonymous/expired. Applies TTL."""
+   207→    cookie = self.headers.get("Cookie") or ""
+   208→    m = re.search(r"SESS=([0-9a-f]{12})", cookie)
+   209→    if not m: return None
+   210→    sid = m.group(1)
+   211→    s = SESSIONS.get(sid)
+   212→    if s is None or not s.get("authed"): return None
+   213→    if f"AUTH=granted-{sid}" not in cookie: return None
+   214→    if AUTH_TTL and s["hits"] >= AUTH_TTL:
+   215→        SESSIONS.pop(sid, None)                    # server-side expiry
+   216→        return None
+   217→    s["hits"] += 1
+   218→    return sid
+   219→
+   220→AUTH_MENUBAR = '''<div class="menubar"><a href="/home">home</a> - <a href="/account?q=John">account q</a>
+   221→ - <a href="/account?tab=profile">account tab</a> - <a href="/vault/transfer?acct=1001&amount=250">transfer</a></div>'''
+   222→
+   223→LOGIN_PAGE = '''<h1>Sign in</h1>
+   224→<form action="doLogin" method="post">
+   225→  <input type="text" name="uid" value="">
+   226→  <input type="password" name="passw">
+   227→  <input type="hidden" name="csrfToken" value="{csrf}">
+   228→  <input type="submit" name="btnSubmit" value="Login">
+   229→</form>'''
+   230→
+   231→CSRF_DIVFORM_PAGE = """<h2>Newsletter</h2>
+   232→<script src="/jsbuild.js"></script>
+   233→<div id="subscribe" class="form" data-method="post" data-action="/vuln/csrf-reflect">
+   234→<input required type="text" name="note" placeholder="Note">
+   235→<input required type="hidden" name="csrf" value="%s">
+   236→<button class="button" type="submit">Subscribe</button>
+   237→</div>""" % CSRF_TOKEN
+   238→
+   239→# Runtime-built form (browser-only discovery): no <form> markup exists statically —
+   240→# the form is created by JS on DOMContentLoaded, exactly like React/Angular apps.
+   241→JSFORM_PAGE = """<h2>Feedback</h2>
+   242→<script>
+   243→window.addEventListener('DOMContentLoaded', function () {
+   244→    var f = document.createElement('form');
+   245→    f.action = '/vuln/jsform-reflect'; f.method = 'POST';
+   246→    var i = document.createElement('input'); i.name = 'msg'; i.value = 'hello';
+   247→    var b = document.createElement('button'); b.type = 'submit';
+   248→    f.appendChild(i); f.appendChild(b);
+   249→    document.body.appendChild(f);
+   250→});
+   251→</script>
+   252→<div>Feedback form below.</div>"""
+   253→
+   254→PRODUCTS_ALL = "<ul>" + "<li>Gin bottle product item with a long description</li>" * 40 + "</ul>"
+   255→PRODUCTS_NONE = "<ul><li>No products match your filters.</li></ul>"
+   256→PRODUCTS_ONE = "<ul><li>One product in this category.</li></ul>"
+   257→GENERIC_500 = "<html><body><h1>Oops... something went wrong!</h1><p>Of all the gin joints in all the websites, you stumble into mine.</p></body></html>"
+   258→
+   259→# ginandjuice.shop blind-stock sequence (deterministic 'randomness' for tests)
+   260→_BLIND_SEQ = [23, 768, 52, 191, 423, 648, 920, 140, 295]
+   261→
+   262→
+   263→# ======================= Phase 55 (fixture v7): SSTI / CSRF / NoSQL / JWT / Host =======================
+   264→# Five new ground-truth pairs, same discipline as every prior phase: each vulnerable
+   265→# surface is a REAL mechanism (template evaluation, operator-object matching, unsigned
+   266→# token issuance, Host-derived link building), each safe twin blocks it at the root.
+   267→#
+   268→#   /vuln/ssti?name       -> ssti ({{7*7}} and ${7*7} EVALUATED server-side; plain
+   269→#                            names are NOT echoed — only the computed result appears)
+   270→#   /safe/ssti?name       -> NEGATIVE (no evaluation, no echo: constant greeting)
+   271→#   /vuln/csrf-action     -> csrf (state-changing POST, no token, no Origin check)
+   272→#   /safe/csrf-action     -> NEGATIVE (hidden csrfToken + server-side validation)
+   273→#   /vuln/nosql-login     -> nosql_injection ({"$ne":...} object flips 401 -> 200)
+   274→#   /safe/nosql-login     -> NEGATIVE (non-string values rejected before matching)
+   275→#   /vuln/jwt-login       -> jwt_security (issues alg=none token with empty signature)
+   276→#   /safe/jwt-login       -> NEGATIVE (issues HS256-signed token)
+   277→#   /vuln/hostbuild       -> host_header_injection (absolute links built from Host)
+   278→#   /safe/hostbuild       -> NEGATIVE (fixed configured base URL)
+   279→import base64 as _b64, hmac as _hmac
+   280→
+   281→def _b64url(s: str) -> str:
+   282→    return _b64.urlsafe_b64encode(s.encode()).decode().rstrip("=")
+   283→
+   284→def _jwt(header: dict, payload: dict, secret: str | None) -> str:
+   285→    h, p = _b64url(json.dumps(header, sort_keys=True)), _b64url(json.dumps(payload, sort_keys=True))
+   286→    signing = f"{h}.{p}"
+   287→    if secret is None:
+   288→        return signing + "."                       # alg=none: EMPTY signature
+   289→    sig = _b64.urlsafe_b64encode(_hmac.new(secret.encode(), signing.encode(),
+   290→                                           "sha256").digest()).decode().rstrip("=")
+   291→    return f"{signing}.{sig}"
+   292→
+   293→# deterministic tokens (fixed claims, no timestamps — reproducible scans)
+   294→VULN_JWT = _jwt({"alg": "none", "typ": "JWT"}, {"sub": "demo", "role": "user"}, None)
+   295→SAFE_JWT = _jwt({"alg": "HS256", "typ": "JWT"}, {"sub": "demo", "role": "user"},
+   296→                "sentinel-fixture-secret-v7")
+   297→# guard: the tokens must never contain the SSTI oracle values "49"/"132" — an ambient
+   298→# match inside a base64 string would be a false SSTI signal on the JWT surfaces
+   299→assert "49" not in VULN_JWT and "132" not in VULN_JWT, VULN_JWT
+   300→assert "49" not in SAFE_JWT and "132" not in SAFE_JWT, SAFE_JWT
+   301→
+   302→LAB_PAGE = """<h2>Ledger lab</h2>
+   303→<p>Subscribe to the newsletter (state-changing POST):</p>
+   304→<form action="/vuln/csrf-action" method="POST">
+   305→<input type="email" name="email" value="sub@example.com">
+   306→<button type="submit">Subscribe</button>
+   307→</form>
+   308→<form action="/safe/csrf-action" method="POST">
+   309→<input type="hidden" name="csrfToken" value="cs-fixed-token-123">
+   310→<input type="email" name="email" value="sub@example.com">
+   311→<button type="submit">Subscribe (protected)</button>
+   312→</form>
+   313→<script src="/jsbuild.js"></script>
+   314→<div id="nl-nosql" class="form" data-method="post" data-action="/vuln/nosql-login">
+   315→<input required type="text" name="user" value="demo">
+   316→<input required type="password" name="pass" value="demo">
+   317→<button class="button" type="submit">NoSQL login</button>
+   318→</div>
+   319→<div id="nl-nosql-safe" class="form" data-method="post" data-action="/safe/nosql-login">
+   320→<input required type="text" name="user" value="demo">
+   321→<input required type="password" name="pass" value="demo">
+   322→<button class="button" type="submit">NoSQL login (safe)</button>
+   323→</div>
+   324→<div id="nl-jwt" class="form" data-method="post" data-action="/vuln/jwt-login">
+   325→<input required type="text" name="user" value="demo">
+   326→<input required type="password" name="pass" value="demo">
+   327→<button class="button" type="submit">JWT login</button>
+   328→</div>
+   329→<div id="nl-jwt-safe" class="form" data-method="post" data-action="/safe/jwt-login">
+   330→<input required type="text" name="user" value="demo">
+   331→<input required type="password" name="pass" value="demo">
+   332→<button class="button" type="submit">JWT login (safe)</button>
+   333→</div>
+   334→<div>End of lab.</div>"""
+   335→
+   336→NOSQL_VALID = {"user": "admin", "pass": "hunter2"}   # the only literal credentials that match
+   337→
+   338→
+   339→class Handler(BaseHTTPRequestHandler):
+   340→    _blind_seq_n = 0                                  # /blind/stock deterministic-noise counter
+   341→
+   342→    def log_message(self, *a): pass
+   343→
+   344→    def _send(self, code, body, headers=None):
+   345→        if DELAY_MS: time.sleep(DELAY_MS / 1000.0)
+   346→        if isinstance(body, str): body = body.encode()
+   347→        self.send_response(code)
+   348→        self.send_header("Content-Type", "text/html; charset=utf-8")
+   349→        self.send_header("Content-Length", str(len(body)))
+   350→        self.send_header("Server", "Sentinel-Fixture/1.0")   # banner disclosure (positive passive)
+   351→        for k, v in (headers or {}).items(): self.send_header(k, v)
+   352→        self.end_headers()
+   353→        self.wfile.write(body)
+   354→
+   355→    def _redirect(self, location: str, cookies: list | None = None):
+   356→        """302 with optional fresh Set-Cookie lines (login rotation sets two)."""
+   357→        if DELAY_MS: time.sleep(DELAY_MS / 1000.0)
+   358→        self.send_response(302)
+   359→        self.send_header("Location", location)
+   360→        self.send_header("Content-Length", "0")
+   361→        for c in (cookies or []): self.send_header("Set-Cookie", c)
+   362→        self.end_headers()
+   363→
+   364→    def do_GET(self):
+   365→        u = urlparse(self.path); q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+   366→        path = unquote(u.path)
+   367→
+   368→        if path == "/" :
+   369→            return self._send(200, HEADER_TMPL.format(body="<h1>Sentinel Benchmark Fixture</h1>"))
+   370→
+   371→        # ---------------- Phase 55: SSTI / Host-header surfaces ----------------
+   372→        if path == "/vuln/ssti":
+   373→            # REAL template evaluation: {{...}} / ${...} arithmetic is evaluated
+   374→            # server-side; the raw name is NEVER echoed (only the computed result
+   375→            # reaches the response — reflection-only twins cannot fake this).
+   376→            name = q.get("name", "")
+   377→            m = re.fullmatch(r"\{\{([\d\s+\-*]+)\}\}", name) or re.fullmatch(r"\$\{([\d\s+\-*]+)\}", name)
+   378→            if m:
+   379→                try:
+   380→                    val = eval(m.group(1), {"__builtins__": {}}, {})   # digits/operators only (regex-gated)
+   381→                except Exception:
+   382→                    val = None
+   383→                if val is not None:
+   384→                    return self._send(200, HEADER_TMPL.format(body=f"<p>Result: {val}</p>"))
+   385→            return self._send(200, HEADER_TMPL.format(body="<p>Hello, guest.</p>"))
+   386→        if path == "/safe/ssti":
+   387→            # Hardened twin: template engine disabled — the input is discarded and
+   388→            # a constant greeting returned (no evaluation, no echo).
+   389→            return self._send(200, HEADER_TMPL.format(body="<p>Hello, guest.</p>"))
+   390→        if path == "/vuln/hostbuild":
+   391→            # REAL Host-derived output: absolute links are built from the request's
+   392→            # Host header — the password-reset-poisoning / cache-poisoning mechanism.
+   393→            host = self.headers.get("Host", "127.0.0.1")
+   394→            return self._send(200, HEADER_TMPL.format(
+   395→                body=f'<p>Visit <a href="http://{host}/about">http://{host}/about</a> for details.</p>'))
+   396→        if path == "/safe/hostbuild":
+   397→            # Hardened twin: fixed configured base — attacker Host never reaches output.
+   398→            return self._send(200, HEADER_TMPL.format(
+   399→                body='<p>Visit <a href="http://configured-base.example/about">our site</a> for details.</p>'))
+   400→        if path == "/lab":
+   401→            return self._send(200, HEADER_TMPL.format(body=LAB_PAGE))
+   402→        if path == "/robots.txt":
+   403→            return self._send(200, "User-agent: *\nDisallow: /admin/\nDisallow: /backup/db.sql\n")
+   404→        if path == "/app.js":
+   405→            return self._send(200, APP_JS, {"Content-Type": "application/javascript"})
+   406→        if path == "/stockapp.js":
+   407→            return self._send(200, STOCKAPP_JS, {"Content-Type": "application/javascript"})
+   408→        if path == "/angular_1-7-7.js":
+   409→            return self._send(200, ANGULAR_JS, {"Content-Type": "application/javascript"})
+   410→        if path == "/jsbuild.js":
+   411→            return self._send(200, JSBUILD_JS, {"Content-Type": "application/javascript"})
+   412→        if path == "/hidden.php":
+   413→            return self._send(200, HEADER_TMPL.format(body=HIDDEN_PAGE))
+   414→        # ---- Phase 50 (fixture v4): browser/DOM surfaces
+   415→        if path == "/vuln/dom-write":
+   416→            # ginandjuice.shop-accurate conditional: the vulnerable script is served ONLY
+   417→            # on the param'd (search-results) page — the param-less page has no script.
+   418→            body = DOM_WRITE_PAGE if "search" in q else DOM_WRITE_PAGE_PLAIN
+   419→            return self._send(200, HEADER_TMPL.format(body=body))
+   420→        if path == "/safe/dom-text":
+   421→            return self._send(200, HEADER_TMPL.format(body=DOM_TEXT_PAGE))
+   422→        if path == "/vuln/divform":
+   423→            return self._send(200, HEADER_TMPL.format(body=DIVFORM_PAGE))
+   424→        if path == "/safe/divform":
+   425→            return self._send(200, HEADER_TMPL.format(body=SAFE_DIVFORM_PAGE))
+   426→        if path == "/vuln/csrfdivform":
+   427→            # deterministic session + matching CSRF token embedded in the div-form
+   428→            return self._send(200, HEADER_TMPL.format(body=CSRF_DIVFORM_PAGE),
+   429→                              {"Set-Cookie": "session=" + CSRF_SESSION + "; Path=/"})
+   430→        if path == "/vuln/jsform":
+   431→            return self._send(200, HEADER_TMPL.format(body=JSFORM_PAGE))
+   432→        if path == "/admin/":
+   433→            return self._send(200, HEADER_TMPL.format(body="<h2>admin</h2>"))
+   434→        if path == "/backup/db.sql":
+   435→            return self._send(200, HEADER_TMPL.format(body="-- dump"))
+   436→
+   437→        # ---------------- Phase 51: authenticated surface ----------------
+   438→        if path == "/login":
+   439→            # realistic session policy (Altoro behaves the same): a client that
+   440→            # already holds a live session KEEPS it — a new anonymous session is
+   441→            # issued only to session-less clients. Without this, every failed
+   442→            # doLogin probe's redirect-hop through /login would clobber the
+   443→            # scanner's authenticated session cookie (ENG-05 jar) and force a
+   444→            # re-login per probe.
+   445→            cm = re.search(r"SESS=([0-9a-f]{12})", self.headers.get("Cookie") or "")
+   446→            if cm and cm.group(1) in SESSIONS:
+   447→                return self._send(200, LOGIN_PAGE.format(csrf=SESSIONS[cm.group(1)]["csrf"]))
+   448→            sid = _new_session()
+   449→            return self._send(200, LOGIN_PAGE.format(csrf=SESSIONS[sid]["csrf"]),
+   450→                              {"Set-Cookie": f"SESS={sid}; Path=/"})
+   451→        if path == "/home":
+   452→            if _sess_authed(self) is None:
+   453→                return self._redirect("/login")
+   454→            return self._send(200, AUTH_MENUBAR +
+   455→                              "<h1>My Bank</h1><p>Sign Off</p><p>Welcome, demo.</p>")
+   456→        if path == "/account":
+   457→            if _sess_authed(self) is None:
+   458→                return self._redirect("/login")
+   459→            if "tab" in q:                      # escaped twin — TN
+   460→                tab = q["tab"].replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+   461→                return self._send(200, AUTH_MENUBAR + f"<div>Tab: {tab}</div>")
+   462→            name = q.get("q", "")                # raw reflection — TP
+   463→            return self._send(200, AUTH_MENUBAR + f"<div>You searched for '{name}'</div>")
+   464→        if path == "/vault/transfer":
+   465→            if _sess_authed(self) is None:
+   466→                return self._redirect("/login")
+   467→            acct = q.get("acct", "0")
+   468→            m = re.match(r"^\s*(\d+)\s+AND\s+(1=1|1=2)", acct)
+   469→            if m and m.group(2) == "1=1":
+   470→                return self._send(200, AUTH_MENUBAR + "<p>Transfer pending ... " * 12 + "</p>")
+   471→            if m and m.group(2) == "1=2":
+   472→                return self._send(500, "<html><body>SQL error</body></html>")
+   473→            if "'" in acct:
+   474→                return self._send(500, "<html><body>SQL error</body></html>")
+   475→            return self._send(200, AUTH_MENUBAR + f"<p>Transfer to account {acct} queued.</p>")
+   476→
+   477→        # ---------------- VULNERABLE ----------------
+   478→        if path == "/vuln/sqli_error.php":
+   479→            vid = q.get("id", "1")
+   480→            vid_esc = vid.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")  # output escaped: no unintended XSS
+   481→            if "'" in vid:
+   482→                return self._send(500, HEADER_TMPL.format(body=f"<p>DB error: You have an error in your SQL syntax near '{vid_esc[:40]}'</p>"))
+   483→            return self._send(200, HEADER_TMPL.format(body=f"<p>Item {vid_esc}</p>"))
+   484→
+   485→        if path == "/vuln/sqli_blind.php":
+   486→            vid = q.get("id", "1")
+   487→            m = re.match(r"^\s*(\d+)\s+AND\s+(.+)$", vid)
+   488→            if m:
+   489→                cond = m.group(2).replace("1=1", "True").replace("1=2", "False")
+   490→                try:
+   491→                    ok = eval(cond) if cond in ("True", "False") else False
+   492→                except Exception:
+   493→                    ok = False
+   494→                if ok:
+   495→                    return self._send(200, HEADER_TMPL.format(body="<p>forum thread list ... lots of content here ... " * 8 + "</p>"))
+   496→                return self._send(500, "<html><body>error</body></html>")
+   497→            if "'" in vid:
+   498→                return self._send(500, "<html><body>error</body></html>")
+   499→            return self._send(200, HEADER_TMPL.format(body=f"<p>forum thread list ... lots of content here ... " * 8 + f" item {vid}</p>"))
+   500→
+   501→        if path == "/vuln/xss.php":
+   502→            qv = q.get("q", "")
+   503→            return self._send(200, HEADER_TMPL.format(body=f"<div>You searched for '{qv}'</div>"))
+   504→
+   505→        if path == "/vuln/traversal.php":
+   506→            f = unquote(q.get("file", "notes.txt"))
+   507→            if f == "notes.txt":
+   508→                return self._send(200, HEADER_TMPL.format(body=f"<pre>{NOTES}</pre>"))
+   509→            if ".." in f:
+   510→                # vulnerable: no normalization, reads outside docroot
+   511→                if "win.ini" in f.lower():
+   512→                    return self._send(200, HEADER_TMPL.format(body=f"<pre>[fonts]\n[extensions]\n[files]\n[Mail]\nMAPI=1\n</pre>"))
+   513→                if "passwd" in f.lower():
+   514→                    return self._send(200, HEADER_TMPL.format(body="<pre>root:x:0:0:root:/root:/bin/sh\n</pre>"))
+   515→                if "secret" in f.lower():
+   516→                    return self._send(200, HEADER_TMPL.format(body=f"<pre>{SECRET_FILE}</pre>"))
+   517→            return self._send(404, HEADER_TMPL.format(body="<p>not found</p>"))
+   518→
+   519→        if path == "/vuln/redirect.php":
+   520→            url = q.get("url", "")
+   521→            if url.startswith(("http://", "https://", "//")):
+   522→                return self._send(302, "", {"Location": url})
+   523→            return self._send(200, HEADER_TMPL.format(body="<p>no redirect</p>"))
+   524→
+   525→        if path == "/vuln/jsparam.php":
+   526→            # ginandjuice.shop /catalog?category= replica — three stacked vulns on a param
+   527→            # that only exists inside an inline <script> object (DISC-05 target).
+   528→            cat = q.get("cat", "")
+   529→            # (1) http_response_header_injection: Set-Cookie built from raw input (no CRLF
+   530→            # sanitization) — a %0d%0a in cat splits a second attacker-controlled header.
+   531→            hdrs = {"Set-Cookie": "cat=" + cat} if cat else {}
+   532→            # ginandjuice-style escaping for the reflection: < > RAW, </ escaped to <\/,
+   533→            # " escaped — so only slash-free canaries reflect raw (VR-03 target).
+   534→            refl = cat.replace('"', '\\"')
+   535→            refl = re.sub(r"</", "<\\/", refl)
+   536→            script_ctx = f"<script>const selectedCategory = \"{refl}\";</script>"
+   537→            # (2) sql_injection: OR-tautology flips the result set (DETECT-05 target);
+   538→            # unpaired quote -> generic 500 with NO DB keywords (DETECT-04 target).
+   539→            if re.search(r"OR '1'='1'", cat) or re.search(r"OR '2'>'1'", cat):
+   540→                return self._send(200, HEADER_TMPL.format(body=PRODUCTS_ALL + script_ctx), hdrs)
+   541→            if re.search(r"OR '1'='2'", cat) or re.search(r"OR '1'>'2'", cat):
+   542→                return self._send(200, HEADER_TMPL.format(body=PRODUCTS_NONE + script_ctx), hdrs)
+   543→            if "'" in cat.replace("''", ""):          # unpaired quote breaks SQL -> generic 500
+   544→                return self._send(500, GENERIC_500, hdrs)
+   545→            return self._send(200, HEADER_TMPL.format(body=PRODUCTS_ONE + script_ctx), hdrs)
+   546→
+   547→        # ---------------- SAFE (negatives) ----------------
+   548→        if path == "/safe/search.php":
+   549→            qv = q.get("q", "").replace("<", "&lt;").replace(">", "&gt;")
+   550→            return self._send(200, HEADER_TMPL.format(body=f"<div>You searched for '{qv}'</div>"))
+   551→
+   552→        if path == "/safe/item.php":
+   553→            vid = q.get("id", "1")
+   554→            if not vid.isdigit():
+   555→                return self._send(404, HEADER_TMPL.format(body="<p>not found</p>"))
+   556→            return self._send(200, HEADER_TMPL.format(body=f"<p>Item {vid}</p>"))
+   557→
+   558→        if path == "/safe/read.php":
+   559→            import os
+   560→            f = os.path.basename(unquote(q.get("file", "notes.txt")))
+   561→            if f == "notes.txt":
+   562→                return self._send(200, HEADER_TMPL.format(body=f"<pre>{NOTES}</pre>"))
+   563→            return self._send(404, HEADER_TMPL.format(body="<p>not found</p>"))
+   564→
+   565→        if path == "/safe/go.php":
+   566→            url = q.get("url", "")
+   567→            allow = ("https://example.com/", "https://example.org/")
+   568→            if url in allow:
+   569→                return self._send(302, "", {"Location": url})
+   570→            return self._send(200, HEADER_TMPL.format(body="<p>blocked</p>"))
+   571→
+   572→        if path == "/safe/jsparam.php":
+   573→            # Same discovery surface (inline-JS URL) but fully hardened: SQL parameterized
+   574→            # (no 500, constant result), reflection escaped, Set-Cookie CRLF-stripped.
+   575→            cat = q.get("cat", "")
+   576→            safe_cookie = ("cat=" + cat.replace("\r", "").replace("\n", "")) if cat else None
+   577→            hdrs = {"Set-Cookie": safe_cookie} if safe_cookie else {}
+   578→            refl = cat.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+   579→            return self._send(200, HEADER_TMPL.format(body=f"<div>Category: {refl}</div>"), hdrs)
+   580→
+   581→        # ---------------- Phase 53: SSRF / command-injection / CORS surfaces ----------------
+   582→        # /vuln/fetch: server-side fetch of a user-supplied URL (SSRF). The response
+   583→        # NEVER confirms what was fetched (blind) — the only evidence is the OOB
+   584→        # callback to the OAST channel, exactly like the blind-XXE class.
+   585→        if path == "/vuln/fetch":
+   586→            url = q.get("url", "")
+   587→            if not url.lower().startswith(("http://", "https://")):
+   588→                return self._send(400, '"url must be http(s)"')
+   589→            import urllib.request as _uf
+   590→            from urllib.parse import urlsplit as _us
+   591→            try:
+   592→                # egress gate (same discipline as /vuln/oob-stock): this fixture's
+   593→                # outbound path reaches the LOOPBACK listeners the OAST channels use
+   594→                # (local server + hermetic protocol doubles). External hosts resolve
+   595→                # nowhere in the sandbox and would stall the handler on DNS — and the
+   596→                # BLIND response stays byte-identical either way (the response never
+   597→                # confirms the fetch; only the OOB callback does).
+   598→                host = (_us(url).hostname or "")
+   599→                if host in ("127.0.0.1", "localhost"):
+   600→                    _uf.urlopen(url, timeout=4).read()      # THE server-side fetch
+   601→            except Exception:
+   602→                pass
+   603→            return self._send(200, "fetch attempted")
+   604→        if path == "/safe/fetch":
+   605→            # Hardened twin: strict allowlist — attacker URLs are rejected BEFORE any
+   606→            # fetch, so no OOB callback can ever fire.
+   607→            url = q.get("url", "")
+   608→            if not url.startswith("http://api.local/"):
+   609→                return self._send(400, '"url not allowed"')
+   610→            return self._send(200, "fetched (allowlisted)")
+   611→        # /vuln/ping: REAL command injection — the host string is interpolated into a
+   612→        # shell=True template (the mechanism is identical to real-world cmdi: user
+   613→        # input + shell string interpolation). 'host=localhost; curl <oast-url>' makes
+   614→        # the server fetch our URL out-of-band.
+   615→        if path == "/vuln/ping":
+   616→            host = q.get("host", "")
+   617→            import subprocess as _sp
+   618→            try:
+   619→                _sp.run("echo ping " + host, shell=True, capture_output=True, timeout=4)
+   620→            except Exception:
+   621→                pass
+   622→            return self._send(200, "pong")
+   623→        if path == "/safe/ping":
+   624→            # Hardened twin: NO shell at all (argv list) — metacharacters are data by
+   625→            # construction, injection is impossible.
+   626→            host = q.get("host", "")
+   627→            import subprocess as _sp, shlex as _shx
+   628→            try:
+   629→                _sp.run(["echo", "ping", _shx.quote(host)], capture_output=True, timeout=4)
+   630→            except Exception:
+   631→                pass
+   632→            return self._send(200, "pong")
+   633→        # /vuln/cors: reflects ANY Origin AND allows credentials — the dangerous CORS
+   634→        # combination (credentialed cross-origin reads from any origin).
+   635→        if path == "/vuln/cors":
+   636→            origin = self.headers.get("Origin", "")
+   637→            hdrs = ({"Access-Control-Allow-Origin": origin,
+   638→                     "Access-Control-Allow-Credentials": "true"} if origin else {})
+   639→            return self._send(200, '<p>{"balance": 1337}</p>', hdrs)
+   640→        if path == "/safe/cors":
+   641→            # Hardened twin: FIXED allowlisted origin — arbitrary origins are never
+   642→            # reflected (ACAO:* alone would also be safe here: no credentials).
+   643→            return self._send(200, '<p>{"balance": 1337}</p>',
+   644→                              {"Access-Control-Allow-Origin": "https://trusted.example"})
+   645→
+   646→        return self._send(404, HEADER_TMPL.format(body="<p>404</p>"))
+   647→
+   648→    # ---------------- XML stock endpoints (XXE) ----------------
+   649→    def do_POST(self):
+   650→        u = urlparse(self.path); q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+   651→        path = unquote(u.path)
+   652→        length = int(self.headers.get("Content-Length") or 0)
+   653→        raw = self.rfile.read(length).decode("utf-8", "replace") if length else ""
+   654→        ctype = (self.headers.get("Content-Type") or "").lower()
+   655→
+   656→        # ---------------- Phase 55: CSRF / NoSQL / JWT surfaces ----------------
+   657→        # /vuln/csrf-action: state-changing POST with NO anti-CSRF token and NO
+   658→        # Origin/Referer validation — any site can silently submit this form.
+   659→        if path == "/vuln/csrf-action":
+   660→            form = parse_qs(raw, keep_blank_values=True)
+   661→            email = (form.get("email", [""])[0])[:60]
+   662→            if not email:
+   663→                return self._send(400, '"email required"')
+   664→            return self._send(200, "Subscription confirmed.")
+   665→        if path == "/safe/csrf-action":
+   666→            # Hardened twin: the form carries a hidden csrfToken AND the server
+   667→            # validates it — cross-site replays (no token) are rejected 403.
+   668→            form = parse_qs(raw, keep_blank_values=True)
+   669→            if form.get("csrfToken", [""])[0] != "cs-fixed-token-123":
+   670→                return self._send(403, '"Invalid CSRF token"')
+   671→            return self._send(200, "Subscription confirmed.")
+   672→        # /vuln/nosql-login: Mongo-style matching — a JSON OBJECT value carrying a
+   673→        # $operator is treated as a match operator, not a literal (the exact
+   674→        # mechanism of real NoSQL injection: {"pass": {"$ne": "x"}} matches any
+   675→        # document whose pass differs from "x").
+   676→        if path == "/vuln/nosql-login":
+   677→            if "json" not in ctype:
+   678→                return self._send(400, '"expected application/json"')
+   679→            try:
+   680→                data = json.loads(raw)
+   681→            except Exception:
+   682→                return self._send(400, '"invalid JSON"')
+   683→            data = {k: v for k, v in data.items() if k in ("user", "pass")}
+   684→            if any(isinstance(v, dict) and any(k.startswith("$") for k in v)
+   685→                   for v in data.values()):
+   686→                return self._send(200, '{"ok": true, "role": "admin"}')   # operator match -> bypass
+   687→            if data == NOSQL_VALID:
+   688→                return self._send(200, '{"ok": true, "role": "admin"}')
+   689→            return self._send(401, '{"error": "invalid credentials"}')
+   690→        if path == "/safe/nosql-login":
+   691→            # Hardened twin: values are type-checked (strings only) BEFORE any
+   692→            # matching — operator objects are rejected as malformed, never matched.
+   693→            if "json" not in ctype:
+   694→                return self._send(400, '"expected application/json"')
+   695→            try:
+   696→                data = json.loads(raw)
+   697→            except Exception:
+   698→                return self._send(400, '"invalid JSON"')
+   699→            data = {k: v for k, v in data.items() if k in ("user", "pass")}
+   700→            if any(not isinstance(v, str) for v in data.values()):
+   701→                return self._send(400, '"malformed credentials"')
+   702→            if data == NOSQL_VALID:
+   703→                return self._send(200, '{"ok": true, "role": "admin"}')
+   704→            return self._send(401, '{"error": "invalid credentials"}')
+   705→        # /vuln/jwt-login: issues an UNSIGNED token (alg=none, empty signature) —
+   706→        # RFC 8725 §3.1 defect: any party can forge arbitrary claims.
+   707→        if path == "/vuln/jwt-login":
+   708→            if "json" not in ctype:
+   709→                return self._send(400, '"expected application/json"')
+   710→            try:
+   711→                data = json.loads(raw)
+   712→            except Exception:
+   713→                return self._send(400, '"invalid JSON"')
+   714→            user = str(data.get("user", "demo"))[:32]
+   715→            token = _jwt({"alg": "none", "typ": "JWT"},
+   716→                         {"sub": user, "role": "user"}, None)
+   717→            return self._send(200, json.dumps({"token": token, "ok": True}),
+   718→                              {"Content-Type": "application/json"})
+   719→        if path == "/safe/jwt-login":
+   720→            # Hardened twin: HS256-signed issuance (fixed secret) — the detector
+   721→            # parses alg=HS256 and stays silent: signed issuance is normal.
+   722→            if "json" not in ctype:
+   723→                return self._send(400, '"expected application/json"')
+   724→            try:
+   725→                data = json.loads(raw)
+   726→            except Exception:
+   727→                return self._send(400, '"invalid JSON"')
+   728→            user = str(data.get("user", "demo"))[:32]
+   729→            token = _jwt({"alg": "HS256", "typ": "JWT"},
+   730→                         {"sub": user, "role": "user"}, "sentinel-fixture-secret-v7")
+   731→            return self._send(200, json.dumps({"token": token, "ok": True}),
+   732→                              {"Content-Type": "application/json"})
+   733→
+   734→        # ---------------- Phase 51: login POST ----------------
+   735→        if path == "/doLogin":
+   736→            form = parse_qs(raw, keep_blank_values=True)
+   737→            cookie = self.headers.get("Cookie") or ""
+   738→            m = re.search(r"SESS=([0-9a-f]{12})", cookie)
+   739→            sid = m.group(1) if m else ""
+   740→            s = SESSIONS.get(sid)
+   741→            if (s is None or "json" in ctype
+   742→                    or form.get("csrfToken", [""])[0] != s["csrf"]
+   743→                    or form.get("uid", [""])[0] != AUTH_USER
+   744→                    or form.get("passw", [""])[0] != AUTH_PASS):
+   745→                return self._redirect("/login")          # rejected: back to the gate
+   746→            # success: ROTATE the session (fixation defense) and grant AUTH
+   747→            SESSIONS.pop(sid, None)
+   748→            s2 = _new_session()
+   749→            SESSIONS[s2]["authed"] = True
+   750→            return self._redirect("/home", cookies=[f"SESS={s2}; Path=/",
+   751→                                                    f"AUTH=granted-{s2}; Path=/"])
+   752→
+   753→        # ---------------- JSON/div-form endpoints (Phase 50) ----------------
+   754→        # /vuln/json-reflect: div-form POST whose JS serializes inputs as JSON
+   755→        # (DISC-10 + ENG-04 chain); response is text/html and reflects the name
+   756→        # field RAW — the subscribe-style XSS.
+   757→        if path == "/vuln/json-reflect":
+   758→            if "json" not in ctype:
+   759→                return self._send(400, '"expected application/json"')
+   760→            try:
+   761→                data = json.loads(raw)
+   762→            except Exception:
+   763→                return self._send(400, '"invalid JSON"')
+   764→            name = str(data.get("name", ""))
+   765→            return self._send(200, f"<div>Hello {name}</div>")
+   766→        if path == "/safe/json-reflect":
+   767→            if "json" not in ctype:
+   768→                return self._send(400, '"expected application/json"')
+   769→            try:
+   770→                data = json.loads(raw)
+   771→            except Exception:
+   772→                return self._send(400, '"invalid JSON"')
+   773→            name = str(data.get("name", "")).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+   774→            return self._send(200, f"<div>Hello {name}</div>")
+   775→        # /vuln/csrf-reflect: requires the session cookie AND the matching CSRF
+   776→        # token (ENG-05 jar + TOKEN-preservation chain). Without both: 403.
+   777→        if path == "/vuln/csrf-reflect":
+   778→            cookie = (self.headers.get("Cookie") or "")
+   779→            if "json" not in ctype:
+   780→                return self._send(400, '"expected application/json"')
+   781→            try:
+   782→                data = json.loads(raw)
+   783→            except Exception:
+   784→                return self._send(400, '"invalid JSON"')
+   785→            if CSRF_SESSION not in cookie or str(data.get("csrf", "")) != CSRF_TOKEN:
+   786→                return self._send(403, '"Invalid CSRF token"')
+   787→            note = str(data.get("note", ""))
+   788→            return self._send(200, f"<div>Noted: {note}</div>")
+   789→        # /vuln/jsform-reflect: standard form POST target of the RUNTIME-built form
+   790→        # (browser render-merge discovery; statically invisible — no <form> markup).
+   791→        if path == "/vuln/jsform-reflect":
+   792→            form = parse_qs(raw, keep_blank_values=True)
+   793→            msg = (form.get("msg") or [""])[0]
+   794→            return self._send(200, f"<div>Feedback: {msg}</div>")
+   795→
+   796→        # ---- OOB stock pair (Phase 49 / blind-XXE-with-callback): the parser FETCHES
+   797→        # http(s) external entities for real (loopback-only in the fixture) but the
+   798→        # response is cycling noise — no response oracle exists, ONLY out-of-band
+   799→        # evidence can confirm. /safe twin rejects DTD outright.
+   800→        if path in ("/vuln/oob-stock", "/safe/oob-stock"):
+   801→            if "xml" not in ctype:
+   802→                return self._send(400, '"XML parsing error"')
+   803→            if "<!DOCTYPE" in raw or "<!ENTITY" in raw:
+   804→                if path == "/safe/oob-stock":
+   805→                    return self._send(400, '"DTD declarations are not allowed"')   # hardened parser
+   806→                import urllib.request as _ur
+   807→                for _n, sysid in re.findall(r'<!ENTITY\s+(\w+)\s+SYSTEM\s+"([^"]+)"\s*>', raw):
+   808→                    if sysid.startswith(("http://127.0.0.1:", "http://localhost:")):
+   809→                        try:
+   810→                            _ur.urlopen(sysid, timeout=3).read()      # THE out-of-band fetch
+   811→                        except Exception:
+   812→                            pass                                        # fetch failed silently
+   813→            fields0 = dict(re.findall(r"<(\w+)>([^<]*)</\1>", raw))
+   814→            if "storeId" not in fields0:
+   815→                return self._send(400, '"Store ID could not be parsed from XML"')
+   816→            Handler._blind_seq_n += 1
+   817→            n = _BLIND_SEQ[Handler._blind_seq_n % len(_BLIND_SEQ)]
+   818→            return self._send(200, f"{n} units", {"Content-Type": "text/plain"})
+   819→
+   820→        if path not in ("/vuln/stock", "/safe/stock", "/blind/stock"):
+   821→            return self._send(404, "<p>404</p>")
+   822→        if "xml" not in ctype:
+   823→            return self._send(400, '"XML parsing error"')
+   824→        if "<!DOCTYPE" in raw or "<!ENTITY" in raw:
+   825→            if path == "/safe/stock":
+   826→                return self._send(400, '"DTD declarations are not allowed"')   # hardened parser
+   827→            # vulnerable parser: resolve external entities against the fake filesystem
+   828→            for name, sysid in re.findall(r'<!ENTITY\s+(\w+)\s+SYSTEM\s+"([^"]+)"\s*>', raw):
+   829→                target = sysid.replace("file://", "")
+   830→                content = FAKE_FS.get(target, "")          # unreadable/missing -> empty (control)
+   831→                raw = raw.replace(f"&{name};", content)
+   832→        fields = dict(re.findall(r"<(\w+)>([^<]*)</\1>", raw))
+   833→        pid = fields.get("productId", "")
+   834→        if not pid.isdigit():
+   835→            return self._send(400, '"Invalid product ID"')
+   836→        if "storeId" not in fields:
+   837→            # the app's own error names the element it wants (error-driven discovery)
+   838→            return self._send(400, '"Store ID could not be parsed from XML"')
+   839→        if path == "/blind/stock":
+   840→            # ginandjuice.shop REAL live behavior (proven with 5x same-file probes):
+   841→            # entities resolve, but the stock number is effectively random per request —
+   842→            # the response carries NO entity-content information (blind XXE). Modeled as
+   843→            # a deterministic cycling sequence so tests stay reproducible: any two
+   844→            # consecutive identical requests differ -> the double-control stability gate
+   845→            # must reject the noise (no response-verified finding is possible).
+   846→            Handler._blind_seq_n += 1
+   847→            n = _BLIND_SEQ[Handler._blind_seq_n % len(_BLIND_SEQ)]
+   848→            return self._send(200, f"{n} units", {"Content-Type": "text/plain"})
+   849→        sid = fields.get("storeId", "")
+   850→        if not sid:
+   851→            n = 0                                           # failed entity -> default stock
+   852→        else:
+   853→            n = sum(ord(c) for c in sid) % 997 + 1          # entity content -> response
+   854→        return self._send(200, f"{n} units", {"Content-Type": "text/plain"})
+   855→
+   856→
+   857→if __name__ == "__main__":
+   858→    port = int(os.environ.get("PORT", "8777"))
+   859→    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+   860→    print(f"SENTINEL fixture listening on 127.0.0.1:{port} delay={DELAY_MS}ms")
+   861→    srv.serve_forever()
+   862→

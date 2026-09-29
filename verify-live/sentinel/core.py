@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urlsplit
 
-VERSION = "2.7.0"
+VERSION = "2.8.0"
 SCANNER_VERSION = "sentinel-core/" + VERSION
 
 
@@ -77,6 +77,10 @@ class ParamLocation(str, Enum):
 class ParamKind(str, Enum):
     NUMERIC="numeric"; IDENTIFIER="identifier"; URL="url"; PATH="path"; EMAIL="email"
     SEARCH="search"; HTML="html"; JSON="json"; TOKEN="token"; FILENAME="filename"; GENERIC="generic"
+    # Phase 56 (v2.8.0): value-shape kinds from the Smart Testing Engine — a param
+    # whose observed value IS a JSON object gets its own kind: the planner has NO
+    # rule for it, so string batteries (sqli/xss/traversal) are never wasted on it.
+    JSON_OBJECT="json_object"
 
 
 @dataclasses.dataclass
@@ -161,6 +165,9 @@ class Finding:
     run_id: str = ""
     first_seen: float = dataclasses.field(default_factory=time.time)
     id: str = ""
+    # Phase 56 (v2.8.0): authorization context — for authz-engine findings this
+    # records WHICH role/victim pair produced the evidence. Empty elsewhere.
+    authz_context: str = ""
 
     def __post_init__(self):
         if not self.id:
@@ -185,6 +192,7 @@ class Finding:
                 "confidence": round(self.verification.confidence, 3), "rounds": self.verification.rounds,
                 "notes": self.verification.notes[:300]},
             "scanner": self.scanner, "run_id": self.run_id,
+            **({"authz_context": self.authz_context} if self.authz_context else {}),
         }
 
 

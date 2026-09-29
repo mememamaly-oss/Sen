@@ -301,6 +301,36 @@ class DiscoveryEngine:
                         if n and urllib.parse.urlsplit(n).netloc == seed_host:
                             e5 = self._mk_endpoint(n, DiscoverySource.JS_STATIC)
                             if e5.id not in endpoints: endpoints[e5.id] = e5
+        # ---- ENG-11 (Phase 56, live-caught during suite-isolation work): JS
+        # assets discovered as ENDPOINTS (link/script-src extraction) but never
+        # PAGE-FETCHED (the BFS page budget exhausted before their queue position)
+        # used to teach NOTHING — the XXE XML-root teacher asset sat at queue
+        # position ~35 behind a 30-page budget, so scans silently lost the whole
+        # JS-learned surface whenever a bigger scan happened not to run first.
+        # Every discovered same-host .js endpoint is now fetched (bounded) and
+        # feeds the SAME hint extraction as page-fetched assets — deterministic,
+        # independent of page-budget luck.
+        js_eps = [ep for ep in endpoints.values()
+                  if ep.url.split("?")[0].lower().endswith(".js")
+                  and ep.url not in seen_pages][:12]
+        for ep in js_eps:
+            resp = self.engine.send(_simple_get(ep.url))
+            if resp.error or not resp.body:
+                continue
+            self._js_bodies.append((ep.url, resp.body))
+            for pat in JS_PATTERNS:
+                for match in pat.findall(resp.body):
+                    if not plausible_js_url(match):            # DISC-01 gate
+                        continue
+                    n = self._normalize(ep.url, match)
+                    if n and urllib.parse.urlsplit(n).netloc == seed_host:
+                        js_hits.append(match)
+                        e4 = self._mk_endpoint(n, DiscoverySource.JS_STATIC)
+                        if e4.id not in endpoints: endpoints[e4.id] = e4
+            # DISC-06: learn JS-driven XML request transformations (XXE surface)
+            if _JS_XML_CT.search(resp.body):
+                for root in _JS_XML_ROOT.findall(resp.body):
+                    JS_XML_HINTS.add(root)
         # ---- DISC-10 upgrade pass: div-forms whose JS serializes inputs as JSON
         # get ParamLocation.JSON (ENG-04 then renders them as JSON bodies — the
         # request shape the target's own JavaScript produces). Hint learned from
