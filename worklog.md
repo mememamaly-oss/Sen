@@ -231,3 +231,28 @@ Stage Summary:
 - Quality state: 46/46 tests, 11/11 doctor, F1=1.000 (19TP/13TN) authenticated and deterministic.
 - Remaining architecture phases: public OAST endpoint (local OAST already proven via blind-XXE + VR-07).
 - Deliverables: download/{sentinel-2.3.0-source.zip, sentinel-2.3.0-complete-bundle.zip}, sentinel-results/ updated (scan_testfire_AUTH_v230, benchmark_v5_* x5, ground_truth v5, sentinel.db, CHANGELOG, WORKLOG, README).
+
+---
+Task ID: 9
+Agent: Super Z (main agent)
+Task: User directives "اكمل البناء" + "اكمل" + "هل انتهينا" — implement Phase 52: Public OAST endpoint, the LAST documented architecture gap; validate live on the real authorized target; save everything to download.
+
+Work Log:
+- Baseline verified: 46/46 tests, doctor 11/11, VERSION 2.3.0.
+- LIVE feasibility probe BEFORE building (methodology): webhook.site token creation OK; full channel proof (callback + log poll) OK; then the decisive manual test — blind XXE on ginandjuice.shop /catalog/product/stock with entity SYSTEM pointing at a webhook.site URL: response stayed a content-free 400 "Store ID must be a number" while the callback landed from 54.170.155.72 (target's own AWS egress, UA "ginandjuice.shop; support@portswigger.net"). The v2.0.3-documented gap (blind XXE unverifiable without a public collaborator) is closable with this channel. XML shape learned from the target's own xmlStockCheckPayload.js (encoding decl + stockCheck root).
+- BUILT Phase 52 in sentinel/oast.py:
+  * PublicWebhookProvider — public OOB channel via webhook.site REST (POST /token -> channel uuid; interaction id rides in ?i=; poll() reads /token/<t>/requests and matches ids client-side; collaborator-style hit attribution method/ip/ua/epoch; POLL_FLOOR=5.0s public-latency budget, test-shrinkable).
+  * make_oast() selection policy: local (lab) | public (any target, fails LOUD if explicitly requested and unreachable) | auto (local for private hosts, public for remote, HONEST None degradation on outage — scan never crashes for lack of a listener).
+- Wiring: CLI scan --oast auto|local|public (default auto; --no-oast unchanged); api.launch_scan uses auto policy; orchestrator stats.oast={channel,interactions} transparency in every report; doctor +oast_providers (12 checks — local round-trip + LIVE public token/poll; outage = WARN not FAIL); detect.py oob_callback evidence now carries source attribution ("from <ip> (ua=...)"); intel.py VR-08 verification notes carry src ip + channel; core.py to_dict() now serializes verification.notes (auditable evidence chain persists to store/reports).
+- Tests 46 -> 49: unit_public_oast_provider_protocol (hermetic webhook.site protocol double: token, ?i= matching, id isolation, attribution), unit_make_oast_channel_policy (auto/local/public + loud vs honest failure modes), regression_oob_public_channel_end_to_end (same blind-XXE fixture flow over the public-channel protocol with real HTTP fetch; asserts attribution in evidence, channel in verify notes, stats.oast, negatives stay silent). LIVE-CAUGHT during test dev: to_dict dropped verification notes (KeyError) -> fixed in core.py.
+- Gates: 49/49 tests; doctor 12/12 (oast_providers PASS against the live service); benchmark F1=1.000 TP=19 FP=0 FN=0 TN=13 authenticated deterministic run-3c0652b6be x3 IDENTICAL (now also asserts stats.oast local x2).
+- LIVE PRODUCTION SCAN ginandjuice.shop v2.4.0 (--oast public, browser on, 446 req, 467.9s): 8 verified actives, 0 FP, 0 rejected — NEW CRITICAL xxe /catalog/product/stock param=storeId AND param=productId (two fully independent evidence chains, 4 OOB interactions total, every callback from 54.170.155.72, VR-07 fresh-id verify passed on both) + ZERO REGRESSION (SQLi /catalog?category, reflected XSS, DOM XSS /blog?search, header injection, open redirect, AngularJS dep all still verified). Operations note: sandbox kills detached (nohup/setsid) processes between tool calls — foreground execution required for long scans.
+- Determinism proof: benchmark x3 identical (run-3c0652b6be, same findings sets, oast interactions=2 each).
+- Packaged sentinel-2.4.0-source.zip (23 files; self-check from extracted zip: doctor 12/12 + authenticated benchmark F1=1.000 with oast stats) and sentinel-2.4.0-complete-bundle.zip (102 files; bundle self-check doctor 12/12); saved all Phase-52 artifacts to download/sentinel-results/ (scan_ginjuice_v240_PUBLIC_OAST.json, benchmark_v240_det1/2/3.json, sentinel.db, CHANGELOG, WORKLOG); rewrote download/README.md index (Arabic).
+
+Stage Summary:
+- Phase 52 complete: public OAST channel (zero owned infrastructure) with source-attributed OOB evidence, proven end-to-end on the real target — the blind-XXE class that v2.0.3 documented as unverifiable is now VERIFIED on ginandjuice.shop from the target's own server IP.
+- ALL 55 architecture phases now implemented; no documented coverage gaps remain (future work = optional detector breadth, more providers).
+- Real-target totals: 4 platforms, 21 verified actives (incl. 2 blind-XXE), 0 false positives.
+- Quality state: 49/49 tests, 12/12 doctor, F1=1.000 deterministic (authenticated), public channel live-proven.
+- Deliverables: download/{sentinel-2.4.0-source.zip, sentinel-2.4.0-complete-bundle.zip}, sentinel-results/ updated, README.md rewritten.

@@ -847,6 +847,164 @@ def regression_oob_blind_xxe_end_to_end():
         oast.stop(); srv.shutdown(); srv.server_close()
 
 
+# ================================================================ v2.4.0 PHASE (public OAST channel)
+def _fake_webhook_service(port: int):
+    """Hermetic webhook.site-protocol double: POST /token issues uuid channels;
+    any hit on /<token> is recorded with method/ip/ua; GET /token/<t>/requests
+    serves the log page. Same wire shapes as the live service (proven 2026-09)."""
+    import json as _json
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    log: dict[str, list[dict]] = {"next_uuid": 1, "entries": []}   # entries: (token, entry)
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def _json(self, code, obj):
+            b = _json.dumps(obj).encode()
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(b)))
+            self.end_headers()
+            self.wfile.write(b)
+
+        def do_POST(self):
+            if self.path == "/token":
+                tok = f"tok-{log['next_uuid']:04d}"
+                log["next_uuid"] += 1
+                self._json(201, {"uuid": tok})
+            else:
+                self._json(404, {})
+
+        def do_GET(self):
+            from urllib.parse import urlparse
+            u = urlparse(self.path)
+            if u.path.startswith("/token/") and u.path.endswith("/requests"):
+                tok = u.path.split("/")[2]
+                data = [e for (t, e) in log["entries"] if t == tok]
+                self._json(200, {"total": len(data), "data": data})
+            elif u.path.count("/") == 1 and len(u.path) > 1:
+                tok = u.path.lstrip("/")
+                log["entries"].append((tok, {
+                    "uuid": f"r-{len(log['entries'])}", "method": self.command,
+                    "ip": self.client_address[0], "url": self.path,
+                    "user_agent": self.headers.get("User-Agent", ""),
+                    "created_at": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}))
+                self._json(200, {"ok": True})
+            else:
+                self._json(404, {})
+
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    srv.daemon_threads = True
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+
+@case
+def unit_public_oast_provider_protocol():
+    """Phase 52 unit: PublicWebhookProvider against a hermetic protocol double —
+    token creation, ?i=<id> callback URLs, client-side id matching in poll(),
+    collaborator-style hit attribution (method/ip/ua), and clean None on no
+    callback. The poll floor is shrunk for test speed."""
+    import urllib.request
+    from sentinel.oast import PublicWebhookProvider
+    srv = _fake_webhook_service(8798)
+    try:
+        p = PublicWebhookProvider(service="http://127.0.0.1:8798")
+        p.POLL_FLOOR = 0.3
+        assert p.channel == "public-webhook" and p._token.startswith("tok-")
+        iid = "oob-unit-42"
+        u = p.url(iid)
+        assert f"?i={iid}" in u and u.startswith("http://127.0.0.1:8798/tok-"), u
+        # simulate the TARGET's outbound fetch
+        with urllib.request.urlopen(u, timeout=5) as r:
+            assert r.status == 200
+        hits = p.poll(iid, timeout=0.3)
+        assert hits, "interaction must be matched from the service log"
+        h = hits[0]
+        assert h["method"] == "GET" and h["ip"] == "127.0.0.1" and h["ua"], h
+        # a DIFFERENT id on the same channel must NOT match (id isolation)
+        assert p.poll("oob-unit-other", timeout=0.3) is None
+        # hits() groups by id (audit view)
+        assert iid in p.hits()
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_make_oast_channel_policy():
+    """Phase 52 unit: channel selection policy — auto picks the local listener for
+    lab/private targets, the public channel for remote hosts; explicit 'public'
+    fails LOUD when the service is unreachable; auto degrades HONESTLY to None."""
+    from sentinel.oast import make_oast, OastServer, PublicWebhookProvider
+    srv = _fake_webhook_service(8799)
+    dead = "http://127.0.0.1:1"            # nothing listens -> connection refused
+    try:
+        # lab target -> local listener
+        o = make_oast("127.0.0.1", mode="auto", service="http://127.0.0.1:8799")
+        assert isinstance(o, OastServer); o.stop()
+        # remote target + reachable service -> public channel
+        p = make_oast("ginandjuice.shop", mode="auto", service="http://127.0.0.1:8799")
+        assert isinstance(p, PublicWebhookProvider)
+        # remote target + explicit public + UNREACHABLE service -> raises (loud)
+        try:
+            make_oast("example.com", mode="public", service=dead)
+            raise AssertionError("mode=public must fail loud when the service is down")
+        except Exception:
+            pass
+        # remote target + auto + UNREACHABLE service -> None (honest degradation,
+        # scan proceeds exactly as in v2.0.x — never crashes for lack of a listener)
+        assert make_oast("example.com", mode="auto", service=dead) is None
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_oob_public_channel_end_to_end():
+    """Phase 52 E2E: the SAME blind-XXE flow that proved the local listener
+    (regression_oob_blind_xxe_end_to_end) now runs over the PUBLIC channel
+    protocol (token path + ?i= id + log polling) against a protocol double the
+    fixture genuinely fetches over HTTP. Proves detector/verifier code is
+    channel-agnostic: only the provider object changes."""
+    import os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import PublicWebhookProvider
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_oob_pub", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                         "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8800
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    fake = _fake_webhook_service(8801)
+    p = PublicWebhookProvider(service="http://127.0.0.1:8801")
+    p.POLL_FLOOR = 0.5
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=30, timeout=5,
+                         seed="oob-public-e2e", oast=p)
+        sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
+        rep = sc.run()
+        oob = [f for f in rep["findings"]
+               if f["type"] == "xxe" and "/vuln/oob-stock" in f["url"]]
+        assert oob, "blind XXE MUST be found via the PUBLIC channel protocol"
+        f = oob[0]
+        assert any(e["kind"] == "oob_callback" and "from 127.0.0.1" in e["detail"]
+                   for e in f["evidence"]), f"evidence must carry source attribution: {f['evidence']}"
+        assert f["verification"]["method"] == "re-test:fresh-interaction-id"
+        assert f["verification"]["passed"] is True and f["status"] == "verified"
+        assert "channel=public-webhook" in f["verification"]["notes"], f["verification"]["notes"]
+        # stats transparency: the report itself says which channel served OOB
+        assert rep["stats"]["oast"]["channel"] == "public-webhook"
+        assert rep["stats"]["oast"]["interactions"] >= 2, "detect + verify callbacks recorded"
+        # negatives unchanged over the public channel
+        for x in rep["findings"]:
+            if x["type"] == "xxe" and ("/safe/" in x["url"] or "/blind/" in x["url"]):
+                raise AssertionError(f"public-channel OOB false positive: {x['url']}")
+    finally:
+        p.stop(); fake.shutdown(); fake.server_close(); srv.shutdown(); srv.server_close()
+
 @case
 def regression_rest_api_server():
     """Phase 48 regression: the API server (in-process) serves health/UI/runs/findings,

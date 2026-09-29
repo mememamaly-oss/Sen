@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urlsplit
 
-VERSION = "2.3.0"
+VERSION = "2.4.0"
 SCANNER_VERSION = "sentinel-core/" + VERSION
 
 
@@ -182,7 +182,8 @@ class Finding:
             "evidence": [{"kind": e.kind, "detail": e.detail[:300]} for e in self.evidence],
             "verification": self.verification and {
                 "method": self.verification.method, "passed": self.verification.passed,
-                "confidence": round(self.verification.confidence, 3), "rounds": self.verification.rounds},
+                "confidence": round(self.verification.confidence, 3), "rounds": self.verification.rounds,
+                "notes": self.verification.notes[:300]},
             "scanner": self.scanner, "run_id": self.run_id,
         }
 

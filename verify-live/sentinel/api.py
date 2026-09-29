@@ -37,15 +37,12 @@ MAX_CONCURRENT_SCANS = 2
 def launch_scan(store: Store, target: str, max_pages: int = 25, allow_private: bool = False,
                 timeout: float = 12.0, seed: str | None = None, strategy_path: str | None = None) -> dict:
     """Create the scanner, register its run_id, and execute in a daemon thread.
-    Phase 49: auto-arms a per-scan OAST listener for local/private targets (the
-    target can reach loopback); remote targets would never reach it, so it is
-    skipped — a public collaborator bind is the documented upgrade path."""
+    Phase 52: channel-aware OAST arming — local listener for lab targets, PUBLIC
+    webhook channel for remote targets (auto policy, honest None on outage)."""
     from .core import is_private_ip
     from urllib.parse import urlparse
-    oast = None
-    if allow_private and is_private_ip(urlparse(target).hostname or ""):
-        from .oast import OastServer
-        oast = OastServer()
+    from .oast import make_oast
+    oast = make_oast(urlparse(target).hostname or "", mode="auto")
     cfg = ScanConfig(allow_private=allow_private, max_pages=max_pages,
                      timeout=timeout, seed=seed, strategy_path=strategy_path, oast=oast)
     sc = SentinelScanner(target, cfg)

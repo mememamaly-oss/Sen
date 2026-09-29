@@ -303,6 +303,17 @@ class SentinelScanner:
                 "reauths": self.auth_engine.state.reauths,
                 "failed_reauths": self.auth_engine.state.failed_reauths,
             }
+        # Phase 52: OAST channel transparency — which channel served OOB evidence
+        # (local loopback listener vs public webhook provider) and how many
+        # interactions it recorded. Blind-vuln confirmations are auditable from
+        # the report alone, without re-running the scan.
+        if self.cfg.oast is not None:
+            try:
+                self.stats["oast"] = {"channel": getattr(self.cfg.oast, "channel", "local"),
+                                      "interactions": len(self.cfg.oast.hits())}
+            except Exception:
+                self.stats["oast"] = {"channel": getattr(self.cfg.oast, "channel", "local"),
+                                      "interactions": -1}
         ded = self.pipeline.dedup(verified)
         final = self.pipeline.correlate(ded)
         for f in final:
@@ -411,6 +422,27 @@ def doctor(allow_private=False) -> dict:
             f"watchdog proxy + budget-capped re-auth available)")
     except Exception as e:
         add("auth_engine", False, str(e)[:120])
+    # OAST providers (Phase 52): local loopback listener must bind + record, and
+    # the public webhook channel must create a token + read an empty request log.
+    # The public check is network-dependent -> WARN (degraded, not broken) when
+    # the service is unreachable: local OOB confirmation still works.
+    try:
+        from .oast import OastServer, PublicWebhookProvider
+        with OastServer() as _o:
+            assert _o.poll("doctor-none", timeout=0.2) is None
+        local_ok = True
+        try:
+            with PublicWebhookProvider() as _p:
+                assert _p.public_base.startswith("https://")
+                assert _p.poll("doctor-none", timeout=1.0) is None
+            public_detail = "local listener + public webhook channel both OK"
+            public_ok = True
+        except Exception as _pe:
+            public_detail = f"warn: public channel unreachable ({str(_pe)[:60]}) — local OOB only"
+            public_ok = None                                   # WARN path
+        add("oast_providers", public_ok if public_ok is not None else False, public_detail)
+    except Exception as e:
+        add("oast_providers", False, str(e)[:80])
     passed = sum(1 for c in checks if c["status"] == "PASS")
     return {"overall": "PASS" if passed == len(checks) else "DEGRADED",
             "passed": passed, "total": len(checks), "checks": checks}

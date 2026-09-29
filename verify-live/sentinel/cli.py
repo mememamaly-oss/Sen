@@ -224,7 +224,11 @@ def main():
     s.add_argument("--out", default="results/scan.json"); s.add_argument("--strategy-path")
     s.add_argument("--db", default="", help="persist run+findings to this SQLite store")
     s.add_argument("--no-oast", action="store_true",
-                   help="disable the local OAST listener (OOB blind-vuln confirmation)")
+                   help="disable the OAST engine entirely (OOB blind-vuln confirmation)")
+    s.add_argument("--oast", choices=["auto", "local", "public"], default="auto",
+                   help="Phase 52 OAST channel: auto = local listener for lab targets, "
+                        "public webhook channel for remote targets (default); "
+                        "public = force the public channel (fails loud if unreachable)")
     s.add_argument("--no-browser", action="store_true",
                    help="disable the browser/DOM engine (Phase 50: JS-built forms + DOM XSS)")
     s.add_argument("--auth-user", default="", help="Phase 51: enable authenticated scanning — username")
@@ -268,16 +272,16 @@ def main():
                          crawl=not a.no_crawl, timeout=a.timeout, seed=a.seed,
                          strategy_path=a.strategy_path, browser=not a.no_browser,
                          auth=auth)
-        # Phase 49: auto-arm OAST for targets that can reach our loopback listener
-        # (local/lab fixtures). Remote targets cannot call back to 127.0.0.1 — arming
-        # it there only burns poll timeouts; a public collaborator bind is the
-        # documented upgrade path.
+        # Phase 52: channel-aware OAST arming. auto = local listener for targets
+        # that can reach loopback (lab fixtures), PUBLIC webhook channel for remote
+        # targets (live-proven: ginandjuice.shop blind XXE confirmed via webhook.site
+        # callback from the target's own AWS egress). Degrades honestly to None when
+        # the public service is unreachable — the scan proceeds exactly as in v2.0.x.
         oast = None
         from urllib.parse import urlparse as _up
-        from sentinel.core import is_private_ip as _ispriv
-        if not a.no_oast and _ispriv(_up(a.target).hostname or ""):
-            from sentinel.oast import OastServer
-            oast = OastServer()
+        if not a.no_oast:
+            from sentinel.oast import make_oast
+            oast = make_oast(_up(a.target).hostname or "", mode=a.oast)
             cfg.oast = oast
         try:
             sc = SentinelScanner(a.target, cfg)

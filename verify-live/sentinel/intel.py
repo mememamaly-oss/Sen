@@ -194,9 +194,17 @@ class VerificationEngine:
                     extra_headers={"Content-Type": "application/xml"}))
                 hit = self.oast.poll(iid, timeout=2.0) if not rv.error else None
                 ok = hit is not None
+                # Phase 52 (VR-08): attribution on the verify replay too — the fresh
+                # interaction must come back and, on public channels, its source IP
+                # is recorded in the verification notes (auditable evidence chain).
+                src = ""
+                if ok:
+                    src = hit[0].get("ip") or ""
+                    src = f" src={src}" if src else ""
                 v = Verification(method="re-test:fresh-interaction-id", passed=ok,
                                  confidence=0.9 if ok else 0.15, rounds=1,
-                                 notes=f"fresh interaction id {iid} fetched out-of-band: {ok}")
+                                 notes=f"fresh interaction id {iid} fetched out-of-band: {ok}"
+                                       f"{src} channel={getattr(self.oast, 'channel', 'local')}")
                 f.verification, f.confidence = v, v.confidence
                 f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
                 self.bus.emit("VerificationCompleted", finding=f.id, type=f.type,

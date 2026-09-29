@@ -435,9 +435,15 @@ class XxeDetector(Detector):
             hit = oast.poll(iid, timeout=2.0)
             if hit:
                 h = hit[0]
+                # Phase 52: source attribution — the callback's origin IP + UA make
+                # the evidence self-contained (live case: ginandjuice.shop fetched
+                # its entity from 54.170.155.72 with UA "ginandjuice.shop; ...").
+                src = h.get("ip") or h.get("host") or "unknown"
+                ua = (h.get("ua") or "")[:60]
+                src_txt = f" from {src}" + (f" (ua={ua})" if ua else "")
                 return Finding("xxe", Severity.CRITICAL, ep.url, elem, "POST",
                     [Evidence("oob_callback",
-                              f"target fetched the external entity out-of-band "
+                              f"target fetched the external entity out-of-band{src_txt} "
                               f"(interaction {iid} via {h.get('method', 'GET')} at t+{h.get('t', 0):.0f}) — "
                               f"blind XXE: entity resolution proven with NO response oracle. "
                               f"recipe: root={root} element={elem} iid={iid}",

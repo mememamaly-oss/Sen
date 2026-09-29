@@ -59,7 +59,8 @@ class _OastHandler(BaseHTTPRequestHandler):
 
 
 class OastServer:
-    """Local OOB listener. Deterministic poll, thread-safe interaction log."""
+    """Local OOB listener (Phase 49). Deterministic poll, thread-safe interaction log.
+    Provider attributes: channel='local', public_base (the URL targets call back)."""
 
     def __init__(self, host: str = "127.0.0.1", port: int = 0):
         self.host, self.requested_port = host, port
@@ -113,8 +114,153 @@ class OastServer:
         except Exception:
             pass
 
+    # provider metadata (uniform across channel implementations)
+    channel = "local"
+
     def __enter__(self):
         return self
 
     def __exit__(self, *a):
         self.stop()
+
+
+# ================================================================ Phase 52
+class PublicWebhookProvider:
+    """Public OOB channel via the webhook.site REST service — Collaborator-class
+    semantics with ZERO owned infrastructure. One channel token per instance; the
+    interaction id rides in the callback query string (?i=<id>); poll() reads the
+    service's request log over TLS and matches ids client-side.
+
+    Protocol (live-proven 2026-09, see module docstring):
+      POST   /token                         -> {"uuid": <channel token>}
+      TARGET GET https://webhook.site/<token>?i=<iid>   -> recorded by the service
+      GET    /token/<token>/requests?page=1 -> {"total": n, "data": [ {method, ip,
+                                                          url, user_agent, ...} ]}
+
+    Determinism note: the token is per-scan (not per-run reproducible), but the
+    interaction ids remain deterministic (detector-side sha1), so evidence text
+    stays stable across runs; only the channel identity differs. This mirrors a
+    real collaborator deployment, where the domain also changes per deployment.
+    """
+
+    channel = "public-webhook"
+    SERVICE = "https://webhook.site"
+    # public-channel latency budget: the target's egress fetch + the service's log
+    # indexing are slower than a loopback listener; callers written for the local
+    # listener pass short timeouts, so enforce a channel-specific floor. Tests
+    # shrink this attribute for speed.
+    POLL_FLOOR = 5.0
+
+    def __init__(self, timeout: float = 15.0, service: str | None = None,
+                 token: str | None = None):
+        self.timeout = timeout
+        self._svc = service or self.SERVICE
+        self._token = token or self._create_token()
+        self.public_base = f"{self._svc}/{self._token}"
+        self._polled = set()          # request uuids already seen (idempotent poll)
+        self._lock = threading.Lock()
+
+    # ------------------------------------------------------------ internals
+    def _http(self, path: str, method: str = "GET", body: dict | None = None):
+        data = _json.dumps(body or {}).encode() if method == "POST" else None
+        req = _urlreq.Request(self._svc + path, method=method, data=data,
+                              headers={"Content-Type": "application/json"}
+                              if data else {})
+        with _urlreq.urlopen(req, timeout=self.timeout) as r:
+            return _json.loads(r.read().decode("utf-8", "replace"))
+
+    def _create_token(self) -> str:
+        d = self._http("/token", method="POST", body={})
+        tok = d.get("uuid")
+        if not tok:
+            raise RuntimeError(f"public OAST channel creation failed: {str(d)[:120]}")
+        return tok
+
+    # ------------------------------------------------------------ provider API
+    def url(self, interaction_id: str) -> str:
+        """Callback URL for one probe. The id rides in ?i= — poll() by the same id."""
+        return f"{self.public_base}?i={interaction_id}"
+
+    def poll(self, interaction_id: str, timeout: float = 3.0) -> list[dict] | None:
+        """Poll the service request log until an entry carries our interaction id
+        or the timeout expires. The service has no server-side filter, so we fetch
+        the log page and match ?i=<id> client-side. Returns hit list (collaborator-
+        style: method + source ip + ua + epoch) or None."""
+        timeout = max(timeout, self.POLL_FLOOR)
+        deadline = time.time() + timeout
+        while True:
+            try:
+                d = self._http(f"/token/{self._token}/requests?page=1")
+                with self._lock:
+                    self._polled.update(str(x.get("uuid", "")) for x in d.get("data", []))
+                hits = [self._hit(x) for x in d.get("data", [])
+                        if f"i={interaction_id}" in str(x.get("url", ""))]
+                if hits:
+                    return hits
+            except Exception:
+                pass                       # transient network -> keep polling
+            if time.time() >= deadline:
+                return None
+            time.sleep(0.6)
+
+    @staticmethod
+    def _hit(x: dict) -> dict:
+        t = x.get("created_at", "")
+        try:                                   # "2026-09-28 19:20:39" (UTC) -> epoch
+            from datetime import datetime, timezone
+            t = datetime.strptime(t, "%Y-%m-%d %H:%M:%S").replace(
+                tzinfo=timezone.utc).timestamp()
+        except Exception:
+            pass
+        return {"t": round(float(t) if isinstance(t, float) else time.time(), 3),
+                "method": x.get("method", ""), "ip": x.get("ip", ""),
+                "ua": x.get("user_agent", ""), "host": x.get("host", "")}
+
+    def hits(self) -> dict[str, list[dict]]:
+        """All interactions grouped by id (audit/telemetry view)."""
+        out: dict[str, list[dict]] = {}
+        try:
+            d = self._http(f"/token/{self._token}/requests?page=1")
+            for x in d.get("data", []):
+                import re as _re
+                m = _re.search(r"[?&]i=([^&]+)", str(x.get("url", "")))
+                if m:
+                    out.setdefault(m.group(1), []).append(self._hit(x))
+        except Exception:
+            pass
+        return out
+
+    def stop(self):
+        """Nothing to shut down server-side (the service expires channels on its
+        own); kept for the uniform provider protocol."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        self.stop()
+
+
+def make_oast(target_host: str, mode: str = "auto", allow_private: bool = False,
+              service: str | None = None) -> \
+        "OastServer | PublicWebhookProvider | None":
+    """Phase 52 channel selection policy:
+      local    -> loopback listener (lab targets only — remote hosts cannot call it)
+      public   -> PublicWebhookProvider (webhook.site; works for ANY target)
+      auto     -> local when the target can reach loopback (private/lab host),
+                  public for remote hosts; honest None if the public channel is
+                  unreachable (scan proceeds without OOB — never crashes a scan
+                  for lack of a listener).
+    """
+    from .core import is_private_ip
+    private = is_private_ip(target_host or "")
+    if mode == "local" or (mode == "auto" and private):
+        return OastServer()
+    if mode in ("public", "auto"):
+        try:
+            return PublicWebhookProvider(service=service)
+        except Exception:
+            if mode == "public":
+                raise                       # explicit request -> loud failure
+            return None                    # auto -> honest degradation
+    return None

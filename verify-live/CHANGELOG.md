@@ -1,3 +1,71 @@
+# SENTINEL v2.4.0 — "Public OAST Channel" Release
+
+Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
+Every finding is verification-gated: a candidate is NEVER a finding until an
+independent replay confirms it.
+
+## What v2.4.0 adds (architecture continuation: Phase 52 — public OAST endpoint)
+
+1. **PublicWebhookProvider — `sentinel/oast.py` (Phase 52)**
+   A PUBLIC out-of-band channel via the webhook.site REST service — Burp-
+   Collaborator-class semantics with ZERO owned infrastructure. One channel
+   token per scan; the interaction id rides in the callback query string
+   (`?i=<id>`); `poll()` reads the service request log over TLS and matches ids
+   client-side. Source attribution (origin IP + User-Agent) lands in the
+   evidence text and the verification notes, so every OOB confirmation is
+   auditable from the report alone. Live-proven end-to-end: ginandjuice.shop's
+   blind XXE fetched a webhook.site entity URL from 54.170.155.72 (the target's
+   own AWS egress, UA "ginandjuice.shop; support@portswigger.net") while the
+   HTTP response stayed a content-free 400.
+
+2. **Channel selection policy — `make_oast()`**
+   `local` (loopback listener for lab targets) | `public` (webhook channel for
+   ANY target; fails loud when explicitly requested and unreachable) | `auto`
+   (local for private hosts, public for remote hosts; degrades HONESTLY to
+   None on outage — the scan proceeds exactly as in v2.0.x, never crashing for
+   lack of a listener). CLI: `scan --oast auto|local|public` (default auto).
+
+3. **Stats transparency — `stats.oast`**
+   Every scan report now records which channel served OOB evidence and how
+   many interactions it recorded (`{"channel": "public-webhook",
+   "interactions": 4}`).
+
+4. **Verification notes in serialization**
+   `Finding.to_dict()` now includes verification `notes` (channel + source IP
+   on OOB paths) — the full evidence chain persists to the SQLite store and
+   exports to reports.
+
+5. **Doctor check `oast_providers`** (12 checks total): local listener bind +
+   record round-trip, public channel token creation + empty-log poll against
+   the LIVE service; network outage = WARN (degraded), never a false FAIL.
+
+## Live validation (real authorized targets)
+
+- **ginandjuice.shop (PortSwigger scanme), v2.4.0 production scan** — 446
+  requests, 467.9s, browser on, PUBLIC channel armed:
+  * **NEW CRITICAL xxe /catalog/product/stock param=storeId** — blind XXE
+    confirmed out-of-band from 54.170.155.72 (the target's own server),
+    verified via VR-07 fresh-interaction-id replay (2nd independent callback).
+  * **NEW CRITICAL xxe /catalog/product/stock param=productId** — same class,
+    fully independent evidence chain (its own detect + verify interaction ids).
+  * ZERO REGRESSION: all five v2.2.0 verified actives still present (SQLi
+    /catalog?category, reflected XSS, header injection, DOM XSS /blog?search
+    via attr-inject onload, open redirect, AngularJS 1.7.7 EOL dep).
+  * The v2.0.3-documented coverage limit ("blind XXE undetectable without a
+    public collaborator") is CLOSED on the real target.
+
+## Quality gates (all live)
+
+- Tests: 46 -> **49/49 PASS** (unit provider protocol vs hermetic protocol
+  double, unit channel policy incl. loud/honest failure modes, E2E blind-XXE
+  over the public-channel protocol with source-attribution assertions).
+- Doctor: **12/12 PASS** (new oast_providers check against the live service).
+- Benchmark: **F1 = 1.000** (TP=19 FP=0 FN=0 TN=13, authenticated,
+  deterministic run-3c0652b6be x3 IDENTICAL findings sets, OAST local channel
+  interactions=2 in every run).
+
+---
+
 # SENTINEL v2.1.0 — "Platform Services" Release
 
 Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
