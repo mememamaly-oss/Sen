@@ -13,6 +13,12 @@ GROUND TRUTH (see benchmarks/ground_truth.json):
   /vuln/stock POST XML         -> xxe (JS-transformed request; entity file-read differential)
   /vuln/oob-stock POST XML     -> xxe BLIND (noise response; confirmable ONLY out-of-band)
   /safe/oob-stock POST XML     -> NEGATIVE (DTD rejected — no entity fetch, no callback)
+  /vuln/fetch?url              -> ssrf (blind server-side fetch; OOB-confirmed only)
+  /safe/fetch?url              -> NEGATIVE (allowlist — no fetch of attacker URLs)
+  /vuln/ping?host              -> command_injection (shell=True interpolation; OOB-confirmed)
+  /safe/ping?host              -> NEGATIVE (argv list, no shell — injection impossible)
+  /vuln/cors                   -> cors_misconfig (arbitrary Origin reflected + credentials)
+  /safe/cors                   -> NEGATIVE (fixed allowlisted origin)
   /angular_1-7-7.js            -> vulnerable_js_dependency (passive)
   /safe/search.php?q           -> NEGATIVE (escaped)
   /safe/item.php?id            -> NEGATIVE (parameterized)
@@ -49,7 +55,10 @@ HEADER_TMPL = """<!DOCTYPE html><html><head><title>Sentinel Fixture</title></hea
  - <a href="/safe/jsparam.php?cat=Books">safe jsparam</a> - <a href="/app.js">app.js</a>
  - <a href="/vuln/dom-write">dom-write</a> - <a href="/safe/dom-text?search=test">safe dom-text</a>
  - <a href="/vuln/divform">divform</a> - <a href="/safe/divform">safe divform</a>
- - <a href="/vuln/csrfdivform">csrf divform</a> - <a href="/vuln/jsform">jsform</a> - <a href="/login">sign in</a></div>
+ - <a href="/vuln/csrfdivform">csrf divform</a> - <a href="/vuln/jsform">jsform</a> - <a href="/login">sign in</a>
+ - <a href="/vuln/fetch?url=http://api.local/feed">ssrf</a> - <a href="/safe/fetch?url=http://api.local/feed">safe fetch</a>
+ - <a href="/vuln/ping?host=localhost">cmdi</a> - <a href="/safe/ping?host=localhost">safe ping</a>
+ - <a href="/vuln/cors">cors api</a> - <a href="/safe/cors">safe cors</a></div>
 {body}
 </body></html>"""
 
@@ -457,6 +466,71 @@ class Handler(BaseHTTPRequestHandler):
             hdrs = {"Set-Cookie": safe_cookie} if safe_cookie else {}
             refl = cat.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
             return self._send(200, HEADER_TMPL.format(body=f"<div>Category: {refl}</div>"), hdrs)
+
+        # ---------------- Phase 53: SSRF / command-injection / CORS surfaces ----------------
+        # /vuln/fetch: server-side fetch of a user-supplied URL (SSRF). The response
+        # NEVER confirms what was fetched (blind) — the only evidence is the OOB
+        # callback to the OAST channel, exactly like the blind-XXE class.
+        if path == "/vuln/fetch":
+            url = q.get("url", "")
+            if not url.lower().startswith(("http://", "https://")):
+                return self._send(400, '"url must be http(s)"')
+            import urllib.request as _uf
+            from urllib.parse import urlsplit as _us
+            try:
+                # egress gate (same discipline as /vuln/oob-stock): this fixture's
+                # outbound path reaches the LOOPBACK listeners the OAST channels use
+                # (local server + hermetic protocol doubles). External hosts resolve
+                # nowhere in the sandbox and would stall the handler on DNS — and the
+                # BLIND response stays byte-identical either way (the response never
+                # confirms the fetch; only the OOB callback does).
+                host = (_us(url).hostname or "")
+                if host in ("127.0.0.1", "localhost"):
+                    _uf.urlopen(url, timeout=4).read()      # THE server-side fetch
+            except Exception:
+                pass
+            return self._send(200, "fetch attempted")
+        if path == "/safe/fetch":
+            # Hardened twin: strict allowlist — attacker URLs are rejected BEFORE any
+            # fetch, so no OOB callback can ever fire.
+            url = q.get("url", "")
+            if not url.startswith("http://api.local/"):
+                return self._send(400, '"url not allowed"')
+            return self._send(200, "fetched (allowlisted)")
+        # /vuln/ping: REAL command injection — the host string is interpolated into a
+        # shell=True template (the mechanism is identical to real-world cmdi: user
+        # input + shell string interpolation). 'host=localhost; curl <oast-url>' makes
+        # the server fetch our URL out-of-band.
+        if path == "/vuln/ping":
+            host = q.get("host", "")
+            import subprocess as _sp
+            try:
+                _sp.run("echo ping " + host, shell=True, capture_output=True, timeout=4)
+            except Exception:
+                pass
+            return self._send(200, "pong")
+        if path == "/safe/ping":
+            # Hardened twin: NO shell at all (argv list) — metacharacters are data by
+            # construction, injection is impossible.
+            host = q.get("host", "")
+            import subprocess as _sp, shlex as _shx
+            try:
+                _sp.run(["echo", "ping", _shx.quote(host)], capture_output=True, timeout=4)
+            except Exception:
+                pass
+            return self._send(200, "pong")
+        # /vuln/cors: reflects ANY Origin AND allows credentials — the dangerous CORS
+        # combination (credentialed cross-origin reads from any origin).
+        if path == "/vuln/cors":
+            origin = self.headers.get("Origin", "")
+            hdrs = ({"Access-Control-Allow-Origin": origin,
+                     "Access-Control-Allow-Credentials": "true"} if origin else {})
+            return self._send(200, '<p>{"balance": 1337}</p>', hdrs)
+        if path == "/safe/cors":
+            # Hardened twin: FIXED allowlisted origin — arbitrary origins are never
+            # reflected (ACAO:* alone would also be safe here: no credentials).
+            return self._send(200, '<p>{"balance": 1337}</p>',
+                              {"Access-Control-Allow-Origin": "https://trusted.example"})
 
         return self._send(404, HEADER_TMPL.format(body="<p>404</p>"))
 

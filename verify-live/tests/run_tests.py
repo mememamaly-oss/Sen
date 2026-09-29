@@ -410,15 +410,15 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    # fixture v5 ground truth (Phase 51): 19 TP-able (v4's 17 PLUS the two
-    # auth-gated surfaces: /account?q raw reflection + /vault/transfer?acct
-    # boolean SQLi — both 302-gated for anonymous clients, so the benchmark now
-    # exercises the AUTH-01/02 login chain end-to-end), 13 TN-able. F1 must be
+    # fixture v6 ground truth (Phase 53): 22 TP-able (v5's 19 PLUS the three
+    # hardening surfaces: ssrf /vuln/fetch + command_injection /vuln/ping +
+    # cors /vuln/cors — the benchmark exercises the OAST-channel detectors and
+    # the VR-09/10/11 verifications end-to-end), 16 TN-able. F1 must be
     # 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL
     # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
-    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 19
+    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 22
               and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
-              and rep["confusion"]["TN"] == 13)
+              and rep["confusion"]["TN"] == 16)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -1004,6 +1004,173 @@ def regression_oob_public_channel_end_to_end():
                 raise AssertionError(f"public-channel OOB false positive: {x['url']}")
     finally:
         p.stop(); fake.shutdown(); fake.server_close(); srv.shutdown(); srv.server_close()
+
+
+# ================================================================ v2.5.0 PHASE (SSRF / blind command injection / CORS)
+@case
+def regression_eng08_self_callback_guard():
+    """ENG-08 (live-caught by the v2.5.0 SSRF detector on fixture /vuln/redirect.php):
+    the engine follows SAME-HOST redirects, so an open-redirect target bounces the
+    OAST probe URL back at the listener and the SCANNER ITSELF performs the fetch
+    (callback UA == engine UA, hop in redirect_chain). That self-fetch must NEVER
+    surface as SSRF — while a genuine server-side fetch on the same scan MUST."""
+    import threading, urllib.parse
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            import urllib.parse, urllib.request   # BOTH here: a later local import
+            # would shadow the name and UnboundLocalError the urlparse above it
+            u = urllib.parse.urlparse(self.path)
+            q = dict(urllib.parse.parse_qsl(u.query))
+            if u.path == "/redirect" and q.get("url"):
+                self.send_response(302); self.send_header("Location", q["url"])
+                self.send_header("Content-Length", "0"); self.end_headers()
+            elif u.path == "/fetch" and q.get("url"):
+                from urllib.parse import urlsplit as _us
+                try:
+                    # loopback egress gate (fixture discipline — external hosts stall on
+                    # sandbox DNS and the blind response is identical either way)
+                    if (_us(q["url"]).hostname or "") in ("127.0.0.1", "localhost"):
+                        urllib.request.urlopen(q["url"], timeout=4).read()   # REAL server-side fetch
+                except Exception:
+                    pass
+                b = b"ok"; self.send_response(200); self.send_header("Content-Length", str(len(b)))
+                self.end_headers(); self.wfile.write(b)
+            else:
+                b = b"<html><a href=/fetch?url=http://x/>f</a><a href=/redirect?url=http://y/>r</a></html>"
+                self.send_response(200); self.send_header("Content-Length", str(len(b)))
+                self.end_headers(); self.wfile.write(b)
+
+    port = 8804
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    srv.daemon_threads = True
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=6, seed="eng08-reg", oast=oast)
+        sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
+        rep = sc.run()
+        ssrf_urls = {f["url"].split("?")[0].rsplit("/", 1)[-1] for f in rep["findings"]
+                     if f["type"] == "ssrf"}
+        assert "fetch" in ssrf_urls, f"true SSRF (server-side fetch) MUST be found: {ssrf_urls}"
+        assert "redirect" not in ssrf_urls, \
+            f"ENG-08 FALSE POSITIVE: open-redirect self-callback surfaced as SSRF: {ssrf_urls}"
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_cors_detector_and_fresh_origin_verify():
+    """DETECT-13 + VR-10 unit: arbitrary-Origin reflection WITH credentials is a
+    candidate and re-verifies on a FRESH origin; a FIXED allowlisted origin and an
+    origin-less endpoint stay silent (ACAO without credentials is not reportable)."""
+    import threading, urllib.parse
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from sentinel.core import ScopeRule, EventBus, Endpoint
+    from sentinel.http_engine import RequestEngine
+    from sentinel.detect import CorsDetector
+    from sentinel.intel import VerificationEngine
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            if self.path == "/reflect":
+                o = self.headers.get("Origin", "")
+                hdrs = {"Access-Control-Allow-Origin": o,
+                        "Access-Control-Allow-Credentials": "true"} if o else {}
+            elif self.path == "/fixed":
+                hdrs = {"Access-Control-Allow-Origin": "https://trusted.example"}
+            else:
+                hdrs = {}
+            b = b"data"
+            self.send_response(200)
+            for k, v in hdrs.items(): self.send_header(k, v)
+            self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
+
+    port = 8805
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    srv.daemon_threads = True
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        bus = EventBus("cors-unit")
+        eng = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True), bus, timeout=5)
+        det = CorsDetector(eng, bus)
+        ve = VerificationEngine(eng, bus)
+        base = f"http://127.0.0.1:{port}"
+        results = {}
+        for path in ("/reflect", "/fixed", "/plain"):
+            ep = Endpoint(url=base + path, method="GET")
+            cand = det.run(ep)
+            if cand:
+                out = ve.verify(cand, ep)
+                results[path] = (out.status.value, out.verification.method, out.verification.passed)
+            else:
+                results[path] = None
+        assert results["/reflect"] == ("verified", "re-test:fresh-origin", True), results
+        assert results["/fixed"] is None, f"fixed-origin reflection is NOT a vuln: {results['/fixed']}"
+        assert results["/plain"] is None, f"no CORS headers -> no candidate: {results['/plain']}"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_ssrf_cmdi_cors_end_to_end():
+    """Phase 53 E2E on fixture v6: the three new classes verify end-to-end over the
+    LOCAL OAST channel — ssrf (VR-09 fresh interaction id), command_injection
+    (VR-11 fresh id + alternate '|' syntax on a REAL shell), cors (VR-10 fresh
+    origin) — while every hardened twin stays silent and the prior classes
+    (SQLi / blind XXE) do not regress."""
+    import os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_v6", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                    "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8806
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=40, timeout=6,
+                         seed="v6-e2e-regression", oast=oast)
+        sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
+        rep = sc.run()
+        got = {(f["type"], f["url"].split("?")[0], f["parameter"]) for f in rep["findings"]}
+        # the three new verified classes
+        assert any(t == "ssrf" and u.endswith("/vuln/fetch") and p == "url" for t, u, p in got), \
+            f"SSRF missing: {sorted(got)}"
+        assert any(t == "command_injection" and u.endswith("/vuln/ping") and p == "host" for t, u, p in got), \
+            f"cmdi missing: {sorted(got)}"
+        assert any(t == "cors_misconfig" and u.endswith("/vuln/cors") and p == "Origin" for t, u, p in got), \
+            f"CORS missing: {sorted(got)}"
+        # verification methods
+        for f in rep["findings"]:
+            if f["type"] == "ssrf" and "/vuln/fetch" in f["url"]:
+                assert f["verification"]["method"] == "re-test:fresh-interaction-id" \
+                       and f["verification"]["passed"], f["verification"]
+            if f["type"] == "command_injection" and "/vuln/ping" in f["url"]:
+                assert f["verification"]["method"] == "re-test:fresh-interaction-id+alternate-syntax" \
+                       and f["verification"]["passed"], f["verification"]
+            if f["type"] == "cors_misconfig" and "/vuln/cors" in f["url"]:
+                assert f["verification"]["method"] == "re-test:fresh-origin" \
+                       and f["verification"]["passed"], f["verification"]
+        # hardened twins silent
+        for t, u, p in got:
+            if t in ("ssrf", "command_injection", "cors_misconfig") and "/safe/" in u:
+                raise AssertionError(f"new-class false positive: {t} @ {u}")
+        # prior classes intact
+        assert any(t == "sql_injection" for t, u, p in got), "SQLi regressed"
+        assert any(t == "xxe" and u.endswith("/vuln/oob-stock") for t, u, p in got), "blind XXE regressed"
+        # OOB stats transparency
+        assert rep["stats"]["oast"]["interactions"] >= 5, rep["stats"]["oast"]
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
 
 @case
 def regression_rest_api_server():

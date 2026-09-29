@@ -1,0 +1,64 @@
+{
+ "phase": "v2.5.0 live validation (SSRF / cmdi / CORS hardening)",
+ "cors_manual_probes": {
+  "method": "GET / with Origin: https://sentinel-probe.example and a subdomain-spoofed origin per target",
+  "targets": {
+   "https://ginandjuice.shop/": {
+    "acao": "",
+    "acac": "",
+    "verdict": "no reflection \u2014 negative"
+   },
+   "https://demo.testfire.net/": {
+    "acao": "",
+    "acac": "",
+    "verdict": "no reflection \u2014 negative"
+   },
+   "http://testasp.vulnweb.com/": {
+    "acao": "",
+    "acac": "",
+    "verdict": "no reflection \u2014 negative"
+   },
+   "http://testaspnet.vulnweb.com/": {
+    "acao": "",
+    "acac": "",
+    "verdict": "no reflection \u2014 negative"
+   }
+  }
+ },
+ "production_scan": {
+  "target": "https://ginandjuice.shop",
+  "run_id": "run-4cf24b10c0",
+  "scanner": "sentinel-core/2.5.0",
+  "flags": "--oast public --no-browser",
+  "requests": 369,
+  "duration_s": 452.27,
+  "oast": {
+   "channel": "public-webhook",
+   "interactions": 2
+  },
+  "new_class_findings": {
+   "ssrf": 0,
+   "command_injection": 0,
+   "cors_misconfig": 0,
+   "verdict": "honest negatives \u2014 target publishes no such classes; ZERO false positives"
+  },
+  "verified_actives": [
+   "sql_injection /catalog?category (CRITICAL)",
+   "xxe /catalog/product/stock storeId (CRITICAL, OOB src=54.170.155.72)",
+   "xss_reflected /catalog?category (HIGH)",
+   "http_response_header_injection /catalog?category (HIGH)",
+   "open_redirect /blog?search (MEDIUM)",
+   "vulnerable_js_dependency angular_1-7-7.js (LOW)"
+  ]
+ },
+ "xxe_product_id_independent_confirmation": {
+  "method": "direct public-channel probe (fresh interaction id v250-productid-confirm2), entity in <productId>",
+  "response": "400 'Product ID must be a number' (blind \u2014 no entity info)",
+  "callback": {
+   "ip": "18.200.201.133",
+   "ua": "ginandjuice.shop; support@portswigger.net",
+   "method": "GET"
+  },
+  "verdict": "XXE productId CONFIRMED LIVE with v2.5.0 code; absence from the no-browser run is a scan-configuration artifact (single endpoint instance + oob first-hit economy), NOT a detector regression"
+ }
+}

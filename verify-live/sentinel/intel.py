@@ -184,7 +184,7 @@ class VerificationEngine:
                 mroot = _re7.search(r"root=(\w+)", ev7)
                 root = mroot.group(1) if mroot else "request"
                 elem = f.parameter or "storeId"
-                from .detect import XxeDetector
+                from .detect import XxeDetector, is_self_callback
                 xd = XxeDetector(self.engine, self.bus)
                 fields = [(p.name, p.value or "1") for p in ep.parameters] if ep else []
                 iid = xd._oob_iid(ep, elem, "verify")
@@ -193,6 +193,8 @@ class VerificationEngine:
                     endpoint=ep, body_override=xml, method="POST",
                     extra_headers={"Content-Type": "application/xml"}))
                 hit = self.oast.poll(iid, timeout=2.0) if not rv.error else None
+                if hit and is_self_callback(hit, rv, self.oast.url(iid)):
+                    hit = None                         # ENG-08: scanner-initiated fetch
                 ok = hit is not None
                 # Phase 52 (VR-08): attribution on the verify replay too — the fresh
                 # interaction must come back and, on public channels, its source IP
@@ -247,6 +249,83 @@ class VerificationEngine:
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
 
+        elif f.type == "ssrf" and any(e.kind == "oob_callback" for e in f.evidence) and self.oast is not None:
+            # VR-09 (Phase 53): independent replay with a FRESH interaction id — the
+            # first callback proved the app fetches attacker URLs server-side; the
+            # second, never-used id proves reproducibility (same channel discipline
+            # as VR-07 blind XXE).
+            import re as _re9
+            ev9 = " ".join(e.detail for e in f.evidence)
+            m9 = _re9.search(r"param=([\w.-]+)", ev9)
+            param9 = m9.group(1) if m9 else (f.parameter or "url")
+            from .detect import SsrfDetector, is_self_callback
+            sd = SsrfDetector(self.engine, self.bus)
+            iid = sd._iid(ep, param9, "verify")
+            rv = self.engine.send(RequestMutation(endpoint=ep, param_name=param9,
+                                                  param_value=self.oast.url(iid), note="ssrf-verify"))
+            hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
+            if hit and is_self_callback(hit, rv, self.oast.url(iid)):
+                hit = None                             # ENG-08: scanner-initiated fetch
+            ok = hit is not None
+            src9 = hit[0].get("ip", "") if hit else ""
+            v = Verification(method="re-test:fresh-interaction-id", passed=ok,
+                             confidence=0.9 if ok else 0.15, rounds=1,
+                             notes=f"fresh interaction id {iid} fetched out-of-band: {ok}"
+                                   f"{' src=' + src9 if src9 else ''}"
+                                   f" channel={getattr(self.oast, 'channel', 'local')}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+
+        elif f.type == "command_injection" and any(e.kind == "oob_callback" for e in f.evidence) and self.oast is not None:
+            # VR-11 (Phase 53): fresh interaction id + DIFFERENT shell syntax ('|' vs
+            # the ';' / '&&' detection battery) — execution must reproduce through an
+            # independent separator to be a finding.
+            import re as _re11
+            ev11 = " ".join(e.detail for e in f.evidence)
+            m11 = _re11.search(r"param=([\w.-]+)", ev11)
+            param11 = m11.group(1) if m11 else (f.parameter or "host")
+            base11 = "localhost"
+            if ep is not None and ep.param(param11) is not None and ep.param(param11).value:
+                base11 = ep.param(param11).value[:60]
+            from .detect import CommandInjectionDetector, is_self_callback
+            cd = CommandInjectionDetector(self.engine, self.bus)
+            iid = cd._iid(ep, param11, "verify")
+            payload = base11 + cd.VERIFY_TEMPLATE.format(u=self.oast.url(iid))
+            rv = self.engine.send(RequestMutation(endpoint=ep, param_name=param11,
+                                                  param_value=payload, note="cmdi-verify"))
+            hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
+            if hit and is_self_callback(hit, rv, self.oast.url(iid)):
+                hit = None                             # ENG-08: scanner-initiated fetch
+            ok = hit is not None
+            src11 = hit[0].get("ip", "") if hit else ""
+            v = Verification(method="re-test:fresh-interaction-id+alternate-syntax", passed=ok,
+                             confidence=0.9 if ok else 0.15, rounds=1,
+                             notes=f"fresh id {iid} via alternate '|' syntax executed out-of-band: {ok}"
+                                   f"{' src=' + src11 if src11 else ''}"
+                                   f" channel={getattr(self.oast, 'channel', 'local')}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+
+        elif f.type == "cors_misconfig":
+            # VR-10 (Phase 53): replay with a FRESH Origin value — arbitrary-origin
+            # reflection WITH credentials must repeat on a never-probed origin.
+            import hashlib as _hb10
+            fresh = "https://cors-vr10-" + _hb10.sha1(f.endpoint_url.encode()).hexdigest()[:8] + ".example"
+            r10 = self.engine.send(RequestMutation(endpoint=ep, note="cors-verify",
+                                                   extra_headers={"Origin": fresh}))
+            ok10 = False
+            acao10 = ""
+            if r10 is not None and not r10.error:
+                acao10 = (r10.headers or {}).get("access-control-allow-origin", "")
+                acac10 = (r10.headers or {}).get("access-control-allow-credentials", "")
+                ok10 = fresh in acao10 and acac10.strip().lower() == "true"
+            v = Verification(method="re-test:fresh-origin", passed=ok10,
+                             confidence=0.9 if ok10 else 0.15, rounds=1,
+                             notes=f"fresh origin {fresh} reflected with credentials: {ok10} "
+                                   f"(acao={acao10[:60]!r})")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok10 else FindingStatus.REJECTED
+
         else:  # passive findings: single-response evidence, verified by definition of presence
             v = Verification(method="single-response-evidence", passed=True, confidence=0.98, rounds=1)
             f.verification, f.confidence = v, v.confidence
@@ -260,6 +339,7 @@ class VerificationEngine:
 
 # ============================================================ FINDING PIPELINE (Phase 12)
 RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "xss_dom": 7, "path_traversal": 7, "xxe": 9,
+                "command_injection": 9, "ssrf": 7, "cors_misconfig": 6,
                 "open_redirect": 4, "http_response_header_injection": 6,
                 "missing_security_headers": 2, "server_banner_disclosure": 1,
                 "tech_banner_disclosure": 1, "vulnerable_js_dependency": 2}

@@ -1,3 +1,80 @@
+# SENTINEL v2.5.0 — "Hardening Release" Release
+
+Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
+Every finding is verification-gated: a candidate is NEVER a finding until an
+independent replay confirms it.
+
+## What v2.5.0 adds (detector hardening: SSRF / blind command injection / CORS)
+
+1. **SsrfDetector — DETECT-11 (`sentinel/detect.py`)**
+   Server-side request forgery on URL-carrier params (name- or value-gated),
+   confirmed OUT-OF-BAND over the OAST channel (the evidence pattern proven for
+   blind XXE in v2.4.0): the probe points the param at the listener; a callback
+   is server-side fetch proof. Deterministic probe budget (12); inert without an
+   armed channel (response-only SSRF oracles are ambient noise — live-observed).
+   Verification **VR-09**: fresh interaction id replay.
+
+2. **CommandInjectionDetector — DETECT-12**
+   Blind OS command injection: a 2-variant shell-separator battery (`;` and `&&`
+   chaining `curl` to the listener) across mutable params (deterministic budget,
+   24 params). A callback proves code left the app's shell. Verification
+   **VR-11**: fresh interaction id + DIFFERENT syntax (`|` chaining) — execution
+   must reproduce through an independent separator.
+
+3. **CorsDetector — DETECT-13**
+   One header-only probe per GET endpoint: arbitrary-Origin reflection in
+   Access-Control-Allow-Origin combined with Access-Control-Allow-Credentials:
+   true (the dangerous pair; ACAO:* without credentials is NOT reportable).
+   Verification **VR-10**: the reflection must repeat on a FRESH origin value.
+
+4. **ENG-08 self-callback guard (live-caught during this build)**
+   The v2.5.0 SSRF detector immediately exposed a real trap on fixture
+   /vuln/redirect.php: the engine follows SAME-HOST redirects (required for auth
+   landings), so an open-redirect target bounces the probe URL back at the
+   listener and the SCANNER ITSELF performs the fetch — a would-be SSRF false
+   positive (callback UA = engine UA; hop present in redirect_chain). Both
+   OAST-channel detectors and the XXE path now reject scanner-initiated
+   callbacks; the engine UA is version-derived (also fixes the stale hardcoded
+   "Sentinel/2.2" fingerprint). Permanent regression:
+   regression_eng08_self_callback_guard (true fetch found, redirect twin silent).
+
+5. **Risk model + registry**: command_injection=9, ssrf=7, cors_misconfig=6 in
+   RISK_WEIGHTS; 9 active detectors (doctor detector_registry updated).
+
+## Fixture v6 + ground truth v6
+
+New surfaces with hardened twins: /vuln/fetch + /safe/fetch (blind server-side
+fetch vs allowlist), /vuln/ping + /safe/ping (REAL shell=True interpolation vs
+argv list), /vuln/cors + /safe/cors (arbitrary reflection + credentials vs fixed
+origin). Ground truth 22 TP / 16 TN (was 19/13).
+
+## Live validation (real authorized targets)
+
+- **ginandjuice.shop production scan (v2.5.0, public OAST channel, 369 req)**:
+  zero-regression on verified actives; XXE storeId still confirmed out-of-band
+  from the target's own AWS egress (src recorded in evidence + verification).
+  New classes reported ZERO findings — honest negatives matching the target's
+  published vuln list (no SSRF/cmdi/CORS planted): zero false positives on a
+  real target, first scan out.
+- **XXE productId independently re-confirmed live** (fresh public-channel probe,
+  callback from 18.200.201.133 / UA ginandjuice.shop) — documents that its
+  absence from the no-browser run is a scan-configuration artifact, not a
+  detector regression.
+- **CORS manual probes on all four authorized targets** (ginandjuice, testfire,
+  testasp, testaspnet): no arbitrary-Origin reflection with credentials anywhere
+  — consistent with the production scan's zero CORS findings.
+
+## Quality gates (all live)
+
+- Tests: 49 -> **52/52 PASS** (ENG-08 regression, CORS unit with fresh-origin
+  verify, full v6 E2E asserting the three classes verified + twins silent +
+  prior classes intact).
+- Doctor: **12/12 PASS** (9 detectors; oast_providers against the live service).
+- Benchmark: **F1 = 1.000** (TP=22 FP=0 FN=0 TN=16, authenticated, deterministic
+  run-3c0652b6be x3 IDENTICAL findings sets; OAST local channel interactions=7).
+
+---
+
 # SENTINEL v2.4.0 — "Public OAST Channel" Release
 
 Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).

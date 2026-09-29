@@ -256,3 +256,31 @@ Stage Summary:
 - Real-target totals: 4 platforms, 21 verified actives (incl. 2 blind-XXE), 0 false positives.
 - Quality state: 49/49 tests, 12/12 doctor, F1=1.000 deterministic (authenticated), public channel live-proven.
 - Deliverables: download/{sentinel-2.4.0-source.zip, sentinel-2.4.0-complete-bundle.zip}, sentinel-results/ updated, README.md rewritten.
+
+---
+Task ID: 10
+Agent: Super Z (main agent)
+Task: User directive "نفذها كاملة" — implement the full hardening package: SSRF + blind command injection + CORS detectors (Phase 53); validate live; save everything to download.
+
+Work Log:
+- Baseline: 49/49 tests, doctor 12/12, v2.4.0.
+- Pre-build live feasibility: CORS manual probes designed; curl/wget confirmed present for cmdi payloads.
+- BUILT (sentinel/detect.py):
+  * SsrfDetector (DETECT-11): URL-carrier params (name/value-gated) -> OAST URL -> callback = server-side fetch proof; deterministic budget 12; POLL_LOCAL 0.15s (local callbacks land synchronously before the probe response) vs 3.0s public; VR-09 fresh-interaction-id verify.
+  * CommandInjectionDetector (DETECT-12): shell-separator battery (';' and '&&' chaining curl to the listener) over mutable params (budget 24, both variants share one iid); VR-11 verify = fresh id + DIFFERENT syntax ('|').
+  * CorsDetector (DETECT-13): one header probe per GET endpoint; arbitrary-Origin reflection + Access-Control-Allow-Credentials:true = candidate (ACAO:* without credentials NOT reportable); VR-10 fresh-origin replay verify; runs via det.run(ep) (header-only, no param -> dedicated orchestrator branch).
+  * needs_oast wiring in orchestrator (channel injected; detectors inert without one); vuln_to_detector updated; RISK_WEIGHTS += command_injection:9, ssrf:7, cors_misconfig:6.
+- Fixture v6: /vuln/fetch (blind server-side fetch, loopback egress gate like oob-stock — external hosts stall on sandbox DNS and the blind response is identical) + /safe/fetch (allowlist), /vuln/ping (REAL shell=True string interpolation — same mechanism as real cmdi) + /safe/ping (argv list, no shell), /vuln/cors (reflects ANY origin + credentials) + /safe/cors (fixed origin). Ground truth v6: 22 TP / 16 TN.
+- LIVE-CAUGHT DEFECT ENG-08 (found by the new detector itself in the first v6 smoke): the engine follows SAME-HOST redirects (required for auth landings) — an open-redirect target (/vuln/redirect.php) bounced the OAST probe URL back at the listener and the SCANNER fetched it itself (would-be SSRF FALSE POSITIVE; callback UA = engine UA, hop in redirect_chain). FIX: is_self_callback() guard (chain-hop match OR engine-UA match) applied in Ssrf/Cmdi/Xxe detectors AND VR-07/09/11 verify paths; engine UA now version-derived (also fixed stale hardcoded "Sentinel/2.2" fingerprint). Permanent regression: regression_eng08_self_callback_guard (true fetch found + redirect twin silent).
+- Debug-chain during test dev: (a) is_self_callback crashed on poll()'s LIST return ('list' has no .get') — killed ssrf/cmdi/xxe-oob until fixed; (b) fixture crawl-time DNS stalls (api.local/http://x) made discovery DROP /fetch endpoints — fixed with the loopback egress gate; (c) test handler UnboundLocalError (later local import shadowed module-level urllib) — imports consolidated. All three permanently encoded in tests/docs.
+- Tests 49 -> 52: ENG-08 regression, unit_cors_detector_and_fresh_origin_verify (reflect/fixed/plain), regression_ssrf_cmdi_cors_end_to_end (fixture v6 full scan: 3 classes verified with correct VR methods, twins silent, SQLi + blind-XXE intact, oast interactions>=5). OP-01 expectation updated to 22/16.
+- Gates: 52/52 tests; doctor 12/12 (9 detectors, oast_providers live); benchmark local-fixture-v6 F1=1.000 TP=22 FP=0 FN=0 TN=16 authenticated deterministic run-3c0652b6be x3 IDENTICAL (852 req, logins=1 reauths=0 — cmdi probes on /doLogin did NOT churn the session; oast local x7).
+- LIVE CAMPAIGN: (a) manual CORS probes on ALL FOUR authorized targets (ginandjuice/testfire/testasp/testaspnet): no arbitrary-origin reflection anywhere — honest negatives. (b) Production scan ginandjuice.shop v2.5.0 (--oast public --no-browser, 369 req, 452s): new classes = ZERO findings = ZERO false positives on a real target (its published vuln list has no SSRF/cmdi/CORS); XXE storeId still OOB-verified from 54.170.155.72; all non-browser actives intact. (c) XXE productId (absent from the no-browser run due to single-endpoint-instance + oob first-hit economy) INDEPENDENTLY RE-CONFIRMED LIVE via a direct public-channel probe: callback from 18.200.201.133 with UA ginandjuice.shop while the response stayed a content-free 400 — documented as scan-configuration artifact, not regression (evidence in live_validation_v250.json).
+- Operations: sandbox kills detached processes — long scans run foreground; --no-browser chosen for the production run because public-channel poll budgets (3s/probe x48) would push the full-browser scan past the 10-min execution cap (DOM XSS live proof already stands from v2.2.0/v2.4.0).
+- Packaged sentinel-2.5.0-source.zip (23 files; self-check from zip: doctor 12/12 + benchmark F1=1.000 22/16 authenticated oast x7) and sentinel-2.5.0-complete-bundle.zip (107 files; bundle self-check doctor 12/12); saved all artifacts (scan_ginjuice_v250_PUBLIC_OAST.json, live_validation_v250.json, benchmark_v250_det1/2/3.json, sentinel.db, ground_truth v6, CHANGELOG, WORKLOG); rewrote download/README.md.
+
+Stage Summary:
+- Phase 53 complete: 3 new verified classes (SSRF, blind command injection, CORS) riding the OAST/verification architecture, plus the ENG-08 self-callback guard — a real defect class exposed by the new detector and permanently regressed.
+- Real-target totals: 4 platforms, 21 verified actives, 0 false positives — now across 11 vulnerability classes.
+- Quality state: 52/52 tests, 12/12 doctor (9 detectors), F1=1.000 (22/16) deterministic x3.
+- Deliverables: download/{sentinel-2.5.0-source.zip, sentinel-2.5.0-complete-bundle.zip}, sentinel-results/ updated, README.md rewritten.

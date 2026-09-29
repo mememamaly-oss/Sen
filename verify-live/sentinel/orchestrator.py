@@ -125,9 +125,16 @@ class SentinelScanner:
 
         # ---- Phase 7: plan; Phase 8: detect
         detectors = {d.name: d(self.engine, self.bus, self.strategies) for d in ACTIVE_DETECTORS}
+        # Phase 53: OAST-channel detectors (SSRF / blind command injection) receive
+        # the armed channel; without one they stay inert (response oracles for these
+        # classes are noise — live-observed on the cycling stock endpoint).
+        for _d in detectors.values():
+            if getattr(_d, "needs_oast", False):
+                _d.oast = self.cfg.oast
         vuln_to_detector = {"sql_injection": "sqli", "xss_reflected": "xss",
-                            "path_traversal": "traversal", "open_redirect": "redirect", "ssrf": "redirect",
-                            "header_injection": "crlf", "xxe": "xxe"}
+                            "path_traversal": "traversal", "open_redirect": "redirect", "ssrf": "ssrf",
+                            "header_injection": "crlf", "xxe": "xxe",
+                            "command_injection": "cmdi", "cors_misconfig": "cors"}
         plan = []
         for ep in endpoints:
             plan.extend(plan_for(ep))
@@ -215,6 +222,19 @@ class SentinelScanner:
                                 self.strategies.record("xxe", strat_name,
                                                        out_f.status == FindingStatus.VERIFIED,
                                                        context=self.target.host)
+                    elif dname == "cors":
+                        # DETECT-13: header-only probe (Origin reflection + credentials) —
+                        # has no param, so it cannot ride the param-bound generic loop.
+                        cand = det.run(ep)
+                        if cand:
+                            cand.run_id = self.run_id
+                            self.stats["candidates"] += 1
+                            self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
+                            out_f = self.verifier.verify(cand, ep)
+                            self.findings.append(out_f)
+                            self.strategies.record("cors", "primary",
+                                                   out_f.status == FindingStatus.VERIFIED,
+                                                   context=self.target.host)
                     else:
                         for m in det.candidates(ep):
                             if isinstance(m, tuple):

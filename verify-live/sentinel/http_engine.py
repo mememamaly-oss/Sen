@@ -4,9 +4,14 @@ Scanners never build HTTP requests directly — they emit RequestMutations.
 from __future__ import annotations
 import http.client, socket, ssl, time, urllib.parse, uuid
 from dataclasses import dataclass, field
-from .core import Endpoint, EventBus, ParamLocation, ScopeRule, is_private_ip
+from .core import Endpoint, EventBus, ParamLocation, ScopeRule, VERSION, is_private_ip
 
 DEFAULT_TIMEOUT = 12.0
+# Engine fingerprint — OAST-channel detectors use it to reject SELF-callbacks
+# (ENG-08): the engine follows same-host redirects, so an open-redirect target can
+# bounce our probe URL back at the listener and WE fetch it. That callback carries
+# this exact UA and must never count as target-side evidence.
+USER_AGENT = f"Mozilla/5.0 (compatible; Sentinel/{VERSION}; +security-scanner)"
 
 
 # ---------------------------------------------------------------- Mutations
@@ -132,7 +137,7 @@ class RequestEngine:
         url = base + ("?" + urllib.parse.urlencode(q) if q else "")
         if m.param_location == ParamLocation.PATH and m.param_name:
             url = url.replace("{" + m.param_name + "}", urllib.parse.quote(m.param_value, safe=""))
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; Sentinel/2.2; +security-scanner)"}
+        headers = {"User-Agent": USER_AGENT}
         # ENG-03 (live-caught on demo.testfire.net/doLogin): http.client does NOT add
         # Content-Type for bodies — Tomcat then never parses the POST body, silently
         # hiding the entire POST attack surface. Required per HTML form spec.

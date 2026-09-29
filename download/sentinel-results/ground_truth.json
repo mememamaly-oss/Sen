@@ -1,8 +1,8 @@
 {
- "benchmark": "local-fixture-v5",
- "version": "2.3.0",
+ "benchmark": "local-fixture-v6",
+ "version": "2.5.0",
  "sha256_self_check": true,
- "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) \u2014 /account and /vault/transfer 302 to /login for anonymous clients",
+ "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) \u2014 /account and /vault/transfer 302 to /login for anonymous clients; OAST armed \u2014 blind classes (xxe / ssrf / command_injection) are OOB-confirmed only",
  "ground_truth": [
   {
    "type": "sql_injection",
@@ -196,6 +196,42 @@
    "type": "xss_reflected",
    "endpoint": "/account",
    "parameter": "tab",
+   "present": false
+  },
+  {
+   "type": "ssrf",
+   "endpoint": "/vuln/fetch",
+   "parameter": "url",
+   "present": true
+  },
+  {
+   "type": "command_injection",
+   "endpoint": "/vuln/ping",
+   "parameter": "host",
+   "present": true
+  },
+  {
+   "type": "cors_misconfig",
+   "endpoint": "/vuln/cors",
+   "parameter": "Origin",
+   "present": true
+  },
+  {
+   "type": "ssrf",
+   "endpoint": "/safe/fetch",
+   "parameter": "url",
+   "present": false
+  },
+  {
+   "type": "command_injection",
+   "endpoint": "/safe/ping",
+   "parameter": "host",
+   "present": false
+  },
+  {
+   "type": "cors_misconfig",
+   "endpoint": "/safe/cors",
+   "parameter": "Origin",
    "present": false
   }
  ]
