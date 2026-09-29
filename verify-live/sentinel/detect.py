@@ -182,21 +182,58 @@ class XSSDetector(Detector):
     name, vuln_type = "xss", "xss_reflected"
     severity = Severity.HIGH
     CANARY = "sentinelxssmarker"
+    # DETECT-14 (Phase 54): context-adaptive battery. ONE benign known-tag probe per
+    # mutable param decides the battery — live-modeled on ginandjuice.shop /blog?search
+    # (tag+handler blacklist: every known tag 400s, quote payloads pass raw) and on
+    # AngularJS pages (braces survive every HTML escaper; the expression evaluates in
+    # any ng-app binding on render):
+    #   tag-filtered (probe 400/403)  -> attr_inject battery (no '<' at all)
+    #   ng-app in the page            -> + {{expression}} vector
+    #   plain                         -> classic full-tag + slash-free battery
+    # The probe costs one request per param and its response never fabricates a
+    # candidate (it contains no battery needle).
+    ATTR_PAYLOAD = 'pro43" onfocus="sentinelAttr'
+    NG_PAYLOAD = "{{91*7}}sentinelngmark"
+
+    def _context_probe(self, ep, p) -> tuple[str, bool]:
+        """Send '<b>canaryflt</b>'; classify the param's input context."""
+        try:
+            r = self.engine.send(RequestMutation(
+                endpoint=ep, param_name=p.name,
+                param_value=f"<b>{self.CANARY}flt</b>", note="xss-context-probe"))
+        except Exception:
+            r = None
+        if r is None or r.error:
+            return "unknown", False
+        filtered = r.status in (400, 403)
+        angular = "ng-app" in (r.body or "").lower()
+        return ("filtered" if filtered else "plain"), angular
 
     def candidates(self, ep: Endpoint):
         out = []
         for p in ep.parameters:
             if p.kind == ParamKind.TOKEN:
                 continue          # Phase 50: mutating a CSRF token only breaks the flow
+            mode, angular = self._context_probe(ep, p)
             # VR-03 (live-caught on ginandjuice.shop /catalog?category=): the full-tag
             # canary carries a closing tag </sentinelxssmarker> — apps that escape only
             # the '/' (e.g. </ -> <\/ as JS-string hardening) break the needle match
             # even though < and > pass RAW (real reflection: const x = "Gin<svg onload=..>").
             # Slash-free variant detects the unescaped-markup weakness independently.
-            out.append(("full_tag", RequestMutation(endpoint=ep, param_name=p.name,
-                    param_value=f"<{self.CANARY}>pro41</{self.CANARY}>")))
-            out.append(("slash_free", RequestMutation(endpoint=ep, param_name=p.name,
-                    param_value=f"<{self.CANARY}pro42")))
+            if mode != "filtered":
+                out.append(("full_tag", RequestMutation(endpoint=ep, param_name=p.name,
+                        param_value=f"<{self.CANARY}>pro41</{self.CANARY}>")))
+                out.append(("slash_free", RequestMutation(endpoint=ep, param_name=p.name,
+                        param_value=f"<{self.CANARY}pro42")))
+            else:
+                # tag-filtered context: attribute injection needs no '<' — the handler
+                # rides into a tag the SERVER itself emitted (live-executed on
+                # ginandjuice /blog?search: " onload="... into the tracker img).
+                out.append(("attr_inject", RequestMutation(endpoint=ep, param_name=p.name,
+                        param_value=self.CANARY + self.ATTR_PAYLOAD)))
+            if angular:
+                out.append(("ng_expr", RequestMutation(endpoint=ep, param_name=p.name,
+                        param_value=self.NG_PAYLOAD)))
         return out
 
     def analyze(self, pair, resp):
@@ -211,12 +248,22 @@ class XSSDetector(Detector):
         ct = (resp.headers or {}).get("content-type", "")
         if "json" in ct.lower() and "html" not in ct.lower():
             return None
-        for needle in (f"<{self.CANARY}>pro41</{self.CANARY}>", f"<{self.CANARY}pro42"):
+        checks = [
+            (f"<{self.CANARY}>pro41</{self.CANARY}>", "unescaped_reflection"),
+            (f"<{self.CANARY}pro42", "unescaped_reflection"),
+            (self.CANARY + self.ATTR_PAYLOAD, "attribute_injection_reflection"),
+            (self.NG_PAYLOAD, "ng_expression_reflection"),
+        ]
+        for needle, kind in checks:
             if needle in resp.body:
                 i = resp.body.find(needle)
                 ctx = resp.body[max(0, i - 60):i + len(needle) + 30].replace("\n", " ")
+                detail = {"attribute_injection_reflection":
+                              "quote+event-handler reflected raw — injectable attribute context, no '<' needed (tag-filter resistant)",
+                          "ng_expression_reflection":
+                              "Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics"}.get(kind, f"canary reflected raw in context: …{ctx}…")
                 return Finding("xss_reflected", Severity.HIGH, ep.url, p.name, ep.method,
-                           [Evidence("unescaped_reflection", f"canary reflected raw in context: …{ctx}…", resp.request_id)],
+                           [Evidence(kind, detail + f" [ctx: …{ctx}…]", resp.request_id)],
                            status=FindingStatus.CANDIDATE)
         return None
 

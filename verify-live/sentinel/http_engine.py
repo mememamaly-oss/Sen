@@ -60,11 +60,22 @@ class RequestEngine:
     scanning reachable; without it the server rejects every request that needs
     a session before the vulnerable code path is ever exercised."""
     def __init__(self, scope: ScopeRule, bus: EventBus, timeout: float = DEFAULT_TIMEOUT,
-                 adaptive_timeout: float | None = None):
+                 adaptive_timeout: float | None = None, default_headers: dict | None = None):
         self.scope, self.bus, self.timeout = scope, bus, adaptive_timeout or timeout
         self.base_timeout = timeout
         self.requests_sent = 0
         self.cookie_jar: dict[str, dict[str, str]] = {}   # host -> {name: value}
+        # AUTH-05 (Phase 54): headers injected into EVERY request (Bearer token auth).
+        # Applied before per-endpoint/extra headers so a specific probe can override.
+        self.default_headers: dict[str, str] = dict(default_headers or {})
+        # ENG-09 (Phase 54): rate-limit resilience — 429/503 answers are a WAF/CDN
+        # telling us to slow down, not an application response. Hammering through
+        # them gets the source IP blocked mid-scan; the scan degrades to errors.
+        # Deterministic exponential backoff honoring Retry-After, capped retries.
+        self.max_rate_retries = 3
+        self.rate_limited = 0          # 429/503 responses seen
+        self.rate_limit_retries = 0    # actual retry sleeps performed
+        self.rate_limit_recovered = 0  # retries that then got a normal status
         self._ctx = ssl.create_default_context()
         self._ctx.check_hostname = False
         self._ctx.verify_mode = ssl.CERT_NONE
@@ -138,6 +149,7 @@ class RequestEngine:
         if m.param_location == ParamLocation.PATH and m.param_name:
             url = url.replace("{" + m.param_name + "}", urllib.parse.quote(m.param_value, safe=""))
         headers = {"User-Agent": USER_AGENT}
+        headers.update(self.default_headers)   # AUTH-05: session-wide auth headers
         # ENG-03 (live-caught on demo.testfire.net/doLogin): http.client does NOT add
         # Content-Type for bodies — Tomcat then never parses the POST body, silently
         # hiding the entire POST attack surface. Required per HTML form spec.
@@ -193,6 +205,36 @@ class RequestEngine:
             self.bus.emit("RequestBlockedByScope", url=url, reason=why)
             return Response(status=0, url=url, error="scope:" + why)
         rid = "req-" + uuid.uuid4().hex[:8]
+        # ENG-09: retry loop around the transport. The request is IDENTICAL on every
+        # attempt (same rid, same body — determinism preserved); only the schedule
+        # changes. Retry-After (seconds form) wins over the exponential ladder; the
+        # ladder is 0.4 * 2^n capped at 8s, max 3 retries — then we return the last
+        # 429/503 response HONESTLY (the caller sees what the server actually said,
+        # never a fabricated error).
+        attempt, ladder = 0, 0.4
+        while True:
+            resp = self._dispatch(url, method, headers, body, rid)
+            if resp is not None and resp.status in (429, 503) and attempt < self.max_rate_retries:
+                attempt += 1
+                self.rate_limited += 1
+                ra_raw = (resp.headers or {}).get("retry-after", "")
+                try:
+                    delay = float(int(ra_raw)) if ra_raw.strip().isdigit() else min(ladder, 8.0)
+                except ValueError:
+                    delay = min(ladder, 8.0)
+                self.rate_limit_retries += 1
+                self.bus.emit("RateLimitedBackoff", url=url, attempt=attempt,
+                              delay=round(delay, 2), retry_after=bool(ra_raw.strip()))
+                time.sleep(delay)
+                ladder *= 2
+                continue
+            if attempt and resp is not None and resp.status not in (429, 503):
+                self.rate_limit_recovered += 1
+            elif resp is not None and resp.status in (429, 503):
+                self.rate_limited += 1
+            return resp
+
+    def _dispatch(self, url: str, method: str, headers: dict, body: str, rid: str) -> Response:
         t0 = time.time()
         self.requests_sent += 1
         try:

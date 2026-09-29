@@ -85,25 +85,53 @@ class VerificationEngine:
             # exploitable reflections (FN). Deterministic fix: VECTOR DIVERSITY — a
             # battery of event-handler-distinct probes; verified if ANY reflects raw,
             # confidence scaled by how many independent contexts confirmed.
-            variants = [
-                "<img src=x onerror=sentinel42()>",              # classic img/onerror
-                "<details open ontoggle=sentinel42()>",          # auto-fires on toggle
-                "<svg><animate onbegin=sentinel42() attributeName=x>",  # svg onbegin
-                "<svg\nonload=sentinel42()>",                    # newline separator
-                "<iframe srcdoc=sentinel42()>",                  # srcdoc context
-                "<sentinelxssmarker>vr2</sentinelxssmarker>",    # raw-tag canary re-check
-            ]
-            passed_vecs = 0
-            for alt in variants:
-                r = self._replay(ep, f.parameter, alt)
-                if r is not None and alt in (r.body or ""):
-                    passed_vecs += 1
-            executed_ctx = passed_vecs >= 1
-            conf = 0.9 if passed_vecs >= 2 else (0.75 if passed_vecs == 1 else 0.15)
-            v = Verification(method="re-test:variant-battery-6", passed=executed_ctx,
-                             confidence=conf, rounds=len(variants),
-                             notes=f"{passed_vecs}/{len(variants)} diverse vectors reflected raw "
-                                   "(WAF-resistant verification)")
+            # DETECT-14 (Phase 54): the battery is CONTEXT-AWARE — attribute-injection
+            # candidates (tag-filtered contexts) are re-verified with no-'<' vectors,
+            # Angular-expression candidates with a fresh {{expression}}, so a filter
+            # that blocks every tag can no longer veto the very class it produced.
+            kinds = {e.kind for e in (f.evidence or [])}
+            if "attribute_injection_reflection" in kinds:
+                variants = ['pro44" onfocus="vr1', 'pro45" onload="vr2', "pro46' onerror='vr3"]
+                passed_vecs = 0
+                for alt in variants:
+                    r = self._replay(ep, f.parameter, "sentinelxssmarker" + alt)
+                    if r is not None and ("sentinelxssmarker" + alt) in (r.body or ""):
+                        passed_vecs += 1
+                executed_ctx = passed_vecs >= 1
+                conf = 0.9 if passed_vecs >= 2 else (0.8 if passed_vecs == 1 else 0.1)
+                v = Verification(method="re-test:attr-battery-3", passed=executed_ctx,
+                                 confidence=conf, rounds=len(variants),
+                                 notes=f"{passed_vecs}/{len(variants)} attribute-injection vectors "
+                                       "reflected raw (no '<' — tag-filter resistant verification)")
+            elif "ng_expression_reflection" in kinds:
+                fresh = "{{19*3}}sentinelngvr"
+                r = self._replay(ep, f.parameter, fresh)
+                executed_ctx = (r is not None and fresh in (r.body or "")
+                                and "ng-app" in (r.body or "").lower())
+                v = Verification(method="re-test:fresh-ng-expression", passed=executed_ctx,
+                                 confidence=0.85 if executed_ctx else 0.1, rounds=1,
+                                 notes=f"fresh Angular expression reflected raw inside ng-app "
+                                       f"context: {executed_ctx} (client-side evaluation is Angular binding semantics)")
+            else:
+                variants = [
+                    "<img src=x onerror=sentinel42()>",              # classic img/onerror
+                    "<details open ontoggle=sentinel42()>",          # auto-fires on toggle
+                    "<svg><animate onbegin=sentinel42() attributeName=x>",  # svg onbegin
+                    "<svg\nonload=sentinel42()>",                    # newline separator
+                    "<iframe srcdoc=sentinel42()>",                  # srcdoc context
+                    "<sentinelxssmarker>vr2</sentinelxssmarker>",    # raw-tag canary re-check
+                ]
+                passed_vecs = 0
+                for alt in variants:
+                    r = self._replay(ep, f.parameter, alt)
+                    if r is not None and alt in (r.body or ""):
+                        passed_vecs += 1
+                executed_ctx = passed_vecs >= 1
+                conf = 0.9 if passed_vecs >= 2 else (0.75 if passed_vecs == 1 else 0.15)
+                v = Verification(method="re-test:variant-battery-6", passed=executed_ctx,
+                                 confidence=conf, rounds=len(variants),
+                                 notes=f"{passed_vecs}/{len(variants)} diverse vectors reflected raw "
+                                       "(WAF-resistant verification)")
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if executed_ctx else FindingStatus.REJECTED
 

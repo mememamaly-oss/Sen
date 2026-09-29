@@ -32,8 +32,12 @@ from .http_engine import RequestEngine, RequestMutation
 @dataclass
 class AuthProfile:
     """Declarative description of one login flow. Defaults match AltoroJ
-    (demo.testfire.net): GET /login.jsp, POST /doLogin {uid, passw}."""
-    login_url: str                    # page carrying the login form (GET first)
+    (demo.testfire.net): GET /login.jsp, POST /doLogin {uid, passw}.
+    AUTH-05 (Phase 54): token mode — set `token` and every request carries
+    `Authorization: <scheme> <token>` (or a custom header, raw when scheme="").
+    login_url doubles as the VALIDATION url in token mode (the page fetched to
+    prove the token opens an otherwise-closed door)."""
+    login_url: str                    # form: page carrying the login form (GET first); token: validation url
     username: str = ""
     password: str = ""
     user_field: str = "uid"
@@ -44,6 +48,18 @@ class AuthProfile:
     login_marker: str = "login"       # a redirect hop whose path contains this = session gate
     max_reauth: int = 5               # AUTH-03 budget cap (prevents credential hammering)
     validate_url: str = ""            # page fetched to confirm the session; default = landing
+    # ---- AUTH-05 token mode
+    token: str = ""                   # non-empty => token mode (form fields ignored)
+    auth_header: str = "Authorization"
+    auth_scheme: str = "Bearer"       # "Bearer x" / "Token x" / "" = raw value
+
+    @property
+    def mode(self) -> str:
+        return "token" if self.token else "form"
+
+    def header_value(self) -> str:
+        v = self.token if not self.auth_scheme else f"{self.auth_scheme} {self.token}"
+        return v.strip()
 
 
 @dataclass
@@ -208,5 +224,76 @@ class AuthedEngineProxy:
 
     # ---- everything else delegates to the real engine (cookie jar, counters,
     # scope gate, timeouts — the proxy is invisible to callers)
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
+class TokenAuthEngine:
+    """AUTH-05 (Phase 54): static-token authentication — Bearer JWTs, API keys,
+    custom X-Auth-Token headers. Three honest differences from form auth:
+      1. "login" = VALIDATION, not credential exchange: we fetch the validation
+         url WITH the header and require a door that is closed without it (no
+         401/403, no redirect to a login gate, optional success marker).
+      2. The token rides engine.default_headers — EVERY engine request carries
+         it (no per-phase wiring, no drift between discovery/detectors/verifier).
+      3. No self-healing: a static token cannot be re-minted. Mid-scan 401/403
+         responses are COUNTED honestly (TokenRejected) instead of replayed —
+         silently proceeding anonymous would mislabel the surface as clean."""
+
+    def __init__(self, profile: AuthProfile, engine: RequestEngine, bus: EventBus):
+        self.p, self.engine, self.bus = profile, engine, bus
+        self.state = AuthState()
+        self.state.landing_url = profile.login_url
+        self.rejections = 0          # 401/403 seen while authenticated (possible expiry)
+
+    def login(self) -> bool:
+        """Validate the token, then arm the header on the engine."""
+        self.state.logins += 1
+        hv = self.p.header_value()
+        r = self.engine.send(RequestMutation(
+            endpoint=Endpoint(url=self.p.login_url, method="GET"),
+            extra_headers={self.p.auth_header: hv}, note="auth-validate-token"))
+        if r.error:
+            self.state.last_error = f"validation url unreachable: {r.error}"
+            self.bus.emit("AuthFailed", reason="validate", error=self.state.last_error)
+            return False
+        if r.status in (401, 403):
+            self.state.last_error = f"token rejected: {self.p.login_url} -> {r.status}"
+            self.bus.emit("AuthFailed", reason="token_rejected", error=self.state.last_error)
+            return False
+        hop = r.hop_location()
+        if hop and self.p.login_marker.lower() in urllib.parse.urlsplit(hop).path.lower():
+            self.state.last_error = f"validation bounced to login gate: {hop}"
+            self.bus.emit("AuthFailed", reason="bounce", error=self.state.last_error)
+            return False
+        if self.p.success_marker and self.p.success_marker.lower() not in (r.body or "").lower():
+            self.state.last_error = f"success marker missing on {self.p.login_url}"
+            self.bus.emit("AuthFailed", reason="marker", error=self.state.last_error)
+            return False
+        # accepted: arm the header on every subsequent engine request
+        self.engine.default_headers[self.p.auth_header] = hv
+        self.state.authenticated = True
+        self.bus.emit("Authenticated", mode="token", header=self.p.auth_header,
+                      landing=self.p.login_url, logins=self.state.logins)
+        return True
+
+
+class TokenWatchdogProxy:
+    """AUTH-05 honest watchdog: counts 401/403 responses that arrive while the
+    token is armed (possible expiry mid-scan). No re-auth is possible — the
+    count lands in stats.auth.rejections so the report can say "token surface
+    may have degraded after N rejections" instead of claiming a clean scan."""
+
+    def __init__(self, inner: RequestEngine, token_engine: TokenAuthEngine):
+        self._inner, self._tok = inner, token_engine
+
+    def send(self, m: RequestMutation):
+        r = self._inner.send(m)
+        if self._tok.state.authenticated and r is not None and r.status in (401, 403):
+            self._tok.rejections += 1
+            self._tok.bus.emit("TokenRejected", url=m.endpoint.url, status=r.status,
+                               rejections=self._tok.rejections)
+        return r
+
     def __getattr__(self, name):
         return getattr(self._inner, name)

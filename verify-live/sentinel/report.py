@@ -30,6 +30,88 @@ def build_html(store: Store, run_id: str = "") -> str:
     return _build_html(store, run_id)
 
 
+# ============================================================ OP-02: SARIF 2.1.0
+# Stable rule registry — a finding type always maps to the SAME ruleId so results
+# from different runs diff cleanly in SARIF consumers (GitHub code scanning,
+# VS Code SARIF viewer, DefectDojo importers).
+SARIF_RULES = {
+    "sql_injection":                    "SEN-SQL-001",
+    "xss_reflected":                    "SEN-XSS-001",
+    "xss_dom":                          "SEN-XSS-002",
+    "path_traversal":                   "SEN-TRA-001",
+    "open_redirect":                    "SEN-RED-001",
+    "ssrf":                             "SEN-SSRF-001",
+    "command_injection":                "SEN-CMD-001",
+    "xxe":                              "SEN-XXE-001",
+    "cors_misconfig":                   "SEN-COR-001",
+    "http_response_header_injection":   "SEN-HDR-001",
+    "missing_security_headers":         "SEN-HDR-002",
+    "vulnerable_js_dependency":         "SEN-DEP-001",
+    "idor":                             "SEN-IDOR-001",
+}
+SARIF_LEVEL = {"critical": "error", "high": "error", "medium": "warning",
+               "low": "note", "info": "note"}
+
+
+def build_sarif(store: Store, run_id: str = "") -> dict:
+    """OP-02 (Phase 54): export verified findings as a SARIF 2.1.0 log — the
+    industry interchange format for static-analysis results. Same honesty contract
+    as the scanner: only VERIFIED findings become results (rejected candidates are
+    already excluded from the store's verified set); each result carries the
+    evidence chain and the verification method as properties so the SARIF log is
+    a standalone audit artifact, not just a count."""
+    if run_id:
+        run = store.get_run(run_id)
+        if not run:
+            return {"error": f"run {run_id} not found"}
+        findings = run["findings"]
+        scan_target = run.get("target", "")
+    else:
+        findings = store.list_findings(status="verified", limit=500)
+        scan_target = ""
+    rules, seen = [], set()
+    results = []
+    for f in findings:
+        ftype = f.get("type", "unknown")
+        rid = SARIF_RULES.get(ftype, "SEN-GEN-001")
+        if rid not in seen:
+            seen.add(rid)
+            rules.append({"id": rid, "name": ftype,
+                          "shortDescription": {"text": f"SENTINEL verified finding class: {ftype}"}})
+        ver = f.get("verification") or {}
+        evs = "; ".join(f"{e.get('kind', '')}: {str(e.get('detail', ''))[:140]}"
+                        for e in (f.get("evidence") or [])[:3])
+        results.append({
+            "ruleId": rid,
+            "ruleIndex": [r["id"] for r in rules].index(rid),
+            "level": SARIF_LEVEL.get((f.get("severity") or "info").lower(), "note"),
+            "message": {"text": f"{ftype} at {f.get('url', '')}"
+                                + (f" (param={f.get('parameter')})" if f.get("parameter") else "")
+                                + f" — verified via {ver.get('method', 'n/a')}"},
+            "locations": [{"physicalLocation": {
+                "artifactLocation": {"uri": f.get("url", "")},
+                "region": {"snippet": {"text": f.get("parameter") or ""}}}}],
+            "properties": {"severity": f.get("severity", ""), "risk": f.get("risk", 0),
+                           "confidence": f.get("confidence", 0), "parameter": f.get("parameter", ""),
+                           "verification": {"method": ver.get("method", ""), "passed": ver.get("passed", False),
+                                            "notes": str(ver.get("notes", ""))[:200]},
+                           "evidence": evs[:400]},
+            "partialFingerprints": {"sentinelFindingId": f.get("id", "")},
+        })
+    return {
+        "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+        "version": "2.1.0",
+        "runs": [{
+            "tool": {"driver": {"name": "SENTINEL", "version": VERSION,
+                                "informationUri": "https://sentinel.invalid/",
+                                "rules": rules}},
+            "properties": {"scanTarget": scan_target, "resultCount": len(results),
+                           "honesty": "verification-gated: every result passed an independent replay"},
+            "results": results,
+        }],
+    }
+
+
 def _build_json(store: Store, run_id: str) -> dict:
     if run_id:
         run = store.get_run(run_id)

@@ -326,6 +326,26 @@ class DiscoveryEngine:
                         out.append(e)
         return out
 
+    def openapi(self, base: str) -> tuple[list[Endpoint], dict | None]:
+        """DISC-13: probe the well-known spec locations, parse the first valid
+        OpenAPI/Swagger document. Returns ([endpoints], info|None) — the info dict
+        lands in stats.openapi for auditability (which document, which version,
+        how many paths). Honest: no spec found -> ([], None), never a guess."""
+        import json as _json
+        for p in OPENAPI_PROBE_PATHS:
+            resp = self.engine.send(_simple_get(base.rstrip("/") + p))
+            if not resp.ok or not (resp.body or "").lstrip().startswith("{"):
+                continue
+            try:
+                spec = _json.loads(resp.body)
+            except ValueError:
+                continue
+            if "paths" not in spec:
+                continue
+            eps = parse_openapi(spec, base)
+            return eps, _spec_info(spec, p, len(eps))
+        return [], None
+
 
 def _simple_get(url: str):
     from .http_engine import RequestMutation
@@ -344,3 +364,50 @@ def _simple_get(url: str):
 
 def extract_query_params(url: str) -> list[tuple[str, str]]:
     return [(k, v[0]) for k, v in urllib.parse.parse_qs(urllib.parse.urlsplit(url).query, keep_blank_values=True).items()]
+
+
+# ============================================================ DISC-13: OpenAPI seeding
+OPENAPI_PROBE_PATHS = ("/openapi.json", "/swagger.json", "/swagger/v1/swagger.json", "/v2/api-docs")
+
+
+def parse_openapi(spec: dict, base_url: str) -> list[Endpoint]:
+    """DISC-13 (Phase 54): an OpenAPI/Swagger document is a machine-readable attack
+    surface map the TARGET ITSELF publishes — endpoints invisible to any crawler
+    (unlinked admin/legacy/API paths) are declared there with their parameters.
+    Parses paths -> method -> parameters (query + path; JSON request bodies) into
+    standard Endpoints. Scope-gating and dedup happen in the orchestrator exactly
+    like crawl results — a spec entry is a LEAD, never a bypass of scope policy."""
+    import json as _json
+    out: list[Endpoint] = []
+    base = base_url.rstrip("/")
+    servers = spec.get("servers") or []
+    root = base
+    if servers and isinstance(servers, list) and servers[0].get("url", "").startswith("http"):
+        root = servers[0]["url"].rstrip("/")
+    paths = spec.get("paths") or {}
+    for path, ops in (paths.items() if isinstance(paths, dict) else []):
+        if not isinstance(ops, dict):
+            continue
+        url = root + (path if path.startswith("/") else "/" + path)
+        for method, op in ops.items():
+            if method.lower() not in ("get", "post", "put", "patch", "delete") or not isinstance(op, dict):
+                continue
+            params = []
+            for prm in op.get("parameters", []) or []:
+                if not isinstance(prm, dict) or "name" not in prm:
+                    continue
+                loc = {"query": ParamLocation.QUERY, "path": ParamLocation.QUERY,
+                       "header": ParamLocation.QUERY}.get(prm.get("in", "query"), ParamLocation.QUERY)
+                params.append(Parameter(prm["name"], loc, prm.get("schema", {}).get("example", "") or "").classify())
+            body = (op.get("requestBody") or {}).get("content", {})
+            if "application/json" in body:
+                for fld in ((body["application/json"].get("schema") or {}).get("properties") or {}).keys():
+                    params.append(Parameter(fld, ParamLocation.JSON, "").classify())
+            out.append(Endpoint(url=url, method=method.upper(), parameters=params,
+                                source=DiscoverySource.SEED, tags=["openapi"]))
+    return out
+
+
+def _spec_info(spec: dict, url: str, n_endpoints: int) -> dict:
+    return {"source": url, "version": str(spec.get("openapi") or spec.get("swagger") or "?"),
+            "title": str((spec.get("info") or {}).get("title") or ""), "paths": n_endpoints}

@@ -10,13 +10,15 @@ from .discovery import DiscoveryEngine
 from .detect import (ACTIVE_DETECTORS, SQLiDetector, XSSDetector, TraversalDetector,
                      RedirectDetector, CrlfDetector, XxeDetector, passive_audit, plan_for)
 from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMemory, RepairClassifier
-from .auth import AuthProfile, AuthEngine, AuthedEngineProxy
+from .auth import AuthProfile, AuthEngine, AuthedEngineProxy, TokenAuthEngine, TokenWatchdogProxy
+from .fingerprint import FingerprintCollector
 
 
 class ScanConfig:
     def __init__(self, allow_private=False, max_pages=25, crawl=True, active=True,
                  passive=True, timeout=12.0, seed=None, strategy_path=None,
-                 allowed_domains=None, oast=None, browser=True, auth=None):
+                 allowed_domains=None, oast=None, browser=True, auth=None,
+                 openapi=True, openapi_spec=None):
         self.allow_private = allow_private
         self.max_pages = max_pages
         self.crawl, self.active, self.passive = crawl, active, passive
@@ -26,6 +28,8 @@ class ScanConfig:
         self.oast = oast          # OastServer | None — enables OOB (blind-XXE) confirmation
         self.browser = browser    # Phase 50: DOM engine (graceful skip when unavailable)
         self.auth = auth          # Phase 51: AuthProfile | None — authenticated scanning
+        self.openapi = openapi    # DISC-13: auto-probe well-known OpenAPI/Swagger docs
+        self.openapi_spec = openapi_spec   # explicit spec dict/url seed (None = auto only)
 
 
 class SentinelScanner:
@@ -57,24 +61,43 @@ class SentinelScanner:
         # jar) then rides every later request, and the authenticated landing page
         # becomes a second crawl seed (the post-login surface is linked ONLY from
         # post-login pages: /bank/* on Altoro is invisible from the anonymous home).
+        # AUTH-05 (Phase 54): token mode — Bearer/JWT/custom-header auth. Validation
+        # instead of credential exchange; the header rides engine.default_headers;
+        # no self-healing (static tokens cannot be re-minted) — 401/403 mid-scan are
+        # counted honestly by the TokenWatchdogProxy instead of silently degrading.
         auth_seeds: list[str] = []
         self.auth_engine = None
+        self.token_engine = None
+        auth_headers: dict = {}
         if self.cfg.auth is not None:
-            self.auth_engine = AuthEngine(self.cfg.auth, self.engine, self.bus)
-            ok = self.auth_engine.login()
-            self.stats["authenticated"] = ok
-            if ok:
-                # AUTH-03 watchdog proxy: from here on, session loss anywhere in
-                # the scan (discovery, detectors, verifier, browser) self-heals.
-                self.engine = AuthedEngineProxy(self.engine, self.auth_engine)
-                self.verifier.engine = self.engine
-                auth_seeds.append(self.auth_engine.state.landing_url)
-                # the authenticated crawl genuinely has more surface — grow budget
-                # deterministically (fixed 1.5x, no heuristics)
-                self.cfg.max_pages = int(self.cfg.max_pages * 1.5)
+            if self.cfg.auth.mode == "token":
+                self.token_engine = TokenAuthEngine(self.cfg.auth, self.engine, self.bus)
+                ok = self.token_engine.login()
+                self.stats["authenticated"] = ok
+                if ok:
+                    self.engine = TokenWatchdogProxy(self.engine, self.token_engine)
+                    self.verifier.engine = self.engine
+                    auth_headers = {self.cfg.auth.auth_header: self.cfg.auth.header_value()}
+                    auth_seeds.append(self.cfg.auth.login_url)
+                else:
+                    self.bus.emit("ScanContinuesUnauthenticated",
+                                  reason=self.token_engine.state.last_error)
             else:
-                self.bus.emit("ScanContinuesUnauthenticated",
-                              reason=self.auth_engine.state.last_error)
+                self.auth_engine = AuthEngine(self.cfg.auth, self.engine, self.bus)
+                ok = self.auth_engine.login()
+                self.stats["authenticated"] = ok
+                if ok:
+                    # AUTH-03 watchdog proxy: from here on, session loss anywhere in
+                    # the scan (discovery, detectors, verifier, browser) self-heals.
+                    self.engine = AuthedEngineProxy(self.engine, self.auth_engine)
+                    self.verifier.engine = self.engine
+                    auth_seeds.append(self.auth_engine.state.landing_url)
+                    # the authenticated crawl genuinely has more surface — grow budget
+                    # deterministically (fixed 1.5x, no heuristics)
+                    self.cfg.max_pages = int(self.cfg.max_pages * 1.5)
+                else:
+                    self.bus.emit("ScanContinuesUnauthenticated",
+                                  reason=self.auth_engine.state.last_error)
 
         # ---- Phase 4: discovery (extra_seeds carry the authenticated landing;
         # the login page itself is excluded from page-fetches — re-fetching it
@@ -89,6 +112,31 @@ class SentinelScanner:
             endpoints.extend(e for e in robots if all(e.id != x.id for x in endpoints))
             self.stats["crawl"] = crawl_stats
             self.bus.emit("DiscoveryCompleted", **crawl_stats, js_endpoints=len(js))
+        # ---- DISC-13 (Phase 54): the target's OWN OpenAPI/Swagger document is a
+        # machine-readable surface map — unlinked admin/legacy/API paths that no
+        # crawler can reach are declared there with parameters. Auto-probe the
+        # well-known locations (and honor an explicit spec); merged endpoints ride
+        # the SAME dedup + scope gates as crawl results.
+        if self.cfg.openapi or self.cfg.openapi_spec:
+            spec_eps, spec_info = [], None
+            if self.cfg.openapi_spec:
+                from .discovery import parse_openapi, _spec_info
+                if isinstance(self.cfg.openapi_spec, dict):
+                    spec_eps = parse_openapi(self.cfg.openapi_spec, self.target.url)
+                    spec_info = _spec_info(self.cfg.openapi_spec, "(inline-seed)", len(spec_eps))
+            else:
+                try:
+                    spec_eps, spec_info = d.openapi(self.target.url)
+                except Exception:
+                    spec_eps, spec_info = [], None
+            if spec_eps:
+                new_eps = [e for e in spec_eps if all(e.id != x.id for x in endpoints)]
+                endpoints.extend(new_eps)
+                self.stats["openapi"] = dict(spec_info or {})
+                self.stats["openapi"]["new_endpoints"] = len(new_eps)
+                self.bus.emit("OpenApiSeeded", **(spec_info or {}), new_endpoints=len(new_eps))
+            elif self.cfg.openapi_spec is None:
+                self.stats["openapi"] = {"source": None, "paths": 0, "new_endpoints": 0}
         self.stats["endpoints"] = len(endpoints)
 
         # ---- Phase 50: browser/DOM engine — render-merge BEFORE planning so active
@@ -97,7 +145,8 @@ class SentinelScanner:
         if self.cfg.browser:
             from .browser import BrowserEngine, browser_available
             if browser_available():
-                self.browser = BrowserEngine(self.engine, timeout=self.cfg.timeout)
+                self.browser = BrowserEngine(self.engine, timeout=self.cfg.timeout,
+                                             extra_headers=auth_headers)
                 self.verifier.browser = self.browser
                 existing = {e.id: e for e in endpoints}
                 # Render budget: script-bearing pages first (runtime forms / DOM logic
