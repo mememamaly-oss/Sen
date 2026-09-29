@@ -354,6 +354,103 @@ class VerificationEngine:
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok10 else FindingStatus.REJECTED
 
+        elif f.type == "ssti":
+            # VR-12 (Phase 55): re-test the SAME syntax family with FRESH operands
+            # (12*11 -> 132) — ambient "49"s cannot reproduce a fresh computation.
+            import re as _re12
+            ev12 = " ".join(e.detail for e in f.evidence)
+            m12 = _re12.search(r"syntax=(\S+)", ev12)
+            fam = m12.group(1) if m12 else "{{"
+            _FAMS = {"{{": ("{{", "}}"), "${": ("${", "}"),
+                     "<%=": ("<%= ", " %>"), "#{": ("#{", "}")}
+            open_, close = _FAMS.get(fam, ("{{", "}}"))
+            fresh = f"{open_}12*11{close}"
+            expect = "132"
+            r12 = self.engine.send(RequestMutation(endpoint=ep, param_name=f.parameter,
+                                                   param_value=fresh, note="ssti-verify"))
+            ok12 = False
+            if r12 is not None and not r12.error and r12.ok:
+                body12 = r12.body or ""
+                ok12 = expect in body12 and fresh not in body12
+            v = Verification(method="re-test:fresh-expression", passed=ok12,
+                             confidence=0.9 if ok12 else 0.15, rounds=1,
+                             notes=f"fresh expression {fresh!r} -> {expect} evaluated: {ok12}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok12 else FindingStatus.REJECTED
+
+        elif f.type == "csrf":
+            # VR-13 (Phase 55): replay the state-changing request from a FRESH
+            # hostile origin — acceptance must repeat for a never-probed origin.
+            import hashlib as _hb13
+            fresh13 = "https://csrf-vr13-" + _hb13.sha1(f.endpoint_url.encode()).hexdigest()[:8] + ".example"
+            r13 = self.engine.send(RequestMutation(endpoint=ep, note="csrf-verify",
+                                                   extra_headers={"Origin": fresh13,
+                                                                  "Referer": fresh13 + "/x"}))
+            ok13 = r13 is not None and not r13.error and r13.ok
+            v = Verification(method="re-test:fresh-hostile-origin", passed=ok13,
+                             confidence=0.85 if ok13 else 0.15, rounds=1,
+                             notes=f"cross-origin replay from {fresh13} accepted: {ok13} "
+                                   f"(HTTP {r13.status if r13 else 0})")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok13 else FindingStatus.REJECTED
+
+        elif f.type == "nosql_injection":
+            # VR-14 (Phase 55): fresh operator ($gt after the $ne detection) on the
+            # SAME field — the bypass must reproduce through an independent operator.
+            from .detect import NosqlDetector
+            carrier14 = f.parameter or next((p.name for p in ep.parameters
+                                             if p.kind.value != "token"), "") if ep is not None else (f.parameter or "")
+            if ep is None:
+                ok14 = False
+            else:
+                body14 = NosqlDetector._json_body(ep, carrier14, {"$gt": ""})
+                r14 = self.engine.send(RequestMutation(endpoint=ep, note="nosql-verify",
+                                                       body_override=body14))
+                ok14 = r14 is not None and not r14.error and r14.ok
+            v = Verification(method="re-test:fresh-operator", passed=ok14,
+                             confidence=0.9 if ok14 else 0.15, rounds=1,
+                             notes=f"fresh operator {{$gt}} on param {carrier14!r} bypassed: {ok14}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok14 else FindingStatus.REJECTED
+
+        elif f.type == "jwt_security":
+            # VR-15 (Phase 55): fresh benign replay must issue another alg=none
+            # token — reproducible unsigned issuance, not a one-off accident.
+            from .detect import JwtDetector
+            r15 = self.engine.send(RequestMutation(endpoint=ep, note="jwt-verify"))
+            ok15 = False
+            alg15 = ""
+            if r15 is not None and not r15.error and r15.status:
+                hay15 = (r15.body or "") + " ".join(f"{k}={v}" for k, v in (r15.headers or {}).items()
+                                                    if k.lower() == "set-cookie")
+                m15 = JwtDetector.TOKEN_RE.search(hay15)
+                if m15:
+                    hdr15 = JwtDetector._decode(m15.group(0).split(".")[0])
+                    alg15 = str(hdr15.get("alg", "")).lower()
+                    ok15 = alg15 == "none" and not m15.group(1)
+            v = Verification(method="re-test:fresh-issuance", passed=ok15,
+                             confidence=0.85 if ok15 else 0.15, rounds=1,
+                             notes=f"fresh replay issued another unsigned token (alg={alg15!r}): {ok15}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok15 else FindingStatus.REJECTED
+
+        elif f.type == "host_header_injection":
+            # VR-16 (Phase 55): FRESH canary Host — reflection must repeat for a
+            # never-probed host value.
+            import hashlib as _hb16
+            fresh16 = "sentinel-vr16-" + _hb16.sha1(f.endpoint_url.encode()).hexdigest()[:10] + ".example"
+            r16 = self.engine.send(RequestMutation(endpoint=ep, note="hostheader-verify",
+                                                   extra_headers={"Host": fresh16}))
+            ok16 = False
+            if r16 is not None and not r16.error and r16.status:
+                ok16 = fresh16 in (r16.body or "") or any(fresh16 in str(hv)
+                                                          for hv in (r16.headers or {}).values())
+            v = Verification(method="re-test:fresh-canary-host", passed=ok16,
+                             confidence=0.85 if ok16 else 0.15, rounds=1,
+                             notes=f"fresh canary host {fresh16} reflected: {ok16}")
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok16 else FindingStatus.REJECTED
+
         else:  # passive findings: single-response evidence, verified by definition of presence
             v = Verification(method="single-response-evidence", passed=True, confidence=0.98, rounds=1)
             f.verification, f.confidence = v, v.confidence
@@ -368,6 +465,8 @@ class VerificationEngine:
 # ============================================================ FINDING PIPELINE (Phase 12)
 RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "xss_dom": 7, "path_traversal": 7, "xxe": 9,
                 "command_injection": 9, "ssrf": 7, "cors_misconfig": 6,
+                "ssti": 9, "nosql_injection": 9, "csrf": 5, "jwt_security": 5,
+                "host_header_injection": 5,
                 "open_redirect": 4, "http_response_header_injection": 6,
                 "missing_security_headers": 2, "server_banner_disclosure": 1,
                 "tech_banner_disclosure": 1, "vulnerable_js_dependency": 2}

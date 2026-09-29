@@ -155,8 +155,22 @@ class RequestEngine:
         # hiding the entire POST attack surface. Required per HTML form spec.
         # ENG-04: JSON-location bodies get application/json (the request shape the
         # target's own JavaScript would have produced).
+        # ENG-10 (live-caught by the Phase 55 NoSQL detector): the rule used to skip
+        # body_override requests entirely — a full-JSON body_override probe (operator
+        # injection battery) went out as x-www-form-urlencoded and every JSON API
+        # rejected it with 400 before the payload was ever parsed. An override that
+        # itself parses as JSON on a JSON-location endpoint IS a JSON request.
         if body and (m.method or ep.method) in ("POST", "PUT", "PATCH"):
-            if not m.body_override and any(p.location == ParamLocation.JSON for p in ep.parameters):
+            json_ep = any(p.location == ParamLocation.JSON for p in ep.parameters)
+            override_is_json = False
+            if m.body_override:
+                try:
+                    import json as _jprobe
+                    _jprobe.loads(m.body_override)
+                    override_is_json = True
+                except Exception:
+                    override_is_json = False
+            if (json_ep and (not m.body_override or override_is_json)):
                 headers.setdefault("Content-Type", "application/json")
             else:
                 headers.setdefault("Content-Type", "application/x-www-form-urlencoded")

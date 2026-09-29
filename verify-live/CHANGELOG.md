@@ -1,3 +1,89 @@
+# SENTINEL v2.7.0 — "Detector Expansion Release"
+
+Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
+Every finding is verification-gated: a candidate is NEVER a finding until an
+independent replay confirms it.
+
+## What v2.7.0 adds (Phase 55 — five new verified vulnerability classes)
+
+1. **SSTI — Server-Side Template Injection (DETECT-15, CRITICAL)**
+   Template-syntax arithmetic battery across the four dominant families
+   ({{ }} Jinja2/Twig, ${ } FreeMarker/EL, <%= %> ERB, #{ } Ruby/Thymeleaf).
+   Oracle: the COMPUTED result (49) appears in the response while the literal
+   expression does NOT — raw echo is reflection, never evaluation. VR-12
+   re-tests the winning syntax family with fresh operands ({{12*11}} -> 132):
+   ambient page numbers cannot reproduce a fresh computation.
+
+2. **CSRF — cross-origin acceptance (DETECT-16, MEDIUM)**
+   State-changing POST forms carrying NO anti-CSRF token are replayed with a
+   hostile Origin+Referer. The oracle is acceptance: the cross-origin request
+   must succeed like the same-origin baseline (same status, similar body).
+   Honesty gates: token-bearing forms skipped outright, read-only surfaces
+   (stock/search/login) skipped, 401/403-gated baselines skipped (no honest
+   anonymous oracle). VR-13 re-tests with a FRESH hostile origin.
+
+3. **NoSQL operator injection (DETECT-17, CRITICAL)**
+   JSON-body endpoints where a $-operator object ({"$ne": "x"}) flips a
+   REJECTED baseline into an ACCEPTANCE — the Mongo auth-bypass shape. Full
+   JSON bodies ride engine body_override. VR-14 re-tests with a DIFFERENT
+   operator ($gt after $ne).
+
+4. **JWT unsigned-issuance analysis (DETECT-18, MEDIUM)**
+   Auth-shaped endpoints are replayed benignly; responses (body + Set-Cookie)
+   are mined for JWTs. An issued token with alg=none and an EMPTY signature is
+   a defect by RFC 8725 §3.1. Signed issuance (HS256/RS256) is normal and stays
+   silent. VR-15 = fresh replay must issue another none-token.
+
+5. **Host header injection (DETECT-19, MEDIUM)**
+   A canary Host header on GET HTML endpoints; reflection into the response
+   (Host-built absolute links — the reset-poisoning class) is the oracle.
+   VR-16 re-tests with a FRESH canary host.
+
+## Engine defect caught live by the new detectors
+
+- **ENG-10** (found by the NoSQL detector during Phase 55 test development):
+  requests using body_override went out with the WRONG Content-Type — a
+  full-JSON probe on a JSON-location endpoint was sent as
+  x-www-form-urlencoded and every JSON API rejected it with 400 before the
+  payload was ever parsed. Fix in http_engine._render: a body_override that
+  parses as JSON on a JSON-location endpoint now gets application/json.
+
+## Ground truth v7 + quality gates
+
+- Fixture v7: five new vulnerable/safe pairs (real mechanisms: template
+  evaluation, operator-object matching, unsigned-token issuance, Host-derived
+  link building) — /vuln/ssti, /vuln/csrf-action, /vuln/nosql-login,
+  /vuln/jwt-login, /vuln/hostbuild + hardened twins.
+- Ground truth v7: 27 TP / 21 TN (48 rows).
+- Tests: 59 -> 61 (unit_phase55_detectors_and_gates,
+  regression_phase55_five_classes_end_to_end). The browser E2E budget was
+  recalibrated (fixture v7 grew the crawl surface; the old 30-page budget
+  starved dom-write out of the crawl — caught by that very gate).
+- Benchmark: F1 = 1.000, TP=27 FP=0 FN=0 TN=21, deterministic x3
+  (run-3c0652b6be, 1253 requests, oast x7).
+- Doctor: 12/12 — now 14 active detectors.
+
+## Live validation (authorized targets)
+
+- Manual feasibility probes FIRST (phase doctrine): ginandjuice.shop rejects
+  canary Hosts with 421 Misdirected Request, reflects SSTI expressions
+  literally with zero computation, its subscribe form requires a CSRF token,
+  and it issues no JWTs — all five new classes are honest negatives on the
+  real target, and the production scan proved it:
+  **0 new-class findings, 0 false positives, 0 rejected** across 430 requests
+  with every prior active intact (SQLi /catalog?category, XXE storeId
+  OOB-verified again from 18.200.201.133 via the public webhook, XSS
+  category+searchTerm, header injection, open redirect).
+- Cross-target probes: demo.testfire.net (HTTP), testasp.vulnweb.com,
+  testaspnet.vulnweb.com — honest negatives on all five classes, matching
+  each platform's real posture.
+
+## Field totals after v2.7.0
+
+4 platforms | 22 verified actives | 0 false positives | **16 vulnerability classes**
+(11 prior + ssti + csrf + nosql_injection + jwt_security + host_header_injection,
+all five proven end-to-end on the fixture and honest-negative-proven live)
+
 # SENTINEL v2.6.0 — "Stealth + Ops Release"
 
 Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).

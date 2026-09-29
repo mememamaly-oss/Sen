@@ -331,3 +331,34 @@ Work Log:
 Stage Summary:
 - Complete beginning-to-end archive delivered: download/SENTINEL-FULL-ARCHIVE-v2.6.0.zip — one file containing the entire SENTINEL project history (all versions, all real-test evidence, final source, full documentation), integrity-tested.
 - Download folder is self-consistent: master archive + per-version packages + flat results + Arabic README index.
+
+---
+Task ID: 13
+Agent: Super Z (main agent)
+Task: User directive "اكمل التوسيع" — Phase 55: implement the remaining approved detector-expansion axis (SSTI + CSRF + NoSQL + JWT + Host-header), validate live on the authorized targets, package and save everything.
+
+Work Log:
+- Baseline confirmed: 59/59 tests, doctor 12/12, v2.6.0.
+- BUILT five new detectors in sentinel/detect.py, all self-driven run(ep)-style with dedicated orchestrator branch (RUN_STYLE_DETECTORS generalized from the CORS branch):
+  * SstiDetector (DETECT-15, CRITICAL): 4-family battery ({{}}/${}/<%=%>/#{}); oracle = computed 49 present while the literal is absent (raw echo = reflection, never evaluation); VR-12 fresh-expression re-test (12*11 -> 132) in the winning syntax family; battery self-driven per-param so the family is recorded in evidence.
+  * CsrfDetector (DETECT-16, MEDIUM): state-changing POST forms without a TOKEN param replayed with hostile Origin+Referer; acceptance oracle = same status + similar body as the same-origin baseline; honesty gates: token forms skipped, read-only words gate (login/stock/search), 401/403 baselines skipped; VR-13 fresh hostile origin.
+  * NosqlDetector (DETECT-17, CRITICAL): JSON-body endpoints, full-JSON body_override batteries; baseline (literal wrong creds) must be REJECTED first, then {"$ne"} object flips it to acceptance; VR-14 fresh operator ($gt after $ne).
+  * JwtDetector (DETECT-18, MEDIUM): authish endpoints replayed benignly; body+Set-Cookie mined for JWTs; alg=none + EMPTY signature = RFC 8725 §3.1 defect; HS256/RS256 issuance stays silent; VR-15 fresh-issuance re-test.
+  * HostHeaderDetector (DETECT-19, MEDIUM): canary Host on GET HTML endpoints; reflection into body/headers = the reset-poisoning class; VR-16 fresh canary host.
+- VR-12..VR-16 wired in intel.py verify(); RISK_WEIGHTS += ssti:9, nosql_injection:9, csrf:5, jwt_security:5, host_header_injection:5; vuln_to_detector mapping extended.
+- LIVE-CAUGHT ENGINE DEFECT ENG-10 (found by the NoSQL detector itself during test development): body_override requests went out with the WRONG Content-Type — a full-JSON probe on a JSON-location endpoint was sent as x-www-form-urlencoded, so every JSON API rejected it with 400 before parsing the payload. Fix in http_engine._render: JSON-location endpoint + body_override that parses as JSON -> application/json. This is the third engine defect class caught by a new detector (after ENG-08 in v2.5.0) — the new-detector doctrine keeps proving itself.
+- Fixture v7: five new vuln/safe pairs with REAL mechanisms — /vuln/ssti (template evaluation; plain names never echoed), /vuln/csrf-action (no token, no Origin check; safe twin validates hidden csrfToken), /vuln/nosql-login ($-operator objects match; safe twin type-checks strings before matching), /vuln/jwt-login (issues alg=none token, deterministic claims; safe twin HS256), /vuln/hostbuild (Host-built absolute links; safe twin fixed base). JWT tokens guarded by import-time assert: never contain the SSTI oracle values 49/132 (ambient base64 would be a false SSTI signal).
+- Ground truth v7: 48 rows — 27 TP / 21 TN.
+- Tests 59 -> 61: unit_phase55_detectors_and_gates (all five fire on vulnerable mechanisms; SSTI silent on raw reflection; CSRF token/read-only/403 gates; NoSQL rejected-baseline requirement; JWT silent on HS256; Host canary-reflection requirement) + regression_phase55_five_classes_end_to_end (full authenticated scan with local OAST: all five classes verified with correct VR methods, all hardened twins silent, all prior classes intact). Browser E2E budget recalibrated 30->60 pages: fixture v7 grew the crawl surface and the old budget starved dom-write out of the crawl — caught by that very gate.
+- Gates: 61/61 tests; doctor 12/12 (14 active detectors); benchmark F1=1.000 TP=27 FP=0 FN=0 TN=21 deterministic run-3c0652b6be x3 IDENTICAL (1253 requests, oast x7 — largest ground truth in project history).
+- LIVE VALIDATION (doctrine: manual feasibility BEFORE the production run):
+  * ginandjuice.shop manual probes: canary Host -> 421 Misdirected Request (server rejects unknown Hosts); SSTI expressions reflected literally with ZERO computation; POST /catalog/subscribe -> 400 "Missing parameter 'csrf'" (the form carries a token); no JWTs anywhere; JSON operator probe rejected by the csrf requirement. All five classes = honest negatives, predicted by hand.
+  * Production scan ginandjuice.shop v2.7.0 (--oast public --no-browser, 430 req, 479s): 6 verified actives, 0 rejected, 0 FP. NEW-CLASS findings = ZERO (exactly as the manual probes predicted — zero false positives on a real target). ZERO REGRESSION: SQLi /catalog?category, XXE storeId (OOB-verified AGAIN from 18.200.201.133 via public webhook, fresh interaction id), XSS category + searchTerm (AngularJS DETECT-14), header injection, open redirect /blog?search all intact.
+  * Cross-target probes: demo.testfire.net (TLS fails client-side; HTTP works — Host canary not reflected, SSTI reflection-only, no JWTs, session-cookie JSESSIONID app), testasp.vulnweb.com (canary not reflected; no reflection of expressions; no JWTs), testaspnet.vulnweb.com (same honest negatives). All match each platform's real posture.
+- VERSION -> 2.7.0. Packaged sentinel-2.7.0-source.zip (19 files; self-check from extracted zip: doctor 12/12 + benchmark F1=1.000 27/21 run-3c0652b6be oast x7) and sentinel-2.7.0-complete-bundle.zip (120 files; bundle self-check doctor 12/12); artifacts saved to download/sentinel-results/ (scan_ginjuice_v270.json, live_validation_v270.json, benchmark_v270_det1/2/3.json, sentinel_v270.db, ground_truth v7, CHANGELOG, WORKLOG); download/README.md rewritten; SENTINEL-FULL-ARCHIVE-v2.7.0.zip rebuilt (242 files, integrity-checked) replacing the v2.6.0 archive per the user's save-everything directive.
+
+Stage Summary:
+- Phase 55 complete: 14 active detectors, 16 vulnerability classes, all five new classes verified end-to-end on the fixture AND honest-negative-proven live (zero false positives on a real authorized target).
+- Real-target totals: 4 platforms, 22 verified actives, 0 false positives — now across 16 vulnerability classes.
+- Quality state: 61/61 tests, 12/12 doctor (14 detectors), F1=1.000 (27/21) deterministic x3 — the largest ground truth in project history.
+- Deliverables: download/{sentinel-2.7.0-source.zip, sentinel-2.7.0-complete-bundle.zip, SENTINEL-FULL-ARCHIVE-v2.7.0.zip}, sentinel-results/ updated, README.md rewritten.

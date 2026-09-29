@@ -47,7 +47,10 @@ FAKE_FS = {
 }
 
 HEADER_TMPL = """<!DOCTYPE html><html><head><title>Sentinel Fixture</title></head><body>
-<div class="menubar"><a href="/">home</a> - <a href="/vuln/sqli_error.php?id=1">sqli err</a>
+<div class="menubar"><a href="/">home</a>
+ - <a href="/vuln/ssti?name=world">ssti</a> - <a href="/safe/ssti?name=world">safe ssti</a>
+ - <a href="/vuln/hostbuild">host header</a> - <a href="/safe/hostbuild">safe host</a>
+ - <a href="/lab">lab</a> - <a href="/vuln/sqli_error.php?id=1">sqli err</a>
  - <a href="/vuln/sqli_blind.php?id=1">sqli blind</a> - <a href="/vuln/xss.php?q=test">xss</a>
  - <a href="/vuln/traversal.php?file=notes.txt">traversal</a> - <a href="/vuln/redirect.php?url=https://example.com">redirect</a>
  - <a href="/safe/search.php?q=test">safe search</a> - <a href="/safe/item.php?id=1">safe item</a>
@@ -257,6 +260,82 @@ GENERIC_500 = "<html><body><h1>Oops... something went wrong!</h1><p>Of all the g
 _BLIND_SEQ = [23, 768, 52, 191, 423, 648, 920, 140, 295]
 
 
+# ======================= Phase 55 (fixture v7): SSTI / CSRF / NoSQL / JWT / Host =======================
+# Five new ground-truth pairs, same discipline as every prior phase: each vulnerable
+# surface is a REAL mechanism (template evaluation, operator-object matching, unsigned
+# token issuance, Host-derived link building), each safe twin blocks it at the root.
+#
+#   /vuln/ssti?name       -> ssti ({{7*7}} and ${7*7} EVALUATED server-side; plain
+#                            names are NOT echoed — only the computed result appears)
+#   /safe/ssti?name       -> NEGATIVE (no evaluation, no echo: constant greeting)
+#   /vuln/csrf-action     -> csrf (state-changing POST, no token, no Origin check)
+#   /safe/csrf-action     -> NEGATIVE (hidden csrfToken + server-side validation)
+#   /vuln/nosql-login     -> nosql_injection ({"$ne":...} object flips 401 -> 200)
+#   /safe/nosql-login     -> NEGATIVE (non-string values rejected before matching)
+#   /vuln/jwt-login       -> jwt_security (issues alg=none token with empty signature)
+#   /safe/jwt-login       -> NEGATIVE (issues HS256-signed token)
+#   /vuln/hostbuild       -> host_header_injection (absolute links built from Host)
+#   /safe/hostbuild       -> NEGATIVE (fixed configured base URL)
+import base64 as _b64, hmac as _hmac
+
+def _b64url(s: str) -> str:
+    return _b64.urlsafe_b64encode(s.encode()).decode().rstrip("=")
+
+def _jwt(header: dict, payload: dict, secret: str | None) -> str:
+    h, p = _b64url(json.dumps(header, sort_keys=True)), _b64url(json.dumps(payload, sort_keys=True))
+    signing = f"{h}.{p}"
+    if secret is None:
+        return signing + "."                       # alg=none: EMPTY signature
+    sig = _b64.urlsafe_b64encode(_hmac.new(secret.encode(), signing.encode(),
+                                           "sha256").digest()).decode().rstrip("=")
+    return f"{signing}.{sig}"
+
+# deterministic tokens (fixed claims, no timestamps — reproducible scans)
+VULN_JWT = _jwt({"alg": "none", "typ": "JWT"}, {"sub": "demo", "role": "user"}, None)
+SAFE_JWT = _jwt({"alg": "HS256", "typ": "JWT"}, {"sub": "demo", "role": "user"},
+                "sentinel-fixture-secret-v7")
+# guard: the tokens must never contain the SSTI oracle values "49"/"132" — an ambient
+# match inside a base64 string would be a false SSTI signal on the JWT surfaces
+assert "49" not in VULN_JWT and "132" not in VULN_JWT, VULN_JWT
+assert "49" not in SAFE_JWT and "132" not in SAFE_JWT, SAFE_JWT
+
+LAB_PAGE = """<h2>Ledger lab</h2>
+<p>Subscribe to the newsletter (state-changing POST):</p>
+<form action="/vuln/csrf-action" method="POST">
+<input type="email" name="email" value="sub@example.com">
+<button type="submit">Subscribe</button>
+</form>
+<form action="/safe/csrf-action" method="POST">
+<input type="hidden" name="csrfToken" value="cs-fixed-token-123">
+<input type="email" name="email" value="sub@example.com">
+<button type="submit">Subscribe (protected)</button>
+</form>
+<script src="/jsbuild.js"></script>
+<div id="nl-nosql" class="form" data-method="post" data-action="/vuln/nosql-login">
+<input required type="text" name="user" value="demo">
+<input required type="password" name="pass" value="demo">
+<button class="button" type="submit">NoSQL login</button>
+</div>
+<div id="nl-nosql-safe" class="form" data-method="post" data-action="/safe/nosql-login">
+<input required type="text" name="user" value="demo">
+<input required type="password" name="pass" value="demo">
+<button class="button" type="submit">NoSQL login (safe)</button>
+</div>
+<div id="nl-jwt" class="form" data-method="post" data-action="/vuln/jwt-login">
+<input required type="text" name="user" value="demo">
+<input required type="password" name="pass" value="demo">
+<button class="button" type="submit">JWT login</button>
+</div>
+<div id="nl-jwt-safe" class="form" data-method="post" data-action="/safe/jwt-login">
+<input required type="text" name="user" value="demo">
+<input required type="password" name="pass" value="demo">
+<button class="button" type="submit">JWT login (safe)</button>
+</div>
+<div>End of lab.</div>"""
+
+NOSQL_VALID = {"user": "admin", "pass": "hunter2"}   # the only literal credentials that match
+
+
 class Handler(BaseHTTPRequestHandler):
     _blind_seq_n = 0                                  # /blind/stock deterministic-noise counter
 
@@ -288,6 +367,38 @@ class Handler(BaseHTTPRequestHandler):
 
         if path == "/" :
             return self._send(200, HEADER_TMPL.format(body="<h1>Sentinel Benchmark Fixture</h1>"))
+
+        # ---------------- Phase 55: SSTI / Host-header surfaces ----------------
+        if path == "/vuln/ssti":
+            # REAL template evaluation: {{...}} / ${...} arithmetic is evaluated
+            # server-side; the raw name is NEVER echoed (only the computed result
+            # reaches the response — reflection-only twins cannot fake this).
+            name = q.get("name", "")
+            m = re.fullmatch(r"\{\{([\d\s+\-*]+)\}\}", name) or re.fullmatch(r"\$\{([\d\s+\-*]+)\}", name)
+            if m:
+                try:
+                    val = eval(m.group(1), {"__builtins__": {}}, {})   # digits/operators only (regex-gated)
+                except Exception:
+                    val = None
+                if val is not None:
+                    return self._send(200, HEADER_TMPL.format(body=f"<p>Result: {val}</p>"))
+            return self._send(200, HEADER_TMPL.format(body="<p>Hello, guest.</p>"))
+        if path == "/safe/ssti":
+            # Hardened twin: template engine disabled — the input is discarded and
+            # a constant greeting returned (no evaluation, no echo).
+            return self._send(200, HEADER_TMPL.format(body="<p>Hello, guest.</p>"))
+        if path == "/vuln/hostbuild":
+            # REAL Host-derived output: absolute links are built from the request's
+            # Host header — the password-reset-poisoning / cache-poisoning mechanism.
+            host = self.headers.get("Host", "127.0.0.1")
+            return self._send(200, HEADER_TMPL.format(
+                body=f'<p>Visit <a href="http://{host}/about">http://{host}/about</a> for details.</p>'))
+        if path == "/safe/hostbuild":
+            # Hardened twin: fixed configured base — attacker Host never reaches output.
+            return self._send(200, HEADER_TMPL.format(
+                body='<p>Visit <a href="http://configured-base.example/about">our site</a> for details.</p>'))
+        if path == "/lab":
+            return self._send(200, HEADER_TMPL.format(body=LAB_PAGE))
         if path == "/robots.txt":
             return self._send(200, "User-agent: *\nDisallow: /admin/\nDisallow: /backup/db.sql\n")
         if path == "/app.js":
@@ -541,6 +652,84 @@ class Handler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length") or 0)
         raw = self.rfile.read(length).decode("utf-8", "replace") if length else ""
         ctype = (self.headers.get("Content-Type") or "").lower()
+
+        # ---------------- Phase 55: CSRF / NoSQL / JWT surfaces ----------------
+        # /vuln/csrf-action: state-changing POST with NO anti-CSRF token and NO
+        # Origin/Referer validation — any site can silently submit this form.
+        if path == "/vuln/csrf-action":
+            form = parse_qs(raw, keep_blank_values=True)
+            email = (form.get("email", [""])[0])[:60]
+            if not email:
+                return self._send(400, '"email required"')
+            return self._send(200, "Subscription confirmed.")
+        if path == "/safe/csrf-action":
+            # Hardened twin: the form carries a hidden csrfToken AND the server
+            # validates it — cross-site replays (no token) are rejected 403.
+            form = parse_qs(raw, keep_blank_values=True)
+            if form.get("csrfToken", [""])[0] != "cs-fixed-token-123":
+                return self._send(403, '"Invalid CSRF token"')
+            return self._send(200, "Subscription confirmed.")
+        # /vuln/nosql-login: Mongo-style matching — a JSON OBJECT value carrying a
+        # $operator is treated as a match operator, not a literal (the exact
+        # mechanism of real NoSQL injection: {"pass": {"$ne": "x"}} matches any
+        # document whose pass differs from "x").
+        if path == "/vuln/nosql-login":
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            data = {k: v for k, v in data.items() if k in ("user", "pass")}
+            if any(isinstance(v, dict) and any(k.startswith("$") for k in v)
+                   for v in data.values()):
+                return self._send(200, '{"ok": true, "role": "admin"}')   # operator match -> bypass
+            if data == NOSQL_VALID:
+                return self._send(200, '{"ok": true, "role": "admin"}')
+            return self._send(401, '{"error": "invalid credentials"}')
+        if path == "/safe/nosql-login":
+            # Hardened twin: values are type-checked (strings only) BEFORE any
+            # matching — operator objects are rejected as malformed, never matched.
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            data = {k: v for k, v in data.items() if k in ("user", "pass")}
+            if any(not isinstance(v, str) for v in data.values()):
+                return self._send(400, '"malformed credentials"')
+            if data == NOSQL_VALID:
+                return self._send(200, '{"ok": true, "role": "admin"}')
+            return self._send(401, '{"error": "invalid credentials"}')
+        # /vuln/jwt-login: issues an UNSIGNED token (alg=none, empty signature) —
+        # RFC 8725 §3.1 defect: any party can forge arbitrary claims.
+        if path == "/vuln/jwt-login":
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            user = str(data.get("user", "demo"))[:32]
+            token = _jwt({"alg": "none", "typ": "JWT"},
+                         {"sub": user, "role": "user"}, None)
+            return self._send(200, json.dumps({"token": token, "ok": True}),
+                              {"Content-Type": "application/json"})
+        if path == "/safe/jwt-login":
+            # Hardened twin: HS256-signed issuance (fixed secret) — the detector
+            # parses alg=HS256 and stays silent: signed issuance is normal.
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            user = str(data.get("user", "demo"))[:32]
+            token = _jwt({"alg": "HS256", "typ": "JWT"},
+                         {"sub": user, "role": "user"}, "sentinel-fixture-secret-v7")
+            return self._send(200, json.dumps({"token": token, "ok": True}),
+                              {"Content-Type": "application/json"})
 
         # ---------------- Phase 51: login POST ----------------
         if path == "/doLogin":

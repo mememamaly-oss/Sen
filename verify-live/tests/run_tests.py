@@ -418,15 +418,16 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    # fixture v6 ground truth (Phase 53): 22 TP-able (v5's 19 PLUS the three
-    # hardening surfaces: ssrf /vuln/fetch + command_injection /vuln/ping +
-    # cors /vuln/cors — the benchmark exercises the OAST-channel detectors and
-    # the VR-09/10/11 verifications end-to-end), 16 TN-able. F1 must be
+    # fixture v7 ground truth (Phase 55): 27 TP-able (v6's 22 PLUS the five new
+    # detector surfaces: ssti /vuln/ssti + csrf /vuln/csrf-action + nosql_injection
+    # /vuln/nosql-login + jwt_security /vuln/jwt-login + host_header_injection
+    # /vuln/hostbuild — the benchmark exercises the run-style detectors and the
+    # VR-12..16 verifications end-to-end), 21 TN-able. F1 must be
     # 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL
     # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
-    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 22
+    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 27
               and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
-              and rep["confusion"]["TN"] == 16)
+              and rep["confusion"]["TN"] == 21)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -1434,7 +1435,10 @@ def e2e_browser_phase_full():
     srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     try:
-        cfg = ScanConfig(allow_private=True, max_pages=30, timeout=6,
+        # fixture v7 grew the crawl surface (ssti/host pages + /lab) — the old
+        # 30-page budget starved dom-write out of the browser crawl (page-budget
+        # starvation, caught by this very gate). Recalibrated to 60.
+        cfg = ScanConfig(allow_private=True, max_pages=60, timeout=6,
                          seed="phase50-e2e", browser=True)
         sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
         rep = sc.run()
@@ -2049,6 +2053,158 @@ def regression_phase54_ops_stealth_composition():
             "cloudflare" in rep2["stats"]["fingerprint"]["waf"]["name"]
     finally:
         srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_phase55_detectors_and_gates():
+    """Phase 55 unit: the five new detectors fire ONLY on their vulnerable
+    mechanisms and respect every honesty gate — SSTI stays silent on raw
+    reflection (literal echo = not evaluation), CSRF skips token-bearing and
+    read-only forms, NoSQL requires a rejected baseline, JWT stays silent on
+    signed (HS256) issuance, Host-header requires actual canary reflection."""
+    import os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.core import Endpoint, Parameter, ParamLocation, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.detect import (SstiDetector, CsrfDetector, NosqlDetector, JwtDetector,
+                                 HostHeaderDetector)
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_v7u", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                     "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8807
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    bus = EventBus("unit-phase55")
+    from sentinel.core import ScopeRule
+    eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+                        bus, timeout=5)
+    try:
+        base = f"http://127.0.0.1:{port}"
+        # ---- SSTI: vulnerable evaluation fires with family recorded; reflection stays silent
+        ep_v = Endpoint(url=base + "/vuln/ssti?name=world",
+                        parameters=[Parameter("name", value="world").classify()])
+        f = SstiDetector(eng, bus).run(ep_v)
+        assert f is not None and f.type == "ssti" and f.parameter == "name", f
+        assert "syntax={{" in f.evidence[0].detail, f.evidence[0].detail
+        ep_refl = Endpoint(url=base + "/vuln/xss.php?q=test",
+                           parameters=[Parameter("q", value="test").classify()])
+        assert SstiDetector(eng, bus).run(ep_refl) is None, "raw reflection must NOT be SSTI"
+        ep_safe = Endpoint(url=base + "/safe/ssti?name=world",
+                           parameters=[Parameter("name", value="world").classify()])
+        assert SstiDetector(eng, bus).run(ep_safe) is None
+        # ---- CSRF: fires on the unprotected state change; token gate + read-only gate hold
+        ep_cs = Endpoint(url=base + "/vuln/csrf-action", method="POST",
+                         parameters=[Parameter("email", ParamLocation.BODY, "sub@example.com").classify()])
+        f2 = CsrfDetector(eng, bus).run(ep_cs)
+        assert f2 is not None and f2.type == "csrf", f2
+        ep_cs_safe = Endpoint(url=base + "/safe/csrf-action", method="POST",
+                              parameters=[Parameter("csrfToken", ParamLocation.BODY, "cs-fixed-token-123").classify(),
+                                          Parameter("email", ParamLocation.BODY, "sub@example.com").classify()])
+        assert CsrfDetector(eng, bus).run(ep_cs_safe) is None, "token-bearing form must be skipped"
+        ep_cs_ro = Endpoint(url=base + "/vuln/stock", method="POST",
+                            parameters=[Parameter("productId", value="1").classify()])
+        assert CsrfDetector(eng, bus).run(ep_cs_ro) is None, "read-only (stock) must be skipped"
+        # ---- NoSQL: operator bypass fires; hardened twin + accepted-baseline stay silent
+        ep_no = Endpoint(url=base + "/vuln/nosql-login", method="POST",
+                         parameters=[Parameter("user", ParamLocation.JSON, "demo").classify(),
+                                     Parameter("pass", ParamLocation.JSON, "demo").classify()])
+        f3 = NosqlDetector(eng, bus).run(ep_no)
+        assert f3 is not None and f3.type == "nosql_injection" and f3.parameter == "user", f3
+        ep_no_safe = Endpoint(url=base + "/safe/nosql-login", method="POST",
+                              parameters=[Parameter("user", ParamLocation.JSON, "demo").classify(),
+                                          Parameter("pass", ParamLocation.JSON, "demo").classify()])
+        assert NosqlDetector(eng, bus).run(ep_no_safe) is None
+        ep_no_ok = Endpoint(url=base + "/vuln/jwt-login", method="POST",
+                            parameters=[Parameter("user", ParamLocation.JSON, "demo").classify(),
+                                        Parameter("pass", ParamLocation.JSON, "demo").classify()])
+        assert NosqlDetector(eng, bus).run(ep_no_ok) is None, "accepted baseline must be skipped"
+        # ---- JWT: none-alg issuance reported; HS256 issuance stays silent
+        f4 = JwtDetector(eng, bus).run(ep_no_ok)
+        assert f4 is not None and f4.type == "jwt_security", f4
+        assert "alg=none" in f4.evidence[0].detail
+        ep_jwt_safe = Endpoint(url=base + "/safe/jwt-login", method="POST",
+                               parameters=[Parameter("user", ParamLocation.JSON, "demo").classify(),
+                                           Parameter("pass", ParamLocation.JSON, "demo").classify()])
+        assert JwtDetector(eng, bus).run(ep_jwt_safe) is None, "HS256 issuance is normal"
+        # ---- Host header: canary reflected on the vuln page; fixed base stays silent
+        ep_hh = Endpoint(url=base + "/vuln/hostbuild")
+        f5 = HostHeaderDetector(eng, bus).run(ep_hh)
+        assert f5 is not None and f5.type == "host_header_injection", f5
+        assert HostHeaderDetector(eng, bus).run(Endpoint(url=base + "/safe/hostbuild")) is None
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def regression_phase55_five_classes_end_to_end():
+    """Phase 55 E2E on fixture v7: a full authenticated scan with local OAST
+    verifies all five new classes end-to-end — ssti (VR-12 fresh expression),
+    csrf (VR-13 fresh hostile origin), nosql_injection (VR-14 fresh operator
+    $gt), jwt_security (VR-15 fresh none-issuance), host_header_injection
+    (VR-16 fresh canary) — while every hardened twin stays silent and every
+    prior class (SQLi / blind XXE / SSRF / cmdi / CORS) does not regress."""
+    import os as _os, importlib.util
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+    from sentinel.auth import AuthProfile
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_v7", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                    "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8808
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        auth = AuthProfile(login_url=f"http://127.0.0.1:{port}/login",
+                           username="demo", password="demo123",
+                           user_field="uid", pass_field="passw",
+                           success_marker="Sign Off")
+        cfg = ScanConfig(allow_private=True, max_pages=45, timeout=6,
+                         seed="v7-e2e-regression", oast=oast, auth=auth)
+        sc = SentinelScanner(f"http://127.0.0.1:{port}", cfg)
+        rep = sc.run()
+        got = {(f["type"], f["url"].split("?")[0], f["parameter"]) for f in rep["findings"]}
+        # the five new verified classes
+        assert any(t == "ssti" and u.endswith("/vuln/ssti") and p == "name" for t, u, p in got), \
+            f"SSTI missing: {sorted(got)}"
+        assert any(t == "csrf" and u.endswith("/vuln/csrf-action") and p == "email" for t, u, p in got), \
+            f"CSRF missing: {sorted(got)}"
+        assert any(t == "nosql_injection" and u.endswith("/vuln/nosql-login") and p == "user"
+                   for t, u, p in got), f"NoSQL missing: {sorted(got)}"
+        assert any(t == "jwt_security" and u.endswith("/vuln/jwt-login") for t, u, p in got), \
+            f"JWT missing: {sorted(got)}"
+        assert any(t == "host_header_injection" and u.endswith("/vuln/hostbuild") for t, u, p in got), \
+            f"Host-header missing: {sorted(got)}"
+        # verification methods are the Phase 55 VRs and they PASSED
+        want_vr = {"ssti": "re-test:fresh-expression",
+                   "csrf": "re-test:fresh-hostile-origin",
+                   "nosql_injection": "re-test:fresh-operator",
+                   "jwt_security": "re-test:fresh-issuance",
+                   "host_header_injection": "re-test:fresh-canary-host"}
+        seen_vr = {}
+        for f in rep["findings"]:
+            if f["type"] in want_vr and "/vuln/" in f["url"]:
+                seen_vr[f["type"]] = f["verification"]["method"], f["verification"]["passed"]
+        for t, m in want_vr.items():
+            assert t in seen_vr and seen_vr[t] == (m, True), (t, seen_vr.get(t))
+        # hardened twins silent for ALL new classes
+        for t, u, p in got:
+            if t in ("ssti", "csrf", "nosql_injection", "jwt_security", "host_header_injection") \
+                    and "/safe/" in u:
+                raise AssertionError(f"Phase 55 false positive: {t} @ {u}")
+        # prior classes intact (no regression)
+        assert any(t == "sql_injection" for t, u, p in got), "SQLi regressed"
+        assert any(t == "xxe" and u.endswith("/vuln/oob-stock") for t, u, p in got), "blind XXE regressed"
+        assert any(t == "ssrf" and u.endswith("/vuln/fetch") for t, u, p in got), "SSRF regressed"
+        assert any(t == "command_injection" and u.endswith("/vuln/ping") for t, u, p in got), "cmdi regressed"
+        assert any(t == "cors_misconfig" and u.endswith("/vuln/cors") for t, u, p in got), "CORS regressed"
+        assert any(t == "xss_reflected" and u.endswith("/account") and p == "q" for t, u, p in got), \
+            "authenticated XSS regressed"
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
 
 
 def main():

@@ -8,7 +8,8 @@ from .core import (Endpoint, EventBus, Evidence, Finding, FindingStatus, ScopeRu
 from .http_engine import RequestEngine, RequestMutation
 from .discovery import DiscoveryEngine
 from .detect import (ACTIVE_DETECTORS, SQLiDetector, XSSDetector, TraversalDetector,
-                     RedirectDetector, CrlfDetector, XxeDetector, passive_audit, plan_for)
+                     RedirectDetector, CrlfDetector, XxeDetector, passive_audit, plan_for,
+                     RUN_STYLE_DETECTORS)
 from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMemory, RepairClassifier
 from .auth import AuthProfile, AuthEngine, AuthedEngineProxy, TokenAuthEngine, TokenWatchdogProxy
 from .fingerprint import FingerprintCollector
@@ -208,7 +209,9 @@ class SentinelScanner:
         vuln_to_detector = {"sql_injection": "sqli", "xss_reflected": "xss",
                             "path_traversal": "traversal", "open_redirect": "redirect", "ssrf": "ssrf",
                             "header_injection": "crlf", "xxe": "xxe",
-                            "command_injection": "cmdi", "cors_misconfig": "cors"}
+                            "command_injection": "cmdi", "cors_misconfig": "cors",
+                            "ssti": "ssti", "csrf": "csrf", "nosql_injection": "nosql",
+                            "jwt_security": "jwt", "host_header_injection": "hostheader"}
         plan = []
         for ep in endpoints:
             plan.extend(plan_for(ep))
@@ -296,9 +299,12 @@ class SentinelScanner:
                                 self.strategies.record("xxe", strat_name,
                                                        out_f.status == FindingStatus.VERIFIED,
                                                        context=self.target.host)
-                    elif dname == "cors":
-                        # DETECT-13: header-only probe (Origin reflection + credentials) —
-                        # has no param, so it cannot ride the param-bound generic loop.
+                    elif dname in RUN_STYLE_DETECTORS:
+                        # CORS (DETECT-13) + Phase 55: endpoint-driven flows that
+                        # drive their own request sequences per endpoint (header
+                        # probes, baseline+replay pairs, JSON operator batteries) —
+                        # none of them is param-bound, so they cannot ride the
+                        # generic loop.
                         cand = det.run(ep)
                         if cand:
                             cand.run_id = self.run_id
@@ -306,7 +312,7 @@ class SentinelScanner:
                             self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
                             out_f = self.verifier.verify(cand, ep)
                             self.findings.append(out_f)
-                            self.strategies.record("cors", "primary",
+                            self.strategies.record(dname, "primary",
                                                    out_f.status == FindingStatus.VERIFIED,
                                                    context=self.target.host)
                     else:

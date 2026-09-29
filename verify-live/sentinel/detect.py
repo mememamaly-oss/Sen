@@ -701,6 +701,288 @@ class CorsDetector(Detector):
         return None
 
 
+class SstiDetector(Detector):
+    """DETECT-15 (Server-Side Template Injection, RCE class): template-syntax
+    arithmetic whose COMPUTED result appears in the response while the literal
+    expression does not. Reflection-only apps echo the raw expression (literal
+    present -> silent); ambient page numbers cannot survive VR-12 (a FRESH
+    expression with a different result must evaluate on re-test). Self-driven
+    per-endpoint flow (run(ep)) so the winning syntax FAMILY is known at
+    analysis time — VR-12 re-tests that family with fresh operands. Battery
+    covers the four dominant families: {{ }} (Jinja2/Twig), ${ } (FreeMarker/
+    EL/Velocity), <%= %> (ERB), #{ } (Ruby/Thymeleaf)."""
+    name, vuln_type = "ssti", "ssti"
+    severity = Severity.CRITICAL
+    MAX_PARAMS = 12                    # deterministic budget, param order is deterministic
+    BATTERY = ["{{7*7}}", "${7*7}", "<%= 7*7 %>", "#{7*7}"]
+    EXPECT = "49"
+
+    def __init__(self, engine, bus, strategy_store=None):
+        super().__init__(engine, bus, strategy_store)
+        self._probes = 0
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        if self._probes >= self.MAX_PARAMS:
+            return None
+        for p in ep.parameters:
+            if self._probes >= self.MAX_PARAMS:
+                break
+            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC, ParamKind.URL, ParamKind.FILENAME):
+                continue
+            self._probes += 1
+            for expr in self.BATTERY:
+                r = self.engine.send(RequestMutation(endpoint=ep, param_name=p.name,
+                                                     param_value=expr, note=f"ssti:{expr}"))
+                if r is None or r.error or not r.ok:
+                    continue
+                body = r.body or ""
+                if self.EXPECT not in body or expr in body:
+                    continue          # computed result absent OR raw echo (reflection only)
+                return Finding("ssti", Severity.CRITICAL, ep.url, p.name, ep.method,
+                    [Evidence("expression_eval",
+                              f"template expression evaluated server-side: 7*7 -> "
+                              f"{self.EXPECT} in response while the literal expression "
+                              f"is absent — SSTI (RCE class). syntax={expr.split('7')[0]}"
+                              f" param={p.name}", r.request_id)],
+                    status=FindingStatus.CANDIDATE)
+        return None
+
+
+class CsrfDetector(Detector):
+    """DETECT-16 (CSRF): state-changing POST endpoints whose form carries NO
+    anti-CSRF token, probed with a hostile Origin+Referer replay. The oracle is
+    acceptance: the cross-origin request must succeed like the same-origin
+    baseline (same status class + similar body) — token-bearing forms are
+    skipped outright (a TOKEN param means protection), read-only surfaces are
+    skipped (state-change words gate), and 401/403 baselines are skipped (no
+    honest anonymous oracle). VR-13 re-tests with a FRESH hostile origin."""
+    name, vuln_type = "csrf", "csrf"
+    severity = Severity.MEDIUM
+    STATE_WORDS = ("subscribe", "submit", "save", "update", "delete", "remove",
+                   "change", "transfer", "profile", "account", "password",
+                   "feedback", "comment", "register", "signup", "vote", "follow",
+                   "add", "create", "edit", "reset", "action", "donate", "buy",
+                   "order", "post", "reply", "review")
+    READ_WORDS = ("search", "check", "stock", "view", "find", "login", "signin",
+                  "sign-in", "auth", "catalog", "list", "browse")
+    PROBE_ORIGIN = "https://csrf-probe.example"
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    def _state_changing(self, ep: Endpoint) -> bool:
+        blob = (ep.url + " " + " ".join(p.name.lower() for p in ep.parameters)).lower()
+        if any(w in blob for w in self.READ_WORDS):
+            return False
+        return any(w in blob for w in self.STATE_WORDS)
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        if (ep.method or "GET").upper() not in ("POST", "PUT", "PATCH", "DELETE"):
+            return None
+        if any(p.kind == ParamKind.TOKEN for p in ep.parameters):
+            return None                          # the form carries an anti-CSRF token
+        if not self._state_changing(ep):
+            return None
+        base = self.engine.send(RequestMutation(endpoint=ep, note="csrf-baseline"))
+        if base is None or base.error or base.status in (401, 403) or not base.status:
+            return None                          # auth-gated: no honest anonymous oracle
+        hostile = self.engine.send(RequestMutation(endpoint=ep, note="csrf-probe",
+                                                   extra_headers={"Origin": self.PROBE_ORIGIN,
+                                                                  "Referer": self.PROBE_ORIGIN + "/x"}))
+        if hostile is None or hostile.error or not hostile.status:
+            return None
+        similar = (hostile.status == base.status
+                   and abs(len(hostile.body or "") - len(base.body or ""))
+                       <= max(150, 0.25 * max(len(base.body or "x"), 1)))
+        if hostile.ok and similar:
+            return Finding("csrf", Severity.MEDIUM, ep.url,
+                           ", ".join(p.name for p in ep.parameters if p.kind != ParamKind.TOKEN) or "-",
+                           ep.method,
+                [Evidence("cross_origin_acceptance",
+                          f"state-changing {ep.method} accepted from hostile origin "
+                          f"({self.PROBE_ORIGIN}): baseline -> HTTP {base.status} "
+                          f"({len(base.body or '')}B), cross-origin replay -> HTTP "
+                          f"{hostile.status} ({len(hostile.body or '')}B) — no CSRF "
+                          f"token in the form and no Origin/Referer validation",
+                          hostile.request_id)],
+                status=FindingStatus.CANDIDATE)
+        return None
+
+
+class NosqlDetector(Detector):
+    """DETECT-17 (NoSQL operator injection, auth-bypass class): JSON-body
+    endpoints where a $operator object replaces a literal value and flips a
+    rejection into an acceptance — the Mongo '\\$ne / \\$gt' bypass shape. The
+    baseline (literal wrong credentials) must be REJECTED first; only then can
+    an operator-induced acceptance be a bypass. VR-14 re-tests with a DIFFERENT
+    operator (\\$gt after \\$ne)."""
+    name, vuln_type = "nosql", "nosql_injection"
+    severity = Severity.CRITICAL
+    MAX_ENDPOINTS = 8                 # deterministic budget
+
+    def __init__(self, engine, bus, strategy_store=None):
+        super().__init__(engine, bus, strategy_store)
+        self._done = 0
+
+    @staticmethod
+    def _json_body(ep: Endpoint, carrier: str, value) -> str:
+        import json as _json
+        obj = {}
+        for p in ep.parameters:
+            obj[p.name] = (value if p.name == carrier else (p.value or "sentinel"))
+        return _json.dumps(obj)
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        if (ep.method or "GET").upper() not in ("POST", "PUT"):
+            return None
+        if not any(str(p.location) == "json" or getattr(p.location, "value", "") == "json"
+                   or p.location == "json" for p in ep.parameters):
+            return None                          # JSON-body endpoints only
+        if self._done >= self.MAX_ENDPOINTS:
+            return None
+        self._done += 1
+        carrier = next((p for p in ep.parameters if p.kind != ParamKind.TOKEN), None)
+        if carrier is None:
+            return None
+        import json as _json
+        base = self.engine.send(RequestMutation(endpoint=ep, note="nosql-baseline",
+                                                body_override=self._json_body(ep, carrier.name, "sentinel-wrong")))
+        if base is None or base.error or base.ok:
+            return None                          # baseline must be a REJECTION (401/403/4xx)
+        probe = self.engine.send(RequestMutation(endpoint=ep, note="nosql-ne",
+                                                 body_override=self._json_body(ep, carrier.name, {"$ne": "x"})))
+        if probe is None or probe.error or not probe.ok:
+            return None
+        return Finding("nosql_injection", Severity.CRITICAL, ep.url, carrier.name, ep.method,
+            [Evidence("operator_bypass",
+                      f"NoSQL operator bypass: literal value -> HTTP {base.status} "
+                      f"(rejected), {{\"$ne\"}} operator value -> HTTP {probe.status} "
+                      f"(accepted) — the query treats attacker JSON objects as match "
+                      f"operators, not literals. param={carrier.name}", probe.request_id)],
+            status=FindingStatus.CANDIDATE)
+
+
+class JwtDetector(Detector):
+    """DETECT-18 (JWT analysis, auth-integrity class): auth-shaped endpoints are
+    replayed benignly and their responses (body + Set-Cookie) mined for JWTs.
+    An issued token with alg=none and an empty signature is a defect by
+    RFC 8725 §3.1 (any party can forge claims if the verifier honors none) —
+    reported with the decoded header/claims as primary evidence. Signed algs
+    (HS256/RS256...) are NORMAL issuance and stay silent; missing exp is noted
+    in the evidence detail. VR-15 = fresh benign replay must issue another
+    none-alg token."""
+    name, vuln_type = "jwt", "jwt_security"
+    severity = Severity.MEDIUM
+    AUTHISH = ("login", "signin", "sign-in", "auth", "token", "jwt", "session",
+               "apikey", "api-key", "credential", "oauth")
+    TOKEN_RE = re.compile(r"eyJ[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{4,}\.([A-Za-z0-9_-]*)")
+    MAX_ENDPOINTS = 6                  # deterministic budget
+
+    def __init__(self, engine, bus, strategy_store=None):
+        super().__init__(engine, bus, strategy_store)
+        self._done = 0
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    @staticmethod
+    def _decode(seg: str) -> dict:
+        import base64 as _b64, json as _json
+        pad = "=" * (-len(seg) % 4)
+        try:
+            return _json.loads(_b64.urlsafe_b64decode(seg + pad).decode("utf-8", "replace"))
+        except Exception:
+            return {}
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        blob = ep.url.lower()
+        if not any(w in blob for w in self.AUTHISH):
+            return None
+        if self._done >= self.MAX_ENDPOINTS:
+            return None
+        self._done += 1
+        r = self.engine.send(RequestMutation(endpoint=ep, note="jwt-capture"))
+        if r is None or r.error or not r.status:
+            return None
+        hay = (r.body or "") + " ".join(f"{k}={v}" for k, v in (r.headers or {}).items()
+                                        if k.lower() == "set-cookie")
+        m = self.TOKEN_RE.search(hay)
+        if not m:
+            return None
+        header = self._decode(m.group(0).split(".")[0])
+        alg = str(header.get("alg", "")).lower()
+        sig = m.group(1)
+        if alg != "none" or sig:
+            return None                          # signed issuance is normal
+        claims = self._decode(m.group(0).split(".")[1])
+        notes = ", ".join(sorted(claims.keys())) or "no claims"
+        exp_note = "" if "exp" in claims else "; missing exp claim (no expiry)"
+        return Finding("jwt_security", Severity.MEDIUM, ep.url, "-", ep.method,
+            [Evidence("unsigned_jwt_issued",
+                      f"server issues UNSIGNED JWT (alg=none, empty signature) — "
+                      f"RFC 8725 §3.1: if the verifier honors none, any party can "
+                      f"forge arbitrary claims. claims: {notes}{exp_note}", r.request_id)],
+            status=FindingStatus.CANDIDATE)
+
+
+class HostHeaderDetector(Detector):
+    """DETECT-19 (Host header injection): a canary Host is sent on GET HTML
+    endpoints; if the app reflects it into the response (absolute links built
+    from Host — the password-reset-poisoning / cache-poisoning class), the
+    canary appears and the finding stands. Fixed-base apps never reflect —
+    silent. VR-16 re-tests with a FRESH canary host."""
+    name, vuln_type = "hostheader", "host_header_injection"
+    severity = Severity.MEDIUM
+    MAX_ENDPOINTS = 10
+    SKIP_EXT = (".css", ".js", ".png", ".jpg", ".jpeg", ".svg", ".gif", ".ico", ".woff", ".woff2", ".map")
+
+    def __init__(self, engine, bus, strategy_store=None):
+        super().__init__(engine, bus, strategy_store)
+        self._done = 0
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    def _canary(self, ep: Endpoint) -> str:
+        import hashlib as _hb
+        return f"sentinel-hh-{_hb.sha1(ep.url.encode()).hexdigest()[:10]}.example"
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        if (ep.method or "GET").upper() != "GET":
+            return None
+        if ep.url.split("?")[0].lower().endswith(self.SKIP_EXT):
+            return None
+        if self._done >= self.MAX_ENDPOINTS:
+            return None
+        self._done += 1
+        canary = self._canary(ep)
+        r = self.engine.send(RequestMutation(endpoint=ep, note="hostheader-probe",
+                                             extra_headers={"Host": canary}))
+        if r is None or r.error or not r.status:
+            return None
+        where = []
+        if canary in (r.body or ""):
+            where.append("response body")
+        for hk, hv in (r.headers or {}).items():
+            if canary in str(hv):
+                where.append(f"{hk} header")
+        if not where:
+            return None
+        return Finding("host_header_injection", Severity.MEDIUM, ep.url, "Host", "GET",
+            [Evidence("host_reflection",
+                      f"canary Host reflected in {', '.join(where)}: the application "
+                      f"builds output from the attacker-controlled Host header "
+                      f"(link-manipulation / reset-poisoning class). canary={canary}",
+                      r.request_id)],
+            status=FindingStatus.CANDIDATE)
+
+
 
 SECURITY_HEADERS = ["strict-transport-security", "content-security-policy", "x-frame-options",
                     "x-content-type-options", "referrer-policy"]
@@ -744,4 +1026,9 @@ VULN_JS_DEPS = [
 
 
 ACTIVE_DETECTORS = [SQLiDetector, XSSDetector, TraversalDetector, RedirectDetector, CrlfDetector,
-                    XxeDetector, SsrfDetector, CommandInjectionDetector, CorsDetector]
+                    XxeDetector, SsrfDetector, CommandInjectionDetector, CorsDetector,
+                    SstiDetector, CsrfDetector, NosqlDetector, JwtDetector, HostHeaderDetector]
+
+# Detectors that drive their own multi-request flows per ENDPOINT (no param-bound
+# generic loop) — the orchestrator calls det.run(ep) directly, like CORS.
+RUN_STYLE_DETECTORS = {"cors", "ssti", "csrf", "nosql", "jwt", "hostheader"}
