@@ -8,10 +8,17 @@ The question this engine answers is not "is this input injectable" but
                              reproduced with a fresh victim: VR-17).
   * Vertical escalation    — a low-privilege session receives the privileged
                              view of an admin-only surface. Admin-only is
-                             derived from a DIFFERENTIAL LANDING CRAWL (links
-                             reachable from the privileged account's landing
-                             but absent from every lower-privilege landing)
-                             plus path hints, and the finding requires the
+                             derived from the privileged roles' VIEW of the
+                             application: links reachable from the privileged
+                             account's landing page AND from a bounded replay
+                             of the crawl set under each role's session
+                             (role-specific menus often render on inner
+                             pages, invisible to a landing-only differential
+                             and to the low-privilege crawl), plus path hints.
+                             Privileged-only surfaces absent from the crawl
+                             set are synthesized as GET endpoints — the whole
+                             point: the low-privilege crawl cannot discover
+                             what it cannot see. The finding requires the
                              full access differential: anonymous gated,
                              privileged 200, low-privilege 200 with the
                              privileged BODY (VR-18 fresh replay).
@@ -20,8 +27,10 @@ The question this engine answers is not "is this input injectable" but
 
 Safety contract: GET-only replays (no state changes), per-engine isolated
 sessions (one cookie jar per account — no session cross-contamination),
-deterministic candidate ordering, budget caps on every phase, and honest
-degradation (0 findings, loud stats) when logins fail or roles are absent.
+logout-shaped paths never replayed (a session must not be killed by its own
+battery), deterministic candidate ordering, budget caps on every phase, and
+honest degradation (0 findings, loud stats) when logins fail or roles are
+absent.
 
 False-positive disciplines:
   * the IDOR oracle is a UNIQUE victim marker in the body (an email/username
@@ -51,6 +60,9 @@ ROLE_RANK = {"admin": 0, "administrator": 0, "root": 0,
 
 ADMIN_PATH_RE = re.compile(r"/(admin|manage|management|console|internal|dashboard|moderation)(/|$|\.)",
                            re.I)
+ASSET_EXT_RE = re.compile(
+    r"\.(css|js|mjs|png|jpe?g|gif|ico|svg|woff2?|ttf|eot|pdf|zip|gz|map|sql)([?#]|$)", re.I)
+LOGOUT_PATH_RE = re.compile(r"(log-?out|log-?off|sign-?out|sign-?off)", re.I)
 ID_PARAM_NAMES = {"user_id", "userid", "uid", "account", "account_id", "acct",
                   "customer_id", "profile_id", "doc_id", "order_id", "object_id",
                   "record_id", "employee_id", "member_id"}
@@ -81,6 +93,8 @@ class AuthzConfig:
     max_vertical: int = 15
     max_idor_endpoints: int = 40
     max_idor_probes: int = 60
+    max_role_view: int = 20       # bounded per-role replay of the crawl set
+                                  # (link extraction + access-matrix rows)
 
     @classmethod
     def from_dict(cls, d: dict, target_url: str = "") -> "AuthzConfig":
@@ -102,7 +116,8 @@ class AuthzConfig:
                    login_marker=d.get("login_marker", "login"),
                    max_vertical=int(d.get("max_vertical", 15)),
                    max_idor_endpoints=int(d.get("max_idor_endpoints", 40)),
-                   max_idor_probes=int(d.get("max_idor_probes", 60)))
+                   max_idor_probes=int(d.get("max_idor_probes", 60)),
+                   max_role_view=int(d.get("max_role_view", 20)))
 
 
 class AuthzEngine:
@@ -157,21 +172,60 @@ class AuthzEngine:
             endpoint=Endpoint(url=sess["landing"], method="GET"), note="authz-landing"))
         if r.error:
             return set()
+        return self._page_links(r.body or "", sess["landing"])
+
+    @staticmethod
+    def _page_links(html: str, base_url: str) -> set[str]:
+        """Same-host link PATHS parsed out of one page (deterministic set)."""
         try:
             from .discovery import _LinkParser
             hp = _LinkParser()
-            hp.feed(r.body or "")
+            hp.feed(html)
         except Exception:
             return set()
-        host = urllib.parse.urlsplit(sess["landing"]).netloc
+        host = urllib.parse.urlsplit(base_url).netloc
         out = set()
         for href in hp.links:
             try:
-                p = urllib.parse.urlsplit(urllib.parse.urljoin(sess["landing"], href))
+                p = urllib.parse.urlsplit(urllib.parse.urljoin(base_url, href))
             except Exception:
                 continue
             if p.netloc == host and p.path:
                 out.add(p.path)
+        return out
+
+    def _probeable(self, path: str) -> bool:
+        """A path the battery may GET-replay: not an asset, not a session
+        killer (logout-shaped), not the login gate itself."""
+        if ASSET_EXT_RE.search(path) or LOGOUT_PATH_RE.search(path):
+            return False
+        if self.cfg.login_marker and self.cfg.login_marker.lower() in path.lower():
+            return False
+        return True
+
+    def _role_view_links(self, sess, endpoints: list[Endpoint]) -> set[str]:
+        """Bounded role-view replay (v2.8.0 live-test hardening): re-fetch the
+        crawl's GET endpoints under THIS role's session, record an access-
+        matrix row for each, and collect the links only this role can see.
+        Role-specific menus frequently render on inner pages (the testfire
+        ADMINISTRATION menu lives on the account page, not the landing), so a
+        landing-only differential is blind to them."""
+        out: set[str] = set()
+        fetched: set[str] = set()
+        for ep in sorted(endpoints, key=lambda e: e.url):
+            if (ep.method or "GET").upper() != "GET":
+                continue
+            path = urllib.parse.urlsplit(ep.url).path
+            if not path or path in fetched or not self._probeable(path):
+                continue
+            if len(fetched) >= self.cfg.max_role_view:
+                break
+            fetched.add(path)
+            r = self._fetch(sess["engine"], ep, "authz-roleview")
+            self._mx(ep.url, f"role:{sess['account'].role}", r.status, resp=r)
+            if r.error or not r.body:
+                continue
+            out |= self._page_links(r.body, ep.url)
         return out
 
     def _fetch(self, engine, ep, note, param_name="", param_value=""):
@@ -198,8 +252,10 @@ class AuthzEngine:
         for ep in endpoints:
             if (ep.method or "GET").upper() == "GET" and ep.url.split("?")[0] not in by_path:
                 by_path[ep.url.split("?")[0]] = ep
-        # differential landing links: privileged-only surfaces
-        links_by_name = {n: self._landing_links(s) for n, s in sorted(self.sessions.items())}
+        # differential role-view surfaces: privileged-only links from BOTH the
+        # landing page AND the bounded role-view replay of the crawl set
+        links_by_name = {n: self._landing_links(s) | self._role_view_links(s, endpoints)
+                         for n, s in sorted(self.sessions.items())}
         candidates: set[str] = set()
         names = list(links_by_name)
         for h in names:
@@ -207,7 +263,20 @@ class AuthzEngine:
                 if self.sessions[h]["rank"] < self.sessions[l]["rank"]:
                     candidates |= (links_by_name[h] - links_by_name[l])
         candidates |= {p for p in by_path if ADMIN_PATH_RE.search(p)}
-        ordered = sorted(candidates & set(by_path))[:self.cfg.max_vertical]
+        # crawl-set candidates first (they carry discovered parameters), then
+        # privileged-only surfaces the crawl never saw — synthesized as GET
+        # endpoints so the differential can actually be tested.
+        ordered = (sorted(candidates & set(by_path))
+                   + [p for p in sorted(candidates - set(by_path))
+                      if self._probeable(p)])[:self.cfg.max_vertical]
+        origin = ""
+        if self.sessions:
+            first = sorted(self.sessions.items())[0][1]
+            lu = urllib.parse.urlsplit(first["landing"])
+            origin = f"{lu.scheme}://{lu.netloc}"
+        for p in ordered:
+            if p not in by_path and origin:
+                by_path[p] = Endpoint(url=origin + p, method="GET")
         top = [s for s in self.sessions.values() if s["rank"] == min(x["rank"] for x in self.sessions.values())]
         lows = [s for s in self.sessions.values() if s["rank"] > top[0]["rank"]]
         if not lows:

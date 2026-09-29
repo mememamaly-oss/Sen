@@ -1,3 +1,108 @@
+# SENTINEL v2.8.0 — "Intelligence Layer" Release
+
+Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
+Every finding is verification-gated: a candidate is NEVER a finding until an
+independent replay confirms it.
+
+## What v2.8.0 adds (Phase 56 — the Intelligence Layer)
+
+The question the platform answers grows from "is this input injectable" to
+"WHO can do WHAT, WHERE, with what reach and what proof". Six new engines,
+all pure stdlib, all deterministic, all budget-capped:
+
+1. **Multi-User Authorization Engine (authz.py)**
+   * IDOR / BOLA — a low-privilege session retrieving ANOTHER account's
+     private object: unique victim-marker oracle, listing-surface guard
+     (multiple markers = directory, not object access), admin-reads-user
+     plausibility exemption. VR-17 = fresh VICTIM object with the same
+     attacker.
+   * Vertical escalation — a low-privilege session receiving the privileged
+     view of an admin-only surface. Full access differential required:
+     anonymous gated (401/403/login-redirect), privileged 200, low-privilege
+     200 with the privileged BODY. VR-18 = fresh replay with the SAME
+     low-privilege session.
+   * Access matrix — role x endpoint statuses (gate status recorded, never
+     the followed-redirect landing) feeding the Application Map.
+   * Safety contract: GET-only replays, one cookie jar per account,
+     logout-shaped paths never replayed, deterministic ordering, budget caps.
+
+2. **Credential Exposure Engine (secrets.py)** — AWS access keys, GitHub
+   tokens, DB connection URIs. Raw values are NEVER stored: evidence carries
+   prefix+length masks only. VR = fresh fetch re-exposure.
+
+3. **Parameter Intelligence (paramintel.py)** — parameter kind
+   classification (numeric / search / filename / url / token /
+   json_object...), value-shape inference and upgrades, data-object
+   clustering; JSON-object batteries are provably skipped (skip reasons in
+   the ledger, not silent drops).
+
+4. **Coverage Ledger (coverage.py)** — the honest per-endpoint account:
+   passive / secrets / active / authz activity, skip reasons, coverage %,
+   discovered vs tested vs untested.
+
+5. **Application Map (appmap.py)** — surfaces (page / api / form_or_action /
+   static), authentication mode, roles tested, access matrix, data objects,
+   workflows.
+
+6. **Fingerprint + Impact (fingerprint.py, evidence.py)** — WAF named
+   signatures and tech platform map (headers/cookies/frameworks/AngularJS);
+   every verified finding carries an impact grade (proven / indicated), a
+   plain-language statement, the safe-proof note, and the full evidence
+   chain (request, evidence kinds, OOB flag, VR method).
+
+## The engine defect the LIVE test caught — and the hardening
+
+Production scan of demo.testfire.net (672 requests, 37 endpoints, 74
+verified findings, 0 rejected): SQL injection CRITICAL on /bank/ccApply
+passwd via 2-variant error replay (quote -> 500 while base and doubled-quote
+-> 200), six reflected XSS with in-context canaries, CSRF x3, host-header
+injection with fresh-canary re-test, open redirect with second-host replay,
+plus per-endpoint header/banner passives.
+
+The multi-user battery was then armed with two REAL sessions — jsmith
+(documented user) and an admin session obtained through the
+SENTINEL-VERIFIED SQL injection login bypass (admin'--): the attack chain a
+real attacker would walk, used here as the second role. Manual probing had
+already proved a REAL vertical escalation: the regular user receives the
+full user-management table on /admin/admin.jsp while anonymous is gated.
+
+The battery was initially BLIND to it: the ADMINISTRATION menu renders on
+inner bank pages, not the login landing, and /admin/admin.jsp is absent
+from every low-privilege crawl. v2.8.0 hardens authz.py with:
+  * **role-view replay** — a bounded (max_role_view=20/role) re-fetch of the
+    crawl set under EACH role's session: access-matrix rows recorded, and
+    the links only that role can see extracted from inner pages;
+  * **privileged-surface synthesis** — differential candidates the crawl
+    never saw are synthesized as GET endpoints and probed (the low-privilege
+    crawl cannot discover what it cannot see — the engine must).
+
+Live verdict (48-request light battery per the slow-target strategy):
+vertical_privilege_escalation VERIFIED on /admin/admin.jsp — anonymous 302
+(gated), admin 200, user 200 with body similarity 1.00, VR-18 fresh replay
+passed, impact PROVEN. IDOR on the account parameter: honest negative (the
+current deployment's showAccount ignores the parameter — no finding,
+correctly).
+
+## Ground truth v8 + quality gates
+
+- Fixture v8 + ground truth v8: 54 rows — 30 TP / 24 TN (largest yet).
+- Tests: 61 -> 67. Batch D (platform regression re-run): 11/11. Batch E
+  (intelligence layer): 8/8 — unit_paramintel_value_shape_inference,
+  unit_coverage_tracker_accounting,
+  unit_secrets_scanner_classification_and_gates,
+  unit_evidence_impact_profiles, unit_authz_engine_matrix_idor_vertical,
+  regression_phase56_intelligence_end_to_end (all artifacts asserted:
+  coverage account, param-intel profile, appmap, access matrix, masked
+  secrets, impact proof on every verified finding).
+- Doctor: 13/13 (was 12/12).
+- Benchmark: F1 = 1.000 — TP=30 / FP=0 / FN=0 / TN=24, run-3c0652b6be,
+  1434 requests, deterministic x3 IDENTICAL.
+- Real-target program: 4 platforms, 33 verified actives lifetime (0 false
+  positives) — v2.8.0 adds 10 new actives on testfire (SQLi, host-header,
+  open redirect, CSRF x3, XSS x4 beyond the previously-known reflection)
+  plus the live-verified authorization boundary break obtained through a
+  chained SQLi -> admin-session -> role-differential attack path.
+
 # SENTINEL v2.7.0 — "Detector Expansion Release"
 
 Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).

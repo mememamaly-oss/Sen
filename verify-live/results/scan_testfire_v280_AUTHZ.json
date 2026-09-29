@@ -1,0 +1,156 @@
+{
+ "target": "http://demo.testfire.net/",
+ "engine": "sentinel-authz/2.8.0",
+ "mode": "live-multi-user",
+ "source_discovery_run": "run-9951adb4de",
+ "source_note": "endpoint set replayed from the completed production live scan's coverage ledger (light-strategy directive)",
+ "accounts": [
+  {
+   "name": "jsmith-user",
+   "role": "user",
+   "session": "documented credentials"
+  },
+  {
+   "name": "sqli-admin-bypass",
+   "role": "admin",
+   "session": "sql-injection bypass (admin'--)"
+  }
+ ],
+ "wall_s": 22.4,
+ "stats": {
+  "accounts_configured": 2,
+  "accounts_logged_in": 2,
+  "roles": [
+   "admin",
+   "user"
+  ],
+  "matrix_endpoints": 19,
+  "login_errors": [],
+  "requests": 48,
+  "ran": true
+ },
+ "matrix": {
+  "http://demo.testfire.net/": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/bank/apply.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/bank/customize.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/bank/main.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/bank/queryxpath.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/bank/showAccount": {
+   "role:user": 302,
+   "role:admin": 302
+  },
+  "http://demo.testfire.net/bank/transaction.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/bank/transfer.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/cgi.exe": {
+   "role:user": 404,
+   "role:admin": 404
+  },
+  "http://demo.testfire.net/default.jsp": {
+   "role:user": 404,
+   "role:admin": 404
+  },
+  "http://demo.testfire.net/disclaimer.htm": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/feedback.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/index.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/search.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/status_check.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/subscribe.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/survey_questions.jsp": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/swagger/index.html": {
+   "role:user": 200,
+   "role:admin": 200
+  },
+  "http://demo.testfire.net/admin/admin.jsp": {
+   "anonymous": 302,
+   "role:admin": 200,
+   "role:user": 200
+  }
+ },
+ "findings": [
+  {
+   "id": "F-1cafb3d360",
+   "type": "vertical_privilege_escalation",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "GET",
+   "url": "http://demo.testfire.net/admin/admin.jsp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "role_boundary_bypass",
+     "detail": "low-privilege session (role=user, account=jsmith-user) received the privileged view of an admin-only surface: anonymous -> gated (HTTP 200), privileged -> 200, role=user -> 200 with body similarity 1.00 to the privileged view"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-privileged-replay",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 1,
+    "notes": "fresh replay with role=user session still returned the privileged view: True"
+   },
+   "scanner": "sentinel-core/2.8.0",
+   "run_id": "",
+   "authz_context": "attacker=jsmith-user(role=user) surface=privileged",
+   "impact": {
+    "grade": "proven",
+    "statement": "Role boundary broken: a low-privilege session received the privileged (admin-only) view of a protected surface, reproduced on a fresh replay \u2014 full administrative capability reachable without the privileged role.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://demo.testfire.net/admin/admin.jsp",
+     "parameter": "",
+     "evidence_kinds": [
+      "role_boundary_bypass"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-privileged-replay",
+     "verification_passed": true,
+     "authz_context": "attacker=jsmith-user(role=user) surface=privileged"
+    }
+   }
+  }
+ ],
+ "rejected": []
+}

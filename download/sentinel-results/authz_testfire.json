@@ -1,0 +1,28 @@
+{
+  "login_url": "http://demo.testfire.net/login.jsp",
+  "user_field": "uid",
+  "pass_field": "passw",
+  "success_marker": "Sign Off",
+  "login_marker": "login",
+  "max_vertical": 5,
+  "max_idor_endpoints": 8,
+  "max_idor_probes": 12,
+  "accounts": [
+    {
+      "name": "jsmith-user",
+      "role": "user",
+      "username": "jsmith",
+      "password": "demo1234",
+      "marker": "John Smith",
+      "object_id": "800002"
+    },
+    {
+      "name": "admin-admin",
+      "role": "admin",
+      "username": "admin",
+      "password": "admin",
+      "marker": "",
+      "object_id": "800001"
+    }
+  ]
+}
