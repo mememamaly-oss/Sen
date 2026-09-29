@@ -1,0 +1,70 @@
+{
+ "tag": "v290_c06",
+ "range": [
+  61,
+  69
+ ],
+ "members": [
+  "regression_phase55_five_classes_end_to_end",
+  "unit_paramintel_value_shape_inference",
+  "unit_coverage_tracker_accounting",
+  "unit_secrets_scanner_classification_and_gates",
+  "unit_evidence_impact_profiles",
+  "unit_authz_engine_matrix_idor_vertical",
+  "regression_phase56_intelligence_end_to_end",
+  "unit_phase57_vault_crypto_lifecycle",
+  "regression_phase57_vault_end_to_end"
+ ],
+ "wall_s": 138.6,
+ "returncode": 0,
+ "failed": 0,
+ "executed": 9,
+ "cases": [
+  {
+   "name": "regression_phase55_five_classes_end_to_end",
+   "ok": true,
+   "ms": 63617
+  },
+  {
+   "name": "unit_paramintel_value_shape_inference",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_coverage_tracker_accounting",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_secrets_scanner_classification_and_gates",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_evidence_impact_profiles",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_authz_engine_matrix_idor_vertical",
+   "ok": true,
+   "ms": 541
+  },
+  {
+   "name": "regression_phase56_intelligence_end_to_end",
+   "ok": true,
+   "ms": 63321
+  },
+  {
+   "name": "unit_phase57_vault_crypto_lifecycle",
+   "ok": true,
+   "ms": 86
+  },
+  {
+   "name": "regression_phase57_vault_end_to_end",
+   "ok": true,
+   "ms": 10889
+  }
+ ],
+ "log": "/home/z/my-project/verify-live/results/chunks/v290_c06.log"
+}

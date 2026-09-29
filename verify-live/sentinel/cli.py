@@ -2,6 +2,10 @@
 """SENTINEL CLI — scan / benchmark / doctor / findings / report / serve / repair-demo.
 Phase 16/29: Benchmark Registry with ground-truth comparison, TP/FP/FN/TN + P/R/F1.
 Phase 46+: persistence (--db), findings query, report export, REST API server.
+Phase 57 (v2.9.0): `vault` command group — keygen / init / status / list / export /
+report / audit / authorize / revoke / purge for the encrypted Credential Vault,
+plus scan-time arming via --vault/--vault-key-file (raw credentials captured
+during a scan land encrypted at rest, never in reports, logs or findings).
 """
 from __future__ import annotations
 import argparse, json, os, signal, socket, subprocess, sys, time, hashlib
@@ -276,6 +280,13 @@ def main():
     s.add_argument("--secrets-report", default="",
                    help="also write a standalone credential-exposure report (masked "
                         "values only) to this path")
+    # ---- Phase 57 (v2.9.0): Credential Vault — encrypted retention of captured
+    # credentials. Requires BOTH the vault file and an authorized key file.
+    s.add_argument("--vault", default="",
+                   help="Phase 57: path of the credential vault file — arms encrypted "
+                        "capture of credentials found during the scan")
+    s.add_argument("--vault-key-file", default="",
+                   help="an authorized vault key file (see: sentinel vault keygen)")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     sub.add_parser("doctor")
@@ -294,6 +305,44 @@ def main():
     srv.add_argument("--host", default="127.0.0.1"); srv.add_argument("--port", type=int, default=8022)
     srv.add_argument("--db", default="results/sentinel.db")
     srv.add_argument("--token", default="", help="required when binding non-loopback")
+    # ---- Phase 57 (v2.9.0): the Credential Vault command group -----------------
+    # Access model: key FILES, not passwords. keygen hands a 0600 key file to an
+    # authorized party (tool designer / organization owner); the vault refuses
+    # every operation without a key authorized for THAT vault file.
+    vlt = sub.add_parser("vault", help="Phase 57: encrypted Credential Vault")
+    vsub = vlt.add_subparsers(dest="vcmd", required=True)
+    vg = vsub.add_parser("keygen", help="create a new authorized key file (hand it "
+                                       "to the organization owner — never commit it)")
+    vg.add_argument("--out", required=True); vg.add_argument("--label", default="")
+    vi = vsub.add_parser("init", help="create a new vault for an organization")
+    vi.add_argument("--vault", required=True); vi.add_argument("--key-file", required=True)
+    vi.add_argument("--org", required=True); vi.add_argument("--label", default="designer")
+    for name, help_ in (
+            ("status", "masked overview: org, revision, record count, authorized keys"),
+            ("list", "masked record listing — raw values NEVER leave the vault"),
+            ("audit", "who opened what, when — the encrypted audit trail")):
+        vp = vsub.add_parser(name, help=help_)
+        vp.add_argument("--vault", required=True); vp.add_argument("--key-file", required=True)
+    vr = vsub.add_parser("report", help="OWNER-ONLY full-reveal report "
+                                         "(CONFIDENTIAL, audited)")
+    vr.add_argument("--vault", required=True)
+    vr.add_argument("--key-file", required=True); vr.add_argument("--out", default="")
+    ve = vsub.add_parser("export", help="authenticated reveal of ONE record (audited)")
+    ve.add_argument("--vault", required=True); ve.add_argument("--key-file", required=True)
+    ve.add_argument("--record", required=True)
+    va = vsub.add_parser("authorize", help="add another authorized key (e.g. the "
+                                           "organization owner's)")
+    va.add_argument("--vault", required=True); va.add_argument("--key-file", required=True)
+    va.add_argument("--new-key", required=True); va.add_argument("--label", default="")
+    vv = vsub.add_parser("revoke", help="remove a key AND rotate the blob key — a "
+                                        "revoked key cannot open any copy of the file")
+    vv.add_argument("--vault", required=True); vv.add_argument("--key-file", required=True)
+    vv.add_argument("--key-id", required=True)
+    vp = vsub.add_parser("purge", help="shred records after report delivery "
+                                       "(the audit entry survives by design)")
+    vp.add_argument("--vault", required=True); vp.add_argument("--key-file", required=True)
+    vp.add_argument("--record", default="")
+    vp.add_argument("--all", action="store_true")
     a = ap.parse_args()
 
     if a.cmd == "doctor":
@@ -331,7 +380,8 @@ def main():
                          crawl=not a.no_crawl, timeout=a.timeout, seed=a.seed,
                          strategy_path=a.strategy_path, browser=not a.no_browser,
                          auth=auth, openapi=not a.no_openapi, openapi_spec=openapi_spec,
-                         authz=authz_cfg, secrets=not a.no_secrets)
+                         authz=authz_cfg, secrets=not a.no_secrets,
+                         vault=a.vault or None, vault_key_file=a.vault_key_file or None)
         # Phase 52: channel-aware OAST arming. auto = local listener for targets
         # that can reach loopback (lab fixtures), PUBLIC webhook channel for remote
         # targets (live-proven: ginandjuice.shop blind XXE confirmed via webhook.site
@@ -346,6 +396,20 @@ def main():
         try:
             sc = SentinelScanner(a.target, cfg)
             rep = sc.run()
+        except Exception as e:
+            # Phase 57: a refused vault (wrong key / tampered file / unauthorized
+            # key) is a CONFIGURATION error that must fail fast and clean —
+            # never a mid-scan traceback, never a partial vault write.
+            from sentinel.vault import VaultError
+            if isinstance(e, VaultError):
+                print(json.dumps({"scan_aborted": "vault refused",
+                                  "vault_error": str(e),
+                                  "hint": "the scan made ZERO requests; unlock "
+                                          "with an authorized key file "
+                                          "(sentinel vault keygen / authorize)"}),
+                      file=sys.stderr)
+                sys.exit(2)
+            raise
         finally:
             if oast is not None:
                 oast.stop()
@@ -357,11 +421,17 @@ def main():
         if a.secrets_report:
             cred = [f for f in rep["findings"] if f["type"] == "credential_exposure"]
             os.makedirs(os.path.dirname(a.secrets_report) or ".", exist_ok=True)
+            vault_armed = bool(rep.get("stats", {}).get("vault"))
             json.dump({"run_id": rep["run_id"], "target": rep["target"],
                        "generated_by": rep["scanner"],
-                       "policy": "masked evidence only — raw secret values are never "
-                                 "stored or transmitted by SENTINEL",
+                       "policy": ("raw values are retained ENCRYPTED in the "
+                                  "credential vault (see: sentinel vault report) — "
+                                  "this report stays masked"
+                                  if vault_armed else
+                                  "masked evidence only — raw secret values are "
+                                  "never stored or transmitted by SENTINEL"),
                        "summary": rep.get("stats", {}).get("secrets", {}),
+                       "vault": rep.get("stats", {}).get("vault"),
                        "findings": cred},
                       open(a.secrets_report, "w"), indent=1)
         if a.db:
@@ -425,6 +495,60 @@ def main():
     elif a.cmd == "serve":
         from sentinel.api import run_server
         run_server(a.host, a.port, a.db, token=a.token)
+    elif a.cmd == "vault":
+        from sentinel.vault import Vault, VaultError, keygen
+        try:
+            if a.vcmd == "keygen":
+                kf = keygen(a.out, label=a.label)
+                print(json.dumps({"key_file": a.out, "key_id": kf["key_id"],
+                                  "label": a.label,
+                                  "note": "0600 key file — hand to an authorized "
+                                          "party only; never commit it to Git"}))
+            elif a.vcmd == "init":
+                v = Vault.init(a.vault, a.key_file, a.org, label=a.label)
+                print(json.dumps(v.status()))
+            else:
+                v = Vault.open(a.vault, a.key_file)
+                if a.vcmd == "status":
+                    print(json.dumps(v.status()))
+                elif a.vcmd == "list":
+                    print(json.dumps({"org": v.org, "records": v.list()}, indent=1))
+                elif a.vcmd == "export":
+                    rec = v.export(a.record)
+                    print(json.dumps(rec, indent=1))
+                elif a.vcmd == "report":
+                    rep_v = v.report()
+                    if a.out:
+                        os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
+                        json.dump(rep_v, open(a.out, "w"), indent=1)
+                        print(json.dumps({"report": a.out, "org": rep_v["org"],
+                                          "records": len(rep_v["records"]),
+                                          "classification": rep_v["classification"]}))
+                    else:
+                        print(json.dumps(rep_v, indent=1))
+                elif a.vcmd == "audit":
+                    print(json.dumps({"org": v.org, "entries": v.audit()}, indent=1))
+                elif a.vcmd == "authorize":
+                    kid = v.authorize(a.new_key, label=a.label)
+                    print(json.dumps({"authorized": kid, "label": a.label,
+                                      "actor": v.key_id}))
+                elif a.vcmd == "revoke":
+                    v.revoke(a.key_id)
+                    print(json.dumps({"revoked": a.key_id,
+                                      "note": "blob key rotated — the revoked key "
+                                              "cannot open any copy of this file"}))
+                elif a.vcmd == "purge":
+                    if not a.record and not a.all:
+                        print(json.dumps({"error": "--record ID or --all required"}),
+                              file=sys.stderr)
+                        sys.exit(2)
+                    n = v.purge(record_id=a.record or None, all_records=a.all)
+                    print(json.dumps({"shredded": n,
+                                      "note": "values removed from the encrypted "
+                                              "blob; the audit entry survives"}))
+        except VaultError as e:
+            print(json.dumps({"vault_error": str(e)}), file=sys.stderr)
+            sys.exit(2)
 
 
 if __name__ == "__main__":

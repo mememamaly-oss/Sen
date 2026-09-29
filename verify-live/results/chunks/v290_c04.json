@@ -1,0 +1,88 @@
+{
+ "tag": "v290_c04",
+ "range": [
+  37,
+  48
+ ],
+ "members": [
+  "regression_oob_public_channel_end_to_end",
+  "regression_eng08_self_callback_guard",
+  "unit_cors_detector_and_fresh_origin_verify",
+  "regression_ssrf_cmdi_cors_end_to_end",
+  "regression_rest_api_server",
+  "regression_cli_script_mode_all_subcommands",
+  "unit_disc10_divform_parsing",
+  "unit_disc11_dom_sink_scanner",
+  "unit_eng04_json_body_render",
+  "unit_eng05_cookie_jar_session_continuity",
+  "e2e_browser_phase_full",
+  "unit_eng06_body_serialization_without_mutation"
+ ],
+ "wall_s": 359.1,
+ "returncode": 0,
+ "failed": 0,
+ "executed": 12,
+ "cases": [
+  {
+   "name": "regression_oob_public_channel_end_to_end",
+   "ok": true,
+   "ms": 210211
+  },
+  {
+   "name": "regression_eng08_self_callback_guard",
+   "ok": true,
+   "ms": 3167
+  },
+  {
+   "name": "unit_cors_detector_and_fresh_origin_verify",
+   "ok": true,
+   "ms": 505
+  },
+  {
+   "name": "regression_ssrf_cmdi_cors_end_to_end",
+   "ok": true,
+   "ms": 67429
+  },
+  {
+   "name": "regression_rest_api_server",
+   "ok": true,
+   "ms": 39700
+  },
+  {
+   "name": "regression_cli_script_mode_all_subcommands",
+   "ok": true,
+   "ms": 25542
+  },
+  {
+   "name": "unit_disc10_divform_parsing",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_disc11_dom_sink_scanner",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_eng04_json_body_render",
+   "ok": true,
+   "ms": 1
+  },
+  {
+   "name": "unit_eng05_cookie_jar_session_continuity",
+   "ok": true,
+   "ms": 509
+  },
+  {
+   "name": "e2e_browser_phase_full",
+   "ok": true,
+   "ms": 11899
+  },
+  {
+   "name": "unit_eng06_body_serialization_without_mutation",
+   "ok": true,
+   "ms": 1
+  }
+ ],
+ "log": "/home/z/my-project/verify-live/results/chunks/v290_c04.log"
+}

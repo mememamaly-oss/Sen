@@ -13,7 +13,7 @@ deliverable:
     gates in the test suite (data.count(raw) == 0).
 
   * 👤  AUTHORIZED KEYS — access is granted to KEY FILES, not passwords in
-         code or Git. A key file is 32 random bytes (secrets.token_bytes) in a
+         code or Git. A key file is 32 random bytes (os.urandom) in a
          0600 JSON file with a deterministic key_id (first 8 hex of SHA-256).
          The vault holds one WRAP of the blob key per authorized key file;
          `authorize` / `revoke` add and remove wraps (revoke re-randomizes the
@@ -76,7 +76,6 @@ import hashlib
 import hmac
 import json
 import os
-import secrets as _pysecrets
 import shutil
 import tempfile
 import time
@@ -159,7 +158,7 @@ def _mac(mac_key: bytes, aad: str, nonce: bytes, ct: bytes) -> bytes:
 
 def aead_encrypt(master: bytes, aad: str, plaintext: bytes) -> dict:
     """Encrypt-then-MAC under subkeys of `master`. Returns {nonce, ct, tag}."""
-    nonce = _pysecrets.token_bytes(12)
+    nonce = os.urandom(12)
     ct = chacha20_xor(_derive(master, "enc"), nonce, plaintext)
     tag = _mac(_derive(master, "mac"), aad, nonce, ct)
     return {"nonce": nonce, "ct": ct, "tag": tag}
@@ -191,7 +190,7 @@ def keygen(path: str, label: str = "") -> dict:
     """Create a new authorized key file (32 random bytes, 0600). The key never
     lives in code or Git — only in this file, for the operator to hand to an
     authorized party (tool designer / organization owner)."""
-    data = _pysecrets.token_bytes(32)
+    data = os.urandom(32)
     key_id = hashlib.sha256(data).hexdigest()[:8]
     payload = {"format": KEY_FORMAT, "key_id": key_id, "label": label,
                "created": _now(), "data": _b64e(data)}
@@ -297,8 +296,8 @@ class Vault:
         if os.path.exists(path):
             raise VaultError(f"vault already exists: {path}")
         key_id, key_data = load_key(key_file)
-        salt = _pysecrets.token_bytes(16)
-        blob_key = _pysecrets.token_bytes(32)
+        salt = os.urandom(16)
+        blob_key = os.urandom(32)
         envelope = {"format": VAULT_FORMAT, "org": org, "created": _now(),
                     "revision": 0, "kdf": {"salt": _b64e(salt)},
                     "keys": [{"key_id": key_id, "label": label,
@@ -427,7 +426,7 @@ class Vault:
                             f"re-observed {cls} {masked} (hits={rec['hits']})")
                 self._save()
                 return rec["id"]
-        rid = "rec-" + _pysecrets.token_hex(4)
+        rid = "rec-" + os.urandom(4).hex()
         rec = {"id": rid, "cls": cls, "masked": masked, "raw": raw,
                "severity": severity, "source": source or {},
                "first_seen": _now(), "last_seen": _now(), "hits": 1,
@@ -545,7 +544,7 @@ class Vault:
                 "refusing to weaken the vault")
         self._envelope["keys"] = [k for k in keys if k["key_id"] != key_id]
         # rotate: fresh blob key, then re-wrap for the only remaining key (us)
-        self._blob_key = _pysecrets.token_bytes(32)
+        self._blob_key = os.urandom(32)
         self._audit("REVOKE", key_id, "revoked; blob key rotated")
         self._save()
 

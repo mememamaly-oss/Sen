@@ -1,0 +1,48 @@
+{
+ "phase": "57 \u2014 Credential Intelligence (v2.9.0)",
+ "run_id": "run-4e1f2ebee2",
+ "scanner": "sentinel-core/2.9.0",
+ "target": "http://demo.testfire.net/",
+ "date": "2026-09-29",
+ "gates": {
+  "tests": "69/69",
+  "doctor": "14/14 (incl. credential_vault self-test)",
+  "benchmark": "F1=1.000 TP=30 FP=0 FN=0 TN=24 \u2014 deterministic x3 (run-3c0652b6be, 1434 req, oast x7)"
+ },
+ "live_scan": {
+  "strategy": "light (no browser, 20 pages, authenticated jsmith, public OAST)",
+  "requests": 673,
+  "endpoints": null,
+  "verified": 74,
+  "rejected": 0,
+  "active_classes": [
+   "sql_injection",
+   "xss_reflected x6",
+   "host_header_injection",
+   "csrf x3",
+   "open_redirect"
+  ],
+  "credential_exposure": "0 findings \u2014 HONEST NEGATIVE (matches the v2.8.0 baseline: the deployment exposes no secret-shaped values in responses)",
+  "vault": {
+   "org": "altoro-mutual",
+   "armed": true,
+   "records": 0,
+   "policy": "raw values encrypted at rest; reveal requires an authorized key and is audit-logged"
+  }
+ },
+ "vault_workflow_proven": {
+  "init": "vault created for org=altoro-mutual before any request (fail-fast on wrong key)",
+  "capture": "0 credentials observed -> 0 records (no fabrication, no inflation)",
+  "masked_reports": "scan report + secrets report carry masks/policy only; byte-level: no AKIA/ghp_/sk_live_/xox shapes in any artifact",
+  "audit_trail": [
+   "2026-09-29T19:45:46Z c777f185 INIT -",
+   "2026-09-29T19:54:45Z c777f185 LIST -",
+   "2026-09-29T19:55:01Z c777f185 AUTHORIZE 3f286486"
+  ],
+  "multi_party": "org-owner key authorized by tool-designer (key files NEVER ship with deliverables \u2014 spec 9: keys stay out of code/Git/artifacts)"
+ },
+ "fixture_e2e_proof": "regression_phase57_vault_end_to_end: 3 credential classes captured encrypted, byte-level no-plaintext gates on report AND vault file, owner reveal == fixture's true values, purge + audit survival, full CLI surface via subprocess (script mode)",
+ "engine_defects_caught": [
+  "ENG-11 (live-caught by the new CLI surface in script mode): vault.py's `import secrets` resolved to OUR sentinel/secrets.py when the package dir led sys.path \u2014 replaced with os.urandom (same entropy source, unshadowable)"
+ ]
+}
