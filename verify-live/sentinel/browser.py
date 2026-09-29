@@ -142,9 +142,16 @@ class BrowserEngine:
     """Real-browser rendering + DOM XSS execution proofs. Scope-gated like the
     HTTP engine: navigation to out-of-scope hosts is refused before goto."""
 
-    def __init__(self, engine, timeout: float = 12.0):
+    def __init__(self, engine, timeout: float = 12.0, extra_headers: dict | None = None):
         # engine: RequestEngine — owns the ScopeRule (single source of truth for scope)
+        # extra_headers: session transport headers (Authorization: Bearer ...) the
+        # context must mirror — otherwise every render of an auth-gated page bounces
+        # to the login form exactly like a cookie-less render (AUTH-04 same lesson,
+        # header flavor). LIVE-CAUGHT: orchestrator passed it before the engine
+        # learned to accept it (9 tests red) — API contract fixed here permanently.
         self.engine, self.bus, self.timeout = engine, engine.bus, timeout
+        self.extra_headers = {k: v for k, v in (extra_headers or {}).items()
+                              if k.lower() != "user-agent"}
         self._pw = self._browser = self._context = None
         self.pages_rendered = 0
         self.probes_sent = 0
@@ -157,8 +164,12 @@ class BrowserEngine:
         self._pw = sync_playwright().start()
         self._browser = self._pw.chromium.launch(
             headless=True, args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"])
+        from .http_engine import USER_AGENT   # version-derived: one UA across engine+browser
         self._context = self._browser.new_context(ignore_https_errors=True,
-                                                  user_agent="Mozilla/5.0 (compatible; Sentinel/2.2; +security-scanner)")
+                                                  user_agent=USER_AGENT)
+        if self.extra_headers:
+            # header-based auth must ride along with cookie-based sessions (AUTH-04)
+            self._context.set_extra_http_headers(self.extra_headers)
 
     def _sync_session_cookies(self, url: str):
         """AUTH-04: the browser context must carry the SAME session as the HTTP

@@ -238,6 +238,20 @@ def main():
     s.add_argument("--auth-pass-field", default="passw")
     s.add_argument("--auth-success-marker", default="",
                    help="substring expected on the landing page after login (optional hard gate)")
+    # ---- AUTH-05 (Phase 54): static-token authentication (Bearer JWT / API key / custom header)
+    s.add_argument("--auth-token", default="",
+                   help="Phase 54: static token (Bearer JWT, API key) — enables token mode")
+    s.add_argument("--auth-header", default="Authorization",
+                   help="header name carrying the token (default: Authorization)")
+    s.add_argument("--auth-scheme", default="Bearer",
+                   help="scheme prefix ('Bearer x' / 'Token x' / '' = raw value)")
+    s.add_argument("--auth-validate-url", default="",
+                   help="page fetched WITH the header to prove the token opens a closed door")
+    # ---- DISC-13 (Phase 54): OpenAPI seeding
+    s.add_argument("--no-openapi", action="store_true",
+                   help="disable OpenAPI/Swagger document auto-probing")
+    s.add_argument("--openapi-spec", default="",
+                   help="path/URL of an explicit OpenAPI/Swagger JSON document to seed endpoints")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     sub.add_parser("doctor")
@@ -249,9 +263,9 @@ def main():
     fnd.add_argument("--min-risk", type=int, default=0); fnd.add_argument("--status", default="verified")
     fnd.add_argument("--recurring", action="store_true", help="only fingerprints seen in >1 run")
     fnd.add_argument("--delta", action="store_true", help="diff the two most recent runs")
-    rep = sub.add_parser("report", help="export an HTML/JSON report from the store")
+    rep = sub.add_parser("report", help="export an HTML/JSON/SARIF report from the store")
     rep.add_argument("--db", default="results/sentinel.db"); rep.add_argument("--run-id", default="")
-    rep.add_argument("--out", default="results/report.html"); rep.add_argument("--format", choices=["html", "json"], default="html")
+    rep.add_argument("--out", default="results/report.html"); rep.add_argument("--format", choices=["html", "json", "sarif"], default="html")
     srv = sub.add_parser("serve", help="REST API + web UI (Phase: REST/UI)")
     srv.add_argument("--host", default="127.0.0.1"); srv.add_argument("--port", type=int, default=8022)
     srv.add_argument("--db", default="results/sentinel.db")
@@ -262,16 +276,33 @@ def main():
         print(json.dumps(doctor(), indent=1))
     elif a.cmd == "scan":
         auth = None
-        if a.auth_user:
+        if a.auth_token:
+            # AUTH-05 token mode: Bearer JWT / API key / custom header.
+            from sentinel.auth import AuthProfile
+            if a.auth_user:
+                print("[AUTH-05] --auth-token overrides --auth-user (token mode)", file=sys.stderr)
+            auth = AuthProfile(login_url=a.auth_validate_url or a.target.rstrip("/"),
+                               token=a.auth_token, auth_header=a.auth_header,
+                               auth_scheme=a.auth_scheme)
+        elif a.auth_user:
             from sentinel.auth import AuthProfile
             login_url = a.auth_url or (a.target.rstrip("/") + "/login.jsp")
             auth = AuthProfile(login_url=login_url, username=a.auth_user, password=a.auth_pass,
                                user_field=a.auth_user_field, pass_field=a.auth_pass_field,
                                success_marker=a.auth_success_marker)
+        # DISC-13: explicit OpenAPI/Swagger seed (local path or URL) — parsed to
+        # endpoints BEFORE the crawl so unlinked API surface is scanned too.
+        openapi_spec = None
+        if a.openapi_spec:
+            if a.openapi_spec.startswith(("http://", "https://")):
+                import urllib.request as _ur
+                openapi_spec = json.loads(_ur.urlopen(a.openapi_spec, timeout=a.timeout).read().decode("utf-8", "replace"))
+            else:
+                openapi_spec = json.load(open(a.openapi_spec))
         cfg = ScanConfig(allow_private=a.allow_private, max_pages=a.max_pages,
                          crawl=not a.no_crawl, timeout=a.timeout, seed=a.seed,
                          strategy_path=a.strategy_path, browser=not a.no_browser,
-                         auth=auth)
+                         auth=auth, openapi=not a.no_openapi, openapi_spec=openapi_spec)
         # Phase 52: channel-aware OAST arming. auto = local listener for targets
         # that can reach loopback (lab fixtures), PUBLIC webhook channel for remote
         # targets (live-proven: ginandjuice.shop blind XXE confirmed via webhook.site
@@ -331,14 +362,24 @@ def main():
                       f"param={f['parameter']:8s} risk={f['risk']:3d} run={f.get('run_id', '')}")
     elif a.cmd == "report":
         from sentinel.store import Store
-        from sentinel.report import build_report, build_html
+        from sentinel.report import build_report, build_html, build_sarif
         st = Store(a.db)
         os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
-        if a.format == "json":
+        if a.format == "sarif":
+            # OP-02: SARIF 2.1.0 — the industry interchange format (GitHub code
+            # scanning / VS Code / DefectDojo). Verification-gated like everything
+            # else: only VERIFIED findings become results.
+            sarif = build_sarif(st, a.run_id)
+            json.dump(sarif, open(a.out, "w"), indent=1)
+            n = len(sarif.get("runs", [{}])[0].get("results", [])) if "runs" in sarif else 0
+            print(json.dumps({"report": a.out, "format": "sarif", "run_id": a.run_id or "all-verified",
+                              "results": n, "sarif_version": sarif.get("version", "")}))
+        elif a.format == "json":
             json.dump(build_report(st, a.run_id), open(a.out, "w"), indent=1)
+            print(json.dumps({"report": a.out, "format": a.format, "run_id": a.run_id or "overview"}))
         else:
             open(a.out, "w").write(build_html(st, a.run_id))
-        print(json.dumps({"report": a.out, "format": a.format, "run_id": a.run_id or "overview"}))
+            print(json.dumps({"report": a.out, "format": a.format, "run_id": a.run_id or "overview"}))
     elif a.cmd == "serve":
         from sentinel.api import run_server
         run_server(a.host, a.port, a.db, token=a.token)

@@ -1,3 +1,102 @@
+# SENTINEL v2.6.0 — "Stealth + Ops Release"
+
+Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
+Every finding is verification-gated: a candidate is NEVER a finding until an
+independent replay confirms it.
+
+## What v2.6.0 adds (stealth + ops + intelligence axes)
+
+1. **Passive WAF + technology fingerprinting (`sentinel/fingerprint.py`)**
+   Two observers that ride every response the scan already produces — zero
+   extra requests. WafFingerprinter matches named WAF signatures (Cloudflare,
+   AWS WAF, ModSecurity, F5, Imperva, Sucuri, Akamai, Fastly) from headers,
+   cookies and block-page bodies, with the evidence line each conclusion came
+   from. TechFingerprinter maps Server/X-Powered-By/X-AspNet-Version headers,
+   session-cookie platforms (JSESSIONID->Java, PHPSESSID->PHP, ...), DOM markers
+   (ng-app, __VIEWSTATE, wp-content) and meta generators. Honesty contract: no
+   signature hits -> waf null ("no WAF seen" is NOT a claim the passive channel
+   can make); x-amzn-requestid is deliberately NOT aws-waf (infra header —
+   false-attribution guard). stats.fingerprint lands in every report.
+
+2. **DETECT-14 context-adaptive XSS battery (`sentinel/detect.py`)**
+   ONE benign known-tag probe per mutable param classifies the input context:
+   tag-filtered (400/403 on a plain <b>) -> attribute-injection battery (no '<'
+   at all); ng-app in the page -> + AngularJS {{expression}} vector; plain ->
+   classic full-tag + slash-free battery. LIVE-PROVEN on ginandjuice.shop:
+   the ng vector found a REAL Angular expression reflection on /catalog
+   (param searchTerm) that every previous version missed — verified via
+   re-test:fresh-ng-expression. (The /blog?search attr-inject vector that
+   inspired the "filtered" arm was already live-proven in v2.2.0.)
+
+3. **ENG-09 rate-limit resilience (`sentinel/http_engine.py`)**
+   429/503 answers are a WAF/CDN saying "slow down", not an app response.
+   Deterministic exponential backoff (0.4 * 2^n, cap 8s, max 3 retries),
+   Retry-After honored when present, the request replayed IDENTICALLY
+   (determinism preserved), and the final 429 returned HONESTLY if the limiter
+   never relents (never a fabricated error). stats.rate_limit carries
+   limited/retries/recovered for audit.
+
+4. **AUTH-05 static-token authentication (`sentinel/auth.py`)**
+   Bearer JWTs, API keys, custom headers (X-Auth-Token). "Login" = VALIDATION:
+   fetch the validation URL WITH the header and require a door that is closed
+   without it (401/403 rejected, login-gate bounce detected, optional success
+   marker). The token rides engine.default_headers — every request carries it
+   with zero per-phase wiring. No self-healing by design (a static token cannot
+   be re-minted): mid-scan 401/403 are COUNTED honestly (stats.auth.rejections)
+   instead of silently proceeding anonymous. CLI: --auth-token / --auth-header /
+   --auth-scheme / --auth-validate-url. LIVE-PROVEN against ginandjuice.shop
+   (header rides a real TLS target, scan completes, honest counters).
+
+5. **DISC-13 OpenAPI/Swagger seeding (`sentinel/discovery.py`)**
+   The target's own machine-readable surface map: auto-probe /openapi.json,
+   /swagger.json, /swagger/v1/swagger.json, /v2/api-docs (or an explicit
+   --openapi-spec file/URL) — unlinked admin/legacy/API paths invisible to any
+   crawler are declared there with parameters (query, path, JSON body fields).
+   Seeded endpoints ride the SAME dedup + scope gates as crawl results. Honest
+   negative recorded (stats.openapi) when no document exists. LIVE on
+   ginandjuice.shop: no document — honest null.
+
+6. **OP-02 SARIF 2.1.0 export (`sentinel/report.py`)**
+   The industry interchange format (GitHub code scanning, VS Code, DefectDojo).
+   Stable rule registry (a finding type always maps to the same SEN-XXX ruleId
+   so runs diff cleanly), severity->level mapping, verification-gated (rejected
+   candidates NEVER become results), evidence chain + verification method as
+   properties, partialFingerprints for result tracking. CLI: report --format
+   sarif; REST: GET /api/runs/<id>/sarif. LIVE: the full ginandjuice.shop
+   production run exports 34 results across 7 rules.
+
+7. **Test-runner fast filter (ops)**
+   SENTINEL_TEST_FILTER=prefix1,prefix2 executes only matching cases (cases run
+   at import in this runner; a "filtered" CLI run used to pay the full suite
+   runtime anyway). Release gate still runs the full suite.
+
+## Live-caught defects fixed this phase
+
+- **BrowserEngine API contract**: the orchestrator passed extra_headers
+  (session transport headers for the browser context) before BrowserEngine
+  learned to accept it — 9 tests red at session start. Fixed + the browser
+  context UA is now version-derived (was stale hardcoded "Sentinel/2.2").
+- **Set-Cookie attribute leak**: attribute names (Path=/, SameSite=Lax,
+  Expires=...) leaked into the cookie-platform list as if they were cookie
+  names (first live fingerprint run on ginandjuice.shop). Deterministic
+  attribute filter + permanent regression assertion.
+- **aws-waf false attribution**: x-amzn-requestid (API Gateway/ALB infra
+  header) was a WAF signature — would claim "AWS WAF" for plain infrastructure.
+  Removed; only x-amzn-waf-action counts.
+
+## Gates (all green)
+
+- Tests: **59/59** (52 -> 59: 6 unit + 1 composition regression)
+- Doctor: **12/12** (9 detectors, live public OAST channel)
+- Benchmark: local-fixture-v6 **F1=1.000** (TP=22 FP=0 FN=0 TN=16),
+  run-3c0652b6be **x3 IDENTICAL** (deterministic)
+- LIVE production scan ginandjuice.shop (--oast public --no-browser, 389 req,
+  452s): **45 verified, 0 rejected, 0 false positives** — all 5 prior
+  non-browser actives intact + **NEW ng-expression XSS on /catalog?searchTerm**
+  (DETECT-14) + XXE storeId OOB-verified again from 54.170.155.72 via the
+  public webhook channel. Real-target totals: **4 platforms, 22 verified
+  actives, 0 false positives** across 11 vulnerability classes.
+
 # SENTINEL v2.5.0 — "Hardening Release" Release
 
 Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).

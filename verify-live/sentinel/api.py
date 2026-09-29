@@ -246,6 +246,14 @@ class ApiHandler(BaseHTTPRequestHandler):
                     run["state"] = (live or {}).get("state", "done")
                     return self._json(run)
                 return self._json(live or {"error": "run not found"}, 404 if not live else 200)
+            if len(parts) == 3 and parts[0] == "runs" and parts[2] == "sarif":
+                # OP-02 (Phase 54): SARIF 2.1.0 export for CI pipelines (GitHub
+                # code scanning uploads). Verification-gated like every other view.
+                run = self.store.get_run(parts[1])
+                if not run:
+                    return self._json({"error": "run not found"}, 404)
+                from .report import build_sarif
+                return self._json(build_sarif(self.store, parts[1]))
             if parts == ["findings"]:
                 rows = self.store.list_findings(
                     run_id=q.get("run_id", ""), type_=q.get("type", ""),

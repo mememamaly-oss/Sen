@@ -32,6 +32,23 @@ class ScanConfig:
         self.openapi_spec = openapi_spec   # explicit spec dict/url seed (None = auto only)
 
 
+class _FingerprintingProxy:
+    """Phase 54 transparent proxy: every response the scan receives passes
+    through FingerprintCollector.observe() — WAF signatures, tech headers,
+    cookie platforms, DOM markers accumulate from traffic the scan already
+    produces. No extra requests, no behavior change (pure observer)."""
+    def __init__(self, inner, collector: FingerprintCollector):
+        self._inner, self._fp = inner, collector
+
+    def send(self, m):
+        r = self._inner.send(m)
+        self._fp.observe(r)
+        return r
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
 class SentinelScanner:
     def __init__(self, target_url: str, cfg: ScanConfig | None = None):
         self.cfg = cfg or ScanConfig()
@@ -43,6 +60,7 @@ class SentinelScanner:
         self.engine = RequestEngine(self.scope, self.bus, timeout=self.cfg.timeout)
         self.verifier = VerificationEngine(self.engine, self.bus, oast=self.cfg.oast)
         self.browser = None       # Phase 50: BrowserEngine (set in run() when enabled+available)
+        self.fp = FingerprintCollector()   # Phase 54: passive WAF + tech map
         self.pipeline = FindingPipeline(self.bus)
         self.strategies = StrategyStore(self.cfg.strategy_path)
         self.failures = FailureMemory()
@@ -98,6 +116,13 @@ class SentinelScanner:
                 else:
                     self.bus.emit("ScanContinuesUnauthenticated",
                                   reason=self.auth_engine.state.last_error)
+
+        # ---- Phase 54: fingerprint everything the scan already fetches. The
+        # collector rides a transparent proxy placed OUTERMOST (auth watchdog
+        # proxies stay inner), so crawl baselines, detector probes and verify
+        # replays ALL pass through observe() — zero extra requests, passive only.
+        self.engine = _FingerprintingProxy(self.engine, self.fp)
+        self.verifier.engine = self.engine
 
         # ---- Phase 4: discovery (extra_seeds carry the authenticated landing;
         # the login page itself is excluded from page-fetches — re-fetching it
@@ -372,6 +397,20 @@ class SentinelScanner:
                 "reauths": self.auth_engine.state.reauths,
                 "failed_reauths": self.auth_engine.state.failed_reauths,
             }
+        elif self.token_engine is not None:
+            # AUTH-05: token mode — no re-auth is possible; rejections (401/403
+            # while armed) are the honest degradation signal instead.
+            self.stats["auth"] = {"mode": "token",
+                                  "authenticated": self.token_engine.state.authenticated,
+                                  "header": self.cfg.auth.auth_header,
+                                  "rejections": self.token_engine.rejections}
+        # Phase 54: WAF + technology map (passive, evidence-backed) and rate-limit
+        # resilience counters — scan context in the report, auditable without rerun.
+        self.stats["fingerprint"] = self.fp.summary()
+        base = self._base_engine()
+        self.stats["rate_limit"] = {"limited": base.rate_limited,
+                                    "retries": base.rate_limit_retries,
+                                    "recovered": base.rate_limit_recovered}
         # Phase 52: OAST channel transparency — which channel served OOB evidence
         # (local loopback listener vs public webhook provider) and how many
         # interactions it recorded. Blind-vuln confirmations are auditable from
@@ -393,6 +432,16 @@ class SentinelScanner:
                           param=f.parameter, risk=self.pipeline.risk(f))
         self.bus.emit("ScanCompleted", **self.stats)
         return self.report()
+
+    def _base_engine(self) -> RequestEngine:
+        """Peel auth/fingerprint proxies to the real RequestEngine (counter owner)."""
+        e = self.engine
+        for _ in range(4):
+            inner = getattr(e, "_inner", None)
+            if inner is None:
+                break
+            e = inner
+        return e
 
     def report(self) -> dict:
         return {

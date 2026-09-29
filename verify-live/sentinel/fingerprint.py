@@ -27,7 +27,10 @@ import re
 WAF_SIGNATURES: dict[str, list[tuple[str, str]]] = {
     "cloudflare": [("header:server", "cloudflare"), ("header:cf-ray", ""),
                    ("cookie:__cfduid", ""), ("cookie:cf_clearance", "")],
-    "aws-waf":    [("header:x-amzn-waf-action", ""), ("header:x-amzn-requestid", "")],
+    "aws-waf":    [("header:x-amzn-waf-action", "")],   # x-amzn-waf-action ONLY —
+                 # x-amzn-requestid was deliberately EXCLUDED: API Gateway/ALB emit
+                 # it on every response; flagging it would claim "AWS WAF" for plain
+                 # infra (false attribution, live-caught class of error).
     "modsecurity": [("header:server", "mod_security"), ("body", "mod_security"),
                     ("body", "ModSecurity")],
     "f5-bigip":   [("cookie:ts", ""), ("cookie:bigipserver", ""), ("header:server", "bigip")],
@@ -59,6 +62,26 @@ XPOWERED = ("x-powered-by",)
 TECH_HEADERS = ("server", "x-powered-by", "x-aspnet-version", "x-aspnetmvc-version",
                 "x-generator", "x-drupal-cache")
 
+# LIVE-CAUGHT (Phase 54, ginandjuice.shop): Set-Cookie ATTRIBUTE names (Path=/,
+# SameSite=Lax, Expires=...) leaked into the cookie-platform list as if they were
+# cookie names ("path", "expires", "samesite" appeared as platforms context).
+# They are transport metadata, never identities — filter them deterministically.
+_COOKIE_ATTRS = {"path", "domain", "expires", "max-age", "samesite", "secure", "httponly",
+                 "version", "comment", "partitioned", "priority"}
+
+
+def _cookie_names(set_cookie_value: str) -> list[str]:
+    """Extract real cookie NAMES from a (possibly comma-joined) Set-Cookie value.
+    Only the name= part of each first segment counts; attributes are dropped."""
+    names = []
+    for seg in (set_cookie_value or "").split(","):
+        first = seg.strip().split(";")[0]
+        if "=" in first:
+            n = first.split("=", 1)[0].strip()
+            if n and n.lower() not in _COOKIE_ATTRS:
+                names.append(n)
+    return names
+
 
 class WafFingerprinter:
     """Passive named-WAF matcher. observe() every response; result() once at end."""
@@ -71,10 +94,7 @@ class WafFingerprinter:
             return
         hdrs = {k.lower(): v for k, v in (getattr(resp, "headers", None) or {}).items()}
         body = (getattr(resp, "body", "") or "")
-        cookies = [c for c in (hdrs.get("set-cookie", ""),) if c]
-        # Set-Cookie was collapsed by the engine's dict-lowercasing; harvest names
-        for raw in re.findall(r"([^:=,\s]+)=[^;]*", hdrs.get("set-cookie", "")):
-            cookies.append(raw)
+        cookies = _cookie_names(hdrs.get("set-cookie", ""))
         for waf, sigs in WAF_SIGNATURES.items():
             for channel, needle in sigs:
                 if channel.startswith("header:"):
@@ -111,7 +131,7 @@ class TechFingerprinter:
         for h in TECH_HEADERS:
             if h in hdrs and hdrs[h]:
                 self._headers[h] = hdrs[h][:80]
-        for c in re.findall(r"([^:=,\s]+)=[^;]*", hdrs.get("set-cookie", "")):
+        for c in _cookie_names(hdrs.get("set-cookie", "")):
             self._cookies.add(c.lower())
         body = (getattr(resp, "body", "") or "")
         low = body.lower()

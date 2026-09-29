@@ -1,0 +1,518 @@
+     1→"""Scan Orchestrator — ties Discovery -> Planner -> Detection -> Verification -> Finding Pipeline.
+     2→Plus: sentinel doctor (Phase 45) and benchmark runner hooks (Phase 16/29).
+     3→"""
+     4→from __future__ import annotations
+     5→import json, os, time
+     6→from .core import (Endpoint, EventBus, Evidence, Finding, FindingStatus, ScopeRule,
+     7→                   Severity, Target, DiscoverySource, new_run_id, SCANNER_VERSION)
+     8→from .http_engine import RequestEngine, RequestMutation
+     9→from .discovery import DiscoveryEngine
+    10→from .detect import (ACTIVE_DETECTORS, SQLiDetector, XSSDetector, TraversalDetector,
+    11→                     RedirectDetector, CrlfDetector, XxeDetector, passive_audit, plan_for)
+    12→from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMemory, RepairClassifier
+    13→from .auth import AuthProfile, AuthEngine, AuthedEngineProxy, TokenAuthEngine, TokenWatchdogProxy
+    14→from .fingerprint import FingerprintCollector
+    15→
+    16→
+    17→class ScanConfig:
+    18→    def __init__(self, allow_private=False, max_pages=25, crawl=True, active=True,
+    19→                 passive=True, timeout=12.0, seed=None, strategy_path=None,
+    20→                 allowed_domains=None, oast=None, browser=True, auth=None,
+    21→                 openapi=True, openapi_spec=None):
+    22→        self.allow_private = allow_private
+    23→        self.max_pages = max_pages
+    24→        self.crawl, self.active, self.passive = crawl, active, passive
+    25→        self.timeout, self.seed = timeout, seed
+    26→        self.strategy_path = strategy_path
+    27→        self.allowed_domains = allowed_domains or []
+    28→        self.oast = oast          # OastServer | None — enables OOB (blind-XXE) confirmation
+    29→        self.browser = browser    # Phase 50: DOM engine (graceful skip when unavailable)
+    30→        self.auth = auth          # Phase 51: AuthProfile | None — authenticated scanning
+    31→        self.openapi = openapi    # DISC-13: auto-probe well-known OpenAPI/Swagger docs
+    32→        self.openapi_spec = openapi_spec   # explicit spec dict/url seed (None = auto only)
+    33→
+    34→
+    35→class SentinelScanner:
+    36→    def __init__(self, target_url: str, cfg: ScanConfig | None = None):
+    37→        self.cfg = cfg or ScanConfig()
+    38→        self.run_id, self.seed = new_run_id(self.cfg.seed)
+    39→        self.bus = EventBus(self.run_id)
+    40→        self.target = Target(target_url)
+    41→        self.scope = ScopeRule(allowed_domains=[self.target.host] + self.cfg.allowed_domains,
+    42→                               allow_private=self.cfg.allow_private)
+    43→        self.engine = RequestEngine(self.scope, self.bus, timeout=self.cfg.timeout)
+    44→        self.verifier = VerificationEngine(self.engine, self.bus, oast=self.cfg.oast)
+    45→        self.browser = None       # Phase 50: BrowserEngine (set in run() when enabled+available)
+    46→        self.pipeline = FindingPipeline(self.bus)
+    47→        self.strategies = StrategyStore(self.cfg.strategy_path)
+    48→        self.failures = FailureMemory()
+    49→        self.classifier = RepairClassifier()
+    50→        self.findings: list[Finding] = []
+    51→        self.stats = {"requests": 0, "endpoints": 0, "candidates": 0, "verified": 0, "rejected": 0,
+    52→                      "duration": 0.0}
+    53→
+    54→    # ---------------------------------------------------------------- run
+    55→    def run(self) -> dict:
+    56→        t0 = time.time()
+    57→        self.bus.emit("ScanStarted", target=self.target.url, run=self.run_id,
+    58→                      scanner=SCANNER_VERSION, seed=self.seed)
+    59→
+    60→        # ---- Phase 51: authenticate BEFORE discovery — the session cookie (ENG-05
+    61→        # jar) then rides every later request, and the authenticated landing page
+    62→        # becomes a second crawl seed (the post-login surface is linked ONLY from
+    63→        # post-login pages: /bank/* on Altoro is invisible from the anonymous home).
+    64→        # AUTH-05 (Phase 54): token mode — Bearer/JWT/custom-header auth. Validation
+    65→        # instead of credential exchange; the header rides engine.default_headers;
+    66→        # no self-healing (static tokens cannot be re-minted) — 401/403 mid-scan are
+    67→        # counted honestly by the TokenWatchdogProxy instead of silently degrading.
+    68→        auth_seeds: list[str] = []
+    69→        self.auth_engine = None
+    70→        self.token_engine = None
+    71→        auth_headers: dict = {}
+    72→        if self.cfg.auth is not None:
+    73→            if self.cfg.auth.mode == "token":
+    74→                self.token_engine = TokenAuthEngine(self.cfg.auth, self.engine, self.bus)
+    75→                ok = self.token_engine.login()
+    76→                self.stats["authenticated"] = ok
+    77→                if ok:
+    78→                    self.engine = TokenWatchdogProxy(self.engine, self.token_engine)
+    79→                    self.verifier.engine = self.engine
+    80→                    auth_headers = {self.cfg.auth.auth_header: self.cfg.auth.header_value()}
+    81→                    auth_seeds.append(self.cfg.auth.login_url)
+    82→                else:
+    83→                    self.bus.emit("ScanContinuesUnauthenticated",
+    84→                                  reason=self.token_engine.state.last_error)
+    85→            else:
+    86→                self.auth_engine = AuthEngine(self.cfg.auth, self.engine, self.bus)
+    87→                ok = self.auth_engine.login()
+    88→                self.stats["authenticated"] = ok
+    89→                if ok:
+    90→                    # AUTH-03 watchdog proxy: from here on, session loss anywhere in
+    91→                    # the scan (discovery, detectors, verifier, browser) self-heals.
+    92→                    self.engine = AuthedEngineProxy(self.engine, self.auth_engine)
+    93→                    self.verifier.engine = self.engine
+    94→                    auth_seeds.append(self.auth_engine.state.landing_url)
+    95→                    # the authenticated crawl genuinely has more surface — grow budget
+    96→                    # deterministically (fixed 1.5x, no heuristics)
+    97→                    self.cfg.max_pages = int(self.cfg.max_pages * 1.5)
+    98→                else:
+    99→                    self.bus.emit("ScanContinuesUnauthenticated",
+   100→                                  reason=self.auth_engine.state.last_error)
+   101→
+   102→        # ---- Phase 4: discovery (extra_seeds carry the authenticated landing;
+   103→        # the login page itself is excluded from page-fetches — re-fetching it
+   104→        # clobbers the authenticated session cookie with a fresh anonymous one)
+   105→        d = DiscoveryEngine(self.engine, self.cfg.max_pages)
+   106→        endpoints: list[Endpoint] = [Endpoint(url=self.target.url, source=DiscoverySource.SEED)]
+   107→        if self.cfg.crawl:
+   108→            found, js, crawl_stats = d.crawl(self.target.url, extra_seeds=auth_seeds,
+   109→                                             exclude_urls=[self.cfg.auth.login_url] if self.cfg.auth else None)
+   110→            endpoints.extend(e for e in found if e.id != endpoints[0].id)
+   111→            robots = d.robots(self.target.url)
+   112→            endpoints.extend(e for e in robots if all(e.id != x.id for x in endpoints))
+   113→            self.stats["crawl"] = crawl_stats
+   114→            self.bus.emit("DiscoveryCompleted", **crawl_stats, js_endpoints=len(js))
+   115→        # ---- DISC-13 (Phase 54): the target's OWN OpenAPI/Swagger document is a
+   116→        # machine-readable surface map — unlinked admin/legacy/API paths that no
+   117→        # crawler can reach are declared there with parameters. Auto-probe the
+   118→        # well-known locations (and honor an explicit spec); merged endpoints ride
+   119→        # the SAME dedup + scope gates as crawl results.
+   120→        if self.cfg.openapi or self.cfg.openapi_spec:
+   121→            spec_eps, spec_info = [], None
+   122→            if self.cfg.openapi_spec:
+   123→                from .discovery import parse_openapi, _spec_info
+   124→                if isinstance(self.cfg.openapi_spec, dict):
+   125→                    spec_eps = parse_openapi(self.cfg.openapi_spec, self.target.url)
+   126→                    spec_info = _spec_info(self.cfg.openapi_spec, "(inline-seed)", len(spec_eps))
+   127→            else:
+   128→                try:
+   129→                    spec_eps, spec_info = d.openapi(self.target.url)
+   130→                except Exception:
+   131→                    spec_eps, spec_info = [], None
+   132→            if spec_eps:
+   133→                new_eps = [e for e in spec_eps if all(e.id != x.id for x in endpoints)]
+   134→                endpoints.extend(new_eps)
+   135→                self.stats["openapi"] = dict(spec_info or {})
+   136→                self.stats["openapi"]["new_endpoints"] = len(new_eps)
+   137→                self.bus.emit("OpenApiSeeded", **(spec_info or {}), new_endpoints=len(new_eps))
+   138→            elif self.cfg.openapi_spec is None:
+   139→                self.stats["openapi"] = {"source": None, "paths": 0, "new_endpoints": 0}
+   140→        self.stats["endpoints"] = len(endpoints)
+   141→
+   142→        # ---- Phase 50: browser/DOM engine — render-merge BEFORE planning so active
+   143→        # detectors cover runtime-discovered surfaces (JS-built forms, rendered links).
+   144→        dom_sinks = list(getattr(d, "dom_sinks", [])) if self.cfg.crawl else []
+   145→        if self.cfg.browser:
+   146→            from .browser import BrowserEngine, browser_available
+   147→            if browser_available():
+   148→                self.browser = BrowserEngine(self.engine, timeout=self.cfg.timeout,
+   149→                                             extra_headers=auth_headers)
+   150→                self.verifier.browser = self.browser
+   151→                existing = {e.id: e for e in endpoints}
+   152→                # Render budget: script-bearing pages first (runtime forms / DOM logic
+   153→                # only exist where scripts run — live-caught: a naive first-N endpoint
+   154→                # selection missed the JS-built form page entirely), then dom-sink
+   155→                # pages, then remaining GET pages up to the cap.
+   156→                seen_t = set()
+   157→                render_targets = []
+   158→                for u in (list(getattr(d, "script_pages", [])) +
+   159→                          [s.url for s in dom_sinks] +
+   160→                          [e.url for e in endpoints if (e.method or "GET") == "GET"]):
+   161→                    if u and u not in seen_t:
+   162→                        seen_t.add(u)
+   163→                        render_targets.append(u)
+   164→                render_targets = render_targets[:15]
+   165→                new_eps = self.browser.render_merge(render_targets, self.target.host, existing)
+   166→                endpoints.extend(e for e in new_eps if e.id not in {x.id for x in endpoints})
+   167→                self.stats["endpoints"] = len(endpoints)
+   168→                self.stats["browser_pages"] = self.browser.pages_rendered
+   169→                self.bus.emit("BrowserRenderCompleted", pages=self.browser.pages_rendered,
+   170→                              new_endpoints=len(new_eps), dom_sink_candidates=len(dom_sinks))
+   171→            else:
+   172→                self.bus.emit("BrowserUnavailable",
+   173→                              note="playwright/chromium not installed — static fallback active")
+   174→
+   175→        # ---- Phase 7: plan; Phase 8: detect
+   176→        detectors = {d.name: d(self.engine, self.bus, self.strategies) for d in ACTIVE_DETECTORS}
+   177→        # Phase 53: OAST-channel detectors (SSRF / blind command injection) receive
+   178→        # the armed channel; without one they stay inert (response oracles for these
+   179→        # classes are noise — live-observed on the cycling stock endpoint).
+   180→        for _d in detectors.values():
+   181→            if getattr(_d, "needs_oast", False):
+   182→                _d.oast = self.cfg.oast
+   183→        vuln_to_detector = {"sql_injection": "sqli", "xss_reflected": "xss",
+   184→                            "path_traversal": "traversal", "open_redirect": "redirect", "ssrf": "ssrf",
+   185→                            "header_injection": "crlf", "xxe": "xxe",
+   186→                            "command_injection": "cmdi", "cors_misconfig": "cors"}
+   187→        plan = []
+   188→        for ep in endpoints:
+   189→            plan.extend(plan_for(ep))
+   190→        self.bus.emit("ScanPlanReady", planned=len(plan))
+   191→
+   192→        for ep in endpoints:
+   193→            if self.cfg.passive:
+   194→                r = self.engine.send(RequestMutation(endpoint=ep, note="passive-baseline"))
+   195→                if not r.error:
+   196→                    for f in passive_audit(ep, r):
+   197→                        self.findings.append(self.verifier.verify(f, ep))
+   198→            if not self.cfg.active:
+   199→                continue
+   200→            for dname, det in detectors.items():
+   201→                try:
+   202→                    if dname == "sqli":
+   203→                        cands = det.candidates(ep)
+   204→                        if not cands: continue
+   205→                        # PER-PARAM ANALYSIS (live-caught on doLogin: old flat resp_map kept
+   206→                        # only the LAST param's responses, silently discarding earlier params)
+   207→                        from itertools import groupby
+   208→                        for pname, grp in groupby(cands, key=lambda t: t[1].param_name):
+   209→                            grp = list(grp)
+   210→                            resp_map = {}
+   211→                            for strat, m in grp:
+   212→                                r = self.engine.send(m)
+   213→                                if r.error:
+   214→                                    fid = self.failures.record("sqli", r.error, {"url": ep.url})
+   215→                                    self.bus.emit("ScannerFailed", scanner="sqli", failure=fid, error=r.error)
+   216→                                    continue
+   217→                                resp_map[strat] = r
+   218→                            param_obj = next((p for p in ep.parameters if p.name == pname), None)
+   219→                            if param_obj is None or not resp_map:
+   220→                                continue
+   221→                            cand = det.analyze((ep, param_obj), resp_map)
+   222→                            if cand:
+   223→                                cand.run_id = self.run_id
+   224→                                self.stats["candidates"] += 1
+   225→                                self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
+   226→                                out_f = self.verifier.verify(cand, ep)
+   227→                                self.findings.append(out_f)
+   228→                                # Phase 19/25: record VERIFIED outcomes only into strategy store
+   229→                                for st in ("quote_error", "boolean_and", "or_redirect", "or_differential", "quote_status"):
+   230→                                    self.strategies.record("sqli", st, out_f.status == FindingStatus.VERIFIED,
+   231→                                                           context=self.target.host)
+   232→                    elif dname == "xxe":
+   233→                        # DETECT-08 two-phase flow: candidates() returns recon probes (XML
+   234→                        # with form fields, root learned from JS); the recon response names
+   235→                        # missing elements ("Store ID could not be parsed"), expand() builds
+   236→                        # the entity differential probes, analyze() compares them.
+   237→                        cands = det.candidates(ep)
+   238→                        for strat, m in cands:
+   239→                            r0 = self.engine.send(m)
+   240→                            if r0.error or r0.status == 0:
+   241→                                continue
+   242→                            root = strat.split("|")[1]
+   243→                            probes = det.expand(ep, r0, root)
+   244→                            if not probes:
+   245→                                continue
+   246→                            resp_map = {}
+   247→                            for s2, m2 in probes:
+   248→                                r = self.engine.send(m2)
+   249→                                if r.error:
+   250→                                    fid = self.failures.record("xxe", r.error, {"url": ep.url})
+   251→                                    self.bus.emit("ScannerFailed", scanner="xxe", failure=fid, error=r.error)
+   252→                                    continue
+   253→                                resp_map[s2] = r
+   254→                            if not resp_map:
+   255→                                continue
+   256→                            cand = det.analyze((ep, None), resp_map)
+   257→                            # Phase 49 — OOB fallback: response oracle impossible (noise /
+   258→                            # non-deterministic answers) but an OAST listener is armed ->
+   259→                            # the target itself becomes the evidence channel (blind XXE).
+   260→                            if cand is None and self.cfg.oast is not None:
+   261→                                self.bus.emit("OobAttemptStarted", scanner="xxe", url=ep.url)
+   262→                                cand = det.oob_attempt(ep, root, r0, self.cfg.oast)
+   263→                            if cand:
+   264→                                cand.run_id = self.run_id
+   265→                                self.stats["candidates"] += 1
+   266→                                self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
+   267→                                out_f = self.verifier.verify(cand, ep)
+   268→                                self.findings.append(out_f)
+   269→                                strat_name = ("oob_callback" if any(e.kind == "oob_callback" for e in cand.evidence)
+   270→                                              else "entity_differential")
+   271→                                self.strategies.record("xxe", strat_name,
+   272→                                                       out_f.status == FindingStatus.VERIFIED,
+   273→                                                       context=self.target.host)
+   274→                    elif dname == "cors":
+   275→                        # DETECT-13: header-only probe (Origin reflection + credentials) —
+   276→                        # has no param, so it cannot ride the param-bound generic loop.
+   277→                        cand = det.run(ep)
+   278→                        if cand:
+   279→                            cand.run_id = self.run_id
+   280→                            self.stats["candidates"] += 1
+   281→                            self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
+   282→                            out_f = self.verifier.verify(cand, ep)
+   283→                            self.findings.append(out_f)
+   284→                            self.strategies.record("cors", "primary",
+   285→                                                   out_f.status == FindingStatus.VERIFIED,
+   286→                                                   context=self.target.host)
+   287→                    else:
+   288→                        for m in det.candidates(ep):
+   289→                            if isinstance(m, tuple):
+   290→                                m = m[1]
+   291→                            r = self.engine.send(m)
+   292→                            if r.error:
+   293→                                fid = self.failures.record(det.name, r.error, {"url": ep.url})
+   294→                                self.bus.emit("ScannerFailed", scanner=det.name, failure=fid, error=r.error)
+   295→                                continue
+   296→                            pair = (ep, next((p for p in ep.parameters if p.name == m.param_name), ep.parameters[0] if ep.parameters else None))
+   297→                            if not pair[1]: continue
+   298→                            cand = det.analyze(pair, r)
+   299→                            if cand:
+   300→                                cand.run_id = self.run_id
+   301→                                self.stats["candidates"] += 1
+   302→                                self.bus.emit("CandidateCreated", type=cand.type, url=ep.url, param=cand.parameter)
+   303→                                out_f = self.verifier.verify(cand, ep)
+   304→                                self.findings.append(out_f)
+   305→                                self.strategies.record(dname, "primary", out_f.status == FindingStatus.VERIFIED,
+   306→                                                       context=self.target.host)
+   307→                except Exception as e:
+   308→                    fid = self.failures.record(dname, f"{type(e).__name__}: {e}", {"url": ep.url})
+   309→                    self.bus.emit("ScannerFailed", scanner=dname, failure=fid, error=str(e)[:200])
+   310→
+   311→        # ---- Phase 50: DOM XSS execution probes (browser; static sink candidates).
+   312→        # search sources probe the extracted param names; hash sources take the
+   313→        # payload directly in the fragment; referrer/name sources are a documented
+   314→        # limit (cannot be set by plain navigation).
+   315→        if self.browser is not None and self.cfg.active and dom_sinks:
+   316→            try:
+   317→                import hashlib as _hb
+   318→                seen_probe = set()
+   319→                for sink in dom_sinks:
+   320→                    if sink.source == "search":
+   321→                        probe_params = [p for p in sink.params[:3] if p]
+   322→                    elif sink.source == "hash":
+   323→                        probe_params = [""]
+   324→                    else:
+   325→                        continue
+   326→                    for pname in probe_params:
+   327→                        pkey = f"{sink.url}|{pname}|{sink.source}"
+   328→                        if pkey in seen_probe:
+   329→                            continue
+   330→                        seen_probe.add(pkey)
+   331→                        canary = "z" + _hb.sha1(pkey.encode()).hexdigest()[:9]
+   332→                        # canonical page URL (crawl params stripped) — the finding and
+   333→                        # its re-probe must be reproducible from a clean URL
+   334→                        page_url = sink.url.split("?")[0].split("#")[0]
+   335→                        r = self.browser.probe_dom_xss(page_url, pname, canary, source=sink.source)
+   336→                        if r and r.get("fired"):
+   337→                            cand = Finding(type="xss_dom", severity=Severity.HIGH,
+   338→                                           endpoint_url=page_url, parameter=pname, method="GET",
+   339→                                           evidence=[Evidence("dom_execution",
+   340→                                                      f"source={sink.source} sink={sink.sink} — {r['detail']}; "
+   341→                                                      f"static flow: {sink.snippet}")],
+   342→                                           status=FindingStatus.CANDIDATE)
+   343→                            cand.run_id = self.run_id
+   344→                            self.stats["candidates"] += 1
+   345→                            self.bus.emit("CandidateCreated", type=cand.type, url=sink.url, param=pname)
+   346→                            out_f = self.verifier.verify(cand, None)
+   347→                            self.findings.append(out_f)
+   348→                            self.strategies.record("dom_xss", sink.sink,
+   349→                                                   out_f.status == FindingStatus.VERIFIED,
+   350→                                                   context=self.target.host)
+   351→                self.stats["browser_probes"] = self.browser.probes_sent
+   352→            except Exception as e:
+   353→                fid = self.failures.record("dom_xss", f"{type(e).__name__}: {e}", {})
+   354→                self.bus.emit("ScannerFailed", scanner="dom_xss", failure=fid, error=str(e)[:200])
+   355→        if self.browser is not None:
+   356→            try:
+   357→                self.browser.close()
+   358→            except Exception:
+   359→                pass
+   360→
+   361→        # ---- Phase 12: dedup + correlation + risk
+   362→        verified = [f for f in self.findings if f.status == FindingStatus.VERIFIED]
+   363→        rejected = [f for f in self.findings if f.status == FindingStatus.REJECTED]
+   364→        self.stats.update({"requests": self.engine.requests_sent,
+   365→                           "verified": len(verified), "rejected": len(rejected),
+   366→                           "duration": round(time.time() - t0, 2)})
+   367→        if self.auth_engine is not None:
+   368→            self.stats["auth"] = {
+   369→                "authenticated": self.auth_engine.state.authenticated,
+   370→                "landing": self.auth_engine.state.landing_url,
+   371→                "logins": self.auth_engine.state.logins,
+   372→                "reauths": self.auth_engine.state.reauths,
+   373→                "failed_reauths": self.auth_engine.state.failed_reauths,
+   374→            }
+   375→        # Phase 52: OAST channel transparency — which channel served OOB evidence
+   376→        # (local loopback listener vs public webhook provider) and how many
+   377→        # interactions it recorded. Blind-vuln confirmations are auditable from
+   378→        # the report alone, without re-running the scan.
+   379→        if self.cfg.oast is not None:
+   380→            try:
+   381→                self.stats["oast"] = {"channel": getattr(self.cfg.oast, "channel", "local"),
+   382→                                      "interactions": len(self.cfg.oast.hits())}
+   383→            except Exception:
+   384→                self.stats["oast"] = {"channel": getattr(self.cfg.oast, "channel", "local"),
+   385→                                      "interactions": -1}
+   386→        ded = self.pipeline.dedup(verified)
+   387→        final = self.pipeline.correlate(ded)
+   388→        for f in final:
+   389→            f.confidence = max(f.confidence, 0.5)
+   390→        self.findings = final + rejected
+   391→        for f in final:
+   392→            self.bus.emit("FindingCreated", id=f.id, type=f.type, url=f.endpoint_url,
+   393→                          param=f.parameter, risk=self.pipeline.risk(f))
+   394→        self.bus.emit("ScanCompleted", **self.stats)
+   395→        return self.report()
+   396→
+   397→    def report(self) -> dict:
+   398→        return {
+   399→            "run_id": self.run_id, "seed": self.seed, "scanner": SCANNER_VERSION,
+   400→            "target": self.target.url, "stats": self.stats,
+   401→            "findings": [f.to_dict() | {"risk": self.pipeline.risk(f)} for f in self.findings
+   402→                         if f.status == FindingStatus.VERIFIED],
+   403→            "rejected_candidates": [f.to_dict() for f in self.findings
+   404→                                    if f.status == FindingStatus.REJECTED],
+   405→        }
+   406→
+   407→
+   408→# ============================================================ DOCTOR (Phase 44/45)
+   409→def doctor(allow_private=False) -> dict:
+   410→    import socket, ssl, subprocess, sys, platform
+   411→    checks = []
+   412→
+   413→    def add(name, ok, detail, fix=""):
+   414→        checks.append({"check": name, "status": "PASS" if ok else ("WARN" if detail.startswith("warn") else "FAIL"),
+   415→                       "detail": detail, "auto_fix": fix if not ok else ""})
+   416→
+   417→    add("runtime", True, f"Python {sys.version.split()[0]} on {platform.system()}")
+   418→    # DNS
+   419→    try:
+   420→        socket.gethostbyname("scanme.nmap.org")
+   421→        add("dns_resolution", True, "resolved scanme.nmap.org")
+   422→    except Exception as e:
+   423→        add("dns_resolution", False, str(e)[:80], "check /etc/resolv.conf")
+   424→    # outbound TCP
+   425→    try:
+   426→        s = socket.create_connection(("scanme.nmap.org", 80), timeout=8); s.close()
+   427→        add("network_egress", True, "TCP connect scanme.nmap.org:80 OK")
+   428→    except Exception as e:
+   429→        add("network_egress", False, str(e)[:80])
+   430→    # TLS
+   431→    try:
+   432→        ctx = ssl.create_default_context(); ctx.check_hostname = False; ctx.verify_mode = ssl.CERT_NONE
+   433→        add("tls_stack", True, OpenSSL_ver := ssl.OPENSSL_VERSION)
+   434→    except Exception as e:
+   435→        add("tls_stack", False, str(e)[:80])
+   436→    # scope policy sanity
+   437→    from .core import is_private_ip
+   438→    add("scope_policy", is_private_ip("127.0.0.1") and is_private_ip("10.0.0.5") and not is_private_ip("45.33.32.156"),
+   439→        "private ranges blocked, public allowed" + (" (+private override)" if allow_private else ""))
+   440→    # detector registry
+   441→    add("detector_registry", len(ACTIVE_DETECTORS) >= 4, f"{len(ACTIVE_DETECTORS)} active detectors registered")
+   442→    # strategy store
+   443→    add("strategy_store", True, "verified-outcome Wilson ordering enabled")
+   444→    # persistence layer (Phase 46): sqlite3 available + schema initializes + round-trip
+   445→    try:
+   446→        import tempfile, os as _os, sqlite3
+   447→        from .store import Store
+   448→        p = _os.path.join(tempfile.mkdtemp(), "doctor.db")
+   449→        st = Store(p)
+   450→        st.save_run({"run_id": "run-doctor", "seed": "s", "scanner": "doctor",
+   451→                     "target": "http://doctor.local", "stats": {"requests": 1},
+   452→                     "findings": [{"id": "F-d", "type": "missing_security_headers",
+   453→                                   "severity": "low", "status": "verified",
+   454→                                   "url": "http://doctor.local/", "parameter": "", "method": "GET",
+   455→                                   "confidence": 0.98, "risk": 20, "evidence": [], "verification": {}}],
+   456→                     "rejected_candidates": []})
+   457→        ok = len(st.list_findings()) == 1 and st.stats_summary()["runs"] == 1
+   458→        add("persistence_layer", ok,
+   459→            f"SQLite store OK (schema + write + query round-trip) at {sqlite3.sqlite_version}")
+   460→    except Exception as e:
+   461→        add("persistence_layer", False, str(e)[:80])
+   462→    # repair registry
+   463→    add("repair_registry", len(RepairClassifier.RULES) >= 3, f"{len(RepairClassifier.RULES)} repair rules loaded")
+   464→    # browser engine (Phase 50): DOM XSS phase needs Playwright + Chromium.
+   465→    # Absent browser = WARN (degraded, not broken): static DOM sink analysis still
+   466→    # runs and every other phase is unaffected; browser-only checks are skipped.
+   467→    try:
+   468→        from .browser import browser_available
+   469→        if browser_available():
+   470→            add("browser_engine", True, "Playwright Chromium launch OK — DOM engine active")
+   471→        else:
+   472→            add("browser_engine", False,
+   473→                "warn: playwright/chromium unavailable — DOM XSS execution phase disabled "
+   474→                "(static sink analysis remains active; install playwright + chromium to enable)")
+   475→    except Exception as e:
+   476→        add("browser_engine", False, "warn: " + str(e)[:120])
+   477→    # auth engine (Phase 51): AuthProfile/AuthEngine/AuthedEngineProxy importable
+   478→    # and the ENG-06 body serialization they depend on behaves (no-param POST
+   479→    # requests with BODY fields must carry a non-empty form body).
+   480→    try:
+   481→        from .auth import AuthProfile, AuthEngine, AuthedEngineProxy
+   482→        from .core import ParamLocation, Parameter as _P
+   483→        eng = RequestEngine(ScopeRule(allowed_domains=["auth.doctor.local"]),
+   484→                            EventBus("doctor-auth"), timeout=2)
+   485→        m = RequestMutation(endpoint=Endpoint(
+   486→            url="http://auth.doctor.local/doLogin", method="POST",
+   487→            parameters=[_P("uid", ParamLocation.BODY, "u"), _P("passw", ParamLocation.BODY, "p")]))
+   488→        _, _, hdrs, body = eng._render(m)
+   489→        add("auth_engine", bool(body) and "uid=u" in body and "passw=p" in body,
+   490→            f"login flow engine OK (form body serialized: {bool(body)}; "
+   491→            f"watchdog proxy + budget-capped re-auth available)")
+   492→    except Exception as e:
+   493→        add("auth_engine", False, str(e)[:120])
+   494→    # OAST providers (Phase 52): local loopback listener must bind + record, and
+   495→    # the public webhook channel must create a token + read an empty request log.
+   496→    # The public check is network-dependent -> WARN (degraded, not broken) when
+   497→    # the service is unreachable: local OOB confirmation still works.
+   498→    try:
+   499→        from .oast import OastServer, PublicWebhookProvider
+   500→        with OastServer() as _o:
+   501→            assert _o.poll("doctor-none", timeout=0.2) is None
+   502→        local_ok = True
+   503→        try:
+   504→            with PublicWebhookProvider() as _p:
+   505→                assert _p.public_base.startswith("https://")
+   506→                assert _p.poll("doctor-none", timeout=1.0) is None
+   507→            public_detail = "local listener + public webhook channel both OK"
+   508→            public_ok = True
+   509→        except Exception as _pe:
+   510→            public_detail = f"warn: public channel unreachable ({str(_pe)[:60]}) — local OOB only"
+   511→            public_ok = None                                   # WARN path
+   512→        add("oast_providers", public_ok if public_ok is not None else False, public_detail)
+   513→    except Exception as e:
+   514→        add("oast_providers", False, str(e)[:80])
+   515→    passed = sum(1 for c in checks if c["status"] == "PASS")
+   516→    return {"overall": "PASS" if passed == len(checks) else "DEGRADED",
+   517→            "passed": passed, "total": len(checks), "checks": checks}
+   518→
