@@ -1,0 +1,199 @@
+{
+ "run_id": "run-7438f148d7",
+ "seed": "4447bc87",
+ "scanner": "sentinel-core/2.8.0",
+ "target": "http://demo.testfire.net/",
+ "stats": {
+  "requests": 7,
+  "endpoints": 1,
+  "candidates": 0,
+  "verified": 2,
+  "rejected": 0,
+  "duration": 2.63,
+  "openapi": {
+   "source": null,
+   "paths": 0,
+   "new_endpoints": 0
+  },
+  "param_intel": {
+   "params_total": 0,
+   "by_kind": {},
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {
+     "server": "Apache-Coyote/1.1"
+    },
+    "cookies": [
+     "jsessionid"
+    ],
+    "frameworks": [
+     "cookies:Java"
+    ],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "coverage": {
+   "discovered": 1,
+   "tested": 1,
+   "passive": 1,
+   "secrets_scanned": 1,
+   "active": 1,
+   "authz_probed": 0,
+   "active_or_authz": 1,
+   "untested": 0,
+   "skip_reasons": {},
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://demo.testfire.net/",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    }
+   ],
+   "detail_truncated": 0
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 1,
+     "endpoints": [
+      "http://demo.testfire.net/"
+     ]
+    },
+    "api": {
+     "count": 0,
+     "endpoints": []
+    },
+    "form_or_action": {
+     "count": 0,
+     "endpoints": []
+    },
+    "static": {
+     "count": 0,
+     "endpoints": []
+    }
+   },
+   "authentication": {
+    "mode": "anonymous",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": null,
+   "coverage": {
+    "discovered": 1,
+    "tested": 1,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {}
+   }
+  },
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [
+  {
+   "id": "F-975ddc446f",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/2.8.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://demo.testfire.net/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-9d25123376",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://demo.testfire.net/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Apache-Coyote/1.1"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/2.8.0",
+   "run_id": "",
+   "risk": 9,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://demo.testfire.net/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  }
+ ],
+ "rejected_candidates": []
+}

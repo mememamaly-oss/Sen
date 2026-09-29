@@ -1,0 +1,76 @@
+{
+ "tag": "c05_50_59",
+ "range": [
+  50,
+  59
+ ],
+ "members": [
+  "unit_auth01_form_intelligent_login",
+  "regression_auth_scan_finds_gated_surface_and_anonymous_does_not",
+  "regression_auth03_watchdog_reauth_midscan",
+  "unit_waf_fingerprinter_named_signatures",
+  "unit_tech_fingerprinter_platform_map",
+  "unit_eng09_rate_limit_backoff",
+  "unit_auth05_token_bearer_modes",
+  "unit_op02_sarif_export",
+  "unit_disc13_openapi_seed",
+  "regression_phase54_ops_stealth_composition"
+ ],
+ "wall_s": 7.4,
+ "returncode": 0,
+ "failed": 0,
+ "executed": 10,
+ "cases": [
+  {
+   "name": "unit_auth01_form_intelligent_login",
+   "ok": true,
+   "ms": 525
+  },
+  {
+   "name": "regression_auth_scan_finds_gated_surface_and_anonymous_does_not",
+   "ok": true,
+   "ms": 2821
+  },
+  {
+   "name": "regression_auth03_watchdog_reauth_midscan",
+   "ok": true,
+   "ms": 1682
+  },
+  {
+   "name": "unit_waf_fingerprinter_named_signatures",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_tech_fingerprinter_platform_map",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_eng09_rate_limit_backoff",
+   "ok": true,
+   "ms": 506
+  },
+  {
+   "name": "unit_auth05_token_bearer_modes",
+   "ok": true,
+   "ms": 507
+  },
+  {
+   "name": "unit_op02_sarif_export",
+   "ok": true,
+   "ms": 8
+  },
+  {
+   "name": "unit_disc13_openapi_seed",
+   "ok": true,
+   "ms": 505
+  },
+  {
+   "name": "regression_phase54_ops_stealth_composition",
+   "ok": true,
+   "ms": 678
+  }
+ ],
+ "log": "/home/z/my-project/verify-live/results/chunks/c05_50_59.log"
+}

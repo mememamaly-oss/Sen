@@ -1,0 +1,94 @@
+{
+ "tag": "c02_22_34",
+ "range": [
+  22,
+  34
+ ],
+ "members": [
+  "regression_js_url_extraction_rejects_code_fragments",
+  "regression_sqli_or_redirect_oracle",
+  "regression_inline_js_url_extraction",
+  "regression_sqli_quote500_and_orpair_oracles",
+  "regression_sqli_orpair_bodydiff_verification_path_d",
+  "regression_xss_slashfree_canary",
+  "regression_crlf_header_injection_and_xxe_live",
+  "regression_vuln_js_dependency_passive",
+  "regression_crawl_preserves_link_query",
+  "unit_oast_server_records_interactions",
+  "regression_store_persistence_and_intelligence",
+  "regression_report_builder_outputs",
+  "regression_oob_blind_xxe_end_to_end"
+ ],
+ "wall_s": 78.8,
+ "returncode": 0,
+ "failed": 0,
+ "executed": 13,
+ "cases": [
+  {
+   "name": "regression_js_url_extraction_rejects_code_fragments",
+   "ok": true,
+   "ms": 6
+  },
+  {
+   "name": "regression_sqli_or_redirect_oracle",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "regression_inline_js_url_extraction",
+   "ok": true,
+   "ms": 578
+  },
+  {
+   "name": "regression_sqli_quote500_and_orpair_oracles",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "regression_sqli_orpair_bodydiff_verification_path_d",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "regression_xss_slashfree_canary",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "regression_crlf_header_injection_and_xxe_live",
+   "ok": true,
+   "ms": 11169
+  },
+  {
+   "name": "regression_vuln_js_dependency_passive",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "regression_crawl_preserves_link_query",
+   "ok": true,
+   "ms": 504
+  },
+  {
+   "name": "unit_oast_server_records_interactions",
+   "ok": true,
+   "ms": 806
+  },
+  {
+   "name": "regression_store_persistence_and_intelligence",
+   "ok": true,
+   "ms": 7
+  },
+  {
+   "name": "regression_report_builder_outputs",
+   "ok": true,
+   "ms": 5
+  },
+  {
+   "name": "regression_oob_blind_xxe_end_to_end",
+   "ok": true,
+   "ms": 65588
+  }
+ ],
+ "log": "/home/z/my-project/verify-live/results/chunks/c02_22_34.log"
+}
