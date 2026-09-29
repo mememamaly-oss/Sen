@@ -25,7 +25,8 @@ class ScanConfig:
     def __init__(self, allow_private=False, max_pages=25, crawl=True, active=True,
                  passive=True, timeout=12.0, seed=None, strategy_path=None,
                  allowed_domains=None, oast=None, browser=True, auth=None,
-                 openapi=True, openapi_spec=None, authz=None, secrets=True):
+                 openapi=True, openapi_spec=None, authz=None, secrets=True,
+                 vault=None, vault_key_file=None):
         self.allow_private = allow_private
         self.max_pages = max_pages
         self.crawl, self.active, self.passive = crawl, active, passive
@@ -39,6 +40,8 @@ class ScanConfig:
         self.openapi_spec = openapi_spec   # explicit spec dict/url seed (None = auto only)
         self.authz = authz        # Phase 56: multi-user authorization config (dict | None)
         self.secrets = secrets    # Phase 56: credential-exposure scan of passive baselines
+        self.vault = vault                     # Phase 57: vault file path | None
+        self.vault_key_file = vault_key_file   # Phase 57: authorized key file path
 
 
 class _FingerprintingProxy:
@@ -75,6 +78,7 @@ class SentinelScanner:
         self.failures = FailureMemory()
         self.classifier = RepairClassifier()
         self.findings: list[Finding] = []
+        self.vault = None         # Phase 57: opened Credential Vault (armed capture)
         self.stats = {"requests": 0, "endpoints": 0, "candidates": 0, "verified": 0, "rejected": 0,
                       "duration": 0.0}
 
@@ -83,6 +87,16 @@ class SentinelScanner:
         t0 = time.time()
         self.bus.emit("ScanStarted", target=self.target.url, run=self.run_id,
                       scanner=SCANNER_VERSION, seed=self.seed)
+
+        # ---- Phase 57 (v2.9.0): Credential Vault — opened BEFORE any request
+        # so a wrong/unauthorized key fails fast as a configuration error,
+        # never mid-scan. Every credential the exposure engine proves is then
+        # captured encrypted-at-rest; public artifacts keep masks only.
+        if self.cfg.secrets and self.cfg.vault and self.cfg.vault_key_file:
+            from .vault import Vault
+            self.vault = Vault.open(self.cfg.vault, self.cfg.vault_key_file)
+            self.bus.emit("VaultUnlocked", org=self.vault.org,
+                          actor=self.vault.key_id)
 
         # ---- Phase 51: authenticate BEFORE discovery — the session cookie (ENG-05
         # jar) then rides every later request, and the authenticated landing page
@@ -270,7 +284,9 @@ class SentinelScanner:
                     # VR-19 re-fetches only for candidates).
                     if self.cfg.secrets:
                         self.coverage.activity(ep, "secrets", "secrets-passive-scan")
-                        for sf in SecretsScanner().scan(ep, r):
+                        capture = (self.vault.capture_callback(self.run_id, ep.url)
+                                   if self.vault is not None else None)
+                        for sf in SecretsScanner().scan(ep, r, capture=capture):
                             sf.run_id = self.run_id
                             self.stats["candidates"] += 1
                             self.bus.emit("CandidateCreated", type=sf.type, url=ep.url,
@@ -545,7 +561,22 @@ class SentinelScanner:
             self.stats["secrets"] = {"classes_found": cred_classes,
                                      "findings": sum(1 for f in final
                                                      if f.type == "credential_exposure"),
-                                     "masking": "raw values never stored (prefix+length only)"}
+                                     "masking": ("raw values encrypted into the "
+                                                 "credential vault; public reports "
+                                                 "show masks only"
+                                                 if self.vault is not None else
+                                                 "raw values never stored (prefix+length only)")}
+        # Phase 57: vault account — masked counts only, plus the audit-visible
+        # org/revision (never key material, never record values).
+        if self.vault is not None:
+            masked_list = self.vault.list()
+            self.stats["vault"] = {"org": self.vault.org,
+                                   "revision": self.vault.revision,
+                                   "records": len(masked_list),
+                                   "classes": sorted({r["cls"] for r in masked_list}),
+                                   "policy": ("raw values encrypted at rest; "
+                                              "reveal requires an authorized key "
+                                              "and is audit-logged")}
         self.bus.emit("ScanCompleted", **self.stats)
         return self.report()
 
@@ -560,7 +591,7 @@ class SentinelScanner:
         return e
 
     def report(self) -> dict:
-        return {
+        rep = {
             "run_id": self.run_id, "seed": self.seed, "scanner": SCANNER_VERSION,
             "target": self.target.url, "stats": self.stats,
             "findings": [f.to_dict() | {"risk": self.pipeline.risk(f),
@@ -569,6 +600,12 @@ class SentinelScanner:
             "rejected_candidates": [f.to_dict() for f in self.findings
                                     if f.status == FindingStatus.REJECTED],
         }
+        # Phase 57: defense in depth — when a vault is armed, scrub the WHOLE
+        # report of every known raw value. Findings carry masks by
+        # construction; this catches any future accidental leakage path.
+        if self.vault is not None:
+            rep = self.vault.scrub(rep)
+        return rep
 
 
 # ============================================================ DOCTOR (Phase 44/45)
@@ -721,6 +758,30 @@ def doctor(allow_private=False) -> dict:
             "coverage / param-intel / secrets (masked) / evidence-impact / appmap / authz OK")
     except Exception as e:
         add("intelligence_engines", False, str(e)[:120])
+    # Credential Vault (Phase 57): crypto self-test — RFC 8439 quarter-round
+    # vector, AEAD roundtrip, tamper rejection, purge leaves no plaintext.
+    try:
+        import tempfile as _tf, os as _os2
+        from .vault import Vault, VaultError, keygen, _quarter_round
+        w = [0x11111111, 0x01020304, 0x9b8d6f43, 0x01234567]
+        _quarter_round(w, 0, 1, 2, 3)
+        assert w == [0xea2a92f4, 0xcb1cf8ce, 0x4581472e, 0x5881c4bb], \
+            "ChaCha20 quarter-round vector mismatch"
+        with _tf.TemporaryDirectory() as td:
+            kf, vp = _os2.path.join(td, "k.json"), _os2.path.join(td, "v.vault")
+            keygen(kf, "doctor")
+            v = Vault.init(vp, kf, "doctor-selftest")
+            probe = "AK" + "IA" + "D" * 16      # aws-shaped probe value
+            rid = v.store("aws_access_key", probe,
+                          {"url": "http://x/cfg"}, "critical")
+            assert v.export(rid)["raw"] == probe
+            v.purge(all_records=True)
+            data = open(vp, "rb").read()
+            assert data.count(probe.encode()) == 0, "plaintext survived purge"
+        add("credential_vault", True,
+            "ChaCha20+HMAC encrypt-then-MAC OK; audit + purge leave no plaintext")
+    except Exception as e:
+        add("credential_vault", False, str(e)[:120])
     passed = sum(1 for c in checks if c["status"] == "PASS")
     return {"overall": "PASS" if passed == len(checks) else "DEGRADED",
             "passed": passed, "total": len(checks), "checks": checks}

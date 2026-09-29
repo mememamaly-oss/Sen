@@ -100,10 +100,18 @@ class SecretsScanner:
         low = (url or "").lower()
         return any(w in low for w in AUTHISH_WORDS)
 
-    def scan(self, ep: Endpoint, resp) -> list[Finding]:
+    def scan(self, ep: Endpoint, resp, capture=None) -> list[Finding]:
         """One candidate per (credential class, endpoint) — multiple hits of the
         SAME class on one endpoint are a single finding (dedup merges them
-        anyway); different classes are distinct findings with distinct keys."""
+        anyway); different classes are distinct findings with distinct keys.
+
+        capture (Phase 57): optional callable
+            (cls, raw, location, request_id, severity) -> record id | None
+        wired by the orchestrator when a Credential Vault is armed. The raw
+        value flows STRAIGHT into the vault (encrypted at rest) and never
+        enters the Finding; the evidence carries the mask plus the vault
+        record reference. capture=None keeps the exact v2.8.0 behavior:
+        raw dropped immediately, mask-only evidence."""
         if resp is None or getattr(resp, "error", "") or not getattr(resp, "status", 0):
             return []
         body = resp.body or ""
@@ -135,11 +143,20 @@ class SecretsScanner:
                 continue
             raw = hit.group(1) if hit.groups() else hit.group(0)
             loc = "body" if hit.start(0) <= len(body) else "headers"
+            vault_ref = None
+            if capture is not None:
+                try:
+                    vault_ref = capture(cls, raw, loc, resp.request_id,
+                                        sev.value)
+                except Exception:
+                    vault_ref = None   # a vault failure must never kill the scan
+            note = (f"encrypted in the credential vault as {vault_ref}"
+                    if vault_ref else "raw value intentionally not retained")
             out.append(Finding(
                 "credential_exposure", sev, ep.url, cls, ep.method or "GET",
                 [Evidence(f"credential:{cls}",
                           f"{desc} — class={cls}, evidence {mask(raw)} "
-                          f"(masked; raw value intentionally not retained), "
+                          f"(masked; {note}), "
                           f"location={loc}",
                           resp.request_id)],
                 status=FindingStatus.CANDIDATE))
