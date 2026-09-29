@@ -42,6 +42,21 @@ Fixture v8 (Phase 56 — Intelligence Layer ground truth):
                                    string batteries provably skipped, nothing lost)
   Multi-user auth: demo/demo123 (admin), bob/bob123 (user), carol/carol123 (user)
   — the Authorization Engine's login matrix (AUTHZ-01..04).
+
+Fixture v9 (Phase 58 — Workflow / Business-Logic Intelligence ground truth):
+  /wf/transfer/{start,select,create,confirm,ledger}
+     -> five-step banking wizard, VULNERABLE to all five logic classes:
+        business_logic_step_bypass          (create without select)
+        business_logic_out_of_order         (confirm without create: unknown tid
+                                             executes from POSTed params alone)
+        business_logic_value_tamper         (amount overridden at confirm)
+        business_logic_duplicate_execution  (confirm replays; ledger shows the
+                                             same tid executed twice)
+        business_logic_privilege_escalation (mode=wire "admin only" option
+                                             executed by a regular user)
+  /wf/safe/transfer/{...}  -> NEGATIVE twin: identical shape, every manipulation
+                             refused with the right status and NO state change
+                             (ledger = the state oracle that proves it either way)
 """
 import json, os, re, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -280,7 +295,9 @@ def _menubar_for(sess: dict) -> str:
            ' - <a href="/account?tab=profile">account tab</a>'
            ' - <a href="/vault/transfer?acct=1001&amount=250">transfer</a>'
            f' - <a href="/api/data?user_id={own}">my profile</a>'
-           f' - <a href="/api/secure/data?user_id={own}">my profile (secure)</a>')
+           f' - <a href="/api/secure/data?user_id={own}">my profile (secure)</a>'
+           ' - <a href="/wf/transfer/start">transfer wizard</a>'
+           ' - <a href="/wf/safe/transfer/start">transfer wizard (safe)</a>')
     if sess["role"] == "admin":
         bar += (' - <a href="/api/admin/stats">admin stats</a>'
                 ' - <a href="/api/secure/admin/stats">admin stats (secure)</a>')
@@ -400,6 +417,78 @@ LAB_PAGE = """<h2>Ledger lab</h2>
 <div>End of lab.</div>"""
 
 NOSQL_VALID = {"user": "admin", "pass": "hunter2"}   # the only literal credentials that match
+
+
+# ================= Phase 58 (fixture v8): multi-step business-logic transfer flows ========
+# Two five-step banking transfer wizards — one VULNERABLE, one HARDENED twin — for
+# the Workflow / Business-Logic Intelligence engine (v3.0.0). Both are session-gated,
+# carry per-form CSRF tokens, validate amounts as integers and HTML-escape every
+# echo. The ONLY differences are the five business-logic controls:
+#
+#   defect                          | /wf/transfer/* (vulnerable)      | /wf/safe/transfer/* (hardened)
+#   --------------------------------+----------------------------------+------------------------------------
+#   1 create without select         | draft never required             | 400 "no account selected"
+#     business_logic_step_bypass    |                                  |
+#   2 confirm without create        | unknown tid executes directly    | 404 "unknown transfer"
+#     business_logic_out_of_order   | from POSTed params (implicit     |
+#     (skip to the final step)      | creation + execution)            |
+#   3 amount tamper at confirm      | POSTed amount overrides the      | 400 "amount changed since
+#     business_logic_value_tamper   | approved pending amount          | approval"
+#   4 duplicate confirm             | pending never consumed — every   | 409 "already executed"
+#     business_logic_duplicate_     | replay executes again            |
+#     execution                     |                                  |
+#   5 wire mode by non-admin        | no role check on mode=wire       | 403 "wire transfers require
+#     business_logic_privilege_     |                                  | an administrator"
+#     escalation                    |                                  |
+#
+# GET {base}/ledger is the per-session STATE ORACLE: one line per EXECUTED transfer
+# (replays append more lines), pending transfers listed separately. The wizard shape:
+#   GET  {base}/start   -> form: select account
+#   POST {base}/select  -> sets the session draft -> form: amount
+#   POST {base}/create  -> mints a pending TRF-nnnn -> form: confirm (mode select)
+#   POST {base}/confirm -> executes (vulnerable) / guards (hardened)
+WF_FLOW_BASES = ("/wf/transfer", "/wf/safe/transfer")
+WF_TRANSFERS: dict[tuple, dict] = {}      # (base, sid) -> {"seq": n, "items": {tid: {...}}}
+
+
+def _wf_state(base: str, sid: str) -> dict:
+    return WF_TRANSFERS.setdefault((base, sid), {"seq": 0, "items": {}})
+
+
+def _esc(v) -> str:
+    return str(v).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _wf_links(base: str) -> str:
+    return (f'<p><a href="{base}/start">restart transfer</a> - '
+            f'<a href="{base}/ledger">view ledger</a></p>')
+
+
+def _wf_amount(raw: str):
+    """Integer amounts 1..999999 only; anything else is rejected (keeps every
+    scanner battery stateless here: quoted/canary/expression probes all fail)."""
+    try:
+        n = int(str(raw).strip())
+    except (TypeError, ValueError):
+        return None
+    return n if 1 <= n <= 999999 else None
+
+
+def _wf_flow(base: str, sess: dict, title: str, body: str) -> str:
+    return (f"<h2>{_esc(title)}</h2>" + body + _wf_links(base))
+
+
+def _wf_confirm_form(base: str, sess: dict, tid: str, amount) -> str:
+    return (f'<form action="{base}/confirm" method="POST">'
+            f'<input type="hidden" name="csrfToken" value="{sess["csrf"]}">'
+            f'<input type="hidden" name="tid" value="{_esc(tid)}">'
+            f'<input type="hidden" name="amount" value="{amount}">'
+            '<label>Mode</label>'
+            '<select name="mode">'
+            '<option value="ach">ACH transfer</option>'
+            '<option value="wire">Wire transfer (admin only)</option>'
+            '</select>'
+            '<button type="submit">Confirm transfer</button></form>')
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -604,6 +693,41 @@ class Handler(BaseHTTPRequestHandler):
             if "'" in acct:
                 return self._send(500, "<html><body>SQL error</body></html>")
             return self._send(200, _menubar_for(s) + f"<p>Transfer to account {acct} queued.</p>")
+
+        # ---------------- Phase 58: multi-step transfer wizard flows ----------------
+        wf_base = next((b for b in WF_FLOW_BASES if path.startswith(b + "/")), "")
+        if wf_base:
+            su = _sess_user(self)
+            if su is None:
+                return self._redirect("/login")
+            sid, s = su
+            safe = "safe" in wf_base
+            if path == wf_base + "/start":
+                body = (f'<form action="{wf_base}/select" method="POST">'
+                        f'<input type="hidden" name="csrfToken" value="{s["csrf"]}">'
+                        '<label>From account</label>'
+                        '<input type="text" name="acct" value="800001">'
+                        '<button type="submit">Continue</button></form>')
+                return self._send(200, _menubar_for(s) +
+                                  _wf_flow(wf_base, s, "Transfer - step 1 of 3: select account", body))
+            if path == wf_base + "/ledger":
+                st = _wf_state(wf_base, sid)
+                items = st["items"]
+                lines = []
+                for tid in sorted(items):
+                    it = items[tid]
+                    if it["state"] == "pending":
+                        lines.append(f"<li>{_esc(tid)} {_esc(it['acct'])} {it['amount']} "
+                                     f"{_esc(it['mode'])} PENDING</li>")
+                    else:
+                        for _ in range(it["executions"]):
+                            lines.append(f"<li>{_esc(tid)} {_esc(it['acct'])} {it['amount']} "
+                                         f"{_esc(it['mode'])} EXECUTED</li>")
+                listing = "<ul>" + ("\n".join(lines) if lines else
+                                    "<li>No transfers yet.</li>") + "</ul>"
+                return self._send(200, _menubar_for(s) +
+                                  _wf_flow(wf_base, s, "Transfer ledger", listing))
+
 
         # ---------------- VULNERABLE ----------------
         if path == "/vuln/sqli_error.php":
@@ -883,6 +1007,108 @@ class Handler(BaseHTTPRequestHandler):
                                  "role": u["role"], "uid": u["uid"]})
             return self._redirect("/home", cookies=[f"SESS={s2}; Path=/",
                                                     f"AUTH=granted-{s2}; Path=/"])
+
+        # ---------------- Phase 58: multi-step transfer wizard POSTs ----------------
+        wf_base = next((b for b in WF_FLOW_BASES if path.startswith(b + "/")), "")
+        if wf_base:
+            su = _sess_user(self)
+            if su is None:
+                return self._redirect("/login")
+            sid, s = su
+            safe = "safe" in wf_base
+            form = parse_qs(raw, keep_blank_values=True)
+            if form.get("csrfToken", [""])[0] != s["csrf"]:
+                return self._send(403, "<html><body>Invalid CSRF token</body></html>")
+            st = _wf_state(wf_base, sid)
+
+            if path == wf_base + "/select":
+                acct = form.get("acct", ["800001"])[0] or "800001"
+                s["wf_draft" + wf_base] = acct            # session draft (both twins)
+                body = (f'<form action="{wf_base}/create" method="POST">'
+                        f'<input type="hidden" name="csrfToken" value="{s["csrf"]}">'
+                        f'<input type="hidden" name="acct" value="{_esc(acct)}">'
+                        '<label>Amount</label>'
+                        '<input type="text" name="amount" value="">'
+                        '<button type="submit">Create transfer</button></form>')
+                return self._send(200, _menubar_for(s) +
+                                  _wf_flow(wf_base, s,
+                                           f"Transfer - step 2 of 3: amount (account {_esc(acct)} selected)",
+                                           body))
+
+            if path == wf_base + "/create":
+                amount = _wf_amount(form.get("amount", [""])[0])
+                if amount is None:
+                    return self._send(400, "<html><body>invalid amount</body></html>")
+                if safe:
+                    draft = s.get("wf_draft" + wf_base)
+                    if not draft:
+                        return self._send(400, "<html><body>no account selected - "
+                                                     "start at step 1</body></html>")
+                    acct = draft                       # server-side draft wins
+                else:
+                    acct = form.get("acct", ["800001"])[0] or "800001"   # no draft check
+                st["seq"] += 1
+                tid = "TRF-%04d" % st["seq"]
+                st["items"][tid] = {"acct": acct, "amount": amount, "mode": "ach",
+                                    "state": "pending", "executions": 0}
+                return self._send(200, _menubar_for(s) +
+                                  _wf_flow(wf_base, s,
+                                           f"Transfer - step 3 of 3: confirm {tid}",
+                                           _wf_confirm_form(wf_base, s, tid, amount)))
+
+            if path == wf_base + "/confirm":
+                tid = (form.get("tid", [""])[0] or "").strip()
+                amt_raw = (form.get("amount", [""])[0] or "").strip()
+                mode = (form.get("mode", ["ach"])[0] or "ach")[:24]
+                if not tid:
+                    return self._send(400, "<html><body>missing transfer reference</body></html>")
+                items = st["items"]
+                if safe:
+                    it = items.get(tid)
+                    if it is None:
+                        return self._send(404, "<html><body>unknown transfer</body></html>")
+                    if it["state"] == "executed":
+                        return self._send(409, "<html><body>already executed</body></html>")
+                    if amt_raw:
+                        amt = _wf_amount(amt_raw)
+                        if amt is None:
+                            return self._send(400, "<html><body>invalid amount</body></html>")
+                        if amt != it["amount"]:
+                            return self._send(400, "<html><body>amount changed since approval - "
+                                                         "restart the transfer</body></html>")
+                    if mode == "wire" and s["role"] != "admin":
+                        return self._send(403, "<html><body>wire transfers require an "
+                                                     "administrator</body></html>")
+                    it["state"], it["executions"], it["mode"] = "executed", 1, mode
+                    line = f"<p>Transfer {tid} executed: {it['amount']} ({_esc(mode)}).</p>"
+                    return self._send(200, _menubar_for(s) +
+                                      _wf_flow(wf_base, s, "Transfer executed", line))
+                # ---- vulnerable twin: every guard above is missing ----
+                it = items.get(tid)
+                if it is not None:
+                    # known transfer: POSTed amount OVERRIDES the approved one, and the
+                    # pending state is never consumed (replay executes again)
+                    if amt_raw:
+                        amt = _wf_amount(amt_raw)
+                        if amt is None:
+                            return self._send(400, "<html><body>invalid amount</body></html>")
+                        it["amount"] = amt
+                    it["mode"] = mode
+                    it["state"] = "executed"
+                    it["executions"] += 1
+                    line = f"<p>Transfer {tid} executed: {it['amount']} ({_esc(mode)}).</p>"
+                    return self._send(200, _menubar_for(s) +
+                                      _wf_flow(wf_base, s, "Transfer executed", line))
+                # unknown tid: implicit creation + execution from POSTed params alone
+                amt = _wf_amount(amt_raw)
+                if amt is None:
+                    return self._send(400, "<html><body>invalid amount</body></html>")
+                acct = form.get("acct", ["800001"])[0] or "800001"
+                items[tid] = {"acct": acct, "amount": amt, "mode": mode,
+                              "state": "executed", "executions": 1}
+                line = f"<p>Transfer {tid} executed: {amt} ({_esc(mode)}).</p>"
+                return self._send(200, _menubar_for(s) +
+                                  _wf_flow(wf_base, s, "Transfer executed", line))
 
         # ---------------- JSON/div-form endpoints (Phase 50) ----------------
         # /vuln/json-reflect: div-form POST whose JS serializes inputs as JSON

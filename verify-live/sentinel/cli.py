@@ -99,7 +99,12 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
         # the fixture, same doctrine as the Phase 55 browser-budget recalibration.
         cfg = ScanConfig(allow_private=True, max_pages=36, timeout=timeout,
                          strategy_path=strategy_path, seed="benchmark-fixed-seed",
-                         oast=oast, auth=auth, authz=authz_cfg)
+                         oast=oast, auth=auth, authz=authz_cfg,
+                         # Phase 58 (v3.0.0): the benchmark exercises the FULL
+                         # platform including the Workflow Intelligence engine —
+                         # learning AND the attack battery (fixture v8's wizard
+                         # twins are the ground truth for the five logic classes).
+                         workflow=True, logic_active=True)
         sc = SentinelScanner(base_url, cfg)
         result = sc.run()
     finally:
@@ -287,6 +292,19 @@ def main():
                         "capture of credentials found during the scan")
     s.add_argument("--vault-key-file", default="",
                    help="an authorized vault key file (see: sentinel vault keygen)")
+    # ---- Phase 58 (v3.0.0): Workflow / Business-Logic Intelligence. Learning
+    # is safe (guided walks); the attack battery changes application state and
+    # is therefore behind its own explicit flag.
+    s.add_argument("--workflow", action="store_true",
+                   help="Phase 58: learn multi-step business flows (guided walks: "
+                        "chain, resource linkage, state oracle) and add them to "
+                        "the application map")
+    s.add_argument("--logic-active", action="store_true",
+                   help="Phase 58: ALSO run the five business-logic attack "
+                        "manipulations (step bypass / out-of-order / value tamper / "
+                        "duplicate execution / privilege bound) on fresh sessions — "
+                        "THESE PROBES CHANGE APPLICATION STATE (canary values, "
+                        "bounded budgets); every finding requires state-oracle proof")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     sub.add_parser("doctor")
@@ -381,7 +399,15 @@ def main():
                          strategy_path=a.strategy_path, browser=not a.no_browser,
                          auth=auth, openapi=not a.no_openapi, openapi_spec=openapi_spec,
                          authz=authz_cfg, secrets=not a.no_secrets,
-                         vault=a.vault or None, vault_key_file=a.vault_key_file or None)
+                         vault=a.vault or None, vault_key_file=a.vault_key_file or None,
+                         workflow=a.workflow, logic_active=a.logic_active)
+        # Phase 58: the attack battery changes application state — a loud,
+        # explicit warning before a single probe leaves the engine.
+        if a.logic_active:
+            print("[!] --logic-active: business-logic attack probes are ENABLED — "
+                  "state-changing manipulations (step bypass / out-of-order / value "
+                  "tamper / duplicate execution / privilege bound) WILL be executed "
+                  "against the target with canary values and bounded budgets.", flush=True)
         # Phase 52: channel-aware OAST arming. auto = local listener for targets
         # that can reach loopback (lab fixtures), PUBLIC webhook channel for remote
         # targets (live-proven: ginandjuice.shop blind XXE confirmed via webhook.site

@@ -1,8 +1,8 @@
 {
  "benchmark": "local-fixture-v8",
- "version": "2.8.0",
+ "version": "v9",
  "sha256_self_check": true,
- "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) - /account and /vault/transfer 302 to /login for anonymous clients; OAST armed - blind classes (xxe / ssrf / command_injection) are OOB-confirmed only; Phase 55 surfaces on /lab (csrf/nosql/jwt) + /vuln/ssti + /vuln/hostbuild; Phase 56 intelligence surfaces: multi-user authorization matrix (demo=admin, bob/carol=user via benchmarks/authz_accounts.json - idor_bola /api/data + vertical_privilege_escalation /api/admin/stats with secure twins), credential exposure (/vuln/leak-config: aws + github-token + db-uri classes; /safe twin masked), param-intel JSON-object surface (/api/filter)",
+ "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) - /account and /vault/transfer 302 to /login for anonymous clients; OAST armed - blind classes (xxe / ssrf / command_injection) are OOB-confirmed only; Phase 55 surfaces on /lab (csrf/nosql/jwt) + /vuln/ssti + /vuln/hostbuild; Phase 56 intelligence surfaces: multi-user authorization matrix (demo=admin, bob/carol=user via benchmarks/authz_accounts.json - idor_bola /api/data + vertical_privilege_escalation /api/admin/stats with secure twins), credential exposure (/vuln/leak-config: aws + github-token + db-uri classes; /safe twin masked), param-intel JSON-object surface (/api/filter); Phase 58 workflow intelligence: /wf/transfer wizard (vulnerable to all five business-logic classes) + /wf/safe/transfer hardened twin (every manipulation refused, ledger = state oracle), scanned with --workflow --logic-active (auth demo/demo123 + authz accounts bob/carol)",
  "ground_truth": [
   {
    "type": "sql_injection",
@@ -328,6 +328,66 @@
    "type": "credential_exposure",
    "endpoint": "/safe/leak-config",
    "parameter": "",
+   "present": false
+  },
+  {
+   "type": "business_logic_step_bypass",
+   "endpoint": "/wf/transfer/create",
+   "parameter": "acct",
+   "present": true
+  },
+  {
+   "type": "business_logic_out_of_order",
+   "endpoint": "/wf/transfer/confirm",
+   "parameter": "tid",
+   "present": true
+  },
+  {
+   "type": "business_logic_value_tamper",
+   "endpoint": "/wf/transfer/confirm",
+   "parameter": "amount",
+   "present": true
+  },
+  {
+   "type": "business_logic_duplicate_execution",
+   "endpoint": "/wf/transfer/confirm",
+   "parameter": "tid",
+   "present": true
+  },
+  {
+   "type": "business_logic_privilege_escalation",
+   "endpoint": "/wf/transfer/confirm",
+   "parameter": "mode",
+   "present": true
+  },
+  {
+   "type": "business_logic_step_bypass",
+   "endpoint": "/wf/safe/transfer/create",
+   "parameter": "acct",
+   "present": false
+  },
+  {
+   "type": "business_logic_out_of_order",
+   "endpoint": "/wf/safe/transfer/confirm",
+   "parameter": "tid",
+   "present": false
+  },
+  {
+   "type": "business_logic_value_tamper",
+   "endpoint": "/wf/safe/transfer/confirm",
+   "parameter": "amount",
+   "present": false
+  },
+  {
+   "type": "business_logic_duplicate_execution",
+   "endpoint": "/wf/safe/transfer/confirm",
+   "parameter": "tid",
+   "present": false
+  },
+  {
+   "type": "business_logic_privilege_escalation",
+   "endpoint": "/wf/safe/transfer/confirm",
+   "parameter": "mode",
    "present": false
   }
  ]

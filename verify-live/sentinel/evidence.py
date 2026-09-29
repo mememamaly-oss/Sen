@@ -85,6 +85,30 @@ IMPACT_PROFILES: dict[str, tuple[str, str]] = {
          "the privileged (admin-only) view of a protected surface, "
          "reproduced on a fresh replay — full administrative capability "
          "reachable without the privileged role."),
+    "business_logic_step_bypass":
+        ("proven", "Business-process order broken: a later step of a learned "
+         "multi-step flow created its object although the mandatory "
+         "predecessor step never ran (state-oracle proof) — the process "
+         "sequence is not enforced server-side."),
+    "business_logic_out_of_order":
+        ("proven", "Business-process order broken: the FINAL step of a "
+         "learned flow EXECUTED a resource that was never created (implicit "
+         "creation from request parameters, state-oracle proof) — the "
+         "producing step can be skipped entirely."),
+    "business_logic_value_tamper":
+        ("proven", "Approval binding broken: a value approved at creation "
+         "time was REPLACED at execution time (tampered canary visible in "
+         "the executed state-oracle record) — execution re-trusts request "
+         "data instead of the approved record."),
+    "business_logic_duplicate_execution":
+        ("proven", "Idempotency broken: replaying the final step of a "
+         "learned flow executed the same resource TWICE (state-oracle "
+         "occurrence proof) — repeat-submission double-spend class."),
+    "business_logic_privilege_escalation":
+        ("proven", "Declared privilege not enforced: an option the UI itself "
+         "labels privileged ('admin only') was EXECUTED by a lower-privilege "
+         "session (state-oracle proof) — the workflow privilege boundary "
+         "exists only in the interface, not on the server."),
     "credential_exposure":
         ("proven", "Secret credential material is exposed in a response and "
          "the exposure reproduced on a fresh fetch — direct account/infrastructure "

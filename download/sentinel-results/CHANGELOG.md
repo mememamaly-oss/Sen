@@ -1,3 +1,95 @@
+# SENTINEL v3.0.0 — "Workflow Intelligence" Release
+
+Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
+Every finding is verification-gated: a candidate is NEVER a finding until an
+independent replay confirms it.
+
+## What v3.0.0 adds (Phase 58 — Business-Logic / Workflow Intelligence)
+
+Every scanner before v3.0.0 — SENTINEL included — reasons about REQUESTS: one
+endpoint, one parameter, one response. But the most expensive vulnerabilities
+in real applications live in PROCESSES: the ordered, stateful sequences an
+application uses to do actual work (login -> select account -> enter amount ->
+create transfer -> confirm). A per-parameter scanner is structurally blind to
+them because the defect is not IN any single request — it is in the RELATIONS
+between requests: the order, the one-shot-ness, the binding of approved values,
+the role boundary of a step. v3.0.0 gives SENTINEL that process-level frame of
+reference. The engine (sentinel/workflow.py):
+
+LEARN (--workflow, safe): clusters discovered surfaces into flow directories,
+finds the anchor (a GET page carrying an in-cluster form) and performs a GUIDED
+WALK — following the chain the application itself lays out (each landing page
+carries the next form), including steps a crawler can never see because they
+live behind POST landings. The walk learns, with bounded budgets and canary
+values only: the step chain, the RESOURCE LINKAGE (the object ids one step
+mints and a later step consumes — e.g. tid), the STATE ORACLE (the page that
+echoes those ids), and the EXECUTION MARKER vocabulary (the word-level delta
+of a resource's oracle line across the final step — e.g. PENDING -> EXECUTED).
+The learned flow model rides the Application Map: entry, steps, resource
+params, oracle, markers, declared-privilege options.
+
+ATTACK (--logic-active, explicit opt-in, loud warning): the five business-
+logic invariants a human pentester tests — and a parameter scanner cannot:
+
+  1. business_logic_step_bypass           — create without its mandatory
+                                            predecessor (draft never required)
+  2. business_logic_out_of_order          — the FINAL step executes a resource
+                                            that was never created (implicit
+                                            creation from POSTed params)
+  3. business_logic_value_tamper          — an approved value (amount) is
+                                            REPLACED at execution time
+  4. business_logic_duplicate_execution   — replaying the final step executes
+                                            the operation again (no idempotency)
+  5. business_logic_privilege_escalation  — an option the UI itself labels
+                                            "admin only" is executed by a
+                                            lower-privilege session
+
+THE PROOF DOCTRINE (VR-20): a manipulation is reported ONLY when the state
+oracle PROVES the outcome — a new canary-bearing object, a second execution of
+the same resource, or an executed line carrying the tampered canary. A server
+that merely fails to reject is NEVER a finding; the disallowed thing must
+actually happen. Unprovable manipulations (no oracle, no marker, no second
+role, option broken for everyone) are skipped loudly in the stats, never
+guessed. Every attack runs on a FRESH isolated session with canary values;
+login/logout-shaped surfaces are never submitted; budgets are bounded per
+flow.
+
+Ground truth v9 (64 rows — 35 TP / 29 TN): fixture v8 adds the five-step
+transfer wizard /wf/transfer/* (vulnerable to all five classes) and its
+hardened twin /wf/safe/transfer/* (every manipulation refused with the right
+status and NO state change — the per-session ledger is the oracle that proves
+it either way). The benchmark arms the full battery: 5/5 verified on the
+vulnerable wizard, 5/5 honest no_proof on the twin, ZERO false positives.
+
+Live validation (demo.testfire.net, light strategy, learn-only): manual
+feasibility probes first (the transfer surface is a single self-posting form,
+no chained steps, no per-session ledger) — the production scan then tried the
+/bank cluster, walked it, and reported the honest negative exactly as
+predicted: "/bank:chain_too_short", 0 flows learned, 0 business-logic
+findings, 0 attacks; all 95 prior verified findings intact (SQLi, reflected
+XSS x6, host-header injection, CSRF x3, open redirect).
+
+Engine defects caught by the build itself (same doctrine as ENG-08/10/11):
+ENG-12 — the crawl cannot see chain steps behind POST landings; requiring
+pre-discovered members made the engine blind to exactly the flows it exists
+to learn. Fixed: forms are followed by cluster-prefix, the walk IS the
+discovery. ENG-13 — post-hoc oracle snapshots all show the final state (the
+execution delta was invisible); fixed with live per-step snapshots via the
+after_step hook. ENG-14 — a global attack budget let the first flow starve
+the rest (duplicate+privilege FN); budgets are now per flow.
+
+Gates: 71/71 tests (unit_phase58 + regression_phase58_logic_end_to_end: all
+five classes verified with state-oracle proofs, twin 100% silent, prior
+classes intact, flow model in the appmap, whole-truth request accounting);
+doctor 15/15 (new workflow_engine self-check); benchmark F1 = 1.000
+deterministic x3 (35 TP / 0 FP / 0 FN / 29 TN, run-3c0652b6be, 1622 requests,
+workflow verified = 5 every run).
+
+Real-target lifetime totals: 4 platforms, 33 verified actives, 0 false
+positives across 21+ vulnerability classes (16 request-level + 5 process-
+level) — the new classes live-proven ONLY in the lab so far, exactly as the
+honest-negative discipline demands.
+
 # SENTINEL v2.9.0 — "Credential Intelligence" Release
 
 Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).

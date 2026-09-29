@@ -418,16 +418,16 @@ def regression_benchmark_autostarts_fixture():
     assert not already, "OP-01 test port unexpectedly occupied"
     rep = run_benchmark(url, out=_os.path.join(tempfile.gettempdir(), "op01_bench.json"),
                         label="op01-regression")
-    # fixture v8 ground truth (Phase 56): 30 TP-able (v7's 27 PLUS the Intelligence
-    # Layer surfaces: idor_bola /api/data + vertical_privilege_escalation
-    # /api/admin/stats + credential_exposure /vuln/leak-config — the benchmark
-    # exercises the multi-user Authorization Engine, the secrets scan and their
-    # VR-17/18/19 verifications end-to-end), 24 TN-able. F1 must be
-    # 1.0 with zero FP/FN — the OP-01 autostart path must deliver the FULL
-    # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
-    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 30
+    # fixture v9 ground truth (Phase 58): 35 TP-able (v8's 30 PLUS the Workflow
+    # Intelligence surfaces: the five business-logic classes on /wf/transfer —
+    # step_bypass / out_of_order / value_tamper / duplicate_execution /
+    # privilege_escalation — verified via state-oracle deltas with the attack
+    # battery armed in the benchmark), 29 TN-able. F1 must be 1.0 with zero
+    # FP/FN — the OP-01 autostart path must deliver the FULL benchmark, not a
+    # silently-empty scan (the original F1=0.0 failure mode).
+    scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 35
               and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
-              and rep["confusion"]["TN"] == 24)
+              and rep["confusion"]["TN"] == 29)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 
@@ -2841,6 +2841,212 @@ def regression_phase57_vault_end_to_end():
         assert _json.loads(run_cli("status", "--vault", vp, "--key-file", kf))["records"] == 0
     finally:
         srv.shutdown(); srv.server_close()
+
+
+# ============================================================ PHASE 58 (v3.0.0) — Workflow / Business-Logic Intelligence
+
+@case
+def unit_phase58_workflow_engine():
+    """Phase 58 unit battery (no network): the flow parser understands
+    <select>/<option> LABELS (where the UI declares privilege boundaries),
+    synthesis is deterministic (tokens/hidden carried, canaries on amount-ish
+    fields, first option for selects, overrides win), fresh-resource synthesis
+    preserves the observed shape, cluster rules exclude root/login/logout/asset
+    surfaces and the flow-worded scoring outranks size, and the execution
+    marker vocabulary is learned from a word delta."""
+    from sentinel.workflow import (WorkflowEngine, WorkflowConfig, parse_forms,
+                                   _privilege_options, _synth_fresh_resource,
+                                   _word_delta, _lines_with, CANARY_CREATE,
+                                   CANARY_TAMPER, SESSION_KILLER_RE)
+    from sentinel.core import Endpoint, ParamLocation, Parameter as _P
+
+    html = ('<form action="/wf/transfer/confirm" method="POST">'
+            '<input type="hidden" name="csrfToken" value="abc123">'
+            '<input type="hidden" name="tid" value="TRF-0007">'
+            '<input type="hidden" name="amount" value="1111">'
+            '<select name="mode"><option value="ach">ACH transfer</option>'
+            '<option value="wire">Wire transfer (admin only)</option></select>'
+            '<button type="submit">go</button></form>')
+    forms = parse_forms(html)
+    assert len(forms) == 1 and forms[0]["method"] == "POST"
+    assert [f["name"] for f in forms[0]["fields"]] == ["csrfToken", "tid", "amount", "mode"]
+    assert _privilege_options(forms) == [("mode", "wire", "Wire transfer (admin only)")], \
+        "option-label privilege detection failed"
+    # non-privileged labels are not flagged
+    assert _privilege_options(parse_forms('<form action="/x" method="post">'
+                                          '<select name="m"><option value="a">standard</option>'
+                                          '</select></form>')) == []
+
+    we = WorkflowEngine()
+    d = dict(we._synth_fields(forms[0]))
+    assert d == {"csrfToken": "abc123", "tid": "TRF-0007", "amount": "1111", "mode": "ach"}, d
+    assert dict(we._synth_fields(forms[0], overrides={"mode": "wire"}))["mode"] == "wire"
+    # amount-ish text fields get the canary; defaults carried otherwise
+    f2 = parse_forms('<form action="/x" method="post">'
+                     '<input type="text" name="amount" value="">'
+                     '<input type="text" name="note" value="hello"></form>')[0]
+    d2 = dict(we._synth_fields(f2))
+    assert d2 == {"amount": CANARY_CREATE, "note": "hello"}, d2
+    assert CANARY_TAMPER == "2222" and CANARY_CREATE == "1111"
+
+    assert _synth_fresh_resource("TRF-0007") == "TRF-99001"
+    assert _synth_fresh_resource("ORD-42") == "ORD-99001"
+
+    # execution markers: word delta of the same resource line pre/post final step
+    body = ('<ul><li>TRF-0001 800001 1111 ach PENDING</li>'
+            '<li>TRF-0001 800001 1111 ach EXECUTED</li></ul>')
+    lines = _lines_with(body, "TRF-0001")
+    assert len(lines) == 2, lines
+    added, removed = _word_delta(lines[0], lines[1])
+    assert "EXECUTED" in added and "PENDING" in removed, (added, removed)
+    # li/tr boundaries split even without newlines
+    assert len(_lines_with("<tr><td>ORD-1 a</td></tr><tr><td>ORD-1 b</td></tr>", "ORD-1")) == 2
+
+    # cluster rules
+    eps = [Endpoint(url="http://t.local/wf/transfer/start"),
+           Endpoint(url="http://t.local/wf/transfer/ledger"),
+           Endpoint(url="http://t.local/wf/transfer/select", method="POST",
+                    parameters=[_P("acct", ParamLocation.BODY, "800001")]),
+           Endpoint(url="http://t.local/wf/transfer/create", method="POST",
+                    parameters=[_P("amount", ParamLocation.BODY, "")]),
+           Endpoint(url="http://t.local/wf/transfer/confirm", method="POST"),
+           Endpoint(url="http://t.local/vuln/a.php"), Endpoint(url="http://t.local/vuln/b.php"),
+           Endpoint(url="http://t.local/doLogin", method="POST"),
+           Endpoint(url="http://t.local/logout")]
+    cl = we._cluster_members(eps, {"http://t.local/doLogin"})
+    assert "/wf/transfer" in cl and "/vuln" in cl, sorted(cl)
+    assert all(p not in cl for p in ("/", "/wf", "")), sorted(cl)
+    assert "http://t.local/doLogin" not in {e.url for m in cl.values() for e in m.values()}
+    assert all(not SESSION_KILLER_RE.search(e.url) for m in cl.values() for e in m.values()), \
+        "logout-shaped surfaces must never be flow members"
+    # flow-worded scoring outranks raw size: a 5-endpoint transfer wizard
+    # beats a 30-endpoint flat directory
+    s_wf = we._score("/wf/transfer", cl["/wf/transfer"])
+    s_vuln = we._score("/vuln", cl["/vuln"])
+    assert s_wf > s_vuln, (s_wf, s_vuln)
+    # budgets are per flow (the five invariants are a flow-sized battery)
+    assert WorkflowConfig().max_flow_attacks >= 5
+    assert WorkflowConfig().max_clusters >= 2 and WorkflowConfig().max_steps >= 3
+
+
+@case
+def regression_phase58_logic_end_to_end():
+    """Phase 58 full-platform regression: ONE authenticated scan with the
+    Workflow Engine in learn+attack mode — all five business-logic classes
+    VERIFIED on the vulnerable wizard with state-oracle proofs (VR-20), the
+    hardened twin 100% silent (five honest no_proof verdicts, zero false
+    positives), prior classes fully intact, and every workflow artifact
+    present and honest (flows learned, attack log, learned flow model in the
+    application map)."""
+    import threading, importlib.util
+    import os as _os
+    from http.server import ThreadingHTTPServer
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+    from sentinel.auth import AuthProfile
+    spec = importlib.util.spec_from_file_location(
+        "vulnapp_v9_wf", _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                       "fixtures", "vulnapp.py"))
+    mod = importlib.util.module_from_spec(spec); spec.loader.exec_module(mod)
+    port = 8815
+    srv = ThreadingHTTPServer(("127.0.0.1", port), mod.Handler)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        auth = AuthProfile(login_url=base + "/login", username="demo", password="demo123",
+                           user_field="uid", pass_field="passw", success_marker="Sign Off")
+        authz_cfg = {"login_url": "/login", "user_field": "uid", "pass_field": "passw",
+                     "success_marker": "Sign Off",
+                     "accounts": [
+                         {"name": "demo-admin", "role": "admin", "username": "demo",
+                          "password": "demo123", "marker": "root-admin@sentinel-fixture.local",
+                          "object_id": "1001"},
+                         {"name": "bob-user", "role": "user", "username": "bob",
+                          "password": "bob123", "marker": "bob-user@sentinel-fixture.local",
+                          "object_id": "2002"},
+                         {"name": "carol-user", "role": "user", "username": "carol",
+                          "password": "carol123", "marker": "carol-user@sentinel-fixture.local",
+                          "object_id": "3003"}]}
+        cfg = ScanConfig(allow_private=True, max_pages=45, timeout=6,
+                         seed="v9-wf-regression", oast=oast, auth=auth, authz=authz_cfg,
+                         workflow=True, logic_active=True)
+        sc = SentinelScanner(base, cfg)
+        rep = sc.run()
+        got = {(f["type"], f["url"].split("?")[0], f["parameter"]) for f in rep["findings"]}
+
+        # ---- the five business-logic classes, VERIFIED on the vulnerable wizard
+        want = {"business_logic_step_bypass": ("/wf/transfer/create", "acct"),
+                "business_logic_out_of_order": ("/wf/transfer/confirm", "tid"),
+                "business_logic_value_tamper": ("/wf/transfer/confirm", "amount"),
+                "business_logic_duplicate_execution": ("/wf/transfer/confirm", "tid"),
+                "business_logic_privilege_escalation": ("/wf/transfer/confirm", "mode")}
+        for t, (path, param) in want.items():
+            matches = [f for f in rep["findings"] if f["type"] == t
+                       and f["url"].split("?")[0].endswith(path)
+                       and f["parameter"] == param]
+            assert matches, f"{t} missing: {sorted(got)}"
+            f = matches[0]
+            assert f["verification"]["method"] == "oracle:workflow-state-delta" \
+                and f["verification"]["passed"], f
+            assert f["impact"]["grade"] == "proven" and f["impact"]["statement"], f
+
+        # ---- the hardened twin: ZERO business-logic findings (five honest negatives)
+        for t, u, p in got:
+            if t.startswith("business_logic_"):
+                assert "/wf/safe/" not in u, f"false positive on the hardened twin: {t} @ {u}"
+
+        # ---- workflow stats honest and complete
+        wf = rep["stats"]["workflow"]
+        assert wf["enabled"] and wf["logic_active"] and wf["flows_learned"] == 2, wf
+        assert wf["verified"] == 5 and wf["attacks"] == 10, wf
+        assert any(s.endswith(":no_anchor") for s in wf["skipped"]), wf["skipped"]
+        log = {(a["flow"], a["attack"]): a["verdict"] for a in wf["attack_log"]}
+        for atk in ("step_bypass", "out_of_order", "value_tamper", "duplicate", "privilege"):
+            assert log.get(("/wf/transfer", atk)) == "verified", log
+            assert log.get(("/wf/safe/transfer", atk)) in ("no_proof", "skipped"), log
+        # the tamper proof carries the tampered canary, not the approved one
+        tamper_line = next(a.get("line", "") for a in wf["attack_log"]
+                           if a["attack"] == "value_tamper" and a["flow"] == "/wf/transfer")
+        assert "2222" in tamper_line and "1111" not in tamper_line, tamper_line
+        # duplicate proof shows the double execution
+        dup = next(a for a in wf["attack_log"]
+                   if a["attack"] == "duplicate" and a["flow"] == "/wf/transfer")
+        assert dup.get("executions") == "1->2", dup
+        # privilege proof names the low-privilege role
+        priv = next(a for a in wf["attack_log"]
+                    if a["attack"] == "privilege" and a["flow"] == "/wf/transfer")
+        assert priv.get("role") == "user" and priv.get("option") == "wire", priv
+
+        # ---- the learned flow model rides the application map
+        flows = rep["stats"]["appmap"]["workflows"]["learned_flows"]
+        by_cluster = {f["cluster"]: f for f in flows}
+        vuln = by_cluster["/wf/transfer"]
+        assert [s["action"] for s in vuln["steps"]] == \
+            ["/wf/transfer/select", "/wf/transfer/create", "/wf/transfer/confirm"], vuln
+        assert vuln["state_oracle"] == "/wf/transfer/ledger"
+        assert vuln["resource_params"] == ["tid"], vuln
+        assert "EXECUTED" in vuln["execution_markers"]["gained"]
+        assert "PENDING" in vuln["execution_markers"]["lost"]
+        assert vuln["privilege_declared_options"][0]["value"] == "wire"
+
+        # ---- prior classes fully intact (no drift from the new engine/surfaces)
+        assert any(t == "sql_injection" for t, u, p in got), "SQLi regressed"
+        assert any(t == "sql_injection" and u.endswith("/vault/transfer") for t, u, p in got), \
+            "gated SQLi regressed"
+        assert any(t == "xss_reflected" and u.endswith("/account") and p == "q" for t, u, p in got), \
+            "authenticated XSS regressed"
+        assert any(t == "xxe" and u.endswith("/vuln/oob-stock") for t, u, p in got), "blind XXE regressed"
+        assert any(t == "idor_bola" and u.endswith("/api/data") for t, u, p in got), "IDOR regressed"
+        assert any(t == "vertical_privilege_escalation" for t, u, p in got), "vertical regressed"
+        assert any(t == "credential_exposure" for t, u, p in got), "credential exposure regressed"
+        assert any(t == "ssti" and u.endswith("/vuln/ssti") for t, u, p in got), "SSTI regressed"
+        assert any(t == "csrf" and u.endswith("/vuln/csrf-action") for t, u, p in got), "CSRF regressed"
+        # request accounting is the whole truth (workflow fresh sessions included)
+        assert rep["stats"]["requests"] > wf["requests"] > 0, \
+            (rep["stats"]["requests"], wf["requests"])
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
 
 
 def main():

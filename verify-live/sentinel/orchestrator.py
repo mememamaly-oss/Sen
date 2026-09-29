@@ -26,7 +26,7 @@ class ScanConfig:
                  passive=True, timeout=12.0, seed=None, strategy_path=None,
                  allowed_domains=None, oast=None, browser=True, auth=None,
                  openapi=True, openapi_spec=None, authz=None, secrets=True,
-                 vault=None, vault_key_file=None):
+                 vault=None, vault_key_file=None, workflow=False, logic_active=False):
         self.allow_private = allow_private
         self.max_pages = max_pages
         self.crawl, self.active, self.passive = crawl, active, passive
@@ -42,6 +42,8 @@ class ScanConfig:
         self.secrets = secrets    # Phase 56: credential-exposure scan of passive baselines
         self.vault = vault                     # Phase 57: vault file path | None
         self.vault_key_file = vault_key_file   # Phase 57: authorized key file path
+        self.workflow = workflow or logic_active   # Phase 58: workflow learning (--workflow)
+        self.logic_active = logic_active       # Phase 58: attack battery (--logic-active)
 
 
 class _FingerprintingProxy:
@@ -467,11 +469,13 @@ class SentinelScanner:
         # candidates). GET-only replays; every finding carries its own VR
         # (VR-17 fresh-victim / VR-18 fresh-privileged-replay).
         authz_result = None
+        authz_sessions = {}
         if self.cfg.authz:
             try:
                 acfg = AuthzConfig.from_dict(self.cfg.authz, self.target.url)
                 aeng = AuthzEngine(acfg, self.scope, self.bus, timeout=self.cfg.timeout)
                 authz_result = aeng.run(endpoints)
+                authz_sessions = aeng.sessions
                 for f in authz_result["findings"]:
                     f.run_id = self.run_id
                     self.stats["candidates"] += 1
@@ -492,6 +496,44 @@ class SentinelScanner:
                                                           "error": str(e)[:160]}}
             if authz_result:
                 self.stats["authz"] = dict(authz_result.get("stats", {}))
+
+        # ---- Phase 58 (v3.0.0): Workflow / Business-Logic Intelligence. Runs
+        # AFTER authz (it reuses the per-role sessions for the privilege
+        # manipulation). LEARN: guided walks of multi-step flow clusters on the
+        # main authenticated session (chain, resource linkage, state oracle,
+        # execution-marker vocabulary). ATTACK (--logic-active only): the five
+        # business-logic manipulations on FRESH isolated sessions, every one
+        # verified by a state-oracle delta — a server that merely fails to
+        # reject is never a finding.
+        wf_extra_requests = 0
+        if self.cfg.workflow:
+            from .workflow import WorkflowEngine
+            if self.auth_engine is not None:
+                try:
+                    wf = WorkflowEngine()
+                    wres = wf.run(endpoints, self.engine, self.scope, self.bus,
+                                  self.cfg.auth, authz_sessions=authz_sessions,
+                                  timeout=self.cfg.timeout,
+                                  logic_active=self.cfg.logic_active)
+                    for f in wres["findings"]:
+                        f.run_id = self.run_id
+                        self.stats["candidates"] += 1
+                        self.bus.emit("CandidateCreated", type=f.type, url=f.endpoint_url,
+                                      param=f.parameter)
+                    self.findings.extend(wres["findings"])
+                    wstats = dict(wres["stats"])
+                    wstats["flows"] = [WorkflowEngine.flow_summary(k)
+                                       for k in wres["flows"]]
+                    self.stats["workflow"] = wstats
+                    wf_extra_requests = wres["stats"].get("requests", 0)
+                except Exception as e:
+                    fid = self.failures.record("workflow", f"{type(e).__name__}: {e}", {})
+                    self.bus.emit("ScannerFailed", scanner="workflow", failure=fid,
+                                  error=str(e)[:200])
+                    self.stats["workflow"] = {"enabled": True, "error": str(e)[:160]}
+            else:
+                self.stats["workflow"] = {"enabled": False,
+                                          "skipped": ["no_form_session"]}
 
         # ---- Phase 12: dedup + correlation + risk
         verified = [f for f in self.findings if f.status == FindingStatus.VERIFIED]
@@ -536,6 +578,10 @@ class SentinelScanner:
         # the total so the report's request count is the whole truth.
         if authz_result and authz_result.get("stats", {}).get("requests"):
             self.stats["requests"] += authz_result["stats"]["requests"]
+        # Phase 58: workflow fresh-session requests likewise (the LEARN walks
+        # ride the main engine and are already counted there).
+        if wf_extra_requests:
+            self.stats["requests"] += wf_extra_requests
         ded = self.pipeline.dedup(verified)
         final = self.pipeline.correlate(ded)
         for f in final:
@@ -555,7 +601,8 @@ class SentinelScanner:
         self.stats["appmap"] = build_appmap(endpoints, param_profile=self.param_profile,
                                             authz_result=authz_result,
                                             coverage_summary=self.stats["coverage"],
-                                            auth_mode=auth_mode)
+                                            auth_mode=auth_mode,
+                                            workflow_summary=self.stats.get("workflow", {}).get("flows"))
         cred_classes = sorted({f.parameter for f in final if f.type == "credential_exposure"})
         if cred_classes or self.cfg.secrets:
             self.stats["secrets"] = {"classes_found": cred_classes,
@@ -782,6 +829,46 @@ def doctor(allow_private=False) -> dict:
             "ChaCha20+HMAC encrypt-then-MAC OK; audit + purge leave no plaintext")
     except Exception as e:
         add("credential_vault", False, str(e)[:120])
+    # Workflow Engine (Phase 58): parser + clustering + synthesis invariants.
+    try:
+        from .workflow import (WorkflowEngine, parse_forms, _privilege_options,
+                               _synth_fresh_resource, CANARY_CREATE)
+        html = ('<form action="/wf/x/confirm" method="POST">'
+                '<input type="hidden" name="csrfToken" value="t1">'
+                '<input type="hidden" name="tid" value="TRF-0007">'
+                '<input type="hidden" name="amount" value="1111">'
+                '<select name="mode"><option value="ach">ACH</option>'
+                '<option value="wire">Wire transfer (admin only)</option></select></form>')
+        forms = parse_forms(html)
+        assert [f["name"] for f in forms[0]["fields"]] == ["csrfToken", "tid", "amount", "mode"]
+        assert _privilege_options(forms) == [("mode", "wire", "Wire transfer (admin only)")]
+        we = WorkflowEngine()
+        assert dict(we._synth_fields(forms[0]))["mode"] == "ach"          # first option
+        assert dict(we._synth_fields(forms[0], overrides={"mode": "wire"}))["mode"] == "wire"
+        assert _synth_fresh_resource("TRF-0007") == "TRF-99001"
+        # cluster eligibility: root excluded, flat /vuln-style dirs excluded,
+        # mixed multi-step clusters qualify (>=2 POST + >=1 GET + >=3 members)
+        # NOTE: Endpoint is NOT re-imported here — a local import shadows the
+        # module-level name for the WHOLE function and breaks the auth_engine
+        # check above (live-caught in v2.8.0, same defect class).
+        from .core import ParamLocation, Parameter as _P
+        eps = [Endpoint(url="http://t.local/wf/transfer/start"),
+               Endpoint(url="http://t.local/wf/transfer/ledger"),
+               Endpoint(url="http://t.local/wf/transfer/select", method="POST",
+                        parameters=[_P("acct", ParamLocation.BODY, "800001")]),
+               Endpoint(url="http://t.local/wf/transfer/create", method="POST",
+                        parameters=[_P("amount", ParamLocation.BODY, "")]),
+               Endpoint(url="http://t.local/wf/transfer/confirm", method="POST"),
+               Endpoint(url="http://t.local/vuln/a.php"), Endpoint(url="http://t.local/vuln/b.php")]
+        cl = we._cluster_members(eps, {"http://t.local/doLogin"})
+        assert "/wf/transfer" in cl and "/vuln" in cl
+        assert we._eligible(cl["/wf/transfer"]) and not we._eligible(cl["/vuln"])
+        assert "/" not in cl and all("/wf" != d for d in cl)
+        add("workflow_engine", True,
+            "flow parser (select/options + privilege labels) + cluster rules + "
+            "guided-walk synthesis OK")
+    except Exception as e:
+        add("workflow_engine", False, str(e)[:120])
     passed = sum(1 for c in checks if c["status"] == "PASS")
     return {"overall": "PASS" if passed == len(checks) else "DEGRADED",
             "passed": passed, "total": len(checks), "checks": checks}

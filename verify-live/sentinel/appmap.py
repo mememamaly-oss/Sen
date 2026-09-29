@@ -37,7 +37,8 @@ def _classify(ep) -> str:
 def build_appmap(endpoints: list, param_profile: dict | None = None,
                  authz_result: dict | None = None,
                  coverage_summary: dict | None = None,
-                 auth_mode: str = "anonymous") -> dict:
+                 auth_mode: str = "anonymous",
+                 workflow_summary: list | None = None) -> dict:
     """Assemble the application map. All inputs are already-computed scan
     artifacts; ordering is deterministic everywhere."""
     surfaces: dict[str, list[str]] = {"page": [], "api": [], "form_or_action": [], "static": []}
@@ -62,11 +63,21 @@ def build_appmap(endpoints: list, param_profile: dict | None = None,
 
     workflows = None
     actions = surfaces["form_or_action"]
-    if actions:
-        workflows = {"form_inventory": actions,
+    if actions or workflow_summary:
+        workflows = {"form_inventory": actions[:60],
                      "note": ("state-changing surfaces grouped by target; "
-                              "multi-step workflow learning is the Phase 57 "
+                              "multi-step flow learning is the Phase 58 "
                               "business-logic engine")}
+        # Phase 58 (v3.0.0): when the Workflow Engine ran, the map carries the
+        # LEARNED flows — the multi-step chains, their resource linkage and
+        # their state oracles — the application's process model, not just a
+        # list of POST surfaces.
+        if workflow_summary:
+            workflows["learned_flows"] = workflow_summary
+            workflows["note"] = ("learned multi-step flows (guided walks): "
+                                 "entry -> chained steps -> resource ids -> "
+                                 "state oracle; business-logic invariants are "
+                                 "tested against this model")
 
     return {
         "surfaces": {k: {"count": len(v), "endpoints": v[:60]} for k, v in surfaces.items()},
