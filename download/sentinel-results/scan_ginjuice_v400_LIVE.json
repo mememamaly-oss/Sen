@@ -1,0 +1,4367 @@
+{
+ "run_id": "run-3afab89578",
+ "seed": "v400-live-final",
+ "scanner": "sentinel-core/4.0.0",
+ "target": "https://ginandjuice.shop/",
+ "stats": {
+  "requests": 454,
+  "endpoints": 32,
+  "candidates": 13,
+  "verified": 46,
+  "rejected": 0,
+  "duration": 402.27,
+  "authenticated": true,
+  "crawl": {
+   "pages": 31,
+   "unique_endpoints": 32,
+   "dom_sink_candidates": 2
+  },
+  "param_intel": {
+   "params_total": 17,
+   "by_kind": {
+    "generic": 5,
+    "numeric": 10,
+    "search": 1,
+    "token": 1
+   },
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "workflow": {
+   "enabled": true,
+   "logic_active": false,
+   "clusters_tried": 1,
+   "flows_learned": 0,
+   "attacks": 0,
+   "verified": 0,
+   "skipped": [
+    "/catalog:no_resource_linkage"
+   ],
+   "requests": 0,
+   "flows": []
+  },
+  "auth": {
+   "authenticated": true,
+   "landing": "https://ginandjuice.shop/my-account",
+   "logins": 3,
+   "reauths": 2,
+   "failed_reauths": 0
+  },
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {},
+    "cookies": [
+     "awsalbcors",
+     "category",
+     "trackingid"
+    ],
+    "frameworks": [
+     "AngularJS",
+     "jQuery"
+    ],
+    "angularjs": true
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "coverage": {
+   "discovered": 34,
+   "tested": 34,
+   "passive": 32,
+   "secrets_scanned": 32,
+   "active": 21,
+   "authz_probed": 0,
+   "active_or_authz": 21,
+   "untested": 0,
+   "skip_reasons": {},
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/about",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/blog",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/blog/",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/blog/post",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/catalog",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/catalog",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/catalog",
+     "source": "js:static",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/catalog",
+     "source": "js:static",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/catalog/cart",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "https://ginandjuice.shop/catalog/cart",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "https://ginandjuice.shop/catalog/cart/checkout",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "https://ginandjuice.shop/catalog/cart/coupon",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/catalog/product",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "https://ginandjuice.shop/catalog/product/stock",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 400
+    },
+    {
+     "method": "POST",
+     "url": "https://ginandjuice.shop/catalog/subscribe",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/logout",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/my-account",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/order/details",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/promise",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/css/labsBlog.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/css/labsEcommerce.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/css/labsScanme.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/footer/js/scanme.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/images/tracker.gif",
+     "source": "js:static",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/deparam.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/react-dom.development.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/react.development.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/searchLogger.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/stockCheck.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/subscribeNow.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    }
+   ],
+   "detail_truncated": 0
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 12,
+     "endpoints": [
+      "https://ginandjuice.shop/",
+      "https://ginandjuice.shop/about",
+      "https://ginandjuice.shop/blog",
+      "https://ginandjuice.shop/blog/",
+      "https://ginandjuice.shop/blog/post",
+      "https://ginandjuice.shop/catalog",
+      "https://ginandjuice.shop/catalog/cart",
+      "https://ginandjuice.shop/catalog/product",
+      "https://ginandjuice.shop/logout",
+      "https://ginandjuice.shop/my-account",
+      "https://ginandjuice.shop/order/details",
+      "https://ginandjuice.shop/promise"
+     ]
+    },
+    "api": {
+     "count": 0,
+     "endpoints": []
+    },
+    "form_or_action": {
+     "count": 3,
+     "endpoints": [
+      "https://ginandjuice.shop/catalog/cart",
+      "https://ginandjuice.shop/catalog/product/stock",
+      "https://ginandjuice.shop/catalog/subscribe"
+     ]
+    },
+    "static": {
+     "count": 14,
+     "endpoints": [
+      "https://ginandjuice.shop/resources/css/labsBlog.css",
+      "https://ginandjuice.shop/resources/css/labsEcommerce.css",
+      "https://ginandjuice.shop/resources/css/labsScanme.css",
+      "https://ginandjuice.shop/resources/footer/js/scanme.js",
+      "https://ginandjuice.shop/resources/images/tracker.gif",
+      "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+      "https://ginandjuice.shop/resources/js/deparam.js",
+      "https://ginandjuice.shop/resources/js/react-dom.development.js",
+      "https://ginandjuice.shop/resources/js/react.development.js",
+      "https://ginandjuice.shop/resources/js/searchLogger.js",
+      "https://ginandjuice.shop/resources/js/stockCheck.js",
+      "https://ginandjuice.shop/resources/js/subscribeNow.js",
+      "https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js",
+      "https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css"
+     ]
+    }
+   },
+   "authentication": {
+    "mode": "form-session",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": {
+    "form_inventory": [
+     "https://ginandjuice.shop/catalog/cart",
+     "https://ginandjuice.shop/catalog/product/stock",
+     "https://ginandjuice.shop/catalog/subscribe"
+    ],
+    "note": "state-changing surfaces grouped by target; multi-step flow learning is the Phase 58 business-logic engine"
+   },
+   "coverage": {
+    "discovered": 34,
+    "tested": 34,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {}
+   }
+  },
+  "reasoning": {
+   "generated": 2,
+   "tested": 2,
+   "tested_verified": 1,
+   "verified": 1,
+   "refuted": 1,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": [
+    {
+     "id": "H-a792b99122",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /catalog/cart",
+     "premise": "POST /catalog/cart changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /catalog/cart",
+      "POST /catalog/cart:productId",
+      "POST /catalog/cart:quantity",
+      "POST /catalog/cart:redir"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:verified"
+    },
+    {
+     "id": "H-b80b13b3e5",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /catalog/product/stock",
+     "premise": "POST /catalog/product/stock changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /catalog/product/stock",
+      "POST /catalog/product/stock:productId",
+      "POST /catalog/product/stock:storeId"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    }
+   ]
+  },
+  "digital_twin": {
+   "nodes": 86,
+   "edges": 60,
+   "node_kinds": {
+    "entity": 3,
+    "finding": 35,
+    "hypothesis": 2,
+    "identity": 1,
+    "parameter": 15,
+    "role": 1,
+    "surface": 29
+   },
+   "edge_kinds": {
+    "carries": 15,
+    "generated_hypothesis": 2,
+    "has_role": 1,
+    "produced_finding": 35,
+    "typed_as": 7
+   },
+   "identities": 1,
+   "roles": 1,
+   "surfaces_total": 29,
+   "surfaces_write": 3,
+   "surfaces_read": 12,
+   "entities": 3,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 35,
+   "secrets_masked": 0,
+   "hypotheses": 2,
+   "surfaces_with_untested_reasons": 0,
+   "flows": [],
+   "authorization_matrix": {},
+   "entity_inventory": [
+    {
+     "entity": "Message",
+     "carried_by_params": 2,
+     "surfaces": [
+      "GET /blog/post",
+      "POST /catalog/subscribe"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Order",
+     "carried_by_params": 4,
+     "surfaces": [
+      "GET /order/details",
+      "POST /catalog/cart"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Session",
+     "carried_by_params": 1,
+     "surfaces": [
+      "POST /catalog/subscribe"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    }
+   ]
+  },
+  "planner": {
+   "operations_evaluated": 2,
+   "by_impact": {
+    "READ_ONLY": 2
+   },
+   "blocked": 0,
+   "logic_active": false,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked"
+  },
+  "proofs": [
+   {
+    "finding_id": "F-d8bbff4e3e",
+    "type": "csrf",
+    "severity": "medium",
+    "attack_hypothesis": "a hostile-origin state-changing request is accepted like a same-origin one",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://ginandjuice.shop/catalog/cart",
+      "parameter": "productId, redir, quantity"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "cross_origin_acceptance",
+      "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B) \u2014 no CSRF token in the form and no Origin/Referer validation",
+      "request_id": "req-c1745b99"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "A state-changing request from a hostile origin was accepted exactly like a same-origin one (fresh-origin replay) \u2014 silent cross-site action forgery against authenticated users.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST https://ginandjuice.shop/catalog/cart",
+      "parameter": "productId, redir, quantity",
+      "evidence_kinds": [
+       "cross_origin_acceptance"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-hostile-origin",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST https://ginandjuice.shop/catalog/cart with the tested parameter 'productId, redir, quantity' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (cross_origin_acceptance)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:fresh-hostile-origin",
+     "passed": true,
+     "rounds": 1,
+     "notes": "cross-origin replay from https://csrf-vr13-98683a8f.example accepted: True (HTTP 200)"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-e6ca09b8b8",
+    "type": "http_response_header_injection",
+    "severity": "high",
+    "attack_hypothesis": "attacker input reaches a response header",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/catalog",
+      "parameter": "category"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)",
+      "request_id": "req-8436f593"
+     },
+     {
+      "kind": "header_value",
+      "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)",
+      "request_id": "req-2db6217b"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Attacker input reaches a response header (CRLF shape) \u2014 header injection into proxies/browsers.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/catalog",
+      "parameter": "category",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-header-name",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/catalog with the tested parameter 'category' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-header-name",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh vector split response header x-sentinel-verify-hdr='confirmed; Secure; HttpOnly'"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-a0965ae454",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-78d95f21"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/ as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-64070c624a",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/my-account",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-91abce8f"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/my-account",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/my-account as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-8f0527e325",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-0e380e74"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-7bcb18152c",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/css/labsScanme.css",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-b734c8a4"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/css/labsScanme.css",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/css/labsScanme.css as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-bf6d4ca7fb",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/react.development.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-298b1ddd"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/react.development.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/react.development.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-8ac4aa87f5",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/react-dom.development.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-443d228e"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/react-dom.development.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/react-dom.development.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-79832c51cf",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-85dba8fc"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/angular_1-7-7.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-ac1d876594",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/catalog",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-30d1b017"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-3b564c5e"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-03988d2d"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-9cef413e"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/catalog",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/catalog as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-14a00088c7",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/blog",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-b1149ff8"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/blog",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/blog as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-4775c478d5",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/about",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-f5c4e493"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/about",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/about as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-c72c127aae",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/logout",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-95ed8972"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/logout",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/logout as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-65ab6e47e6",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/catalog/cart",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-279f3481"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-c5cf8005"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/catalog/cart",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/catalog/cart as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-a38ce25340",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/order/details",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-318a5638"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/order/details",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/order/details as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-e5ccd202ff",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/promise",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-7d72224c"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/promise",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/promise as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-5e46111694",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/subscribeNow.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-e2404ef2"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/subscribeNow.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/subscribeNow.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-6a222a003d",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/footer/js/scanme.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-424ab88a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/footer/js/scanme.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/footer/js/scanme.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-eb5ff2843d",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://ginandjuice.shop/catalog/subscribe",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-bdac680a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST https://ginandjuice.shop/catalog/subscribe",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST https://ginandjuice.shop/catalog/subscribe as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-fcd233c3fe",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/catalog/product",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-f0498e32"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/catalog/product",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/catalog/product as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-4aa457f211",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/blog/post",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-cdeb87c3"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/blog/post",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/blog/post as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-1d05d54579",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/css/labsEcommerce.css",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-352eaa42"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/css/labsEcommerce.css",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/css/labsEcommerce.css as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-df2a3ab1ea",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/css/labsBlog.css",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-e8e4dffa"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/css/labsBlog.css",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/css/labsBlog.css as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-c4bd93d7b2",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/deparam.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-1deb6c1a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/deparam.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/deparam.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-280f9bf333",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/searchLogger.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-5004a57f"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/searchLogger.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/searchLogger.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-ac5a684024",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/blog/",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-abb542d0"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/blog/",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/blog/ as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-350d2cadb9",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-9002a94f"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-ad7c55cc55",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/stockCheck.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-3e6ec2d8"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/stockCheck.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/stockCheck.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-af0cfd6218",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://ginandjuice.shop/catalog/product/stock",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-27b0db4f"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST https://ginandjuice.shop/catalog/product/stock",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST https://ginandjuice.shop/catalog/product/stock as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-5fbe2a300b",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/images/tracker.gif",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
+      "request_id": "req-cfd0b1e6"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/images/tracker.gif",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/images/tracker.gif as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-ef23b8b42b",
+    "type": "open_redirect",
+    "severity": "medium",
+    "attack_hypothesis": "an unvalidated redirect to an attacker-controlled destination",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/blog/",
+      "parameter": "search"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "body_redirect",
+      "detail": "off-site URL injected into client redirect sink",
+      "request_id": "req-a4bf7500"
+     },
+     {
+      "kind": "body_redirect",
+      "detail": "off-site URL injected into client redirect sink",
+      "request_id": "req-669ddbf2"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Unvalidated redirect to an attacker-controlled destination (fresh target replay) \u2014 phishing/trust laundering.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/blog/",
+      "parameter": "search",
+      "evidence_kinds": [
+       "body_redirect"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:second-host",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/blog/ with the tested parameter 'search' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (body_redirect)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:second-host",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-277b70ea40",
+    "type": "sql_injection",
+    "severity": "critical",
+    "attack_hypothesis": "attacker-controlled input changes the boolean value of a server-side query condition (observable differential)",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/catalog",
+      "parameter": "category"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "status_oracle",
+      "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break",
+      "request_id": "req-cb13c927"
+     },
+     {
+      "kind": "response_diff",
+      "detail": "OR-pair body-size differential on condition flip: TRUE 17108B vs FALSE 9423B (string-context boolean oracle)",
+      "request_id": "req-34ca03ae"
+     },
+     {
+      "kind": "status_oracle",
+      "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break",
+      "request_id": "req-443f36af"
+     },
+     {
+      "kind": "response_diff",
+      "detail": "OR-pair body-size differential on condition flip: TRUE 15396B vs FALSE 9489B (string-context boolean oracle)",
+      "request_id": "req-1fb7315a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) \u2014 a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/catalog",
+      "parameter": "category",
+      "evidence_kinds": [
+       "response_diff",
+       "status_oracle"
+      ],
+      "out_of_band": false,
+      "verification": "oracle:or-bodydiff-2round",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/catalog with the tested parameter 'category' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (response_diff, status_oracle)"
+     }
+    ],
+    "confidence": 0.95,
+    "verification": {
+     "method": "oracle:or-bodydiff-2round",
+     "passed": true,
+     "rounds": 2,
+     "notes": "fresh OR-pair body differential: TRUE 17111B vs FALSE 9426B"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-68cf956bbd",
+    "type": "vulnerable_js_dependency",
+    "severity": "low",
+    "attack_hypothesis": "end-of-life client-side dependency served",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "banner",
+      "detail": "served asset 'angular_1-7-7.js': AngularJS 1.x \u2014 end-of-life branch (Jan 2022); sandbox-escape / client-side template injection class (CVE-2019-10768, CVE-2024-21490)",
+      "request_id": "req-85dba8fc"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "End-of-life client-side dependency served \u2014 known advisory class applies to every client.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "banner"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/resources/js/angular_1-7-7.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (banner)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-37bb5f0013",
+    "type": "xss_reflected",
+    "severity": "high",
+    "attack_hypothesis": "attacker-supplied markup survives into the response in an executable context",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/catalog",
+      "parameter": "searchTerm"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "ng_expression_reflection",
+      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]",
+      "request_id": "req-cd1e8983"
+     },
+     {
+      "kind": "ng_expression_reflection",
+      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]",
+      "request_id": "req-62333ad4"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Arbitrary attacker-supplied markup/JavaScript survives into the response in an executable context (canary proven) \u2014 session theft, credential capture and action forgery in the victim's browser are reachable without further preconditions.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/catalog",
+      "parameter": "searchTerm",
+      "evidence_kinds": [
+       "ng_expression_reflection"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-ng-expression",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/catalog with the tested parameter 'searchTerm' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (ng_expression_reflection)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:fresh-ng-expression",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh Angular expression reflected raw inside ng-app context: True (client-side evaluation is Angular binding semantics)"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-4df129b258",
+    "type": "xss_reflected",
+    "severity": "high",
+    "attack_hypothesis": "attacker-supplied markup survives into the response in an executable context",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "https://ginandjuice.shop/catalog",
+      "parameter": "category"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "unescaped_reflection",
+      "detail": "canary reflected raw in context: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]",
+      "request_id": "req-9ab917c7"
+     },
+     {
+      "kind": "unescaped_reflection",
+      "detail": "canary reflected raw in context: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]",
+      "request_id": "req-23c37b3f"
+     },
+     {
+      "kind": "ng_expression_reflection",
+      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]",
+      "request_id": "req-3ffe8f89"
+     },
+     {
+      "kind": "ng_expression_reflection",
+      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]",
+      "request_id": "req-901204ee"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Arbitrary attacker-supplied markup/JavaScript survives into the response in an executable context (canary proven) \u2014 session theft, credential capture and action forgery in the victim's browser are reachable without further preconditions.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET https://ginandjuice.shop/catalog",
+      "parameter": "category",
+      "evidence_kinds": [
+       "ng_expression_reflection",
+       "unescaped_reflection"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:variant-battery-6",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET https://ginandjuice.shop/catalog with the tested parameter 'category' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (ng_expression_reflection, unescaped_reflection)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:variant-battery-6",
+     "passed": true,
+     "rounds": 6,
+     "notes": "4/6 diverse vectors reflected raw (WAF-resistant verification)"
+    },
+    "proof_grade": "proven"
+   }
+  ],
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [
+  {
+   "id": "F-277b70ea40",
+   "type": "sql_injection",
+   "severity": "critical",
+   "status": "verified",
+   "confidence": 0.95,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/catalog",
+   "parameter": "category",
+   "evidence": [
+    {
+     "kind": "status_oracle",
+     "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break"
+    },
+    {
+     "kind": "response_diff",
+     "detail": "OR-pair body-size differential on condition flip: TRUE 17108B vs FALSE 9423B (string-context boolean oracle)"
+    },
+    {
+     "kind": "status_oracle",
+     "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break"
+    },
+    {
+     "kind": "response_diff",
+     "detail": "OR-pair body-size differential on condition flip: TRUE 15396B vs FALSE 9489B (string-context boolean oracle)"
+    }
+   ],
+   "verification": {
+    "method": "oracle:or-bodydiff-2round",
+    "passed": true,
+    "confidence": 0.95,
+    "rounds": 2,
+    "notes": "fresh OR-pair body differential: TRUE 17111B vs FALSE 9426B"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-3afab89578",
+   "risk": 85,
+   "impact": {
+    "grade": "proven",
+    "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) \u2014 a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/catalog",
+     "parameter": "category",
+     "evidence_kinds": [
+      "response_diff",
+      "status_oracle"
+     ],
+     "out_of_band": false,
+     "verification": "oracle:or-bodydiff-2round",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-37bb5f0013",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/catalog",
+   "parameter": "searchTerm",
+   "evidence": [
+    {
+     "kind": "ng_expression_reflection",
+     "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]"
+    },
+    {
+     "kind": "ng_expression_reflection",
+     "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-ng-expression",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "fresh Angular expression reflected raw inside ng-app context: True (client-side evaluation is Angular binding semantics)"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-3afab89578",
+   "risk": 59,
+   "impact": {
+    "grade": "proven",
+    "statement": "Arbitrary attacker-supplied markup/JavaScript survives into the response in an executable context (canary proven) \u2014 session theft, credential capture and action forgery in the victim's browser are reachable without further preconditions.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/catalog",
+     "parameter": "searchTerm",
+     "evidence_kinds": [
+      "ng_expression_reflection"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-ng-expression",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-4df129b258",
+   "type": "xss_reflected",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/catalog",
+   "parameter": "category",
+   "evidence": [
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]"
+    },
+    {
+     "kind": "unescaped_reflection",
+     "detail": "canary reflected raw in context: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]"
+    },
+    {
+     "kind": "ng_expression_reflection",
+     "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]"
+    },
+    {
+     "kind": "ng_expression_reflection",
+     "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]"
+    }
+   ],
+   "verification": {
+    "method": "re-test:variant-battery-6",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 6,
+    "notes": "4/6 diverse vectors reflected raw (WAF-resistant verification)"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-3afab89578",
+   "risk": 63,
+   "impact": {
+    "grade": "proven",
+    "statement": "Arbitrary attacker-supplied markup/JavaScript survives into the response in an executable context (canary proven) \u2014 session theft, credential capture and action forgery in the victim's browser are reachable without further preconditions.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/catalog",
+     "parameter": "category",
+     "evidence_kinds": [
+      "ng_expression_reflection",
+      "unescaped_reflection"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:variant-battery-6",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-e6ca09b8b8",
+   "type": "http_response_header_injection",
+   "severity": "high",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/catalog",
+   "parameter": "category",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)"
+    },
+    {
+     "kind": "header_value",
+     "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-header-name",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 1,
+    "notes": "fresh vector split response header x-sentinel-verify-hdr='confirmed; Secure; HttpOnly'"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-3afab89578",
+   "risk": 54,
+   "impact": {
+    "grade": "proven",
+    "statement": "Attacker input reaches a response header (CRLF shape) \u2014 header injection into proxies/browsers.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/catalog",
+     "parameter": "category",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-header-name",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-d8bbff4e3e",
+   "type": "csrf",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "POST",
+   "url": "https://ginandjuice.shop/catalog/cart",
+   "parameter": "productId, redir, quantity",
+   "evidence": [
+    {
+     "kind": "cross_origin_acceptance",
+     "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B) \u2014 no CSRF token in the form and no Origin/Referer validation"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-hostile-origin",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "cross-origin replay from https://csrf-vr13-98683a8f.example accepted: True (HTTP 200)"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-3afab89578",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "A state-changing request from a hostile origin was accepted exactly like a same-origin one (fresh-origin replay) \u2014 silent cross-site action forgery against authenticated users.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST https://ginandjuice.shop/catalog/cart",
+     "parameter": "productId, redir, quantity",
+     "evidence_kinds": [
+      "cross_origin_acceptance"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-hostile-origin",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-ef23b8b42b",
+   "type": "open_redirect",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/blog/",
+   "parameter": "search",
+   "evidence": [
+    {
+     "kind": "body_redirect",
+     "detail": "off-site URL injected into client redirect sink"
+    },
+    {
+     "kind": "body_redirect",
+     "detail": "off-site URL injected into client redirect sink"
+    }
+   ],
+   "verification": {
+    "method": "re-test:second-host",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-3afab89578",
+   "risk": 34,
+   "impact": {
+    "grade": "proven",
+    "statement": "Unvalidated redirect to an attacker-controlled destination (fresh target replay) \u2014 phishing/trust laundering.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/blog/",
+     "parameter": "search",
+     "evidence_kinds": [
+      "body_redirect"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:second-host",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-a0965ae454",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-64070c624a",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/my-account",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/my-account",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-8f0527e325",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-7bcb18152c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/css/labsScanme.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/css/labsScanme.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-bf6d4ca7fb",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/react.development.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/react.development.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-8ac4aa87f5",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/react-dom.development.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/react-dom.development.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-79832c51cf",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-68cf956bbd",
+   "type": "vulnerable_js_dependency",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "banner",
+     "detail": "served asset 'angular_1-7-7.js': AngularJS 1.x \u2014 end-of-life branch (Jan 2022); sandbox-escape / client-side template injection class (CVE-2019-10768, CVE-2024-21490)"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "End-of-life client-side dependency served \u2014 known advisory class applies to every client.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "banner"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-ac1d876594",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/catalog",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/catalog",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-14a00088c7",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/blog",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/blog",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-4775c478d5",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/about",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/about",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-c72c127aae",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/logout",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/logout",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-65ab6e47e6",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/catalog/cart",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/catalog/cart",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-a38ce25340",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/order/details",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/order/details",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-e5ccd202ff",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/promise",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/promise",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-5e46111694",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/subscribeNow.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/subscribeNow.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-6a222a003d",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/footer/js/scanme.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/footer/js/scanme.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-eb5ff2843d",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "https://ginandjuice.shop/catalog/subscribe",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST https://ginandjuice.shop/catalog/subscribe",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-fcd233c3fe",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/catalog/product",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/catalog/product",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-4aa457f211",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/blog/post",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/blog/post",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-1d05d54579",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/css/labsEcommerce.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/css/labsEcommerce.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-df2a3ab1ea",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/css/labsBlog.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/css/labsBlog.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-c4bd93d7b2",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/deparam.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/deparam.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-280f9bf333",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/searchLogger.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/searchLogger.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-ac5a684024",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/blog/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/blog/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-350d2cadb9",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-ad7c55cc55",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/js/stockCheck.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/js/stockCheck.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-af0cfd6218",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "https://ginandjuice.shop/catalog/product/stock",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST https://ginandjuice.shop/catalog/product/stock",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-5fbe2a300b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "https://ginandjuice.shop/resources/images/tracker.gif",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET https://ginandjuice.shop/resources/images/tracker.gif",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  }
+ ],
+ "rejected_candidates": []
+}
