@@ -1,0 +1,2368 @@
+{
+ "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+ "version": "2.1.0",
+ "runs": [
+  {
+   "tool": {
+    "driver": {
+     "name": "SENTINEL",
+     "version": "4.1.0",
+     "informationUri": "https://sentinel.invalid/",
+     "rules": [
+      {
+       "id": "SEN-SQL-001",
+       "name": "sql_injection",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: sql_injection"
+       }
+      },
+      {
+       "id": "SEN-HDR-002",
+       "name": "missing_security_headers",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: missing_security_headers"
+       }
+      }
+     ]
+    }
+   },
+   "properties": {
+    "scanTarget": "",
+    "resultCount": 57,
+    "honesty": "verification-gated: every result passed an independent replay",
+    "coverage": {
+     "endpoint_pct": 100.0,
+     "dimensions": {
+      "endpoint": {
+       "discovered": 33,
+       "tested": 33,
+       "pct": 100.0,
+       "status": "TESTED"
+      },
+      "parameter": {
+       "discovered": 8,
+       "tested": 8,
+       "pct": 100.0,
+       "status": "TESTED"
+      },
+      "authentication": {
+       "discovered": 2,
+       "tested": 2,
+       "pct": 100.0,
+       "status": "TESTED"
+      },
+      "identity": {
+       "discovered": 1,
+       "tested": 1,
+       "pct": 100.0,
+       "status": "TESTED"
+      },
+      "authorization": {
+       "discovered": 0,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "NOT_DISCOVERED"
+      },
+      "entity": {
+       "discovered": 3,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "UNTESTED"
+      },
+      "object": {
+       "discovered": 0,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "NOT_DISCOVERED"
+      },
+      "workflow": {
+       "discovered": 0,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "NOT_DISCOVERED"
+      },
+      "workflow_branch": {
+       "discovered": 0,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "NOT_DISCOVERED"
+      },
+      "state": {
+       "discovered": 0,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "NOT_DISCOVERED"
+      },
+      "api_protocol": {
+       "discovered": 2,
+       "tested": 2,
+       "pct": 100.0,
+       "status": "TESTED"
+      },
+      "graphql": {
+       "discovered": 0,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "NOT_DISCOVERED"
+      },
+      "websocket": {
+       "discovered": 0,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "NOT_DISCOVERED"
+      },
+      "browser": {
+       "discovered": 1,
+       "tested": 1,
+       "pct": 100.0,
+       "status": "TESTED"
+      },
+      "oast": {
+       "discovered": 1,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "UNTESTED"
+      },
+      "detector": {
+       "discovered": 7,
+       "tested": 7,
+       "pct": 100.0,
+       "status": "TESTED"
+      },
+      "evidence": {
+       "discovered": 1,
+       "tested": 0,
+       "pct": 0.0,
+       "status": "UNTESTED"
+      }
+     }
+    },
+    "boundary": {
+     "records": 2,
+     "unresolved": 2,
+     "by_state": {
+      "NOT_DISCOVERED": 2
+     }
+    },
+    "capability_matrix": [
+     {
+      "capability": "REST",
+      "discovered": 33,
+      "tested": 33,
+      "verified": 33,
+      "unsupported_reason": ""
+     },
+     {
+      "capability": "Parameters",
+      "discovered": 8,
+      "tested": 8,
+      "verified": 8,
+      "unsupported_reason": ""
+     },
+     {
+      "capability": "Workflow",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no workflow surface was observed on this target"
+     },
+     {
+      "capability": "Branching",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no workflow branch surface was observed on this target"
+     },
+     {
+      "capability": "State",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no state surface was observed on this target"
+     },
+     {
+      "capability": "GraphQL",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no graphql surface was observed on this target"
+     },
+     {
+      "capability": "WebSocket",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no websocket surface was observed on this target"
+     },
+     {
+      "capability": "Authorization",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no authorization surface was observed on this target"
+     },
+     {
+      "capability": "Identities",
+      "discovered": 1,
+      "tested": 1,
+      "verified": 1,
+      "unsupported_reason": ""
+     },
+     {
+      "capability": "Browser",
+      "discovered": 1,
+      "tested": 1,
+      "verified": 1,
+      "unsupported_reason": ""
+     },
+     {
+      "capability": "OAST",
+      "discovered": 1,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": ""
+     },
+     {
+      "capability": "Evidence",
+      "discovered": 1,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": ""
+     },
+     {
+      "capability": "GraphQL operations",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no GraphQL endpoint observed"
+     },
+     {
+      "capability": "WebSocket channels",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "no WebSocket channel observed"
+     },
+     {
+      "capability": "Business-logic flows",
+      "discovered": 0,
+      "tested": 0,
+      "verified": 0,
+      "unsupported_reason": "workflow engine disabled"
+     }
+    ]
+   },
+   "results": [
+    {
+     "ruleId": "SEN-SQL-001",
+     "ruleIndex": 0,
+     "level": "error",
+     "message": {
+      "text": "sql_injection at http://localhost:3000/rest/products/search (param=q) \u2014 verified via error:replay-2variants"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/products/search"
+        },
+        "region": {
+         "snippet": {
+          "text": "q"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 81,
+      "confidence": 0.9,
+      "parameter": "q",
+      "verification": {
+       "method": "error:replay-2variants",
+       "passed": true,
+       "notes": "single+double quote variants reproduce DB error: True"
+      },
+      "evidence": "status_oracle: quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-5603a854b8"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000 \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-5c6e4ce7f7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/assets/public/favicon_js.ico \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/assets/public/favicon_js.ico"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-3b913f187d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/styles.css \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/styles.css"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-ff21c11e00"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/polyfills.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/polyfills.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-f14eab113f"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/scripts.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/scripts.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-0c31186a0f"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/main.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/main.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8a1b1727ea"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/{{href}} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/{{href}}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-55db221d99"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/basket \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/basket"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-eb261c46d4"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/redirect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/redirect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b670363e02"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/ftp \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/ftp"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d0547294c7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/products/search \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/products/search"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-69ee94db8d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/product/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/product/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-736a53da85"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/products/{id}/reviews \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/products/{id}/reviews"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy; header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-21804ac3c2"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/Users \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/Users"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7def27fea7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-500c12693e"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/whoami \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/whoami"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e0993ea8b0"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/basket/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/basket/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-dbe3043f23"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/BasketItems \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/BasketItems"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-33c1c23c74"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/BasketItems/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/BasketItems/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-1e6a140799"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/basket/{id}/checkout \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/basket/{id}/checkout"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e807f31519"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/change-password \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/change-password"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-63eb81f382"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/reset-password \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/reset-password"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b73bbeb9ad"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/SecurityQuestions \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/SecurityQuestions"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-981ba7c7ab"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/SecurityQuestion/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/SecurityQuestion/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-830b570e9b"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/SecurityAnswers \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/SecurityAnswers"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e7e86397d2"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/continue-code \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/continue-code"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8e62c2980d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/repeat-captcha \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/repeat-captcha"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-6f3510bb8a"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/saveLoginIp \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/saveLoginIp"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-08afc24463"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000 \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-5c6e4ce7f7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/assets/public/favicon_js.ico \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/assets/public/favicon_js.ico"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-3b913f187d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/styles.css \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/styles.css"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-ff21c11e00"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/polyfills.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/polyfills.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-f14eab113f"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/scripts.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/scripts.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-0c31186a0f"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/main.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/main.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8a1b1727ea"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/{{href}} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/{{href}}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-55db221d99"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/basket \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/basket"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-eb261c46d4"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/redirect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/redirect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b670363e02"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/ftp \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/ftp"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d0547294c7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/products/search \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/products/search"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-69ee94db8d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/product/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/product/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-736a53da85"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/Users \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/Users"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7def27fea7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-500c12693e"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/whoami \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/whoami"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e0993ea8b0"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/basket/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/basket/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-dbe3043f23"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/BasketItems \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/BasketItems"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-33c1c23c74"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/BasketItems/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/BasketItems/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-1e6a140799"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/basket/{id}/checkout \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/basket/{id}/checkout"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e807f31519"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/change-password \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/change-password"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-63eb81f382"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/user/reset-password \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/user/reset-password"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b73bbeb9ad"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/SecurityQuestions \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/SecurityQuestions"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-981ba7c7ab"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/SecurityQuestion/{id} \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/SecurityQuestion/{id}"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-830b570e9b"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/api/SecurityAnswers \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/api/SecurityAnswers"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e7e86397d2"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/continue-code \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/continue-code"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8e62c2980d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/repeat-captcha \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/repeat-captcha"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-6f3510bb8a"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/saveLoginIp \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/saveLoginIp"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-08afc24463"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 1,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://localhost:3000/rest/product/reviews \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://localhost:3000/rest/product/reviews"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-939fd7d63c"
+     }
+    }
+   ]
+  }
+ ]
+}
