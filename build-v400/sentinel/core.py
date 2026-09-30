@@ -168,6 +168,11 @@ class Finding:
     # Phase 56 (v2.8.0): authorization context — for authz-engine findings this
     # records WHICH role/victim pair produced the evidence. Empty elsewhere.
     authz_context: str = ""
+    # v4.0.0 (ENG-18): workflow-oracle state pair — the before/after snapshots
+    # the proof file carries for stateful classes (workflow/authz); empty for
+    # request-level classes whose proof IS the differential.
+    state_before: str = ""
+    state_after: str = ""
 
     def __post_init__(self):
         if not self.id:

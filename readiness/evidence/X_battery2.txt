@@ -1,0 +1,4 @@
+prior full-battery scan: exit=0 wall=54s
+prior run: runs= 1 findings= 147
+after T+30 mid-flight kill: integrity= ok | runs= 1 | findings= 147
+-> prior evidence INTACT and no half-run appended

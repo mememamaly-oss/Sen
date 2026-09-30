@@ -1,0 +1,4115 @@
+[!] --logic-active: business-logic attack probes are ENABLED — state-changing manipulations (step bypass / out-of-order / value tamper / duplicate execution / privilege bound / cross-user / cross-object / cross-state) WILL be executed against the target with canary values and bounded budgets.
+{
+ "target": "http://127.0.0.1:8778",
+ "stats": {
+  "requests": 1301,
+  "endpoints": 61,
+  "candidates": 35,
+  "verified": 158,
+  "rejected": 0,
+  "duration": 54.37,
+  "authenticated": true,
+  "crawl": {
+   "pages": 40,
+   "unique_endpoints": 59,
+   "dom_sink_candidates": 1
+  },
+  "openapi": {
+   "source": null,
+   "paths": 0,
+   "new_endpoints": 0
+  },
+  "param_intel": {
+   "params_total": 44,
+   "by_kind": {
+    "email": 2,
+    "filename": 2,
+    "generic": 15,
+    "json_object": 1,
+    "numeric": 9,
+    "search": 9,
+    "token": 3,
+    "url": 3
+   },
+   "value_shape_upgrades": 1,
+   "data_objects": {
+    "id": [
+     "http://127.0.0.1:8778/api/users",
+     "http://127.0.0.1:8778/safe/item.php",
+     "http://127.0.0.1:8778/vuln/sqli_blind.php",
+     "http://127.0.0.1:8778/vuln/sqli_error.php"
+    ],
+    "uid": [
+     "http://127.0.0.1:8778/doLogin"
+    ]
+   }
+  },
+  "authz": {
+   "accounts_configured": 3,
+   "accounts_logged_in": 3,
+   "roles": [
+    "admin",
+    "user"
+   ],
+   "matrix_endpoints": 22,
+   "login_errors": [],
+   "requests": 84,
+   "ran": true
+  },
+  "workflow": {
+   "enabled": true,
+   "logic_active": true,
+   "clusters_tried": 2,
+   "flows_learned": 0,
+   "attacks": 0,
+   "verified": 0,
+   "skipped": [
+    "/vuln:no_anchor",
+    "/safe:no_anchor"
+   ],
+   "requests": 0,
+   "attack_log": [],
+   "flows": []
+  },
+  "auth": {
+   "authenticated": true,
+   "landing": "http://127.0.0.1:8777/home",
+   "logins": 2,
+   "reauths": 1,
+   "failed_reauths": 0
+  },
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {
+     "server": "Sentinel-Fixture/1.0"
+    },
+    "cookies": [
+     "cat",
+     "sess",
+     "session"
+    ],
+    "frameworks": [],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "oast": {
+   "channel": "local",
+   "interactions": 7
+  },
+  "coverage": {
+   "discovered": 64,
+   "tested": 64,
+   "passive": 61,
+   "secrets_scanned": 61,
+   "active": 60,
+   "authz_probed": 20,
+   "active_or_authz": 60,
+   "untested": 0,
+   "skip_reasons": {
+    "param_intel:json_object": 1
+   },
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8777/home",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/about",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/admin/",
+     "source": "robots.txt",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/angular_1-7-7.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/api/",
+     "source": "js:static",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/api/filter",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [
+      "param_intel:json_object"
+     ],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/api/users",
+     "source": "js:static",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/app.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/backup/db.sql",
+     "source": "robots.txt",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/blind/stock",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 400
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/doLogin",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/hidden.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/jsbuild.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/lab",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/login",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/cors",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/safe/csrf-action",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/divform",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/dom-text",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/dom-text?search=test",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/fetch",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/fetch?url=http%3A//api.local/feed",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/hostbuild",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/item.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/safe/json-reflect",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/jsparam.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/safe/jwt-login",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/leak-config",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/safe/nosql-login",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 401
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/safe/oob-stock",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 400
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/ping",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/read.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/search.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active",
+      "authz"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/safe/ssti",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/safe/stock",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 400
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/stockapp.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/tracker.gif",
+     "source": "js:static",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/cors",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/vuln/csrf-action",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/vuln/csrf-reflect",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/csrfdivform",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/divform",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/dom-write",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/dom-write",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/fetch",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/fetch?url=http%3A//api.local/feed",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/hostbuild",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/jsform",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/vuln/json-reflect",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/jsparam.php",
+     "source": "js:static",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/vuln/jwt-login",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/leak-config",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/vuln/nosql-login",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 401
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/vuln/oob-stock",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 400
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/ping",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/redirect.php",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 302
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/sqli_blind.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/sqli_error.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/ssti",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8778/vuln/stock",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 400
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/traversal.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8778/vuln/xss.php",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    }
+   ],
+   "detail_truncated": 0
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 37,
+     "endpoints": [
+      "http://127.0.0.1:8777/home",
+      "http://127.0.0.1:8778",
+      "http://127.0.0.1:8778/",
+      "http://127.0.0.1:8778/about",
+      "http://127.0.0.1:8778/admin/",
+      "http://127.0.0.1:8778/backup/db.sql",
+      "http://127.0.0.1:8778/hidden.php",
+      "http://127.0.0.1:8778/lab",
+      "http://127.0.0.1:8778/login",
+      "http://127.0.0.1:8778/safe/cors",
+      "http://127.0.0.1:8778/safe/divform",
+      "http://127.0.0.1:8778/safe/dom-text",
+      "http://127.0.0.1:8778/safe/fetch",
+      "http://127.0.0.1:8778/safe/hostbuild",
+      "http://127.0.0.1:8778/safe/item.php",
+      "http://127.0.0.1:8778/safe/jsparam.php",
+      "http://127.0.0.1:8778/safe/leak-config",
+      "http://127.0.0.1:8778/safe/ping",
+      "http://127.0.0.1:8778/safe/read.php",
+      "http://127.0.0.1:8778/safe/search.php",
+      "http://127.0.0.1:8778/safe/ssti",
+      "http://127.0.0.1:8778/vuln/cors",
+      "http://127.0.0.1:8778/vuln/csrfdivform",
+      "http://127.0.0.1:8778/vuln/divform",
+      "http://127.0.0.1:8778/vuln/dom-write",
+      "http://127.0.0.1:8778/vuln/fetch",
+      "http://127.0.0.1:8778/vuln/hostbuild",
+      "http://127.0.0.1:8778/vuln/jsform",
+      "http://127.0.0.1:8778/vuln/jsparam.php",
+      "http://127.0.0.1:8778/vuln/leak-config",
+      "http://127.0.0.1:8778/vuln/ping",
+      "http://127.0.0.1:8778/vuln/redirect.php",
+      "http://127.0.0.1:8778/vuln/sqli_blind.php",
+      "http://127.0.0.1:8778/vuln/sqli_error.php",
+      "http://127.0.0.1:8778/vuln/ssti",
+      "http://127.0.0.1:8778/vuln/traversal.php",
+      "http://127.0.0.1:8778/vuln/xss.php"
+     ]
+    },
+    "api": {
+     "count": 3,
+     "endpoints": [
+      "http://127.0.0.1:8778/api/",
+      "http://127.0.0.1:8778/api/filter",
+      "http://127.0.0.1:8778/api/users"
+     ]
+    },
+    "form_or_action": {
+     "count": 15,
+     "endpoints": [
+      "http://127.0.0.1:8778/blind/stock",
+      "http://127.0.0.1:8778/doLogin",
+      "http://127.0.0.1:8778/safe/csrf-action",
+      "http://127.0.0.1:8778/safe/json-reflect",
+      "http://127.0.0.1:8778/safe/jwt-login",
+      "http://127.0.0.1:8778/safe/nosql-login",
+      "http://127.0.0.1:8778/safe/oob-stock",
+      "http://127.0.0.1:8778/safe/stock",
+      "http://127.0.0.1:8778/vuln/csrf-action",
+      "http://127.0.0.1:8778/vuln/csrf-reflect",
+      "http://127.0.0.1:8778/vuln/json-reflect",
+      "http://127.0.0.1:8778/vuln/jwt-login",
+      "http://127.0.0.1:8778/vuln/nosql-login",
+      "http://127.0.0.1:8778/vuln/oob-stock",
+      "http://127.0.0.1:8778/vuln/stock"
+     ]
+    },
+    "static": {
+     "count": 5,
+     "endpoints": [
+      "http://127.0.0.1:8778/angular_1-7-7.js",
+      "http://127.0.0.1:8778/app.js",
+      "http://127.0.0.1:8778/jsbuild.js",
+      "http://127.0.0.1:8778/stockapp.js",
+      "http://127.0.0.1:8778/tracker.gif"
+     ]
+    }
+   },
+   "authentication": {
+    "mode": "multi-user(admin,user)",
+    "roles_tested": [
+     "admin",
+     "user"
+    ],
+    "accounts_logged_in": 3
+   },
+   "access_matrix": {
+    "http://127.0.0.1:8777/home": {
+     "role:admin": 302,
+     "role:user": 302
+    },
+    "http://127.0.0.1:8778/": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/about": {
+     "role:admin": 404,
+     "role:user": 404
+    },
+    "http://127.0.0.1:8778/admin/": {
+     "anonymous": 200,
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/api/": {
+     "role:admin": 404,
+     "role:user": 404
+    },
+    "http://127.0.0.1:8778/api/admin/stats": {
+     "anonymous": 302,
+     "role:admin": 302,
+     "role:user": 302
+    },
+    "http://127.0.0.1:8778/api/filter": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/api/secure/admin/stats": {
+     "anonymous": 302,
+     "role:admin": 302,
+     "role:user": 302
+    },
+    "http://127.0.0.1:8778/api/users": {
+     "role:admin": 404,
+     "role:user": 404
+    },
+    "http://127.0.0.1:8778/hidden.php": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/lab": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/cors": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/divform": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/dom-text": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/fetch": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/hostbuild": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/item.php": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/jsparam.php": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/leak-config": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/ping": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/read.php": {
+     "role:admin": 200,
+     "role:user": 200
+    },
+    "http://127.0.0.1:8778/safe/search.php": {
+     "role:admin": 200,
+     "role:user": 200
+    }
+   },
+   "data_objects": {
+    "id": {
+     "carried_by": [
+      "http://127.0.0.1:8778/api/users",
+      "http://127.0.0.1:8778/safe/item.php",
+      "http://127.0.0.1:8778/vuln/sqli_blind.php",
+      "http://127.0.0.1:8778/vuln/sqli_error.php"
+     ]
+    },
+    "uid": {
+     "carried_by": [
+      "http://127.0.0.1:8778/doLogin"
+     ]
+    }
+   },
+   "workflows": {
+    "form_inventory": [
+     "http://127.0.0.1:8778/blind/stock",
+     "http://127.0.0.1:8778/doLogin",
+     "http://127.0.0.1:8778/safe/csrf-action",
+     "http://127.0.0.1:8778/safe/json-reflect",
+     "http://127.0.0.1:8778/safe/jwt-login",
+     "http://127.0.0.1:8778/safe/nosql-login",
+     "http://127.0.0.1:8778/safe/oob-stock",
+     "http://127.0.0.1:8778/safe/stock",
+     "http://127.0.0.1:8778/vuln/csrf-action",
+     "http://127.0.0.1:8778/vuln/csrf-reflect",
+     "http://127.0.0.1:8778/vuln/json-reflect",
+     "http://127.0.0.1:8778/vuln/jwt-login",
+     "http://127.0.0.1:8778/vuln/nosql-login",
+     "http://127.0.0.1:8778/vuln/oob-stock",
+     "http://127.0.0.1:8778/vuln/stock"
+    ],
+    "note": "state-changing surfaces grouped by target; multi-step flow learning is the Phase 58 business-logic engine"
+   },
+   "coverage": {
+    "discovered": 64,
+    "tested": 64,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {
+     "param_intel:json_object": 1
+    }
+   }
+  },
+  "reasoning": {
+   "generated": 15,
+   "tested": 15,
+   "tested_verified": 4,
+   "verified": 4,
+   "refuted": 11,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": [
+    {
+     "id": "H-8dde8bdb42",
+     "pattern": "R-ADMIN-SURFACE-LOW-ROLE",
+     "surface": "GET /admin/",
+     "premise": "the access matrix shows role 'user' reaching the admin surface GET /admin/ \u2014 if the body is the privileged view, this is vertical privilege escalation",
+     "chain": [
+      "user",
+      "GET /admin/"
+     ],
+     "test": "authz engine (vertical escalation battery)",
+     "plan": "READ_ONLY",
+     "status": "tested:verified"
+    },
+    {
+     "id": "H-0834f5d3bc",
+     "pattern": "R-SECRET-EXPOSURE",
+     "surface": "aws_access_key@/vuln/leak-config",
+     "premise": "a aws_access_key-class secret is exposed in a response \u2014 if valid, it grants the privilege it carries (values are masked and never verified destructively)",
+     "chain": [
+      "aws_access_key@/vuln/leak-config"
+     ],
+     "test": "secrets engine (fresh-fetch exposure verification)",
+     "plan": "READ_ONLY",
+     "status": "tested:verified"
+    },
+    {
+     "id": "H-d2019cfabe",
+     "pattern": "R-SECRET-EXPOSURE",
+     "surface": "db_connection_uri@/vuln/leak-config",
+     "premise": "a db_connection_uri-class secret is exposed in a response \u2014 if valid, it grants the privilege it carries (values are masked and never verified destructively)",
+     "chain": [
+      "db_connection_uri@/vuln/leak-config"
+     ],
+     "test": "secrets engine (fresh-fetch exposure verification)",
+     "plan": "READ_ONLY",
+     "status": "tested:verified"
+    },
+    {
+     "id": "H-8329d760e0",
+     "pattern": "R-SECRET-EXPOSURE",
+     "surface": "github_token@/vuln/leak-config",
+     "premise": "a github_token-class secret is exposed in a response \u2014 if valid, it grants the privilege it carries (values are masked and never verified destructively)",
+     "chain": [
+      "github_token@/vuln/leak-config"
+     ],
+     "test": "secrets engine (fresh-fetch exposure verification)",
+     "plan": "READ_ONLY",
+     "status": "tested:verified"
+    },
+    {
+     "id": "H-5d6c2158fe",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /blind/stock",
+     "premise": "POST /blind/stock changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /blind/stock",
+      "POST /blind/stock:productId"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-537ff18ba8",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /safe/json-reflect",
+     "premise": "POST /safe/json-reflect changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /safe/json-reflect",
+      "POST /safe/json-reflect:name"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-d69e300f3b",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /safe/jwt-login",
+     "premise": "POST /safe/jwt-login changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /safe/jwt-login",
+      "POST /safe/jwt-login:pass",
+      "POST /safe/jwt-login:user"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-90006ddf3e",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /safe/nosql-login",
+     "premise": "POST /safe/nosql-login changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /safe/nosql-login",
+      "POST /safe/nosql-login:pass",
+      "POST /safe/nosql-login:user"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-2cadd697b5",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /safe/oob-stock",
+     "premise": "POST /safe/oob-stock changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /safe/oob-stock",
+      "POST /safe/oob-stock:productId"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-0ef272c769",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /safe/stock",
+     "premise": "POST /safe/stock changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /safe/stock",
+      "POST /safe/stock:productId"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-752b25a2db",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /vuln/json-reflect",
+     "premise": "POST /vuln/json-reflect changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /vuln/json-reflect",
+      "POST /vuln/json-reflect:name"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-dcb29e2367",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /vuln/jwt-login",
+     "premise": "POST /vuln/jwt-login changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /vuln/jwt-login",
+      "POST /vuln/jwt-login:pass",
+      "POST /vuln/jwt-login:user"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-1a7d9490ec",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /vuln/nosql-login",
+     "premise": "POST /vuln/nosql-login changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /vuln/nosql-login",
+      "POST /vuln/nosql-login:pass",
+      "POST /vuln/nosql-login:user"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-56cdc557f0",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /vuln/oob-stock",
+     "premise": "POST /vuln/oob-stock changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /vuln/oob-stock",
+      "POST /vuln/oob-stock:productId"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-2d0cacf89e",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /vuln/stock",
+     "premise": "POST /vuln/stock changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /vuln/stock",
+      "POST /vuln/stock:productId"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    }
+   ]
+  },
+  "digital_twin": {
+   "nodes": 281,
+   "edges": 266,
+   "node_kinds": {
+    "entity": 5,
+    "finding": 147,
+    "hypothesis": 15,
+    "identity": 3,
+    "parameter": 44,
+    "role": 2,
+    "secret": 3,
+    "surface": 62
+   },
+   "edge_kinds": {
+    "carries": 44,
+    "exposed_secret": 3,
+    "gates": 44,
+    "generated_hypothesis": 12,
+    "has_role": 3,
+    "produced_finding": 147,
+    "typed_as": 13
+   },
+   "identities": 3,
+   "roles": 2,
+   "surfaces_total": 62,
+   "surfaces_write": 15,
+   "surfaces_read": 41,
+   "entities": 5,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 147,
+   "secrets_masked": 3,
+   "hypotheses": 15,
+   "surfaces_with_untested_reasons": 1,
+   "flows": [],
+   "authorization_matrix": {
+    "admin": {
+     "blocked": [
+      "GET /api/admin/stats",
+      "GET /api/secure/admin/stats",
+      "GET /home"
+     ],
+     "not_found": [
+      "GET /about",
+      "GET /api/",
+      "GET /api/users"
+     ],
+     "reachable": [
+      "GET /",
+      "GET /admin/",
+      "GET /api/filter",
+      "GET /hidden.php",
+      "GET /lab",
+      "GET /safe/cors",
+      "GET /safe/divform",
+      "GET /safe/dom-text",
+      "GET /safe/fetch",
+      "GET /safe/hostbuild",
+      "GET /safe/item.php",
+      "GET /safe/jsparam.php",
+      "GET /safe/leak-config",
+      "GET /safe/ping",
+      "GET /safe/read.php",
+      "GET /safe/search.php"
+     ]
+    },
+    "user": {
+     "blocked": [
+      "GET /api/admin/stats",
+      "GET /api/secure/admin/stats",
+      "GET /home"
+     ],
+     "not_found": [
+      "GET /about",
+      "GET /api/",
+      "GET /api/users"
+     ],
+     "reachable": [
+      "GET /",
+      "GET /admin/",
+      "GET /api/filter",
+      "GET /hidden.php",
+      "GET /lab",
+      "GET /safe/cors",
+      "GET /safe/divform",
+      "GET /safe/dom-text",
+      "GET /safe/fetch",
+      "GET /safe/hostbuild",
+      "GET /safe/item.php",
+      "GET /safe/jsparam.php",
+      "GET /safe/leak-config",
+      "GET /safe/ping",
+      "GET /safe/read.php",
+      "GET /safe/search.php"
+     ]
+    }
+   },
+   "entity_inventory": [
+    {
+     "entity": "Document",
+     "carried_by_params": 2,
+     "surfaces": [
+      "GET /safe/read.php",
+      "GET /vuln/traversal.php"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Message",
+     "carried_by_params": 2,
+     "surfaces": [
+      "POST /safe/csrf-action",
+      "POST /vuln/csrf-action"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Object",
+     "carried_by_params": 0,
+     "surfaces": [],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Session",
+     "carried_by_params": 4,
+     "surfaces": [
+      "POST /doLogin",
+      "POST /safe/csrf-action",
+      "POST /vuln/csrf-reflect"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "User",
+     "carried_by_params": 5,
+     "surfaces": [
+      "POST /doLogin",
+      "POST /safe/jwt-login",
+      "POST /safe/nosql-login",
+      "POST /vuln/jwt-login",
+      "POST /vuln/nosql-login"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    }
+   ]
+  },
+  "planner": {
+   "operations_evaluated": 2,
+   "by_impact": {
+    "READ_ONLY": 2
+   },
+   "blocked": 0,
+   "logic_active": true,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked"
+  },
+  "proofs": [
+   {
+    "finding_id": "F-c5df4a8744",
+    "type": "credential_exposure",
+    "severity": "critical",
+    "attack_hypothesis": "secret credential material is exposed in a response",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/leak-config",
+      "parameter": "aws_access_key"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "credential:aws_access_key",
+      "detail": "AWS access key ID exposed \u2014 class=aws_access_key, evidence AKIA\u2026(20 chars) (masked; raw value intentionally not retained), location=body",
+      "request_id": "req-28a257f7"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Secret credential material is exposed in a response and the exposure reproduced on a fresh fetch \u2014 direct account/infrastructure compromise potential (values masked in all reports by design).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/leak-config",
+      "parameter": "aws_access_key",
+      "evidence_kinds": [
+       "credential:aws_access_key"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-fetch-reexposure",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/leak-config with the tested parameter 'aws_access_key' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (credential:aws_access_key)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-fetch-reexposure",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh fetch re-exposed credential class 'aws_access_key': True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-37d2acad85",
+    "type": "credential_exposure",
+    "severity": "high",
+    "attack_hypothesis": "secret credential material is exposed in a response",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/leak-config",
+      "parameter": "github_token"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "credential:github_token",
+      "detail": "GitHub token exposed \u2014 class=github_token, evidence ghp_\u2026(37 chars) (masked; raw value intentionally not retained), location=body",
+      "request_id": "req-28a257f7"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Secret credential material is exposed in a response and the exposure reproduced on a fresh fetch \u2014 direct account/infrastructure compromise potential (values masked in all reports by design).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/leak-config",
+      "parameter": "github_token",
+      "evidence_kinds": [
+       "credential:github_token"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-fetch-reexposure",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/leak-config with the tested parameter 'github_token' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (credential:github_token)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-fetch-reexposure",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh fetch re-exposed credential class 'github_token': True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-1497d9bc54",
+    "type": "credential_exposure",
+    "severity": "high",
+    "attack_hypothesis": "secret credential material is exposed in a response",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/leak-config",
+      "parameter": "db_connection_uri"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "credential:db_connection_uri",
+      "detail": "Database connection URI with embedded credentials \u2014 class=db_connection_uri, evidence mysq\u2026(46 chars) (masked; raw value intentionally not retained), location=body",
+      "request_id": "req-28a257f7"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Secret credential material is exposed in a response and the exposure reproduced on a fresh fetch \u2014 direct account/infrastructure compromise potential (values masked in all reports by design).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/leak-config",
+      "parameter": "db_connection_uri",
+      "evidence_kinds": [
+       "credential:db_connection_uri"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-fetch-reexposure",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/leak-config with the tested parameter 'db_connection_uri' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (credential:db_connection_uri)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-fetch-reexposure",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh fetch re-exposed credential class 'db_connection_uri': True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-0e64a9fc18",
+    "type": "vertical_privilege_escalation",
+    "severity": "high",
+    "attack_hypothesis": "a low-privilege session receives the privileged view of a protected surface",
+    "preconditions": [
+     "target reachable within scope",
+     "two configured identities with different privileges (authz accounts)"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/api/admin/stats",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "role_boundary_bypass",
+      "detail": "low-privilege session (role=user, account=bob-user) received the privileged view of an admin-only surface: anonymous -> gated (HTTP 200), privileged -> 200, role=user -> 200 with body similarity 0.95 to the privileged view",
+      "request_id": "req-e0b64d86"
+     }
+    ],
+    "identity": "attacker=bob-user(role=user) surface=privileged",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Role boundary broken: a low-privilege session received the privileged (admin-only) view of a protected surface, reproduced on a fresh replay \u2014 full administrative capability reachable without the privileged role.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/api/admin/stats",
+      "parameter": "",
+      "evidence_kinds": [
+       "role_boundary_bypass"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-privileged-replay",
+      "verification_passed": true,
+      "authz_context": "attacker=bob-user(role=user) surface=privileged"
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/api/admin/stats as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (role_boundary_bypass)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-privileged-replay",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh replay with role=user session still returned the privileged view: True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-b655b8db5d",
+    "type": "vertical_privilege_escalation",
+    "severity": "high",
+    "attack_hypothesis": "a low-privilege session receives the privileged view of a protected surface",
+    "preconditions": [
+     "target reachable within scope",
+     "two configured identities with different privileges (authz accounts)"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/api/secure/admin/stats",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "role_boundary_bypass",
+      "detail": "low-privilege session (role=user, account=bob-user) received the privileged view of an admin-only surface: anonymous -> gated (HTTP 200), privileged -> 200, role=user -> 200 with body similarity 0.95 to the privileged view",
+      "request_id": "req-58f1b9fe"
+     }
+    ],
+    "identity": "attacker=bob-user(role=user) surface=privileged",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Role boundary broken: a low-privilege session received the privileged (admin-only) view of a protected surface, reproduced on a fresh replay \u2014 full administrative capability reachable without the privileged role.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/api/secure/admin/stats",
+      "parameter": "",
+      "evidence_kinds": [
+       "role_boundary_bypass"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-privileged-replay",
+      "verification_passed": true,
+      "authz_context": "attacker=bob-user(role=user) surface=privileged"
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/api/secure/admin/stats as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (role_boundary_bypass)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-privileged-replay",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh replay with role=user session still returned the privileged view: True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-7d12087353",
+    "type": "command_injection",
+    "severity": "critical",
+    "attack_hypothesis": "OS command execution observable via a non-destructive OOB callback",
+    "preconditions": [
+     "target reachable within scope",
+     "an armed out-of-band (OAST) channel"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/ping",
+      "parameter": "host"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "oob_callback",
+      "detail": "server executed a shell fetch out-of-band from unknown (interaction oob-0eb259ba321a) \u2014 blind command injection: separator battery ([';', '&&']) triggered an outbound curl. recipe: param=host iid=oob-0eb259ba321a",
+      "request_id": "req-0f1c9702"
+     },
+     {
+      "kind": "oob_callback",
+      "detail": "server executed a shell fetch out-of-band from unknown (interaction oob-0eb259ba321a) \u2014 blind command injection: separator battery ([';', '&&']) triggered an outbound curl. recipe: param=host iid=oob-0eb259ba321a",
+      "request_id": "req-cbed6545"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Operating-system command execution proven by a non-destructive out-of-band callback fired from the target host (chained network fetch) \u2014 full host-level impact.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/ping",
+      "parameter": "host",
+      "evidence_kinds": [
+       "oob_callback"
+      ],
+      "out_of_band": true,
+      "verification": "re-test:fresh-interaction-id+alternate-syntax",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/ping with the tested parameter 'host' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (oob_callback)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-interaction-id+alternate-syntax",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh id oob-39bc7faae8c9 via alternate '|' syntax executed out-of-band: True channel=local"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-9ae13b9222",
+    "type": "cors_misconfig",
+    "severity": "high",
+    "attack_hypothesis": "arbitrary origins are reflected with credentials allowed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/cors",
+      "parameter": "Origin"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_reflection",
+      "detail": "arbitrary Origin reflected WITH credentials: Access-Control-Allow-Origin: https://sentinel-probe.example + Access-Control-Allow-Credentials: true \u2014 credentialed cross-origin reads from ANY origin",
+      "request_id": "req-3835e8fe"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Arbitrary origins are reflected with credentials allowed (fresh-origin replay) \u2014 any website can read authenticated cross-origin responses in the victim's browser.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/cors",
+      "parameter": "Origin",
+      "evidence_kinds": [
+       "header_reflection"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-origin",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/cors with the tested parameter 'Origin' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (header_reflection)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-origin",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh origin https://cors-vr10-a5efb808.example reflected with credentials: True (acao='https://cors-vr10-a5efb808.example')"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-723dc8d06e",
+    "type": "csrf",
+    "severity": "medium",
+    "attack_hypothesis": "a hostile-origin state-changing request is accepted like a same-origin one",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "http://127.0.0.1:8778/vuln/csrf-action",
+      "parameter": "email"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "cross_origin_acceptance",
+      "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (23B), cross-origin replay -> HTTP 200 (23B) \u2014 no CSRF token in the form and no Origin/Referer validation",
+      "request_id": "req-f90cc620"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "A state-changing request from a hostile origin was accepted exactly like a same-origin one (fresh-origin replay) \u2014 silent cross-site action forgery against authenticated users.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST http://127.0.0.1:8778/vuln/csrf-action",
+      "parameter": "email",
+      "evidence_kinds": [
+       "cross_origin_acceptance"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-hostile-origin",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST http://127.0.0.1:8778/vuln/csrf-action with the tested parameter 'email' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (cross_origin_acceptance)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:fresh-hostile-origin",
+     "passed": true,
+     "rounds": 1,
+     "notes": "cross-origin replay from https://csrf-vr13-9032bdc6.example accepted: True (HTTP 200)"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-fa9d148142",
+    "type": "host_header_injection",
+    "severity": "medium",
+    "attack_hypothesis": "an attacker-controlled Host is reflected into application output",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/hostbuild",
+      "parameter": "Host"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "host_reflection",
+      "detail": "canary Host reflected in response body: the application builds output from the attacker-controlled Host header (link-manipulation / reset-poisoning class). canary=sentinel-hh-22569721f9.example",
+      "request_id": "req-fa679e29"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) \u2014 password-reset poisoning and cache-poisoning preconditions.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/hostbuild",
+      "parameter": "Host",
+      "evidence_kinds": [
+       "host_reflection"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-canary-host",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/hostbuild with the tested parameter 'Host' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (host_reflection)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:fresh-canary-host",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh canary host sentinel-vr16-22569721f9.example reflected: True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-b6796a0db9",
+    "type": "http_response_header_injection",
+    "severity": "high",
+    "attack_hypothesis": "attacker input reaches a response header",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/jsparam.php",
+      "parameter": "cat"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected' (attacker-controlled header injection)",
+      "request_id": "req-de66c18f"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Attacker input reaches a response header (CRLF shape) \u2014 header injection into proxies/browsers.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/jsparam.php",
+      "parameter": "cat",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-header-name",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/jsparam.php with the tested parameter 'cat' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-header-name",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh vector split response header x-sentinel-verify-hdr='confirmed'"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-6ed176b868",
+    "type": "jwt_security",
+    "severity": "medium",
+    "attack_hypothesis": "unsigned/alg-none tokens are accepted",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "http://127.0.0.1:8778/vuln/jwt-login",
+      "parameter": "-"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "unsigned_jwt_issued",
+      "detail": "server issues UNSIGNED JWT (alg=none, empty signature) \u2014 RFC 8725 \u00a73.1: if the verifier honors none, any party can forge arbitrary claims. claims: role, sub; missing exp claim (no expiry)",
+      "request_id": "req-0643d9eb"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Unsigned token issuance (alg=none, empty signature) reproduced on a fresh request \u2014 any party can forge arbitrary claims if the verifier honors the declared algorithm.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST http://127.0.0.1:8778/vuln/jwt-login",
+      "parameter": "-",
+      "evidence_kinds": [
+       "unsigned_jwt_issued"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-issuance",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST http://127.0.0.1:8778/vuln/jwt-login with the tested parameter '-' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (unsigned_jwt_issued)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:fresh-issuance",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh replay issued another unsigned token (alg='none'): True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-b4ebcb4a28",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-40d999fb"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778 as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-74f405a31c",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8777/home",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-eee0d078"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8777/home",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8777/home as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-afbd1b5b0f",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-8904c6b0"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/ as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-4aab4e8fc0",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/ssti",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-2fab8297"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/ssti",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/ssti as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-cae2795353",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/ssti",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-d275aa31"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/ssti",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/ssti as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-0512ddff50",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/hostbuild",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-a3a86c44"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/hostbuild",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/hostbuild as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-1c99fdcd67",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/hostbuild",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-e7959bb5"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/hostbuild",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/hostbuild as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-81d9245baf",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/lab",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-f27fba66"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/lab",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/lab as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-1e860902a6",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/sqli_error.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-a2373ab9"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/sqli_error.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/sqli_error.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-6dd52c47bf",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/sqli_blind.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-aef543e9"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/sqli_blind.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/sqli_blind.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-c30ef61cba",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/xss.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-0c6edeed"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/xss.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/xss.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-ce3b94c5e4",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/traversal.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-68b6646d"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/traversal.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/traversal.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-2d89464368",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/redirect.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-a0e72c80"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/redirect.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/redirect.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-8d703cc6e8",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/search.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-2233c318"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/search.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/search.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-437d9a0d7c",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/item.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-5f4cd362"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/item.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/item.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-ddfc415697",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/read.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-3d9ad5c1"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/read.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/read.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-fa38addd70",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/hidden.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-b0916412"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/hidden.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/hidden.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-a23f8ebbd4",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/jsparam.php",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-00e2b3ca"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/jsparam.php",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/jsparam.php as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-29acdd62d0",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/app.js",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-9ba7e1df"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/app.js",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/app.js as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-b80cf03869",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/dom-write",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-4654c325"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-f869ee86"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/dom-write",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/dom-write as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-185b6d724a",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/dom-text",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-b45a7a40"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/dom-text",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/dom-text as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-050ed814c3",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/divform",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-9c6aaa82"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/divform",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/divform as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-d3306fd084",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/divform",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-04c019ca"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/divform",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/divform as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-0e60395e5c",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/csrfdivform",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-44f9e5a2"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/csrfdivform",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/csrfdivform as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-0fa97ce240",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/jsform",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-2c49c4f9"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/jsform",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/jsform as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-af72b10cee",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/login",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-3886a261"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/login",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/login as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-adac29501d",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/fetch",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-79071452"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/fetch",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/fetch as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-ee4470bfa0",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/safe/fetch",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-90a0b89f"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/safe/fetch",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/safe/fetch as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-fa8423db5d",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8778/vuln/ping",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-6c344848"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8778/vuln/ping",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8778/vuln/ping as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   }
+  ],
+  "secrets": {
+   "classes_found": [
+    "aws_access_key",
+    "db_connection_uri",
+    "github_token"
+   ],
+   "findings": 3,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "verified_findings": 147,
+ "persisted": 147,
+ "db": "/home/z/my-project/readiness/evidence/x_oast.db"
+}
+  [CRITICAL] sql_injection              http://127.0.0.1:8778/vuln/sqli_blind.php                    param=id     risk=85
+  [CRITICAL] sql_injection              http://127.0.0.1:8778/vuln/jsparam.php                       param=cat    risk=85
+  [CRITICAL] ssti                       http://127.0.0.1:8778/vuln/ssti                              param=name   risk=81
+  [CRITICAL] sql_injection              http://127.0.0.1:8778/vuln/sqli_error.php                    param=id     risk=81
+  [CRITICAL] command_injection          http://127.0.0.1:8778/vuln/ping                              param=host   risk=81
+  [CRITICAL] nosql_injection            http://127.0.0.1:8778/vuln/nosql-login                       param=user   risk=81
+  [CRITICAL] xxe                        http://127.0.0.1:8778/vuln/stock                             param=storeId risk=81
+  [CRITICAL] xxe                        http://127.0.0.1:8778/vuln/oob-stock                         param=storeId risk=81
+  [HIGH    ] vertical_privilege_escalation http://127.0.0.1:8778/api/admin/stats                        param=       risk=81
+  [HIGH    ] vertical_privilege_escalation http://127.0.0.1:8778/api/secure/admin/stats                 param=       risk=81
+  [CRITICAL] credential_exposure        http://127.0.0.1:8778/vuln/leak-config                       param=aws_access_key risk=72
+  [HIGH    ] credential_exposure        http://127.0.0.1:8778/vuln/leak-config                       param=github_token risk=72
+  [HIGH    ] credential_exposure        http://127.0.0.1:8778/vuln/leak-config                       param=db_connection_uri risk=72
+  [HIGH    ] xss_reflected              http://127.0.0.1:8778/vuln/sqli_blind.php                    param=id     risk=63
+  [HIGH    ] xss_reflected              http://127.0.0.1:8778/vuln/xss.php                           param=q      risk=63
+  [HIGH    ] path_traversal             http://127.0.0.1:8778/vuln/traversal.php                     param=file   risk=63
+  [HIGH    ] ssrf                       http://127.0.0.1:8778/vuln/fetch                             param=url    risk=63
+  [HIGH    ] xss_reflected              http://127.0.0.1:8778/vuln/jsparam.php                       param=cat    risk=63
+  [HIGH    ] xss_reflected              http://127.0.0.1:8778/vuln/json-reflect                      param=name   risk=63
+  [HIGH    ] xss_reflected              http://127.0.0.1:8778/vuln/csrf-reflect                      param=note   risk=63
+  [HIGH    ] cors_misconfig             http://127.0.0.1:8778/vuln/cors                              param=Origin risk=54
+  [HIGH    ] http_response_header_injection http://127.0.0.1:8778/vuln/jsparam.php                       param=cat    risk=54
+  [MEDIUM  ] host_header_injection      http://127.0.0.1:8778/vuln/hostbuild                         param=Host   risk=42
+  [MEDIUM  ] csrf                       http://127.0.0.1:8778/vuln/csrf-action                       param=email  risk=42
+  [MEDIUM  ] jwt_security               http://127.0.0.1:8778/vuln/jwt-login                         param=-      risk=42
+  [MEDIUM  ] open_redirect              http://127.0.0.1:8778/vuln/redirect.php                      param=url    risk=34
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778                                        param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8777/home                                   param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/                                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/ssti                              param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/ssti                              param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/hostbuild                         param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/hostbuild                         param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/lab                                    param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/sqli_error.php                    param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/sqli_blind.php                    param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/xss.php                           param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/traversal.php                     param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/redirect.php                      param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/search.php                        param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/item.php                          param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/read.php                          param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/hidden.php                             param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/jsparam.php                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/app.js                                 param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/dom-write                         param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/dom-text                          param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/divform                           param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/divform                           param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/csrfdivform                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/jsform                            param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/login                                  param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/fetch                             param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/fetch                             param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/ping                              param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/ping                              param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/cors                              param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/cors                              param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/leak-config                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/leak-config                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/api/filter                             param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/about                                  param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/jsbuild.js                             param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/csrf-action                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/csrf-action                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/nosql-login                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/nosql-login                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/jwt-login                         param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/jwt-login                         param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/stockapp.js                            param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/angular_1-7-7.js                       param=       risk=19
+  [LOW     ] vulnerable_js_dependency   http://127.0.0.1:8778/angular_1-7-7.js                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/stock                             param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/stock                             param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/blind/stock                            param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/oob-stock                         param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/oob-stock                         param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/jsparam.php                       param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/api/                                   param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/api/users                              param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/json-reflect                      param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/safe/json-reflect                      param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/vuln/csrf-reflect                      param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/doLogin                                param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/tracker.gif                            param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/admin/                                 param=       risk=19
+  [LOW     ] missing_security_headers   http://127.0.0.1:8778/backup/db.sql                          param=       risk=19
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778                                        param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8777/home                                   param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/                                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/ssti                              param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/ssti                              param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/hostbuild                         param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/hostbuild                         param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/lab                                    param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/sqli_error.php                    param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/sqli_blind.php                    param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/xss.php                           param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/traversal.php                     param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/redirect.php                      param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/search.php                        param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/item.php                          param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/read.php                          param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/hidden.php                             param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/jsparam.php                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/app.js                                 param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/dom-write                         param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/dom-text                          param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/divform                           param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/divform                           param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/csrfdivform                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/jsform                            param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/login                                  param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/fetch                             param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/fetch                             param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/ping                              param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/ping                              param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/cors                              param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/cors                              param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/leak-config                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/leak-config                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/api/filter                             param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/about                                  param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/jsbuild.js                             param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/csrf-action                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/csrf-action                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/nosql-login                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/nosql-login                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/jwt-login                         param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/jwt-login                         param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/stockapp.js                            param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/angular_1-7-7.js                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/stock                             param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/stock                             param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/blind/stock                            param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/oob-stock                         param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/oob-stock                         param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/jsparam.php                       param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/api/                                   param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/api/users                              param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/json-reflect                      param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/safe/json-reflect                      param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/vuln/csrf-reflect                      param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/doLogin                                param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/tracker.gif                            param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/admin/                                 param=       risk=9
+  [LOW     ] server_banner_disclosure   http://127.0.0.1:8778/backup/db.sql                          param=       risk=9

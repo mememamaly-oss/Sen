@@ -368,6 +368,41 @@ def chaos_timeouts_fail_safe():
 
 
 @case
+def unit_eng20_benchmark_owned_fixture():
+    """ENG-20: the default benchmark NEVER reuses whatever listens on :8777 —
+    it spawns its own fresh fixture on an ephemeral port (a long-lived env may
+    hold attack-mutated leftover state there); explicit operator URLs pass
+    through with legacy OP-01 semantics."""
+    import socket as _s, time as _t
+    from sentinel.cli import _benchmark_fixture
+    # plant a stale listener on :8777 (any server socket, like a leftover fixture)
+    stale = _s.socket(); stale.setsockopt(_s.SOL_SOCKET, _s.SO_REUSEADDR, 1)
+    stale.bind(("127.0.0.1", 8777)); stale.listen(4)
+    try:
+        url, proc = _benchmark_fixture("http://127.0.0.1:8777")
+        assert url != "http://127.0.0.1:8777", url
+        assert proc is not None and proc.poll() is None, "owned fixture must be alive"
+        import urllib.request as _u
+        with _u.urlopen(url + "/", timeout=5) as r:      # the owned instance serves
+            assert r.status == 200
+        proc.terminate(); proc.wait(timeout=5)
+        # ANY canonical fixture-port spelling (incl. trailing slash) gets the
+        # owned fresh instance — the fixture's state on :8777 is unknowable
+        url2, proc2 = _benchmark_fixture("http://127.0.0.1:8777/")
+        assert url2 != "http://127.0.0.1:8777" and proc2 is not None and proc2.poll() is None, (url2, proc2)
+        proc2.terminate(); proc2.wait(timeout=5)
+        # truly custom targets pass through untouched (legacy semantics)
+        url3, proc3 = _benchmark_fixture("https://example.invalid/")
+        assert url3 == "https://example.invalid/" and proc3 is None
+        url4, proc4 = _benchmark_fixture("http://127.0.0.1:8123")
+        assert url4 == "http://127.0.0.1:8123"
+        if proc4 is not None:                            # legacy OP-01 may spawn it
+            proc4.terminate(); proc4.wait(timeout=5)
+    finally:
+        stale.close()
+
+
+@case
 def chaos_connection_reset_fail_safe():
     from sentinel.http_engine import RequestEngine, RequestMutation
     srv = _chaos_server(); port = srv.server_address[1]
@@ -599,7 +634,7 @@ def regression_sqli_orpair_bodydiff_verification_path_d():
 
 @case
 def regression_xss_slashfree_canary():
-    """VR-03 regression (live-caught on ginandjuice.shop ?category=): apps escaping ONLY
+    r"""VR-03 regression (live-caught on ginandjuice.shop ?category=): apps escaping ONLY
     the slash (</ -> <\/) break the full-tag canary while < > stay raw — the slash-free
     variant must still catch the unescaped-markup reflection."""
     from sentinel.core import Endpoint, Parameter, ParamLocation, EventBus
@@ -820,8 +855,27 @@ def regression_report_builder_outputs():
     assert "sql_injection" in html and "oracle:replay-2round" in html and "verification-gated" in html
     assert "<style>" in html and "http://" not in html.split("<style>")[1].split("</style>")[0], \
         "CSS must be inline, no external assets"
+    # ENG-19 guards: findings carry their ID (reproduce handle) + the
+    # reproduction section exists …
+    assert "F-1" in html and "reproduce --finding" in html, \
+        "ENG-19: technical report must carry finding IDs + the reproduce section"
+    # … and the CROSS-RUN OVERVIEW keeps the latest run's coverage (never
+    # silently dropped in favor of the aggregate).
+    st2_run = {"run_id": "run-cov", "seed": "s", "scanner": "t", "target": "http://t",
+               "stats": {"requests": 5,
+                         "coverage": {"discovered": 7, "tested": 7, "passive": 7,
+                                      "active": 3, "authz_probed": 2, "untested": 0,
+                                      "coverage_pct": 100.0, "skip_reasons": {},
+                                      "endpoints": [{"method": "GET", "url": "http://t/a",
+                                                      "source": "seed", "activity": ["passive"],
+                                                      "skips": [], "baseline": 200}]}},
+               "findings": [], "rejected_candidates": []}
+    st.save_run(st2_run)
+    html_overview = build_html(st, "")
+    assert "Coverage" in html_overview and "Discovered <b>7</b>" in html_overview, \
+        "ENG-19: overview report must render the latest run's coverage section"
     j = build_report(st, "")
-    assert j["kind"] == "overview" and j["summary"]["runs"] == 1
+    assert j["kind"] == "overview" and j["summary"]["runs"] == 2
 
 
 @case
@@ -3639,6 +3693,12 @@ def regression_phase58_logic_end_to_end():
         wf_proof = next((p for p in proofs
                          if p["type"] == "business_logic_cross_user_execution"), None)
         assert wf_proof and "identity A" in wf_proof["attack_hypothesis"], wf_proof
+        # ENG-18 regression guard: every workflow proof carries the state pair
+        for pf in proofs:
+            if pf["type"].startswith("business_logic_"):
+                assert pf["state_before"].strip() and pf["state_after"].strip(), \
+                    ("ENG-18: workflow proof missing state pair", pf["type"],
+                     pf["state_before"], pf["state_after"])
     finally:
         oast.stop(); srv.shutdown(); srv.server_close()
 

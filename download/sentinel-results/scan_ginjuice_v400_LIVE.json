@@ -1,50 +1,42 @@
 {
- "run_id": "run-3afab89578",
- "seed": "v400-live-final",
+ "run_id": "run-472baebddd",
+ "seed": "e65e7777",
  "scanner": "sentinel-core/4.0.0",
  "target": "https://ginandjuice.shop/",
  "stats": {
-  "requests": 454,
-  "endpoints": 32,
-  "candidates": 13,
-  "verified": 46,
+  "requests": 396,
+  "endpoints": 30,
+  "candidates": 9,
+  "verified": 40,
   "rejected": 0,
-  "duration": 402.27,
+  "duration": 442.86,
   "authenticated": true,
   "crawl": {
-   "pages": 31,
-   "unique_endpoints": 32,
-   "dom_sink_candidates": 2
+   "pages": 22,
+   "unique_endpoints": 30,
+   "dom_sink_candidates": 1
+  },
+  "openapi": {
+   "source": null,
+   "paths": 0,
+   "new_endpoints": 0
   },
   "param_intel": {
-   "params_total": 17,
+   "params_total": 14,
    "by_kind": {
-    "generic": 5,
-    "numeric": 10,
-    "search": 1,
+    "generic": 4,
+    "numeric": 7,
+    "search": 2,
     "token": 1
    },
    "value_shape_upgrades": 0,
    "data_objects": {}
   },
-  "workflow": {
-   "enabled": true,
-   "logic_active": false,
-   "clusters_tried": 1,
-   "flows_learned": 0,
-   "attacks": 0,
-   "verified": 0,
-   "skipped": [
-    "/catalog:no_resource_linkage"
-   ],
-   "requests": 0,
-   "flows": []
-  },
   "auth": {
    "authenticated": true,
    "landing": "https://ginandjuice.shop/my-account",
-   "logins": 3,
-   "reauths": 2,
+   "logins": 2,
+   "reauths": 1,
    "failed_reauths": 0
   },
   "fingerprint": {
@@ -68,14 +60,18 @@
    "retries": 0,
    "recovered": 0
   },
+  "oast": {
+   "channel": "public-webhook",
+   "interactions": 2
+  },
   "coverage": {
-   "discovered": 34,
-   "tested": 34,
-   "passive": 32,
-   "secrets_scanned": 32,
-   "active": 21,
+   "discovered": 30,
+   "tested": 30,
+   "passive": 30,
+   "secrets_scanned": 30,
+   "active": 17,
    "authz_probed": 0,
-   "active_or_authz": 21,
+   "active_or_authz": 17,
    "untested": 0,
    "skip_reasons": {},
    "coverage_pct": 100.0,
@@ -119,7 +115,7 @@
     {
      "method": "GET",
      "url": "https://ginandjuice.shop/blog/",
-     "source": "seed",
+     "source": "crawl:form",
      "activity": [
       "passive",
       "secrets",
@@ -155,19 +151,7 @@
     {
      "method": "GET",
      "url": "https://ginandjuice.shop/catalog",
-     "source": "seed",
-     "activity": [
-      "passive",
-      "secrets",
-      "active"
-     ],
-     "skips": [],
-     "baseline": 200
-    },
-    {
-     "method": "GET",
-     "url": "https://ginandjuice.shop/catalog",
-     "source": "js:static",
+     "source": "crawl:form",
      "activity": [
       "passive",
       "secrets",
@@ -211,26 +195,6 @@
      ],
      "skips": [],
      "baseline": 200
-    },
-    {
-     "method": "POST",
-     "url": "https://ginandjuice.shop/catalog/cart/checkout",
-     "source": "seed",
-     "activity": [
-      "active"
-     ],
-     "skips": [],
-     "baseline": null
-    },
-    {
-     "method": "POST",
-     "url": "https://ginandjuice.shop/catalog/cart/coupon",
-     "source": "seed",
-     "activity": [
-      "active"
-     ],
-     "skips": [],
-     "baseline": null
     },
     {
      "method": "GET",
@@ -362,18 +326,6 @@
     },
     {
      "method": "GET",
-     "url": "https://ginandjuice.shop/resources/images/tracker.gif",
-     "source": "js:static",
-     "activity": [
-      "passive",
-      "secrets",
-      "active"
-     ],
-     "skips": [],
-     "baseline": 200
-    },
-    {
-     "method": "GET",
      "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
      "source": "seed",
      "activity": [
@@ -386,7 +338,7 @@
     {
      "method": "GET",
      "url": "https://ginandjuice.shop/resources/js/deparam.js",
-     "source": "seed",
+     "source": "crawl:html",
      "activity": [
       "passive",
       "secrets"
@@ -419,7 +371,7 @@
     {
      "method": "GET",
      "url": "https://ginandjuice.shop/resources/js/searchLogger.js",
-     "source": "seed",
+     "source": "crawl:html",
      "activity": [
       "passive",
       "secrets"
@@ -430,7 +382,7 @@
     {
      "method": "GET",
      "url": "https://ginandjuice.shop/resources/js/stockCheck.js",
-     "source": "seed",
+     "source": "crawl:html",
      "activity": [
       "passive",
       "secrets"
@@ -452,7 +404,7 @@
     {
      "method": "GET",
      "url": "https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js",
-     "source": "seed",
+     "source": "crawl:html",
      "activity": [
       "passive",
       "secrets"
@@ -506,13 +458,12 @@
      ]
     },
     "static": {
-     "count": 14,
+     "count": 13,
      "endpoints": [
       "https://ginandjuice.shop/resources/css/labsBlog.css",
       "https://ginandjuice.shop/resources/css/labsEcommerce.css",
       "https://ginandjuice.shop/resources/css/labsScanme.css",
       "https://ginandjuice.shop/resources/footer/js/scanme.js",
-      "https://ginandjuice.shop/resources/images/tracker.gif",
       "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
       "https://ginandjuice.shop/resources/js/deparam.js",
       "https://ginandjuice.shop/resources/js/react-dom.development.js",
@@ -541,8 +492,8 @@
     "note": "state-changing surfaces grouped by target; multi-step flow learning is the Phase 58 business-logic engine"
    },
    "coverage": {
-    "discovered": 34,
-    "tested": 34,
+    "discovered": 30,
+    "tested": 30,
     "untested": 0,
     "coverage_pct": 100.0,
     "skip_reasons": {}
@@ -589,19 +540,19 @@
    ]
   },
   "digital_twin": {
-   "nodes": 86,
-   "edges": 60,
+   "nodes": 84,
+   "edges": 59,
    "node_kinds": {
     "entity": 3,
     "finding": 35,
     "hypothesis": 2,
     "identity": 1,
-    "parameter": 15,
+    "parameter": 14,
     "role": 1,
-    "surface": 29
+    "surface": 28
    },
    "edge_kinds": {
-    "carries": 15,
+    "carries": 14,
     "generated_hypothesis": 2,
     "has_role": 1,
     "produced_finding": 35,
@@ -609,7 +560,7 @@
    },
    "identities": 1,
    "roles": 1,
-   "surfaces_total": 29,
+   "surfaces_total": 28,
    "surfaces_write": 3,
    "surfaces_read": 12,
    "entities": 3,
@@ -682,7 +633,7 @@
      {
       "kind": "cross_origin_acceptance",
       "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B) \u2014 no CSRF token in the form and no Origin/Referer validation",
-      "request_id": "req-c1745b99"
+      "request_id": "req-63fe97df"
      }
     ],
     "identity": "primary scan session",
@@ -743,12 +694,7 @@
      {
       "kind": "header_value",
       "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)",
-      "request_id": "req-8436f593"
-     },
-     {
-      "kind": "header_value",
-      "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)",
-      "request_id": "req-2db6217b"
+      "request_id": "req-d28cdd7b"
      }
     ],
     "identity": "primary scan session",
@@ -809,7 +755,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-78d95f21"
+      "request_id": "req-e2c6ee86"
      }
     ],
     "identity": "primary scan session",
@@ -870,7 +816,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-91abce8f"
+      "request_id": "req-0f3a6aa5"
      }
     ],
     "identity": "primary scan session",
@@ -931,7 +877,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-0e380e74"
+      "request_id": "req-13402347"
      }
     ],
     "identity": "primary scan session",
@@ -992,7 +938,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-b734c8a4"
+      "request_id": "req-3c2131cd"
      }
     ],
     "identity": "primary scan session",
@@ -1053,7 +999,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-298b1ddd"
+      "request_id": "req-8129d8b6"
      }
     ],
     "identity": "primary scan session",
@@ -1114,7 +1060,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-443d228e"
+      "request_id": "req-131552c5"
      }
     ],
     "identity": "primary scan session",
@@ -1175,7 +1121,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-85dba8fc"
+      "request_id": "req-c1bc2308"
      }
     ],
     "identity": "primary scan session",
@@ -1236,22 +1182,17 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-30d1b017"
+      "request_id": "req-3526a65c"
      },
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-3b564c5e"
+      "request_id": "req-1d04f51c"
      },
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-03988d2d"
-     },
-     {
-      "kind": "header_absent",
-      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-9cef413e"
+      "request_id": "req-5285efb3"
      }
     ],
     "identity": "primary scan session",
@@ -1312,7 +1253,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-b1149ff8"
+      "request_id": "req-00086f41"
      }
     ],
     "identity": "primary scan session",
@@ -1373,7 +1314,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-f5c4e493"
+      "request_id": "req-93141405"
      }
     ],
     "identity": "primary scan session",
@@ -1434,7 +1375,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-95ed8972"
+      "request_id": "req-7ec582eb"
      }
     ],
     "identity": "primary scan session",
@@ -1495,12 +1436,12 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-279f3481"
+      "request_id": "req-34c8090a"
      },
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-c5cf8005"
+      "request_id": "req-f63d5559"
      }
     ],
     "identity": "primary scan session",
@@ -1561,7 +1502,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-318a5638"
+      "request_id": "req-72846fd4"
      }
     ],
     "identity": "primary scan session",
@@ -1622,7 +1563,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-7d72224c"
+      "request_id": "req-a40b53c7"
      }
     ],
     "identity": "primary scan session",
@@ -1683,7 +1624,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-e2404ef2"
+      "request_id": "req-cb4f5602"
      }
     ],
     "identity": "primary scan session",
@@ -1744,7 +1685,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-424ab88a"
+      "request_id": "req-90b5cc35"
      }
     ],
     "identity": "primary scan session",
@@ -1805,7 +1746,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-bdac680a"
+      "request_id": "req-97f31f6e"
      }
     ],
     "identity": "primary scan session",
@@ -1866,7 +1807,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-f0498e32"
+      "request_id": "req-983867f9"
      }
     ],
     "identity": "primary scan session",
@@ -1927,7 +1868,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-cdeb87c3"
+      "request_id": "req-b594f25d"
      }
     ],
     "identity": "primary scan session",
@@ -1988,7 +1929,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-352eaa42"
+      "request_id": "req-204674c1"
      }
     ],
     "identity": "primary scan session",
@@ -2049,7 +1990,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-e8e4dffa"
+      "request_id": "req-0cddc57d"
      }
     ],
     "identity": "primary scan session",
@@ -2110,7 +2051,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-1deb6c1a"
+      "request_id": "req-fc017690"
      }
     ],
     "identity": "primary scan session",
@@ -2171,7 +2112,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-5004a57f"
+      "request_id": "req-8787f0a9"
      }
     ],
     "identity": "primary scan session",
@@ -2232,7 +2173,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-abb542d0"
+      "request_id": "req-244e2f94"
      }
     ],
     "identity": "primary scan session",
@@ -2293,7 +2234,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-9002a94f"
+      "request_id": "req-18f90fed"
      }
     ],
     "identity": "primary scan session",
@@ -2354,7 +2295,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-3e6ec2d8"
+      "request_id": "req-859cecd8"
      }
     ],
     "identity": "primary scan session",
@@ -2415,7 +2356,7 @@
      {
       "kind": "header_absent",
       "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-27b0db4f"
+      "request_id": "req-ff6ae8e9"
      }
     ],
     "identity": "primary scan session",
@@ -2458,67 +2399,6 @@
     "proof_grade": "indicated"
    },
    {
-    "finding_id": "F-5fbe2a300b",
-    "type": "missing_security_headers",
-    "severity": "low",
-    "attack_hypothesis": "protective headers are absent",
-    "preconditions": [
-     "target reachable within scope"
-    ],
-    "requests": [
-     {
-      "method": "GET",
-      "url": "https://ginandjuice.shop/resources/images/tracker.gif",
-      "parameter": ""
-     }
-    ],
-    "responses": [
-     {
-      "kind": "header_absent",
-      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy",
-      "request_id": "req-cfd0b1e6"
-     }
-    ],
-    "identity": "primary scan session",
-    "state_before": "",
-    "state_after": "",
-    "impact": {
-     "grade": "indicated",
-     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
-     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
-     "evidence_chain": {
-      "request": "GET https://ginandjuice.shop/resources/images/tracker.gif",
-      "parameter": "",
-      "evidence_kinds": [
-       "header_absent"
-      ],
-      "out_of_band": false,
-      "verification": "single-response-evidence",
-      "verification_passed": true
-     }
-    },
-    "reproduction": [
-     {
-      "step": 1,
-      "request": "authenticate a session with the application (as configured for the scan)",
-      "expect": "an authenticated session cookie/header"
-     },
-     {
-      "step": 2,
-      "request": "send GET https://ginandjuice.shop/resources/images/tracker.gif as recorded",
-      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
-     }
-    ],
-    "confidence": 0.98,
-    "verification": {
-     "method": "single-response-evidence",
-     "passed": true,
-     "rounds": 1,
-     "notes": ""
-    },
-    "proof_grade": "indicated"
-   },
-   {
     "finding_id": "F-ef23b8b42b",
     "type": "open_redirect",
     "severity": "medium",
@@ -2537,12 +2417,12 @@
      {
       "kind": "body_redirect",
       "detail": "off-site URL injected into client redirect sink",
-      "request_id": "req-a4bf7500"
+      "request_id": "req-2b66fc7c"
      },
      {
       "kind": "body_redirect",
       "detail": "off-site URL injected into client redirect sink",
-      "request_id": "req-669ddbf2"
+      "request_id": "req-ce464ad0"
      }
     ],
     "identity": "primary scan session",
@@ -2603,22 +2483,12 @@
      {
       "kind": "status_oracle",
       "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break",
-      "request_id": "req-cb13c927"
+      "request_id": "req-f0545a2c"
      },
      {
       "kind": "response_diff",
       "detail": "OR-pair body-size differential on condition flip: TRUE 17108B vs FALSE 9423B (string-context boolean oracle)",
-      "request_id": "req-34ca03ae"
-     },
-     {
-      "kind": "status_oracle",
-      "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break",
-      "request_id": "req-443f36af"
-     },
-     {
-      "kind": "response_diff",
-      "detail": "OR-pair body-size differential on condition flip: TRUE 15396B vs FALSE 9489B (string-context boolean oracle)",
-      "request_id": "req-1fb7315a"
+      "request_id": "req-b56f0114"
      }
     ],
     "identity": "primary scan session",
@@ -2680,7 +2550,7 @@
      {
       "kind": "banner",
       "detail": "served asset 'angular_1-7-7.js': AngularJS 1.x \u2014 end-of-life branch (Jan 2022); sandbox-escape / client-side template injection class (CVE-2019-10768, CVE-2024-21490)",
-      "request_id": "req-85dba8fc"
+      "request_id": "req-c1bc2308"
      }
     ],
     "identity": "primary scan session",
@@ -2741,12 +2611,7 @@
      {
       "kind": "ng_expression_reflection",
       "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]",
-      "request_id": "req-cd1e8983"
-     },
-     {
-      "kind": "ng_expression_reflection",
-      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]",
-      "request_id": "req-62333ad4"
+      "request_id": "req-3fc110b7"
      }
     ],
     "identity": "primary scan session",
@@ -2807,22 +2672,12 @@
      {
       "kind": "unescaped_reflection",
       "detail": "canary reflected raw in context: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]",
-      "request_id": "req-9ab917c7"
-     },
-     {
-      "kind": "unescaped_reflection",
-      "detail": "canary reflected raw in context: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]",
-      "request_id": "req-23c37b3f"
+      "request_id": "req-a69c88ab"
      },
      {
       "kind": "ng_expression_reflection",
       "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]",
-      "request_id": "req-3ffe8f89"
-     },
-     {
-      "kind": "ng_expression_reflection",
-      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]",
-      "request_id": "req-901204ee"
+      "request_id": "req-e3baaa90"
      }
     ],
     "identity": "primary scan session",
@@ -2864,6 +2719,68 @@
      "notes": "4/6 diverse vectors reflected raw (WAF-resistant verification)"
     },
     "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-98386c0986",
+    "type": "xxe",
+    "severity": "critical",
+    "attack_hypothesis": "an XML parser resolves external entities (file read / OOB fetch)",
+    "preconditions": [
+     "target reachable within scope",
+     "an armed out-of-band (OAST) channel"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "https://ginandjuice.shop/catalog/product/stock",
+      "parameter": "productId"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "oob_callback",
+      "detail": "target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET at t+1790760606) \u2014 blind XXE: entity resolution proven with NO response oracle. recipe: root=stockCheck element=productId iid=oob-54ce676e9377",
+      "request_id": "req-ade2a4bf"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "External entity resolution proven (file content reached the response, or an out-of-band fetch arrived from the target's own infrastructure) \u2014 local file disclosure and SSRF-via-parser.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST https://ginandjuice.shop/catalog/product/stock",
+      "parameter": "productId",
+      "evidence_kinds": [
+       "oob_callback"
+      ],
+      "out_of_band": true,
+      "verification": "re-test:fresh-interaction-id",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST https://ginandjuice.shop/catalog/product/stock with the tested parameter 'productId' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (oob_callback)"
+     }
+    ],
+    "confidence": 0.9,
+    "verification": {
+     "method": "re-test:fresh-interaction-id",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh interaction id oob-f582348df9a4 fetched out-of-band: True src=54.170.155.72 channel=public-webhook"
+    },
+    "proof_grade": "proven"
    }
   ],
   "secrets": {
@@ -2890,14 +2807,6 @@
     {
      "kind": "response_diff",
      "detail": "OR-pair body-size differential on condition flip: TRUE 17108B vs FALSE 9423B (string-context boolean oracle)"
-    },
-    {
-     "kind": "status_oracle",
-     "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break"
-    },
-    {
-     "kind": "response_diff",
-     "detail": "OR-pair body-size differential on condition flip: TRUE 15396B vs FALSE 9489B (string-context boolean oracle)"
     }
    ],
    "verification": {
@@ -2908,7 +2817,7 @@
     "notes": "fresh OR-pair body differential: TRUE 17111B vs FALSE 9426B"
    },
    "scanner": "sentinel-core/4.0.0",
-   "run_id": "run-3afab89578",
+   "run_id": "run-472baebddd",
    "risk": 85,
    "impact": {
     "grade": "proven",
@@ -2928,6 +2837,47 @@
    }
   },
   {
+   "id": "F-98386c0986",
+   "type": "xxe",
+   "severity": "critical",
+   "status": "verified",
+   "confidence": 0.9,
+   "method": "POST",
+   "url": "https://ginandjuice.shop/catalog/product/stock",
+   "parameter": "productId",
+   "evidence": [
+    {
+     "kind": "oob_callback",
+     "detail": "target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET at t+1790760606) \u2014 blind XXE: entity resolution proven with NO response oracle. recipe: root=stockCheck element=productId iid=oob-54ce676e9377"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-interaction-id",
+    "passed": true,
+    "confidence": 0.9,
+    "rounds": 1,
+    "notes": "fresh interaction id oob-f582348df9a4 fetched out-of-band: True src=54.170.155.72 channel=public-webhook"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-472baebddd",
+   "risk": 81,
+   "impact": {
+    "grade": "proven",
+    "statement": "External entity resolution proven (file content reached the response, or an out-of-band fetch arrived from the target's own infrastructure) \u2014 local file disclosure and SSRF-via-parser.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST https://ginandjuice.shop/catalog/product/stock",
+     "parameter": "productId",
+     "evidence_kinds": [
+      "oob_callback"
+     ],
+     "out_of_band": true,
+     "verification": "re-test:fresh-interaction-id",
+     "verification_passed": true
+    }
+   }
+  },
+  {
    "id": "F-37bb5f0013",
    "type": "xss_reflected",
    "severity": "high",
@@ -2937,10 +2887,6 @@
    "url": "https://ginandjuice.shop/catalog",
    "parameter": "searchTerm",
    "evidence": [
-    {
-     "kind": "ng_expression_reflection",
-     "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]"
-    },
     {
      "kind": "ng_expression_reflection",
      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026 <script>                                 var searchText = '{{91*7}}sentinelngmark';                            \u2026]"
@@ -2954,7 +2900,7 @@
     "notes": "fresh Angular expression reflected raw inside ng-app context: True (client-side evaluation is Angular binding semantics)"
    },
    "scanner": "sentinel-core/4.0.0",
-   "run_id": "run-3afab89578",
+   "run_id": "run-472baebddd",
    "risk": 59,
    "impact": {
     "grade": "proven",
@@ -2987,14 +2933,6 @@
      "detail": "canary reflected raw in context: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026\":\"/catalog?category=Juice\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]"
     },
     {
-     "kind": "unescaped_reflection",
-     "detail": "canary reflected raw in context: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026 [ctx: \u2026ategory=Juice&searchTerm=1\"};     const selectedCategory = \"<sentinelxssmarkerpro42\";     const root = ReactDOM.c\u2026]"
-    },
-    {
-     "kind": "ng_expression_reflection",
-     "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]"
-    },
-    {
      "kind": "ng_expression_reflection",
      "detail": "Angular {{expression}} reflected raw inside an ng-app page \u2014 evaluated client-side by Angular binding semantics [ctx: \u2026             <input hidden type=text name=\"category\" value=\"{{91*7}}sentinelngmark\">                            \u2026]"
     }
@@ -3007,7 +2945,7 @@
     "notes": "4/6 diverse vectors reflected raw (WAF-resistant verification)"
    },
    "scanner": "sentinel-core/4.0.0",
-   "run_id": "run-3afab89578",
+   "run_id": "run-472baebddd",
    "risk": 63,
    "impact": {
     "grade": "proven",
@@ -3039,10 +2977,6 @@
     {
      "kind": "header_value",
      "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)"
-    },
-    {
-     "kind": "header_value",
-     "detail": "CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)"
     }
    ],
    "verification": {
@@ -3053,7 +2987,7 @@
     "notes": "fresh vector split response header x-sentinel-verify-hdr='confirmed; Secure; HttpOnly'"
    },
    "scanner": "sentinel-core/4.0.0",
-   "run_id": "run-3afab89578",
+   "run_id": "run-472baebddd",
    "risk": 54,
    "impact": {
     "grade": "proven",
@@ -3094,7 +3028,7 @@
     "notes": "cross-origin replay from https://csrf-vr13-98683a8f.example accepted: True (HTTP 200)"
    },
    "scanner": "sentinel-core/4.0.0",
-   "run_id": "run-3afab89578",
+   "run_id": "run-472baebddd",
    "risk": 42,
    "impact": {
     "grade": "proven",
@@ -3139,7 +3073,7 @@
     "notes": ""
    },
    "scanner": "sentinel-core/4.0.0",
-   "run_id": "run-3afab89578",
+   "run_id": "run-472baebddd",
    "risk": 34,
    "impact": {
     "grade": "proven",
@@ -3495,10 +3429,6 @@
    "url": "https://ginandjuice.shop/catalog",
    "parameter": "",
    "evidence": [
-    {
-     "kind": "header_absent",
-     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
-    },
     {
      "kind": "header_absent",
      "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
@@ -4311,47 +4241,6 @@
     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
     "evidence_chain": {
      "request": "POST https://ginandjuice.shop/catalog/product/stock",
-     "parameter": "",
-     "evidence_kinds": [
-      "header_absent"
-     ],
-     "out_of_band": false,
-     "verification": "single-response-evidence",
-     "verification_passed": true
-    }
-   }
-  },
-  {
-   "id": "F-5fbe2a300b",
-   "type": "missing_security_headers",
-   "severity": "low",
-   "status": "verified",
-   "confidence": 0.98,
-   "method": "GET",
-   "url": "https://ginandjuice.shop/resources/images/tracker.gif",
-   "parameter": "",
-   "evidence": [
-    {
-     "kind": "header_absent",
-     "detail": "missing: strict-transport-security, content-security-policy, x-content-type-options, referrer-policy"
-    }
-   ],
-   "verification": {
-    "method": "single-response-evidence",
-    "passed": true,
-    "confidence": 0.98,
-    "rounds": 1,
-    "notes": ""
-   },
-   "scanner": "sentinel-core/4.0.0",
-   "run_id": "",
-   "risk": 19,
-   "impact": {
-    "grade": "indicated",
-    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
-    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
-    "evidence_chain": {
-     "request": "GET https://ginandjuice.shop/resources/images/tracker.gif",
      "parameter": "",
      "evidence_kinds": [
       "header_absent"

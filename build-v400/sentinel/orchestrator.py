@@ -681,7 +681,9 @@ class SentinelScanner:
                           "credential_exposure"):
                 return (1, f.type)
             return (2, f.type)
-        self.stats["proofs"] = [build_finding_proof(f) for f in
+        self.stats["proofs"] = [build_finding_proof(
+                                       f, getattr(f, "state_before", ""),
+                                       getattr(f, "state_after", "")) for f in
                                 sorted((f for f in final
                                         if f.status == FindingStatus.VERIFIED),
                                        key=_proof_priority)][:40]

@@ -1,8 +1,7 @@
 {
  "suite": "all",
- "total": 82,
+ "total": 83,
  "failed": 0,
- "passed": true,
  "cases": [
   {
    "name": "chaos_connection_reset_fail_safe",
@@ -32,27 +31,27 @@
   {
    "name": "e2e_browser_phase_full",
    "ok": true,
-   "ms": 12515
+   "ms": 12247
   },
   {
    "name": "regression_auth03_watchdog_reauth_midscan",
    "ok": true,
-   "ms": 1815
+   "ms": 1707
   },
   {
    "name": "regression_auth_scan_finds_gated_surface_and_anonymous_does_not",
    "ok": true,
-   "ms": 2894
+   "ms": 2987
   },
   {
    "name": "regression_benchmark_autostarts_fixture",
    "ok": true,
-   "ms": 76286
+   "ms": 76451
   },
   {
    "name": "regression_cli_script_mode_all_subcommands",
    "ok": true,
-   "ms": 25576
+   "ms": 26896
   },
   {
    "name": "regression_crawl_preserves_link_query",
@@ -62,27 +61,27 @@
   {
    "name": "regression_crlf_header_injection_and_xxe_live",
    "ok": true,
-   "ms": 10354
+   "ms": 11324
   },
   {
    "name": "regression_eng08_self_callback_guard",
    "ok": true,
-   "ms": 3166
+   "ms": 4024
   },
   {
    "name": "regression_engine_preserves_redirect_oracle_e2e",
    "ok": true,
-   "ms": 530
+   "ms": 529
   },
   {
    "name": "regression_form_param_location_follows_method",
    "ok": true,
-   "ms": 4
+   "ms": 8
   },
   {
    "name": "regression_inline_js_url_extraction",
    "ok": true,
-   "ms": 557
+   "ms": 563
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
@@ -92,47 +91,47 @@
   {
    "name": "regression_oob_blind_xxe_end_to_end",
    "ok": true,
-   "ms": 65948
+   "ms": 65538
   },
   {
    "name": "regression_oob_public_channel_end_to_end",
    "ok": true,
-   "ms": 210174
+   "ms": 210152
   },
   {
    "name": "regression_phase54_ops_stealth_composition",
    "ok": true,
-   "ms": 688
+   "ms": 666
   },
   {
    "name": "regression_phase55_five_classes_end_to_end",
    "ok": true,
-   "ms": 75087
+   "ms": 76270
   },
   {
    "name": "regression_phase56_intelligence_end_to_end",
    "ok": true,
-   "ms": 75537
+   "ms": 75602
   },
   {
    "name": "regression_phase57_vault_end_to_end",
    "ok": true,
-   "ms": 10477
+   "ms": 11290
   },
   {
    "name": "regression_phase58_logic_end_to_end",
    "ok": true,
-   "ms": 76432
+   "ms": 75965
   },
   {
    "name": "regression_report_builder_outputs",
    "ok": true,
-   "ms": 3
+   "ms": 8
   },
   {
    "name": "regression_rest_api_server",
    "ok": true,
-   "ms": 39692
+   "ms": 39715
   },
   {
    "name": "regression_scope_blocks_metadata_service",
@@ -157,12 +156,12 @@
   {
    "name": "regression_ssrf_cmdi_cors_end_to_end",
    "ok": true,
-   "ms": 67409
+   "ms": 67468
   },
   {
    "name": "regression_store_persistence_and_intelligence",
    "ok": true,
-   "ms": 4
+   "ms": 6
   },
   {
    "name": "regression_timeout_repair_rule",
@@ -172,7 +171,7 @@
   {
    "name": "regression_verification_rejects_false_candidate",
    "ok": true,
-   "ms": 24
+   "ms": 23
   },
   {
    "name": "regression_vuln_js_dependency_passive",
@@ -197,7 +196,7 @@
   {
    "name": "unit_auth01_form_intelligent_login",
    "ok": true,
-   "ms": 510
+   "ms": 516
   },
   {
    "name": "unit_auth05_token_bearer_modes",
@@ -207,7 +206,7 @@
   {
    "name": "unit_authz_engine_matrix_idor_vertical",
    "ok": true,
-   "ms": 538
+   "ms": 552
   },
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
@@ -217,7 +216,7 @@
   {
    "name": "unit_coverage_tracker_accounting",
    "ok": true,
-   "ms": 0
+   "ms": 1
   },
   {
    "name": "unit_dedup_pipeline",
@@ -247,17 +246,17 @@
   {
    "name": "unit_eng05_cookie_jar_session_continuity",
    "ok": true,
-   "ms": 505
+   "ms": 12
   },
   {
    "name": "unit_eng06_body_serialization_without_mutation",
    "ok": true,
-   "ms": 1
+   "ms": 0
   },
   {
    "name": "unit_eng07_cookie_refresh_across_redirect_hops",
    "ok": true,
-   "ms": 503
+   "ms": 502
   },
   {
    "name": "unit_eng09_rate_limit_backoff",
@@ -280,9 +279,14 @@
    "ms": 0
   },
   {
+   "name": "unit_eng20_benchmark_owned_fixture",
+   "ok": true,
+   "ms": 352
+  },
+  {
    "name": "unit_evidence_impact_profiles",
    "ok": true,
-   "ms": 2
+   "ms": 0
   },
   {
    "name": "unit_evidence_os_proof_files",
@@ -297,12 +301,12 @@
   {
    "name": "unit_make_oast_channel_policy",
    "ok": true,
-   "ms": 1002
+   "ms": 1003
   },
   {
    "name": "unit_oast_server_records_interactions",
    "ok": true,
-   "ms": 804
+   "ms": 805
   },
   {
    "name": "unit_op02_sarif_export",
@@ -317,22 +321,22 @@
   {
    "name": "unit_paramintel_value_shape_inference",
    "ok": true,
-   "ms": 1
+   "ms": 0
   },
   {
    "name": "unit_phase55_detectors_and_gates",
    "ok": true,
-   "ms": 517
+   "ms": 524
   },
   {
    "name": "unit_phase57_vault_crypto_lifecycle",
    "ok": true,
-   "ms": 83
+   "ms": 87
   },
   {
    "name": "unit_phase58_workflow_engine",
    "ok": true,
-   "ms": 4
+   "ms": 11
   },
   {
    "name": "unit_planner_deterministic",
@@ -342,12 +346,12 @@
   {
    "name": "unit_planner_safety_gates",
    "ok": true,
-   "ms": 1
+   "ms": 0
   },
   {
    "name": "unit_public_oast_provider_protocol",
    "ok": true,
-   "ms": 1111
+   "ms": 1110
   },
   {
    "name": "unit_reasoning_hypothesis_lifecycle",
@@ -372,7 +376,7 @@
   {
    "name": "unit_secrets_scanner_classification_and_gates",
    "ok": true,
-   "ms": 2
+   "ms": 1
   },
   {
    "name": "unit_strategy_ordering_deterministic",
@@ -397,12 +401,12 @@
   {
    "name": "unit_twin_graph_fusion",
    "ok": true,
-   "ms": 9
+   "ms": 1
   },
   {
    "name": "unit_waf_fingerprinter_named_signatures",
    "ok": true,
-   "ms": 1
+   "ms": 0
   },
   {
    "name": "unit_wilson_sample_size_aware",
@@ -415,5 +419,5 @@
    "ms": 1
   }
  ],
- "chunks": "c3-light(61) + c2-e2e(11) + c1a(3) + c1b(1) + c1c(6) via SENTINEL_TEST_FILTER"
+ "chunks": "R5(71 incl unit_eng20)+R1(1)+R4(5)+R2(3)+R3(3) from FINAL zip v3 (ENG-18+19+20+docs+README)"
 }

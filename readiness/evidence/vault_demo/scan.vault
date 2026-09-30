@@ -1,0 +1,30 @@
+{
+ "format": "sentinel-vault/1",
+ "org": "acme-corp",
+ "created": "2026-09-30T09:37:00Z",
+ "revision": 7,
+ "kdf": {
+  "salt": "Fm/r42Yb6j5As5JRxXtqUg=="
+ },
+ "keys": [
+  {
+   "key_id": "9cc1ad37",
+   "label": "designer",
+   "added": "2026-09-30T09:37:00Z",
+   "actor": "init"
+  }
+ ],
+ "wraps": [
+  {
+   "key_id": "9cc1ad37",
+   "nonce": "NoXcDdsX4yF5oe2h",
+   "ct": "WkvDj0M3p4xi52NyFNj1qNdHa9T6dJP0/OrP18uX5wc=",
+   "tag": "OVSu66GaoyXaHmvJCowL2xA2NNmzcdxcj5COz/zWOqI="
+  }
+ ],
+ "blob": {
+  "nonce": "UF6267iSMPJKy1GM",
+  "ct": "fsJo1D7wTNNSgSl76LHZRvKhNAmkzkvg+4ZLyElZyD2yN5bLzEFYLByL5hiRyjETIV8pXU4W5mkOjs5ltggroc4q6o9kmFvfsYi7LOVDzDEt+avqsK5O9EV2npp+edO4WHzpamDCj8zJq5iuY90c6dUiJZgPwSAJGMDaP0aVKD7oB5Aj2of/I7shJNq+GAsYiqKpnC1mJcyFeWMLwI7WkaJDUtOjI6Dnsx3qAlq7EjqCawARsdGr4qKWVOQ4rvetFmDGZjKsWArM4Sea6T0GIfINM3bJlXVczQkN8a/6NWRxoW/DeDQ7LRsCGY2zM2IxIUEI9k/IQGmnipUWYtTJ3+WtDDyvs+eV4R6U/ps2cTZuVg3KU0VAJbfZ3In9ENwmOFcVupvykILakmvH/mCMSke+JNRCvjB3D+QZu4Ndn/RwtEHJ2QKPAaAjN4GD4B64GOBABqqmcFgOQSI6Yx3304PaXEr52MoKaQdIhJ8c6irZtU0KhjDIVJOO1cPx/bbZaR1BC0gNMw6ydnTgJy1BuDIdfu9j5ys052gqTuIOxP1wtGEKv/51rlzQPFHLdFuGAx80vNvgC6tDGWI9BLSROVcAeSy45TeWOViAvKCCp8nbJPYU7Dl0ZAy8gRSJND1Kvx4pWGrEqDHvR6b01YvZUhWSiWvWrvhKkEBlpIXCJSUfCVVA6xx+HqYD9uCpjabo2Ord+r+IKVfQAKISvSJVzsj6QwD65X7mWIPnui9TdCIowuft+UguRTm/JDTOGby8j6boQKZMUXUu5kk8QMq91uX23wmrT4mGUVLKOZ3vCEmN3oYnz83Stxpa4v7rD5GeGVZ7j/Jt6wqn1mub7BBlStRJ7Lbk3Wnf39L3Iah0WLFOnZ0beFZKvEBdRk0CSRxk92dv7u6Jjw+uzUIdfukSLyzwRgOC1OLrXc0kIb3LqgXIzE8YPVzDNAEiopbzdd+ALF3HCH7qGpgNofaziswSTwMhLBWSxI/kX3sIPHNkVG/p60qjEdyRHkt00WD+s3kn10leguVpiaF/z9GdzskfiXCoVUlrGAZfUWLfJQD2Fxm6GaYXtBWdlXkk3tfoEm+if8Pdov1yBbz4FbVO4ztY9gr+Cp6HMjxRVBrZb1hQh3wxWXN47y2LZRYnD787BBJgIgT5zi/dTZeSGqqvhmS8ZRunk4z73uNYArXeTCsLF6ujbB3woHM3canAE2pvjvtz+JdQ8TO2e0YhIY9Mjw43YPhdG1GRwyGd7OWKVhK8RWAVf05DngTrZUMLRc9ruCy49XuDIiauaQuVjxRPeCMVzFq/HsQyie2CqBX/n8mB1L6bUJWKcn1FFZge2dSkwL3d3mpGXZ0b0Cx0IARn0kbHqfg091u7P0h8Bcfs5/MvzJ2n9FmG+wFPgTjVa4uO4pUnT+OITHBTVAUzKgKMNi8iQTcYKCLtDibq2LwVPIyukPxcHcS5hSFx42oU/0t+9kO/AwFftxCxKhKKZKWn2KwsYQAgsmPDYVNMm/hB1W9IUA7cLhvb",
+  "tag": "TMN00VjEMUzHPeY3Ls8yh6sf8JK6ILYdQirYJulVSKs="
+ }
+}

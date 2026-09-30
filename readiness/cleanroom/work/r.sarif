@@ -1,0 +1,5293 @@
+{
+ "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+ "version": "2.1.0",
+ "runs": [
+  {
+   "tool": {
+    "driver": {
+     "name": "SENTINEL",
+     "version": "4.0.0",
+     "informationUri": "https://sentinel.invalid/",
+     "rules": [
+      {
+       "id": "SEN-SQL-001",
+       "name": "sql_injection",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: sql_injection"
+       }
+      },
+      {
+       "id": "SEN-SSTI-001",
+       "name": "ssti",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: ssti"
+       }
+      },
+      {
+       "id": "SEN-CMD-001",
+       "name": "command_injection",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: command_injection"
+       }
+      },
+      {
+       "id": "SEN-NOSQL-001",
+       "name": "nosql_injection",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: nosql_injection"
+       }
+      },
+      {
+       "id": "SEN-XXE-001",
+       "name": "xxe",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: xxe"
+       }
+      },
+      {
+       "id": "SEN-SEC-001",
+       "name": "credential_exposure",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: credential_exposure"
+       }
+      },
+      {
+       "id": "SEN-XSS-001",
+       "name": "xss_reflected",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: xss_reflected"
+       }
+      },
+      {
+       "id": "SEN-TRA-001",
+       "name": "path_traversal",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: path_traversal"
+       }
+      },
+      {
+       "id": "SEN-SSRF-001",
+       "name": "ssrf",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: ssrf"
+       }
+      },
+      {
+       "id": "SEN-COR-001",
+       "name": "cors_misconfig",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: cors_misconfig"
+       }
+      },
+      {
+       "id": "SEN-HDR-001",
+       "name": "http_response_header_injection",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: http_response_header_injection"
+       }
+      },
+      {
+       "id": "SEN-HDR-003",
+       "name": "host_header_injection",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: host_header_injection"
+       }
+      },
+      {
+       "id": "SEN-CSRF-001",
+       "name": "csrf",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: csrf"
+       }
+      },
+      {
+       "id": "SEN-JWT-001",
+       "name": "jwt_security",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: jwt_security"
+       }
+      },
+      {
+       "id": "SEN-RED-001",
+       "name": "open_redirect",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: open_redirect"
+       }
+      },
+      {
+       "id": "SEN-HDR-002",
+       "name": "missing_security_headers",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: missing_security_headers"
+       }
+      },
+      {
+       "id": "SEN-DEP-001",
+       "name": "vulnerable_js_dependency",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: vulnerable_js_dependency"
+       }
+      },
+      {
+       "id": "SEN-INF-001",
+       "name": "server_banner_disclosure",
+       "shortDescription": {
+        "text": "SENTINEL verified finding class: server_banner_disclosure"
+       }
+      }
+     ]
+    }
+   },
+   "properties": {
+    "scanTarget": "",
+    "resultCount": 139,
+    "honesty": "verification-gated: every result passed an independent replay"
+   },
+   "results": [
+    {
+     "ruleId": "SEN-SQL-001",
+     "ruleIndex": 0,
+     "level": "error",
+     "message": {
+      "text": "sql_injection at http://127.0.0.1:8801/vuln/sqli_blind.php (param=id) \u2014 verified via oracle:replay-2round"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/sqli_blind.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "id"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 85,
+      "confidence": 0.95,
+      "parameter": "id",
+      "verification": {
+       "method": "oracle:replay-2round",
+       "passed": true,
+       "notes": "replay TRUE=200 FALSE=500"
+      },
+      "evidence": "response_diff: TRUE probe -> HTTP 200 (2071B), FALSE probe -> HTTP 500 (31B) \u2014 boolean oracle"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-6b8ac5ddfc"
+     }
+    },
+    {
+     "ruleId": "SEN-SQL-001",
+     "ruleIndex": 0,
+     "level": "error",
+     "message": {
+      "text": "sql_injection at http://127.0.0.1:8801/vuln/jsparam.php (param=cat) \u2014 verified via oracle:or-bodydiff-2round"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jsparam.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "cat"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 85,
+      "confidence": 0.95,
+      "parameter": "cat",
+      "verification": {
+       "method": "oracle:or-bodydiff-2round",
+       "passed": true,
+       "notes": "fresh OR-pair body differential: TRUE 3978B vs FALSE 1778B"
+      },
+      "evidence": "status_oracle: quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break; response_diff: OR-pair body-size differential on condition flip: TRUE 3978B vs FALSE 1778B (string-context boolean oracle)"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-816c95b5db"
+     }
+    },
+    {
+     "ruleId": "SEN-SSTI-001",
+     "ruleIndex": 1,
+     "level": "error",
+     "message": {
+      "text": "ssti at http://127.0.0.1:8801/vuln/ssti (param=name) \u2014 verified via re-test:fresh-expression"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/ssti"
+        },
+        "region": {
+         "snippet": {
+          "text": "name"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 81,
+      "confidence": 0.9,
+      "parameter": "name",
+      "verification": {
+       "method": "re-test:fresh-expression",
+       "passed": true,
+       "notes": "fresh expression '{{12*11}}' -> 132 evaluated: True"
+      },
+      "evidence": "expression_eval: template expression evaluated server-side: 7*7 -> 49 in response while the literal expression is absent \u2014 SSTI (RCE class). syntax={{ param="
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-82ec079b40"
+     }
+    },
+    {
+     "ruleId": "SEN-SQL-001",
+     "ruleIndex": 0,
+     "level": "error",
+     "message": {
+      "text": "sql_injection at http://127.0.0.1:8801/vuln/sqli_error.php (param=id) \u2014 verified via error:replay-2variants"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/sqli_error.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "id"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 81,
+      "confidence": 0.9,
+      "parameter": "id",
+      "verification": {
+       "method": "error:replay-2variants",
+       "passed": true,
+       "notes": "single+double quote variants reproduce DB error: True"
+      },
+      "evidence": "db_error: you have an error in your sql syntax matched: You have an error in your SQL syntax"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-57a8ada918"
+     }
+    },
+    {
+     "ruleId": "SEN-CMD-001",
+     "ruleIndex": 2,
+     "level": "error",
+     "message": {
+      "text": "command_injection at http://127.0.0.1:8801/vuln/ping (param=host) \u2014 verified via re-test:fresh-interaction-id+alternate-syntax"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/ping"
+        },
+        "region": {
+         "snippet": {
+          "text": "host"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 81,
+      "confidence": 0.9,
+      "parameter": "host",
+      "verification": {
+       "method": "re-test:fresh-interaction-id+alternate-syntax",
+       "passed": true,
+       "notes": "fresh id oob-5e20d790c109 via alternate '|' syntax executed out-of-band: True channel=local"
+      },
+      "evidence": "oob_callback: server executed a shell fetch out-of-band from unknown (interaction oob-c4f8020ccc59) \u2014 blind command injection: separator battery ([';', '&; oob_callback: server executed a shell fetch out-of-band from unknown (interaction oob-c4f8020ccc59) \u2014 blind command injection: separator battery ([';', '&"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-62f44c2ed8"
+     }
+    },
+    {
+     "ruleId": "SEN-NOSQL-001",
+     "ruleIndex": 3,
+     "level": "error",
+     "message": {
+      "text": "nosql_injection at http://127.0.0.1:8801/vuln/nosql-login (param=user) \u2014 verified via re-test:fresh-operator"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/nosql-login"
+        },
+        "region": {
+         "snippet": {
+          "text": "user"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 81,
+      "confidence": 0.9,
+      "parameter": "user",
+      "verification": {
+       "method": "re-test:fresh-operator",
+       "passed": true,
+       "notes": "fresh operator {$gt} on param 'user' bypassed: True"
+      },
+      "evidence": "operator_bypass: NoSQL operator bypass: literal value -> HTTP 401 (rejected), {\"$ne\"} operator value -> HTTP 200 (accepted) \u2014 the query treats attacker JSON "
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-59b0552a38"
+     }
+    },
+    {
+     "ruleId": "SEN-XXE-001",
+     "ruleIndex": 4,
+     "level": "error",
+     "message": {
+      "text": "xxe at http://127.0.0.1:8801/vuln/stock (param=storeId) \u2014 verified via re-test:fresh-entity-files"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/stock"
+        },
+        "region": {
+         "snippet": {
+          "text": "storeId"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 81,
+      "confidence": 0.9,
+      "parameter": "storeId",
+      "verification": {
+       "method": "re-test:fresh-entity-files",
+       "passed": true,
+       "notes": "stable control=True; fresh files differing from fresh control: 2/2 (root=stockCheck, element=storeId)"
+      },
+      "evidence": "entity_differential: external entity resolution confirmed via response differential \u2014 hostname: entity -> 200 '412 units' vs control 200 '0 units'; passwd: entit"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-2b580c875b"
+     }
+    },
+    {
+     "ruleId": "SEN-XXE-001",
+     "ruleIndex": 4,
+     "level": "error",
+     "message": {
+      "text": "xxe at http://127.0.0.1:8801/vuln/oob-stock (param=storeId) \u2014 verified via re-test:fresh-interaction-id"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/oob-stock"
+        },
+        "region": {
+         "snippet": {
+          "text": "storeId"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 81,
+      "confidence": 0.9,
+      "parameter": "storeId",
+      "verification": {
+       "method": "re-test:fresh-interaction-id",
+       "passed": true,
+       "notes": "fresh interaction id oob-867f71c2b729 fetched out-of-band: True channel=local"
+      },
+      "evidence": "oob_callback: target fetched the external entity out-of-band from 127.0.0.1:39911 (ua=Python-urllib/3.13) (interaction oob-05a46afb1569 via GET at t+17907"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-2739355a7f"
+     }
+    },
+    {
+     "ruleId": "SEN-SEC-001",
+     "ruleIndex": 5,
+     "level": "error",
+     "message": {
+      "text": "credential_exposure at http://127.0.0.1:8801/vuln/leak-config (param=aws_access_key) \u2014 verified via re-test:fresh-fetch-reexposure"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/leak-config"
+        },
+        "region": {
+         "snippet": {
+          "text": "aws_access_key"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "critical",
+      "risk": 72,
+      "confidence": 0.9,
+      "parameter": "aws_access_key",
+      "verification": {
+       "method": "re-test:fresh-fetch-reexposure",
+       "passed": true,
+       "notes": "fresh fetch re-exposed credential class 'aws_access_key': True"
+      },
+      "evidence": "credential:aws_access_key: AWS access key ID exposed \u2014 class=aws_access_key, evidence AKIA\u2026(20 chars) (masked; raw value intentionally not retained), location=body"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-84c728a975"
+     }
+    },
+    {
+     "ruleId": "SEN-SEC-001",
+     "ruleIndex": 5,
+     "level": "error",
+     "message": {
+      "text": "credential_exposure at http://127.0.0.1:8801/vuln/leak-config (param=github_token) \u2014 verified via re-test:fresh-fetch-reexposure"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/leak-config"
+        },
+        "region": {
+         "snippet": {
+          "text": "github_token"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 72,
+      "confidence": 0.9,
+      "parameter": "github_token",
+      "verification": {
+       "method": "re-test:fresh-fetch-reexposure",
+       "passed": true,
+       "notes": "fresh fetch re-exposed credential class 'github_token': True"
+      },
+      "evidence": "credential:github_token: GitHub token exposed \u2014 class=github_token, evidence ghp_\u2026(37 chars) (masked; raw value intentionally not retained), location=body"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-6be9d9cec1"
+     }
+    },
+    {
+     "ruleId": "SEN-SEC-001",
+     "ruleIndex": 5,
+     "level": "error",
+     "message": {
+      "text": "credential_exposure at http://127.0.0.1:8801/vuln/leak-config (param=db_connection_uri) \u2014 verified via re-test:fresh-fetch-reexposure"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/leak-config"
+        },
+        "region": {
+         "snippet": {
+          "text": "db_connection_uri"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 72,
+      "confidence": 0.9,
+      "parameter": "db_connection_uri",
+      "verification": {
+       "method": "re-test:fresh-fetch-reexposure",
+       "passed": true,
+       "notes": "fresh fetch re-exposed credential class 'db_connection_uri': True"
+      },
+      "evidence": "credential:db_connection_uri: Database connection URI with embedded credentials \u2014 class=db_connection_uri, evidence mysq\u2026(46 chars) (masked; raw value intentionally not r"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7c75c6a6dd"
+     }
+    },
+    {
+     "ruleId": "SEN-XSS-001",
+     "ruleIndex": 6,
+     "level": "error",
+     "message": {
+      "text": "xss_reflected at http://127.0.0.1:8801/vuln/sqli_blind.php (param=id) \u2014 verified via re-test:variant-battery-6"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/sqli_blind.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "id"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 63,
+      "confidence": 0.9,
+      "parameter": "id",
+      "verification": {
+       "method": "re-test:variant-battery-6",
+       "passed": true,
+       "notes": "6/6 diverse vectors reflected raw (WAF-resistant verification)"
+      },
+      "evidence": "unescaped_reflection: canary reflected raw in context: \u2026... <p>forum thread list ... lots of content here ...  item <sentinelxssmarker>pro41</sentinelxssmarker></; unescaped_reflection: canary reflected raw in context: \u2026... <p>forum thread list ... lots of content here ...  item <sentinelxssmarkerpro42</p> </body></html>\u2026 [c"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-cd6d7a0192"
+     }
+    },
+    {
+     "ruleId": "SEN-XSS-001",
+     "ruleIndex": 6,
+     "level": "error",
+     "message": {
+      "text": "xss_reflected at http://127.0.0.1:8801/vuln/xss.php (param=q) \u2014 verified via re-test:variant-battery-6"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/xss.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "q"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 63,
+      "confidence": 0.9,
+      "parameter": "q",
+      "verification": {
+       "method": "re-test:variant-battery-6",
+       "passed": true,
+       "notes": "6/6 diverse vectors reflected raw (WAF-resistant verification)"
+      },
+      "evidence": "unescaped_reflection: canary reflected raw in context: \u202622active%22%7D\">api filter</a></div> <div>You searched for '<sentinelxssmarker>pro41</sentinelxssmarker>'<; unescaped_reflection: canary reflected raw in context: \u202622active%22%7D\">api filter</a></div> <div>You searched for '<sentinelxssmarkerpro42'</div> </body></html>\u2026"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-250c00ce57"
+     }
+    },
+    {
+     "ruleId": "SEN-TRA-001",
+     "ruleIndex": 7,
+     "level": "error",
+     "message": {
+      "text": "path_traversal at http://127.0.0.1:8801/vuln/traversal.php (param=file) \u2014 verified via re-test:same-marker-alt-depth"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/traversal.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "file"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 63,
+      "confidence": 0.9,
+      "parameter": "file",
+      "verification": {
+       "method": "re-test:same-marker-alt-depth",
+       "passed": true,
+       "notes": "alternative depth payload '../../../../windows/win.ini' reproduces leak: True"
+      },
+      "evidence": "file_marker: content of win.ini leaked (marker '[fonts]' at offset 1657); file_marker: content of /etc/passwd leaked (marker 'root:x:0:0:' at offset 1657); file_marker: content of win.ini leaked (marker '[fonts]' at offset 1657)"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-1649498c4a"
+     }
+    },
+    {
+     "ruleId": "SEN-SSRF-001",
+     "ruleIndex": 8,
+     "level": "error",
+     "message": {
+      "text": "ssrf at http://127.0.0.1:8801/vuln/fetch (param=url) \u2014 verified via re-test:fresh-interaction-id"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/fetch"
+        },
+        "region": {
+         "snippet": {
+          "text": "url"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 63,
+      "confidence": 0.9,
+      "parameter": "url",
+      "verification": {
+       "method": "re-test:fresh-interaction-id",
+       "passed": true,
+       "notes": "fresh interaction id oob-402421e050ba fetched out-of-band: True channel=local"
+      },
+      "evidence": "oob_callback: server fetched the attacker-supplied URL out-of-band from unknown (ua=Python-urllib/3.13) (interaction oob-12adb99310b9 via GET) \u2014 SSRF: the"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-c27e334715"
+     }
+    },
+    {
+     "ruleId": "SEN-XSS-001",
+     "ruleIndex": 6,
+     "level": "error",
+     "message": {
+      "text": "xss_reflected at http://127.0.0.1:8801/vuln/jsparam.php (param=cat) \u2014 verified via re-test:variant-battery-6"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jsparam.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "cat"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 63,
+      "confidence": 0.9,
+      "parameter": "cat",
+      "verification": {
+       "method": "re-test:variant-battery-6",
+       "passed": true,
+       "notes": "5/6 diverse vectors reflected raw (WAF-resistant verification)"
+      },
+      "evidence": "unescaped_reflection: canary reflected raw in context: \u2026n this category.</li></ul><script>const selectedCategory = \"<sentinelxssmarkerpro42\";</script> </body></ht"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7fc608912b"
+     }
+    },
+    {
+     "ruleId": "SEN-XSS-001",
+     "ruleIndex": 6,
+     "level": "error",
+     "message": {
+      "text": "xss_reflected at http://127.0.0.1:8801/vuln/json-reflect (param=name) \u2014 verified via re-test:variant-battery-6"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/json-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": "name"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 63,
+      "confidence": 0.9,
+      "parameter": "name",
+      "verification": {
+       "method": "re-test:variant-battery-6",
+       "passed": true,
+       "notes": "6/6 diverse vectors reflected raw (WAF-resistant verification)"
+      },
+      "evidence": "unescaped_reflection: canary reflected raw in context: \u2026<div>Hello <sentinelxssmarker>pro41</sentinelxssmarker></div>\u2026 [ctx: \u2026<div>Hello <sentinelxssmarker>pro41<; unescaped_reflection: canary reflected raw in context: \u2026<div>Hello <sentinelxssmarkerpro42</div>\u2026 [ctx: \u2026<div>Hello <sentinelxssmarkerpro42</div>\u2026]"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8d9fc4aa48"
+     }
+    },
+    {
+     "ruleId": "SEN-XSS-001",
+     "ruleIndex": 6,
+     "level": "error",
+     "message": {
+      "text": "xss_reflected at http://127.0.0.1:8801/vuln/csrf-reflect (param=note) \u2014 verified via re-test:variant-battery-6"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrf-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": "note"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 63,
+      "confidence": 0.9,
+      "parameter": "note",
+      "verification": {
+       "method": "re-test:variant-battery-6",
+       "passed": true,
+       "notes": "6/6 diverse vectors reflected raw (WAF-resistant verification)"
+      },
+      "evidence": "unescaped_reflection: canary reflected raw in context: \u2026<div>Noted: <sentinelxssmarker>pro41</sentinelxssmarker></div>\u2026 [ctx: \u2026<div>Noted: <sentinelxssmarker>pro4; unescaped_reflection: canary reflected raw in context: \u2026<div>Noted: <sentinelxssmarkerpro42</div>\u2026 [ctx: \u2026<div>Noted: <sentinelxssmarkerpro42</div>\u2026]"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-745428d9c6"
+     }
+    },
+    {
+     "ruleId": "SEN-COR-001",
+     "ruleIndex": 9,
+     "level": "error",
+     "message": {
+      "text": "cors_misconfig at http://127.0.0.1:8801/vuln/cors (param=Origin) \u2014 verified via re-test:fresh-origin"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/cors"
+        },
+        "region": {
+         "snippet": {
+          "text": "Origin"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 54,
+      "confidence": 0.9,
+      "parameter": "Origin",
+      "verification": {
+       "method": "re-test:fresh-origin",
+       "passed": true,
+       "notes": "fresh origin https://cors-vr10-02c7d3b2.example reflected with credentials: True (acao='https://cors-vr10-02c7d3b2.example')"
+      },
+      "evidence": "header_reflection: arbitrary Origin reflected WITH credentials: Access-Control-Allow-Origin: https://sentinel-probe.example + Access-Control-Allow-Credentials:"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-a6765ca6b4"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-001",
+     "ruleIndex": 10,
+     "level": "error",
+     "message": {
+      "text": "http_response_header_injection at http://127.0.0.1:8801/vuln/jsparam.php (param=cat) \u2014 verified via re-test:fresh-header-name"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jsparam.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "cat"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "high",
+      "risk": 54,
+      "confidence": 0.9,
+      "parameter": "cat",
+      "verification": {
+       "method": "re-test:fresh-header-name",
+       "passed": true,
+       "notes": "fresh vector split response header x-sentinel-verify-hdr='confirmed'"
+      },
+      "evidence": "header_value: CRLF in param split a second response header: x-sentinel-probe: 'injected' (attacker-controlled header injection)"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-04b38022e0"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-003",
+     "ruleIndex": 11,
+     "level": "warning",
+     "message": {
+      "text": "host_header_injection at http://127.0.0.1:8801/vuln/hostbuild (param=Host) \u2014 verified via re-test:fresh-canary-host"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/hostbuild"
+        },
+        "region": {
+         "snippet": {
+          "text": "Host"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "medium",
+      "risk": 42,
+      "confidence": 0.85,
+      "parameter": "Host",
+      "verification": {
+       "method": "re-test:fresh-canary-host",
+       "passed": true,
+       "notes": "fresh canary host sentinel-vr16-91504afef2.example reflected: True"
+      },
+      "evidence": "host_reflection: canary Host reflected in response body: the application builds output from the attacker-controlled Host header (link-manipulation / reset-po"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-0b74368de1"
+     }
+    },
+    {
+     "ruleId": "SEN-CSRF-001",
+     "ruleIndex": 12,
+     "level": "warning",
+     "message": {
+      "text": "csrf at http://127.0.0.1:8801/vuln/csrf-action (param=email) \u2014 verified via re-test:fresh-hostile-origin"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrf-action"
+        },
+        "region": {
+         "snippet": {
+          "text": "email"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "medium",
+      "risk": 42,
+      "confidence": 0.85,
+      "parameter": "email",
+      "verification": {
+       "method": "re-test:fresh-hostile-origin",
+       "passed": true,
+       "notes": "cross-origin replay from https://csrf-vr13-4d2a8169.example accepted: True (HTTP 200)"
+      },
+      "evidence": "cross_origin_acceptance: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (23B), cross-origin replay -> HTTP 200 ("
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-6231844065"
+     }
+    },
+    {
+     "ruleId": "SEN-JWT-001",
+     "ruleIndex": 13,
+     "level": "warning",
+     "message": {
+      "text": "jwt_security at http://127.0.0.1:8801/vuln/jwt-login (param=-) \u2014 verified via re-test:fresh-issuance"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jwt-login"
+        },
+        "region": {
+         "snippet": {
+          "text": "-"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "medium",
+      "risk": 42,
+      "confidence": 0.85,
+      "parameter": "-",
+      "verification": {
+       "method": "re-test:fresh-issuance",
+       "passed": true,
+       "notes": "fresh replay issued another unsigned token (alg='none'): True"
+      },
+      "evidence": "unsigned_jwt_issued: server issues UNSIGNED JWT (alg=none, empty signature) \u2014 RFC 8725 \u00a73.1: if the verifier honors none, any party can forge arbitrary claims. c"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-fc50b80d91"
+     }
+    },
+    {
+     "ruleId": "SEN-RED-001",
+     "ruleIndex": 14,
+     "level": "warning",
+     "message": {
+      "text": "open_redirect at http://127.0.0.1:8801/vuln/redirect.php (param=url) \u2014 verified via re-test:second-host"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/redirect.php"
+        },
+        "region": {
+         "snippet": {
+          "text": "url"
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "medium",
+      "risk": 34,
+      "confidence": 0.85,
+      "parameter": "url",
+      "verification": {
+       "method": "re-test:second-host",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Location redirects off-site to https://sentinel-redirect-check.example.org/probe; header_value: Location redirects off-site to http://sentinel-redirect-check.example.org/probe"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-79a3fc83a5"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/ \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-35b18b3d6f"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/ssti \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/ssti"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d6bec4f08e"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/ssti \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/ssti"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-93fbcf6187"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/hostbuild \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/hostbuild"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-a19bf89725"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/hostbuild \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/hostbuild"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-27aa77d458"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/lab \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/lab"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-a0981cb620"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/sqli_error.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/sqli_error.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-dc36723b76"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/sqli_blind.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/sqli_blind.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-fdb196dded"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/xss.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/xss.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-4b2884276c"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/traversal.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/traversal.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-0fdbad32da"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/redirect.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/redirect.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-47dc69d44b"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/search.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/search.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-766957f6a1"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/item.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/item.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-abc8527ba9"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/read.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/read.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-1807d77966"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/hidden.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/hidden.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8592d4c3bc"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/jsparam.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/jsparam.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-de76bb736d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/app.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/app.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-92672099a5"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/dom-write \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/dom-write"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy; header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8d769b5817"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/dom-text \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/dom-text"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e5baf77987"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/divform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/divform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e2d29c9f17"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/divform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/divform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-3107cdfa54"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/csrfdivform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrfdivform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-e13ec714e9"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/jsform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jsform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-f8525a44ec"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b7a9d7d4a2"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/fetch \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/fetch"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-fa87526fe1"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/fetch \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/fetch"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-a79cc0ef2d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/ping \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/ping"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-3716290233"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/ping \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/ping"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-ec5ffe1fa6"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/cors \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/cors"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-5fef8800bf"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/cors \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/cors"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-272668dba2"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/leak-config \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/leak-config"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-90b2b8103b"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/leak-config \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/leak-config"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-62403d8c65"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/api/filter \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/api/filter"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-f06030f872"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/about \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/about"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-aa837dc3f6"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/jsbuild.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/jsbuild.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7a1b8d3623"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/csrf-action \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrf-action"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-cad6a72820"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/csrf-action \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/csrf-action"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-de967f73af"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/nosql-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/nosql-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8894685dde"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/nosql-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/nosql-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b45a3bf4ea"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/jwt-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jwt-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-9295dbe6ae"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/jwt-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/jwt-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b30c6ddf18"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/stockapp.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/stockapp.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-335a54cf68"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/angular_1-7-7.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/angular_1-7-7.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d109db691a"
+     }
+    },
+    {
+     "ruleId": "SEN-DEP-001",
+     "ruleIndex": 16,
+     "level": "note",
+     "message": {
+      "text": "vulnerable_js_dependency at http://127.0.0.1:8801/angular_1-7-7.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/angular_1-7-7.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "banner: served asset 'angular_1-7-7.js': AngularJS 1.x \u2014 end-of-life branch (Jan 2022); sandbox-escape / client-side template injection class (CVE-2"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-4d8c5c9168"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-b0fd72db94"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-043c703007"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/blind/stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/blind/stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-3a3c53f3e7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/oob-stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/oob-stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8b2737693c"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/oob-stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/oob-stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-da2e4112a7"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/jsparam.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jsparam.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-df2872952b"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/api/ \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/api/"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-5759769223"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/api/users \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/api/users"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-10af46e338"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/json-reflect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/json-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d87a628ec4"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/safe/json-reflect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/json-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-50e24e0ab1"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/vuln/csrf-reflect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrf-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-09bafe6a4d"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/doLogin \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/doLogin"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-9defb6aced"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/admin/ \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/admin/"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-32c8123d99"
+     }
+    },
+    {
+     "ruleId": "SEN-HDR-002",
+     "ruleIndex": 15,
+     "level": "note",
+     "message": {
+      "text": "missing_security_headers at http://127.0.0.1:8801/backup/db.sql \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/backup/db.sql"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 19,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_absent: missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-76abc5a70e"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/ \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7c3ea90fe4"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/ssti \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/ssti"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-efedf2adba"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/ssti \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/ssti"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-2d2f075d99"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/hostbuild \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/hostbuild"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-13208c20ac"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/hostbuild \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/hostbuild"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-10c35605bd"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/lab \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/lab"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-31cf0291e1"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/sqli_error.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/sqli_error.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-814d994fe5"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/sqli_blind.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/sqli_blind.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-057c7f9822"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/xss.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/xss.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-076b92d79f"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/traversal.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/traversal.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-471c16538a"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/redirect.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/redirect.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-81630ac521"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/search.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/search.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-a44bd45b24"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/item.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/item.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-80c930f626"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/read.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/read.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-a4eaf32e6e"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/hidden.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/hidden.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-ebcb0bfa6e"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/jsparam.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/jsparam.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-5796f842a4"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/app.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/app.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-83b5b5ea62"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/dom-write \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/dom-write"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0; header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-0e62da8aa1"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/dom-text \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/dom-text"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-67459ad575"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/divform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/divform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d97393f9fa"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/divform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/divform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-39ae2be767"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/csrfdivform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrfdivform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-bc4cd5af71"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/jsform \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jsform"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-c7d53f9820"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7be3a39590"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/fetch \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/fetch"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-2cbec4315d"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/fetch \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/fetch"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-0c31134772"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/ping \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/ping"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-7b94209d0f"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/ping \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/ping"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-29657ab34e"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/cors \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/cors"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-aebb7663a0"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/cors \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/cors"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-2799f5b8ed"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/leak-config \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/leak-config"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-65ec05d5e4"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/leak-config \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/leak-config"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-2788864708"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/api/filter \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/api/filter"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-fa50b5e62c"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/about \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/about"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-53caa8d533"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/jsbuild.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/jsbuild.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-bd4264e4dc"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/csrf-action \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrf-action"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d6b06e1d41"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/csrf-action \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/csrf-action"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-86269d4a1a"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/nosql-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/nosql-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-3531d39fb0"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/nosql-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/nosql-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-1475d97d76"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/jwt-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jwt-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-108cfd247b"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/jwt-login \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/jwt-login"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-55a7cf1d54"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/stockapp.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/stockapp.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-cbfa060ce1"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/angular_1-7-7.js \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/angular_1-7-7.js"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-9005dd5ebb"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-aaa8b3e2ed"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8ef8f2e773"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/blind/stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/blind/stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-764eda81c7"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/oob-stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/oob-stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-09605b79ae"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/oob-stock \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/oob-stock"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-fac7e9037f"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/jsparam.php \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/jsparam.php"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-d73506466d"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/api/ \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/api/"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-81689aa458"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/api/users \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/api/users"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-2ef10fdb1b"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/json-reflect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/json-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-1edd7c37dd"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/safe/json-reflect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/safe/json-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-a6f1a522ad"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/vuln/csrf-reflect \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/vuln/csrf-reflect"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-faeaf39a42"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/doLogin \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/doLogin"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-c2ebde7b41"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/admin/ \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/admin/"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-8d1f04c004"
+     }
+    },
+    {
+     "ruleId": "SEN-INF-001",
+     "ruleIndex": 17,
+     "level": "note",
+     "message": {
+      "text": "server_banner_disclosure at http://127.0.0.1:8801/backup/db.sql \u2014 verified via single-response-evidence"
+     },
+     "locations": [
+      {
+       "physicalLocation": {
+        "artifactLocation": {
+         "uri": "http://127.0.0.1:8801/backup/db.sql"
+        },
+        "region": {
+         "snippet": {
+          "text": ""
+         }
+        }
+       }
+      }
+     ],
+     "properties": {
+      "severity": "low",
+      "risk": 9,
+      "confidence": 0.98,
+      "parameter": "",
+      "verification": {
+       "method": "single-response-evidence",
+       "passed": true,
+       "notes": ""
+      },
+      "evidence": "header_value: Server: Sentinel-Fixture/1.0"
+     },
+     "partialFingerprints": {
+      "sentinelFindingId": "F-6e0ad7bdc5"
+     }
+    }
+   ]
+  }
+ ]
+}

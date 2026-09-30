@@ -1,0 +1,45 @@
+{
+ "standard_1": {
+  "run": "run-3db74525da",
+  "nodes": 198,
+  "edges": 152,
+  "surfaces_total": 46,
+  "identities": 0,
+  "roles": 1,
+  "entities": 5
+ },
+ "modified": {
+  "run": "run-437b291b0d",
+  "nodes": 201,
+  "edges": 154,
+  "surfaces_total": 47,
+  "identities": 0,
+  "roles": 1,
+  "entities": 5
+ },
+ "standard_2": {
+  "run": "run-2702145ae0",
+  "nodes": 198,
+  "edges": 152,
+  "surfaces_total": 46,
+  "identities": 0,
+  "roles": 1,
+  "entities": 5
+ },
+ "G16_twin_changed_with_app": true,
+ "G16_delta": {
+  "nodes": [
+   198,
+   201
+  ],
+  "edges": [
+   152,
+   154
+  ],
+  "surfaces_total": [
+   46,
+   47
+  ]
+ },
+ "G17_same_app_same_twin_fresh_db": true
+}

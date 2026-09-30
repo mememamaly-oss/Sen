@@ -53,11 +53,57 @@ def ensure_fixture(base_url="http://127.0.0.1:8777"):
     return None
 
 
+def _spawn_local_fixture(port: int):
+    """Spawn fixtures/vulnapp.py on an explicit port; readiness-wait; loud None on failure."""
+    fixture = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "fixtures", "vulnapp.py")
+    if not os.path.exists(fixture):
+        return None
+    proc = subprocess.Popen([sys.executable, fixture],
+                            env={**os.environ, "PORT": str(port)},
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    for _ in range(60):
+        if _port_open("127.0.0.1", port):
+            return proc
+        if proc.poll() is not None:
+            return None
+        time.sleep(0.1)
+    proc.terminate()
+    return None
+
+
+def _free_local_port() -> int:
+    import socket as _s
+    with _s.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+def _benchmark_fixture(base_url: str):
+    """ENG-20: decide WHICH fixture instance the benchmark scans.
+    DEFAULT URL (the stock local fixture): ALWAYS spawn a fresh dedicated
+    instance on an ephemeral port — a long-lived environment may hold a
+    state-mutated leftover on :8777 (executed SORD/TRF objects from prior
+    batteries) and reusing it breaks cross_object/cross_state reproducibility
+    (caught live as FN in back-to-back benchmarks). An EXPLICIT operator URL
+    (--url) is honored with the legacy OP-01 self-repair semantics.
+    Returns (effective_url, spawned_process_or_None)."""
+    if base_url.rstrip("/") == "http://127.0.0.1:8777":
+        port = _free_local_port()
+        proc = _spawn_local_fixture(port)
+        if proc is None:
+            raise SystemExit("benchmark: could not spawn a fresh local fixture "
+                             "(fixtures/vulnapp.py missing or failed to start)")
+        return f"http://127.0.0.1:{port}", proc
+    return base_url, ensure_fixture(base_url)
+
+
 def run_benchmark(base_url="http://127.0.0.1:8777", out="results/benchmark.json",
                   strategy_path=None, timeout=12.0, label=""):
     """Scan the fixture and score against ground truth (spec 29/30).
-    OP-01: auto-starts the local fixture if it is not running (self-repair ops rule)."""
-    spawned = ensure_fixture(base_url)                 # OP-01 auto-start (self-repair)
+    ENG-20: on the default target the benchmark spawns its OWN fresh fixture
+    on an ephemeral port (determinism regardless of leftover listeners) and
+    tears it down after; explicit --url targets keep OP-01 self-repair."""
+    base_url, spawned = _benchmark_fixture(base_url)   # ENG-20 owned fixture
     try:
         return _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned)
     finally:

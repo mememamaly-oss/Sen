@@ -1,0 +1,17 @@
+reg sentinel10y:200 login sentinel10y -> http://127.0.0.1:8080/WebGoat/welcome.mvc
+reg sentinel11z:302 login sentinel11z -> http://127.0.0.1:8080/WebGoat/welcome.mvc
+marker: WebGoat
+run: run-4d5983b263 req: 229 ep: 17 verified: 23 rejected: 0
+authz: {'accounts_configured': 2, 'accounts_logged_in': 2, 'roles': ['user'], 'matrix_endpoints': 4, 'login_errors': [], 'requests': 16, 'ran': True}
+types: {'host_header_injection': 4, 'csrf': 2, 'missing_security_headers': 17}
+register B: {"status":"success","data":{"username":"","role":"customer","deluxeToken":"","lastLoginIp":"0.0.0.0"
+tokens: A=717c B=733c
+B->basket/1: 200 {"status":"success","data":{"id":1,"coupon":null,"UserId":1,"createdAt":"2026-09
+B->basket/2: 200 {"status":"success","data":{"id":2,"coupon":null,"UserId":2,"createdAt":"2026-09
+B->basket/3: 200 {"status":"success","data":{"id":3,"coupon":null,"UserId":3,"createdAt":"2026-09
+B->basket/4: 200 {"status":"success","data":{"id":4,"coupon":null,"UserId":11,"createdAt":"2026-0
+B->basket/5: 200 {"status":"success","data":{"id":5,"coupon":null,"UserId":16,"createdAt":"2026-0
+B->basket/6: 200 {"status":"success","data":{"id":6,"coupon":null,"UserId":25,"createdAt":"2026-0
+B->basket/7: 200 {"status":"success","data":null}
+A whoami: {"user":{}}
+B whoami: {"user":{}}

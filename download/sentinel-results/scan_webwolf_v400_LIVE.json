@@ -1,0 +1,2001 @@
+{
+ "run_id": "run-e81ba5a56a",
+ "seed": "a13ac8e7",
+ "scanner": "sentinel-core/4.0.0",
+ "target": "http://127.0.0.1:9090/WebWolf",
+ "stats": {
+  "requests": 374,
+  "endpoints": 14,
+  "candidates": 2,
+  "verified": 16,
+  "rejected": 0,
+  "duration": 34.55,
+  "crawl": {
+   "pages": 1,
+   "unique_endpoints": 1,
+   "dom_sink_candidates": 0
+  },
+  "openapi": {
+   "source": "(inline-seed)",
+   "version": "3.0.0",
+   "title": "WebWolf 8.2.2 surface (operator-supplied seed, extracted from bytecode)",
+   "paths": 13,
+   "new_endpoints": 13
+  },
+  "browser_pages": 9,
+  "param_intel": {
+   "params_total": 16,
+   "by_kind": {
+    "filename": 3,
+    "generic": 11,
+    "search": 1,
+    "token": 1
+   },
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {},
+    "cookies": [],
+    "frameworks": [
+     "jQuery"
+    ],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "oast": {
+   "channel": "local",
+   "interactions": 0
+  },
+  "coverage": {
+   "discovered": 14,
+   "tested": 14,
+   "passive": 14,
+   "secrets_scanned": 14,
+   "active": 14,
+   "authz_probed": 0,
+   "active_or_authz": 14,
+   "untested": 0,
+   "skip_reasons": {},
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/files",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:9090/WebWolf/fileupload",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/images",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/jwt",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:9090/WebWolf/jwt/decode",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:9090/WebWolf/jwt/encode",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/landing",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/landing/{anything}",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 400
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/mail",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 405
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:9090/WebWolf/mail",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 201
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:9090/WebWolf/register.mvc",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/registration",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:9090/WebWolf/requests",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 404
+    }
+   ],
+   "detail_truncated": 0
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 9,
+     "endpoints": [
+      "http://127.0.0.1:9090/WebWolf",
+      "http://127.0.0.1:9090/WebWolf/files",
+      "http://127.0.0.1:9090/WebWolf/images",
+      "http://127.0.0.1:9090/WebWolf/jwt",
+      "http://127.0.0.1:9090/WebWolf/landing",
+      "http://127.0.0.1:9090/WebWolf/landing/{anything}",
+      "http://127.0.0.1:9090/WebWolf/mail",
+      "http://127.0.0.1:9090/WebWolf/registration",
+      "http://127.0.0.1:9090/WebWolf/requests"
+     ]
+    },
+    "api": {
+     "count": 0,
+     "endpoints": []
+    },
+    "form_or_action": {
+     "count": 5,
+     "endpoints": [
+      "http://127.0.0.1:9090/WebWolf/fileupload",
+      "http://127.0.0.1:9090/WebWolf/jwt/decode",
+      "http://127.0.0.1:9090/WebWolf/jwt/encode",
+      "http://127.0.0.1:9090/WebWolf/mail",
+      "http://127.0.0.1:9090/WebWolf/register.mvc"
+     ]
+    },
+    "static": {
+     "count": 0,
+     "endpoints": []
+    }
+   },
+   "authentication": {
+    "mode": "anonymous",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": {
+    "form_inventory": [
+     "http://127.0.0.1:9090/WebWolf/fileupload",
+     "http://127.0.0.1:9090/WebWolf/jwt/decode",
+     "http://127.0.0.1:9090/WebWolf/jwt/encode",
+     "http://127.0.0.1:9090/WebWolf/mail",
+     "http://127.0.0.1:9090/WebWolf/register.mvc"
+    ],
+    "note": "state-changing surfaces grouped by target; multi-step flow learning is the Phase 58 business-logic engine"
+   },
+   "coverage": {
+    "discovered": 14,
+    "tested": 14,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {}
+   }
+  },
+  "reasoning": {
+   "generated": 4,
+   "tested": 4,
+   "tested_verified": 1,
+   "verified": 1,
+   "refuted": 3,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": [
+    {
+     "id": "H-90e039a7a6",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /WebWolf/fileupload",
+     "premise": "POST /WebWolf/fileupload changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /WebWolf/fileupload",
+      "POST /WebWolf/fileupload:file",
+      "POST /WebWolf/fileupload:fileLocation"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-8f68454269",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /WebWolf/jwt/encode",
+     "premise": "POST /WebWolf/jwt/encode changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /WebWolf/jwt/encode",
+      "POST /WebWolf/jwt/encode:header",
+      "POST /WebWolf/jwt/encode:payload",
+      "POST /WebWolf/jwt/encode:secretKey"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-9ebbad5ecb",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /WebWolf/mail",
+     "premise": "POST /WebWolf/mail changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /WebWolf/mail",
+      "POST /WebWolf/mail:contents",
+      "POST /WebWolf/mail:recipient",
+      "POST /WebWolf/mail:sender",
+      "POST /WebWolf/mail:time"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted"
+    },
+    {
+     "id": "H-b0a19a9e3b",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /WebWolf/register.mvc",
+     "premise": "POST /WebWolf/register.mvc changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /WebWolf/register.mvc",
+      "POST /WebWolf/register.mvc:agree",
+      "POST /WebWolf/register.mvc:matchingPassword",
+      "POST /WebWolf/register.mvc:password",
+      "POST /WebWolf/register.mvc:username"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:verified"
+    }
+   ]
+  },
+  "digital_twin": {
+   "nodes": 54,
+   "edges": 44,
+   "node_kinds": {
+    "entity": 4,
+    "finding": 15,
+    "hypothesis": 4,
+    "parameter": 16,
+    "role": 1,
+    "surface": 14
+   },
+   "edge_kinds": {
+    "carries": 16,
+    "generated_hypothesis": 4,
+    "produced_finding": 15,
+    "typed_as": 9
+   },
+   "identities": 0,
+   "roles": 1,
+   "surfaces_total": 14,
+   "surfaces_write": 5,
+   "surfaces_read": 9,
+   "entities": 4,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 15,
+   "secrets_masked": 0,
+   "hypotheses": 4,
+   "surfaces_with_untested_reasons": 0,
+   "flows": [],
+   "authorization_matrix": {},
+   "entity_inventory": [
+    {
+     "entity": "Document",
+     "carried_by_params": 2,
+     "surfaces": [
+      "POST /WebWolf/fileupload"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Message",
+     "carried_by_params": 5,
+     "surfaces": [
+      "POST /WebWolf/mail"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Session",
+     "carried_by_params": 1,
+     "surfaces": [
+      "POST /WebWolf/jwt/decode"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "User",
+     "carried_by_params": 1,
+     "surfaces": [
+      "POST /WebWolf/register.mvc"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    }
+   ]
+  },
+  "planner": {
+   "operations_evaluated": 2,
+   "by_impact": {
+    "READ_ONLY": 2
+   },
+   "blocked": 0,
+   "logic_active": false,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked"
+  },
+  "proofs": [
+   {
+    "finding_id": "F-016f5d191d",
+    "type": "csrf",
+    "severity": "medium",
+    "attack_hypothesis": "a hostile-origin state-changing request is accepted like a same-origin one",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "http://127.0.0.1:9090/WebWolf/register.mvc",
+      "parameter": "username, password, matchingPassword, agree"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "cross_origin_acceptance",
+      "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (5061B), cross-origin replay -> HTTP 200 (5061B) \u2014 no CSRF token in the form and no Origin/Referer validation",
+      "request_id": "req-7e570c2a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "A state-changing request from a hostile origin was accepted exactly like a same-origin one (fresh-origin replay) \u2014 silent cross-site action forgery against authenticated users.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST http://127.0.0.1:9090/WebWolf/register.mvc",
+      "parameter": "username, password, matchingPassword, agree",
+      "evidence_kinds": [
+       "cross_origin_acceptance"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-hostile-origin",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST http://127.0.0.1:9090/WebWolf/register.mvc with the tested parameter 'username, password, matchingPassword, agree' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (cross_origin_acceptance)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:fresh-hostile-origin",
+     "passed": true,
+     "rounds": 1,
+     "notes": "cross-origin replay from https://csrf-vr13-7f5b07cc.example accepted: True (HTTP 200)"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-e8da04fab7",
+    "type": "host_header_injection",
+    "severity": "medium",
+    "attack_hypothesis": "an attacker-controlled Host is reflected into application output",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf",
+      "parameter": "Host"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "host_reflection",
+      "detail": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-manipulation / reset-poisoning class). canary=sentinel-hh-b9ee6c5d47.example",
+      "request_id": "req-9608e8c0"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) \u2014 password-reset poisoning and cache-poisoning preconditions.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf",
+      "parameter": "Host",
+      "evidence_kinds": [
+       "host_reflection"
+      ],
+      "out_of_band": false,
+      "verification": "re-test:fresh-canary-host",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf with the tested parameter 'Host' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (host_reflection)"
+     }
+    ],
+    "confidence": 0.85,
+    "verification": {
+     "method": "re-test:fresh-canary-host",
+     "passed": true,
+     "rounds": 1,
+     "notes": "fresh canary host sentinel-vr16-b9ee6c5d47.example reflected: True"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-28ea5d75c9",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-b28d9dcc"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-6e48407144",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/landing",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-1bd278d0"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/landing",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/landing as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-29d7d48716",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/landing/{anything}",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-96e602f8"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/landing/{anything}",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/landing/{anything} as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-32997f857f",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/mail",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-57ffb9a2"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-f14a48d5"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/mail",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/mail as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-064b39f5b9",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/jwt",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-e60e5a93"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/jwt",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/jwt as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-a5d182c923",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "http://127.0.0.1:9090/WebWolf/jwt/decode",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-044d36b8"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST http://127.0.0.1:9090/WebWolf/jwt/decode",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST http://127.0.0.1:9090/WebWolf/jwt/decode as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-d7dfe654ff",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "http://127.0.0.1:9090/WebWolf/jwt/encode",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-79188675"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST http://127.0.0.1:9090/WebWolf/jwt/encode",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST http://127.0.0.1:9090/WebWolf/jwt/encode as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-f91dbaf225",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/files",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-c0771d74"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/files",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/files as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-429031e7e8",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "http://127.0.0.1:9090/WebWolf/fileupload",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-9452002c"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST http://127.0.0.1:9090/WebWolf/fileupload",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST http://127.0.0.1:9090/WebWolf/fileupload as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-3a040e37bf",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/requests",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-099dfd53"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/requests",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/requests as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-8a1b90acc6",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/registration",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-67fb405b"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/registration",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/registration as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-f40cff626c",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "POST",
+      "url": "http://127.0.0.1:9090/WebWolf/register.mvc",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-dcda603a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "POST http://127.0.0.1:9090/WebWolf/register.mvc",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send POST http://127.0.0.1:9090/WebWolf/register.mvc as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-5f62c6f77c",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:9090/WebWolf/images",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-bac94542"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:9090/WebWolf/images",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:9090/WebWolf/images as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.98,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": ""
+    },
+    "proof_grade": "indicated"
+   }
+  ],
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [
+  {
+   "id": "F-e8da04fab7",
+   "type": "host_header_injection",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf",
+   "parameter": "Host",
+   "evidence": [
+    {
+     "kind": "host_reflection",
+     "detail": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-manipulation / reset-poisoning class). canary=sentinel-hh-b9ee6c5d47.example"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-canary-host",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "fresh canary host sentinel-vr16-b9ee6c5d47.example reflected: True"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-e81ba5a56a",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) \u2014 password-reset poisoning and cache-poisoning preconditions.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf",
+     "parameter": "Host",
+     "evidence_kinds": [
+      "host_reflection"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-canary-host",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-016f5d191d",
+   "type": "csrf",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "POST",
+   "url": "http://127.0.0.1:9090/WebWolf/register.mvc",
+   "parameter": "username, password, matchingPassword, agree",
+   "evidence": [
+    {
+     "kind": "cross_origin_acceptance",
+     "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (5061B), cross-origin replay -> HTTP 200 (5061B) \u2014 no CSRF token in the form and no Origin/Referer validation"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-hostile-origin",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "cross-origin replay from https://csrf-vr13-7f5b07cc.example accepted: True (HTTP 200)"
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "run-e81ba5a56a",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "A state-changing request from a hostile origin was accepted exactly like a same-origin one (fresh-origin replay) \u2014 silent cross-site action forgery against authenticated users.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:9090/WebWolf/register.mvc",
+     "parameter": "username, password, matchingPassword, agree",
+     "evidence_kinds": [
+      "cross_origin_acceptance"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-hostile-origin",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-28ea5d75c9",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-6e48407144",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/landing",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/landing",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-29d7d48716",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/landing/{anything}",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/landing/{anything}",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-32997f857f",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/mail",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/mail",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-064b39f5b9",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/jwt",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/jwt",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-a5d182c923",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:9090/WebWolf/jwt/decode",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:9090/WebWolf/jwt/decode",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-d7dfe654ff",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:9090/WebWolf/jwt/encode",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:9090/WebWolf/jwt/encode",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-f91dbaf225",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/files",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/files",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-429031e7e8",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:9090/WebWolf/fileupload",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:9090/WebWolf/fileupload",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-3a040e37bf",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/requests",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/requests",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-8a1b90acc6",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/registration",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/registration",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-f40cff626c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:9090/WebWolf/register.mvc",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:9090/WebWolf/register.mvc",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-5f62c6f77c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:9090/WebWolf/images",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/4.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:9090/WebWolf/images",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  }
+ ],
+ "rejected_candidates": []
+}

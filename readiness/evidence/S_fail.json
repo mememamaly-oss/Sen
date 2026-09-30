@@ -1,0 +1,169 @@
+{
+ "run_id": "run-12b2a6f907",
+ "seed": "76477023",
+ "scanner": "sentinel-core/4.0.0",
+ "target": "http://127.0.0.1:59999/",
+ "stats": {
+  "requests": 9,
+  "endpoints": 1,
+  "candidates": 0,
+  "verified": 0,
+  "rejected": 0,
+  "duration": 0.95,
+  "crawl": {
+   "pages": 1,
+   "unique_endpoints": 0,
+   "dom_sink_candidates": 0
+  },
+  "openapi": {
+   "source": null,
+   "paths": 0,
+   "new_endpoints": 0
+  },
+  "browser_pages": 0,
+  "param_intel": {
+   "params_total": 0,
+   "by_kind": {},
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {},
+    "cookies": [],
+    "frameworks": [],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "oast": {
+   "channel": "local",
+   "interactions": 0
+  },
+  "coverage": {
+   "discovered": 1,
+   "tested": 1,
+   "passive": 1,
+   "secrets_scanned": 0,
+   "active": 1,
+   "authz_probed": 0,
+   "active_or_authz": 1,
+   "untested": 0,
+   "skip_reasons": {
+    "transport_error": 1
+   },
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:59999/",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "active"
+     ],
+     "skips": [
+      "transport_error"
+     ],
+     "baseline": "error"
+    }
+   ],
+   "detail_truncated": 0
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 1,
+     "endpoints": [
+      "http://127.0.0.1:59999/"
+     ]
+    },
+    "api": {
+     "count": 0,
+     "endpoints": []
+    },
+    "form_or_action": {
+     "count": 0,
+     "endpoints": []
+    },
+    "static": {
+     "count": 0,
+     "endpoints": []
+    }
+   },
+   "authentication": {
+    "mode": "anonymous",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": null,
+   "coverage": {
+    "discovered": 1,
+    "tested": 1,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {
+     "transport_error": 1
+    }
+   }
+  },
+  "reasoning": {
+   "generated": 0,
+   "tested": 0,
+   "tested_verified": 0,
+   "verified": 0,
+   "refuted": 0,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": []
+  },
+  "digital_twin": {
+   "nodes": 2,
+   "edges": 0,
+   "node_kinds": {
+    "role": 1,
+    "surface": 1
+   },
+   "edge_kinds": {},
+   "identities": 0,
+   "roles": 1,
+   "surfaces_total": 1,
+   "surfaces_write": 0,
+   "surfaces_read": 1,
+   "entities": 0,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 0,
+   "secrets_masked": 0,
+   "hypotheses": 0,
+   "surfaces_with_untested_reasons": 1,
+   "flows": [],
+   "authorization_matrix": {},
+   "entity_inventory": []
+  },
+  "planner": {
+   "operations_evaluated": 2,
+   "by_impact": {
+    "READ_ONLY": 2
+   },
+   "blocked": 0,
+   "logic_active": false,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked"
+  },
+  "proofs": [],
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [],
+ "rejected_candidates": []
+}

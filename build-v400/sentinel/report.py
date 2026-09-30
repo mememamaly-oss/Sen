@@ -244,6 +244,7 @@ def _build_html(store: Store, run_id: str) -> str:
             return f"<html><body><h1>run {e(run_id)} not found</h1></body></html>"
         findings, rejected = run["findings"], run["rejected_candidates"]
         head = (f"SENTINEL — Run {e(run_id)}", run["target"], run.get("stats", {}))
+        intel_stats = run.get("stats", {}) or {}
     else:
         runs = store.list_runs(limit=100)
         findings = store.list_findings(limit=500)
@@ -251,6 +252,11 @@ def _build_html(store: Store, run_id: str) -> str:
         head = ("SENTINEL — Cross-run overview",
                 f"{len(runs)} runs · {len(findings)} verified findings",
                 store.stats_summary())
+        # ENG-19: the cross-run overview keeps the LATEST run's intelligence
+        # stats so the Coverage & Application Map section never silently
+        # disappears from the default report.
+        latest = store.get_run(runs[0]["run_id"]) if runs else None
+        intel_stats = (latest or {}).get("stats", {}) or {}
     rows = []
     for f in findings:
         sev = (f.get("severity") or "info").lower()
@@ -261,6 +267,7 @@ def _build_html(store: Store, run_id: str) -> str:
         rows.append(
             f"<tr><td><span class='pill' style='background:{color}'>{e(sev)}</span></td>"
             f"<td><code>{e(f['type'])}</code></td>"
+            f"<td><code>{e(f.get('id', ''))}</code></td>"
             f"<td class='u'>{e(f['url'])}</td>"
             f"<td><code>{e(f.get('parameter') or '')}</code></td>"
             f"<td>{f.get('risk', 0)}</td><td>{f.get('confidence', 0)}</td>"
@@ -276,19 +283,35 @@ def _build_html(store: Store, run_id: str) -> str:
     title, subtitle, stats = head
     # Phase 56: Coverage & Application Map section (present when the run carried
     # the Intelligence Layer stats — older runs degrade gracefully to absent).
-    cov = stats.get("coverage") if isinstance(stats, dict) else None
-    amap = stats.get("appmap") if isinstance(stats, dict) else None
+    # ENG-19: intel_stats = the viewed run's stats (single-run view) or the
+    # LATEST run's stats (overview view) — never the cross-run aggregate.
+    cov = intel_stats.get("coverage") if isinstance(intel_stats, dict) else None
+    amap = intel_stats.get("appmap") if isinstance(intel_stats, dict) else None
     intel_html = ""
     if cov or amap:
         cov_box = ""
         if cov:
             reasons = ", ".join(f"{e(str(k))}: {v}" for k, v in (cov.get("skip_reasons") or {}).items())
+            # ENG-19: per-endpoint untested surface (why each was not tested)
+            untested_rows = ""
+            un_list = [ep for ep in (cov.get("endpoints") or [])
+                       if isinstance(ep, dict) and not ep.get("activity")]
+            if un_list:
+                untested_rows = ("<table style='margin-top:10px'><tr><th>Untested "
+                                 "endpoint</th><th>Reason</th></tr>"
+                                 + "".join(
+                                     f"<tr><td class='u'>{e(str(ep.get('url', '')))}</td>"
+                                     f"<td>{e(', '.join(ep.get('skips') or ['not reached']))}</td></tr>"
+                                     for ep in un_list[:15]) + "</table>"
+                                 + (f"<div class='ev'>… and {len(un_list) - 15} more</div>"
+                                    if len(un_list) > 15 else ""))
             cov_box = (f"<div class='box'>Discovered <b>{cov.get('discovered', 0)}</b> · "
                        f"tested <b>{cov.get('tested', 0)}</b> "
                        f"({cov.get('coverage_pct', 0)}%) · passive {cov.get('passive', 0)} · "
                        f"active {cov.get('active', 0)} · authz {cov.get('authz_probed', 0)} · "
                        f"untested <b>{cov.get('untested', 0)}</b>"
-                       + (f"<br>Skip reasons — {reasons}" if reasons else "") + "</div>")
+                       + (f"<br>Skip reasons — {reasons}" if reasons else "") + "</div>"
+                       + untested_rows)
         amap_box = ""
         if amap:
             surf = amap.get("surfaces") or {}
@@ -333,8 +356,15 @@ def _build_html(store: Store, run_id: str) -> str:
 <section><h2>Statistics</h2><div class="stats">{stat_items}</div></section>
 {intel_html}
 <section><h2>Verified findings ({len(findings)})</h2>
-<table><tr><th>Sev</th><th>Type</th><th>URL</th><th>Param</th><th>Risk</th><th>Conf</th><th>Evidence</th><th>Verification</th></tr>
-{''.join(rows) or '<tr><td colspan="8">None</td></tr>'}</table></section>
+<table><tr><th>Sev</th><th>Type</th><th>ID</th><th>URL</th><th>Param</th><th>Risk</th><th>Conf</th><th>Evidence</th><th>Verification</th></tr>
+{''.join(rows) or '<tr><td colspan="9">None</td></tr>'}</table></section>
+<section><h2>Reproduce a finding (Evidence OS)</h2><div class='box'>
+sentinel reproduce --finding &lt;ID&gt; --db &lt;store.db&gt; — exports the full proof file
+(hypothesis · preconditions · requests · responses · state before/after · impact ·
+verification · step-by-step recipe · confidence).<br>
+Finding IDs of this view: {' '.join(f"<code>{e(f.get('id', ''))}</code>" for f in findings[:12])
++ (f" … (+{len(findings) - 12} more)" if len(findings) > 12 else "")}
+</div></section>
 <section><h2>Recurring across runs</h2><div class="box"><ul>{rec_rows or '<li>None</li>'}</ul></div>
 <div class="box" style="margin-top:10px">Latest delta — new: <b>{len(delta.get('new', []))}</b>,
 fixed: <b>{len(delta.get('fixed', []))}</b>, recurring: <b>{len(delta.get('recurring', []))}</b></div></section>

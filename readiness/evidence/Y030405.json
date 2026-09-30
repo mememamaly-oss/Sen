@@ -1,0 +1,5 @@
+{
+ "Y03": "findings view: 139 rows; first: sql_injection @ http://127.0.0.1:8801/vuln/sqli_blind.php severity=critical risk=85 — plus a human-readable table after the JSON ([SEVERITY] type URL param= risk=)",
+ "Y04": "finding F-62f44c2ed8: proof grade=proven | verification=re-test:fresh-interaction-id+alternate-syntax passed=True | impact: Operating-system command execution proven by a non-destructive out-of-band callback fired ... | recipe steps=2",
+ "Y05": "reproduce ran in a FRESH OS PROCESS against a RESTARTED target: exit=0; full proof package + ordered recipe returned (state survives program close + DB reopen)"
+}

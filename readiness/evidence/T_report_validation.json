@@ -1,0 +1,50 @@
+{
+ "T02_technical_html": {
+  "title_present": true,
+  "size_kb": 83.6,
+  "findings_table": true,
+  "T03_evidence_section": true,
+  "T04_reproduction": true,
+  "T05_coverage": true,
+  "T06_untested": true,
+  "T07_identity": true,
+  "T08_workflow": true
+ },
+ "T01_executive": {
+  "keys": [
+   "kind",
+   "run_id",
+   "target",
+   "scanner",
+   "risk_posture",
+   "risk_language",
+   "verified_findings",
+   "by_severity",
+   "by_type",
+   "affected_assets",
+   "top_risks",
+   "business_impact",
+   "coverage_proof",
+   "application_model",
+   "reasoning_coverage",
+   "safety_contract",
+   "ci_gate"
+  ],
+  "T09_business_impact": true,
+  "risk_posture": true
+ },
+ "T15_arabic_rtl": {
+  "glass_dir_rtl": true,
+  "arabic_text": true,
+  "glass_size_kb": 13.2
+ },
+ "T16_glass_functional": {
+  "charts_or_metrics": true,
+  "no_external_assets": true
+ },
+ "T10_sarif": {
+  "version": "2.1.0",
+  "results": 351
+ },
+ "T13_no_secrets": true
+}

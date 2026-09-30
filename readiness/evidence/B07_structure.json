@@ -1,0 +1,31 @@
+{
+ "json_keys": [
+  "finding_id",
+  "type",
+  "severity",
+  "attack_hypothesis",
+  "preconditions",
+  "requests",
+  "responses",
+  "identity",
+  "state_before",
+  "state_after",
+  "impact",
+  "reproduction",
+  "confidence",
+  "verification",
+  "proof_grade"
+ ],
+ "executed": null,
+ "reproduced": null,
+ "verification": {
+  "method": "oracle:workflow-state-delta",
+  "passed": true,
+  "rounds": 1,
+  "notes": "cancelled object executed: 'TRF-0006 800001 1111 ach EXECUTED'"
+ },
+ "confidence": 0.5,
+ "proof_grade": "proven",
+ "recipe_keys": "None",
+ "tail_after_json": "sentinel reproduce --finding F-a93c789266 (POST http://127.0.0.1:8777/wf/shared/transfer/confirm param=tid)"
+}

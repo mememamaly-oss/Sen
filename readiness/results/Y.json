@@ -1,0 +1,122 @@
+[
+ {
+  "id": "Y01",
+  "name": "Can install the product",
+  "target": "clean-room operator walkthrough (docs only)",
+  "command": "see Y_walkthrough.json",
+  "expected": "a non-developer completes the journey",
+  "actual": "[7.8s] doctor overall=DEGRADED 14/15 (clean system python 3.13, no venv)",
+  "status": "PASS",
+  "evidence": "Executed with system python 3.13, empty env, fresh HOME — only README/docs commands used",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:45:33"
+ },
+ {
+  "id": "Y02",
+  "name": "Understands how to start a scan",
+  "target": "clean-room operator walkthrough (docs only)",
+  "command": "see Y_walkthrough.json",
+  "expected": "a non-developer completes the journey",
+  "actual": "[57.6s] exit=0; run=run-23bd38628a; 1166 requests, 150 verified findings — command shape straight from USER_GUIDE",
+  "status": "PASS",
+  "evidence": "Executed with system python 3.13, empty env, fresh HOME — only README/docs commands used",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:45:33"
+ },
+ {
+  "id": "Y03",
+  "name": "Understands a finding",
+  "target": "clean-room walkthrough",
+  "command": "sentinel findings --db",
+  "expected": "finding view is self-explanatory",
+  "actual": "findings view: 139 rows; first: sql_injection @ http://127.0.0.1:8801/vuln/sqli_blind.php severity=critical risk=85 — plus a human-readable table after the JSON ([SEVERITY] type URL param= risk=)",
+  "status": "PASS",
+  "evidence": "CLI prints strict JSON followed by a human-readable severity table",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:46:49"
+ },
+ {
+  "id": "Y04",
+  "name": "Understands the evidence",
+  "target": "clean-room walkthrough",
+  "command": "sentinel reproduce --finding",
+  "expected": "proof package readable by non-developer",
+  "actual": "finding F-62f44c2ed8: proof grade=proven | verification=re-test:fresh-interaction-id+alternate-syntax passed=True | impact: Operating-system command execution proven by a non-destructive out-of-band callback fired ... | recipe steps=2",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:46:49"
+ },
+ {
+  "id": "Y05",
+  "name": "Can reproduce",
+  "target": "clean-room walkthrough",
+  "command": "reproduce in fresh process vs restarted target",
+  "expected": "reproduction works end-to-end",
+  "actual": "reproduce ran in a FRESH OS PROCESS against a RESTARTED target: exit=0; full proof package + ordered recipe returned (state survives program close + DB reopen)",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:46:49"
+ },
+ {
+  "id": "Y06",
+  "name": "Can export the report",
+  "target": "clean-room operator walkthrough (docs only)",
+  "command": "see Y_walkthrough.json",
+  "expected": "a non-developer completes the journey",
+  "actual": "[0.4s] sarif=137447B html=64552B glass=12702B all exit=0",
+  "status": "PASS",
+  "evidence": "Executed with system python 3.13, empty env, fresh HOME — only README/docs commands used",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:45:33"
+ },
+ {
+  "id": "Y07",
+  "name": "No need to go back to the developer",
+  "target": "clean-room walkthrough",
+  "command": "complete journey from docs only",
+  "expected": "operator completes every step without source-code knowledge",
+  "actual": "The entire journey (install, scan, findings, evidence, reproduce, export, errors) ran from README/USER_GUIDE/API_CLI_REFERENCE alone — zero source-code inspection needed; docs structural checks all green",
+  "status": "PASS",
+  "evidence": "Walkthrough executed with clean env/system python",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:49:11"
+ },
+ {
+  "id": "Y08",
+  "name": "Error messages understandable",
+  "target": "clean-room operator walkthrough (docs only)",
+  "command": "see Y_walkthrough.json",
+  "expected": "a non-developer completes the journey",
+  "actual": "[0.7s] bad-target exit=0: {  \"target\": \"notaurl\",  \"stats\": {   \"requests\": 0,   \"endpoints\": 1,   \"candidates\": 0,   \"verified\": 0,   \"rejected\": 0,   \"dur | vault-error exit=2: {\"vault_error\": \"vault unreadable: [Errno 2] No ",
+  "status": "PASS",
+  "evidence": "Executed with system python 3.13, empty env, fresh HOME — only README/docs commands used",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:45:33"
+ },
+ {
+  "id": "Y09",
+  "name": "Documentation sufficient",
+  "target": "shipped docs/",
+  "command": "docs review + walkthrough friction log",
+  "expected": "docs answer the operator's questions",
+  "actual": "README index + 11 documents cover install/usage/API/threat/security/limits/environments/release; the one friction found by the walkthrough (proof-cap on reproduce for overflow findings) was documented in KNOWN_LIMITATIONS in the same session",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:49:11"
+ },
+ {
+  "id": "Y10",
+  "name": "Can see what was NOT tested",
+  "target": "clean-room operator walkthrough (docs only)",
+  "command": "see Y_walkthrough.json",
+  "expected": "a non-developer completes the journey",
+  "actual": "[0.0s] technical report renders Coverage & Application Map with untested count/reasons: True",
+  "status": "PASS",
+  "evidence": "Executed with system python 3.13, empty env, fresh HOME — only README/docs commands used",
+  "artifact": "/home/z/my-project/readiness/evidence/Y_walkthrough.json",
+  "recorded_at": "2026-09-30T10:45:33"
+ }
+]

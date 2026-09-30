@@ -1,0 +1,16 @@
+{
+ "proof.responses[0].request_id": {
+  "count": 39,
+  "example": [
+   "req-f35fe896",
+   "req-81d36b5b"
+  ]
+ },
+ "proof.responses[1].request_id": {
+  "count": 3,
+  "example": [
+   "req-19248db4",
+   "req-b91fee83"
+  ]
+ }
+}

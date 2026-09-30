@@ -7,37 +7,37 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v2.4.3)
 
-2026-09-30 02:13:02.882  INFO 4982 --- [           main] org.owasp.webwolf.WebWolf                : Starting WebWolf v8.2.2 using Java 21.0.12.1 on c-6abc6922-14810412-dce0b460b0b2 with PID 4982 (/home/z/my-project/live-targets/webwolf-8.2.2.jar started by z in /home/z/my-project/live-targets)
-2026-09-30 02:13:02.883 DEBUG 4982 --- [           main] org.owasp.webwolf.WebWolf                : Running with Spring Boot v2.4.3, Spring v5.3.4
-2026-09-30 02:13:02.883  INFO 4982 --- [           main] org.owasp.webwolf.WebWolf                : No active profile set, falling back to default profiles: default
-2026-09-30 02:13:04.564  INFO 4982 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-09-30 02:13:04.669  INFO 4982 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 93 ms. Found 2 JPA repository interfaces.
-2026-09-30 02:13:05.342  WARN 4982 --- [           main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
-2026-09-30 02:13:05.358  INFO 4982 --- [           main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
-2026-09-30 02:13:05.358  INFO 4982 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2295 ms
-2026-09-30 02:13:05.749  INFO 4982 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-09-30 02:13:05.832  INFO 4982 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.4.28.Final
-2026-09-30 02:13:05.981  INFO 4982 --- [           main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
-2026-09-30 02:13:06.358  INFO 4982 --- [           main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.HSQLDialect
-2026-09-30 02:13:07.145  INFO 4982 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
-2026-09-30 02:13:07.154  INFO 4982 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-09-30 02:13:07.569  WARN 4982 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-09-30 02:13:07.853  INFO 4982 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@10a0fe30, org.springframework.security.web.context.SecurityContextPersistenceFilter@1f7076bc, org.springframework.security.web.header.HeaderWriterFilter@78d6447a, org.springframework.security.web.authentication.logout.LogoutFilter@5d21202d, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@51c959a4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@5b9396d3, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5e65afb6, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7b6860f9, org.springframework.security.web.session.SessionManagementFilter@1e469dfd, org.springframework.security.web.access.ExceptionTranslationFilter@38bb9d7a, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@e5cbff2]
-2026-09-30 02:13:08.025  INFO 4982 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
-2026-09-30 02:13:08.537  INFO 4982 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
-2026-09-30 02:13:08.609  INFO 4982 --- [           main] io.undertow                              : starting server: Undertow - 2.2.4.Final
-2026-09-30 02:13:08.618  INFO 4982 --- [           main] org.xnio                                 : XNIO version 3.8.0.Final
-2026-09-30 02:13:08.625  INFO 4982 --- [           main] org.xnio.nio                             : XNIO NIO Implementation Version 3.8.0.Final
-2026-09-30 02:13:08.770  INFO 4982 --- [           main] org.jboss.threads                        : JBoss Threads version 3.1.0.Final
-2026-09-30 02:13:08.837  INFO 4982 --- [           main] o.s.b.w.e.undertow.UndertowWebServer     : Undertow started on port(s) 9090 (http) with context path '/WebWolf'
-2026-09-30 02:13:08.849  INFO 4982 --- [           main] org.owasp.webwolf.WebWolf                : Started WebWolf in 6.676 seconds (JVM running for 7.372)
-2026-09-30 02:13:09.686  INFO 4982 --- [  XNIO-1 task-1] io.undertow.servlet                      : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-09-30 02:13:09.687  INFO 4982 --- [  XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-09-30 02:13:09.688  INFO 4982 --- [  XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
-2026-09-30 02:13:09.734 TRACE 4982 --- [         task-1] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
-2026-09-30 02:13:12.102 TRACE 4982 --- [         task-2] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
-2026-09-30 02:13:12.671 TRACE 4982 --- [         task-3] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing/%7Banything%7D
-2026-09-30 02:13:12.679 ERROR 4982 --- [  XNIO-1 task-1] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/landing/%7Banything%7D
+2026-09-30 08:21:56.329  INFO 6524 --- [           main] org.owasp.webwolf.WebWolf                : Starting WebWolf v8.2.2 using Java 21.0.12.1 on c-6abcb9a3-14810412-309007f273f7 with PID 6524 (/home/z/my-project/live-targets/webwolf-8.2.2.jar started by z in /home/z/my-project/live-targets)
+2026-09-30 08:21:56.331 DEBUG 6524 --- [           main] org.owasp.webwolf.WebWolf                : Running with Spring Boot v2.4.3, Spring v5.3.4
+2026-09-30 08:21:56.331  INFO 6524 --- [           main] org.owasp.webwolf.WebWolf                : No active profile set, falling back to default profiles: default
+2026-09-30 08:21:58.352  INFO 6524 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-30 08:21:58.446  INFO 6524 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 86 ms. Found 2 JPA repository interfaces.
+2026-09-30 08:21:59.270  WARN 6524 --- [           main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
+2026-09-30 08:21:59.294  INFO 6524 --- [           main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
+2026-09-30 08:21:59.294  INFO 6524 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 2856 ms
+2026-09-30 08:21:59.761  INFO 6524 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-09-30 08:21:59.859  INFO 6524 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.4.28.Final
+2026-09-30 08:21:59.999  INFO 6524 --- [           main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2026-09-30 08:22:00.359  INFO 6524 --- [           main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.HSQLDialect
+2026-09-30 08:22:01.177  INFO 6524 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2026-09-30 08:22:01.185  INFO 6524 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-30 08:22:01.583  WARN 6524 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-09-30 08:22:01.944  INFO 6524 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@51c959a4, org.springframework.security.web.context.SecurityContextPersistenceFilter@1e469dfd, org.springframework.security.web.header.HeaderWriterFilter@38bb9d7a, org.springframework.security.web.authentication.logout.LogoutFilter@767191b1, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@1229a2b7, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1f7076bc, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6a472566, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4fc3c165, org.springframework.security.web.session.SessionManagementFilter@78d6447a, org.springframework.security.web.access.ExceptionTranslationFilter@2819c460, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@2127e66e]
+2026-09-30 08:22:02.079  INFO 6524 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2026-09-30 08:22:02.581  INFO 6524 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 2 endpoint(s) beneath base path '/actuator'
+2026-09-30 08:22:02.648  INFO 6524 --- [           main] io.undertow                              : starting server: Undertow - 2.2.4.Final
+2026-09-30 08:22:02.656  INFO 6524 --- [           main] org.xnio                                 : XNIO version 3.8.0.Final
+2026-09-30 08:22:02.663  INFO 6524 --- [           main] org.xnio.nio                             : XNIO NIO Implementation Version 3.8.0.Final
+2026-09-30 08:22:02.796  INFO 6524 --- [           main] org.jboss.threads                        : JBoss Threads version 3.1.0.Final
+2026-09-30 08:22:02.860  INFO 6524 --- [           main] o.s.b.w.e.undertow.UndertowWebServer     : Undertow started on port(s) 9090 (http) with context path '/WebWolf'
+2026-09-30 08:22:02.871  INFO 6524 --- [           main] org.owasp.webwolf.WebWolf                : Started WebWolf in 7.232 seconds (JVM running for 8.122)
+2026-09-30 08:22:02.983  INFO 6524 --- [  XNIO-1 task-1] io.undertow.servlet                      : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-09-30 08:22:02.983  INFO 6524 --- [  XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-09-30 08:22:02.984  INFO 6524 --- [  XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-09-30 08:22:03.047 TRACE 6524 --- [         task-1] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 08:24:03.188 TRACE 6524 --- [         task-2] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 08:24:03.760 TRACE 6524 --- [         task-3] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing/%7Banything%7D
+2026-09-30 08:24:03.765 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/landing/%7Banything%7D
 
 org.springframework.security.web.firewall.RequestRejectedException: The request was rejected because the URL contained a potentially malicious String "%"
 	at org.springframework.security.web.firewall.StrictHttpFirewall.rejectedBlocklistedUrls(StrictHttpFirewall.java:463) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -88,14 +88,14 @@ org.springframework.security.web.firewall.RequestRejectedException: The request 
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:13.253  WARN 4982 --- [  XNIO-1 task-2] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
-2026-09-30 02:13:16.993 TRACE 4982 --- [         task-4] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
-2026-09-30 02:13:16.999 TRACE 4982 --- [         task-5] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
-2026-09-30 02:13:17.003 TRACE 4982 --- [         task-6] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://sentinel-hh-10aea8e709.example/WebWolf/landing
-2026-09-30 02:13:17.336  WARN 4982 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
-2026-09-30 02:13:17.343  WARN 4982 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
-2026-09-30 02:13:17.347  WARN 4982 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
-2026-09-30 02:13:35.180 ERROR 4982 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:04.333  WARN 6524 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
+2026-09-30 08:24:07.971 TRACE 6524 --- [         task-4] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 08:24:07.977 TRACE 6524 --- [         task-5] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 08:24:07.988 TRACE 6524 --- [         task-6] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://sentinel-hh-10aea8e709.example/WebWolf/landing
+2026-09-30 08:24:08.314  WARN 6524 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
+2026-09-30 08:24:08.321  WARN 6524 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
+2026-09-30 08:24:08.326  WARN 6524 --- [  XNIO-1 task-3] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
+2026-09-30 08:24:26.079 ERROR 6524 --- [  XNIO-1 task-1] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '1 AND 1=2' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -208,7 +208,7 @@ javax.servlet.ServletException: Cannot perform login for '1 AND 1=2' already aut
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:35.308 ERROR 4982 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:26.224 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '1' OR '1'='1' -- ' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -321,7 +321,7 @@ javax.servlet.ServletException: Cannot perform login for '1' OR '1'='1' -- ' alr
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:35.422 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:26.358 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '1' OR '1'='2' -- ' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -434,7 +434,7 @@ javax.servlet.ServletException: Cannot perform login for '1' OR '1'='2' -- ' alr
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:35.771 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:26.720 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '1' OR '2'>'1' -- ' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -547,7 +547,7 @@ javax.servlet.ServletException: Cannot perform login for '1' OR '2'>'1' -- ' alr
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:35.885 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:26.833 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '1' OR '1'>'2' -- ' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -660,7 +660,7 @@ javax.servlet.ServletException: Cannot perform login for '1' OR '1'>'2' -- ' alr
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:38.871 ERROR 4982 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:29.836 ERROR 6524 --- [  XNIO-1 task-1] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '<b>sentinelxssmarkerflt</b>' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -773,7 +773,7 @@ javax.servlet.ServletException: Cannot perform login for '<b>sentinelxssmarkerfl
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:39.447 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:30.415 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '<sentinelxssmarkerpro42' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -886,7 +886,7 @@ javax.servlet.ServletException: Cannot perform login for '<sentinelxssmarkerpro4
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:40.236 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:31.217 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '../../../../windows/win.ini' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -999,7 +999,7 @@ javax.servlet.ServletException: Cannot perform login for '../../../../windows/wi
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:40.356 ERROR 4982 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:31.328 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '../../../../etc/passwd' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -1112,7 +1112,7 @@ javax.servlet.ServletException: Cannot perform login for '../../../../etc/passwd
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:40.479 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:31.445 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '../../../../../../windows/win.ini' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -1225,7 +1225,7 @@ javax.servlet.ServletException: Cannot perform login for '../../../../../../wind
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:40.592 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:31.555 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '../../../../../../etc/passwd' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -1338,7 +1338,7 @@ javax.servlet.ServletException: Cannot perform login for '../../../../../../etc/
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:42.978 ERROR 4982 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:33.994 ERROR 6524 --- [  XNIO-1 task-1] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for 'sentinelcrlf
 X-Sentinel-Probe: injected' already authenticated as '1 AND 1=1'
@@ -1452,7 +1452,7 @@ X-Sentinel-Probe: injected' already authenticated as '1 AND 1=1'
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:45.526 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:36.540 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '{{7*7}}' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -1565,7 +1565,7 @@ javax.servlet.ServletException: Cannot perform login for '{{7*7}}' already authe
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:45.639 ERROR 4982 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:36.649 ERROR 6524 --- [  XNIO-1 task-2] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '${7*7}' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -1678,7 +1678,7 @@ javax.servlet.ServletException: Cannot perform login for '${7*7}' already authen
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:45.754 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:36.767 ERROR 6524 --- [  XNIO-1 task-1] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '<%= 7*7 %>' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -1791,7 +1791,7 @@ javax.servlet.ServletException: Cannot perform login for '<%= 7*7 %>' already au
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
-2026-09-30 02:13:45.866 ERROR 4982 --- [  XNIO-1 task-4] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
+2026-09-30 08:24:36.881 ERROR 6524 --- [  XNIO-1 task-1] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/register.mvc
 
 javax.servlet.ServletException: Cannot perform login for '#{7*7}' already authenticated as '1 AND 1=1'
 	at org.springframework.security.web.servletapi.HttpServlet3RequestFactory$Servlet3SecurityContextHolderAwareRequestWrapper.login(HttpServlet3RequestFactory.java:218) ~[spring-security-web-5.4.5.jar!/:5.4.5]
@@ -1904,3 +1904,64 @@ javax.servlet.ServletException: Cannot perform login for '#{7*7}' already authen
 	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
 	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
 
+2026-09-30 09:22:24.470 TRACE 6524 --- [        task-10] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 09:22:54.957 TRACE 6524 --- [        task-11] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 09:22:55.521 TRACE 6524 --- [        task-12] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing/%7Banything%7D
+2026-09-30 09:22:55.522 ERROR 6524 --- [  XNIO-1 task-1] io.undertow.request                      : UT005023: Exception handling request to /WebWolf/landing/%7Banything%7D
+
+org.springframework.security.web.firewall.RequestRejectedException: The request was rejected because the URL contained a potentially malicious String "%"
+	at org.springframework.security.web.firewall.StrictHttpFirewall.rejectedBlocklistedUrls(StrictHttpFirewall.java:463) ~[spring-security-web-5.4.5.jar!/:5.4.5]
+	at org.springframework.security.web.firewall.StrictHttpFirewall.getFirewalledRequest(StrictHttpFirewall.java:429) ~[spring-security-web-5.4.5.jar!/:5.4.5]
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:196) ~[spring-security-web-5.4.5.jar!/:5.4.5]
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:183) ~[spring-security-web-5.4.5.jar!/:5.4.5]
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:358) ~[spring-web-5.3.4.jar!/:5.3.4]
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:271) ~[spring-web-5.3.4.jar!/:5.3.4]
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100) ~[spring-web-5.3.4.jar!/:5.3.4]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119) ~[spring-web-5.3.4.jar!/:5.3.4]
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:103) ~[spring-web-5.3.4.jar!/:5.3.4]
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at org.springframework.boot.actuate.metrics.web.servlet.WebMvcMetricsFilter.doFilterInternal(WebMvcMetricsFilter.java:93) ~[spring-boot-actuator-2.4.3.jar!/:2.4.3]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:119) ~[spring-web-5.3.4.jar!/:5.3.4]
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:103) ~[spring-web-5.3.4.jar!/:5.3.4]
+	at io.undertow.servlet.core.ManagedFilter.doFilter(ManagedFilter.java:61) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.FilterHandler$FilterChainImpl.doFilter(FilterHandler.java:131) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.FilterHandler.handleRequest(FilterHandler.java:84) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.security.ServletSecurityRoleHandler.handleRequest(ServletSecurityRoleHandler.java:62) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletChain$1.handleRequest(ServletChain.java:68) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletDispatchingHandler.handleRequest(ServletDispatchingHandler.java:36) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.RedirectDirHandler.handleRequest(RedirectDirHandler.java:68) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43) ~[undertow-core-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.server.handlers.PredicateHandler.handleRequest(PredicateHandler.java:43) ~[undertow-core-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletInitialHandler.handleFirstRequest(ServletInitialHandler.java:269) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletInitialHandler.access$100(ServletInitialHandler.java:78) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:133) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletInitialHandler$2.call(ServletInitialHandler.java:130) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.core.ServletRequestContextThreadSetupAction$1.call(ServletRequestContextThreadSetupAction.java:48) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.core.ContextClassLoaderSetupAction$1.call(ContextClassLoaderSetupAction.java:43) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchRequest(ServletInitialHandler.java:249) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.handlers.ServletInitialHandler.dispatchToPath(ServletInitialHandler.java:186) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.spec.AsyncContextImpl$2$1.handleRequest(AsyncContextImpl.java:201) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.server.Connectors.executeRootHandler(Connectors.java:387) ~[undertow-core-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.spec.AsyncContextImpl$2.run(AsyncContextImpl.java:195) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.spec.AsyncContextImpl$6.run(AsyncContextImpl.java:472) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at io.undertow.servlet.spec.AsyncContextImpl$TaskDispatchRunnable.run(AsyncContextImpl.java:591) ~[undertow-servlet-2.2.4.Final.jar!/:2.2.4.Final]
+	at org.jboss.threads.ContextClassLoaderSavingRunnable.run(ContextClassLoaderSavingRunnable.java:35) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
+	at org.jboss.threads.EnhancedQueueExecutor.safeRun(EnhancedQueueExecutor.java:2019) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.doRunTask(EnhancedQueueExecutor.java:1558) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
+	at org.jboss.threads.EnhancedQueueExecutor$ThreadBody.run(EnhancedQueueExecutor.java:1449) ~[jboss-threads-3.1.0.Final.jar!/:3.1.0.Final]
+	at java.base/java.lang.Thread.run(Thread.java:1583) ~[na:na]
+
+2026-09-30 09:22:56.086  WARN 6524 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
+2026-09-30 09:22:59.602 TRACE 6524 --- [        task-13] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 09:22:59.605 TRACE 6524 --- [        task-14] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://127.0.0.1:9090/WebWolf/landing
+2026-09-30 09:22:59.613 TRACE 6524 --- [        task-15] org.owasp.webwolf.requests.LandingPage   : Incoming request for: http://sentinel-hh-10aea8e709.example/WebWolf/landing
+2026-09-30 09:22:59.935  WARN 6524 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
+2026-09-30 09:22:59.940  WARN 6524 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]
+2026-09-30 09:22:59.943  WARN 6524 --- [  XNIO-1 task-1] .w.s.m.s.DefaultHandlerExceptionResolver : Resolved [org.springframework.web.HttpRequestMethodNotSupportedException: Request method 'GET' not supported]

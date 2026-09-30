@@ -1,0 +1,26 @@
++ R=/home/z/my-project/readiness
++ SRC=/home/z/my-project/readiness/cleanenv/src1
++ W=/home/z/my-project/readiness/cleanenv/workdir
++ CLEAN='env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3'
++ cd /home/z/my-project/readiness/cleanenv/workdir
++ FIXPID=4427
++ sleep 3
++ PORT=8777
++ env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3 /home/z/my-project/readiness/cleanenv/src1/fixtures/vulnapp.py
++ curl -s -o /dev/null -w 'fixture:%{http_code}\n' http://127.0.0.1:8777/
++ env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3 /home/z/my-project/readiness/cleanenv/src1/sentinel/cli.py scan http://127.0.0.1:8777 --allow-private --workflow --logic-active --auth-user demo --auth-pass demo123 --auth-url http://127.0.0.1:8777/login --auth-user-field uid --auth-pass-field passw --auth-success-marker 'Sign Off' --authz-accounts /home/z/my-project/readiness/cleanenv/src1/benchmarks/authz_accounts.json --oast local --db /home/z/my-project/readiness/cleanenv/workdir/clean_scan1.db --out /home/z/my-project/readiness/evidence/B04_scan_clean.json
++ echo 'scan exit=0'
++ env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3 /home/z/my-project/readiness/cleanenv/src1/sentinel/cli.py report --db /home/z/my-project/readiness/cleanenv/workdir/clean_scan1.db --format html --out /home/z/my-project/readiness/evidence/B06_report_clean.html
++ echo 'html exit=0'
++ env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3 /home/z/my-project/readiness/cleanenv/src1/sentinel/cli.py report --db /home/z/my-project/readiness/cleanenv/workdir/clean_scan1.db --format executive --out /home/z/my-project/readiness/evidence/B06_executive_clean.json
++ echo 'exec exit=0'
++ env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3 /home/z/my-project/readiness/cleanenv/src1/sentinel/cli.py report --db /home/z/my-project/readiness/cleanenv/workdir/clean_scan1.db --format glass --out /home/z/my-project/readiness/evidence/B06_glass_clean.html
++ echo 'glass exit=0'
++ env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3 /home/z/my-project/readiness/cleanenv/src1/sentinel/cli.py report --db /home/z/my-project/readiness/cleanenv/workdir/clean_scan1.db --format sarif --out /home/z/my-project/readiness/evidence/B08_sarif_clean.sarif
++ echo 'sarif exit=0'
++ env -i HOME=/home/z/my-project/readiness/cleanenv/home1 PATH=/usr/bin:/bin /usr/bin/python3 /home/z/my-project/readiness/cleanenv/src1/sentinel/cli.py findings --db /home/z/my-project/readiness/cleanenv/workdir/clean_scan1.db
++ echo 'findings exit=0'
++ kill 4427
++ head -12
++ ls -la /home/z/my-project/readiness/cleanenv/workdir/ /home/z/my-project/readiness/evidence/
++ grep -E 'clean|sarif'

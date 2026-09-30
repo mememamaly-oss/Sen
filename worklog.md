@@ -503,3 +503,30 @@ Stage Summary:
 - v4.0.0 SHIPPED: the Security Digital Twin platform — twin graph + autonomous reasoning + 8-invariant workflow battery (3 new cross-identity) + Evidence OS + Safe Attack Planner + executive/glass/SARIF/CI reporting, with zero drift (82/82, 15/15, F1=1.000 x3) and a live ginandjuice.shop deployment proving the twin/hypothesis/proof chain on a real target.
 - Pipeline: v2.8.0 -> v2.9.0 -> v3.0.0 -> v3.0.1 -> v4.0.0 (Digital Twin).
 - Deliverables: download/{sentinel-4.0.0-source.zip, sentinel-4.0.0-complete-bundle.zip, SENTINEL-FULL-ARCHIVE-v4.0.0.zip, README.md} + sentinel-results/ v4.0.0 set + docs/ (Demo, Architecture/IP, Benchmark audit).
+---
+Task ID: 4.0.0-readiness
+Agent: Super Z (main agent)
+Task: User's final production-readiness checklist (A-Z, 327 mandatory checks) for SENTINEL v4.0.0 — full verification campaign + PRODUCTION_READINESS_v4.0.0.md.
+
+Work Log:
+- RESTORED CONTEXT: v4.0.0 was already shipped (82/82, doctor 15/15, F1=1.000 x3, GT v10). This campaign verified EVERYTHING against the shipped artifact itself (extracted zips, never the dev worktree).
+- Section A (engine core): 82/82 suite re-run from extracted ZIP in 6 chunks (non-registration order); doctor 15/15; benchmark x3 with deep determinism proof (identical confusion/listings/request-counts/proof state-pairs; only opaque req-ids + wall-time differ); stderr audit (fixed a cosmetic SyntaxWarning in the test harness docstring).
+- Section B (clean install): env -i + system Python 3.13.5 + no playwright — source.zip AND complete-bundle install, doctor DEGRADED 14/15 with LOUD documented browser fallback; FULL battery scan from clean install (184 findings/28 classes incl. all 8 business-logic classes); fresh DB, reports from scratch, SARIF, reproduce-after-reinstall, CLI from foreign CWD, wipe+reinstall.
+- Section C (live targets): WebGoat 8.2.2 (authenticated, 23 verified, browser 15 pages, workflow honest skip), WebWolf (spec-seeded 14 ep, 16 verified, 1 honest reject), ginandjuice.shop (authenticated + public OAST x2 interactions + twin 84 nodes + reasoning 1v/1r, 40 verified), NEW authorized target: OWASP Juice Shop 20.2.0 via npm/GitHub (Node/Express/Angular — architecturally different): unauth crawl (JS/robots discovery, 100% honest coverage) + deep scan with 19-path operator OpenAPI + Bearer JWT token auth (29 verified incl. oracle-verified SQLi).
+- C13/E live authorization: WebGoat authz with 2 REAL registered users (sentinel10y+sentinel11z, matrix 4 endpoints, honest zero-FP) + Juice Shop basket BOLA manual proof with ownership evidence (responses carry other users' UserId:1/2/3/11/16/25).
+- THREE REAL DEFECTS FOUND AND FIXED with permanent regression guards (each forcing artifact rebuild + full re-verification):
+  * ENG-18: workflow proofs shipped empty state_before/state_after (snapshots existed in the engine but were never wired to build_proof) — wired all 8 attack sites (zero extra requests), guard in regression_phase58.
+  * ENG-19: default cross-run overview report silently dropped the Coverage section (aggregate stats instead of latest run's); technical HTML lacked reproduction/untested-surface sections + finding IDs — fixed all four, guard in regression_report_builder_outputs.
+  * ENG-20: benchmark reused whatever listened on :8777 — in long-lived envs a state-mutated leftover fixture degraded back-to-back benchmarks (caught LIVE: 1.000 -> 0.9867 cross_object FN) — benchmark now always spawns its OWN fresh fixture on an ephemeral port; unit_eng20 guard; proven immune with a deliberately planted stale listener (x3 = 1.000).
+- G16/G17 twin experiments: app change (linked page+form) -> twin 198->201 nodes/46->47 surfaces; same app twice on fresh DBs -> byte-identical twin.
+- Behavior batteries: concurrent scans on one DB (WAL, integrity ok), kill -9 at 5 points incl. genuine mid-flight T+30 (prior evidence intact, atomic all-or-nothing persistence), store stress 5000 findings/20 runs (0.06s, integrity ok), memory 28.9MB peak/0.3s CPU per scan, password-leak grep CLEAN across all artifacts, /etc/passwd-as-spec rejected, shell-out audit clean, stored-XSS escape proof, vault lifecycle battery (keygen 0600 -> armed scan -> wrong-key hard fail -> audit -> owner reveal -> purge; byte-scan CLEAN on vault/DB/JSON/SARIF).
+- REST/CI battery: token-gated API (401s), async 202 scans, two concurrent API scans persisted, report --ci exit semantics (critical=1, no-findings=0), SARIF 2.1.0 valid.
+- DOCS PACKAGE (8 new Arabic docs + README): INSTALLATION_GUIDE, USER_GUIDE, API_CLI_REFERENCE, THREAT_MODEL, SECURITY_MODEL, KNOWN_LIMITATIONS (13 items incl. the proof-cap found by the walkthrough), SUPPORTED_ENVIRONMENTS, RELEASE_POLICY.
+- Y clean-room walkthrough (docs only, system python, empty env): install->doctor->scan->findings->evidence->reproduce->export->errors->untested-surface — every step PASS without touching source code.
+- FINAL GATES from the FINAL zip (ENG-18+19+20+docs): 83/83 (82 + the campaign's own ENG-20 guard), doctor 15/15, F1=1.000 x3 identical (38/0/0/35, 1752 req x3).
+
+Stage Summary:
+- FINAL STATUS: PRODUCTION READY. 327 mandatory checks: 324 PASS / 0 FAIL / 0 BLOCKED / 3 WAIVED (F11 branching flows, N06 GraphQL, N07 WebSocket — all documented in KNOWN_LIMITATIONS).
+- The campaign caught and permanently fixed 3 real defects (ENG-18/19/20) — each with regression guards — and added 1 new test + 9 documents to the shipped artifact.
+- Deliverables: download/{PRODUCTION_READINESS_v4.0.0.md (524 lines, full A-Z test log), sentinel-4.0.0-source.zip (FINAL), sentinel-4.0.0-complete-bundle.zip (64 files incl. gates+readiness), SENTINEL-FULL-ARCHIVE-v4.0.0.zip (106 files: 16 version sources + bundle + tree + readiness evidence)}; evidence repo at readiness/{evidence,results}.
+- Live-target accounts used (all authorized): WebGoat sentinel10y/sentinel11z (test1234), ginandjuice carlos/hunter2, Juice Shop admin@juice-sh.op + sentinel-b (local instance).

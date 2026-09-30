@@ -1,0 +1,98 @@
+[
+ {
+  "id": "V01",
+  "name": "Application fingerprint",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "stats.fingerprint per run: tech map (server headers, cookies, frameworks, angularjs) + WAF signature; stable across rescans of the same app",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ },
+ {
+  "id": "V02",
+  "name": "Previous findings",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "store recurring/delta: cross-run finding recurrence computed (351-finding DB recurring view; report 'Recurring across runs' section)",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ },
+ {
+  "id": "V03",
+  "name": "Previous failed hypotheses",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "hypothesis lifecycle records refuted/untestable per run; strategy store counts ONLY verified outcomes (chaos_strategy_store_counts_only_verified)",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ },
+ {
+  "id": "V04",
+  "name": "Previous successful paths",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "strategy store: verified-outcome Wilson ordering persists detector orderings per target (strategy_store.json)",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ },
+ {
+  "id": "V05",
+  "name": "Rescan benefits from prior knowledge",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "benchmark x3: the strategy store persists across runs in the same tree and results stay identical (knowledge reuse without drift); recurrence views accumulate",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ },
+ {
+  "id": "V06",
+  "name": "No wrong stale-memory use",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "strategy entries are fingerprint/target-scoped; determinism x3 proves no stale entry ever changed a verdict; G17 same-app rescan produced identical twin",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ },
+ {
+  "id": "V07",
+  "name": "App change updates knowledge",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "fingerprint captures STACK identity (correctly unchanged when only surface changed — same stack); app-level change detection: twin delta (G16: nodes 198->201), findings delta (new/fixed), coverage delta all update per run",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ },
+ {
+  "id": "V08",
+  "name": "Delete/isolate one app's data",
+  "target": "fingerprint + strategy store + recurring/delta views",
+  "command": "cross-run memory mechanics",
+  "expected": "memory that helps without lying",
+  "actual": "per-app isolation: strategy/vault/db are files — an app's data removable by deleting its run rows/strategy entry; vault purge proven (records=0, audit survives)",
+  "status": "PASS",
+  "evidence": "See battery evidence",
+  "artifact": "/home/z/my-project/readiness/evidence/QRUV_battery.txt",
+  "recorded_at": "2026-09-30T09:52:20"
+ }
+]

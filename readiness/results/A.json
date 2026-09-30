@@ -1,0 +1,122 @@
+[
+ {
+  "id": "A01",
+  "name": "Full suite from shipped source.zip (FINAL v3: ENG-18+19+20+docs)",
+  "target": "ziprun4 (fresh extraction of FINAL zip)",
+  "command": "SENTINEL_TEST_FILTER chunks R5(71)+R1(1)+R4(5)+R2(3)+R3(3)",
+  "expected": "full suite green",
+  "actual": "83/83 PASS, 0 failed — 82 original tests + unit_eng20_benchmark_owned_fixture (the campaign's permanent ENG-20 guard)",
+  "status": "PASS",
+  "evidence": "Suite grew by one permanent guard added BY this readiness campaign",
+  "artifact": "/home/z/my-project/readiness/evidence/A01_FULL_FINAL_v3.json",
+  "recorded_at": "2026-09-30T10:44:26"
+ },
+ {
+  "id": "A02",
+  "name": "Doctor 15/15 from FINAL zip",
+  "target": "ziprun4",
+  "command": "sentinel doctor",
+  "expected": "PASS 15/15",
+  "actual": "overall=PASS 15/15",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/FINAL3_doctor.json",
+  "recorded_at": "2026-09-30T10:44:26"
+ },
+ {
+  "id": "A03",
+  "name": "Benchmark 3 consecutive identical (FINAL v3)",
+  "target": "local-fixture-v10 via FINAL zip (owned fresh fixture per run)",
+  "command": "sentinel benchmark x3",
+  "expected": "identical results",
+  "actual": "F1=1.000 x3; TP=38/FP=0/FN=0/TN=35 x3; requests=1752 x3; per-row listings byte-identical; ENG-20 proven: an identical x3 also passed WITH a stale listener deliberately planted on :8777",
+  "status": "PASS",
+  "evidence": "The campaign caught a real determinism defect (ENG-20) and fixed it with a permanent guard",
+  "artifact": "/home/z/my-project/readiness/evidence/A03_FINAL_v3.json",
+  "recorded_at": "2026-09-30T10:44:26"
+ },
+ {
+  "id": "A04",
+  "name": "F1 not below v4.0.0 baseline",
+  "target": "FINAL v3 benchmark",
+  "command": "sentinel benchmark x3",
+  "expected": "F1 >= 1.000",
+  "actual": "F1 = 1.000 exactly in all 3 runs",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/A03_FINAL_v3.json",
+  "recorded_at": "2026-09-30T10:44:26"
+ },
+ {
+  "id": "A05",
+  "name": "TP/FP/FN/TN identical across iterations",
+  "target": "FINAL v3 benchmark",
+  "command": "sentinel benchmark x3",
+  "expected": "identical confusion matrices",
+  "actual": "TP=38, FP=0, FN=0, TN=35 in all 3 runs (identical listings)",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/A03_FINAL_v3.json",
+  "recorded_at": "2026-09-30T10:44:26"
+ },
+ {
+  "id": "A06",
+  "name": "No results depend on test execution order",
+  "target": "ziprun2",
+  "command": "chunks executed non-sequentially (R5,R6 first; slow e2e later)",
+  "expected": "every test passes regardless of position",
+  "actual": "82/82 with chunks run out of registration order; benchmark x3 identical (incl. request counts)",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/A01_FULL_FINAL.json",
+  "recorded_at": "2026-09-30T09:20:37"
+ },
+ {
+  "id": "A07",
+  "name": "No results depend on leftover scan data",
+  "target": "ziprun2 (6 suite processes + 3 benchmarks, same tree)",
+  "command": "sequential full scan cycles in one tree",
+  "expected": "identical results across cycles",
+  "actual": "3 benchmark cycles + 82 tests sharing one tree — byte-identical findings/TP/TN/state-pairs; zero cross-run contamination",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/A03_FINAL_verdict.json",
+  "recorded_at": "2026-09-30T09:20:37"
+ },
+ {
+  "id": "A08",
+  "name": "Tests run after full process restart",
+  "target": "ziprun2",
+  "command": "9+ separate python3 processes (6 suite chunks + doctor + 3 benchmarks)",
+  "expected": "all green across process boundaries",
+  "actual": "Every gate ran as an independent OS process with fresh interpreter state — all green",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/A01_FULL_FINAL.json",
+  "recorded_at": "2026-09-30T09:20:37"
+ },
+ {
+  "id": "A09",
+  "name": "Tests run from extracted ZIP, not dev worktree",
+  "target": "ziprun2",
+  "command": "unzip FINAL source.zip → run entire gate chain there",
+  "expected": "all tests pass from ZIP tree",
+  "actual": "82/82 + 15/15 + F1=1.000x3 all from the extracted FINAL zip; dev worktree never on sys.path",
+  "status": "PASS",
+  "evidence": "",
+  "artifact": "/home/z/my-project/readiness/evidence/A01_FULL_FINAL.json",
+  "recorded_at": "2026-09-30T09:20:37"
+ },
+ {
+  "id": "A10",
+  "name": "No hidden stderr errors counted as success",
+  "target": "ziprun2",
+  "command": "stderr captured for all chunks",
+  "expected": "no engine errors in stderr",
+  "actual": "Zero Tracebacks in F_R1..F_R6 stderr captures; only expected chaos-fixture BrokenPipe noise (intentional connection-reset stimulus on the test's own HTTP server); SyntaxWarning eliminated in FINAL zip",
+  "status": "PASS",
+  "evidence": "The one cosmetic warning found by this campaign was fixed before final packaging (ENG-18 companion fix)",
+  "artifact": "/home/z/my-project/readiness/evidence/F_R5.stderr",
+  "recorded_at": "2026-09-30T09:20:37"
+ }
+]

@@ -1,0 +1,22 @@
+{
+ "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+ "version": "2.1.0",
+ "runs": [
+  {
+   "tool": {
+    "driver": {
+     "name": "SENTINEL",
+     "version": "4.0.0",
+     "informationUri": "https://sentinel.invalid/",
+     "rules": []
+    }
+   },
+   "properties": {
+    "scanTarget": "",
+    "resultCount": 0,
+    "honesty": "verification-gated: every result passed an independent replay"
+   },
+   "results": []
+  }
+ ]
+}

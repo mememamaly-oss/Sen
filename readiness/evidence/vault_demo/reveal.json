@@ -1,0 +1,59 @@
+{
+ "format": "sentinel-credential-report/1",
+ "classification": "CONFIDENTIAL \u2014 organization owner only",
+ "org": "acme-corp",
+ "generated": "2026-09-30T09:37:05Z",
+ "records": [
+  {
+   "id": "rec-1c134c53",
+   "cls": "aws_access_key",
+   "masked": "AKIA\u2026(20 chars)",
+   "raw": "AKIAIOSFODNN7EXAMPLE",
+   "severity": "critical",
+   "source": {
+    "run_id": "run-8a57d09a35",
+    "url": "http://127.0.0.1:8778/vuln/leak-config",
+    "location": "body",
+    "request_id": "req-a9d46989"
+   },
+   "first_seen": "2026-09-30T09:37:04Z",
+   "last_seen": "2026-09-30T09:37:04Z",
+   "hits": 1,
+   "verification": "re-test:fresh-fetch-reexposure"
+  },
+  {
+   "id": "rec-3cfa23cd",
+   "cls": "github_token",
+   "masked": "ghp_\u2026(37 chars)",
+   "raw": "ghp_SENTINELFIXTUREGHPTOKEN1234567890",
+   "severity": "high",
+   "source": {
+    "run_id": "run-8a57d09a35",
+    "url": "http://127.0.0.1:8778/vuln/leak-config",
+    "location": "body",
+    "request_id": "req-a9d46989"
+   },
+   "first_seen": "2026-09-30T09:37:04Z",
+   "last_seen": "2026-09-30T09:37:04Z",
+   "hits": 1,
+   "verification": "re-test:fresh-fetch-reexposure"
+  },
+  {
+   "id": "rec-2553fee3",
+   "cls": "db_connection_uri",
+   "masked": "mysq\u2026(46 chars)",
+   "raw": "mysql://app:s3nt1nelDbPw@10.0.0.5:3306/fixture",
+   "severity": "high",
+   "source": {
+    "run_id": "run-8a57d09a35",
+    "url": "http://127.0.0.1:8778/vuln/leak-config",
+    "location": "body",
+    "request_id": "req-a9d46989"
+   },
+   "first_seen": "2026-09-30T09:37:04Z",
+   "last_seen": "2026-09-30T09:37:04Z",
+   "hits": 1,
+   "verification": "re-test:fresh-fetch-reexposure"
+  }
+ ]
+}

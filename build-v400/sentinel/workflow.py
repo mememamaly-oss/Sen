@@ -554,13 +554,17 @@ class WorkflowEngine:
 
     @staticmethod
     def _finding(vtype: str, url: str, param: str, evidence: Evidence,
-                 notes: str, authz_context: str = "") -> Finding:
+                 notes: str, authz_context: str = "",
+                 state_before: str = "", state_after: str = "") -> Finding:
         f = Finding(vtype, Severity.HIGH, url, param, "POST", [evidence],
                     status=FindingStatus.CANDIDATE)
         f.verification = Verification(method="oracle:workflow-state-delta",
                                       passed=True, confidence=0.9, rounds=1, notes=notes)
         f.status = FindingStatus.VERIFIED
         f.authz_context = authz_context
+        # ENG-18: carry the workflow-oracle state pair into the proof file
+        f.state_before = (state_before or "").strip()[:160]
+        f.state_after = (state_after or "").strip()[:160]
         return f
 
     # -------------------------------------------------- phase 2: attacks
@@ -599,7 +603,9 @@ class WorkflowEngine:
                      f"gained the line '{new[0].strip()[:120]}' — the mandatory "
                      "earlier step is not enforced server-side", r.request_id),
             f"state oracle gained a canary object without the predecessor step: "
-            f"'{new[0].strip()[:100]}'")
+            f"'{new[0].strip()[:100]}'",
+            state_before=f"pre-bypass oracle: no {CANARY_CREATE}-bearing object for this session",
+            state_after=new[0].strip()[:120])
         return f, {"verdict": "verified", "status": r.status,
                    "line": new[0].strip()[:120]}
 
@@ -614,7 +620,7 @@ class WorkflowEngine:
         fields = self._token_refresh(final.fields, entry_fields)
         fields = [(n, fresh_val if n == res_name
                    else (CANARY_TAMPER if _is_amount(n) else v)) for n, v in fields]
-        self._oracle(engine, k, "wf-atk-order-pre")
+        pre_order = self._oracle(engine, k, "wf-atk-order-pre")
         r = self._post(engine, final.action, fields, "wf-atk-order")
         post = self._oracle(engine, k, "wf-atk-order-post")
         lines = _lines_with(post, fresh_val)
@@ -629,7 +635,10 @@ class WorkflowEngine:
                      f"POSTed parameters — oracle line '{lines[-1].strip()[:120]}' — "
                      "implicit creation + execution: the producing step was skipped",
                      r.request_id),
-            f"oracle shows the synthetic resource executed: '{lines[-1].strip()[:100]}'")
+            f"oracle shows the synthetic resource executed: '{lines[-1].strip()[:100]}'",
+            state_before=f"pre-order oracle: synthetic resource {fresh_val} absent"
+                         + (f" ({len(_lines_with(pre_order, fresh_val))} lines)" if _lines_with(pre_order, fresh_val) else ""),
+            state_after=lines[-1].strip()[:120])
         return f, {"verdict": "verified", "status": r.status, "resource": fresh_val}
 
     def _atk_tamper(self, k: FlowKnowledge, engine, entry_fields) -> tuple[Finding | None, dict]:
@@ -679,7 +688,9 @@ class WorkflowEngine:
                      f"({CANARY_CREATE}) — oracle line '{line.strip()[:120]}' — values "
                      "are re-trusted at execution time instead of bound at approval",
                      r.request_id),
-            f"executed oracle line carries the tampered value: '{line.strip()[:100]}'")
+            f"executed oracle line carries the tampered value: '{line.strip()[:100]}'",
+            state_before=f"{res_val} approved with amount {CANARY_CREATE} (hidden field of the final form)",
+            state_after=line.strip()[:120])
         return f, {"verdict": "verified", "status": r.status,
                    "line": line.strip()[:120]}
 
@@ -714,7 +725,9 @@ class WorkflowEngine:
                      f"replaying the final step executed {res_name}={res_val} AGAIN: "
                      f"oracle occurrences {n_mid} -> {n_post} — no one-shot consumption "
                      "(missing idempotency guard)", r.request_id),
-            f"same resource executed twice: {n_mid} -> {n_post} oracle occurrences")
+            f"same resource executed twice: {n_mid} -> {n_post} oracle occurrences",
+            state_before=f"occurrences {n_mid}: '{((_lines_with(mid, res_val) or [''])[-1]).strip()[:100]}'",
+            state_after=f"occurrences {n_post}: '{((_lines_with(post, res_val) or [''])[-1]).strip()[:100]}'")
         return f, {"verdict": "verified", "status": r.status,
                    "executions": f"{n_mid}->{n_post}"}
 
@@ -782,7 +795,9 @@ class WorkflowEngine:
                      "object ownership is not enforced server-side", r.request_id),
             f"owner's oracle shows the object executed by the other identity: "
             f"'{line.strip()[:100]}'",
-            authz_context=f"attacker=role:{low_role} object_owner=primary")
+            authz_context=f"attacker=role:{low_role} object_owner=primary",
+            state_before=((_lines_with(pre_a, res_val) or ["(object absent from owner's oracle)"])[-1]).strip()[:120],
+            state_after=line.strip()[:120])
         return f, {"verdict": "verified", "status": r.status, "role": low_role,
                    "resource": res_val}
 
@@ -815,13 +830,14 @@ class WorkflowEngine:
         fields = self._token_refresh(
             [(n, foreign if n == res_name else v) for n, v in final.fields],
             entry_fields)
-        self._oracle(engine, k, "wf-atk-xobj-pre")
+        pre_xobj = self._oracle(engine, k, "wf-atk-xobj-pre")
         r = self._post(engine, final.action, fields, "wf-atk-xobj")
         post = self._oracle(engine, k, "wf-atk-xobj-post")
         lines = _lines_with(post, foreign)
         if not (r.ok and lines and self._executed(lines[-1], k)):
             return None, {"verdict": "no_proof", "status": r.status,
                           "note": f"foreign object {foreign} not executed"}
+        pre_line = (_lines_with(pre_xobj, foreign) or [""])[-1]
         f = self._finding(
             "business_logic_cross_object_execution", final.action, res_name,
             Evidence("cross_object_type_confusion",
@@ -830,7 +846,9 @@ class WorkflowEngine:
                      f"(prefix {_resource_prefix(foreign) or '?'} vs {own_prefix or '?'}) "
                      f"— oracle line '{lines[-1].strip()[:120]}' — object type/context "
                      "is not validated server-side", r.request_id),
-            f"foreign-typed object executed by the flow: '{lines[-1].strip()[:100]}'")
+            f"foreign-typed object executed by the flow: '{lines[-1].strip()[:100]}'",
+            state_before=(pre_line.strip()[:120] or f"foreign object {foreign} present, not executed"),
+            state_after=lines[-1].strip()[:120])
         return f, {"verdict": "verified", "status": r.status, "resource": foreign}
 
     def _atk_cross_state(self, k: FlowKnowledge, engine,
@@ -874,7 +892,9 @@ class WorkflowEngine:
                      f"{self._path_of(pending['action'])} — oracle line "
                      f"'{line.strip()[:120]}' — the state machine does not protect "
                      "rolled-back objects from execution", r.request_id),
-            f"cancelled object executed: '{line.strip()[:100]}'")
+            f"cancelled object executed: '{line.strip()[:100]}'",
+            state_before=mid_line.strip()[:120],
+            state_after=line.strip()[:120])
         return f, {"verdict": "verified", "status": r.status,
                    "rollback": self._path_of(cancel_action)}
 
@@ -914,7 +934,9 @@ class WorkflowEngine:
                      "server-side", ""),
             f"low-privilege session executed the admin-declared option: "
             f"'{line.strip()[:100]}'",
-            authz_context=f"attacker=role:{low_role} declared_privilege={opt}")
+            authz_context=f"attacker=role:{low_role} declared_privilege={opt}",
+            state_before=f"option {fname}={opt} '{label}' declared privileged (admin only)",
+            state_after=line.strip()[:120])
         return f, {"verdict": "verified", "role": low_role, "option": opt}
 
     # -------------------------------------------------- run
