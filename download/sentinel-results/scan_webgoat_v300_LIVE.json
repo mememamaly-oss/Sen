@@ -1,0 +1,1258 @@
+{
+ "run_id": "run-c8ddc86885",
+ "seed": "c917b57c",
+ "scanner": "sentinel-core/3.0.0",
+ "target": "http://127.0.0.1:8080/WebGoat",
+ "stats": {
+  "requests": 212,
+  "endpoints": 17,
+  "candidates": 5,
+  "verified": 22,
+  "rejected": 0,
+  "duration": 30.86,
+  "authenticated": true,
+  "crawl": {
+   "pages": 9,
+   "unique_endpoints": 17,
+   "dom_sink_candidates": 0
+  },
+  "openapi": {
+   "source": null,
+   "paths": 0,
+   "new_endpoints": 0
+  },
+  "browser_pages": 15,
+  "param_intel": {
+   "params_total": 6,
+   "by_kind": {
+    "generic": 4,
+    "search": 2
+   },
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "workflow": {
+   "enabled": true,
+   "logic_active": false,
+   "clusters_tried": 1,
+   "flows_learned": 0,
+   "attacks": 0,
+   "verified": 0,
+   "skipped": [
+    "/WebGoat:chain_too_short"
+   ],
+   "requests": 0,
+   "flows": []
+  },
+  "auth": {
+   "authenticated": true,
+   "landing": "http://127.0.0.1:8080/WebGoat/welcome.mvc",
+   "logins": 6,
+   "reauths": 5,
+   "failed_reauths": 6
+  },
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {},
+    "cookies": [
+     "jsessionid"
+    ],
+    "frameworks": [
+     "cookies:Java",
+     "jQuery"
+    ],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "oast": {
+   "channel": "local",
+   "interactions": 0
+  },
+  "coverage": {
+   "discovered": 17,
+   "tested": 17,
+   "passive": 17,
+   "secrets_scanned": 17,
+   "active": 7,
+   "authz_probed": 0,
+   "active_or_authz": 7,
+   "untested": 0,
+   "skip_reasons": {},
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/css/animate.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/css/coderay.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/css/font-awesome.min.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/css/lessons.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/css/main.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/images/favicon.ico",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 404
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/js/libs/require.min.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/js/modernizr.min.js",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8080/WebGoat/login",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/logout",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/plugins/bootstrap/css/bootstrap.min.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8080/WebGoat/register.mvc",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/registration",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/start.mvc",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/WebGoat/welcome.mvc",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8080/js/libs/require.min.js",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 404
+    }
+   ],
+   "detail_truncated": 0
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 5,
+     "endpoints": [
+      "http://127.0.0.1:8080/WebGoat",
+      "http://127.0.0.1:8080/WebGoat/logout",
+      "http://127.0.0.1:8080/WebGoat/registration",
+      "http://127.0.0.1:8080/WebGoat/start.mvc",
+      "http://127.0.0.1:8080/WebGoat/welcome.mvc"
+     ]
+    },
+    "api": {
+     "count": 0,
+     "endpoints": []
+    },
+    "form_or_action": {
+     "count": 2,
+     "endpoints": [
+      "http://127.0.0.1:8080/WebGoat/login",
+      "http://127.0.0.1:8080/WebGoat/register.mvc"
+     ]
+    },
+    "static": {
+     "count": 10,
+     "endpoints": [
+      "http://127.0.0.1:8080/WebGoat/css/animate.css",
+      "http://127.0.0.1:8080/WebGoat/css/coderay.css",
+      "http://127.0.0.1:8080/WebGoat/css/font-awesome.min.css",
+      "http://127.0.0.1:8080/WebGoat/css/lessons.css",
+      "http://127.0.0.1:8080/WebGoat/css/main.css",
+      "http://127.0.0.1:8080/WebGoat/images/favicon.ico",
+      "http://127.0.0.1:8080/WebGoat/js/libs/require.min.js",
+      "http://127.0.0.1:8080/WebGoat/js/modernizr.min.js",
+      "http://127.0.0.1:8080/WebGoat/plugins/bootstrap/css/bootstrap.min.css",
+      "http://127.0.0.1:8080/js/libs/require.min.js"
+     ]
+    }
+   },
+   "authentication": {
+    "mode": "form-session",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": {
+    "form_inventory": [
+     "http://127.0.0.1:8080/WebGoat/login",
+     "http://127.0.0.1:8080/WebGoat/register.mvc"
+    ],
+    "note": "state-changing surfaces grouped by target; multi-step flow learning is the Phase 58 business-logic engine"
+   },
+   "coverage": {
+    "discovered": 17,
+    "tested": 17,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {}
+   }
+  },
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [
+  {
+   "id": "F-65df2426a6",
+   "type": "host_header_injection",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat",
+   "parameter": "Host",
+   "evidence": [
+    {
+     "kind": "host_reflection",
+     "detail": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-manipulation / reset-poisoning class). canary=sentinel-hh-3d59ae736e.example"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-canary-host",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "fresh canary host sentinel-vr16-3d59ae736e.example reflected: True"
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "run-c8ddc86885",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) \u2014 password-reset poisoning and cache-poisoning preconditions.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat",
+     "parameter": "Host",
+     "evidence_kinds": [
+      "host_reflection"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-canary-host",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-af8a98b243",
+   "type": "host_header_injection",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/welcome.mvc",
+   "parameter": "Host",
+   "evidence": [
+    {
+     "kind": "host_reflection",
+     "detail": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-manipulation / reset-poisoning class). canary=sentinel-hh-2d93e50e32.example"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-canary-host",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "fresh canary host sentinel-vr16-2d93e50e32.example reflected: True"
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "run-c8ddc86885",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) \u2014 password-reset poisoning and cache-poisoning preconditions.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/welcome.mvc",
+     "parameter": "Host",
+     "evidence_kinds": [
+      "host_reflection"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-canary-host",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-1ccab1a077",
+   "type": "host_header_injection",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/logout",
+   "parameter": "Host",
+   "evidence": [
+    {
+     "kind": "host_reflection",
+     "detail": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-manipulation / reset-poisoning class). canary=sentinel-hh-75211ef0aa.example"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-canary-host",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "fresh canary host sentinel-vr16-75211ef0aa.example reflected: True"
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "run-c8ddc86885",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) \u2014 password-reset poisoning and cache-poisoning preconditions.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/logout",
+     "parameter": "Host",
+     "evidence_kinds": [
+      "host_reflection"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-canary-host",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-5b4a2ebf75",
+   "type": "host_header_injection",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/start.mvc",
+   "parameter": "Host",
+   "evidence": [
+    {
+     "kind": "host_reflection",
+     "detail": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-manipulation / reset-poisoning class). canary=sentinel-hh-36e373be53.example"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-canary-host",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "fresh canary host sentinel-vr16-36e373be53.example reflected: True"
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "run-c8ddc86885",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) \u2014 password-reset poisoning and cache-poisoning preconditions.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/start.mvc",
+     "parameter": "Host",
+     "evidence_kinds": [
+      "host_reflection"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-canary-host",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-cbc1b2b57d",
+   "type": "csrf",
+   "severity": "medium",
+   "status": "verified",
+   "confidence": 0.85,
+   "method": "POST",
+   "url": "http://127.0.0.1:8080/WebGoat/register.mvc",
+   "parameter": "username, password, matchingPassword, agree",
+   "evidence": [
+    {
+     "kind": "cross_origin_acceptance",
+     "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (4761B), cross-origin replay -> HTTP 200 (4761B) \u2014 no CSRF token in the form and no Origin/Referer validation"
+    }
+   ],
+   "verification": {
+    "method": "re-test:fresh-hostile-origin",
+    "passed": true,
+    "confidence": 0.85,
+    "rounds": 1,
+    "notes": "cross-origin replay from https://csrf-vr13-a70732c9.example accepted: True (HTTP 200)"
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "run-c8ddc86885",
+   "risk": 42,
+   "impact": {
+    "grade": "proven",
+    "statement": "A state-changing request from a hostile origin was accepted exactly like a same-origin one (fresh-origin replay) \u2014 silent cross-site action forgery against authenticated users.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:8080/WebGoat/register.mvc",
+     "parameter": "username, password, matchingPassword, agree",
+     "evidence_kinds": [
+      "cross_origin_acceptance"
+     ],
+     "out_of_band": false,
+     "verification": "re-test:fresh-hostile-origin",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-6832d37e6e",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-d1b8ac2c0e",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/welcome.mvc",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/welcome.mvc",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-945818c354",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/images/favicon.ico",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/images/favicon.ico",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-be22cc44b7",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/css/main.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/css/main.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-772d812b36",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/plugins/bootstrap/css/bootstrap.min.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/plugins/bootstrap/css/bootstrap.min.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-69fafab8fe",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/css/font-awesome.min.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/css/font-awesome.min.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-d2487e1e1b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/css/animate.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/css/animate.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-ab7fcb8b33",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/css/coderay.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/css/coderay.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-fdba952797",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/css/lessons.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/css/lessons.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-d349056af7",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/js/libs/require.min.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/js/libs/require.min.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-f632b759bb",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/logout",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/logout",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-9e1afa95c7",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/js/libs/require.min.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/js/libs/require.min.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-70d528e4ae",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/start.mvc",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/start.mvc",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-5312c8e732",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/registration",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/registration",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-ae49afbe7c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8080/WebGoat/login",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:8080/WebGoat/login",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-c3037cfa84",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "GET",
+   "url": "http://127.0.0.1:8080/WebGoat/js/modernizr.min.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8080/WebGoat/js/modernizr.min.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-900c3039e4",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.98,
+   "method": "POST",
+   "url": "http://127.0.0.1:8080/WebGoat/register.mvc",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.98,
+    "rounds": 1,
+    "notes": ""
+   },
+   "scanner": "sentinel-core/3.0.0",
+   "run_id": "",
+   "risk": 19,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "POST http://127.0.0.1:8080/WebGoat/register.mvc",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  }
+ ],
+ "rejected_candidates": []
+}

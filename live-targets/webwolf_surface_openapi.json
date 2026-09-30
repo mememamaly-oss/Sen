@@ -1,0 +1,61 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "WebWolf 8.2.2 surface (operator-supplied seed, extracted from bytecode)",
+    "version": "8.2.2-sentinel"
+  },
+  "servers": [{"url": "http://127.0.0.1:9090"}],
+  "paths": {
+    "/WebWolf/landing": {
+      "get": {"summary": "landing page UI", "parameters": []}
+    },
+    "/WebWolf/landing/{anything}": {
+      "get": {"summary": "catch-all landing (reflects the request URL)",
+              "parameters": [{"name": "anything", "in": "query", "schema": {"example": "test"}}]}
+    },
+    "/WebWolf/mail": {
+      "get": {"summary": "mailbox page (GET 405 known)", "parameters": []},
+      "post": {"summary": "sendEmail (JSON body)",
+                "parameters": [],
+                "requestBody": {"content": {"application/json": {"schema": {
+                  "properties": {"sender": {}, "recipient": {}, "title": {}, "contents": {}, "time": {}}}}}}}
+    },
+    "/WebWolf/jwt": {
+      "get": {"summary": "jwt page", "parameters": []}
+    },
+    "/WebWolf/jwt/decode": {
+      "post": {"summary": "decode jwt form", "parameters": [
+        {"name": "token", "in": "query", "schema": {"example": "eyJhbGciOiJIUzI1NiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.x"}}]}
+    },
+    "/WebWolf/jwt/encode": {
+      "post": {"summary": "encode jwt form", "parameters": [
+        {"name": "header", "in": "query", "schema": {"example": "test-header"}},
+        {"name": "payload", "in": "query", "schema": {"example": "test-payload"}},
+        {"name": "secretKey", "in": "query", "schema": {"example": "test-secret"}}]}
+    },
+    "/WebWolf/files": {
+      "get": {"summary": "file listing", "parameters": []}
+    },
+    "/WebWolf/fileupload": {
+      "post": {"summary": "file upload (multipart)", "parameters": [
+        {"name": "file", "in": "query", "schema": {"example": "test.txt"}},
+        {"name": "fileLocation", "in": "query", "schema": {"example": "test"}}]}
+    },
+    "/WebWolf/requests": {
+      "get": {"summary": "requests trace page (JSON of all hits)", "parameters": []}
+    },
+    "/WebWolf/registration": {
+      "get": {"summary": "registration page", "parameters": []}
+    },
+    "/WebWolf/register.mvc": {
+      "post": {"summary": "registration form (shared HSQLDB users with WebGoat)", "parameters": [
+        {"name": "username", "in": "query", "schema": {"example": "guest"}},
+        {"name": "password", "in": "query", "schema": {"example": "test1234"}},
+        {"name": "matchingPassword", "in": "query", "schema": {"example": "test1234"}},
+        {"name": "agree", "in": "query", "schema": {"example": "on"}}]}
+    },
+    "/WebWolf/images": {
+      "get": {"summary": "static images", "parameters": []}
+    }
+  }
+}

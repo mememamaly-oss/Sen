@@ -1,0 +1,77 @@
+{
+ "webgoat": {
+  "login_get": {
+   "code": 200,
+   "title": "Login Page",
+   "forms": [
+    {
+     "action": "/WebGoat/login",
+     "fields": {
+      "username": "text:",
+      "password": "password:"
+     }
+    }
+   ]
+  },
+  "login_guest": {
+   "code": 200,
+   "ok": false,
+   "landing_title": "",
+   "set_cookie": true
+  },
+  "register_get": {
+   "code": 200,
+   "forms": [
+    {
+     "action": "/WebGoat/login",
+     "fields": {
+      "username": "text:",
+      "password": "password:"
+     }
+    }
+   ]
+  },
+  "register_post": {
+   "code": 302,
+   "location": "http://127.0.0.1:8080/WebGoat/login"
+  },
+  "login_sentinel1": {
+   "code": 200,
+   "title": "Login Page",
+   "ok": true
+  },
+  "jar": "sentinel1",
+  "welcome": {
+   "code": 200,
+   "title": "Login Page",
+   "lesson_links": 1
+  }
+ },
+ "webwolf": {
+  "get /": {
+   "code": 404,
+   "title": "-",
+   "forms": []
+  },
+  "get /mail": {
+   "code": 405,
+   "title": "-",
+   "forms": []
+  },
+  "get /landing": {
+   "code": 200,
+   "title": "-",
+   "forms": []
+  },
+  "get /files": {
+   "code": 404,
+   "title": "-",
+   "forms": []
+  },
+  "get /images": {
+   "code": 404,
+   "title": "-",
+   "forms": []
+  }
+ }
+}

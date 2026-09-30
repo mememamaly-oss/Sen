@@ -1,0 +1,43 @@
+{
+ "auth": "sentinel1/Sentinel!Live1",
+ "register_endpoint": "/register.mvc",
+ "login_endpoint": "/login",
+ "samples": {
+  "/WebGoat/sql-injection/lesson1": {
+   "code": 200,
+   "forms": [
+    {
+     "action": "/WebGoat/login",
+     "fields": [
+      "username",
+      "password"
+     ]
+    }
+   ]
+  },
+  "/WebGoat/CrossSiteScripting/lesson1": {
+   "code": 200,
+   "forms": [
+    {
+     "action": "/WebGoat/login",
+     "fields": [
+      "username",
+      "password"
+     ]
+    }
+   ]
+  },
+  "/WebGoat/PathTraversal/lesson1": {
+   "code": 200,
+   "forms": [
+    {
+     "action": "/WebGoat/login",
+     "fields": [
+      "username",
+      "password"
+     ]
+    }
+   ]
+  }
+ }
+}
