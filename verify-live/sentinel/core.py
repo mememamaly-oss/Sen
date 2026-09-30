@@ -8,7 +8,7 @@ from enum import Enum
 from typing import Optional
 from urllib.parse import urlsplit
 
-VERSION = "3.0.0"
+VERSION = "3.0.1"
 SCANNER_VERSION = "sentinel-core/" + VERSION
 
 

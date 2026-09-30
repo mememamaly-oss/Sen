@@ -765,7 +765,8 @@ class CsrfDetector(Detector):
                    "change", "transfer", "profile", "account", "password",
                    "feedback", "comment", "register", "signup", "vote", "follow",
                    "add", "create", "edit", "reset", "action", "donate", "buy",
-                   "order", "post", "reply", "review")
+                   "order", "post", "reply", "review",
+                   "cart", "basket", "checkout", "coupon", "place")
     READ_WORDS = ("search", "check", "stock", "view", "find", "login", "signin",
                   "sign-in", "auth", "catalog", "list", "browse")
     PROBE_ORIGIN = "https://csrf-probe.example"
@@ -774,10 +775,28 @@ class CsrfDetector(Detector):
         return []
 
     def _state_changing(self, ep: Endpoint) -> bool:
-        blob = (ep.url + " " + " ".join(p.name.lower() for p in ep.parameters)).lower()
-        if any(w in blob for w in self.READ_WORDS):
+        # ENG-15 (live-caught on ginandjuice.shop /catalog/cart): the old rule
+        # matched READ_WORDS as substrings ANYWHERE in url+params, so a READ
+        # word used as a PARENT DIRECTORY ('catalog') demoted every commerce
+        # action under it — the tokenless add-to-cart POST was never tested
+        # and a proven CSRF (hostile-origin acceptance + SameSite=None cookie,
+        # manually verified) went unreported. Words now match on path SEGMENTS
+        # + param names; a READ word only demotes when it is a whole WORD of
+        # the ACTION segment ('stock-check' reads, 'checkout' does NOT contain
+        # the word 'check'), and a state-word PARAM rescues it (?action=remove
+        # under a /search action is still a write, but ?address= is not 'add').
+        path = urllib.parse.urlsplit(ep.url).path.lower()
+        segments = [s for s in path.split("/") if s]
+        params = [p.name.lower() for p in ep.parameters]
+        tokens = segments + params
+        if not any(w in t for t in tokens for w in self.STATE_WORDS):
             return False
-        return any(w in blob for w in self.STATE_WORDS)
+        def _words(s: str) -> list:
+            return [w for w in re.split(r"[^a-z0-9]+", s) if w]
+        action_words = _words(segments[-1]) if segments else []
+        if any(w in action_words for w in self.READ_WORDS):
+            return any(w in _words(p) for p in params for w in self.STATE_WORDS)
+        return True
 
     def run(self, ep: Endpoint) -> Finding | None:
         if (ep.method or "GET").upper() not in ("POST", "PUT", "PATCH", "DELETE"):

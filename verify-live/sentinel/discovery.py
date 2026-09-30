@@ -16,6 +16,18 @@ class _LinkParser(HTMLParser):
         self._cur_form = None
         self._cur_divform = None
         self._div_depth = 0
+        # ENG-17 (live-caught on ginandjuice.shop add-to-cart): the parser had
+        # NO <select> handling — quantity selects were dropped from the form's
+        # parameter list entirely, so the CSRF baseline POST /catalog/cart
+        # shipped without a required field, 400'd, and the cross-origin proof
+        # (hostile.ok) could never pass. A browser ALWAYS submits a select:
+        # the SELECTED option, else the FIRST option (text content when the
+        # value attr is absent).
+        self._cur_select = None           # name of the <select> currently open
+        self._sel_default = ""            # resolved default for that select
+        self._sel_val = None              # current <option> value attr (None -> text)
+        self._sel_text: list = []         # current <option> text buffer
+        self._sel_selected = False
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
@@ -30,6 +42,14 @@ class _LinkParser(HTMLParser):
                 self._cur_form["params"].append((a["name"], a.get("value", "")))
         elif tag == "textarea" and self._cur_form is not None and a.get("name"):
             self._cur_form["params"].append((a["name"], ""))
+        elif tag == "select" and a.get("name") and (self._cur_form is not None
+                                                     or self._cur_divform is not None):
+            self._cur_select, self._sel_default = a["name"], ""
+        elif tag == "option" and self._cur_select is not None:
+            self._sel_val = a.get("value")          # None -> fall back to text
+            self._sel_text = []
+            # bare boolean attrs (selected) parse as None — test key presence
+            self._sel_selected = "selected" in a
         # ---- DISC-10 (live-caught on ginandjuice.shop #subscribe): JS-driven
         # "forms" are <div data-action=... data-method=post> blocks, NOT <form>
         # elements — a form-only parser is structurally blind to the whole
@@ -46,14 +66,39 @@ class _LinkParser(HTMLParser):
                 self._cur_divform["params"].append((a["name"], a.get("value", "")))
 
     def handle_endtag(self, tag):
-        if tag == "form" and self._cur_form:
+        if tag == "option" and self._cur_select is not None:
+            value = self._sel_val if self._sel_val is not None else "".join(self._sel_text).strip()
+            if value and (self._sel_selected or self._sel_default == ""):
+                self._sel_default = value
+            self._sel_val, self._sel_text, self._sel_selected = None, [], False
+        elif tag == "select" and self._cur_select is not None:
+            self._flush_select()
+        elif tag == "form" and self._cur_form:
+            self._flush_select()                     # malformed HTML: unterminated select
             self.forms.append(self._cur_form); self._cur_form = None
         elif tag == "div" and self._cur_divform is not None:
             self._div_depth -= 1
             if self._div_depth <= 0:
+                self._flush_select()
                 if self._cur_divform["params"]:
                     self.divforms.append(self._cur_divform)
                 self._cur_divform = None
+
+    def _flush_select(self):
+        """ENG-17: commit the open <select> as a form param with its
+        browser-faithful default (selected > first option; '' when the app
+        really offers an empty placeholder)."""
+        if self._cur_select is None:
+            return
+        target = self._cur_form if self._cur_form is not None else self._cur_divform
+        if target is not None and not any(n == self._cur_select for n, _ in target["params"]):
+            target["params"].append((self._cur_select, self._sel_default))
+        self._cur_select = None
+
+    def handle_data(self, data):
+        # ENG-17: <option> without a value attr submits its TEXT — buffer it.
+        if self._cur_select is not None and self._sel_val is None:
+            self._sel_text.append(data)
 
 
 # JS endpoint heuristics (static pass; AST-lite for fetch/axios/XHR/WebSocket)

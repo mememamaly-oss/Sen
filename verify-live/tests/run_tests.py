@@ -2930,6 +2930,143 @@ def unit_phase58_workflow_engine():
 
 
 @case
+def unit_eng15_csrf_state_classifier():
+    """ENG-15 (live-caught on ginandjuice.shop v3.0.0 campaign): the CSRF
+    detector's _state_changing matched READ_WORDS as substrings ANYWHERE in
+    url+params, so 'catalog' as a PARENT DIRECTORY demoted the tokenless
+    add-to-cart POST /catalog/cart — a PROVEN CSRF (hostile-origin acceptance
+    + SameSite=None session cookie, manually verified: product actually added)
+    went unreported. Words must match path segments/param names; a READ word
+    only demotes as a whole WORD of the ACTION segment; a state-word param
+    rescues a read action; word boundaries keep 'checkout' stateful while
+    'stock-check'/'view-cart' stay reads."""
+    from sentinel.detect import CsrfDetector
+    from sentinel.core import Endpoint, Parameter, ParamLocation
+    d = CsrfDetector.__new__(CsrfDetector)
+    def ep(url, params=()):
+        return Endpoint(url=url, method="POST",
+                        parameters=[Parameter(n, ParamLocation.BODY, v).classify()
+                                    for n, v in params])
+    T = [  # true state-changing surfaces the detector must probe
+        ("https://ginandjuice.shop/catalog/cart",
+         [("productId", "1"), ("redir", "PRODUCT"), ("quantity", "1")]),
+        ("https://ginandjuice.shop/catalog/cart/checkout", [("csrf", "x")]),
+        ("https://ginandjuice.shop/catalog/subscribe", [("email", "a@b")]),
+        ("https://x.local/account/search", [("q", "x"), ("action", "remove")]),
+        ("https://x.local/WebGoat/PasswordReset/reset", []),
+        ("https://x.local/blog/post/comment", [("comment", "hi")]),
+        ("https://x.local/catalog/listing/add", [("name", "x")]),
+    ]
+    F = [  # reads that must stay demoted
+        ("https://ginandjuice.shop/catalog/product/stock",
+         [("productId", "1"), ("storeId", "2")]),
+        ("https://x.local/account/search", [("q", "x")]),
+        ("https://x.local/account/search", [("address", "5th")]),   # 'address' != 'add'
+        ("https://x.local/catalog/listing/view", []),
+        ("https://x.local/marketplace/list", []),                   # 'place' != word here
+        ("https://x.local/shop/stock-check", []),                   # hyphen word-split
+        ("https://x.local/shop/view-cart", []),
+    ]
+    for url, params in T:
+        assert d._state_changing(ep(url, params)), f"ENG-15 regression: {url} must be state-changing"
+    for url, params in F:
+        assert not d._state_changing(ep(url, params)), f"ENG-15 regression: {url} must stay a read"
+
+
+@case
+def unit_eng16_workflow_anchor_query_params():
+    """ENG-16 (live-caught on ginandjuice.shop v3.0.0 campaign): the workflow
+    walk's anchor fetch used the BARE path, but query-param pages
+    (/catalog/product?productId=1) only render their form for a valid query —
+    the param-less GET returned an error page with no forms and the whole
+    cluster was dropped as 'no_anchor'. The anchor fetch must rebuild the URL
+    from the endpoint's discovered QUERY parameters (DISC-07 values)."""
+    from sentinel.workflow import WorkflowEngine
+    from sentinel.core import Endpoint, Parameter, ParamLocation
+
+    we = WorkflowEngine()
+    members = {
+        "/catalog/cart": Endpoint(url="https://t.local/catalog/cart", method="POST",
+                                  parameters=[Parameter("productId", ParamLocation.BODY, "1").classify(),
+                                              Parameter("redir", ParamLocation.BODY, "PRODUCT").classify(),
+                                              Parameter("quantity", ParamLocation.BODY, "1").classify()]),
+        "/catalog/product": Endpoint(url="https://t.local/catalog/product",
+                                     parameters=[Parameter("productId", ParamLocation.QUERY, "1").classify()]),
+    }
+    fetched = []
+    class FakeEngine:
+        requests_sent = 0
+        def send(self, m):
+            self.requests_sent += 1
+            fetched.append(m.endpoint.url)
+            class R: error = False; ok = True; status = 200; body = ""; request_id = "fake"
+            if "productId=1" in m.endpoint.url and m.endpoint.method == "GET":
+                R.body = ('<form action="/catalog/cart" method="POST">'
+                          '<input type="hidden" name="productId" value="1">'
+                          '<input type="hidden" name="redir" value="PRODUCT">'
+                          '<select name="quantity"><option value="1">1</option></select>'
+                          '</form>')
+            return R()
+    steps, entry, pending, entry_fields = we._walk(members, FakeEngine())
+    # the anchor fetch carried the discovered query value
+    assert any("productId=1" in u for u in fetched), \
+        f"ENG-16 regression: anchor fetched without query params: {fetched}"
+    assert entry == "https://t.local/catalog/product?productId=1", entry
+    # one canary step (the add-to-cart), landing carries no NEW form -> chain ends
+    assert len(steps) == 1 and steps[0].status == 200, steps
+    assert pending is None
+
+
+@case
+def unit_eng17_discovery_select_params():
+    """ENG-17 (live-caught on ginandjuice.shop add-to-cart): the discovery form
+    parser had NO <select> handling — the quantity select was dropped from
+    POST /catalog/cart's parameter list, so the CSRF baseline shipped without
+    a required field, 400'd, and the cross-origin proof could never pass. A
+    browser ALWAYS submits a select: the SELECTED option, else the FIRST
+    option (text content when the value attr is absent)."""
+    from sentinel.discovery import _LinkParser
+    p = _LinkParser()
+    # ginandjuice add-to-cart shape: hidden fields + quantity select (selected first)
+    p.feed('<form id=addToCartForm action=/catalog/cart method=POST>'
+           '<input required type=hidden name=productId value=1>'
+           '<input required type=hidden name=redir value=PRODUCT>'
+           "<select class='product-quantity' required name=quantity>"
+           '<option value="1" selected>1</option><option value="2">2</option>'
+           '</select></form>')
+    assert p.forms and p.forms[0]["params"] == [("productId", "1"),
+                                                ("redir", "PRODUCT"),
+                                                ("quantity", "1")], p.forms[0]["params"]
+    # no selected attr -> first option wins
+    p2 = _LinkParser()
+    p2.feed('<form action=/x method=post><select name=mode>'
+            '<option value="ach">ACH</option><option value="wire">Wire</option>'
+            '</select></form>')
+    assert p2.forms[0]["params"] == [("mode", "ach")], p2.forms[0]["params"]
+    # selected attr NOT on the first option -> it still wins
+    p3 = _LinkParser()
+    p3.feed('<form action=/x method=post><select name=mode>'
+            '<option value="ach">ACH</option><option value="wire" selected>Wire</option>'
+            '</select></form>')
+    assert p3.forms[0]["params"] == [("mode", "wire")], p3.forms[0]["params"]
+    # option without value attr -> text content is the submitted value
+    p4 = _LinkParser()
+    p4.feed('<form action=/x method=post><select name=size>'
+            '<option>Large</option><option>XL</option></select></form>')
+    assert p4.forms[0]["params"] == [("size", "Large")], p4.forms[0]["params"]
+    # select inside a DISC-10 div pseudo-form is captured too
+    p5 = _LinkParser()
+    p5.feed('<div class=form data-method=post data-action=/catalog/subscribe>'
+            '<input type=text name=email value="">'
+            '<select name=freq><option value="w">Weekly</option></select></div>')
+    assert p5.divforms and ("freq", "w") in p5.divforms[0]["params"], p5.divforms
+    # selects OUTSIDE any form are ignored (no stray params)
+    p6 = _LinkParser()
+    p6.feed('<select name=lonely><option value="1">1</option></select>')
+    assert not p6.forms and not p6.divforms
+
+
+@case
 def regression_phase58_logic_end_to_end():
     """Phase 58 full-platform regression: ONE authenticated scan with the
     Workflow Engine in learn+attack mode — all five business-logic classes

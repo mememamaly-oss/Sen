@@ -349,16 +349,29 @@ class WorkflowEngine:
         the form the chain WOULD submit next (None when the chain ended)."""
         origin = self._origin(members)
         cluster = self._path_of(next(iter(members.values())).url).rsplit("/", 1)[0]
-        gets = sorted(p for p, ep in members.items()
-                      if (ep.method or "GET").upper() == "GET")[: self.cfg.max_pages]
+        gets = sorted(((p, ep) for p, ep in members.items()
+                       if (ep.method or "GET").upper() == "GET"),
+                      key=lambda kv: kv[0])[: self.cfg.max_pages]
         entry, entry_forms, entry_fields = "", [], []
-        for path in gets:
-            r = self._get(engine, origin + path, "wf-anchor")
+        for path, gep in gets:
+            # ENG-16 (live-caught on ginandjuice.shop): the anchor fetch used
+            # the BARE path, but query-param pages (/catalog/product?productId=1)
+            # only render their form for a valid query — a param-less GET
+            # returned an error page with no forms and the whole cluster was
+            # dropped as "no_anchor". The endpoint's QUERY parameters carry
+            # the discovered values (DISC-07): rebuild the URL with them.
+            url = origin + path
+            q = "&".join(f"{urllib.parse.quote(p.name)}={urllib.parse.quote(p.value or '')}"
+                         for p in (gep.parameters or [])
+                         if p.location == ParamLocation.QUERY and p.value)
+            if q:
+                url += "?" + q
+            r = self._get(engine, url, "wf-anchor")
             if r.error or not r.body:
                 continue
-            forms = self._in_cluster_forms(r.body, origin + path, cluster)
+            forms = self._in_cluster_forms(r.body, url, cluster)
             if forms:
-                entry, entry_forms = origin + path, forms
+                entry, entry_forms = url, forms
                 entry_fields = self._synth_fields(forms[0])
                 break
         if not entry:

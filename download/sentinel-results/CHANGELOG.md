@@ -1,3 +1,65 @@
+# SENTINEL v3.0.1 — Live-Caught Detector Fixes (ginandjuice.shop campaign)
+
+Patch release: three engine defects caught by the FIRST v3.0.0 deployment on
+ginandjuice.shop (PortSwigger's authorized scanme target) and fixed with
+permanent regression guards. No behavior change on the benchmark fixture:
+F1=1.000 held bit-identical across the patch (35/0/0/29, run-3c0652b6be).
+
+## ENG-15 — CSRF detector: READ_WORDS substring demotion (TRUE-POSITIVE MISS)
+
+Live-caught: `POST /catalog/cart` (tokenless add-to-cart, session cookie
+SameSite=None) is a PROVEN CSRF — a hostile-origin POST from
+csrf-probe.example was accepted and the product was actually added (manually
+verified end-to-end) — but the detector never ran: `_state_changing` matched
+READ_WORDS as substrings ANYWHERE in url+params, and 'catalog' as a PARENT
+DIRECTORY demoted every commerce action under /catalog/. Words now match on
+path segments + param names; a READ word only demotes as a whole WORD of the
+ACTION segment ('stock-check' reads; 'checkout' does NOT contain the word
+'check'), and a state-word PARAM rescues a read action (?action=remove under
+/search is a write; ?address= is not 'add'). Commerce state words added:
+cart, basket, checkout, coupon, place.
+
+## ENG-16 — Workflow engine: anchor fetch dropped query parameters
+
+Live-caught: the guided walk's anchor fetch used the BARE path, but
+query-param pages (/catalog/product?productId=1) only render their form for a
+valid query — the param-less GET returned an error page with no forms and the
+whole /catalog cluster was dropped as "no_anchor" without ever looking. The
+anchor fetch now rebuilds the URL from the endpoint's discovered QUERY
+parameter values (DISC-07). On the live target this moved the verdict from
+no_anchor to the truthful no_resource_linkage (the walk now runs: the app
+passes cart state via the session, not via hidden resource-id fields).
+
+## ENG-17 — Discovery form parser: no <select> handling (required params lost)
+
+Live-caught: the parser had NO <select> branch — the quantity select was
+dropped from POST /catalog/cart's parameter list entirely, so the CSRF
+baseline shipped without a required field, the server 400'd, and the
+cross-origin proof (hostile.ok) could never pass even after ENG-15. A browser
+ALWAYS submits a select: the parser now records the SELECTED option, else the
+FIRST option (text content when the value attr is absent; bare boolean attrs
+like `selected` parse as None — key presence, not value). Selects inside
+DISC-10 div pseudo-forms are captured too.
+
+## Proof chain (live, authorized target, test account)
+
+CSRF /catalog/cart — engine-fired finding with verification
+`re-test:fresh-hostile-origin` PASSED (VR-13): baseline HTTP 200 (11424B),
+cross-origin replay from a fresh hostile origin HTTP 200 (11424B), no token
+in the form, no Origin/Referer validation, SameSite=None session cookie.
+
+## Gates
+
+- Tests 74/74 (71 v3.0.0 + unit_eng15_csrf_state_classifier +
+  unit_eng16_workflow_anchor_query_params + unit_eng17_discovery_select_params)
+- Doctor 15/15 (incl. workflow_engine)
+- Benchmark F1=1.000 deterministic x2: TP=35 FP=0 FN=0 TN=29 (GT v9, unchanged)
+- Live re-scan: 39 verified findings (38 prior classes zero-regression + the
+  new csrf), 100% coverage, 0 rejected candidates, workflow honest-skip at a
+  deeper truthful stage, 3 logins + 2 watchdog reauths, 0 failed.
+
+---
+
 # SENTINEL v3.0.0 — "Workflow Intelligence" Release
 
 Deterministic DAST platform. Zero external dependencies (pure Python 3 stdlib).
