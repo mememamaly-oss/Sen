@@ -74,7 +74,7 @@ function addNode(
   reason: string,
   sourceRefs: string[],
   attrs: Record<string, unknown>,
-  extra?: { inferenceReason?: string },
+  extra?: { inferenceReason?: string; evidenceRefs?: string[] },
 ): CanonicalNode {
   const id = nodeId(type, key);
   const existing = b.nodes.get(id);
@@ -90,10 +90,14 @@ function addNode(
     }
     return existing;
   }
+  // v4.2.1-L1: the why() answer is the single authority — if its VERIFIED
+  // gate fail-closed (downgrade to UNKNOWN), the NODE mirrors the downgraded
+  // provenance so node.provenance and node.why.provenance can never diverge.
+  const w = why(provenance, reason, sourceRefs, extra);
   const n: CanonicalNode = {
-    id, type, key, label: label || key, provenance,
+    id, type, key, label: label || key, provenance: w.provenance,
     sourceRefs: [...sourceRefs].sort(byKey),
-    why: why(provenance, reason, sourceRefs, extra),
+    why: w,
     attrs,
   };
   b.nodes.set(id, n);
@@ -110,7 +114,7 @@ function addEdge(
   sourceRefs: string[],
   confidence: number,
   attrs?: Record<string, unknown>,
-  extra?: { inferenceReason?: string },
+  extra?: { inferenceReason?: string; evidenceRefs?: string[] },
 ): CanonicalEdge | null {
   if (from === to || !from || !to) return null;
   const id = edgeId(from, to, type);
@@ -119,11 +123,13 @@ function addEdge(
     existing.sourceRefs = Array.from(new Set([...existing.sourceRefs, ...sourceRefs])).sort(byKey);
     return existing;
   }
+  // v4.2.1-L1: mirror the (possibly gate-downgraded) provenance from why().
+  const w = why(provenance, reason, sourceRefs, extra);
   const e: CanonicalEdge = {
-    id, type, from, to, provenance,
+    id, type, from, to, provenance: w.provenance,
     sourceRefs: [...sourceRefs].sort(byKey),
     confidence: safeFloat(confidence, 1),
-    why: why(provenance, reason, sourceRefs, extra),
+    why: w,
   };
   if (attrs && Object.keys(attrs).length) e.attrs = attrs;
   b.edges.set(id, e);
@@ -724,7 +730,11 @@ export function normalizeTwin(raw: RawEngineResult, options: NormalizeOptions = 
       addEdge(b, "EVIDENCED_BY", fn.id, evNode.id, "OBSERVED",
         "The finding's evidence chain carries this record", [eRef], 1);
     });
-    // verification record = evidence
+    // verification record node — auto-minted from the raw verification object
+    // for EVERY finding (engine-declared). It is NOT captured evidence: the
+    // supervisor ruled (2026-10-03) that hasEvidence must separate the finding's
+    // own captured chain (raw observations recorded during testing) from this
+    // auto-minted record.
     const verification = asDict(f.verification);
     const passed = verification.passed === true;
     const vRef = reg(b, `findings[${fi}]:verification`);
@@ -741,10 +751,16 @@ export function normalizeTwin(raw: RawEngineResult, options: NormalizeOptions = 
     addEdge(b, "EVIDENCED_BY", fn.id, vNode.id, "OBSERVED",
       "The engine's verification record for this finding", [vRef], 1);
 
-    // claim state — VERIFIED only with actual engine evidence (spec §2)
-    const hasEvidence = evidenceIds.length > 0;
+    // claim state — VERIFIED requires the finding's OWN captured evidence chain
+    // (raw observations recorded by the engine during testing: probes, oracles,
+    // differentials), NOT merely the auto-minted verification record which every
+    // finding carries by construction. (Supervisor ruling 2026-10-03 — was
+    // vacuous: evidenceIds always contained vNode, so hasEvidence was always
+    // true; now it separates real evidence from engine-declared verification.)
+    const chainEvidenceIds = evidenceIds.filter((id) => id !== vNode.id);
+    const hasRealEvidence = chainEvidenceIds.length > 0;
     let claimState: "VERIFIED" | "UNKNOWN" = "UNKNOWN";
-    if (status === "verified" && passed && hasEvidence) claimState = "VERIFIED";
+    if (status === "verified" && passed && hasRealEvidence) claimState = "VERIFIED";
     fn.claim = {
       state: claimState,
       statement: `${type} at ${method} ${path}${param ? ` (parameter '${param}')` : ""}`,
@@ -811,23 +827,39 @@ export function normalizeTwin(raw: RawEngineResult, options: NormalizeOptions = 
     if (isRefuted && evidenceIds.length) {
       for (const eid of evidenceIds) {
         addEdge(b, "REFUTED_BY", fn.id, eid, "REFUTED",
-          "The engine's verification negated this candidate", [rRef], 1);
+          "The engine's verification negated this candidate", [rRef], 1,
+          undefined, { evidenceRefs: [eid] });
       }
     }
-    // conflict: verified finding vs rejected candidate on the same target
+    // conflict: verified finding vs rejected candidate on the same surface.
+    //
+    // Supervisor ruling 2026-10-03 — PRIORITY over automatic demotion:
+    // a rejected candidate (a potentially FAKE rejection) must NOT drop a
+    // genuinely VERIFIED finding unless it carries COUNTER-EVIDENCE of its
+    // own (a captured evidence chain — actual observations that negate).
+    // The conflict RECORD is always created (honest bookkeeping; INV-11 links
+    // both claims to it), but the claim STATES change only when the rejection
+    // is backed by real evidence:
+    //   - rejected WITH its own evidence chain  → both sides CONFLICT (real
+    //     disagreement between captured observations);
+    //   - rejected WITHOUT any captured evidence (vacuous, engine-declared
+    //     failure) → states preserved: the verified finding KEEPS VERIFIED,
+    //     the rejected side keeps REFUTED/UNKNOWN, and the disagreement stays
+    //     visible through the linked conflict record.
+    const rejectedHasCounterEvidence = evidenceIds.length > 0;
     const twin = verifiedIndex.get(`${type}|${path}|${param}`);
     if (twin && twin.id !== fn.id) {
       const cid = conflictId("verified_vs_rejected", twin.id, fn.id);
       addConflict(b, "verified_vs_rejected", twin.id, fn.id,
         { provenance: "VERIFIED", summary: `verified finding ${twin.key} on the same type/path/parameter`, sourceRefs: twin.sourceRefs },
-        { provenance: "REFUTED", summary: `rejected candidate ${fn.key} on the same type/path/parameter`, sourceRefs: fn.sourceRefs },
+        { provenance: "REFUTED", summary: `rejected candidate ${fn.key} on the same type/path/parameter${rejectedHasCounterEvidence ? " (with captured counter-evidence)" : " (no captured counter-evidence — states preserved)"}`, sourceRefs: fn.sourceRefs },
         `Verified finding and rejected candidate share type '${type}' on ${method} ${path}${param ? ` (${param})` : ""}`);
       if (twin.claim) {
-        twin.claim.state = "CONFLICT";
         twin.claim.conflictIds = Array.from(new Set([...(twin.claim.conflictIds ?? []), cid])).sort();
+        if (rejectedHasCounterEvidence) twin.claim.state = "CONFLICT";
       }
-      fn.claim.state = "CONFLICT";
       fn.claim.conflictIds = Array.from(new Set([...(fn.claim.conflictIds ?? []), cid])).sort();
+      if (rejectedHasCounterEvidence) fn.claim.state = "CONFLICT";
     }
   });
 
@@ -927,11 +959,13 @@ export function normalizeTwin(raw: RawEngineResult, options: NormalizeOptions = 
       { kind: "hypothesis-resolution", status, test });
     if (claimState === "VERIFIED") {
       addEdge(b, "EVIDENCED_BY", hn.id, resNode.id, "VERIFIED",
-        "The reasoning engine resolved the hypothesis as tested:verified", [hRef], 1);
+        "The reasoning engine resolved the hypothesis as tested:verified", [hRef], 1,
+        undefined, { evidenceRefs: [resNode.id] });
       hn.claim = { state: "VERIFIED", statement: premise || pattern, evidenceRefs: [resNode.id, hRef], conflictIds: [] };
     } else if (claimState === "REFUTED") {
       addEdge(b, "REFUTED_BY", hn.id, resNode.id, "REFUTED",
-        "The reasoning engine resolved the hypothesis as tested:refuted", [hRef], 1);
+        "The reasoning engine resolved the hypothesis as tested:refuted", [hRef], 1,
+        undefined, { evidenceRefs: [resNode.id] });
       hn.claim = { state: "REFUTED", statement: premise || pattern, evidenceRefs: [resNode.id], conflictIds: [] };
     } else {
       addEdge(b, "EVIDENCED_BY", hn.id, resNode.id, "OBSERVED",
@@ -955,6 +989,12 @@ export function normalizeTwin(raw: RawEngineResult, options: NormalizeOptions = 
   for (const [pk, entry] of Array.from(hypByPatternSurface.entries()).sort((a, z) => byKey(a[0], z[0]))) {
     if (entry.refuted.length === 0 || entry.verified.claim?.state !== "VERIFIED") continue;
     const [pattern, surface] = pk.split("|");
+    // Same priority rule as the finding conflicts above (supervisor ruling
+    // 2026-10-03), applied with the hypotheses' own counter-evidence: a
+    // tested:refuted resolution IS a captured engine test result, so a
+    // refuted hypothesis carries counter-evidence BY CONSTRUCTION (its
+    // resolution record was created for every hypothesis) — demotion to
+    // CONFLICT here is always evidence-backed, never vacuous.
     for (const ref of entry.refuted) {
       const cid = conflictId("verified_vs_refuted", entry.verified.id, ref.id);
       addConflict(b, "verified_vs_refuted", entry.verified.id, ref.id,

@@ -92,7 +92,8 @@ export interface WhyAnswer {
   reason: string;
   sourceRefs: string[]; // addresses inside the raw engine output
   inferenceReason?: string; // mandatory for INFERRED
-  evidenceRefs?: string[]; // mandatory for VERIFIED / REFUTED claims
+  evidenceRefs?: string[]; // VERIFIED: required (enforced fail-closed by the why() gate); REFUTED: only when explicitly provided
+  downgradedFrom?: "VERIFIED"; // set when the why() gate fail-closed a VERIFIED answer to UNKNOWN
 }
 
 /** A claim carried by a node (findings, hypotheses). */

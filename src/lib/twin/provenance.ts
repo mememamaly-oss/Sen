@@ -25,7 +25,18 @@ export function coerceProvenance(raw: unknown): Provenance {
   return isProvenance(upper) ? upper : "UNKNOWN";
 }
 
-/** Build a structured why() answer (spec §6). */
+/** Build a structured why() answer (spec §6).
+ *
+ *  v4.2.1-L1 (supervisor ruling 2026-10-03): this function is the SINGLE
+ *  construction path for every node/edge why-answer in the twin (the
+ *  pipeline), so the VERIFIED soundness gate lives HERE and runs on every
+ *  construction:
+ *    - VERIFIED/REFUTED evidenceRefs are set ONLY from extra.evidenceRefs.
+ *      The old `?? sourceRefs` fallback laundered source addresses (raw
+ *      output locations) into "evidence" — that loophole is closed.
+ *    - A VERIFIED answer without evidence references is downgraded to UNKNOWN
+ *      fail-closed (verifiedClaimIsSound), with a downgradedFrom marker.
+ */
 export function why(
   provenance: Provenance,
   reason: string,
@@ -35,12 +46,22 @@ export function why(
   const w: WhyAnswer = { provenance, reason, sourceRefs };
   if (provenance === "INFERRED") w.inferenceReason = extra?.inferenceReason ?? reason;
   if (provenance === "VERIFIED" || provenance === "REFUTED") {
-    w.evidenceRefs = extra?.evidenceRefs ?? sourceRefs;
+    w.evidenceRefs = extra?.evidenceRefs; // explicit only — never fabricated from sourceRefs
+  }
+  if (!verifiedClaimIsSound(w)) {
+    // Gate tripped in the pipeline (INV-04): fail closed, never fabricate.
+    w.provenance = "UNKNOWN";
+    w.evidenceRefs = undefined;
+    w.reason = `${reason} [gate: VERIFIED without evidence refs — downgraded to UNKNOWN]`;
+    w.downgradedFrom = "VERIFIED";
   }
   return w;
 }
 
-/** VERIFIED requires non-empty evidence references (INV-04). */
+/** VERIFIED soundness gate (INV-04): VERIFIED requires non-empty evidence
+ *  references. Called by why() on EVERY construction — the pipeline choke
+ *  point (supervisor ruling 2026-10-03: was dead code under a comment
+ *  implying it guarded; now wired and proven by suite tests E13). */
 export function verifiedClaimIsSound(w: WhyAnswer): boolean {
   return w.provenance !== "VERIFIED" || (w.evidenceRefs?.length ?? 0) > 0;
 }

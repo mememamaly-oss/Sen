@@ -16,7 +16,7 @@
 import fs from "fs";
 import path from "path";
 import {
-  ALL_FIXTURES, checkEquivalence, checkInvariants, normalizeTwin,
+  ALL_FIXTURES, checkEquivalence, checkInvariants, normalizeTwin, why, verifiedClaimIsSound,
   type InvariantReport, type NormalizedTwin, type RawEngineResult,
 } from "../src/lib/twin/index";
 
@@ -58,6 +58,10 @@ const EXPECT: Record<string, FixtureExpectation> = {
   "missing-authorization": { nodeTypes: { role: 0, identity: 0 } },
   "blocked-boundary": { nodeTypes: { boundary: 2 } },
   "conflicting-evidence": { provenanceClaims: { CONFLICT: 2 }, conflicts: 2 },
+  // supervisor ruling 2026-10-03: vacuous rejection preserves the verified
+  // claim (priority over automatic demotion) — CONFLICT count is ZERO while
+  // the conflict RECORD still exists (honest bookkeeping, INV-11-satisfied).
+  "vacuous-rejection": { provenanceClaims: { VERIFIED: 1, REFUTED: 1, CONFLICT: 0 }, conflicts: 1 },
 };
 
 // Golden twinHashes — frozen determinism contract (fixture → sha256)
@@ -71,7 +75,8 @@ const GOLDEN: Record<string, string> = {
   "missing-identity": "a62c34a9c7033538832f5879deef34283f677cd1ed471fe1e984e360cf1c5590",
   "missing-authorization": "85d34e8beeeb3917eb2131d82af4b01d54388198abac03bd7474deac1eed487d",
   "blocked-boundary": "c80051adf06f3950b09c3b71f6cdd7222037787b3ae8c0ecad81f694e742f511",
-  "conflicting-evidence": "5796118ab2d0ed13fcdb41d50861daf93e5fab6c23bbe8defbbbb5af1abf60b6",
+  "conflicting-evidence": "14542bd1971990ad88e9e78b0c1dc370526915e4dd13b722b1d07418ba4e590c",
+  "vacuous-rejection": "aa5def001f2de4449a99c68fa67ed832781de3fada9d8af43b9cfcba43a8884d",
 };
 
 function runFixture(name: string, raw: RawEngineResult): NormalizedTwin {
@@ -138,6 +143,11 @@ const REAL_FILES = [
   "build-v411/results/live_v41/ginjuice.json",
   "build-v411/results/live_v41/webgoat_auth.json",
   "build-v411/results/live_v41/juiceshop.json",
+  // v4.2.0 live scans (real engine output, all four authorized targets)
+  "build-v420/results/live_v420/testfire.json",
+  "build-v420/results/live_v420/ginjuice.json",
+  "build-v420/results/live_v420/testasp.json",
+  "build-v420/results/live_v420/testaspnet.json",
 ];
 for (const file of REAL_FILES) {
   if (!fs.existsSync(file)) { check("real", `${path.basename(file)}.exists`, false); continue; }
@@ -247,6 +257,59 @@ import {
   const f = t.nodes.find((n) => n.type === "finding" && n.key === "F-f01aaa0001");
   check("adversarial", "E12.hostile_provenance_ignored", badProv.length === 0 && f?.claim?.state === "VERIFIED",
     `badProv=${badProv.length} state=${f?.claim?.state}`);
+}
+// E13 (2026-10-03): the why() VERIFIED gate is WIRED INTO THE PIPELINE —
+// every node/edge construction goes through why(), and a VERIFIED answer
+// without evidence refs is fail-closed there (was dead code before).
+{
+  const wBad = why("VERIFIED", "engine claims verified", ["stats.proofs[0]"]); // no evidenceRefs
+  const wGood = why("VERIFIED", "resolution record observed", ["stats.reasoning:hypotheses[0]"], { evidenceRefs: ["evidence:hyp:H1"] });
+  const wRefuted = why("REFUTED", "negation observed", ["rejected_candidates[0]"]); // REFUTED: explicit-only, no fabrication
+  check("adversarial", "E13.verified_gate_fails_closed",
+    wBad.provenance === "UNKNOWN" && wBad.downgradedFrom === "VERIFIED" && !wBad.evidenceRefs
+      && wBad.reason.includes("[gate:"),
+    `wBad=${JSON.stringify(wBad).slice(0, 120)}`);
+  check("adversarial", "E13.verified_gate_passes_with_evidence",
+    wGood.provenance === "VERIFIED" && (wGood.evidenceRefs?.length ?? 0) === 1 && verifiedClaimIsSound(wGood),
+    `wGood=${JSON.stringify(wGood).slice(0, 120)}`);
+  check("adversarial", "E13.refuted_not_fabricated",
+    wRefuted.provenance === "REFUTED" && wRefuted.evidenceRefs === undefined && verifiedClaimIsSound(wRefuted),
+    `wRefuted=${JSON.stringify(wRefuted).slice(0, 120)}`);
+}
+// E14 (2026-10-03): INV-05 runs on the STORED path (no raw) and catches tampering
+{
+  const raw = f01Complete();
+  const t = normalizeTwin(raw);
+  const stored = checkInvariants(t); // NO raw — the stored/service.ts path
+  check("adversarial", "E14.inv05_stored_path_pass", stored.pass,
+    stored.violations.map((x) => `${x.invariant}:${x.detail}`).join(";").slice(0, 200));
+  // tamper 1: flip the finding's verification evidence node passed true -> false
+  const tampered = JSON.parse(JSON.stringify(t)) as NormalizedTwin;
+  const verNode = tampered.nodes.find((n) => n.type === "evidence" && n.attrs.kind === "verification" && n.attrs.passed === true);
+  if (verNode) verNode.attrs.passed = false;
+  const caught1 = checkInvariants(tampered);
+  check("adversarial", "E14.inv05_tamper_verification_caught",
+    !caught1.pass && caught1.violations.some((x) => x.invariant === "INV-05"),
+    caught1.violations.map((x) => `${x.invariant}:${x.detail}`).join(";").slice(0, 200) || "tamper node not found");
+  // tamper 2: flip a verified hypothesis's resolution record to tested:refuted
+  const tampered2 = JSON.parse(JSON.stringify(t)) as NormalizedTwin;
+  const hypVer = tampered2.nodes.find((n) => n.type === "hypothesis" && n.claim?.state === "VERIFIED");
+  const resNode = hypVer ? tampered2.nodes.find((n) => n.type === "evidence" && n.attrs.kind === "hypothesis-resolution" && String(n.attrs.status ?? "").startsWith("tested:verified")) : undefined;
+  if (resNode) resNode.attrs.status = "tested:refuted";
+  const caught2 = checkInvariants(tampered2);
+  check("adversarial", "E14.inv05_tamper_hypothesis_caught",
+    !caught2.pass && caught2.violations.some((x) => x.invariant === "INV-05"),
+    caught2.violations.map((x) => `${x.invariant}:${x.detail}`).join(";").slice(0, 200) || (hypVer ? "resolution node not found" : "no verified hypothesis in fixture"));
+  // tamper 3: strip a verified finding's captured chain (keep verification node)
+  const tampered3 = JSON.parse(JSON.stringify(t)) as NormalizedTwin;
+  const fVer = tampered3.nodes.find((n) => n.type === "finding" && n.claim?.state === "VERIFIED");
+  if (fVer) {
+    tampered3.edges = tampered3.edges.filter((e) => !(e.type === "EVIDENCED_BY" && e.from === fVer.id && e.to && tampered3.nodes.find((n) => n.id === e.to)?.attrs.kind !== "verification"));
+  }
+  const caught3 = checkInvariants(tampered3);
+  check("adversarial", "E14.inv05_tamper_chain_stripped_caught",
+    !caught3.pass && caught3.violations.some((x) => x.invariant === "INV-05"),
+    caught3.violations.map((x) => `${x.invariant}:${x.detail}`).join(";").slice(0, 200) || "no verified finding in fixture");
 }
 
 // ═══ F. MALICIOUS INPUT SAFETY ═══════════════════════════════════════════════

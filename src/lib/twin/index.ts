@@ -11,7 +11,7 @@
 // changes, no active testing (spec §19).
 // ─────────────────────────────────────────────────────────────────────────────
 export * from "./types";
-export { why, coerceProvenance, verdictForStatus } from "./provenance";
+export { why, verifiedClaimIsSound, coerceProvenance, verdictForStatus } from "./provenance";
 export {
   TWIN_SCHEMA_VERSION, canonicalJson, computeTwinHash, computeRawHash,
   nodeId, edgeId, conflictId, unknownId,

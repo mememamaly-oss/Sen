@@ -389,6 +389,43 @@ export function f10Conflicting(): RawEngineResult {
   };
 }
 
+// ── F11: vacuous rejection — priority rule (supervisor ruling 2026-10-03) ──
+// A rejected candidate with NO captured evidence chain (engine-declared
+// failure only) must NOT demote the verified finding on the same surface:
+// the conflict record exists (honest bookkeeping) but the verified claim
+// KEEPS VERIFIED and the rejected claim keeps its own state.
+export function f11VacuousRejection(): RawEngineResult {
+  return {
+    run_id: "run-f11vacuous", scanner: "sentinel-core/4.1.1", target: `${BASE}/vacuous`,
+    findings: [
+      finding("F-f11vvv0001", "sql_injection", `${BASE}/vacuous/search`, { parameter: "q" }),
+    ],
+    rejected_candidates: [
+      // same type/path/parameter as the verified finding, but the rejection
+      // carries NO captured evidence chain (vacuous: engine-declared only)
+      {
+        id: "F-f11xxx0002", type: "sql_injection", severity: "high", status: "rejected",
+        confidence: 0.2, method: "GET", url: `${BASE}/vacuous/search`, parameter: "q",
+        evidence: [],
+        verification: { method: "oracle:replay-2round", passed: false, confidence: 0.2, rounds: 2, notes: "no difference" },
+        risk: 10, impact: {},
+      },
+    ],
+    stats: {
+      coverage: {
+        discovered: 2, tested: 2, passive: 2, secrets_scanned: 2, active: 2, authz_probed: 1,
+        active_or_authz: 2, untested: 0, skip_reasons: {}, coverage_pct: 100,
+        endpoints: [
+          covEndpoint("GET", `${BASE}/vacuous/search`),
+          covEndpoint("GET", `${BASE}/vacuous/admin`),
+        ],
+      },
+      api_inventory: { total: 2, by_protocol: { http: 2 }, apis: [apiEntry("/vacuous/search", { parameters: ["q"] }), apiEntry("/vacuous/admin")] },
+      digital_twin: { nodes: 2, edges: 0, identities: 0, roles: 0, entities: 0, surfaces_total: 2, flows: [] },
+    },
+  };
+}
+
 // ── adversarial raw snippets (spec §14) — each tries to force fabrication ────
 
 /** GraphQL schema observed, no verified vulnerability → no VERIFIED claim. */
@@ -498,4 +535,5 @@ export const ALL_FIXTURES: Array<{ id: string; name: string; build: () => RawEng
   { id: "F08", name: "missing-authorization", build: f08MissingAuthz },
   { id: "F09", name: "blocked-boundary", build: f09BlockedBoundary },
   { id: "F10", name: "conflicting-evidence", build: f10Conflicting },
+  { id: "F11", name: "vacuous-rejection", build: f11VacuousRejection },
 ];

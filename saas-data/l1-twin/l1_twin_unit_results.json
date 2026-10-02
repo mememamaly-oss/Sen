@@ -1,11 +1,11 @@
 {
  "summary": {
   "suite": "l1-twin-unit",
-  "pass": 163,
+  "pass": 195,
   "fail": 0,
   "totals": {
-   "fixtures": 10,
-   "checks": 163
+   "fixtures": 11,
+   "checks": 195
   },
   "goldenHashes": {
    "complete-twin": "f02c329cb57c63b74d06f4eb0ebe76d59769ca215331b66a93b0d4654b7a624a",
@@ -17,7 +17,8 @@
    "missing-identity": "a62c34a9c7033538832f5879deef34283f677cd1ed471fe1e984e360cf1c5590",
    "missing-authorization": "85d34e8beeeb3917eb2131d82af4b01d54388198abac03bd7474deac1eed487d",
    "blocked-boundary": "c80051adf06f3950b09c3b71f6cdd7222037787b3ae8c0ecad81f694e742f511",
-   "conflicting-evidence": "5796118ab2d0ed13fcdb41d50861daf93e5fab6c23bbe8defbbbb5af1abf60b6"
+   "conflicting-evidence": "14542bd1971990ad88e9e78b0c1dc370526915e4dd13b722b1d07418ba4e590c",
+   "vacuous-rejection": "aa5def001f2de4449a99c68fa67ed832781de3fada9d8af43b9cfcba43a8884d"
   },
   "performance": [
    {
@@ -34,7 +35,7 @@
     "label": "1k nodes",
     "nodes": 947,
     "edges": 946,
-    "normalizeMs": 20,
+    "normalizeMs": 18,
     "invariantsMs": 20,
     "equivalenceMs": 2,
     "graphJsonBytes": 757360,
@@ -44,15 +45,15 @@
     "label": "10k nodes",
     "nodes": 10082,
     "edges": 10081,
-    "normalizeMs": 285,
-    "invariantsMs": 222,
-    "equivalenceMs": 20,
+    "normalizeMs": 279,
+    "invariantsMs": 215,
+    "equivalenceMs": 18,
     "graphJsonBytes": 8132605,
     "twinHash": "43a6832b8c44cb0e"
    }
   ],
   "verdict": "PASS",
-  "at": "2026-10-01T23:12:10.947Z"
+  "at": "2026-10-02T23:36:37.084Z"
  },
  "results": [
   {
@@ -443,7 +444,49 @@
    "group": "fixtures",
    "name": "conflicting-evidence.goldenHash",
    "status": "PASS",
-   "detail": "5796118ab2d0ed13 != 5796118ab2d0ed13"
+   "detail": "14542bd1971990ad != 14542bd1971990ad"
+  },
+  {
+   "group": "fixtures",
+   "name": "vacuous-rejection.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "vacuous-rejection.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "vacuous-rejection.claim[VERIFIED]=1",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":1,\"REFUTED\":1,\"UNKNOWN\":0,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "vacuous-rejection.claim[REFUTED]=1",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":1,\"REFUTED\":1,\"UNKNOWN\":0,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "vacuous-rejection.claim[CONFLICT]=0",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":1,\"REFUTED\":1,\"UNKNOWN\":0,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "vacuous-rejection.conflicts=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "vacuous-rejection.goldenHash",
+   "status": "PASS",
+   "detail": "aa5def001f2de444 != aa5def001f2de444"
   },
   {
    "group": "determinism",
@@ -773,7 +816,7 @@
    "group": "determinism",
    "name": "conflicting-evidence.twinHash×3",
    "status": "PASS",
-   "detail": "5796118a 5796118a 5796118a"
+   "detail": "14542bd1 14542bd1 14542bd1"
   },
   {
    "group": "determinism",
@@ -802,6 +845,42 @@
   {
    "group": "determinism",
    "name": "conflicting-evidence.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "vacuous-rejection.twinHash×3",
+   "status": "PASS",
+   "detail": "aa5def00 aa5def00 aa5def00"
+  },
+  {
+   "group": "determinism",
+   "name": "vacuous-rejection.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "vacuous-rejection.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "vacuous-rejection.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "vacuous-rejection.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "vacuous-rejection.rawHash×3",
    "status": "PASS",
    "detail": ""
   },
@@ -878,6 +957,78 @@
    "detail": ""
   },
   {
+   "group": "real",
+   "name": "testfire.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testfire.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testfire.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testasp.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testasp.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testasp.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testaspnet.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testaspnet.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testaspnet.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
    "group": "adversarial",
    "name": "E1.endpoint_without_finding",
    "status": "PASS",
@@ -948,6 +1099,48 @@
    "name": "E12.hostile_provenance_ignored",
    "status": "PASS",
    "detail": "badProv=0 state=VERIFIED"
+  },
+  {
+   "group": "adversarial",
+   "name": "E13.verified_gate_fails_closed",
+   "status": "PASS",
+   "detail": "wBad={\"provenance\":\"UNKNOWN\",\"reason\":\"engine claims verified [gate: VERIFIED without evidence refs — downgraded to UNKNOWN]\""
+  },
+  {
+   "group": "adversarial",
+   "name": "E13.verified_gate_passes_with_evidence",
+   "status": "PASS",
+   "detail": "wGood={\"provenance\":\"VERIFIED\",\"reason\":\"resolution record observed\",\"sourceRefs\":[\"stats.reasoning:hypotheses[0]\"],\"evidenceR"
+  },
+  {
+   "group": "adversarial",
+   "name": "E13.refuted_not_fabricated",
+   "status": "PASS",
+   "detail": "wRefuted={\"provenance\":\"REFUTED\",\"reason\":\"negation observed\",\"sourceRefs\":[\"rejected_candidates[0]\"]}"
+  },
+  {
+   "group": "adversarial",
+   "name": "E14.inv05_stored_path_pass",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "adversarial",
+   "name": "E14.inv05_tamper_verification_caught",
+   "status": "PASS",
+   "detail": "INV-05:VERIFIED finding N-ab7fade3ca2ec1de has no linked verification evidence node with passed=true (stored path);INV-08:twinHash mismatch: stored f02c329cb57c63b74d06f4eb0ebe76d59769ca215331b66a93b0"
+  },
+  {
+   "group": "adversarial",
+   "name": "E14.inv05_tamper_hypothesis_caught",
+   "status": "PASS",
+   "detail": "INV-05:VERIFIED hypothesis N-6c71a81d3ce78f4f has no linked resolution evidence with status 'tested:verified' (stored path);INV-08:twinHash mismatch: stored f02c329cb57c63b74d06f4eb0ebe76d59769ca21533"
+  },
+  {
+   "group": "adversarial",
+   "name": "E14.inv05_tamper_chain_stripped_caught",
+   "status": "PASS",
+   "detail": "INV-05:VERIFIED finding N-ab7fade3ca2ec1de has no linked captured evidence beyond the verification record (stored path — hasRealEvidence rule);INV-08:twinHash mismatch: stored f02c329cb57c63b74d06f4eb"
   },
   {
    "group": "malicious",

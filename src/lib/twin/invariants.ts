@@ -19,7 +19,7 @@
 // INV-12  secrets are masked — no raw secret values inside the twin
 // INV-13  every string inside the twin respects the length caps
 // ─────────────────────────────────────────────────────────────────────────────
-import type { NormalizedTwin, Provenance, RawEngineResult, RawFinding } from "./types";
+import type { CanonicalNode, NormalizedTwin, Provenance, RawEngineResult, RawFinding } from "./types";
 import { PROVENANCE_VALUES } from "./types";
 import { MAX_STRING } from "./sanitize";
 import { computeTwinHash } from "./hash";
@@ -203,20 +203,93 @@ export function checkInvariants(
       }
     }
   }
-  // INV-05 (deep check against raw when provided): a finding marked VERIFIED
-  // must have status=verified AND verification.passed=true in the raw record.
-  if (raw) {
-    const rawById = new Map<string, RawFinding>();
-    for (const f of raw.findings ?? []) if (f.id) rawById.set(f.id, f);
+  // INV-05 (extended 2026-10-03 per supervisor ruling): no UNKNOWN turns
+  // VERIFIED without new evidence. Now covers HYPOTHESIS claims as well as
+  // findings, and runs on the STORED twin path (service.ts serves persisted
+  // twins with no raw in hand), not only against raw:
+  //   findings    — stored: attrs.status=verified AND a linked verification
+  //                 evidence node with passed=true AND at least one linked
+  //                 NON-verification evidence node (the finding's own captured
+  //                 chain — mirrors the hasRealEvidence construction rule);
+  //                 raw (when available): status=verified AND
+  //                 verification.passed=true in the raw record.
+  //   hypotheses  — stored: a linked hypothesis-resolution evidence node with
+  //                 status starting "tested:verified"; raw (when available):
+  //                 the raw reasoning record resolves tested:verified.
+  {
+    // evidence graph for the stored path
+    const evById = new Map<string, CanonicalNode>();
+    for (const n of twin.nodes) if (n.type === "evidence") evById.set(n.id, n);
+    const evidencedBy = new Map<string, string[]>(); // node id -> evidence node ids
+    for (const e of twin.edges) {
+      if (e.type === "EVIDENCED_BY" && evById.has(e.to)) {
+        evidencedBy.set(e.from, [...(evidencedBy.get(e.from) ?? []), e.to]);
+      }
+    }
+    // raw lookup tables (when raw is available)
+    let rawFindingsById: Map<string, RawFinding> | null = null;
+    let rawHypsById: Map<string, Record<string, unknown>> | null = null;
+    if (raw) {
+      rawFindingsById = new Map();
+      for (const f of raw.findings ?? []) if (f.id) rawFindingsById.set(f.id, f);
+      const hyps = ((raw.stats as Record<string, unknown> | undefined)?.reasoning as Record<string, unknown> | undefined)?.hypotheses;
+      const hypMap = new Map<string, Record<string, unknown>>();
+      (Array.isArray(hyps) ? hyps : []).forEach((h, i) => {
+        const d = (h ?? {}) as Record<string, unknown>;
+        if (d.id) hypMap.set(String(d.id), d);
+        hypMap.set(`hyp-${i}`, d); // index fallback (matches normalize keys)
+      });
+      rawHypsById = hypMap;
+    }
+    const rawHypFor = (n: CanonicalNode): Record<string, unknown> | null => {
+      if (!rawHypsById) return null;
+      if (rawHypsById.has(n.key)) return rawHypsById.get(n.key)!;
+      const m = /hypotheses\[(\d+)\]/.exec(n.sourceRefs.join(" "));
+      return m ? (rawHypsById.get(`hyp-${m[1]}`) ?? null) : null;
+    };
     for (const n of twin.nodes) {
-      if (n.type === "finding" && n.claim?.state === "VERIFIED") {
-        const rf = rawById.get(n.key);
-        if (!rf) {
-          v("INV-05", `VERIFIED finding ${n.id} has no raw record`);
-        } else {
-          const passed = (rf.verification as Record<string, unknown> | undefined)?.passed === true;
-          if (rf.status !== "verified" || !passed) {
-            v("INV-05", `finding ${n.id} is VERIFIED in the twin but raw record lacks status=verified/verification.passed=true`);
+      if (n.claim?.state !== "VERIFIED") continue;
+      if (n.type === "finding") {
+        // ---- stored-path checks ----
+        const linked = evidencedBy.get(n.id) ?? [];
+        const ver = linked.map((id) => evById.get(id)!).find((x) => x.attrs.kind === "verification");
+        const chain = linked.map((id) => evById.get(id)!).filter((x) => x.attrs.kind !== "verification");
+        if (n.attrs.status !== "verified") {
+          v("INV-05", `VERIFIED finding ${n.id}: stored attrs.status is '${String(n.attrs.status)}', not 'verified'`);
+        }
+        if (!ver || ver.attrs.passed !== true) {
+          v("INV-05", `VERIFIED finding ${n.id} has no linked verification evidence node with passed=true (stored path)`);
+        }
+        if (chain.length === 0) {
+          v("INV-05", `VERIFIED finding ${n.id} has no linked captured evidence beyond the verification record (stored path — hasRealEvidence rule)`);
+        }
+        // ---- raw cross-check ----
+        if (rawFindingsById) {
+          const rf = rawFindingsById.get(n.key);
+          if (!rf) {
+            v("INV-05", `VERIFIED finding ${n.id} has no raw record`);
+          } else {
+            const passed = (rf.verification as Record<string, unknown> | undefined)?.passed === true;
+            if (rf.status !== "verified" || !passed) {
+              v("INV-05", `finding ${n.id} is VERIFIED in the twin but raw record lacks status=verified/verification.passed=true`);
+            }
+          }
+        }
+      } else if (n.type === "hypothesis") {
+        // ---- stored-path checks ----
+        const linked = evidencedBy.get(n.id) ?? [];
+        const res = linked.map((id) => evById.get(id)!).find((x) => x.attrs.kind === "hypothesis-resolution");
+        const resStatus = res ? String(res.attrs.status ?? "") : "";
+        if (!res || !resStatus.startsWith("tested:verified")) {
+          v("INV-05", `VERIFIED hypothesis ${n.id} has no linked resolution evidence with status 'tested:verified' (stored path)`);
+        }
+        // ---- raw cross-check ----
+        if (rawHypsById) {
+          const rh = rawHypFor(n);
+          if (!rh) {
+            v("INV-05", `VERIFIED hypothesis ${n.id} has no raw reasoning record`);
+          } else if (!String(rh.status ?? "").startsWith("tested:verified")) {
+            v("INV-05", `hypothesis ${n.id} is VERIFIED in the twin but the raw reasoning record says '${String(rh.status)}'`);
           }
         }
       }
