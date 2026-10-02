@@ -2,7 +2,7 @@
  "base": "http://localhost:3000",
  "passed": 30,
  "failed": 0,
- "duration": 67.13547492027283,
+ "duration": 67.16519474983215,
  "evidence": {
   "responses": {
    "orgA_to_orgB_finding": {
@@ -79,10 +79,10 @@
     "status": 200
    }
   },
-  "org_a": "cmuq2y6260001lvk9ol0i3t88",
-  "finding_a": "cmuq310uo00h1lvk9n9nz3rb9",
-  "org_b": "cmuq3156d00pblvk9bggyzvuc",
-  "finding_b": "cmuq32kgv00q8lvk91dtlt8kz"
+  "org_a": "cmuq7dapv0001lvxggj3eh5qg",
+  "finding_a": "cmuq7g5sj0093lvxgd9z154on",
+  "org_b": "cmuq7gall00h9lvxg3xntif50",
+  "finding_b": "cmuq7hpv900i4lvxg8wgls1ve"
  },
  "results": [
   {
@@ -93,17 +93,17 @@
   {
    "name": "prodA.admin_org_found",
    "status": "PASS",
-   "detail": "orgs=['cmuq2y6260001lvk9ol0i3t88']"
+   "detail": "orgs=['cmuq7dapv0001lvxggj3eh5qg']"
   },
   {
    "name": "prodA.finding_available",
    "status": "PASS",
-   "detail": "scan=cmuq2zlna00gtlvk9zxzp6s33 n=144"
+   "detail": "scan=cmuq7eq8t008rlvxgfznol2qa n=144"
   },
   {
    "name": "prodB.add_Q",
    "status": "PASS",
-   "detail": "{'ok': True, 'userId': 'cmuq3154000p6lvk9zi69x1r7', 'isNewUser': True, 'role': 'MEMBER'}"
+   "detail": "{'ok': True, 'userId': 'cmuq7gajd00h4lvxg41mf1gip', 'isNewUser': True, 'role': 'MEMBER'}"
   },
   {
    "name": "prodB.login_Q",
@@ -113,12 +113,12 @@
   {
    "name": "prodB.Q_creates_victim_org",
    "status": "PASS",
-   "detail": "{'id': 'cmuq3156d00pblvk9bggyzvuc', 'name': 'L0 Prod Victim Org', 'slug': 'l0-prod-victim-org', 'role': 'OWNER'}"
+   "detail": "{'id': 'cmuq7gall00h9lvxg3xntif50', 'name': 'L0 Prod Victim Org', 'slug': 'l0-prod-victim-org', 'role': 'OWNER'}"
   },
   {
    "name": "prodB.add_R",
    "status": "PASS",
-   "detail": "{'ok': True, 'userId': 'cmuq3157n00pglvk9tos2cpe5', 'isNewUser': True, 'role': 'MEMBER'}"
+   "detail": "{'ok': True, 'userId': 'cmuq7gamv00helvxgjgtp5ori', 'isNewUser': True, 'role': 'MEMBER'}"
   },
   {
    "name": "prodB.login_R",
@@ -128,17 +128,17 @@
   {
    "name": "prodB.R_member_of_orgB_only",
    "status": "PASS",
-   "detail": "orgs=['cmuq3156d00pblvk9bggyzvuc']"
+   "detail": "orgs=['cmuq7gall00h9lvxg3xntif50']"
   },
   {
    "name": "prodB.admin_NOT_member_of_orgB",
    "status": "PASS",
-   "detail": "admin_orgs=['cmuq2y6260001lvk9ol0i3t88']"
+   "detail": "admin_orgs=['cmuq7dapv0001lvxggj3eh5qg']"
   },
   {
    "name": "prodB.scan_started",
    "status": "PASS",
-   "detail": "{'id': 'cmuq3159k00pqlvk9z6wrw9vy', 'status': 'RUNNING'}"
+   "detail": "{'id': 'cmuq7gaou00holvxgju7l8dv4', 'status': 'RUNNING'}"
   },
   {
    "name": "prodB.scan_completed",
@@ -148,7 +148,7 @@
   {
    "name": "prodB.finding_available",
    "status": "PASS",
-   "detail": "scan=cmuq3159k00pqlvk9z6wrw9vy n=144"
+   "detail": "scan=cmuq7gaou00holvxgju7l8dv4 n=144"
   },
   {
    "name": "MANDATORY.orgA_session_orgB_finding_DENY_404_no_sensitive_data",

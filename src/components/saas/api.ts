@@ -108,6 +108,97 @@ export type CoverageResponse = {
   note?: string;
 };
 
+// ── PHASE 02 L1: normalized Security Twin (read-only, versioned API) ─────────
+
+export type TwinProvenance = "OBSERVED" | "INFERRED" | "VERIFIED" | "REFUTED" | "UNKNOWN";
+export type TwinClaimState = "VERIFIED" | "REFUTED" | "UNKNOWN" | "CONFLICT";
+
+export type TwinWhy = {
+  provenance: TwinProvenance;
+  reason: string;
+  sourceRefs: string[];
+  inferenceReason?: string;
+  evidenceRefs?: string[];
+};
+
+export type TwinNode = {
+  id: string;
+  type: string;
+  key: string;
+  label: string;
+  provenance: TwinProvenance;
+  sourceRefs: string[];
+  why: TwinWhy;
+  attrs: Record<string, unknown>;
+  claim?: { state: TwinClaimState; statement: string; evidenceRefs: string[]; conflictIds: string[] };
+  conflictIds?: string[];
+};
+
+export type TwinEdge = {
+  id: string;
+  type: string;
+  from: string;
+  to: string;
+  provenance: TwinProvenance;
+  sourceRefs: string[];
+  confidence: number;
+  why: TwinWhy;
+  attrs?: Record<string, unknown>;
+};
+
+export type TwinConflict = {
+  id: string;
+  kind: string;
+  description: string;
+  resolution: string;
+  left: { claimRef: string; provenance: TwinProvenance; summary: string; sourceRefs: string[] };
+  right: { claimRef: string; provenance: TwinProvenance; summary: string; sourceRefs: string[] };
+};
+
+export type TwinKnownUnknown = { id: string; dimension: string; description: string; sourceRefs: string[] };
+
+export type TwinCounts = {
+  nodes: number;
+  edges: number;
+  byNodeType: Record<string, number>;
+  byEdgeType: Record<string, number>;
+  provenance: Record<string, number>;
+  edgeProvenance: Record<string, number>;
+  claims: { VERIFIED: number; REFUTED: number; UNKNOWN: number; CONFLICT: number };
+  conflicts: number;
+  knownUnknowns: number;
+};
+
+export type NormalizedTwin = {
+  schemaVersion: string;
+  target: string;
+  scope: {
+    runId: string;
+    scanner: string;
+    rawSource: string;
+    application: string;
+    host: string;
+    coverage: { discovered: number; tested: number; untested: number; coveragePct: number | null };
+  };
+  nodes: TwinNode[];
+  edges: TwinEdge[];
+  conflicts: TwinConflict[];
+  knownUnknowns: TwinKnownUnknown[];
+  counts: TwinCounts;
+  twinHash: string;
+  rawHash: string;
+};
+
+export type TwinResponse = {
+  apiVersion: string;
+  scanId: string;
+  status: string;
+  built?: boolean;
+  invariants?: { pass: boolean; violations: number };
+  twin: NormalizedTwin | null;
+  note?: string;
+};
+
 export type ReportRow = {
   id: string;
   title: string;
@@ -232,6 +323,8 @@ export const api = {
       `/api/scans/${id}/findings?orgId=${orgId}${params ? `&${params}` : ""}`
     ),
   scanCoverage: (orgId: string, id: string) => req<CoverageResponse>(`/api/scans/${id}/coverage?orgId=${orgId}`),
+
+  scanTwin: (orgId: string, id: string) => req<TwinResponse>(`/api/v1/scans/${id}/twin?orgId=${orgId}`),
 
   findingDetail: (orgId: string, id: string) => req<FindingDetail>(`/api/findings/${id}?orgId=${orgId}`),
 

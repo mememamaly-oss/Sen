@@ -1,7 +1,7 @@
 {
  "passed": 68,
  "failed": 0,
- "duration": 71.5445203781128,
+ "duration": 72.06845283508301,
  "results": [
   {
    "name": "bootstrap.status",
@@ -11,7 +11,7 @@
   {
    "name": "bootstrap.create_admin",
    "status": "PASS",
-   "detail": "{'ok': True, 'userId': 'cmuq38zga0000lvrrvfj03nfs', 'orgId': 'cmuq38zgf0001lvrry8xtdeti'}"
+   "detail": "{'ok': True, 'userId': 'cmuq780xo0000lvyixe6k04si', 'orgId': 'cmuq780xt0001lvyi87atyav8'}"
   },
   {
    "name": "admin.login",
@@ -31,22 +31,22 @@
   {
    "name": "org.create_second",
    "status": "PASS",
-   "detail": "{'id': 'cmuq38zj20006lvrrqejsby3h', 'name': 'E2E Second Org 892658', 'slug': 'e2e-second-org-892658', 'role': 'OWNER'}"
+   "detail": "{'id': 'cmuq7810j0006lvyier6ry8wb', 'name': 'E2E Second Org 899332', 'slug': 'e2e-second-org-899332', 'role': 'OWNER'}"
   },
   {
    "name": "member.add_viewer",
    "status": "PASS",
-   "detail": "{'ok': True, 'userId': 'cmuq38zk6000blvrrt2xcxndd', 'isNewUser': True, 'role': 'VIEWER'}"
+   "detail": "{'ok': True, 'userId': 'cmuq7811s000blvyiytehvvvc', 'isNewUser': True, 'role': 'VIEWER'}"
   },
   {
    "name": "member.add_member",
    "status": "PASS",
-   "detail": "{'ok': True, 'userId': 'cmuq38zla000glvrr0u93a8jk', 'isNewUser': True, 'role': 'MEMBER'}"
+   "detail": "{'ok': True, 'userId': 'cmuq7812x000glvyibsyppexy', 'isNewUser': True, 'role': 'MEMBER'}"
   },
   {
    "name": "member.add_admin",
    "status": "PASS",
-   "detail": "{'ok': True, 'userId': 'cmuq38zmf000llvrrs5bx0nog', 'isNewUser': True, 'role': 'ADMIN'}"
+   "detail": "{'ok': True, 'userId': 'cmuq78143000llvyiynxjxcfx', 'isNewUser': True, 'role': 'ADMIN'}"
   },
   {
    "name": "member.list",
@@ -56,22 +56,22 @@
   {
    "name": "member.add_org2_owner",
    "status": "PASS",
-   "detail": "{'ok': True, 'userId': 'cmuq38znt000qlvrr0fxtb5dx', 'isNewUser': True, 'role': 'OWNER'}"
+   "detail": "{'ok': True, 'userId': 'cmuq7815m000qlvyisdf0qbfa', 'isNewUser': True, 'role': 'OWNER'}"
   },
   {
    "name": "org2_owner.login_and_isolated",
    "status": "PASS",
-   "detail": "orgs=['cmuq38zj20006lvrrqejsby3h']"
+   "detail": "orgs=['cmuq7810j0006lvyier6ry8wb']"
   },
   {
    "name": "target.add_demo",
    "status": "PASS",
-   "detail": "{'id': 'cmuq38zpn000wlvrrschc7v0c', 'name': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a)', 'url': 'http://127.0.0.1:8777', 'isDemo': True}"
+   "detail": "{'id': 'cmuq781lo000wlvyi0d1uxzjk', 'name': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a)', 'url': 'http://127.0.0.1:8777', 'isDemo': True}"
   },
   {
    "name": "target.add_custom",
    "status": "PASS",
-   "detail": "{'id': 'cmuq38zpy0010lvrrt0zcntaq', 'name': 'Unreachable', 'url': 'http://127.0.0.1:59999/', 'isDemo': False}"
+   "detail": "{'id': 'cmuq781lz0010lvyi93wh4qc6', 'name': 'Unreachable', 'url': 'http://127.0.0.1:59999/', 'isDemo': False}"
   },
   {
    "name": "target.invalid_url_rejected",
@@ -136,7 +136,7 @@
   {
    "name": "scan.start",
    "status": "PASS",
-   "detail": "{'id': 'cmuq38zw7001klvrrjbd08653', 'status': 'RUNNING'}"
+   "detail": "{'id': 'cmuq781t2001klvyit5l2ybdn', 'status': 'RUNNING'}"
   },
   {
    "name": "scan.duplicate_rejected_409",
@@ -161,7 +161,7 @@
   {
    "name": "scan.has_runid",
    "status": "PASS",
-   "detail": "run-1f49dbe660"
+   "detail": "run-fc06f1e748"
   },
   {
    "name": "scan.findings_imported",
@@ -171,7 +171,7 @@
   {
    "name": "scan.stats_present",
    "status": "PASS",
-   "detail": "{'requests': 1208, 'endpoints': 60, 'candidates': 35, 'verified': 156, 'rejected': 0, 'duration': 65.91, 'authenticated'"
+   "detail": "{'requests': 1208, 'endpoints': 60, 'candidates': 35, 'verified': 156, 'rejected': 0, 'duration': 65.9, 'authenticated':"
   },
   {
    "name": "scan.by_severity",
@@ -191,7 +191,7 @@
   {
    "name": "finding.detail",
    "status": "PASS",
-   "detail": "{'finding': {'id': 'cmuq3afav001ulvrr3ym3h9z3', 'engineId': 'F-032bdac7bf', 'fingerprint': 'ef7b3dfdffe074b1', 'type': 'command_injection', 'severity'"
+   "detail": "{'finding': {'id': 'cmuq79h7u001ylvyiuswp7dyl', 'engineId': 'F-032bdac7bf', 'fingerprint': 'ef7b3dfdffe074b1', 'type': 'command_injection', 'severity'"
   },
   {
    "name": "finding.evidence_chain",
@@ -226,7 +226,7 @@
   {
    "name": "coverage.endpoint",
    "status": "PASS",
-   "detail": "{'scanId': 'cmuq38zw7001klvrrjbd08653', 'status': 'COMPLETED', 'coverage': {'discovered': 64, 'tested': 64, 'passive': 6"
+   "detail": "{'scanId': 'cmuq781t2001klvyit5l2ybdn', 'status': 'COMPLETED', 'coverage': {'discovered': 64, 'tested': 64, 'passive': 6"
   },
   {
    "name": "coverage.metrics",
@@ -251,17 +251,17 @@
   {
    "name": "report.create_html",
    "status": "PASS",
-   "detail": "{'id': 'cmuq3agi1009qlvrrtksw8rfv', 'title': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a) \u2014 \u062a\u0642\u0631\u064a\u0631 HTML \u2014 2026-10-01 22:12', 'format': 'HTML', 'sizeBytes': 270422}"
+   "detail": "{'id': 'cmuq79if4009qlvyixrpd8tq6', 'title': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a) \u2014 \u062a\u0642\u0631\u064a\u0631 HTML \u2014 2026-10-02 00:03', 'format': 'HTML', 'sizeBytes': 270421}"
   },
   {
    "name": "report.create_sarif",
    "status": "PASS",
-   "detail": "{'id': 'cmuq3agne009ulvrrl79jsu2u', 'title': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a) \u2014 \u062a\u0642\u0631\u064a\u0631 SARIF \u2014 2026-10-01 22:12', 'format': 'SARIF', 'sizeBytes': 147355}"
+   "detail": "{'id': 'cmuq79ikd009ulvyil2qogd69', 'title': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a) \u2014 \u062a\u0642\u0631\u064a\u0631 SARIF \u2014 2026-10-02 00:03', 'format': 'SARIF', 'sizeBytes': 147355}"
   },
   {
    "name": "report.create_executive",
    "status": "PASS",
-   "detail": "{'id': 'cmuq3agsj009ylvrrxe5d1xzs', 'title': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a) \u2014 \u062a\u0642\u0631\u064a\u0631 EXECUTIVE \u2014 2026-10-01 22:12', 'format': 'EXECUTIVE', 'sizeBytes': 10282}"
+   "detail": "{'id': 'cmuq79ipe009ylvyi614uywzo', 'title': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a) \u2014 \u062a\u0642\u0631\u064a\u0631 EXECUTIVE \u2014 2026-10-02 00:03', 'format': 'EXECUTIVE', 'sizeBytes': 10282}"
   },
   {
    "name": "report.list",

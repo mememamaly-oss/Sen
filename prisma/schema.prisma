@@ -40,6 +40,7 @@ model Organization {
   findings    Finding[]
   reports     Report[]
   auditLogs   AuditLog[]
+  twins       TwinGraph[]
 }
 
 // role: OWNER | ADMIN | MEMBER | VIEWER  (RBAC in src/lib/rbac.ts)
@@ -98,6 +99,7 @@ model Scan {
   createdBy   User         @relation(fields: [createdById], references: [id])
   findings    Finding[]
   reports     Report[]
+  twin        TwinGraph[]
 
   @@index([orgId, createdAt])
   @@index([targetId, status])
@@ -162,4 +164,27 @@ model AuditLog {
   user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([orgId, createdAt])
+}
+
+// PHASE 02 L1: normalized Security Twin — deterministic post-scan intelligence
+// graph rebuilt from raw engine output (result.json / DB reconstruction).
+// graphJson = the full NormalizedTwin (nodes/edges/conflicts/knownUnknowns/
+// counts/twinHash); raw engine output is NEVER stored here as a substitute
+// for normalization. Tenant isolation: unique(orgId, scanId) + every query
+// org-scoped (persist.ts).
+model TwinGraph {
+  id                String   @id @default(cuid())
+  orgId             String
+  scanId            String
+  twinSchemaVersion String
+  contentHash       String   // twinHash — deterministic content hash
+  countsJson        String
+  graphJson         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  org               Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  scan              Scan         @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@unique([orgId, scanId])
+  @@index([orgId])
 }
