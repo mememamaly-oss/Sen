@@ -700,3 +700,28 @@ Stage Summary:
 - ALL git anchors survived both strikes: phase/02-l1-twin = recovery/l1-candidate-2026-10-02 = b99fd766978d1afeea4a17f2133c81c277d38e6c; v4.1.1 = release/v4.1.1 = 2d5ce2f613faafc2683b30316a2f44c2dddf785e; all objects alive; package hashes re-verified (PRIMARY 39fa825d0193a9f02f4d2c9fd5a79d751af82f570ddc25755d36c170e23c645e, SECONDARY identical, SOURCE 578709f6…, STATE de249dad…).
 - RECOVERY (per the stop rule, no random rebuilding): symbolic-ref HEAD -> phase/02-l1-twin + mixed reset + checkout -- . restored the G'' tree (status clean 0/0, key files + hashes verified); post-incident re-verification: engine diff vs tag = 0, v4.1.1 tag vs frozen archive = 0, unit suite re-run 163/163 (below).
 - PERMANENT MITIGATION (the documented L1-R pattern): refs/heads/main now points at THIS commit (the recovered full state, L1 code included) so supervisor checkouts of main are HARMLESS — main no longer sits at a pre-L1 state. v4.1.1 / release/v4.1.1 NOT repointed (unchanged since re-anchor).
+
+---
+Task ID: 5
+Agent: Super Z (main agent)
+Task: Supervisor verdict on normalize.ts submission reframed the review target: the "proof" claim lives in the ENGINE, not L1. Instruction: send the engine code that generates `verification` — specifically what makes the engine write passed=true.
+
+Work Log:
+- Located all engine copies; confirmed canonical live engine = build-v411 (ENGINE_DIR in src/lib/engine.ts). intel.py identical between v4.1.0/v4.1.1.
+- Read build-v411/sentinel/intel.py (648 lines) completely — VerificationEngine.verify() with 17 explicit type branches + else branch.
+- Read core.py models (Verification, Finding, FindingStatus, to_dict serialization).
+- Traced orchestrator.py: findings flow (verify() calls at L403/416/446/488/507/529/572; authz/workflow/graphql/websocket findings extended DIRECTLY at L608/647/711/743 without verify()); report() serializes VERIFIED→findings, REJECTED→rejected_candidates (L1176-1180).
+- Read authz.py VR-17 (idor fresh-victim-object) + VR-18 (priv-esc fresh-privileged-replay) — computed passed=ok from real replays.
+- Read workflow.py _finding factory (passed=True hardcoded) + verified ALL 12 call sites perform real pre/post state-oracle differentials with no_proof returns.
+- Read graphql.py _gql_finding factory (passed=True hardcoded) + call sites (error signature, row-count differential, cmd-output pattern — real oracles).
+- Read websocket.py _ws_finding factory (passed=True hardcoded, 0.85).
+- Read orchestrator passive path: passive_audit (4 LOW types) → verifier.verify() → else branch.
+- Exhaustive grep of ALL passed=/Verification( sites in build-v411/sentinel — exactly 5 producers, no sixth.
+
+Stage Summary:
+- COMPLETE MAP of passed=true producers (the supervisor's single question):
+  * Tier A (computed verdicts): intel.py 17 branches (real replays: boolean pairs, body differentials, OOB fresh-id + is_self_callback filter, browser DOM execution, SSTI computation oracle, marker checks, header reflection) + authz VR-17/18.
+  * Tier B (stamped passed=True by construction): workflow/graphql/websocket factories — real proofs at call sites TODAY, but the Verification object asserts rather than derives; discipline is convention not mechanism.
+  * Tier C (no verification at all): intel.py else branch — passive_audit 4 types + ANY unlisted future type → passed=True confidence=0.98 (HIGHEST in engine), "verified by definition of presence", zero replay, fail-open catch-all.
+- NEW WEAKNESSES FOUND (beyond supervisor's ask): (1) else-branch 0.98 > SQLi 2-round 0.95; (2) csrf VR-13 + nosql VR-14 oracles are just r.ok (HTTP 2xx) — nearly vacuous; (3) SQLi PATH A length-diff half (abs diff > 200B, NO same-status control, unlike PATH D's VR-04 fix) — dynamic-content FP vector; (4) open_redirect body fallback loose; (5) credential_exposure VR-19 oracle = same SecretsScanner re-fires (reproducible detection, not ground truth).
+- No files modified. L2/Attack Paths/engine still frozen. Bundle download still pending user-side.

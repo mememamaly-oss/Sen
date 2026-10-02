@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///home/z/my-project/src/app/page.tsx"],"sourcesContent":["\"use client\";\n\n// Root: authenticated -> overview; otherwise -> login.\nimport { useEffect } from \"react\";\nimport { useRouter } from \"next/navigation\";\nimport { useSession } from \"@/lib/ui/session\";\nimport { useI18n } from \"@/lib/ui/i18n\";\n\nexport default function RootPage() {\n  const { ready, me } = useSession();\n  const router = useRouter();\n  const { t } = useI18n();\n\n  useEffect(() => {\n    if (!ready) return;\n    router.replace(me ? \"/overview\" : \"/login\");\n  }, [ready, me, router]);\n\n  return (\n    <div className=\"flex min-h-dvh items-center justify-center\">\n      <p className=\"text-sm font-semibold text-muted-foreground\" role=\"status\">\n        {t(\"common.loading\")}\n      </p>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;AAEA,uDAAuD;AACvD;AACA;AACA;AACA;AANA;;;;;;AAQe,SAAS;IACtB,MAAM,EAAE,KAAK,EAAE,EAAE,EAAE,GAAG,IAAA,0IAAU;IAChC,MAAM,SAAS,IAAA,+IAAS;IACxB,MAAM,EAAE,CAAC,EAAE,GAAG,IAAA,oIAAO;IAErB,IAAA,kNAAS,EAAC;QACR,IAAI,CAAC,OAAO;QACZ,OAAO,OAAO,CAAC,KAAK,cAAc;IACpC,GAAG;QAAC;QAAO;QAAI;KAAO;IAEtB,qBACE,8OAAC;QAAI,WAAU;kBACb,cAAA,8OAAC;YAAE,WAAU;YAA8C,MAAK;sBAC7D,EAAE;;;;;;;;;;;AAIX"}}]
+}
