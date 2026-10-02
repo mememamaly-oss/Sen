@@ -725,3 +725,35 @@ Stage Summary:
   * Tier C (no verification at all): intel.py else branch — passive_audit 4 types + ANY unlisted future type → passed=True confidence=0.98 (HIGHEST in engine), "verified by definition of presence", zero replay, fail-open catch-all.
 - NEW WEAKNESSES FOUND (beyond supervisor's ask): (1) else-branch 0.98 > SQLi 2-round 0.95; (2) csrf VR-13 + nosql VR-14 oracles are just r.ok (HTTP 2xx) — nearly vacuous; (3) SQLi PATH A length-diff half (abs diff > 200B, NO same-status control, unlike PATH D's VR-04 fix) — dynamic-content FP vector; (4) open_redirect body fallback loose; (5) credential_exposure VR-19 oracle = same SecretsScanner re-fires (reproducible detection, not ground truth).
 - No files modified. L2/Attack Paths/engine still frozen. Bundle download still pending user-side.
+
+---
+Task ID: 6
+Agent: Super Z (main agent)
+Task: Supervisor verdict on the engine review (this conversation's round): "the proof is real where it matters most (injection/OOB/DOM), broken in named corners (else 0.98 catch-all, csrf/nosql = r.ok, PATH A loose, stamp factories), architecturally fragile". Order: STOP sending files — fix the four break points, then go external (authorized targets), compare judgments with known truth. Bundle download urged twice.
+
+Work Log:
+- ROLLBACK #10 DISCOVERED at session start: download/ GONE entirely (original bundle SHA256 2dc9f0e1...56bd0b destroyed with it); container junk commit 45e0fb0 had swept 639 untracked files into git (.next ~90MB, tool-results, pycache) and gutted .gitignore 22->2 lines. All git anchors survived; all 4 committed archives hash-exact (39fa825d/6636c372/93e883f8/f7c6d219).
+- HYGIENE COMMIT 63aa29a: restored full .gitignore, untracked the junk. .env verified = DATABASE_URL only (no secret leak). Early safety bundle regenerated (1a393163...), superseded by the final one.
+- SUPERVISOR'S OPEN QUESTION VERIFIED IN CODE: SsrfDetector/CommandInjectionDetector are needs_oast-gated (inert without OAST; findings only on callback hits) — so ssrf/cmdi-without-OOB did not exist TODAY, but the structural fall-through into the else was real and is now impossible (explicit fail-closed branch).
+- READ-THEN-FIX (build-v411 = frozen baseline, untouched): intel.py (648L full re-read), core.py models, orchestrator passive_audit+report, the 3 factories + all 25 call sites (12 workflow / 9 graphql / 4 websocket), detect.py emission logic, fixture ground truth, tests asserting VR method strings.
+- BUILD-V420 created (cp -a from v411) + FOUR FIXES applied:
+  * VF-01: _PRESENCE_VERIFIED_TYPES frozenset (4 passive types, conf 0.98->0.70); ssrf/cmdi no-OOB -> "unverified:blind-class-no-oob" CANDIDATE; unlisted -> "unverified:no-branch" CANDIDATE; report() gains unverified_candidates array + stats count.
+  * VF-02: VR-13 csrf triple control (same-origin baseline / fresh hostile Origin same-status+similar-body / malformed-input control rejected; no-discrimination -> CANDIDATE "unverified:no-input-discrimination"); VR-14 nosql reproduced flip (literal rejected -> fresh $gt accepted).
+  * VF-03: PATH A body-diff half now same-status + max(200, 25%) (mirrors PATH D).
+  * VF-04: proof protocol in all 3 factories — passed DERIVED from raw obs via closed rule sets (workflow 5 rules/12 sites; graphql 7 rules/9 sites; websocket 4 rules/4 sites); missing proof/unknown rule -> ValueError; failed derivation -> REJECTED.
+  * VERSION 4.2.0; SaaS ENGINE_DIR -> build-v420; +1 new regression test (unit_v420_fail_closed_verification_defaults); 1 test assertion updated to new method format (documented).
+- GATES: tests 102/102 in 9 chunks (file-captured, merged to results/tests_v420_FULL.json); doctor 15/15; benchmark x3 F1=1.000 deterministic (run-3c0652b6be identical x3), passive conf 0.70, csrf 0.85 triple-control, nosql 0.9 flip, zero unverified on fixture.
+- LIVE VALIDATION (all 4 authorized targets alive; http for the vulnweb/testfire trio — their TLS endpoints are dead/broken — https for ginandjuice):
+  * testasp.vulnweb.com (app drifted to "acuforum forums"): 649 req, 8 verified actives — all 3 prior known truths RE-VERIFIED (SQLi showforum.asp?id .95 PATH-A-status-half, traversal Templatize.asp?item, XSS Search.asp?tfSearch) + 5 new legitimate (SQLi showthread + error-based Search/Login/Register); 3 xss honestly REJECTED; 0 unverified; FP 0.
+  * testaspnet.vulnweb.com (routes drifted, /Search.aspx now 404): SQLi VERIFIED on current surface ReadNews.aspx?id (.95) — bounded run documented (--max-pages 12 --no-oast; full-OAST profile exceeds the 10-min single-call budget here: operational limit recorded honestly, not a defect).
+  * demo.testfire.net: SQLi /doLogin auth-bypass RE-VERIFIED via PATH C redirect-differential (the exact manual ground truth); XSS index.jsp?content (the old-era FALSE NEGATIVE) now RE-VERIFIED via variant-battery-6; + XSS search.jsp + sendFeedback x2. FP 0.
+  * ginandjuice.shop: 7 verified actives — SQLi /catalog?category= PATH D .95 (tightened PATH A cost NOTHING — chain falls to the correct oracle); header injection .9; XXE via LIVE OOB callback (fresh-interaction-id); cart CSRF RE-VERIFIED UNDER THE NEW TRIPLE CONTROL (.85, rounds=3 — the new oracle strengthens a real CSRF instead of strangling it); + ng-expression XSS / open_redirect. FP 0.
+- COMMIT d861264 + annotated tag v4.2.0 + branch release/v4.2.0 (main; build-v411/tag v4.1.1 untouched).
+- FINAL BUNDLE regenerated (the pre-fix copy replaced): SHA256 ed1e66e9eee6329576f3797f86b35a93afc4771d776945678ebabe9fd262b18c, 391MB, complete history, HEAD d861264. download/ restored: bundle + .sha256 + SECONDARY package copy (39fa825d... byte-identical to PRIMARY) + README + SHA256SUMS. Docs: build-v420/CHANGELOG v4.2.0 entry + build-v420/docs/VERIFICATION_FIXES_v420.md (full live-comparison record).
+- Session tooling note: 3 Bash timeouts traced to giant stdout capture (printing the findings ARRAY inside bench JSON) — fixed by file-based summaries; shell itself healthy.
+
+Stage Summary:
+- All four supervisor-ordered break points FIXED and gated (102/102, F1=1.000 x3, doctor 15/15); the honesty layer is real: fail-closed by default, proof-derived passed, visible unverified_candidates.
+- External validation answered the session's central question: on 4 live authorized targets the v4.2.0 judgments matched every independently known truth with ZERO false positives — including the cases the OLD weak oracles would have inflated (csrf cart now carries a triple-control proof; blanket-2xx demotion unit-proven).
+- The escape pod is rebuilt and better than the lost original: download/SENTINEL-git-fullstate-2026-10-02.bundle (ed1e66e9...) now CONTAINS the v4.2.0 fixes. USER DOWNLOAD STILL PENDING — third request this session.
+- Untouched per the standing bans: L2, Attack Paths, L1 fixes (still pending the supervisor's timing ruling: dead code verifiedClaimIsSound, hasEvidence comment, INV-05 coverage, CONFLICT poisoning priority), engine build-v411 frozen baseline.
