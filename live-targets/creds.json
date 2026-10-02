@@ -1,9 +1,0 @@
-{
- "user": "sentinel9x",
- "password": "sentinel-live-2026",
- "login_page": "http://127.0.0.1:8080/WebGoat/login",
- "login_post": "http://127.0.0.1:8080/WebGoat/login",
- "user_field": "username",
- "pass_field": "password",
- "register": "http://127.0.0.1:8080/WebGoat/register.mvc"
-}

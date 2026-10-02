@@ -1,0 +1,26 @@
+=== A. users password masking (anonymous) ===
+200 {"data":{"users":[{"id":"1","username":"admin","password":"******"},{"id":"2","username":"operator","password":"******"},{"id":"3","username":"sentinel41a","password":"******"}]}}
+
+=== B. SQLi boolean differential on pastes(filter) ===
+BASE (no match): 200 {"data":{"pastes":[]}}
+OR-TRUE: 200 {"data":{"pastes":[{"id":"13","title":"sentinel-probe"},{"id":"12","title":"This is my first paste"},{"id":"11","title":"What is this even"},{"id":"10","title":"Testing Testing"},{"id":"9","title":"This is my first paste"},{"id":"8","title":"Whoa this is cool"},{"id":"7","title":"Whoa this is cool"},{"id":"6","title":"What is this even"},{"id":"5","title":"Testing Testing"},{"id":"4","title":"Testing Testing"},{"id":"3","title":"Testing Testing"},{"id":"2","title":"555-555-1337"},{"id":"1","title":"Testing Testing"}]}}
+SYNTAX-BREAK (double quote): 200 {"errors":[{"message":"(sqlite3.OperationalError) near \"x''\": syntax error\n[SQL: SELECT pastes.id AS pastes_id, pastes.title AS pastes_title, pastes.content AS pastes_content, pastes.public AS pastes_public, pastes.user_agent AS pastes_user_agent, pastes.ip_addr AS pastes_ip_addr, pastes.owner_id AS pastes_owner_id, pastes.burn AS pastes_burn \nFROM pastes \nWHERE pastes.public = 0 AND pastes.burn = 0 AND title = 'x'''' or content = 'x'''' ORDER BY pastes.id DESC\n LIMIT ? OFFSET ?]\n[parameters: (1000, 0)]\n(Background on this error at: https://sqlalche.me/e/14/e3q8)"}],"data":{"pastes":null}}
+
+=== C. systemDebug with 'aux' (safe read-only ps flag) ===
+200 {"data":{"systemDebug":"USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND\nroot         1  0.0  0.0   2564  1100 pts/0    Ss   20:31   0:00 /usr/bin/tini -- /start.sh\nroot         2  0.0  1.1 1267500 46788 pts/0   Sl+  20:31   0:00 caddy run --config /app/Caddyfile --adapter caddyfile\nroot       883  0.0  0.8 222328 35360 pts/0    Sl+  20:32   0:00 uv run main.py\nroot    
+
+=== D. private paste + BOLA flow: login sentinel41a, create PRIVATE paste ===
+token: True
+200 {"data":{"createPaste":{"paste":{"id":"14","title":"sentinel-private"}}}}
+
+=== E. anonymous reads that private paste (paste id from D) ===
+owner sees: {"data":{"pastes":[{"id":"14","title":"sentinel-private","content":"PRIVATE-CONTENT-MARKER","public":false}]}}
+anonymous paste(id: 14): 200 {"data":{"paste":{"id":"14","title":"sentinel-private","content":"PRIVATE-CONTENT-MARKER","public":false}}}
+
+=== F. audits exposure (anonymous) ===
+200 {"data":{"audits":[{"id":"1"},{"id":"2"},{"id":"3"},{"id":"4"},{"id":"5"},{"id":"6"},{"id":"7"},{"id":"8"},{"id":"9"},{"id":"10"},{"id":"11"},{"id":"12"},{"id":"13"},{"id":"14"},{"id":"15"},{"id":"16"},{"id":"17"},{"id":"18"},{"id":"19"},{"id":"20"},{"id":"21"},{"id":"22"},{"id":"23"},{"id":"24"},{"
+
+=== G. deleteAllPastes exists in schema? (planner vocabulary check) ===
+200 {"data":{"__type":{"fields":[{"name":"pastes"},{"name":"paste"},{"name":"systemUpdate"},{"name":"systemDiagnostics"},{"name":"systemDebug"},{"name":"systemHealth"},{"name":"users"},{"name":"readAndBurn"},{"name":"search"},{"name":"audits"},{"name":"deleteAllPastes"},{"name":"me"}]}}}
+
+DONE

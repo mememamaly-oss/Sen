@@ -1,1 +1,0 @@
-[!] --logic-active: business-logic attack probes are ENABLED — state-changing manipulations (step bypass / out-of-order / value tamper / duplicate execution / privilege bound / cross-user / cross-object / cross-state) WILL be executed against the target with canary values and bounded budgets.

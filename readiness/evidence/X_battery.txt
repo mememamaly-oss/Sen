@@ -1,6 +1,0 @@
-== X03: kill -9 at T+45s (full battery: workflow window) ==
-== X04: kill -9 at T+70s (OAST window of the battery) ==
-kill-oast-window: integrity= ok | runs= 1 | findings= 147
-== X08: resume equivalent — rerun full battery into killed DB ==
-rerun exit=0
-after-rerun: integrity= ok | runs= 1 | findings= 147

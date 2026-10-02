@@ -1,0 +1,40 @@
+=== 1. introspection (default mode) ===
+200 {"data":{"__schema":{"queryType":{"name":"Query"},"mutationType":{"name":"Mutations"}}}}
+
+=== 2. anonymous sensitive query: users (email excluded? password gated?) ===
+400 {"errors":[{"message":"Cannot query field \"email\" on type \"UserObject\".","locations":[{"line":1,"column":23}]}]}
+
+=== 3. SQLi probe: pastes(filter:) single quote ===
+200 {"data":{"pastes":[]}}
+
+=== 4. command exec probe: systemDebug (SAFE marker only) ===
+200 {"data":{"systemDebug":""}}
+
+=== 5. BOLA: paste by id (anonymous) ===
+200 {"data":{"paste":{"id":"1","title":"Testing Testing","content":"My First Paste"}}}
+
+=== 6. createUser + login ===
+200 {"errors":[{"message":"(sqlite3.IntegrityError) UNIQUE constraint failed: users.email\n[SQL: INSERT INTO users (username, email, password) VALUES (?, ?, ?)]\n[parameters: ('sentinel41a', 'a@t.local', 'test1234')]\n(Background on this error at: https://sqlalche.me/e/14/gkpj)","locations":[{"line":1,"column":12}],"path":["createUser"]}],"data":{"createUser":null}}
+200 {"data":{"login":{"accessToken":"[REDACTED]"}}}
+TOKEN: [REDACTED]
+
+=== 7. authenticated users query — field-level authz ===
+400 {"errors":[{"message":"Cannot query field \"email\" on type \"UserObject\".","locations":[{"line":1,"column":32}]}]}
+
+=== 7b. me(token) query ===
+200 {"data":{"me":{"id":"3","username":"sentinel41a"}}}
+
+=== 8. anonymous createPaste (mutation without auth) ===
+200 {"data":{"createPaste":{"paste":{"id":"13","title":"sentinel-probe"}}}}
+
+=== 9. readAndBurn state test (id that does not exist = zero-effect probe) ===
+200 {"data":{"readAndBurn":null}}
+
+=== 10. aliases + fragments + variables feasibility ===
+200 {"data":{"a1":[]}}
+200 {"data":{"pastes":[{"id":"13","title":"sentinel-probe"},{"id":"12","title":"This is my first paste"}]}}
+
+=== 11. systemDiagnostics (auth gate check, wrong creds) ===
+200 {"data":{"systemDiagnostics":"Username is invalid"}}
+
+DONE
