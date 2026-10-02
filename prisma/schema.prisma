@@ -1,0 +1,165 @@
+// SENTINEL SaaS Platform schema (P0) — multi-tenant layer on top of the
+// UNMODIFIED security engine (build-v411, tagged v4.1.1).
+// Tenant isolation: every business row carries orgId and every query is
+// membership-guarded at the API layer (src/lib/rbac.ts).
+// NOTE: SQLite does not support enums — role/status/severity are validated
+// in code (RBAC_WHITELISTS in src/lib/rbac.ts).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  memberships  Membership[]
+  targetsOwned Target[]
+  scansRun     Scan[]
+  reportsMade  Report[]
+  auditLogs    AuditLog[]
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  memberships Membership[]
+  targets     Target[]
+  scans       Scan[]
+  findings    Finding[]
+  reports     Report[]
+  auditLogs   AuditLog[]
+}
+
+// role: OWNER | ADMIN | MEMBER | VIEWER  (RBAC in src/lib/rbac.ts)
+model Membership {
+  id        String   @id @default(cuid())
+  userId    String
+  orgId     String
+  role      String
+  createdAt DateTime @default(now())
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, orgId])
+  @@index([orgId])
+}
+
+model Target {
+  id          String       @id @default(cuid())
+  orgId       String
+  createdById String
+  name        String
+  url         String
+  description String?
+  isDemo      Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  scans       Scan[]
+  findings    Finding[]
+
+  @@index([orgId])
+}
+
+// status: QUEUED | RUNNING | COMPLETED | FAILED | CANCELLED
+model Scan {
+  id          String       @id @default(cuid())
+  orgId       String
+  targetId    String
+  createdById String
+  status      String
+  optionsJson String       // snapshot of the options the operator chose
+  runId       String? // engine run id (run-xxxxxxxx)
+  scanner     String? // e.g. sentinel-core/4.1.1
+  statsJson   String? // full engine stats incl. coverage + boundary
+  enginePid   Int?
+  resultPath  String?
+  logPath     String?
+  error       String?
+  startedAt   DateTime?
+  finishedAt  DateTime?
+  durationSec Float?
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  target      Target       @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  findings    Finding[]
+  reports     Report[]
+
+  @@index([orgId, createdAt])
+  @@index([targetId, status])
+}
+
+model Finding {
+  id               String       @id @default(cuid())
+  orgId            String
+  scanId           String
+  targetId         String
+  engineId         String // F-xxxxxxxxxx (engine identifier, stable per run)
+  fingerprint      String? // engine store fingerprint (recurring analysis)
+  type             String
+  severity         String // critical | high | medium | low | info
+  status           String // verified | candidate | ...
+  confidence       Float
+  risk             Int
+  method           String?
+  url              String
+  parameter        String?
+  evidenceJson     String // engine evidence chain (list of {kind, detail})
+  verificationJson String // engine verification record
+  impactJson       String // engine impact {grade, statement, safe_proof, evidence_chain}
+  proofJson        String? // engine Evidence-OS proof (reproduction recipe) when present
+  createdAt        DateTime     @default(now())
+  org              Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  scan             Scan         @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  target           Target       @relation(fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([scanId, engineId])
+  @@index([orgId, severity])
+  @@index([orgId, type])
+  @@index([scanId])
+}
+
+// format: HTML | JSON | SARIF | EXECUTIVE | GLASS
+model Report {
+  id          String       @id @default(cuid())
+  orgId       String
+  scanId      String?
+  createdById String
+  format      String
+  title       String
+  filePath    String
+  sizeBytes   Int          @default(0)
+  createdAt   DateTime     @default(now())
+  org         Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  scan        Scan?        @relation(fields: [scanId], references: [id], onDelete: SetNull)
+  createdBy   User         @relation(fields: [createdById], references: [id])
+
+  @@index([orgId, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  orgId     String?
+  userId    String?
+  action    String
+  detail    String?
+  createdAt DateTime @default(now())
+  org       Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([orgId, createdAt])
+}

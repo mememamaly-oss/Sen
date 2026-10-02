@@ -1,0 +1,903 @@
+=== COVERAGE ===
+{
+ "discovered": 68,
+ "tested": 68,
+ "passive": 68,
+ "secrets_scanned": 68,
+ "active": 64,
+ "authz_probed": 6,
+ "active_or_authz": 64,
+ "untested": 0,
+ "skip_reasons": {
+  "param_intel:json_object": 1
+ },
+ "coverage_pct": 100.0,
+ "endpoints": [
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/about",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 404
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/account",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/account",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/admin/",
+   "source": "robots.txt",
+   "activity": [
+    "passive",
+    "secrets",
+    "active",
+    "authz"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/angular_1-7-7.js",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/api/",
+   "source": "js:static",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 404
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/api/admin/stats",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active",
+    "authz"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/api/data",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active",
+    "authz"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/api/filter",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [
+    "param_intel:json_object"
+   ],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/api/secure/admin/stats",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active",
+    "authz"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/api/secure/data",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active",
+    "authz"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/api/users",
+   "source": "js:static",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 404
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/app.js",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/backup/db.sql",
+   "source": "robots.txt",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/blind/stock",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 400
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/hidden.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/home",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/jsbuild.js",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/lab",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/login",
+   "source": "crawl:html",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/cors",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/safe/csrf-action",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/divform",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/dom-text",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/fetch",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/hostbuild",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/item.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/safe/json-reflect",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/jsparam.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/safe/jwt-login",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/leak-config",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/safe/nosql-login",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 401
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/safe/oob-stock",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 400
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/ping",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/read.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/search.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/safe/ssti",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/safe/stock",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 400
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/stockapp.js",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/tracker.gif",
+   "source": "js:static",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 404
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vault/transfer",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active",
+    "authz"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/cors",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/csrf-action",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/csrf-reflect",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/csrfdivform",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/divform",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/dom-write",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/dom-write",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/fetch",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/hostbuild",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/jsform",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/jsform-reflect",
+   "source": "dom:browser",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/json-reflect",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/jsparam.php",
+   "source": "js:static",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/jwt-login",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/leak-config",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/nosql-login",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 401
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/oob-stock",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 400
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/ping",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/redirect.php",
+   "source": "crawl:html",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 302
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/sqli_blind.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/sqli_error.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/ssti",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "POST",
+   "url": "http://127.0.0.1:8812/vuln/stock",
+   "source": "crawl:form",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 400
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/traversal.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:8812/vuln/xss.php",
+   "source": "seed",
+   "activity": [
+    "passive",
+    "secrets",
+    "active"
+   ],
+   "skips": [],
+   "baseline": 200
+  }
+ ],
+ "detail_truncated": 0
+}
+=== crawl/endpoints ===
+{
+ "requests": 1366,
+ "endpoints": 68,
+ "crawl": {
+  "pages": 46,
+  "unique_endpoints": 65,
+  "dom_sink_candidates": 1
+ },
+ "browser_pages": 15
+}
+=== authz summary ===
+{
+ "ran": true,
+ "accounts_logged_in": 3,
+ "roles": [
+  "admin",
+  "user"
+ ],
+ "requests": 34,
+ "matrix": null
+}
+=== param_intel (kinds/data_objects keys) ===
+{
+ "by_kind": {
+  "email": 2,
+  "filename": 2,
+  "generic": 15,
+  "json_object": 1,
+  "numeric": 13,
+  "search": 10,
+  "token": 2,
+  "url": 3
+ },
+ "data_object_keys": [
+  "acct",
+  "id",
+  "user_id"
+ ]
+}
+=== findings by type ===
+{
+ "sql_injection": 4,
+ "ssti": 1,
+ "command_injection": 1,
+ "nosql_injection": 1,
+ "xxe": 2,
+ "vertical_privilege_escalation": 1,
+ "credential_exposure": 3,
+ "idor_bola": 1,
+ "xss_reflected": 8,
+ "path_traversal": 1,
+ "ssrf": 1,
+ "xss_dom": 1,
+ "cors_misconfig": 1,
+ "http_response_header_injection": 1,
+ "host_header_injection": 1,
+ "csrf": 1,
+ "jwt_security": 1,
+ "open_redirect": 1,
+ "missing_security_headers": 66,
+ "vulnerable_js_dependency": 1,
+ "server_banner_disclosure": 66
+}
+=== untested endpoint urls (if any) ===

@@ -1,0 +1,6 @@
+# SENTINEL v4.1.1 release archives — created 2026-10-01T01:59:39Z
+# source : 1263577 bytes — git archive from tag v4.1.1:build-v411 (bit-exact with tag 5dfa75d)
+# evidence: 395523 bytes — gap-validation/{results,logs} + download/sentinel-v411-gap-closure (live DVGA/DVWS proof)
+# verify with: sha256sum -c SENTINEL-v4.1.1.sha256
+f7c6d219ad0ee8fad29f51d776b59adf95fd4f3c2334fdb20568e17b719fcfbb  SENTINEL-v4.1.1-source.tar.gz
+93e883f8225982e8c6be890fa84812e0064060dec489fc7cf99268506bf2cc24  SENTINEL-v4.1.1-live-evidence.tar.gz

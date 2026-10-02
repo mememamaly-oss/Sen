@@ -1,0 +1,210 @@
+{
+ "kind": "executive",
+ "run_id": "run-3afab89578",
+ "target": "https://ginandjuice.shop/",
+ "scanner": "sentinel-core/4.0.0",
+ "risk_posture": "critical",
+ "risk_language": "Immediate compromise potential — an attacker can take over sessions, data or hosts without further preconditions.",
+ "verified_findings": 35,
+ "by_severity": {
+  "critical": 1,
+  "high": 3,
+  "low": 29,
+  "medium": 2
+ },
+ "by_type": {
+  "missing_security_headers": 28,
+  "xss_reflected": 2,
+  "sql_injection": 1,
+  "http_response_header_injection": 1,
+  "csrf": 1,
+  "open_redirect": 1,
+  "vulnerable_js_dependency": 1
+ },
+ "affected_assets": {
+  "https://ginandjuice.shop/": [
+   "low"
+  ],
+  "https://ginandjuice.shop/about": [
+   "low"
+  ],
+  "https://ginandjuice.shop/blog": [
+   "low"
+  ],
+  "https://ginandjuice.shop/blog/": [
+   "low",
+   "medium"
+  ],
+  "https://ginandjuice.shop/blog/post": [
+   "low"
+  ],
+  "https://ginandjuice.shop/catalog": [
+   "critical",
+   "high",
+   "low"
+  ],
+  "https://ginandjuice.shop/catalog/cart": [
+   "low",
+   "medium"
+  ],
+  "https://ginandjuice.shop/catalog/product": [
+   "low"
+  ],
+  "https://ginandjuice.shop/catalog/product/stock": [
+   "low"
+  ],
+  "https://ginandjuice.shop/catalog/subscribe": [
+   "low"
+  ],
+  "https://ginandjuice.shop/logout": [
+   "low"
+  ],
+  "https://ginandjuice.shop/my-account": [
+   "low"
+  ],
+  "https://ginandjuice.shop/order/details": [
+   "low"
+  ],
+  "https://ginandjuice.shop/promise": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/css/labsBlog.css": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/css/labsEcommerce.css": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/css/labsScanme.css": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/footer/js/scanme.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/images/tracker.gif": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/angular_1-7-7.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/deparam.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/react-dom.development.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/react.development.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/searchLogger.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/stockCheck.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/subscribeNow.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/js/xmlStockCheckPayload.js": [
+   "low"
+  ],
+  "https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css": [
+   "low"
+  ]
+ },
+ "top_risks": [
+  {
+   "type": "sql_injection",
+   "severity": "critical",
+   "risk": 85,
+   "asset": "https://ginandjuice.shop/catalog",
+   "parameter": "category",
+   "verified_by": "oracle:or-bodydiff-2round"
+  },
+  {
+   "type": "xss_reflected",
+   "severity": "high",
+   "risk": 63,
+   "asset": "https://ginandjuice.shop/catalog",
+   "parameter": "category",
+   "verified_by": "re-test:variant-battery-6"
+  },
+  {
+   "type": "xss_reflected",
+   "severity": "high",
+   "risk": 59,
+   "asset": "https://ginandjuice.shop/catalog",
+   "parameter": "searchTerm",
+   "verified_by": "re-test:fresh-ng-expression"
+  },
+  {
+   "type": "http_response_header_injection",
+   "severity": "high",
+   "risk": 54,
+   "asset": "https://ginandjuice.shop/catalog",
+   "parameter": "category",
+   "verified_by": "re-test:fresh-header-name"
+  },
+  {
+   "type": "csrf",
+   "severity": "medium",
+   "risk": 42,
+   "asset": "https://ginandjuice.shop/catalog/cart",
+   "parameter": "productId, redir, quantity",
+   "verified_by": "re-test:fresh-hostile-origin"
+  },
+  {
+   "type": "open_redirect",
+   "severity": "medium",
+   "risk": 34,
+   "asset": "https://ginandjuice.shop/blog/",
+   "parameter": "search",
+   "verified_by": "re-test:second-host"
+  },
+  {
+   "type": "missing_security_headers",
+   "severity": "low",
+   "risk": 19,
+   "asset": "https://ginandjuice.shop/",
+   "parameter": "",
+   "verified_by": "single-response-evidence"
+  },
+  {
+   "type": "missing_security_headers",
+   "severity": "low",
+   "risk": 19,
+   "asset": "https://ginandjuice.shop/my-account",
+   "parameter": "",
+   "verified_by": "single-response-evidence"
+  }
+ ],
+ "business_impact": {
+  "data_exposure": true,
+  "session_takeover": true,
+  "unauthorized_actions": false,
+  "infrastructure": false
+ },
+ "coverage_proof": {
+  "discovered": 34,
+  "tested": 34,
+  "coverage_pct": 100.0,
+  "untested_reasons": {}
+ },
+ "application_model": {
+  "surfaces": 29,
+  "identities": 1,
+  "entities": 3,
+  "workflows": 0,
+  "graph_nodes": 86
+ },
+ "reasoning_coverage": {
+  "generated": 2,
+  "verified": 1,
+  "refuted": 1,
+  "untestable": 0
+ },
+ "safety_contract": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked",
+ "ci_gate": {
+  "fail_on_high": 2,
+  "exit_code_rule": "exit 1 when verified critical/high findings > 0"
+ }
+}

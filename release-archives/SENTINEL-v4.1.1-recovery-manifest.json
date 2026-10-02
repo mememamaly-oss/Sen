@@ -1,0 +1,66 @@
+{
+  "manifest_version": 1,
+  "version": "4.1.1",
+  "engine_version": "sentinel-core/4.1.1",
+  "product": "SENTINEL — SaaS DAST platform + engine",
+  "baseline_status": "VERIFIED_RECOVERED",
+  "recovery_event": "container-rollback-4",
+  "source_archive": "release-archives/SENTINEL-v4.1.1-source.tar.gz",
+  "source_sha256": "f7c6d219ad0ee8fad29f51d776b59adf95fd4f3c2334fdb20568e17b719fcfbb",
+  "source_archive_bytes": 1263577,
+  "evidence_archive": "release-archives/SENTINEL-v4.1.1-live-evidence.tar.gz",
+  "evidence_sha256": "93e883f8225982e8c6be890fa84812e0064060dec489fc7cf99268506bf2cc24",
+  "evidence_archive_bytes": 395523,
+  "recovery_commit": "184871ec597e45135b56e7b0aca6eebf3116c1e2",
+  "recovery_commit_subject": "recovery: re-anchor verified SENTINEL v4.1.1 baseline (container rollback #4)",
+  "full_state_commit": "c3b79bbd243325ec76d6f63e751a2b42d019b5f1",
+  "tag": "v4.1.1",
+  "tag_message": "SENTINEL v4.1.1 — VERIFIED RECOVERED BASELINE",
+  "baseline_branch": "release/v4.1.1",
+  "state_branch": "main",
+  "future_work_branch": "phase/02-l1-twin",
+  "original_lineage_lost": [
+    "5dfa75d (original v4.1.1 tag, rollback #2)",
+    "7141c2d (pre-L0 baseline re-anchor #2, rollback #3)",
+    "3756d6a (Phase-01 evidence commit, rollback #3)",
+    "30162f9 (L0 re-anchor #3, rollback #4)",
+    "a24bc78 (phase/02-l0-recovery-security tip, rollback #4)"
+  ],
+  "content_proofs": {
+    "build-v411_vs_source_archive_diff": "0 differences (git archive v4.1.1:build-v411, 113 files)",
+    "gap-validation_results_logs_vs_evidence_archive_diff": "0 differences",
+    "download_sentinel-v411-gap-closure_vs_evidence_archive_diff": "0 differences",
+    "engine_core_VERSION": "4.1.1"
+  },
+  "frozen_gates_with_this_content": {
+    "engine_tests": "102/102",
+    "doctor": "15/15",
+    "benchmark_x3": "F1=1.000, TP=38, FP=0, FN=0, TN=35 (identical x3)",
+    "saas_e2e": "68/68",
+    "tenant_isolation_attacks": "37/37",
+    "production_api_verification": "30/30"
+  },
+  "recovery_docs": [
+    "docs/releases/v4.1.1-baseline.md",
+    "docs/BASELINE_POLICY.md",
+    "docs/RECOVERY_PROCEDURE.md",
+    "docs/gates/PHASE02_L1R_FINAL_GATE.md"
+  ],
+  "generated_at": "2026-10-01T22:19:05Z",
+  "notes": "No secrets in this manifest. DATABASE_URL in .env is a local file path only. See docs/RECOVERY_PROCEDURE.md for the full step-by-step recovery.",
+  "full_state_archive": "release-archives/SENTINEL-fullstate-2026-10-02.tar.gz",
+  "full_state_sha256": "6636c372fd3bc1948f658b88d36d8af1aafff78b4041b7bbd29d5b0e8511b8e0",
+  "full_state_archive_bytes": 14359909,
+  "full_state_contents": "operational full state: src/ SaaS app + build-v411 engine + gap-validation/{results,logs} frozen evidence + release-archives (both immutable v4.1.1 archives + this manifest) + prisma + scripts + docs + saas-data + worklog. EXCLUDED (rebuildable, see RECOVERY_PROCEDURE): download/ readiness/ verify-live/ tool-results/ historical assets, gap-validation/{tools,dvga-venv} (rebuild via gap-validation/setup scripts), live-targets/ (official external test targets).",
+  "l1r_gates": {
+    "engine_tests": "102/102 (names+flags identical to frozen baseline)",
+    "doctor": "15/15 (per-check identical)",
+    "benchmark_x3": "F1=1.000 TP=38 FP=0 FN=0 TN=35 (identical x3; RECOVERY TEST: PASS)",
+    "saas_e2e": "68/68 (main BUILD_ID V7URKUlHYAXyzuowVHfbJ; clean-reconstruction clone 68/68)",
+    "tenant_isolation": "37/37 (main + clean-reconstruction clone)",
+    "production_api_verification": "30/30 (live :3000; OrgA->FindingB=404 clean, OrgA->FindingA=200)",
+    "engine_diff_vs_tag": "0 bytes",
+    "clean_reconstruction": "PASS (engine from archive + SaaS from independent external git clone)",
+    "verdict": "PHASE 02 L1-R = PASS"
+  }
+}

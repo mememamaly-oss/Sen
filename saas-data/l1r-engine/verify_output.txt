@@ -1,0 +1,34 @@
+================================================================
+[TESTS] recovery vs baseline (102/102)
+  recovery: total=102 failed=0 strict_ok=True
+  baseline: total=102 failed=0
+  case-name sets identical: True | ok-flags identical: True
+  => TESTS: [32mPASS[0m
+================================================================
+[DOCTOR] recovery vs baseline (15/15)
+  recovery: PASS 15/15
+  baseline: PASS 15/15
+  per-check statuses identical: True
+  => DOCTOR: [32mPASS[0m
+================================================================
+[BENCHMARK] recovery vs baseline x3 (F1=1.000, TP=38/FP=0/FN=0)
+  f1                           recovery=1.0 baseline=1.0 OK
+  precision                    recovery=1.0 baseline=1.0 OK
+  recall                       recovery=1.0 baseline=1.0 OK
+  TP                           recovery=38 baseline=38 OK
+  FP                           recovery=0 baseline=0 OK
+  FN                           recovery=0 baseline=0 OK
+  TN                           recovery=35 baseline=35 OK
+  findings_count               recovery=190 baseline=190 OK
+  boundary.by_category         recovery={'graphql': 1, 'websocket': 2, 'workflow/approval_bypass': 3, 'workflow/branch_bypass': 3, 'workflow/cross_object': 2, 'workflow/cross_state': 2, 'workflow/cross_user': 2, 'workflow/duplicate': 2, 'workflow/flow': 2, 'workflow/out_of_order': 2, 'workflow/privilege': 2, 'workflow/rollback_abuse': 3, 'workflow/step_bypass': 2, 'workflow/unauthorized_branch': 3, 'workflow/value_tamper': 2} baseline={'graphql': 1, 'websocket': 2, 'workflow/approval_bypass': 3, 'workflow/branch_bypass': 3, 'workflow/cross_object': 2, 'workflow/cross_state': 2, 'workflow/cross_user': 2, 'workflow/duplicate': 2, 'workflow/flow': 2, 'workflow/out_of_order': 2, 'workflow/privilege': 2, 'workflow/rollback_abuse': 3, 'workflow/step_bypass': 2, 'workflow/unauthorized_branch': 3, 'workflow/value_tamper': 2} OK
+  coverage.discovered          recovery=90 baseline=90 OK
+  coverage.tested              recovery=90 baseline=90 OK
+  coverage.untested            recovery=0 baseline=0 OK
+  coverage.coverage_pct        recovery=100.0 baseline=100.0 OK
+  api_inventory.total          recovery=75 baseline=75 OK
+  digital_twin.surfaces_total  recovery=78 baseline=78 OK
+  param_intel.params_total     recovery=54 baseline=54 OK
+  requests                     recovery=1756 baseline=1756 OK
+  => BENCHMARK: [32mPASS[0m
+================================================================
+RECOVERY TEST: PASS
