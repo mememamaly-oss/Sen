@@ -1,0 +1,118 @@
+{
+  "manifest_version": 2,
+  "package": "PHASE_02_L1_COMPLETION",
+  "product": "SENTINEL — SaaS DAST platform + engine",
+  "phase": "PHASE 02 — L1: Security Twin Normalization + Provenance",
+  "gate": "FINAL RECOVERY GATE (2026-10-02)",
+  "verdict": "RECOVERY VERIFIED",
+  "designated_state_references": {
+    "l1_candidate_state_original": "7838404 (LOST — rollback #7; git objects destroyed)",
+    "v411_baseline_original": "184871ec597e45135b56e7b0aca6eebf3116c1e2 (LOST — rollback #7)",
+    "note": "originals recorded from docs/gates/PHASE02_L1_FINAL_GATE.md + SENTINEL-v4.1.1-recovery-manifest.json; never modified"
+  },
+  "recovery_event": "container-rollback-7",
+  "recovery_commits_new": {
+    "baseline_A": "2d5ce2f613faafc2683b30316a2f44c2dddf785e (tree: build-v411 113 files DIFF=0 vs frozen archive + gap-validation 34 files; parent 9eb917b)",
+    "l1r_full_state_R": "5de40c4204407368e63c4742d13df9804f21042e (tree: fullstate content 807 files)",
+    "l1_candidate_L": "064e0f5eecf4bedeb9836fb85c0b3d01b78816e4 (tree: 837 files = fullstate + exact L1 delta)",
+    "recovery_gate_G": "the commit carrying this package (tip of phase/02-l1-twin, tagged recovery/l1-candidate-2026-10-02; SHA in the tag + git log)"
+  },
+  "superseded_dangling_commits": [
+    "5c5d55f406bb19c16d9d835e6e109feb7f3db3d1 (first R' attempt — missing sentinel/results/fixture.log)",
+    "293774fb9b8213b2b5680bc7ae2db0245a2c8e3e (first L' attempt — same)"
+  ],
+  "original_lost_lineage_documented": {
+    "baseline_pre_rollback2": "5dfa75d",
+    "l0_reanchors": [
+      "7141c2d",
+      "3756d6a",
+      "30162f9"
+    ],
+    "l0_tip": "a24bc78",
+    "v411_first_reanchor": "184871e",
+    "l1r_chain": [
+      "e106c1e",
+      "92d82b8",
+      "c3b79bb",
+      "8b41e78",
+      "844ea34"
+    ],
+    "l1_chain": [
+      "a7e81b0",
+      "65720ee",
+      "352d5b3",
+      "0034511",
+      "b4582e4",
+      "6dcf26c",
+      "927ae7c",
+      "7838404"
+    ]
+  },
+  "branches_after_gate": {
+    "main": "R' (L1-R full state — mirrors the original layout where main was the L1-R final state)",
+    "release/v4.1.1": "A' (baseline content only)",
+    "phase/02-l1-twin": "G' (L1 candidate + recovery package + ledger; HEAD)"
+  },
+  "tags_after_gate": {
+    "v4.1.1": "A' — VERIFIED RECOVERED BASELINE (re-anchor #2)",
+    "recovery/l1-candidate-2026-10-02": "G' — L1 candidate recovery marker"
+  },
+  "archives": {
+    "source_archive": "SOURCE_ARCHIVE.tar.gz",
+    "source_sha256": "578709f6e0e11962e11d3cbd1b20614c5f08ad6131d23d9a40f72bcd477e90d8",
+    "source_files": 837,
+    "source_definition": "git-tracked equivalent of the L1 candidate state: frozen fullstate (805) + exact L1 delta (32); verified 0 unexpected differences vs the survivor tree",
+    "state_archive": "STATE_ARCHIVE.tar.gz",
+    "state_sha256": "de249dad048e14fbe7803d03b16c1a4a64cb74b25002fdf6474466f91f62ff03",
+    "state_files": 276,
+    "state_definition": "evidence: saas-data/** + l1-validation/**",
+    "immutable_baseline_archives": {
+      "SENTINEL-v4.1.1-source.tar.gz": "f7c6d219ad0ee8fad29f51d776b59adf95fd4f3c2334fdb20568e17b719fcfbb (1263577 B)",
+      "SENTINEL-v4.1.1-live-evidence.tar.gz": "93e883f8225982e8c6be890fa84812e0064060dec489fc7cf99268506bf2cc24 (395523 B)",
+      "SENTINEL-fullstate-2026-10-02.tar.gz": "6636c372fd3bc1948f658b88d36d8af1aafff78b4041b7bbd29d5b0e8511b8e0 (14359909 B)"
+    },
+    "package_copies": {
+      "primary": "release-archives/PHASE_02_L1_COMPLETION-PRIMARY.tar.gz (+ .sha256 sidecar; committed to git)",
+      "secondary": "download/PHASE_02_L1_COMPLETION-SECONDARY.tar.gz (+ .sha256 sidecar; user-downloadable)",
+      "note": "two independent tar runs of this package directory (deterministic tar, different inodes); the SHA256 of each copy is recorded in its sidecar file, in docs/PROJECT_RECOVERY_LEDGER.md (repo-level), and in the gate final report — never inside this package (a tar cannot contain its own hash)"
+    }
+  },
+  "clean_restore_test": {
+    "directory": "/home/z/l1-clean-restore (fully separate from both working trees)",
+    "engine_diff_vs_frozen_archive": "0 files",
+    "unit_suite": "163/163 — 10 golden twinHashes BYTE-EXACT",
+    "real_output_twin": "4/4 PASS (benchmark.json 899n/977e)",
+    "engine_suite": "102/102 (9 chunks, ran=N/N, failed=0, missing=[])",
+    "doctor": "15/15 (per-check identical to frozen)",
+    "benchmark_x3": "F1=1.000 TP=38 FP=0 FN=0 TN=35 findings=190 requests=1756 run-3c0652b6be IDENTICAL x3",
+    "build": "OK (bun install 827 pkgs; db push; next build standalone; tsc 0 errors)",
+    "e2e": "68/68 (72s; check names+statuses identical)",
+    "twin_api_suite": "33/33 (137s; identical; twins 638n/643e)",
+    "tenant_isolation": "37/37 (137s; identical)",
+    "production_verification": "30/30 (67s; identical; incl. prod.page_twin)",
+    "demo_data": "2 real engine scans 144+144 findings via real product flows",
+    "browser_twin_page": "renders (638/643, 616/22, claims 147/12, unknowns 2, twinHash badge, invariants badge, honest 160-node cap, why() panel, from-store); console 0 errors 0 warnings; screenshots x3",
+    "twingraph_persistence": "2 rows org-scoped; contentHash == API twinHash; graphJson 568249 B both scans",
+    "twin_identity": "structural MATCH on both fresh scans + golden byte-exact x10 + same-input determinism x3 + cross-session benchmark structural identity (900n/978e x6)",
+    "verdict": "ARCHIVE -> CLEAN RESTORE -> BUILD -> TEST -> SAME RESULT: PASS (19/19 comparisons identical)"
+  },
+  "environment_requirements": {
+    "bun": ">= 1.3 (tested 1.3.14)",
+    "node": ">= 24 (tested 24.21.0)",
+    "python": ">= 3.12 (tested 3.12.14)",
+    "playwright": "required for browser-gated engine tests (chromium installed)",
+    "critical_note": "the platform shell exports DATABASE_URL=file:/home/z/my-project/db/custom.db which OVERRIDES .env (prisma/dotenv precedence) — set DATABASE_URL explicitly for any tree outside /home/z/my-project",
+    "secrets": "NEXTAUTH_SECRET is an untracked env secret — regenerate on restore; never commit"
+  },
+  "known_limitations": "see KNOWN_LIMITATIONS.md (lost git objects + lost raw scan outputs honestly documented; structural twin identity substituted for the unrecoverable per-run hashes)",
+  "recovery_docs": [
+    "docs/PROJECT_RECOVERY_LEDGER.md",
+    "docs/ENGINEERING_RULES.md",
+    "docs/RECOVERY_PROCEDURE.md",
+    "docs/gates/PHASE02_L1_RECOVERY_GATE.md",
+    "PHASE02_L1_RECOVERY_GATE.md (this package)"
+  ],
+  "exact_restore_commands": "see RESTORE_INSTRUCTIONS.md (the exact tested path)",
+  "no_secrets": "DATABASE_URL is a local file path; NEXTAUTH_SECRET never stored here",
+  "generated_at": "2026-10-02T04:00:00Z"
+}

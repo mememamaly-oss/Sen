@@ -1,0 +1,71 @@
+{
+ "frozen_reference": {
+  "schema": "l1-twin/1.0.0",
+  "nodes": 638,
+  "edges": 643,
+  "provenance": {
+   "OBSERVED": 616,
+   "INFERRED": 22,
+   "VERIFIED": 0,
+   "REFUTED": 0,
+   "UNKNOWN": 0
+  },
+  "claims": {
+   "VERIFIED": 147,
+   "REFUTED": 12,
+   "UNKNOWN": 0,
+   "CONFLICT": 0
+  },
+  "conflicts": 0,
+  "knownUnknowns": 2
+ },
+ "fresh_scans": [
+  {
+   "scanId": "cmuqewx6d00grrbzr4zimqx7r",
+   "schema": "l1-twin/1.0.0",
+   "twinHash": "05246c6fae1d72d388259a828440a301ae530fe7f2a922551dfd467643acbfc4",
+   "nodes": 638,
+   "edges": 643,
+   "provenance": {
+    "OBSERVED": 616,
+    "INFERRED": 22,
+    "VERIFIED": 0,
+    "REFUTED": 0,
+    "UNKNOWN": 0
+   },
+   "claims": {
+    "VERIFIED": 147,
+    "REFUTED": 12,
+    "UNKNOWN": 0,
+    "CONFLICT": 0
+   },
+   "conflicts": 0,
+   "knownUnknowns": 2,
+   "invariantsPass": true
+  },
+  {
+   "scanId": "cmuqevhsg000lrbzrx08cjl74",
+   "schema": "l1-twin/1.0.0",
+   "twinHash": "6fa3c76b6e77726fd35dbe81f393abe1a9bbbde83597f6d92640e4283bcaf5cd",
+   "nodes": 638,
+   "edges": 643,
+   "provenance": {
+    "OBSERVED": 616,
+    "INFERRED": 22,
+    "VERIFIED": 0,
+    "REFUTED": 0,
+    "UNKNOWN": 0
+   },
+   "claims": {
+    "VERIFIED": 147,
+    "REFUTED": 12,
+    "UNKNOWN": 0,
+    "CONFLICT": 0
+   },
+   "conflicts": 0,
+   "knownUnknowns": 2,
+   "invariantsPass": true
+  }
+ ],
+ "structural_identity_all": true
+}

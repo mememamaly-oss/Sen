@@ -1,0 +1,1037 @@
+{
+ "summary": {
+  "suite": "l1-twin-unit",
+  "pass": 163,
+  "fail": 0,
+  "totals": {
+   "fixtures": 10,
+   "checks": 163
+  },
+  "goldenHashes": {
+   "complete-twin": "f02c329cb57c63b74d06f4eb0ebe76d59769ca215331b66a93b0d4654b7a624a",
+   "partial-twin": "f2ca6bd416b4f5fe1d43fefb2471b92b29fe2b7f457a693b498b0a01f7c3a9da",
+   "inferred-nodes": "8a1ea5155de438f1e69c5ff43059873389a25e575593b09b278bc130c07af41b",
+   "verified-evidence": "1b239754a35cd3068ddd2d951ee28d16da7769d82f0a6010e2cef95e74861e2b",
+   "refuted-claim": "2f262b4ef7da0a2106f2b3d34ee0c1c288365c43ad73f26beaf7830e2b47785b",
+   "unknown-state": "7a0f3a00ef887654f7445357322301071c17ea5b197fed899f1e1852efd8c136",
+   "missing-identity": "a62c34a9c7033538832f5879deef34283f677cd1ed471fe1e984e360cf1c5590",
+   "missing-authorization": "85d34e8beeeb3917eb2131d82af4b01d54388198abac03bd7474deac1eed487d",
+   "blocked-boundary": "c80051adf06f3950b09c3b71f6cdd7222037787b3ae8c0ecad81f694e742f511",
+   "conflicting-evidence": "5796118ab2d0ed13fcdb41d50861daf93e5fab6c23bbe8defbbbb5af1abf60b6"
+  },
+  "performance": [
+   {
+    "label": "100 nodes",
+    "nodes": 81,
+    "edges": 80,
+    "normalizeMs": 2,
+    "invariantsMs": 1,
+    "equivalenceMs": 0,
+    "graphJsonBytes": 64577,
+    "twinHash": "e524b5b17023a617"
+   },
+   {
+    "label": "1k nodes",
+    "nodes": 947,
+    "edges": 946,
+    "normalizeMs": 20,
+    "invariantsMs": 17,
+    "equivalenceMs": 1,
+    "graphJsonBytes": 757360,
+    "twinHash": "4ae8c7fe388a0815"
+   },
+   {
+    "label": "10k nodes",
+    "nodes": 10082,
+    "edges": 10081,
+    "normalizeMs": 287,
+    "invariantsMs": 213,
+    "equivalenceMs": 20,
+    "graphJsonBytes": 8132605,
+    "twinHash": "43a6832b8c44cb0e"
+   }
+  ],
+  "verdict": "PASS",
+  "at": "2026-10-02T03:06:40.446Z"
+ },
+ "results": [
+  {
+   "group": "fixtures",
+   "name": "complete-twin.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.nodes>=30",
+   "status": "PASS",
+   "detail": "got 39"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.edges>=30",
+   "status": "PASS",
+   "detail": "got 41"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[application]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[host]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[workflow]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[workflow_step]=3",
+   "status": "PASS",
+   "detail": "got 3"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[state]=2",
+   "status": "PASS",
+   "detail": "got 2"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[branch]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[api]=2",
+   "status": "PASS",
+   "detail": "got 2"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.type[secret]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.claim[VERIFIED]=3",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":3,\"REFUTED\":1,\"UNKNOWN\":1,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.claim[REFUTED]=1",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":3,\"REFUTED\":1,\"UNKNOWN\":1,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.claim[UNKNOWN]=1",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":3,\"REFUTED\":1,\"UNKNOWN\":1,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.knownUnknowns>=1",
+   "status": "PASS",
+   "detail": "got 4"
+  },
+  {
+   "group": "fixtures",
+   "name": "complete-twin.goldenHash",
+   "status": "PASS",
+   "detail": "f02c329cb57c63b7 != f02c329cb57c63b7"
+  },
+  {
+   "group": "fixtures",
+   "name": "partial-twin.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "partial-twin.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "partial-twin.nodes>=3",
+   "status": "PASS",
+   "detail": "got 4"
+  },
+  {
+   "group": "fixtures",
+   "name": "partial-twin.edges>=2",
+   "status": "PASS",
+   "detail": "got 3"
+  },
+  {
+   "group": "fixtures",
+   "name": "partial-twin.type[endpoint]=2",
+   "status": "PASS",
+   "detail": "got 2"
+  },
+  {
+   "group": "fixtures",
+   "name": "partial-twin.goldenHash",
+   "status": "PASS",
+   "detail": "f2ca6bd416b4f5fe != f2ca6bd416b4f5fe"
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.nodes>=5",
+   "status": "PASS",
+   "detail": "got 9"
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.type[entity]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.type[object]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.type[hypothesis]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.claim[UNKNOWN]=1",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":0,\"REFUTED\":0,\"UNKNOWN\":1,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "inferred-nodes.goldenHash",
+   "status": "PASS",
+   "detail": "8a1ea5155de438f1 != 8a1ea5155de438f1"
+  },
+  {
+   "group": "fixtures",
+   "name": "verified-evidence.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "verified-evidence.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "verified-evidence.type[finding]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "verified-evidence.type[evidence]=4",
+   "status": "PASS",
+   "detail": "got 4"
+  },
+  {
+   "group": "fixtures",
+   "name": "verified-evidence.claim[VERIFIED]=1",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":1,\"REFUTED\":0,\"UNKNOWN\":0,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "verified-evidence.goldenHash",
+   "status": "PASS",
+   "detail": "1b239754a35cd306 != 1b239754a35cd306"
+  },
+  {
+   "group": "fixtures",
+   "name": "refuted-claim.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "refuted-claim.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "refuted-claim.type[finding]=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "refuted-claim.claim[REFUTED]=2",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":0,\"REFUTED\":2,\"UNKNOWN\":0,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "refuted-claim.goldenHash",
+   "status": "PASS",
+   "detail": "2f262b4ef7da0a21 != 2f262b4ef7da0a21"
+  },
+  {
+   "group": "fixtures",
+   "name": "unknown-state.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "unknown-state.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "unknown-state.claim[UNKNOWN]=2",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":0,\"REFUTED\":0,\"UNKNOWN\":2,\"CONFLICT\":0}"
+  },
+  {
+   "group": "fixtures",
+   "name": "unknown-state.goldenHash",
+   "status": "PASS",
+   "detail": "7a0f3a00ef887654 != 7a0f3a00ef887654"
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-identity.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-identity.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-identity.type[identity]=0",
+   "status": "PASS",
+   "detail": "got 0"
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-identity.knownUnknowns>=1",
+   "status": "PASS",
+   "detail": "got 1"
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-identity.goldenHash",
+   "status": "PASS",
+   "detail": "a62c34a9c7033538 != a62c34a9c7033538"
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-authorization.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-authorization.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-authorization.type[role]=0",
+   "status": "PASS",
+   "detail": "got 0"
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-authorization.type[identity]=0",
+   "status": "PASS",
+   "detail": "got 0"
+  },
+  {
+   "group": "fixtures",
+   "name": "missing-authorization.goldenHash",
+   "status": "PASS",
+   "detail": "85d34e8beeeb3917 != 85d34e8beeeb3917"
+  },
+  {
+   "group": "fixtures",
+   "name": "blocked-boundary.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "blocked-boundary.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "blocked-boundary.type[boundary]=2",
+   "status": "PASS",
+   "detail": "got 2"
+  },
+  {
+   "group": "fixtures",
+   "name": "blocked-boundary.goldenHash",
+   "status": "PASS",
+   "detail": "c80051adf06f3950 != c80051adf06f3950"
+  },
+  {
+   "group": "fixtures",
+   "name": "conflicting-evidence.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "conflicting-evidence.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "fixtures",
+   "name": "conflicting-evidence.claim[CONFLICT]=2",
+   "status": "PASS",
+   "detail": "got {\"VERIFIED\":0,\"REFUTED\":0,\"UNKNOWN\":0,\"CONFLICT\":2}"
+  },
+  {
+   "group": "fixtures",
+   "name": "conflicting-evidence.conflicts=2",
+   "status": "PASS",
+   "detail": "got 2"
+  },
+  {
+   "group": "fixtures",
+   "name": "conflicting-evidence.goldenHash",
+   "status": "PASS",
+   "detail": "5796118ab2d0ed13 != 5796118ab2d0ed13"
+  },
+  {
+   "group": "determinism",
+   "name": "complete-twin.twinHash×3",
+   "status": "PASS",
+   "detail": "f02c329c f02c329c f02c329c"
+  },
+  {
+   "group": "determinism",
+   "name": "complete-twin.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "complete-twin.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "complete-twin.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "complete-twin.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "complete-twin.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "partial-twin.twinHash×3",
+   "status": "PASS",
+   "detail": "f2ca6bd4 f2ca6bd4 f2ca6bd4"
+  },
+  {
+   "group": "determinism",
+   "name": "partial-twin.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "partial-twin.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "partial-twin.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "partial-twin.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "partial-twin.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "inferred-nodes.twinHash×3",
+   "status": "PASS",
+   "detail": "8a1ea515 8a1ea515 8a1ea515"
+  },
+  {
+   "group": "determinism",
+   "name": "inferred-nodes.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "inferred-nodes.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "inferred-nodes.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "inferred-nodes.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "inferred-nodes.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "verified-evidence.twinHash×3",
+   "status": "PASS",
+   "detail": "1b239754 1b239754 1b239754"
+  },
+  {
+   "group": "determinism",
+   "name": "verified-evidence.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "verified-evidence.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "verified-evidence.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "verified-evidence.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "verified-evidence.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "refuted-claim.twinHash×3",
+   "status": "PASS",
+   "detail": "2f262b4e 2f262b4e 2f262b4e"
+  },
+  {
+   "group": "determinism",
+   "name": "refuted-claim.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "refuted-claim.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "refuted-claim.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "refuted-claim.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "refuted-claim.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "unknown-state.twinHash×3",
+   "status": "PASS",
+   "detail": "7a0f3a00 7a0f3a00 7a0f3a00"
+  },
+  {
+   "group": "determinism",
+   "name": "unknown-state.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "unknown-state.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "unknown-state.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "unknown-state.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "unknown-state.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-identity.twinHash×3",
+   "status": "PASS",
+   "detail": "a62c34a9 a62c34a9 a62c34a9"
+  },
+  {
+   "group": "determinism",
+   "name": "missing-identity.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-identity.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-identity.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-identity.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-identity.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-authorization.twinHash×3",
+   "status": "PASS",
+   "detail": "85d34e8b 85d34e8b 85d34e8b"
+  },
+  {
+   "group": "determinism",
+   "name": "missing-authorization.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-authorization.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-authorization.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-authorization.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "missing-authorization.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "blocked-boundary.twinHash×3",
+   "status": "PASS",
+   "detail": "c80051ad c80051ad c80051ad"
+  },
+  {
+   "group": "determinism",
+   "name": "blocked-boundary.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "blocked-boundary.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "blocked-boundary.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "blocked-boundary.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "blocked-boundary.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "conflicting-evidence.twinHash×3",
+   "status": "PASS",
+   "detail": "5796118a 5796118a 5796118a"
+  },
+  {
+   "group": "determinism",
+   "name": "conflicting-evidence.nodeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "conflicting-evidence.edgeIds×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "conflicting-evidence.counts×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "conflicting-evidence.provenance×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "determinism",
+   "name": "conflicting-evidence.rawHash×3",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "benchmark.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "benchmark.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "benchmark.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "webgoat_auth.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "webgoat_auth.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "webgoat_auth.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "juiceshop.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "juiceshop.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "juiceshop.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "adversarial",
+   "name": "E1.endpoint_without_finding",
+   "status": "PASS",
+   "detail": "findings=0 verified=0"
+  },
+  {
+   "group": "adversarial",
+   "name": "E2.gql_no_vuln",
+   "status": "PASS",
+   "detail": "apis=1 claims={\"VERIFIED\":0,\"REFUTED\":0,\"UNKNOWN\":0,\"CONFLICT\":0}"
+  },
+  {
+   "group": "adversarial",
+   "name": "E3.ws_no_auth_proof",
+   "status": "PASS",
+   "detail": "authEdges=0"
+  },
+  {
+   "group": "adversarial",
+   "name": "E4.role_no_identity",
+   "status": "PASS",
+   "detail": "identities=0 roles=1"
+  },
+  {
+   "group": "adversarial",
+   "name": "E5.object_no_ownership",
+   "status": "PASS",
+   "detail": "objs=1 prov=INFERRED"
+  },
+  {
+   "group": "adversarial",
+   "name": "E6.incomplete_workflow",
+   "status": "PASS",
+   "detail": "steps=1 states=0"
+  },
+  {
+   "group": "adversarial",
+   "name": "E7.no_branch_nodes",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "adversarial",
+   "name": "E8.missing_evidence_stays_UNKNOWN",
+   "status": "PASS",
+   "detail": "state=UNKNOWN"
+  },
+  {
+   "group": "adversarial",
+   "name": "E9.boundary_blocked",
+   "status": "PASS",
+   "detail": "boundaries=2 states=BLOCKED,BLOCKED"
+  },
+  {
+   "group": "adversarial",
+   "name": "E10.finding_refuted",
+   "status": "PASS",
+   "detail": "state=REFUTED refutedBy=2"
+  },
+  {
+   "group": "adversarial",
+   "name": "E11.no_verification_no_VERIFIED",
+   "status": "PASS",
+   "detail": "state=UNKNOWN"
+  },
+  {
+   "group": "adversarial",
+   "name": "E12.hostile_provenance_ignored",
+   "status": "PASS",
+   "detail": "badProv=0 state=VERIFIED"
+  },
+  {
+   "group": "malicious",
+   "name": "F1.normalization_survives",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F2.invariants_hold",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F3.length_caps",
+   "status": "PASS",
+   "detail": "0 over-length strings"
+  },
+  {
+   "group": "malicious",
+   "name": "F4.no_control_chars",
+   "status": "PASS",
+   "detail": "0 strings with control chars"
+  },
+  {
+   "group": "malicious",
+   "name": "F5.json_round_trip",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F6.deterministic",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F7.duplicate_entries_merge",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F8.cyclic_reference_safe",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F9.malformed_shapes_safe",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F10.provenance_vocabulary_inviolable",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "malicious",
+   "name": "F11.no_tenant_field_injection",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "performance",
+   "name": "100 nodes.valid",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "performance",
+   "name": "1k nodes.valid",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "performance",
+   "name": "10k nodes.valid",
+   "status": "PASS",
+   "detail": ""
+  }
+ ]
+}

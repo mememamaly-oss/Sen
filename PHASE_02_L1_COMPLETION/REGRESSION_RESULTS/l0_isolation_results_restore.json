@@ -1,0 +1,200 @@
+{
+ "suite": "l0_tenant_isolation",
+ "base": "http://localhost:3023",
+ "passed": 37,
+ "failed": 0,
+ "duration": 136.5389883518219,
+ "org_a": "cmuqeryt10001rbgi67jsxi2o",
+ "org_b": "cmuqeryy9000brbgi546p0laf",
+ "scan_a": "cmuqerz21000qrbgiklgkbxy1",
+ "scan_b": "cmuqetfi60090rbgi9wfbt483",
+ "findings_a": 144,
+ "findings_b": 144,
+ "results": [
+  {
+   "name": "setup.bootstrap_status",
+   "status": "PASS",
+   "detail": "{'needsBootstrap': True}"
+  },
+  {
+   "name": "setup.bootstrap_admin_P",
+   "status": "PASS",
+   "detail": "{'ok': True, 'userId': 'cmuqerysw0000rbgiio2ge4l1', 'orgId': 'cmuqeryt10001rbgi67jsxi2o'}"
+  },
+  {
+   "name": "setup.login_P",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "name": "setup.P_owner_of_orgA_only",
+   "status": "PASS",
+   "detail": "orgs=[('cmuqeryt10001rbgi67jsxi2o', 'OWNER')]"
+  },
+  {
+   "name": "setup.add_Q_to_orgA",
+   "status": "PASS",
+   "detail": "{'ok': True, 'userId': 'cmuqerywg0006rbgi5gw7lmxb', 'isNewUser': True, 'role': 'MEMBER'}"
+  },
+  {
+   "name": "setup.login_Q",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "name": "setup.Q_creates_orgB",
+   "status": "PASS",
+   "detail": "{'id': 'cmuqeryy9000brbgi546p0laf', 'name': 'L0 Org B 912020', 'slug': 'l0-org-b-912020', 'role': 'OWNER'}"
+  },
+  {
+   "name": "setup.add_R_to_orgB",
+   "status": "PASS",
+   "detail": "{'ok': True, 'userId': 'cmuqeryzc000grbgibz8stcaa', 'isNewUser': True, 'role': 'MEMBER'}"
+  },
+  {
+   "name": "setup.login_R",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "name": "setup.R_member_of_orgB_only",
+   "status": "PASS",
+   "detail": "orgs=['cmuqeryy9000brbgi546p0laf']"
+  },
+  {
+   "name": "setup.orgA_demo_target",
+   "status": "PASS",
+   "detail": "{'id': 'cmuqerz1j000mrbgi3edk7v2x', 'name': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a)', 'url': 'http://127.0.0.1:8777', 'isDemo': True}"
+  },
+  {
+   "name": "setup.orgA_scan_start",
+   "status": "PASS",
+   "detail": "{'id': 'cmuqerz21000qrbgiklgkbxy1', 'status': 'RUNNING'}"
+  },
+  {
+   "name": "setup.orgA_scan_completed_with_findings",
+   "status": "PASS",
+   "detail": "findings=144"
+  },
+  {
+   "name": "setup.orgB_demo_target",
+   "status": "PASS",
+   "detail": "{'id': 'cmuqetfhs008wrbgim2bmj3ib', 'name': 'Sentinel Demo App (vulnapp \u0645\u062d\u0644\u064a)', 'url': 'http://127.0.0.1:8777', 'isDemo': True}"
+  },
+  {
+   "name": "setup.orgB_scan_start",
+   "status": "PASS",
+   "detail": "{'id': 'cmuqetfi60090rbgi9wfbt483', 'status': 'RUNNING'}"
+  },
+  {
+   "name": "setup.orgB_scan_completed_with_findings",
+   "status": "PASS",
+   "detail": "findings=144"
+  },
+  {
+   "name": "setup.orgA_findings_listed",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "name": "setup.orgB_findings_listed",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "name": "attack1.same_tenant_orgA_ALLOW",
+   "status": "PASS",
+   "detail": "code=200"
+  },
+  {
+   "name": "attack2.same_tenant_orgB_ALLOW",
+   "status": "PASS",
+   "detail": "code=200"
+  },
+  {
+   "name": "attack3.cross_tenant_VICTIM_orgId_DENY_404",
+   "status": "PASS",
+   "detail": "code=404"
+  },
+  {
+   "name": "attack4.cross_tenant_own_orgId_DENY_404",
+   "status": "PASS",
+   "detail": "code=404"
+  },
+  {
+   "name": "attack5.reverse_VICTIM_orgId_DENY_404",
+   "status": "PASS",
+   "detail": "code=404"
+  },
+  {
+   "name": "attack6.reverse_own_orgId_DENY_404",
+   "status": "PASS",
+   "detail": "code=404"
+  },
+  {
+   "name": "attack7.anonymous_denied_401",
+   "status": "PASS",
+   "detail": "code=401"
+  },
+  {
+   "name": "attack7b.anonymous_victim_orgId_denied_401",
+   "status": "PASS",
+   "detail": "code=401"
+  },
+  {
+   "name": "attack8.enumeration_matrix_all_404_clean",
+   "status": "PASS",
+   "detail": "7 combos verified"
+  },
+  {
+   "name": "attack8b.cross_tenant_vs_nonexistent_indistinguishable",
+   "status": "PASS",
+   "detail": "codes=(404,404) shapes=(['error'],['error'])"
+  },
+  {
+   "name": "control9.Q_reads_orgA_finding_200",
+   "status": "PASS",
+   "detail": "code=200"
+  },
+  {
+   "name": "control9b.Q_reads_orgB_finding_200",
+   "status": "PASS",
+   "detail": "code=200"
+  },
+  {
+   "name": "setup.add_VIEWER_to_orgA",
+   "status": "PASS",
+   "detail": "{'ok': True, 'userId': 'cmuqeuw1q00hlrbginkk5q1eu', 'isNewUser': True, 'role': 'VIEWER'}"
+  },
+  {
+   "name": "setup.login_V",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "name": "attack10.viewer_same_org_read_ALLOW_200",
+   "status": "PASS",
+   "detail": "code=200"
+  },
+  {
+   "name": "attack11.missing_orgId_400",
+   "status": "PASS",
+   "detail": "code=400"
+  },
+  {
+   "name": "attack11b.garbage_id_404_clean",
+   "status": "PASS",
+   "detail": "code=404"
+  },
+  {
+   "name": "attack12.audit_records_R_attack_on_orgA",
+   "status": "PASS",
+   "detail": "code=200 rbac_denials=1"
+  },
+  {
+   "name": "attack12b.audit_records_P_attack_on_orgB",
+   "status": "PASS",
+   "detail": "code=200 rbac_denials=6"
+  }
+ ]
+}

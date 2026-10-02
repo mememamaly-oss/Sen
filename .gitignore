@@ -14,3 +14,10 @@ live-targets/
 .env
 next-env.d.ts
 tool-results/
+download/
+readiness/
+verify-live/
+gap-validation/tools/
+gap-validation/dvga-venv/
+gap-validation/targets/
+l1-validation/

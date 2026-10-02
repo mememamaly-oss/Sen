@@ -1,0 +1,13 @@
+PASS l1-validation/engine-outputs/bench_l1_1.json
+   nodes=900 edges=978 normalize=44ms
+   provenance={"OBSERVED":856,"INFERRED":44,"VERIFIED":0,"REFUTED":0,"UNKNOWN":0} claims={"VERIFIED":201,"REFUTED":20,"UNKNOWN":2,"CONFLICT":0}
+   conflicts=0 knownUnknowns=4
+   byType={"evidence":471,"hypothesis":33,"boundary":23,"state":6,"finding":190,"workflow_step":9,"parameter":54,"endpoint":83,"object":4,"entity":7,"session":1,"secret":3,"workflow":3,"browser_surface":1,"branch":3,"role":3,"identity":4,"application":1,"host":1}
+   invariants=PASS equivalence=PASS determinism=PASS hash=43bd75f3353d19c0…
+PASS /home/z/l1-rg/engine-gate/bench_restore_1.json
+   nodes=900 edges=978 normalize=28ms
+   provenance={"OBSERVED":856,"INFERRED":44,"VERIFIED":0,"REFUTED":0,"UNKNOWN":0} claims={"VERIFIED":201,"REFUTED":20,"UNKNOWN":2,"CONFLICT":0}
+   conflicts=0 knownUnknowns=4
+   byType={"evidence":471,"hypothesis":33,"boundary":23,"finding":190,"state":6,"workflow_step":9,"parameter":54,"endpoint":83,"object":4,"entity":7,"session":1,"secret":3,"workflow":3,"browser_surface":1,"branch":3,"role":3,"identity":4,"application":1,"host":1}
+   invariants=PASS equivalence=PASS determinism=PASS hash=42ad6b9a9077b90d…
+REAL-DATA: ALL PASS
