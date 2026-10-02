@@ -786,3 +786,23 @@ Stage Summary:
 - Rollback #11 recorded: the second escape pod died undownloaded. Third bundle generated this session; USER DOWNLOAD STILL PENDING (fourth request).
 - Still standing per the supervisor: external re-verification of live findings (manual review protocol or VDP) — the judge is still internal.
 - BUNDLE (3rd regeneration) COMPLETE AFTER the commit above: download/SENTINEL-git-fullstate-2026-10-03.bundle — full history, all branches/tags, HEAD = the bench-adv commit; SHA256 c3e441c067fa23257ab2627d9bb076b96106f079485093759b65e8976bf75522 (391,346,358 bytes), verified with `git bundle verify` (complete history). download/ also carries README.txt (download-first instructions, restore procedure, expected F1s for both engines after restore), the .sha256, SHA256SUMS, and the three committed release archives (hashes match the recorded values: PHASE_02 PRIMARY 39fa825d..., v4.1.1 source f7c6d219..., v4.1.1 live evidence 93e883f8...). FOURTH download request to the user issued with this session's reply.
+
+---
+Task ID: 8
+Agent: Super Z (main agent)
+Task: Escape full repository history out of the container to the user's private GitHub repo (mememamaly-oss/Sen) after rollback #12 killed escape pod #3 undownloaded; regenerate local pod; prove survival end-to-end.
+
+Work Log:
+- ROLLBACK #12 CONFIRMED at session start: download/ wiped with pod #3 (sha256 c3e441c067..., 391,346,358 bytes) still undownloaded — supervisor's warning came true a second time; zero successful downloads in four requests. .gitignore gutted 22->2 lines again (restored from HEAD; the 5 untracked Next.js runtime files then fell back under ignore rules). worklog.md, release-archives/, .git anchors all survived (HEAD 92864d6, 4 branches, 3 tags).
+- User supplied method (b): private repo github.com/mememamaly-oss/Sen (created empty, 0 refs, private) + fine-grained PAT (Contents RW, 24h). Auth verified via api.github.com (login mememamaly-oss); repo discovered by listing (exactly one empty private repo).
+- Pre-flight: full-history blob scan max 99.7MB (live-targets/juice-shop.tgz) < 100MB hard limit → push as-is (no LFS, no filtering). Egress measured 62.9MB/s (10MB POST in 0.17s).
+- PUSH EXECUTED in a single foreground window (token inline per-command only; never written to any file, .git/config, or commit; outputs redacted): git push --all + --tags → 4 branches + 3 tags, all refs byte-identical to local (verified ls-remote vs for-each-ref): main 92864d6, phase/02-l1-twin 99b3ca1, release/v4.1.1 2d5ce2f, release/v4.2.0 d861264; tags recovery/l1-candidate-2026-10-02, v4.1.1 (annotated, peeled ^{} matches), v4.2.0 (annotated). GitHub warnings only (3 live-targets files >50MB recommended; all under the 100MB hard limit — accepted).
+- DEFECT CORRECTED IN FLIGHT: shell env does NOT persist between tool calls in this container (exported GH_TOKEN vanished between calls; first ls-remote failed exit 128 on empty token) — consistent with the already-recorded "background processes reaped between calls". Workaround: token inline per command.
+- API /repos size field still 0 after push (known async lag; pushed_at DID update to the push instant). Superseded as proof by the clone test below.
+- SURVIVAL PROVEN END-TO-END: git clone --mirror from GitHub → exit 0, 374M retrieved, all 7 refs REFS-IDENTICAL to local source, HEAD^{tree} TREE-IDENTICAL (973 files, tree 5a6a14a8), git fsck --full clean. The complete history is retrievable from GitHub alone; the container is no longer a single point of failure. Temp verification clone deleted after the test.
+- POD #5 REGENERATED from scratch (pod #3 was never git-tracked — only on disk; there was no checkout-restore path): fresh bundle download/SENTINEL-git-fullstate-2026-10-03-r2.bundle (391,346,927 bytes, sha256 dd7ab91e8f6709a9972816bc69a008ad2b5f6a1ef2610257514db1d6e5de1fc1, 8 refs, git bundle verify OK) + 3 release archive copies (all sha256 OK) + SHA256SUMS + bilingual README.txt (GitHub-primary restore path, expected F1s, stock-bench blindness warning).
+
+Stage Summary:
+- THE WORK NOW SURVIVES OUTSIDE THE CONTAINER: full history (42 commits, 4 branches, 3 tags, ~391MB including live-targets and all release evidence) at github.com/mememamaly-oss/Sen, proven retrievable by mirror-clone with refs + HEAD tree + fsck all identical to source. Rollback #13 and beyond can no longer destroy it.
+- Fifth download request issued (pod #5) — this time as BACKUP, not as the only lifeline. User instructed to revoke the PAT immediately.
+- Standing supervisor directives unchanged: external re-verification of live findings (manual sampling protocol or VDP) — the judge is still internal.
