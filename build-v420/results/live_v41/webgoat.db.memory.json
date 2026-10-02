@@ -1,0 +1,83 @@
+{
+ "version": 1,
+ "apps": {
+  "127.0.0.1:8080": {
+   "runs": 1,
+   "fingerprints": [
+    {
+     "run": "run-90938ad1bc",
+     "endpoints": 9,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "host_header_injection|http://127.0.0.1:8080/WebGoat/|Host",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8080/WebGoat/start.mvc|Host",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "csrf|http://127.0.0.1:8080/WebGoat/login|username, password",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "csrf|http://127.0.0.1:8080/WebGoat/register.mvc|username, password, matchingPassword, agree",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/css/main.css|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/plugins/bootstrap/css/bootstrap.min.css|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/css/font-awesome.min.css|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/css/animate.css|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/start.mvc|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/registration|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/login|",
+     "first_seen": "run-90938ad1bc"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8080/WebGoat/register.mvc|",
+     "first_seen": "run-90938ad1bc"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "websocket|NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)"
+    }
+   ]
+  }
+ }
+}

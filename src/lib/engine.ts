@@ -7,7 +7,7 @@ import { audit } from "@/lib/rbac";
 // ─────────────────────────────────────────────────────────────────────────────
 // ENGINE BRIDGE — the ONLY module that talks to the SENTINEL engine.
 //
-// The engine (build-v411, tag v4.1.1) is NEVER modified, NEVER imported, and
+// The engine (build-v420, tag v4.2.0) is NEVER modified, NEVER imported, and
 // NEVER re-implemented. It is invoked as a black-box CLI subprocess:
 //
 //   scan       python -m sentinel.cli scan <url> --out <result.json> --db <store.db> [opts]
@@ -22,7 +22,7 @@ import { audit } from "@/lib/rbac";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PROJECT_ROOT = process.cwd();
-export const ENGINE_DIR = process.env.SENTINEL_ENGINE_DIR || path.join(PROJECT_ROOT, "build-v411");
+export const ENGINE_DIR = process.env.SENTINEL_ENGINE_DIR || path.join(PROJECT_ROOT, "build-v420");
 const PYTHON = process.env.SENTINEL_PYTHON || "python3";
 // Absolute override keeps artifacts OUTSIDE .next/standalone (which is wiped on
 // every rebuild) when running the production standalone server (it chdir()s
