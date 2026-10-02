@@ -6,6 +6,20 @@ replay, or a heuristic that calls itself verification?" Four break points were
 confirmed and fixed. Every fix is fail-closed: the default is now "unverified",
 and VERIFIED requires an explicit derivation.
 
+## bench-adv (2026-10-03): the benchmark now DISCRIMINATES the fix set
+The stock 73-case bench scored F1=1.000 on BOTH v4.1.1 (broken oracles) and
+v4.2.0 — same run-id, same confusion — because it contained zero cases in the
+disagreement zone (its csrf/nosql cases only exercise scenarios where weak and
+strong oracles agree). Fixture v11 + GT v11 (75 cases) add two adversarial
+blanket-200 traps on /lab: `/vuln/subscribe-echo` (csrf echo) and
+`/api/nosql-lockout` (soft-fail nosql + permanent lockout), both GT
+present:false. Deterministic x3 each: v4.2.0 38/0/0/37 F1=1.000; frozen v4.1.1
+(imported read-only by scripts/bench_adv_v411_driver.py) 38/2/0/35 F1=0.9744 —
+the 2 FPs are the old r.ok oracles verifying non-exploitable endpoints.
+Mechanism probes (scripts/probe_vf_mechanisms.py) prove VF-01/03/04 at
+code level on both engines. Full record:
+docs/VERIFICATION_FIXES_v420.md §Round 2026-10-03.
+
 ## VF-01 — the catch-all `else` branch (intel.py verify())
 The old default stamped `passed=True, confidence=0.98` (the HIGHEST confidence
 in the engine — above every replayed class) on ANY finding type that matched

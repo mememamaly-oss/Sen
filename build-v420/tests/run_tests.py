@@ -460,9 +460,12 @@ def regression_benchmark_autostarts_fixture():
     # for the cross classes on the per-session twin wizards). F1 must be 1.0
     # with zero FP/FN — the OP-01 autostart path must deliver the FULL
     # benchmark, not a silently-empty scan (the original F1=0.0 failure mode).
+    # bench-adv (fixture v11, 2026-10-03): +2 adversarial TN cases
+    # (csrf@/vuln/subscribe-echo, nosql@/api/nosql-lockout — the blanket-200
+    # traps that false-positive the v4.1.1 oracles) -> TN 35 -> 37, 75 cases.
     scored = (rep["f1"] >= 0.99 and rep["confusion"]["TP"] == 38
               and rep["confusion"]["FP"] == 0 and rep["confusion"]["FN"] == 0
-              and rep["confusion"]["TN"] == 35)
+              and rep["confusion"]["TN"] == 37)
     cleaned = not _port_open("127.0.0.1", PORT)                  # stopped what it started
     assert scored and cleaned, (rep["confusion"], rep["f1"], cleaned)
 

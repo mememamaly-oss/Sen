@@ -1,8 +1,8 @@
 {
- "benchmark": "local-fixture-v10",
- "version": "v10",
+ "benchmark": "local-fixture-v11",
+ "version": "v11",
  "sha256_self_check": true,
- "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) - /account and /vault/transfer 302 to /login for anonymous clients; OAST armed - blind classes (xxe / ssrf / command_injection) are OOB-confirmed only; Phase 55 surfaces on /lab (csrf/nosql/jwt) + /vuln/ssti + /vuln/hostbuild; Phase 56 intelligence surfaces: multi-user authorization matrix (demo=admin, bob/carol=user via benchmarks/authz_accounts.json - idor_bola /api/data + vertical_privilege_escalation /api/admin/stats with secure twins), credential exposure (/vuln/leak-config: aws + github-token + db-uri classes; /safe twin masked), param-intel JSON-object surface (/api/filter); Phase 58 workflow intelligence: /wf/transfer wizard (vulnerable to all five business-logic classes) + /wf/safe/transfer hardened twin (every manipulation refused, ledger = state oracle), scanned with --workflow --logic-active (auth demo/demo123 + authz accounts bob/carol); Phase 60 (fixture v10): /wf/shared/transfer \u2014 ONE GLOBAL object store across identities with a seeded foreign-typed object (SORD-0001) and a rollback path (POST /cancel): vulnerable to EXACTLY the three v4.0.0 cross-identity classes (cross_user / cross_object / cross_state) with the five v3.0.0 guards intact (400 draft / 404 unknown / 400 amount-binding / 409 idempotency / 403 wire-role)",
+ "environment": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) - /account and /vault/transfer 302 to /login for anonymous clients; OAST armed - blind classes (xxe / ssrf / command_injection) are OOB-confirmed only; Phase 55 surfaces on /lab (csrf/nosql/jwt) + /vuln/ssti + /vuln/hostbuild; Phase 56 intelligence surfaces: multi-user authorization matrix (demo=admin, bob/carol=user via benchmarks/authz_accounts.json - idor_bola /api/data + vertical_privilege_escalation /api/admin/stats with secure twins), credential exposure (/vuln/leak-config: aws + github-token + db-uri classes; /safe twin masked), param-intel JSON-object surface (/api/filter); Phase 58 workflow intelligence: /wf/transfer wizard (vulnerable to all five business-logic classes) + /wf/safe/transfer hardened twin (every manipulation refused, ledger = state oracle), scanned with --workflow --logic-active (auth demo/demo123 + authz accounts bob/carol); Phase 60 (fixture v10): /wf/shared/transfer — ONE GLOBAL object store across identities with a seeded foreign-typed object (SORD-0001) and a rollback path (POST /cancel): vulnerable to EXACTLY the three v4.0.0 cross-identity classes (cross_user / cross_object / cross_state) with the five v3.0.0 guards intact (400 draft / 404 unknown / 400 amount-binding / 409 idempotency / 403 wire-role); bench-adv (2026-10-03, fixture v11): two ADVERSARIAL discriminating cases on /lab — /vuln/subscribe-echo (blanket-200 csrf echo, present:false) and /api/nosql-lockout (soft-fail nosql + permanent lockout, present:false) — v4.1.1 false-positives both, v4.2.0 rejects both; the bench now DISCRIMINATES the VF-01..04 fix set",
  "ground_truth": [
   {
    "type": "sql_injection",
@@ -130,7 +130,7 @@
    "endpoint": "/blind/stock",
    "parameter": "storeId",
    "present": false,
-   "note": "BLIND XXE: entities resolve but responses are per-request noise \u2014 no response-based oracle exists (ginandjuice.shop live behavior); OOB phase required, must NOT produce a response-verified finding"
+   "note": "BLIND XXE: entities resolve but responses are per-request noise — no response-based oracle exists (ginandjuice.shop live behavior); OOB phase required, must NOT produce a response-verified finding"
   },
   {
    "type": "missing_security_headers",
@@ -442,6 +442,18 @@
    "type": "business_logic_cross_state_execution",
    "endpoint": "/wf/safe/transfer/confirm",
    "parameter": "tid",
+   "present": false
+  },
+  {
+   "type": "csrf",
+   "endpoint": "/vuln/subscribe-echo",
+   "parameter": "email",
+   "present": false
+  },
+  {
+   "type": "nosql_injection",
+   "endpoint": "/api/nosql-lockout",
+   "parameter": "user",
    "present": false
   }
  ]

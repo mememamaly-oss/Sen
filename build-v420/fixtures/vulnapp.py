@@ -360,6 +360,28 @@ _BLIND_SEQ = [23, 768, 52, 191, 423, 648, 920, 140, 295]
 #   /safe/jwt-login       -> NEGATIVE (issues HS256-signed token)
 #   /vuln/hostbuild       -> host_header_injection (absolute links built from Host)
 #   /safe/hostbuild       -> NEGATIVE (fixed configured base URL)
+#
+#   ---- bench-adv (2026-10-03): ADVERSARIAL DISCRIMINATING cases ------------------
+#   Added on the supervisor's order (round 2026-10-03): the stock 73-case bench
+#   scored F1=1.000 on BOTH v4.1.1 (broken oracles) and v4.2.0 (fixed oracles) —
+#   it had ZERO discriminating power over the VF-01..04 fixes. These two cases
+#   sit in the exact disagreement zone between the engines:
+#   /vuln/subscribe-echo  -> csrf NEGATIVE-ADVERSARIAL: blanket-200 echo endpoint
+#                            (accepts ANY POST: any origin, malformed input, empty
+#                            params). v4.1.1 VR-13 (r.ok on one hostile replay)
+#                            verifies it -> FP; v4.2.0 triple control sees the
+#                            malformed control also accepted -> no input
+#                            discrimination -> CANDIDATE (unverified), never VERIFIED.
+#   /api/nosql-lockout    -> nosql NEGATIVE-ADVERSARIAL: object-valued fields get a
+#                            soft-fail 200 (driver swallows the operator error),
+#                            literal wrong creds get 401 — until the first $operator
+#                            body trips the rate-limiter, after which EVERY body
+#                            gets a blanket 200. v4.1.1 VR-14 (r.ok on the $gt
+#                            probe alone) verifies against the blanket 200 -> FP;
+#                            v4.2.0 reproduced-flip re-runs the literal baseline
+#                            FIRST (now blanket-200) -> no flip reproduces -> REJECTED.
+#   Neither endpoint is exploitable: no state ever changes, no credentials are
+#   ever granted. GT entries for both are present:false.
 import base64 as _b64, hmac as _hmac
 
 def _b64url(s: str) -> str:
@@ -394,6 +416,10 @@ LAB_PAGE = """<h2>Ledger lab</h2>
 <input type="email" name="email" value="sub@example.com">
 <button type="submit">Subscribe (protected)</button>
 </form>
+<form action="/vuln/subscribe-echo" method="POST">
+<input type="email" name="email" value="sub@example.com">
+<button type="submit">Subscribe (echo)</button>
+</form>
 <script src="/jsbuild.js"></script>
 <div id="nl-nosql" class="form" data-method="post" data-action="/vuln/nosql-login">
 <input required type="text" name="user" value="demo">
@@ -404,6 +430,11 @@ LAB_PAGE = """<h2>Ledger lab</h2>
 <input required type="text" name="user" value="demo">
 <input required type="password" name="pass" value="demo">
 <button class="button" type="submit">NoSQL login (safe)</button>
+</div>
+<div id="nl-nosql-lockout" class="form" data-method="post" data-action="/api/nosql-lockout">
+<input required type="text" name="user" value="demo">
+<input required type="password" name="pass" value="demo">
+<button class="button" type="submit">NoSQL login (legacy api)</button>
 </div>
 <div id="nl-jwt" class="form" data-method="post" data-action="/vuln/jwt-login">
 <input required type="text" name="user" value="demo">
@@ -418,6 +449,11 @@ LAB_PAGE = """<h2>Ledger lab</h2>
 <div>End of lab.</div>"""
 
 NOSQL_VALID = {"user": "admin", "pass": "hunter2"}   # the only literal credentials that match
+
+# bench-adv (2026-10-03): /api/nosql-lockout rate-limiter state. Module-level on
+# purpose: the bench spawns a FRESH fixture process per run (ENG-20), so this
+# resets deterministically every run; a long-lived dev instance keeps its state.
+NOSQL_LOCKOUT = {"locked": False}
 
 
 # ================= Phase 58 (fixture v8): multi-step business-logic transfer flows ========
@@ -998,6 +1034,44 @@ class Handler(BaseHTTPRequestHandler):
             data = {k: v for k, v in data.items() if k in ("user", "pass")}
             if any(not isinstance(v, str) for v in data.values()):
                 return self._send(400, '"malformed credentials"')
+            if data == NOSQL_VALID:
+                return self._send(200, '{"ok": true, "role": "admin"}')
+            return self._send(401, '{"error": "invalid credentials"}')
+        # ---------------- bench-adv (2026-10-03): adversarial discriminating cases ----
+        # /vuln/subscribe-echo: BLANKET-2xx echo — accepts every POST (any origin,
+        # any params, malformed/empty input) with the same 200. Looks exactly like
+        # the tokenless state-changing twin of /vuln/csrf-action, but it is a pure
+        # echo: NO state ever changes. Ground truth: csrf NOT present.
+        #   v4.1.1 VR-13 (r.ok on one hostile-origin replay)  -> VERIFIED  = FP
+        #   v4.2.0 triple control (malformed input also 200)  -> CANDIDATE = TN
+        if path == "/vuln/subscribe-echo":
+            return self._send(200, "Subscription confirmed.")
+        # /api/nosql-lockout: legacy NoSQL auth API with a soft-failing driver and
+        # an aggressive rate-limiter. Pre-lockout: literal wrong creds -> 401;
+        # object-valued ($operator) fields -> the driver swallows the operator
+        # error into a soft 200 (NO credentials are granted — the body says so).
+        # The FIRST $operator body trips the rate-limiter permanently: from then
+        # on EVERY request gets a blanket soft 200. Ground truth: nosql_injection
+        # NOT present (no operator ever grants anything).
+        #   detector (both engines): literal 401 -> $ne soft-200   = CANDIDATE (honest)
+        #   v4.1.1 VR-14 ($gt probe alone -> blanket 200, r.ok)    -> VERIFIED  = FP
+        #   v4.2.0 VR-14 (literal baseline re-run FIRST -> 200,
+        #                 the 401->200 flip no longer reproduces) -> REJECTED  = TN
+        if path == "/api/nosql-lockout":
+            if "json" not in ctype:
+                return self._send(400, '"expected application/json"')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '"invalid JSON"')
+            data = {k: v for k, v in data.items() if k in ("user", "pass")}
+            has_operator = any(isinstance(v, dict) and any(str(k).startswith("$") for k in v)
+                               for v in data.values())
+            if has_operator:
+                NOSQL_LOCKOUT["locked"] = True          # rate-limiter trips, permanent
+                return self._send(200, '{"ok": false, "error": "query error (soft-fail)"}')
+            if NOSQL_LOCKOUT["locked"]:
+                return self._send(200, '{"ok": false, "error": "too many attempts, try later"}')
             if data == NOSQL_VALID:
                 return self._send(200, '{"ok": true, "role": "admin"}')
             return self._send(401, '{"error": "invalid credentials"}')
