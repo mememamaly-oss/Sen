@@ -206,13 +206,13 @@ fresh-instance-per-engine (the gate discriminates, by design).
 ## 6. Save status (updated every round)
 
 - **PRIMARY (durable): GitHub — `github.com/mememamaly-oss/Sen` (private).**
-  Last verified push: main **73fb547** (2026-10-03, mirror-clone proof: refs +
-  HEAD tree + fsck identical to source). Refs on GitHub: 5 branches (main,
-  phase/02-l1-twin, release/v4.1.1, release/v4.2.0, release/v4.2.1), 4 tags
-  (v4.1.1, v4.2.0, v4.2.1 annotated, recovery/l1-candidate-2026-10-02).
-  Local-only commits after 73fb547 (STATE.md + worklog task 10) are pending
-  push — the 24h PAT was used inline only and is gone; **pushing requires a
-  fresh PAT from the repo owner.**
+  Last verified push (ls-remote, 2026-10-03 round 2): main = release/v4.2.2 =
+  v4.2.2{} (peeled) = **9bc4e95** = local HEAD. Refs on GitHub: 6 branches
+  (main, phase/02-l1-twin, release/v4.1.1, release/v4.2.0, release/v4.2.1,
+  release/v4.2.2), 5 tags (v4.1.1, v4.2.0, v4.2.1, v4.2.2 annotated,
+  recovery/l1-candidate-2026-10-02). Earlier round: 73fb547 also landed
+  (STATE.md 9cb88e3 + tasks 10/11). The round-2 PAT was inline-only; the
+  owner should revoke it once the round is accepted.
 - **Local:** full repo at `/home/z/my-project` (git-tracked content + all
   anchors survive every rollback). Escape pod bundle regenerated per round
   into `download/` (dies with each container rollback — r4 is current).
