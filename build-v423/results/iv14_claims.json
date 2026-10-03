@@ -1,0 +1,207 @@
+{
+ "meta": {
+  "when": "2026-10-03 20:43:03 +0000",
+  "ua": "Mozilla/5.0 (compatible; IV14-Verifier/1.0; +independent-probe)",
+  "purpose": "IV14 adjudication of searchTerm XSS / tfSearch / Templatize claims"
+ },
+ "ginandjuice_searchTerm": {
+  "ng_expr": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  },
+  "tag_probe": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  },
+  "attr_break": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  },
+  "js_quote": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  },
+  "js_dquote": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  },
+  "js_close_script": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  },
+  "js_backslash": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  },
+  "plain": {
+   "status": 302,
+   "len": 110,
+   "raw_reflected": false,
+   "in_script": null,
+   "context": null
+  }
+ },
+ "testasp_tfSearch": {
+  "base": {
+   "q": "tfSearch=1",
+   "status": 200,
+   "len": 4563,
+   "raw_reflected": true,
+   "context": "\r <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR",
+   "is_iis_500": false
+  },
+  "quote": {
+   "q": "tfSearch=1%27",
+   "status": 500,
+   "len": 1208,
+   "raw_reflected": false,
+   "context": null,
+   "is_iis_500": true
+  },
+  "doubled": {
+   "q": "tfSearch=1%27%27",
+   "status": 200,
+   "len": 4585,
+   "raw_reflected": true,
+   "context": "iv>\r       </form>      \r         <div class='path'>You searched for '1'''</div><table width=\"100%\" cellspacing=\"",
+   "is_iis_500": false
+  },
+  "and_true": {
+   "q": "tfSearch=1+AND+1%3D1",
+   "status": 200,
+   "len": 4603,
+   "raw_reflected": true,
+   "context": "iv>\r       </form>      \r         <div class='path'>You searched for '1 AND 1=1'</div><table width=\"100%\" cellspacing=\"",
+   "is_iis_500": false
+  },
+  "and_false": {
+   "q": "tfSearch=1+AND+1%3D2",
+   "status": 200,
+   "len": 5846,
+   "raw_reflected": true,
+   "context": "iv>\r       </form>      \r         <div class='path'>You searched for '1 AND 1=2'</div><table width=\"100%\" cellspacing=\"",
+   "is_iis_500": false
+  },
+  "or_true": {
+   "q": "tfSearch=1+OR+1%3D1",
+   "status": 200,
+   "len": 4600,
+   "raw_reflected": true,
+   "context": "iv>\r       </form>      \r         <div class='path'>You searched for '1 OR 1=1'</div><table width=\"100%\" cellspacing=\"",
+   "is_iis_500": false
+  },
+  "plain_word": {
+   "q": "tfSearch=iv14word",
+   "status": 200,
+   "len": 4584,
+   "raw_reflected": true,
+   "context": "/a> \r      - <a href=\"./Login.asp?RetURL=%2FSearch%2Easp%3FtfSearch%3Div14word\" class=\"menu\">login</a> - <a href=\"./Re",
+   "is_iis_500": false
+  },
+  "xss_tag": {
+   "q": "tfSearch=%3Cu%3Eiv14x%3C%2Fu%3E",
+   "status": 200,
+   "len": 4636,
+   "raw_reflected": true,
+   "context": "iv>\r       </form>      \r         <div class='path'>You searched for '<u>iv14x</u>'</div><table width=\"100%\" cellspacing=\"",
+   "is_iis_500": false
+  },
+  "xss_attr": {
+   "q": "tfSearch=iv14x%22+onmouseover%3D%22alert%281%29%22+x%3D%22",
+   "status": 200,
+   "len": 4731,
+   "raw_reflected": true,
+   "context": "iv>\r       </form>      \r         <div class='path'>You searched for 'iv14x\" onmouseover=\"alert(1)\" x=\"'</div><table width=\"100%\" cellspacing=\"",
+   "is_iis_500": false
+  }
+ },
+ "testasp_Login_oracle": {
+  "base": {
+   "status": 200,
+   "len": 3215,
+   "location": "",
+   "is_iis_500": false
+  },
+  "quote": {
+   "status": 500,
+   "len": 1208,
+   "location": "",
+   "is_iis_500": true
+  },
+  "doubled": {
+   "status": 200,
+   "len": 3215,
+   "location": "",
+   "is_iis_500": false
+  },
+  "quote_passw": {
+   "status": 500,
+   "len": 1208,
+   "location": "",
+   "is_iis_500": true
+  }
+ },
+ "testasp_Templatize": {
+  "base_about": {
+   "status": 200,
+   "len": 4594,
+   "fonts_offset": null,
+   "rootx_offset": null,
+   "is_iis_500": false,
+   "body_head": "\r <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r <html><!-- Ins"
+  },
+  "trav_4up_win": {
+   "status": 200,
+   "len": 2783,
+   "fonts_offset": 1905,
+   "rootx_offset": null,
+   "is_iis_500": false,
+   "body_head": "\r <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r <html><!-- Ins"
+  },
+  "trav_6up_win": {
+   "status": 200,
+   "len": 2827,
+   "fonts_offset": 1949,
+   "rootx_offset": null,
+   "is_iis_500": false,
+   "body_head": "\r <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r <html><!-- Ins"
+  },
+  "trav_4up_plain": {
+   "status": 200,
+   "len": 2763,
+   "fonts_offset": 1885,
+   "rootx_offset": null,
+   "is_iis_500": false,
+   "body_head": "\r <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r <html><!-- Ins"
+  },
+  "trav_4up_passwd": {
+   "status": 500,
+   "len": 1208,
+   "fonts_offset": null,
+   "rootx_offset": null,
+   "is_iis_500": true,
+   "body_head": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r <html xml"
+  }
+ }
+}

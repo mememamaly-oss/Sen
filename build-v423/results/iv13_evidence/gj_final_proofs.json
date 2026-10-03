@@ -1,0 +1,129 @@
+{
+ "ts": "2026-10-03T15:48:58+02:00",
+ "stock_controls": [
+  {
+   "label": "sid-literal-1",
+   "status": 200,
+   "body": "747",
+   "len": 3
+  },
+  {
+   "label": "sid-literal-2",
+   "status": 200,
+   "body": "997",
+   "len": 3
+  },
+  {
+   "label": "sid-literal-3",
+   "status": 200,
+   "body": "955",
+   "len": 3
+  },
+  {
+   "label": "sid-literal-64",
+   "status": 200,
+   "body": "95",
+   "len": 2
+  },
+  {
+   "label": "sid-literal-999",
+   "status": 200,
+   "body": "584",
+   "len": 3
+  },
+  {
+   "label": "sid-ent-ttl",
+   "status": 200,
+   "body": "433",
+   "len": 3
+  },
+  {
+   "label": "sid-ent-pidmax",
+   "status": 200,
+   "body": "433",
+   "len": 3
+  },
+  {
+   "label": "pid1-sid-literal-64-again",
+   "status": 200,
+   "body": "95",
+   "len": 2
+  }
+ ],
+ "search_like": [
+  {
+   "term": "gin",
+   "status": 200,
+   "len": 16176,
+   "products": 16
+  },
+  {
+   "term": "gin%' OR 1=1--",
+   "status": 200,
+   "len": 9463,
+   "products": 0
+  },
+  {
+   "term": "gin%' OR '1'='1'--",
+   "status": 200,
+   "len": 9531,
+   "products": 0
+  },
+  {
+   "term": "gin' OR 1=1--",
+   "status": 200,
+   "len": 9447,
+   "products": 0
+  },
+  {
+   "term": "gin%' AND 1=2--",
+   "status": 200,
+   "len": 9469,
+   "products": 0
+  },
+  {
+   "term": "gin%'||'%",
+   "status": 200,
+   "len": 9464,
+   "products": 0
+  },
+  {
+   "term": "%' OR 1=1--",
+   "status": 200,
+   "len": 9445,
+   "products": 0
+  }
+ ],
+ "blog_postid": [
+  {
+   "label": "base",
+   "status": 200,
+   "len": 12455,
+   "title": "Meeting Ginny - Blog - Gin &amp; Juice Shop"
+  },
+  {
+   "label": "quote",
+   "status": 400,
+   "len": 22,
+   "title": null
+  },
+  {
+   "label": "true",
+   "status": 400,
+   "len": 22,
+   "title": null
+  },
+  {
+   "label": "false",
+   "status": 400,
+   "len": 22,
+   "title": null
+  },
+  {
+   "label": "nonexistent",
+   "status": 404,
+   "len": 7367,
+   "title": "Gin &amp; Juice Shop"
+  }
+ ]
+}

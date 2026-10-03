@@ -1,0 +1,4557 @@
+{
+ "run_id": "run-3d6cf53f93",
+ "seed": "f09afb0f",
+ "scanner": "sentinel-core/4.2.0",
+ "target": "http://testaspnet.vulnweb.com",
+ "stats": {
+  "requests": 847,
+  "endpoints": 16,
+  "candidates": 5,
+  "verified": 51,
+  "rejected": 0,
+  "duration": 519.04,
+  "crawl": {
+   "pages": 12,
+   "unique_endpoints": 16,
+   "dom_sink_candidates": 0
+  },
+  "openapi": {
+   "source": null,
+   "paths": 0,
+   "new_endpoints": 0
+  },
+  "browser_pages": 15,
+  "param_intel": {
+   "params_total": 43,
+   "by_kind": {
+    "generic": 36,
+    "numeric": 5,
+    "search": 2
+   },
+   "value_shape_upgrades": 0,
+   "data_objects": {
+    "id": [
+     "http://testaspnet.vulnweb.com/Comments.aspx",
+     "http://testaspnet.vulnweb.com/ReadNews.aspx"
+    ]
+   }
+  },
+  "graphql": {
+   "enabled": true,
+   "candidates": 0,
+   "endpoints": [],
+   "introspected": 0,
+   "queries": 0,
+   "mutations": 0,
+   "tests": 0,
+   "requests": 4,
+   "boundaries": 0
+  },
+  "websocket": {
+   "enabled": true,
+   "candidates": 0,
+   "channels": [],
+   "connected": 0,
+   "protocols": {},
+   "tests": 0,
+   "connections": 9,
+   "blocked_by_planner": 0
+  },
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {
+     "server": "Microsoft-IIS/8.5",
+     "x-aspnet-version": "2.0.50727",
+     "x-powered-by": "ASP.NET"
+    },
+    "cookies": [
+     "asp.net_sessionid"
+    ],
+    "frameworks": [
+     "ASP.NET WebForms",
+     "cookies:ASP.NET",
+     "generator:Microsoft Visual Studio .NET 7.1"
+    ],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "coverage": {
+   "discovered": 20,
+   "tested": 20,
+   "passive": 16,
+   "secrets_scanned": 16,
+   "active": 19,
+   "authz_probed": 0,
+   "active_or_authz": 19,
+   "untested": 0,
+   "skip_reasons": {},
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/about.aspx",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/about.aspx",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/api/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/default.aspx",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/default.aspx",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/gql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/graphql/v1",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/login.aspx",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/login.aspx",
+     "source": "crawl:form",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/styles.css",
+     "source": "crawl:html",
+     "activity": [
+      "passive",
+      "secrets"
+     ],
+     "skips": [],
+     "baseline": 200
+    }
+   ],
+   "detail_truncated": 0,
+   "dimensions": {
+    "endpoint": {
+     "dimension": "endpoint",
+     "discovered": 20,
+     "tested": 20,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "190282acc93d",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "192093d29aa6",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "1af8880a58ed",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "24e4895c3469",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/gql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "3a3b940a505f",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/about.aspx",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "423f784e4c71",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4ee1c42d3eb5",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/about.aspx",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4f2a74470cf6",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/graphql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4f39d4e67dcd",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "5720ed6ec2f3",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/styles.css",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "5fb4f5c9e73a",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "6722831798a5",
+       "meta": {
+        "url": "http://testaspnet.vulnweb.com/login.aspx",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 8
+    },
+    "parameter": {
+     "dimension": "parameter",
+     "discovered": 43,
+     "tested": 43,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "190282acc93d|id",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+        "name": "id"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "192093d29aa6|id",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/Comments.aspx",
+        "name": "id"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4ee1c42d3eb5|__EVENTARGUMENT",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/about.aspx",
+        "name": "__EVENTARGUMENT"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4ee1c42d3eb5|__EVENTTARGET",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/about.aspx",
+        "name": "__EVENTTARGET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4ee1c42d3eb5|__EVENTVALIDATION",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/about.aspx",
+        "name": "__EVENTVALIDATION"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4ee1c42d3eb5|__VIEWSTATE",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/about.aspx",
+        "name": "__VIEWSTATE"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4ee1c42d3eb5|__VIEWSTATEGENERATOR",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/about.aspx",
+        "name": "__VIEWSTATEGENERATOR"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4f39d4e67dcd|NewsAd",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+        "name": "NewsAd"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4f39d4e67dcd|id",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+        "name": "id"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "6722831798a5|__EVENTARGUMENT",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/login.aspx",
+        "name": "__EVENTARGUMENT"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "6722831798a5|__EVENTTARGET",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/login.aspx",
+        "name": "__EVENTTARGET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "6722831798a5|__EVENTVALIDATION",
+       "meta": {
+        "endpoint": "http://testaspnet.vulnweb.com/login.aspx",
+        "name": "__EVENTVALIDATION"
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 31
+    },
+    "authentication": {
+     "dimension": "authentication",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "anonymous-probe",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "identity": {
+     "dimension": "identity",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no identity surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "authorization": {
+     "dimension": "authorization",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {
+      "no_multi_user_config": 1
+     },
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no authorization surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "entity": {
+     "dimension": "entity",
+     "discovered": 3,
+     "tested": 0,
+     "untested": 3,
+     "untested_reasons": {},
+     "pct": 0.0,
+     "status": "UNTESTED",
+     "items": [
+      {
+       "key": "Message",
+       "meta": {
+        "surfaces": 1
+       },
+       "tested": false,
+       "untested_reason": ""
+      },
+      {
+       "key": "Object",
+       "meta": {
+        "surfaces": 0
+       },
+       "tested": false,
+       "untested_reason": ""
+      },
+      {
+       "key": "User",
+       "meta": {
+        "surfaces": 2
+       },
+       "tested": false,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "object": {
+     "dimension": "object",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no object surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow": {
+     "dimension": "workflow",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow_branch": {
+     "dimension": "workflow_branch",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow branch surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "state": {
+     "dimension": "state",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no state surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "api_protocol": {
+     "dimension": "api_protocol",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "http",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "graphql": {
+     "dimension": "graphql",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no graphql surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "websocket": {
+     "dimension": "websocket",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no websocket surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "browser": {
+     "dimension": "browser",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "render-merge",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "oast": {
+     "dimension": "oast",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {
+      "no OAST channel armed (blind classes inert)": 1
+     },
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no oast surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "detector": {
+     "dimension": "detector",
+     "discovered": 6,
+     "tested": 6,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "crlf",
+       "meta": {
+        "probes": 38
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "csrf",
+       "meta": {
+        "probes": 2
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "redirect",
+       "meta": {
+        "probes": 86
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "sqli",
+       "meta": {
+        "probes": 301
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "traversal",
+       "meta": {
+        "probes": 172
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "xss",
+       "meta": {
+        "probes": 86
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "evidence": {
+     "dimension": "evidence",
+     "discovered": 1,
+     "tested": 0,
+     "untested": 1,
+     "untested_reasons": {},
+     "pct": 0.0,
+     "status": "UNTESTED",
+     "items": [
+      {
+       "key": "verified-findings",
+       "meta": {},
+       "tested": false,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    }
+   }
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 8,
+     "endpoints": [
+      "http://testaspnet.vulnweb.com",
+      "http://testaspnet.vulnweb.com/Comments.aspx",
+      "http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "http://testaspnet.vulnweb.com/Signup.aspx",
+      "http://testaspnet.vulnweb.com/about.aspx",
+      "http://testaspnet.vulnweb.com/default.aspx",
+      "http://testaspnet.vulnweb.com/login.aspx",
+      "http://testaspnet.vulnweb.com/rssFeed.aspx"
+     ]
+    },
+    "api": {
+     "count": 0,
+     "endpoints": []
+    },
+    "form_or_action": {
+     "count": 6,
+     "endpoints": [
+      "http://testaspnet.vulnweb.com/Comments.aspx",
+      "http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "http://testaspnet.vulnweb.com/Signup.aspx",
+      "http://testaspnet.vulnweb.com/about.aspx",
+      "http://testaspnet.vulnweb.com/default.aspx",
+      "http://testaspnet.vulnweb.com/login.aspx"
+     ]
+    },
+    "static": {
+     "count": 1,
+     "endpoints": [
+      "http://testaspnet.vulnweb.com/styles.css"
+     ]
+    }
+   },
+   "authentication": {
+    "mode": "anonymous",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {
+    "id": {
+     "carried_by": [
+      "http://testaspnet.vulnweb.com/Comments.aspx",
+      "http://testaspnet.vulnweb.com/ReadNews.aspx"
+     ]
+    }
+   },
+   "workflows": {
+    "form_inventory": [
+     "http://testaspnet.vulnweb.com/Comments.aspx",
+     "http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "http://testaspnet.vulnweb.com/Signup.aspx",
+     "http://testaspnet.vulnweb.com/about.aspx",
+     "http://testaspnet.vulnweb.com/default.aspx",
+     "http://testaspnet.vulnweb.com/login.aspx"
+    ],
+    "note": "state-changing surfaces grouped by target; multi-step flow learning is the Phase 58 business-logic engine"
+   },
+   "coverage": {
+    "discovered": 20,
+    "tested": 20,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {}
+   }
+  },
+  "reasoning": {
+   "generated": 6,
+   "tested": 6,
+   "tested_verified": 0,
+   "verified": 0,
+   "refuted": 6,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": [
+    {
+     "id": "H-6d4453f171",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /Comments.aspx",
+     "premise": "POST /Comments.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /Comments.aspx",
+      "POST /Comments.aspx:__EVENTARGUMENT",
+      "POST /Comments.aspx:__EVENTTARGET",
+      "POST /Comments.aspx:__EVENTVALIDATION",
+      "POST /Comments.aspx:__VIEWSTATE"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted",
+     "source": "twin-pattern",
+     "preconditions": [],
+     "expected_behavior": "POST /Comments.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "test_plan": "csrf detector (cross-origin replay)",
+     "safety_class": "STATE_CHANGING",
+     "actual_result": "no acceptance observed",
+     "verification": "csrf detector ran to completion",
+     "evidence": "",
+     "final_state": "REFUTED",
+     "reason": "the detector ran and the write was never accepted cross-origin"
+    },
+    {
+     "id": "H-84d02ba0ec",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /ReadNews.aspx",
+     "premise": "POST /ReadNews.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /ReadNews.aspx",
+      "POST /ReadNews.aspx:NewsAd",
+      "POST /ReadNews.aspx:__EVENTARGUMENT",
+      "POST /ReadNews.aspx:__EVENTTARGET",
+      "POST /ReadNews.aspx:__EVENTVALIDATION"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted",
+     "source": "twin-pattern",
+     "preconditions": [],
+     "expected_behavior": "POST /ReadNews.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "test_plan": "csrf detector (cross-origin replay)",
+     "safety_class": "STATE_CHANGING",
+     "actual_result": "no acceptance observed",
+     "verification": "csrf detector ran to completion",
+     "evidence": "",
+     "final_state": "REFUTED",
+     "reason": "the detector ran and the write was never accepted cross-origin"
+    },
+    {
+     "id": "H-bc40ca31e8",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /Signup.aspx",
+     "premise": "POST /Signup.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /Signup.aspx",
+      "POST /Signup.aspx:__EVENTARGUMENT",
+      "POST /Signup.aspx:__EVENTTARGET",
+      "POST /Signup.aspx:__EVENTVALIDATION",
+      "POST /Signup.aspx:__VIEWSTATE"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted",
+     "source": "twin-pattern",
+     "preconditions": [],
+     "expected_behavior": "POST /Signup.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "test_plan": "csrf detector (cross-origin replay)",
+     "safety_class": "STATE_CHANGING",
+     "actual_result": "no acceptance observed",
+     "verification": "csrf detector ran to completion",
+     "evidence": "",
+     "final_state": "REFUTED",
+     "reason": "the detector ran and the write was never accepted cross-origin"
+    },
+    {
+     "id": "H-791d7be879",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /about.aspx",
+     "premise": "POST /about.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /about.aspx",
+      "POST /about.aspx:__EVENTARGUMENT",
+      "POST /about.aspx:__EVENTTARGET",
+      "POST /about.aspx:__EVENTVALIDATION",
+      "POST /about.aspx:__VIEWSTATE"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted",
+     "source": "twin-pattern",
+     "preconditions": [],
+     "expected_behavior": "POST /about.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "test_plan": "csrf detector (cross-origin replay)",
+     "safety_class": "STATE_CHANGING",
+     "actual_result": "no acceptance observed",
+     "verification": "csrf detector ran to completion",
+     "evidence": "",
+     "final_state": "REFUTED",
+     "reason": "the detector ran and the write was never accepted cross-origin"
+    },
+    {
+     "id": "H-df13e9317a",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /default.aspx",
+     "premise": "POST /default.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /default.aspx",
+      "POST /default.aspx:__EVENTARGUMENT",
+      "POST /default.aspx:__EVENTTARGET",
+      "POST /default.aspx:__EVENTVALIDATION",
+      "POST /default.aspx:__VIEWSTATE"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted",
+     "source": "twin-pattern",
+     "preconditions": [],
+     "expected_behavior": "POST /default.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "test_plan": "csrf detector (cross-origin replay)",
+     "safety_class": "STATE_CHANGING",
+     "actual_result": "no acceptance observed",
+     "verification": "csrf detector ran to completion",
+     "evidence": "",
+     "final_state": "REFUTED",
+     "reason": "the detector ran and the write was never accepted cross-origin"
+    },
+    {
+     "id": "H-892e8a7114",
+     "pattern": "R-TOKENLESS-WRITE",
+     "surface": "POST /login.aspx",
+     "premise": "POST /login.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "chain": [
+      "POST /login.aspx",
+      "POST /login.aspx:__EVENTARGUMENT",
+      "POST /login.aspx:__EVENTTARGET",
+      "POST /login.aspx:__EVENTVALIDATION",
+      "POST /login.aspx:__VIEWSTATE"
+     ],
+     "test": "csrf detector (cross-origin replay)",
+     "plan": "STATE_CHANGING",
+     "status": "tested:refuted",
+     "source": "twin-pattern",
+     "preconditions": [],
+     "expected_behavior": "POST /login.aspx changes state and carries no anti-CSRF token \u2014 a hostile origin may be able to forge this action against an authenticated victim",
+     "test_plan": "csrf detector (cross-origin replay)",
+     "safety_class": "STATE_CHANGING",
+     "actual_result": "no acceptance observed",
+     "verification": "csrf detector ran to completion",
+     "evidence": "",
+     "final_state": "REFUTED",
+     "reason": "the detector ran and the write was never accepted cross-origin"
+    }
+   ]
+  },
+  "digital_twin": {
+   "nodes": 98,
+   "edges": 79,
+   "node_kinds": {
+    "boundary": 2,
+    "entity": 3,
+    "finding": 28,
+    "hypothesis": 6,
+    "parameter": 42,
+    "role": 1,
+    "surface": 16
+   },
+   "edge_kinds": {
+    "carries": 42,
+    "generated_hypothesis": 6,
+    "produced_finding": 28,
+    "typed_as": 3
+   },
+   "identities": 0,
+   "roles": 1,
+   "surfaces_total": 16,
+   "surfaces_write": 6,
+   "surfaces_read": 8,
+   "entities": 3,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 28,
+   "secrets_masked": 0,
+   "hypotheses": 6,
+   "surfaces_with_untested_reasons": 0,
+   "flows": [],
+   "authorization_matrix": {},
+   "entity_inventory": [
+    {
+     "entity": "Message",
+     "carried_by_params": 1,
+     "surfaces": [
+      "POST /Comments.aspx"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "Object",
+     "carried_by_params": 0,
+     "surfaces": [],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    },
+    {
+     "entity": "User",
+     "carried_by_params": 2,
+     "surfaces": [
+      "POST /Signup.aspx",
+      "POST /login.aspx"
+     ],
+     "minted_by_steps": [],
+     "consumed_by_steps": []
+    }
+   ],
+   "belief_audit": [],
+   "why_examples": []
+  },
+  "boundary": {
+   "records": 2,
+   "by_state": {
+    "NOT_DISCOVERED": 2
+   },
+   "by_category": {
+    "graphql": 1,
+    "websocket": 1
+   },
+   "unresolved": 2,
+   "unresolved_detail": [
+    {
+     "category": "graphql",
+     "target": "http://testaspnet.vulnweb.com",
+     "state": "NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)",
+     "remediation": ""
+    },
+    {
+     "category": "websocket",
+     "target": "http://testaspnet.vulnweb.com",
+     "state": "NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)",
+     "remediation": ""
+    }
+   ],
+   "states_vocabulary": [
+    "TESTED",
+    "VERIFIED",
+    "REFUTED",
+    "UNTESTABLE",
+    "NOT_DISCOVERED",
+    "NOT_SUPPORTED",
+    "BLOCKED_BY_PERMISSION",
+    "BLOCKED_BY_AUTH",
+    "BLOCKED_BY_SAFETY",
+    "BLOCKED_BY_ENVIRONMENT",
+    "TIMEOUT",
+    "TOOL_FAILURE",
+    "DEPENDENCY_MISSING",
+    "NOT_APPLICABLE"
+   ]
+  },
+  "api_inventory": {
+   "total": 9,
+   "by_protocol": {
+    "http": 9
+   },
+   "apis": [
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/",
+     "channel": "",
+     "sources": [
+      "seed"
+     ],
+     "parameters": [],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/Comments.aspx",
+     "channel": "",
+     "sources": [
+      "seed",
+      "crawl:form"
+     ],
+     "parameters": [
+      "id",
+      "__EVENTARGUMENT",
+      "__EVENTTARGET",
+      "__EVENTVALIDATION",
+      "__VIEWSTATE",
+      "__VIEWSTATEGENERATOR",
+      "tbComment"
+     ],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/ReadNews.aspx",
+     "channel": "",
+     "sources": [
+      "seed",
+      "crawl:html",
+      "crawl:form"
+     ],
+     "parameters": [
+      "NewsAd",
+      "id",
+      "__EVENTARGUMENT",
+      "__EVENTTARGET",
+      "__EVENTVALIDATION",
+      "__VIEWSTATE",
+      "__VIEWSTATEGENERATOR"
+     ],
+     "findings": 4,
+     "finding_types": [
+      "sql_injection",
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/Signup.aspx",
+     "channel": "",
+     "sources": [
+      "seed",
+      "crawl:form"
+     ],
+     "parameters": [
+      "__EVENTARGUMENT",
+      "__EVENTTARGET",
+      "__EVENTVALIDATION",
+      "__VIEWSTATE",
+      "__VIEWSTATEGENERATOR",
+      "tbPassword",
+      "tbUsername"
+     ],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/about.aspx",
+     "channel": "",
+     "sources": [
+      "seed",
+      "crawl:form"
+     ],
+     "parameters": [
+      "__EVENTARGUMENT",
+      "__EVENTTARGET",
+      "__EVENTVALIDATION",
+      "__VIEWSTATE",
+      "__VIEWSTATEGENERATOR"
+     ],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/default.aspx",
+     "channel": "",
+     "sources": [
+      "seed",
+      "crawl:form"
+     ],
+     "parameters": [
+      "__EVENTARGUMENT",
+      "__EVENTTARGET",
+      "__EVENTVALIDATION",
+      "__VIEWSTATE",
+      "__VIEWSTATEGENERATOR"
+     ],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/login.aspx",
+     "channel": "",
+     "sources": [
+      "seed",
+      "crawl:form"
+     ],
+     "parameters": [
+      "__EVENTARGUMENT",
+      "__EVENTTARGET",
+      "__EVENTVALIDATION",
+      "__VIEWSTATE",
+      "__VIEWSTATEGENERATOR",
+      "cbPersistCookie",
+      "tbPassword",
+      "tbUsername"
+     ],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/rssFeed.aspx",
+     "channel": "",
+     "sources": [
+      "seed"
+     ],
+     "parameters": [],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/styles.css",
+     "channel": "",
+     "sources": [
+      "crawl:html"
+     ],
+     "parameters": [],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    }
+   ]
+  },
+  "action_matrix": {
+   "identities": [
+    {
+     "name": "anonymous",
+     "role": "anonymous"
+    }
+   ],
+   "actions": [
+    "read",
+    "create",
+    "update",
+    "delete",
+    "approve",
+    "execute",
+    "export",
+    "admin"
+   ],
+   "matrix": {
+    "anonymous": {
+     "read": "untested:no anonymous baseline for these surfaces",
+     "create": "untested:anonymous probes cover GET surfaces only",
+     "update": "untested:no surface of this action class was probed under this identity",
+     "delete": "untested:no surface of this action class was probed under this identity",
+     "approve": "untested:no surface of this action class was probed under this identity",
+     "execute": "untested:no surface of this action class was probed under this identity",
+     "export": "untested:no surface of this action class was probed under this identity",
+     "admin": "untested:no surface of this action class was probed under this identity"
+    }
+   },
+   "discovered_surface_actions": {
+    "create": 6,
+    "read": 10
+   }
+  },
+  "planner": {
+   "operations_evaluated": 2,
+   "by_impact": {
+    "READ_ONLY": 2
+   },
+   "blocked": 0,
+   "logic_active": false,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked",
+   "decisions": [
+    {
+     "url": "http://testaspnet.vulnweb.com",
+     "method": "GET",
+     "impact": "READ_ONLY",
+     "allowed": true,
+     "policy": "automatic",
+     "rationale": "GET fetch \u2014 observation only, no server state can change",
+     "note": "passive-baseline"
+    },
+    {
+     "url": "http://testaspnet.vulnweb.com/*",
+     "method": "GET",
+     "impact": "READ_ONLY",
+     "allowed": true,
+     "policy": "automatic",
+     "rationale": "GET fetch \u2014 observation only, no server state can change",
+     "note": "discovery"
+    }
+   ]
+  },
+  "proofs": [
+   {
+    "finding_id": "F-13b2c8c2a8",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-0a4ead60"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-028c119c10",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/styles.css",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-fc598a02"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/styles.css",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/styles.css as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-39effc085b",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/about.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-06d5e508"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-bddd46d2"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/about.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/about.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-e149aac978",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/default.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-dae1f8e9"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-8aa48c21"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/default.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/default.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-929f619d34",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/login.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-19eb5b5a"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-f10c1b25"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/login.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/login.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-8ff2447e2a",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-500f33d5"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-d799b1d9"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/Signup.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/Signup.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-1142a7221c",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-8793554e"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/rssFeed.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/rssFeed.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-1179beef92",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-42f3d2cb"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-f306949a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/Comments.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/Comments.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-32a08b078e",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-7708376e"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-3a661209"
+     },
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-2895787b"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/ReadNews.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-fbb6de6abd",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-0a4ead60"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-f14e193287",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/styles.css",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-fc598a02"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/styles.css",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/styles.css as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-9493228d1f",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/about.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-06d5e508"
+     },
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-bddd46d2"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/about.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/about.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-e625aa0ffd",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/default.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-dae1f8e9"
+     },
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-8aa48c21"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/default.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/default.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-3c3fb037b5",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/login.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-19eb5b5a"
+     },
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-f10c1b25"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/login.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/login.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-97d24e17d0",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-500f33d5"
+     },
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-d799b1d9"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/Signup.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/Signup.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-da42e6ee73",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-8793554e"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/rssFeed.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/rssFeed.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-460fea73c9",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-42f3d2cb"
+     },
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-f306949a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/Comments.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/Comments.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-605837d876",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-7708376e"
+     },
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-3a661209"
+     },
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-2895787b"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/ReadNews.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-1e2f9fefe2",
+    "type": "sql_injection",
+    "severity": "critical",
+    "attack_hypothesis": "attacker-controlled input changes the boolean value of a server-side query condition (observable differential)",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": "id"
+     }
+    ],
+    "responses": [
+     {
+      "kind": "response_diff",
+      "detail": "body-size differential 30615B vs 13505B on condition flip",
+      "request_id": "req-70eb4a37"
+     },
+     {
+      "kind": "response_diff",
+      "detail": "body-size differential 22848B vs 13444B on condition flip",
+      "request_id": "req-ce0a4124"
+     },
+     {
+      "kind": "response_diff",
+      "detail": "body-size differential 22909B vs 13505B on condition flip",
+      "request_id": "req-f92ebf06"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "proven",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) \u2014 a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": "id",
+      "evidence_kinds": [
+       "response_diff"
+      ],
+      "out_of_band": false,
+      "verification": "oracle:replay-2round",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/ReadNews.aspx with the tested parameter 'id' and the canary value from the evidence chain",
+      "expect": "the same evidence kind fires as in the attached proof (response_diff)"
+     }
+    ],
+    "confidence": 0.95,
+    "verification": {
+     "method": "oracle:replay-2round",
+     "passed": true,
+     "rounds": 2,
+     "notes": "replay TRUE=200 FALSE=200"
+    },
+    "proof_grade": "proven"
+   },
+   {
+    "finding_id": "F-a8e5a44043",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-0a4ead60"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-7ce7cf9eb3",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/styles.css",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-fc598a02"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/styles.css",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/styles.css as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-a16bca31ac",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/about.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-06d5e508"
+     },
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-bddd46d2"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/about.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/about.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-68f8ce2ff9",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/default.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-dae1f8e9"
+     },
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-8aa48c21"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/default.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/default.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-67c25444e0",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/login.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-19eb5b5a"
+     },
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-f10c1b25"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/login.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/login.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-8a1b90f978",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-500f33d5"
+     },
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-d799b1d9"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/Signup.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/Signup.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-3a113ff26c",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-8793554e"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/rssFeed.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/rssFeed.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-c05541d788",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-42f3d2cb"
+     },
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-f306949a"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/Comments.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/Comments.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-6b7f543b49",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-7708376e"
+     },
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-3a661209"
+     },
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-2895787b"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://testaspnet.vulnweb.com/ReadNews.aspx as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   }
+  ],
+  "unverified_candidates": 0,
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [
+  {
+   "id": "F-1e2f9fefe2",
+   "type": "sql_injection",
+   "severity": "critical",
+   "status": "verified",
+   "confidence": 0.95,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+   "parameter": "id",
+   "evidence": [
+    {
+     "kind": "response_diff",
+     "detail": "body-size differential 30615B vs 13505B on condition flip"
+    },
+    {
+     "kind": "response_diff",
+     "detail": "body-size differential 22848B vs 13444B on condition flip"
+    },
+    {
+     "kind": "response_diff",
+     "detail": "body-size differential 22909B vs 13505B on condition flip"
+    }
+   ],
+   "verification": {
+    "method": "oracle:replay-2round",
+    "passed": true,
+    "confidence": 0.95,
+    "rounds": 2,
+    "notes": "replay TRUE=200 FALSE=200"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "run-3d6cf53f93",
+   "risk": 85,
+   "impact": {
+    "grade": "proven",
+    "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) \u2014 a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "parameter": "id",
+     "evidence_kinds": [
+      "response_diff"
+     ],
+     "out_of_band": false,
+     "verification": "oracle:replay-2round",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-13b2c8c2a8",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-028c119c10",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/styles.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/styles.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-39effc085b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/about.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/about.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-e149aac978",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/default.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/default.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-929f619d34",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/login.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/login.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-8ff2447e2a",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/Signup.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-1142a7221c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/rssFeed.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-1179beef92",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/Comments.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-32a08b078e",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    },
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-fbb6de6abd",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-a8e5a44043",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-f14e193287",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/styles.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/styles.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-7ce7cf9eb3",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/styles.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/styles.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-9493228d1f",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/about.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/about.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-a16bca31ac",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/about.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    },
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/about.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-e625aa0ffd",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/default.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/default.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-68f8ce2ff9",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/default.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    },
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/default.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-3c3fb037b5",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/login.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/login.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-67c25444e0",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/login.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    },
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/login.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-97d24e17d0",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/Signup.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-8a1b90f978",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/Signup.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    },
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/Signup.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-da42e6ee73",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/rssFeed.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-3a113ff26c",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/rssFeed.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/rssFeed.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-460fea73c9",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/Comments.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-c05541d788",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/Comments.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    },
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/Comments.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-605837d876",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    },
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-6b7f543b49",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://testaspnet.vulnweb.com/ReadNews.aspx",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    },
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    },
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.2.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://testaspnet.vulnweb.com/ReadNews.aspx",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  }
+ ],
+ "rejected_candidates": [],
+ "unverified_candidates": []
+}

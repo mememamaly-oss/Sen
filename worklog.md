@@ -921,3 +921,56 @@ Work Log:
 
 Stage Summary:
 - Round-3 content is committed locally and durable; GitHub sync blocked only by the revoked PAT — a fresh token from the supervisor completes it.
+
+---
+Task ID: 14
+Agent: Super Z (main agent)
+Task: Supervisor orders 2026-10-04 round 4 — (1) push IV13 commits with the PAT, (2) fix the three confirmed gaps (testaspnet tbComment stored XSS, gruyere signup-uid stored XSS, gruyere URL-path traversal) with discriminating tests + full gate cycle, (3) adjudicate the three unreplicated claims (searchTerm / tfSearch / Templatize), (4) update STATE.md honestly with the trade-off; stop-line: re-gate the five targets before any L2.
+
+Work Log:
+- ORDER 1: no PAT value exists in this session (continuation dropped the inline token; never on disk per protocol — verified: no git credentials, no config, no env, no history). Push attempted without credentials: blocked at auth. All work committed locally (5 commits pending); push completes the moment a fresh PAT is supplied inline.
+- ORDER 3 (executed first — its verdicts shape the fixes): IV14 raw re-probe (stdlib-only, scripts/iv14_claims.py + iv14_claims_gj.py, evidence build-v423/results/iv14_evidence/):
+  * searchTerm XSS = FALSE POSITIVE: {{91*7}} reflects raw ONLY inside <script>var searchText='...'</script> (Angular never interpolates script content); every breakout probe (', ", </script>, \) neutralized (< -> &lt; even inside the script string; quotes backslash-escaped). Engine-fixed (DETECT-15 + VR-14).
+  * tfSearch = REAL (IV13's 500s were a transient outage): recovered endpoint shows quote->500/base->200/doubled->200 PLUS a boolean body-diff (AND 1=1 4603B vs AND 1=2 5846B) AND raw reflected XSS. SENTINEL's original VERIFIED channel (PATH B bare-500) was over-claiming though — VF-04 fixed; re-scan now verifies via PATH A (real oracle).
+  * Templatize = REAL: byte-exact offset match with the frozen v4.2.1 journal ([fonts]@1905 4-up, @1949 6-up); base page contains no marker (soundness control); plain ../ works too on this stack; etc/passwd read 500s (Windows host).
+- ORDER 2 (engine v4.2.3, build-v423 copied from build-v422):
+  * DETECT-16 StoredXSSDetector + stored_xss_flow(): fresh form round-trip (rotating __VIEWSTATE/CSRF ride FRESH values — the stale-viewstate 500 was the live miss), canary submit with hidden fields verbatim + passwords/hidden never targeted, render surfaces = action page + origin page + parent dir (submit response deliberately NOT a surface — echoes there are reflections), persistence control (independent second fetch must still carry the marker raw). Content-submission forms only; per-param unique canaries (<sentinelst0>...) after the unit test caught same-marker cross-attribution between params. GET-form + cookie-carried render (gruyere) and POST-form + rotating viewstate (testaspnet) both covered. discovery.py: form_origin tag + CRAWL_FORM registration no longer clobbered by the DISC-12 page-fetch (live-caught: gruyere /saveprofile endpoint was re-registered as SEED, source+tag stripped, detector silently skipped — fixed both directions).
+  * DETECT-17 PathTraversalDetector: URL-path battery (..%2f x2/4/6 encoded + plain ../ x4, etc/passwd + win.ini markers), once per scan from target root + top-2 crawled dir prefixes (orchestrator _path_traversal_bases), stops at first VERIFIED.
+  * VF-04 PATH B tightening: requires a DB error STRING (bare 5xx no longer verifies); DETECT-04 status_oracle candidates unchanged (visible, honest, unverified).
+  * _get_endpoint_for(): flow requests preserve URL query strings (engine serializes queries from ep.parameters; bare Endpoint(url=...) silently drops them — ASP.NET ?id=0 actions).
+  * 6 discriminating unit tests (fail v422 / pass v423 each; the ng-attribute positive control guards against over-fixing).
+  * Mechanism probe scripts/probe_v423_gaps.py: same 5 scenarios through FROZEN v4.2.2 (read-only) vs v4.2.3 -> 3 misses become VERIFIED, 2 over-claims become REJECTED. Raw: results/probe_v423_gaps.jsonl.
+  * GATES: suite 110/110 (8 chunks), doctor 15/15, bench x3 IDENTICAL 38/0/0/37 run-3c0652b6be 1959 reqs (v422: 1944, +15 = path battery; stored detector adds 0 fixture requests via its content-word gate), verdict-level diff vs frozen v4.2.2 = NONE (new gates_v423.py verify step asserts this).
+- STOP-LINE (re-gate): gruyere re-scan (seed 7f3c91aa): xss_stored saveprofile uid VERIFIED + path_traversal VERIFIED + xss_reflected preserved — both gruyere gaps closed live. testaspnet/testasp/testfire/ginjuice re-scans launched in parallel (detached processes survive between tool calls — verified with a marker test); same seeds as the v421 campaign.
+- ORDER 4: STATE.md updated per protocol — header, section 1 (v4.2.3 numbers), NEW section 2.5 "THE TRADE-OFF" (FN: 3 missed real vulns + FP: 2 over-claimed verdicts, both directions stated plainly), section 3 (v4.2.3 evidence), section 4 (both stored-XSS gaps + path gap marked FIXED), section 5 (residue = 14 unprobed + 0 failed), section 6 (round 4 pending PAT), Arabic summary rewritten around the trade-off.
+- Deliverables this round: build-v423/ (engine + tests + gates + IV14_CLAIMS_ADJUDICATION.md + evidence), scripts/iv14_*.py, scripts/probe_v423_gaps.py, scripts/gates_v423.py, STATE.md.
+
+Stage Summary:
+- Orders 2+3 CLOSED with proofs at four levels (unit / mechanism-vs-frozen-build / gates / live). Order 4 CLOSED in STATE.md. Order 1 blocked ONLY on the PAT value (5 local commits ready).
+- The engine's honesty ledger now records both failure directions: precision-first tuning missed 3 real vulns (fixed + live-reproven) and over-claimed 2 verdicts (fixed + live-readjudicated). tfSearch exemplifies both at once: real endpoint, wrong verification channel.
+- Remaining: the 4 in-flight live re-scans (gruyere already green), external-comparison re-run, tag v4.2.3 + release branch, commit, push when PAT arrives. NO L2 (stop-line honored).
+
+---
+Task ID: 15
+Agent: Super Z (main agent)
+Task: Round-4 finalization (session continuation) — finish the in-flight live re-gate, adjudication-doc corrections, comparison re-run, STATE.md final numbers, commit + tag v4.2.3.
+
+Work Log:
+- Resumed with 2 detached re-scans in flight (testaspnet seed f09afb0f, gruyere2 seed 7f3c91aa — both cwd build-v423). Reconstructed timeline: the FIRST testaspnet re-scan (22:32) had MISSED the stored XSS (POST 200, comment silently discarded — ASP.NET WebForms routes the postback through the submit button's name=value pair); the previous session fixed detect.py at 22:37 (_StoredFormParser captures submit buttons as ride-along fields), re-ran the FULL gate cycle (8 chunks 110/110 at 22:38-22:53, doctor 15/15, bench x3 identical 1959 reqs), then relaunched both scans at 22:57.
+- gates_v423.py verify re-run by this session: SUITE 110/110, DOCTOR 15/15, BENCH x3 identical 38/0/0/37 F1=1.000, verdict-level diff vs frozen v4.2.2 = NONE, +15 requests = DETECT-17 path battery. ALL GATES GREEN on the post-fix code.
+- gruyere2 (23:04, run-228ffb67c9): xss_stored saveprofile uid VERIFIED + path_traversal VERIFIED + xss_reflected VERIFIED — regression control green after the submit-button fix.
+- testaspnet (23:13, run-3d6cf53f93): xss_stored Comments.aspx tbComment VERIFIED (re-test:fresh-canary-resubmit, marker survived the independent second fetch) — THE THIRD GAP CLOSED LIVE. SQLi Comments/ReadNews preserved.
+- testasp (22:27, run-e2a9fe4450): Templatize traversal VERIFIED + showforum/showthread SQLi via PATH A + Search tfSearch XSS reflected VERIFIED; tfSearch SQLi and tfUName SQLi REJECTED (VF-04 working: PATH B refused the bare-500 — "quote variants reproduce a DB error string: False", candidate visible at conf 0.15); tfUPass VERIFIED via oracle:or-bodydiff-2round — a REAL boolean oracle fired live (upgrade from the over-claiming channel).
+- ginjuice (22:29, run-d2edb73a27): searchTerm xss_reflected GONE from verified (the engine FP is fixed — 0 searchTerm findings), category XSS + SQLi + XXE + CSRF + open_redirect + header injection all preserved.
+- testfire: DNS resolves (65.61.137.117) but HTTP+HTTPS both socket-timeout (checked 23:0x UTC) — target network outage, v4.2.2 scanned it fine a day earlier (37 verified). Recorded as UNSCANNED(env); engine path asserted unchanged by the gate's verdict-level diff.
+- Wrote scripts/regate_diff_v421_vs_v423.py → build-v423/results/regate_v421_vs_v423.json: v421→v423 per target — gruyere 36→38 (2 real +NEW: xss_stored saveprofile, path_traversal; the 12 missing_security_headers +NEW/-DROPPED rows are the ephemeral gruyere instance-ID path shift, not new findings), testaspnet 29→30 (+xss_stored tbComment), testasp 34→32 (-tfSearch SQLi, -tfUName SQLi, tfUPass channel upgraded), ginjuice 36→35 (-searchTerm XSS). ZERO new false positives.
+- Comparison-frame re-run: patched scripts/compare_external_findings.py with two documented normalizations — (1) ephemeral sandbox instance-ID path segments stripped (gruyere /<39 digits>/), (2) xss_reflected/xss_stored bridge at "STRONG (xss-bridge)" when host+path+param agree; also added xss_stored to STRONG_CLASSES (it was missing — stored findings were being excluded from the strong list entirely). Re-run vs the IV13 external list with the v423 scans + v422 testfire: 10 CONFIRMED / 0 GAPS / 13 UNCONFIRMED / 0 unparsed (was 6/4/17). All three fixed gaps now match transparently.
+- IV14_CLAIMS_ADJUDICATION.md honesty correction: the doc had PREDICTED "re-scan verifies tfSearch via PATH A" and "tfUName+tfUPass land REJECTED" — the actual re-scan showed the opposite on both (tfSearch rejected; tfUPass verified via real oracle). Both statements corrected in-place with the run IDs and the trade-off explanation; summary table row updated.
+- STATE.md final updates: header (round 4 CLOSED with numbers), section 2.5 (tfSearch live-FN materialized + tfUPass real-oracle upgrade), section 2.9 (VF-04 cost MATERIALIZED LIVE), section 4 (testaspnet gap live-proven + the second-iteration submit-button lesson + testfire outage), section 5 (comparison re-run 10/0/13, stop-line satisfied 4/5 + env note, L2 frozen pending explicit release, residue 13), section 6 (round-4 save state), Arabic summary rewritten accordingly.
+- Commit + tag v4.2.3 + release branch + push attempt (PAT never present in this session — inline-only protocol, verified: no git credentials, no config, no env, no history).
+
+Stage Summary:
+- STOP-LINE SATISFIED within environmental limits: 4/5 targets live green, all three fixed gaps VERIFIED live with raw evidence, both over-claim families dropped, tfUPass honestly re-verified via a real oracle, ZERO new false positives (regate_v421_vs_v423.json is the checkable artifact).
+- The honesty ledger now carries a live instance of the precision/recall trade in BOTH directions: tfSearch (real endpoint, now an honest rejected candidate = live FN accepted) and tfUPass (real SQLi, now verified through a genuine oracle instead of an over-claiming channel).
+- Engine v4.2.3 fully gated: 110/110 + doctor 15/15 + bench x3 identical + verdict-diff vs frozen v4.2.2 = NONE.
+- Remaining: ONLY the push (PAT value needed inline) and the testfire re-scan when the host recovers. L2 REMAINS FROZEN pending explicit supervisor release.

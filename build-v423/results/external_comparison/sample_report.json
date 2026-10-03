@@ -1,0 +1,325 @@
+{
+ "external_source": "examples/external_verifier_sample.json",
+ "sentinel_sources": [
+  "build-v421/results/live_v421/ginjuice.json",
+  "build-v421/results/live_v421/testasp.json",
+  "build-v421/results/live_v421/testaspnet.json",
+  "build-v421/results/live_v421/gruyere.json",
+  "build-v422/results/live_v422/testfire.json"
+ ],
+ "counts": {
+  "confirmed": 5,
+  "gaps": 4,
+  "unconfirmed": 18,
+  "unmatched_external": 0
+ },
+ "confirmed": [
+  {
+   "external": {
+    "target": "https://ginandjuice.shop",
+    "type": "SQL Injection",
+    "url": "/catalog",
+    "param": "category",
+    "notes": "boolean-based via category param"
+   },
+   "sentinel": {
+    "host": "ginandjuice.shop",
+    "type": "sql_injection",
+    "path": "/catalog",
+    "param": "category",
+    "status": "verified",
+    "run": "run-d2edb73a27",
+    "source": "ginjuice.json"
+   },
+   "level": "EXACT"
+  },
+  {
+   "external": {
+    "target": "ginandjuice.shop",
+    "type": "XXE",
+    "url": "/catalog/product/stock",
+    "notes": "blind, external entity fetch"
+   },
+   "sentinel": {
+    "host": "ginandjuice.shop",
+    "type": "xxe",
+    "path": "/catalog/product/stock",
+    "param": "productid",
+    "status": "verified",
+    "run": "run-d2edb73a27",
+    "source": "ginjuice.json"
+   },
+   "level": "STRONG"
+  },
+  {
+   "external": {
+    "target": "ginandjuice.shop",
+    "type": "Cross-Site Request Forgery",
+    "url": "/catalog/cart",
+    "notes": "no token, no origin check"
+   },
+   "sentinel": {
+    "host": "ginandjuice.shop",
+    "type": "csrf",
+    "path": "/catalog/cart",
+    "param": "productid, redir, quantity",
+    "status": "verified",
+    "run": "run-d2edb73a27",
+    "source": "ginjuice.json"
+   },
+   "level": "STRONG"
+  },
+  {
+   "external": {
+    "target": "demo.testfire.net",
+    "type": "Authentication Bypass",
+    "url": "/doLogin",
+    "param": "uid",
+    "notes": "login bypass \u2014 matches the v4.2.2 addendum finding"
+   },
+   "sentinel": {
+    "host": "demo.testfire.net",
+    "type": "sql_injection",
+    "path": "/doLogin",
+    "param": "uid",
+    "status": "verified",
+    "run": "run-6a6418ab8d",
+    "source": "testfire.json"
+   },
+   "level": "EXACT"
+  },
+  {
+   "external": {
+    "target": "google-gruyere.appspot.com",
+    "type": "Reflected XSS",
+    "notes": "no path given \u2014 should class-match a SENTINEL xss_reflected"
+   },
+   "sentinel": {
+    "host": "google-gruyere.appspot.com",
+    "type": "xss_reflected",
+    "path": "/530506698111053146050861906974275631884/snippets.gtl",
+    "param": "uid",
+    "status": "verified",
+    "run": "run-228ffb67c9",
+    "source": "gruyere.json"
+   },
+   "level": "CLASS"
+  }
+ ],
+ "gaps": [
+  {
+   "external": {
+    "target": "https://ginandjuice.shop",
+    "type": "SQL Injection",
+    "url": "/login",
+    "notes": "external found an injection we did NOT list \u2014 should land in GAPS"
+   },
+   "host": "ginandjuice.shop",
+   "type": "sql_injection",
+   "path": "/login",
+   "param": null
+  },
+  {
+   "external": {
+    "target": "http://testasp.vulnweb.com",
+    "type": "Blind SQLi",
+    "url": "/listagents.aspx",
+    "param": "a",
+    "notes": "time-based, external-only \u2014 GAPS"
+   },
+   "host": "testasp.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/listagents.aspx",
+   "param": "a"
+  },
+  {
+   "external": {
+    "target": "http://testasp.vulnweb.com",
+    "type": "path traversal",
+    "url": "/showthread.asp",
+    "notes": "path-aware matching demo: same class as SENTINEL's testasp traversal but a DIFFERENT path (SENTINEL found Templatize.asp) \u2014 must land in GAPS, not false-confirm at class level"
+   },
+   "host": "testasp.vulnweb.com",
+   "type": "path_traversal",
+   "path": "/showthread.asp",
+   "param": null
+  },
+  {
+   "external": {
+    "target": "google-gruyere.appspot.com",
+    "type": "SSTI",
+    "url": "/snippets.gtl",
+    "notes": "external claims template injection (SENTINEL engine-REJECTED it; rejected candidates are not in the strong list \u2014 this lands in GAPS honestly, with the rejection visible in the frozen package)"
+   },
+   "host": "google-gruyere.appspot.com",
+   "type": "ssti",
+   "path": "/snippets.gtl",
+   "param": null
+  }
+ ],
+ "unconfirmed": [
+  {
+   "host": "ginandjuice.shop",
+   "type": "xss_reflected",
+   "path": "/catalog",
+   "param": "searchterm",
+   "status": "verified",
+   "run": "run-d2edb73a27",
+   "source": "ginjuice.json"
+  },
+  {
+   "host": "ginandjuice.shop",
+   "type": "xss_reflected",
+   "path": "/catalog",
+   "param": "category",
+   "status": "verified",
+   "run": "run-d2edb73a27",
+   "source": "ginjuice.json"
+  },
+  {
+   "host": "ginandjuice.shop",
+   "type": "xss_dom",
+   "path": "/blog",
+   "param": "search",
+   "status": "verified",
+   "run": "run-d2edb73a27",
+   "source": "ginjuice.json"
+  },
+  {
+   "host": "ginandjuice.shop",
+   "type": "http_response_header_injection",
+   "path": "/catalog",
+   "param": "category",
+   "status": "verified",
+   "run": "run-d2edb73a27",
+   "source": "ginjuice.json"
+  },
+  {
+   "host": "ginandjuice.shop",
+   "type": "open_redirect",
+   "path": "/blog",
+   "param": "search",
+   "status": "verified",
+   "run": "run-d2edb73a27",
+   "source": "ginjuice.json"
+  },
+  {
+   "host": "testasp.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/showforum.asp",
+   "param": "id",
+   "status": "verified",
+   "run": "run-e2a9fe4450",
+   "source": "testasp.json"
+  },
+  {
+   "host": "testasp.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/Search.asp",
+   "param": "tfsearch",
+   "status": "verified",
+   "run": "run-e2a9fe4450",
+   "source": "testasp.json"
+  },
+  {
+   "host": "testasp.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/Login.asp",
+   "param": "tfuname",
+   "status": "verified",
+   "run": "run-e2a9fe4450",
+   "source": "testasp.json"
+  },
+  {
+   "host": "testasp.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/Login.asp",
+   "param": "tfupass",
+   "status": "verified",
+   "run": "run-e2a9fe4450",
+   "source": "testasp.json"
+  },
+  {
+   "host": "testasp.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/showthread.asp",
+   "param": "id",
+   "status": "verified",
+   "run": "run-e2a9fe4450",
+   "source": "testasp.json"
+  },
+  {
+   "host": "testasp.vulnweb.com",
+   "type": "path_traversal",
+   "path": "/Templatize.asp",
+   "param": "item",
+   "status": "verified",
+   "run": "run-e2a9fe4450",
+   "source": "testasp.json"
+  },
+  {
+   "host": "testasp.vulnweb.com",
+   "type": "xss_reflected",
+   "path": "/Search.asp",
+   "param": "tfsearch",
+   "status": "verified",
+   "run": "run-e2a9fe4450",
+   "source": "testasp.json"
+  },
+  {
+   "host": "testaspnet.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/Comments.aspx",
+   "param": "id",
+   "status": "verified",
+   "run": "run-3d6cf53f93",
+   "source": "testaspnet.json"
+  },
+  {
+   "host": "testaspnet.vulnweb.com",
+   "type": "sql_injection",
+   "path": "/ReadNews.aspx",
+   "param": "id",
+   "status": "verified",
+   "run": "run-3d6cf53f93",
+   "source": "testaspnet.json"
+  },
+  {
+   "host": "demo.testfire.net",
+   "type": "xss_reflected",
+   "path": "/index.jsp",
+   "param": "content",
+   "status": "verified",
+   "run": "run-6a6418ab8d",
+   "source": "testfire.json"
+  },
+  {
+   "host": "demo.testfire.net",
+   "type": "xss_reflected",
+   "path": "/search.jsp",
+   "param": "query",
+   "status": "verified",
+   "run": "run-6a6418ab8d",
+   "source": "testfire.json"
+  },
+  {
+   "host": "demo.testfire.net",
+   "type": "xss_reflected",
+   "path": "/sendFeedback",
+   "param": "name",
+   "status": "verified",
+   "run": "run-6a6418ab8d",
+   "source": "testfire.json"
+  },
+  {
+   "host": "demo.testfire.net",
+   "type": "xss_reflected",
+   "path": "/sendFeedback",
+   "param": "email_addr",
+   "status": "verified",
+   "run": "run-6a6418ab8d",
+   "source": "testfire.json"
+  }
+ ],
+ "unmatched_external": []
+}
