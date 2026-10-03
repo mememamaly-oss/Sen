@@ -832,3 +832,23 @@ Stage Summary:
 - Both directives closed with proofs, not descriptions: 4/4 L1 fixes wired+tested (195/195), journal passive+substantive (194=194, 42/42), 171 raw packages on GitHub, engine verdicts untouched by packaging.
 - The live campaign delivered exactly what the supervisor demanded the last two rounds: the judge is now external — any third party can replay the raw requests as issued. PLUS a live-caught target drift (testfire doLogin) that the OLD narrative style would have hidden: the engine's battery lacks the currently-working numeric-comment SQLi family — recorded as a coverage gap, with the raw journal as proof.
 - Standing: L2 remains untouched (per ruling). Next natural supervisor checkpoints: (a) external re-verification of the 171 packages, (b) whether the SQLi battery should gain the numeric-comment family (engine change requiring its own gate cycle), (c) testphp/testhtml5 retry when the host returns.
+
+---
+Task ID: 10
+Agent: Super Z (main agent)
+Task: Supervisor order (two parts): (1) send INDEPENDENT_VERIFICATION_PACKAGES.md (171 cases) into the chat for the supervisor's own rigorous review — first semi-independent pass; (2) create STATE.md (honest, not marketing; 6 mandated sections; update every round + push).
+
+Work Log:
+- ROLLBACK #13 at session start: download/ wiped again (pod r3 died undownloaded — 6th pod lost); .gitignore gutted 22->2 lines AGAIN (restored from HEAD, git status clean). All tracked content + anchors survived; HEAD = 73fb547 = GitHub main (confirmed matching the supervisor's message).
+- Read the full structure of INDEPENDENT_VERIFICATION_PACKAGES.md (10,722 lines / 577KB): 171 findings across 5 reachable targets (testfire 36, ginjuice 36, testasp 34+3 rejected, testaspnet 29, gruyere 36+2 rejected) + 2 unreachable targets (testphp/testhtml5, outage recorded) + package totals + honesty header.
+- Extracted class distribution (arithmetic verified against headers): 22 strong-class findings (8 sqli, 1 xxe, 8 xss_reflected, 1 xss_dom, 1 path_traversal, 1 crlf, 1 csrf, 1 open_redirect) + 1 vulnerable_js_dependency + 148 passive (96 missing_headers, 34 server_banner, 18 tech_banner) = 171.
+- Presented to the supervisor in-reply: the file's honesty header, all 7 target records (run_ids, requests, durations, tallies), the complete class index, verbatim key packages (GINJUICE F01 SQLi oracle, F02 XXE OOB, F05 DOM XSS, F06 CRLF, F07 CSRF triple-control; TESTFIRE F01 XSS battery + the doLogin drift section; the 5 rejected candidates; the 2 outage records), the replay caveats, and the reviewer's attack surface (where the file itself flags weakness). No adjudication added — raw material only, per the standing rule.
+- STATE.md created at repo root per the 6-section spec: (1) built+proven with numbers; (2) proof limits (strong family vs 150/171 passive, stock-bench blindness, self-judged verdicts, live doLogin miss, xss_dom/xxe evidence shape, replay caveat, VF-03 limitation, no external benchmark); (3) fixes VF-01..04 + L1 four + journal, each with its evidence artifact; (4) live gaps (numeric-comment battery absent, 2 dead targets, container fragility); (5) not-yet (external verification, L2, buyer/revenue = zero — valuation is hypothesis); (6) save status + update protocol. English body + Arabic honest summary. Commit 9cb88e3.
+- Escape pod r4 regenerated: download/SENTINEL-git-fullstate-2026-10-03-r4.bundle (392,365,361 B, sha256 33dd5e37af02ffefc971fcb13e83eeb6bad4e595b419d9ef1af9fbcca61d1fdc, verify OK, HEAD 9cb88e3) + README.txt (GitHub-primary, expected gate values, stock-bench blindness warning).
+- GITHUB PUSH: NOT POSSIBLE this session — no remote configured and the 24h PAT was inline-only by protocol (correctly unavailable across sessions; user was instructed to revoke it). STATE.md + this worklog commit are pending push; a fresh PAT from the user is required. Reported honestly in-reply.
+
+Stage Summary:
+- The 171-case package is now in the supervisor's hands for the first semi-independent review (their explicit next step); delivered raw with the reviewer's attack surface, no self-adjudication.
+- STATE.md exists (9cb88e3): one honest file surviving session loss / container collapse / buyer due-diligence; update-every-round protocol written into it.
+- Save status: GitHub primary at 73fb547; local HEAD 9cb88e3 (STATE.md) pending push pending PAT; pod r4 on disk as local fallback.
+- Standing next steps per supervisor: their verdict on the 171 packages; then external verification path (VDP/manual protocol), SQLi numeric-comment battery decision, L2 go/no-go.
