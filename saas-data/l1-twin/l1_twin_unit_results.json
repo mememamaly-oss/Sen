@@ -1,11 +1,11 @@
 {
  "summary": {
   "suite": "l1-twin-unit",
-  "pass": 195,
+  "pass": 210,
   "fail": 0,
   "totals": {
    "fixtures": 11,
-   "checks": 195
+   "checks": 210
   },
   "goldenHashes": {
    "complete-twin": "f02c329cb57c63b74d06f4eb0ebe76d59769ca215331b66a93b0d4654b7a624a",
@@ -26,7 +26,7 @@
     "nodes": 81,
     "edges": 80,
     "normalizeMs": 2,
-    "invariantsMs": 1,
+    "invariantsMs": 2,
     "equivalenceMs": 0,
     "graphJsonBytes": 64577,
     "twinHash": "e524b5b17023a617"
@@ -35,9 +35,9 @@
     "label": "1k nodes",
     "nodes": 947,
     "edges": 946,
-    "normalizeMs": 18,
-    "invariantsMs": 20,
-    "equivalenceMs": 2,
+    "normalizeMs": 20,
+    "invariantsMs": 21,
+    "equivalenceMs": 1,
     "graphJsonBytes": 757360,
     "twinHash": "4ae8c7fe388a0815"
    },
@@ -45,15 +45,15 @@
     "label": "10k nodes",
     "nodes": 10082,
     "edges": 10081,
-    "normalizeMs": 279,
-    "invariantsMs": 215,
-    "equivalenceMs": 18,
+    "normalizeMs": 284,
+    "invariantsMs": 214,
+    "equivalenceMs": 29,
     "graphJsonBytes": 8132605,
     "twinHash": "43a6832b8c44cb0e"
    }
   ],
   "verdict": "PASS",
-  "at": "2026-10-02T23:36:37.084Z"
+  "at": "2026-10-03T01:37:05.557Z"
  },
  "results": [
   {
@@ -1025,6 +1025,96 @@
   {
    "group": "real",
    "name": "testaspnet.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testfire.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testfire.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testfire.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "ginjuice.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testasp.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testasp.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testasp.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testaspnet.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testaspnet.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "testaspnet.json.determinism",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "gruyere.json.invariants",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "gruyere.json.equivalence",
+   "status": "PASS",
+   "detail": ""
+  },
+  {
+   "group": "real",
+   "name": "gruyere.json.determinism",
    "status": "PASS",
    "detail": ""
   },

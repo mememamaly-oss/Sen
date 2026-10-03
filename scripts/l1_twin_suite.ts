@@ -148,6 +148,12 @@ const REAL_FILES = [
   "build-v420/results/live_v420/ginjuice.json",
   "build-v420/results/live_v420/testasp.json",
   "build-v420/results/live_v420/testaspnet.json",
+  // v4.2.1 live scans (journal-enabled engine output)
+  "build-v421/results/live_v421/testfire.json",
+  "build-v421/results/live_v421/ginjuice.json",
+  "build-v421/results/live_v421/testasp.json",
+  "build-v421/results/live_v421/testaspnet.json",
+  "build-v421/results/live_v421/gruyere.json",
 ];
 for (const file of REAL_FILES) {
   if (!fs.existsSync(file)) { check("real", `${path.basename(file)}.exists`, false); continue; }
