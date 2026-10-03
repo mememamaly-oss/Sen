@@ -3,7 +3,7 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-04 (UTC) — round 4 CLOSED: v4.2.3 (three IV13 gaps fixed AND live-re-verified; three claims adjudicated: searchTerm = engine FP fixed, tfSearch/Templatize = real), stop-line re-gate COMPLETE on 4/5 targets (testfire = target network outage, engine-identical by gate assertion), external comparison re-run 10 confirmed / 0 gaps / 13 unconfirmed; push pending a fresh PAT (5 local commits ready)
+- Last updated: 2026-10-04 (UTC) — round 5 CLOSED: v4.2.3 PUSHED TO GITHUB AND VERIFIED (ls-remote: main = release/v4.2.3 = v4.2.3 = 174ab6e line, main tip 3b618be; 7 branches, 6 tags). Round 4 content: v4.2.3 (three IV13 gaps fixed AND live-re-verified; three claims adjudicated: searchTerm = engine FP fixed, tfSearch/Templatize = real), stop-line re-gate COMPLETE on 4/5 targets (testfire = target network outage, engine-identical by gate assertion), external comparison re-run 10 confirmed / 0 gaps / 13 unconfirmed. Remaining open: testfire re-scan when the host recovers; L2 still FROZEN pending explicit supervisor release.
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -313,15 +313,24 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
   and the relabeled bac2013). Push attempted with the round-2 PAT: REJECTED
   (token revoked as instructed); .gitignore restored from HEAD after another
   environment gutting (rollback-#13 pattern).
-- **Round 4 (2026-10-04, this round):** v4.2.3 engine + six discriminating
-   tests + gates (110/110, doctor 15/15, bench x3 identical, verdict-diff vs
-   frozen v4.2.2 = NONE) + IV14 adjudication evidence + the live re-gate
-   (4/5 targets green, testfire env-down; raw scans in
-   build-v423/results/live_v423/ + regate diff JSON + comparison re-run)
-   committed locally, tag v4.2.3 + release branch ready. Push BLOCKED ONLY by
-   the PAT value: the session continuation lost the inline token (never
-   written to disk per protocol). Supply a fresh PAT and the pending commits
-   land together; ls-remote confirms as in round 2.
+- **Round 4 (2026-10-04):** v4.2.3 engine + six discriminating tests + gates
+   (110/110, doctor 15/15, bench x3 identical, verdict-diff vs frozen v4.2.2
+   = NONE) + IV14 adjudication evidence + the live re-gate (4/5 targets green,
+   testfire env-down; raw scans in build-v423/results/live_v423/ + regate
+   diff JSON + comparison re-run) committed locally, tag v4.2.3 + release
+   branch ready. Push was blocked only by the PAT value (session continuation
+   lost the inline token, never written to disk per protocol).
+- **Round 5 (2026-10-04, PUSH EXECUTED):** two supervisor PATs arrived inline.
+   The first (len-93, format-valid, ...50pN) was REJECTED by GitHub itself:
+   401 Bad credentials on all four auth schemes (git oauth2-URL, Bearer,
+   token, basic) — the token value was dead at GitHub's end (revoked/expired);
+   recorded in worklog task 16, commit 3b618be. The second PAT (fresh) worked:
+   push landed main a3f2ae4..3b618be (5 commits: b367fdb IV13 round, 1e2159f
+   state, bac2013 evidence relabel, 174ab6e v4.2.3, 3b618be worklog-16) +
+   release/v4.2.3 (174ab6e) + tag v4.2.3 (annotated 6b724cd -> 174ab6e).
+   **ls-remote CONFIRMED**: remote main = 3b618be = local, release/v4.2.3 =
+   174ab6e, v4.2.3 peeled = 174ab6e, all prior refs intact (7 branches, 6
+   tags). This STATE.md update is the post-push round-5 commit on top.
 
 ---
 

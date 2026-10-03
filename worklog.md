@@ -999,3 +999,24 @@ Stage Summary:
 - Everything else is closed and verified (Tasks 14-15): all gates green, stop-line satisfied 4/5 targets, 3 gaps fixed + live-re-verified, 2 over-claims dropped, zero new false positives.
 - To unblock: a freshly generated fine-grained PAT (repo mememamaly-oss/Sen, permission Contents: Read & Write), sent inline. The push then completes in one command (main + release/v4.2.3 + tag v4.2.3) with ls-remote confirmation.
 - L2 REMAINS FROZEN. No engine changes this round — auth-only round.
+
+---
+Task ID: 17
+Agent: Super Z (main agent)
+Task: Order-1 push EXECUTED (round 5, second PAT) — push the v4.2.3 payload to GitHub, confirm with ls-remote, update STATE.md per the update-every-round protocol.
+
+Work Log:
+- Second PAT arrived inline (len-93 fine-grained, fingerprint-only on disk). ls-remote with it SUCCEEDED: remote main = a3f2ae4, matching the last recorded verified state exactly (no divergence, no force needed).
+- PUSH EXECUTED in one command: main + release/v4.2.3 + tag v4.2.3.
+  * main: a3f2ae4 -> 3b618be (5 commits: b367fdb IV13 round, 1e2159f state, bac2013 evidence relabel, 174ab6e v4.2.3, 3b618be worklog-16)
+  * release/v4.2.3: NEW branch at 174ab6e
+  * v4.2.3: NEW annotated tag 6b724cd -> 174ab6e
+- ls-remote CONFIRMED post-push: remote main = 3b618be = local HEAD; release/v4.2.3 = 174ab6e; v4.2.3 peeled = 174ab6e; all prior refs intact (7 branches, 6 tags). Remote and local are byte-identical at the tips.
+- STATE.md updated per protocol: header (round 5 CLOSED, push verified), section 6 round-5 entry (both PATs' full story: first dead at GitHub's end with 401 x4, second worked; exact commit list; ls-remote numbers). This commit is the post-push round-5 record.
+- SUPERVISOR ORDERS 1-4 FROM THE ROUND-4 BRIEF ARE NOW ALL CLOSED ON GITHUB, not just locally: IV13 verification work (Order 1), the three gap fixes with discriminating tests + gates (Order 2), the three claim adjudications (Order 3), the honest STATE.md trade-off record (Order 4), and the stop-line re-gate (4/5 targets; testfire env-down with the engine path asserted unchanged by the gate's verdict-level diff).
+- Residue unchanged: testfire.net still socket-timing-out (re-checked this round: HTTP+HTTPS 15s timeouts); re-scan it when the host recovers. L2 remains FROZEN pending explicit supervisor release.
+
+Stage Summary:
+- THE PUSH IS DONE AND VERIFIED: everything the rounds 2-5 built is now durable on GitHub (main 3b618be, release/v4.2.3, tag v4.2.3, plus all prior history). The only items that ever depended on the PAT are closed.
+- Honest ledger: the first PAT's failure was diagnosed to four-channel 401 (GitHub-side death), not papered over; the successful push used the fresh token under the same inline-only protocol.
+- Open items: (1) testfire re-scan when reachable, (2) L2 awaiting explicit release. Nothing else pending.
