@@ -78,7 +78,16 @@ traversal. For these classes a VERIFIED verdict means the engine re-issued the
 attack and observed the differential/execution/callback again.
 
 **Where the proof is thin, weak, or caveated — stated plainly:**
-1. **150 of the 171 live findings are passive/low classes** (96
+
+0. **Authorization discipline (standing rule, adopted 2026-10-03):** two
+   external targets submitted outside the declared list ([REDACTED-THIRD-PARTY-DOMAIN] = ATIB bank,
+   [REDACTED-THIRD-PARTY-DOMAIN] = Jumhouria Bank — both real Libyan production banks) were REFUSED
+   after passive identification only; no payloads sent, engine never started.
+   The engine runs on an external target only with proven user control of the
+   asset (challenge-response) or declared authorization from the owner. This
+   rule exists to keep the 171-package evidence chain admissible and the
+   campaign on the legal side of the line.
+1. **149 of the 171 live findings are passive/low classes** (96
    missing_security_headers, 34 server_banner, 18 tech_banner, 1
    vulnerable_js_dependency, 1 …). They are true but near-worthless as
    capability proof. The campaign's real substance is the 22 strong-class
@@ -210,7 +219,7 @@ fresh-instance-per-engine (the gate discriminates, by design).
 باختبارات عزل، وحملة حية على 5 أهداف مُصرّح بها أنتجت 171 حزمة أدلة خام
 (577KB) — كل حزمة تحمل الطلب والاستجابة كما أُرسلا حرفيًا.
 
-حدود البرهان بصراحة: 150 من الـ171 سباقًا سلبيًا (ترويسات/لافتات) — الجوهر
+حدود البرهان بصراحة: 149 من الـ171 سباقًا سلبيًا (ترويسات/لافتات) — الجوهر
 الحقيقي 22 حالة قوية فقط؛ درجة F1=1.000 في المرجع القديم عمياء ومُثبت
 عماؤها ولا تُستشهد أبدًا؛ جميع أحكام الأهداف الحية أصدرها المحرك نفسه ولم
 يحكم عليها أي طرف خارجي بعد؛ فجوة حية موثقة: عائلة SQLi بصيغة
