@@ -1,0 +1,103 @@
+{
+ "instance": "399537805906358592369366415027868878530",
+ "signup_page": {
+  "status": 200,
+  "len": 2961,
+  "forms": [
+   {
+    "action": "/399537805906358592369366415027868878530/saveprofile",
+    "method": "GET",
+    "fields": [
+     {
+      "tag": "input",
+      "type": "hidden",
+      "name": "action",
+      "value": "new",
+      "checked": null
+     },
+     {
+      "tag": "input",
+      "type": "text",
+      "name": "uid",
+      "value": "",
+      "checked": null
+     },
+     {
+      "tag": "input",
+      "type": "password",
+      "name": "pw",
+      "value": "",
+      "checked": null
+     },
+     {
+      "tag": "input",
+      "type": "hidden",
+      "name": "is_author",
+      "value": "True",
+      "checked": null
+     },
+     {
+      "tag": "input",
+      "type": "submit",
+      "name": null,
+      "value": "Create account",
+      "checked": null
+     }
+    ]
+   }
+  ],
+  "set_cookie": []
+ },
+ "signup_post": {
+  "action": "/399537805906358592369366415027868878530/saveprofile",
+  "status": 200,
+  "final": "https://google-gruyere.appspot.com/399537805906358592369366415027868878530/saveprofile?action=new&uid=iv13%3Cu%3Em%3C%2Fu%3E&pw=&is_author=True",
+  "len": 2224,
+  "raw_markup_reflected": false,
+  "escaped": false,
+  "context": "",
+  "cookies": [
+   "GRUYERE=67913603|iv13<u>m</u>||author"
+  ]
+ },
+ "home_after_signup": {
+  "status": 200,
+  "len": 3871,
+  "stored_markup_raw": true,
+  "context": "'menu-right'>              <span class='menu-user'>         iv13&lt;u&gt;m&lt;/u&gt; &lt;iv13<u>m</u>&gt;       </span>              | <a href='/39953780590635859236936641502786887",
+  "title": "Gruyere: Home"
+ },
+ "snippets_page": {
+  "status": 200,
+  "len": 2999,
+  "forms": []
+ },
+ "trav-4up-passwd": {
+  "status": 200,
+  "len": 246,
+  "passwd_content": true,
+  "body_head": "root:x:0:0:root:/root:/bin/sh daemon:x:1:1:daemon:/usr/sbin:/bin/sh bin:x:2:2:bin:/bin:/bin/sh sys:x:3:3:sys:/dev:/bin/s"
+ },
+ "trav-2up-passwd": {
+  "status": 200,
+  "len": 2240,
+  "passwd_content": false,
+  "body_head": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"> <!-- Copyright 2017 Google Inc. --> <html> <head> <title"
+ },
+ "trav-doubleslash": {
+  "status": 200,
+  "len": 2257,
+  "passwd_content": false,
+  "body_head": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"> <!-- Copyright 2017 Google Inc. --> <html> <head> <title"
+ },
+ "trav-tilde": {
+  "status": 200,
+  "len": 2244,
+  "passwd_content": false,
+  "body_head": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"> <!-- Copyright 2017 Google Inc. --> <html> <head> <title"
+ },
+ "login_page_cookies": {
+  "status": 200,
+  "set_cookie": []
+ }
+}

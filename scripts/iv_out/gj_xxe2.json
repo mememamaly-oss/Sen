@@ -1,0 +1,47 @@
+{
+ "ts": "2026-10-03T15:47:21+02:00",
+ "tests": [
+  {
+   "label": "pid-numeric-ttl",
+   "status": 400,
+   "len": 20,
+   "body": "\"Invalid product ID\""
+  },
+  {
+   "label": "pid-numeric-pidmax",
+   "status": 400,
+   "len": 20,
+   "body": "\"Invalid product ID\""
+  },
+  {
+   "label": "pid-numeric-ctrl-nonexistent",
+   "status": 400,
+   "len": 20,
+   "body": "\"Invalid product ID\""
+  },
+  {
+   "label": "pid-hostname-ctrl",
+   "status": 400,
+   "len": 20,
+   "body": "\"Invalid product ID\""
+  },
+  {
+   "label": "sid-numeric-ttl",
+   "status": 200,
+   "len": 3,
+   "body": "163"
+  },
+  {
+   "label": "pid-literal-64-ctrl",
+   "status": 400,
+   "len": 26,
+   "body": "\"No such product or store\""
+  },
+  {
+   "label": "pid-literal-abc-ctrl",
+   "status": 400,
+   "len": 29,
+   "body": "\"Product ID must be a number\""
+  }
+ ]
+}
