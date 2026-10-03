@@ -22,7 +22,7 @@ import { audit } from "@/lib/rbac";
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PROJECT_ROOT = process.cwd();
-export const ENGINE_DIR = process.env.SENTINEL_ENGINE_DIR || path.join(PROJECT_ROOT, "build-v420");
+export const ENGINE_DIR = process.env.SENTINEL_ENGINE_DIR || path.join(PROJECT_ROOT, "build-v421");
 const PYTHON = process.env.SENTINEL_PYTHON || "python3";
 // Absolute override keeps artifacts OUTSIDE .next/standalone (which is wiped on
 // every rebuild) when running the production standalone server (it chdir()s
