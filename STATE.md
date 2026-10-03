@@ -3,7 +3,7 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-03 (UTC) — round: STATE.md created per supervisor order; 171-package review hand-off
+- Last updated: 2026-10-03 (UTC) — round 2: v4.2.2 (DETECT-06 numeric-comment family, doLogin fixed & live-VERIFIED), comparison frame delivered, addendum package; pending external verification
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -11,8 +11,8 @@ backed by a number or a committed artifact, it does not belong here.**
 
 ## 1. What is built and PROVEN (with numbers)
 
-**Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules), current version **4.2.1**
-(`build-v421/` is the canonical live engine).
+**Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules), current version **4.2.2**
+(`build-v422/` is the canonical live engine; v4.2.1 and earlier are frozen).
 - Verification by **re-execution**: a finding is VERIFIED only by re-issued
   requests against the live target (17 explicit type branches, fail-closed on
   unlisted types since v4.2.0). No finding is verified by description.
@@ -21,9 +21,10 @@ backed by a number or a committed artifact, it does not belong here.**
   isolation, bounded (6000 entries / 4000-char bodies, honest dropped counter).
   Proven passive: 194=194 verdict tuples identical v4.2.0 vs v4.2.1 on the same
   fixture; 42/42 proof request_ids resolve to complete raw pairs.
-- Gates as of v4.2.1: tests **103/103**, doctor **15/15**, benchmark **x3
-  deterministic** (F1 1.000 = 38/0/0/37, run-3c0652b6be, journal 1901 entries
-  each run).
+- Gates as of v4.2.2: tests **104/104** (103 + the DETECT-06 discriminating
+  case), doctor **15/15**, benchmark **x3 deterministic** (F1 1.000 =
+  38/0/0/37, run-3c0652b6be — the numeric-comment family added +106 fixture
+  requests and ZERO verdict changes).
 - **bench-adv v11 discriminates the fix set** (the stock 73-case bench is
   proven blind — see section 2): v4.1.1 = 38/2/0/35, F1 **0.9744** (2 FPs:
   csrf@/vuln/subscribe-echo, nosql@/api/nosql-lockout) vs v4.2.0+ = 38/0/0/37,
@@ -100,12 +101,17 @@ attack and observed the differential/execution/callback again.
 3. **All live-target verdicts are engine-self-judged.** The packages exist so
    an external party can adjudicate; **no external party has adjudicated any of
    them yet.**
-4. **testfire doLogin: a live MISS.** The engine's string-quote SQLi family no
-   longer bypasses that login (target drift, caught live 2026-10-03); the
-   numeric-comment family that still works (`' OR 1=1--`) is **absent from the
-   engine battery**. The engine honestly reported nothing; the miss is
-   documented with raw manual probes (labeled NOT engine output) in the
-   package. This is a real coverage gap, not a rounding error.
+4. **testfire doLogin: a live MISS on v4.2.1 — FIXED in v4.2.2, proven live.**
+   The v4.2.1 battery carried the string-quote SQLi family only; during the
+   2026-10-03 campaign the target drifted (string shape neutralized while
+   `1' OR 1=1--` still bypassed) and the engine honestly reported nothing.
+   v4.2.2 adds the numeric-comment family (DETECT-06, detector + verifier
+   PATH C'); the re-scan VERIFIED doLogin (conf 0.95) with BOTH differentials
+   in the evidence chain and raw pairs in
+   INDEPENDENT_VERIFICATION_ADDENDUM_v422.md. NOTE the target flaps between
+   states (three timestamped windows documented in the addendum) — the
+   unit/mechanism proofs are the stable discriminators, the live scan records
+   whichever state answers.
 5. **xss_dom packages carry browser execution steps, not journaled HTTP
    pairs**; XXE verdicts rest on OOB interaction records (public webhook
    channel), not response bytes. Both are marked as such in the file.
@@ -160,9 +166,10 @@ fresh-instance-per-engine (the gate discriminates, by design).
 
 ## 4. Gaps discovered live (not papered over)
 
-- **SQLi numeric-comment family absent from the engine battery** (testfire
-  doLogin drift, 2026-10-03). Adding it is an engine change requiring its own
-  gate cycle — not yet implemented, not yet ordered.
+- ~~SQLi numeric-comment family absent~~ **FIXED in v4.2.2** (2026-10-03,
+  supervisor-ordered): detector + verifier + discriminating test + gates +
+  live doLogin VERIFIED. See CHANGELOG v4.2.2 and
+  INDEPENDENT_VERIFICATION_ADDENDUM_v422.md.
 - **testphp.vulnweb.com + testhtml5.vulnweb.com unreachable** (shared host
   44.228.249.3 TCP timeouts; the other five targets answered from the same
   egress in the same window). Retry pending host recovery.
@@ -179,11 +186,16 @@ fresh-instance-per-engine (the gate discriminates, by design).
 1. **External independent verification of the 171 packages.** No external
    judge — human or tool — has ruled on any finding. The supervisor's own
    review of INDEPENDENT_VERIFICATION_PACKAGES.md (in progress) is the first
-   semi-independent pass; it is not external confirmation.
+   semi-independent pass; it is not external confirmation. The comparison
+   frame (order 3) is READY but has processed only the synthetic sample —
+   no real external list exists yet.
 2. **L2 Attack Paths** — not started. The differentiating layer of the
    architecture remains unbuilt (blocked per supervisor ruling until the fix
    set landed; the fixes have landed, L2 remains untouched).
-3. **SQLi numeric-comment battery** — not implemented (section 4).
+3. ~~SQLi numeric-comment battery~~ — implemented and proven in v4.2.2
+   (2026-10-03). The comparison frame for external verifiers
+   (scripts/compare_external_findings.py + worked example) is also delivered;
+   it awaits a REAL external list to compare against.
 4. **testphp/testhtml5 scans** — not run (outage).
 5. **Any customer, buyer, pilot, or market contact. Zero revenue.** Any
    valuation (including the 1–4M range discussed) is a hypothesis conditional
@@ -222,9 +234,10 @@ fresh-instance-per-engine (the gate discriminates, by design).
 حدود البرهان بصراحة: 149 من الـ171 سباقًا سلبيًا (ترويسات/لافتات) — الجوهر
 الحقيقي 22 حالة قوية فقط؛ درجة F1=1.000 في المرجع القديم عمياء ومُثبت
 عماؤها ولا تُستشهد أبدًا؛ جميع أحكام الأهداف الحية أصدرها المحرك نفسه ولم
-يحكم عليها أي طرف خارجي بعد؛ فجوة حية موثقة: عائلة SQLi بصيغة
-numeric-comment غائبة عن بطارية المحرك (الهدف testfire تغيّر سلوكه وضلّل
-المحرك — سُجّلت لا أُخفيت)؛ هدفان (testphp/testhtml5) كانا معطّلين.
+يحكم عليها أي طرف خارجي بعد؛ فجوة حية موثقة سابقًا (عائلة SQLi numeric-comment غائبة) أُصلحت في v4.2.2
+بإثبات حي: doLogin أصبحت VERIFIED بدليل خام مع توثيق صادق لتذبذب حالة الهدف؛
+هدفان (testphp/testhtml5) ما زالا معطلين. إطار مقارنة نتائج المحقق الخارجي
+جاهز لكن لم يُقارن به إلا المثال الاصطناعي بعد.
 
 ما لم يحدث بعد: التحقق الخارجي المستقل (لا قاضي حكم)، L2 Attack Paths
 (لم تبدأ)، إصلاح فجوة SQLi، إعادة فحص الهدفين المعطّلين، وأي عميل أو مشترٍ

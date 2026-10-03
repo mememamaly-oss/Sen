@@ -1,0 +1,6 @@
+{"engine": "v411", "probe": "VF-01a-unlisted-type", "type": "future_widget_scan", "status": "FindingStatus.VERIFIED", "confidence": 0.98, "method": "single-response-evidence", "passed": true}
+{"engine": "v411", "probe": "VF-01b-ssrf-no-oob", "type": "ssrf", "status": "FindingStatus.VERIFIED", "confidence": 0.98, "method": "single-response-evidence", "passed": true}
+{"engine": "v411", "probe": "VF-01c-passive-confidence", "type": "missing_security_headers", "status": "FindingStatus.VERIFIED", "confidence": 0.98, "method": "single-response-evidence"}
+{"engine": "v411", "probe": "VF-03-path-a-mild-diff", "type": "sql_injection", "status": "FindingStatus.VERIFIED", "confidence": 0.95, "method": "oracle:replay-2round", "passed": true}
+{"engine": "v411", "probe": "VF-04-no-proof", "outcome": "returned-finding", "stamped_passed": true, "status": "FindingStatus.VERIFIED"}
+{"engine": "v411", "probe": "VF-04-bad-rule", "outcome": "raised", "error_type": "TypeError", "error": "WorkflowEngine._finding() got an unexpected keyword argument 'proof'"}
