@@ -908,3 +908,16 @@ Stage Summary:
 - All three supervisor questions closed with raw-evidence answers: (1) `--`-comment families bypass doLogin (numeric-comment = the reliable family, consistent with v4.2.2 DETECT-06); (2) 10-finding independent list delivered; (3) cart CSRF adjudicated REAL (no token on cart ops, no origin validation, SameSite=None).
 - First real external-list comparison: 6 agreements, 3 real gaps in SENTINEL's strong list, 17 unconfirmed (3 probed-and-not-reproduced — flagged for side-by-side review against the raw packages).
 - Honesty note: independent-toolchain pass by the same agent, not third-party verification; STATE.md records this caveat explicitly.
+
+---
+Task ID: 13 (addendum)
+Agent: Super Z (main agent)
+Task: Round-3 finalization — push attempt, .gitignore integrity, honest save status.
+
+Work Log:
+- PUSH ATTEMPT with the round-2 PAT (inline-only protocol, never written to disk/config/commit): REJECTED by GitHub ("Invalid username or token") — consistent with the standing instruction that the owner revoke the round-2 token after acceptance. One attempt only, no blind retries. Round-3 commit b367fdb (+ earlier unpushed a3f2ae4) is pending a FRESH PAT from the supervisor.
+- .gitignore found gutted AGAIN at finalization (27 -> 2 lines; same environment pattern as rollback #13) — restored from HEAD via git checkout; tracked content clean.
+- Local save state: HEAD = b367fdb (IV13 round) on top of a3f2ae4 + 9bc4e95 (both already verified on GitHub per round 2's ls-remote). All tracked content survives rollbacks; download/ pod r4 unchanged this round.
+
+Stage Summary:
+- Round-3 content is committed locally and durable; GitHub sync blocked only by the revoked PAT — a fresh token from the supervisor completes it.

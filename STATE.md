@@ -224,8 +224,10 @@ fresh-instance-per-engine (the gate discriminates, by design).
   written to disk, config, or any commit; the owner was instructed to revoke
   it. Future pushes use the same inline-only protocol.
 - **Round 3 (2026-10-03, IV13 independent verification):** report + 12
-  evidence JSONs + comparison outputs committed; push pending at commit
-  time (ls-remote confirmation recorded in the next worklog entry).
+  evidence JSONs + comparison outputs committed locally (b367fdb). Push
+  attempted with the round-2 PAT: REJECTED (token revoked as instructed) —
+  **a fresh PAT is required**; .gitignore restored from HEAD after another
+  environment gutting (rollback-#13 pattern).
 
 ---
 
