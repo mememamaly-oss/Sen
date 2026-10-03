@@ -1,0 +1,110 @@
+{
+ "ts": "2026-10-03T15:43:32+02:00",
+ "scenarios": [
+  {
+   "mode": "legit",
+   "post_status": 302,
+   "post_location": "/catalog/product?productId=1",
+   "post_len": 0,
+   "cart_before": {
+    "count": 0,
+    "empty": true,
+    "len": 5144,
+    "product_refs": []
+   },
+   "cart_after": {
+    "count": 1,
+    "empty": false,
+    "len": 9193,
+    "product_refs": [
+     "1"
+    ]
+   },
+   "session_cookie_attrs": [
+    "Secure; HttpOnly; SameSite=None"
+   ],
+   "state_changed": true
+  },
+  {
+   "mode": "cross-origin",
+   "post_status": 302,
+   "post_location": "/catalog/product?productId=1",
+   "post_len": 0,
+   "cart_before": {
+    "count": 0,
+    "empty": true,
+    "len": 5144,
+    "product_refs": []
+   },
+   "cart_after": {
+    "count": 1,
+    "empty": false,
+    "len": 9193,
+    "product_refs": [
+     "1"
+    ]
+   },
+   "session_cookie_attrs": [
+    "Secure; HttpOnly; SameSite=None"
+   ],
+   "state_changed": true
+  },
+  {
+   "mode": "no-origin",
+   "post_status": 302,
+   "post_location": "/catalog/product?productId=1",
+   "post_len": 0,
+   "cart_before": {
+    "count": 0,
+    "empty": true,
+    "len": 5144,
+    "product_refs": []
+   },
+   "cart_after": {
+    "count": 1,
+    "empty": false,
+    "len": 9193,
+    "product_refs": [
+     "1"
+    ]
+   },
+   "session_cookie_attrs": [
+    "Secure; HttpOnly; SameSite=None"
+   ],
+   "state_changed": true
+  },
+  {
+   "mode": "get-based",
+   "post_status": 200,
+   "post_location": null,
+   "post_len": 5144,
+   "cart_before": {
+    "count": 0,
+    "empty": true,
+    "len": 5144,
+    "product_refs": []
+   },
+   "cart_after": {
+    "count": 0,
+    "empty": true,
+    "len": 5144,
+    "product_refs": []
+   },
+   "session_cookie_attrs": [
+    "Secure; HttpOnly; SameSite=None"
+   ],
+   "state_changed": false
+  }
+ ],
+ "session_cookie_set": [
+  "session=DLIscJryi75Fbz1UDqEl2LvpE1GpluAk; Secure; HttpOnly; SameSite=None"
+ ],
+ "session_cookie_attrs": [
+  "Secure; HttpOnly; SameSite=None"
+ ],
+ "stock_cross_origin": {
+  "status": 400,
+  "len": 19,
+  "body_head": "\"XML parsing error\""
+ }
+}

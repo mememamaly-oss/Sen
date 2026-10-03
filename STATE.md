@@ -183,12 +183,16 @@ fresh-instance-per-engine (the gate discriminates, by design).
 
 ## 5. What has NOT happened yet (as of this file's date)
 
-1. **External independent verification of the 171 packages.** No external
-   judge — human or tool — has ruled on any finding. The supervisor's own
-   review of INDEPENDENT_VERIFICATION_PACKAGES.md (in progress) is the first
-   semi-independent pass; it is not external confirmation. The comparison
-   frame (order 3) is READY but has processed only the synthetic sample —
-   no real external list exists yet.
+1. **External independent verification of the 171 packages.** Status
+   2026-10-03 round 3: the FIRST real external-list comparison ran
+   (`build-v422/results/external_comparison/iv13_report.{md,json}`) —
+   6 confirmed / 3 real gaps / 17 unconfirmed (3 of them
+   probed-and-not-reproduced). Caveat: that "external" list was produced by
+   the same agent using an independent stdlib toolchain (`scripts/iv13_*.py`,
+   zero SENTINEL code, blind target selection) — **independent-toolchain,
+   NOT third-party human verification.** A genuinely external judge (human
+   pentester or third-party scanner) has still not ruled on any finding;
+   see INDEPENDENT_VERIFIER_REPORT_IV13.md.
 2. **L2 Attack Paths** — not started. The differentiating layer of the
    architecture remains unbuilt (blocked per supervisor ruling until the fix
    set landed; the fixes have landed, L2 remains untouched).
@@ -219,6 +223,9 @@ fresh-instance-per-engine (the gate discriminates, by design).
 - **PAT security:** the 2026-10-03 token was command-line-inline only, never
   written to disk, config, or any commit; the owner was instructed to revoke
   it. Future pushes use the same inline-only protocol.
+- **Round 3 (2026-10-03, IV13 independent verification):** report + 12
+  evidence JSONs + comparison outputs committed; push pending at commit
+  time (ls-remote confirmation recorded in the next worklog entry).
 
 ---
 
