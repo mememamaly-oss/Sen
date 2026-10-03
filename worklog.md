@@ -974,3 +974,28 @@ Stage Summary:
 - The honesty ledger now carries a live instance of the precision/recall trade in BOTH directions: tfSearch (real endpoint, now an honest rejected candidate = live FN accepted) and tfUPass (real SQLi, now verified through a genuine oracle instead of an over-claiming channel).
 - Engine v4.2.3 fully gated: 110/110 + doctor 15/15 + bench x3 identical + verdict-diff vs frozen v4.2.2 = NONE.
 - Remaining: ONLY the push (PAT value needed inline) and the testfire re-scan when the host recovers. L2 REMAINS FROZEN pending explicit supervisor release.
+
+---
+Task ID: 16
+Agent: Super Z (main agent)
+Task: Order-1 push execution (supervisor round 5: PAT supplied inline with "باشر الدفع") — push the pending v4.2.3 commits to GitHub and confirm with ls-remote.
+
+Work Log:
+- PAT received inline from user: len=93, format-valid fine-grained PAT (github_pat_ prefix, 22+1+59 structure), fingerprint only on disk (last4 ...50pN, sha256 c1b3b96171210c62) — full value never written to any file, per protocol.
+- Auth attempted across FOUR channels, all rejected by GitHub itself:
+  * git ls-remote https://oauth2:TOKEN@github.com/mememamaly-oss/Sen.git -> 401 "Invalid username or token"
+  * curl API /user with "Authorization: Bearer TOKEN" -> 401 {"message":"Bad credentials"}
+  * curl API /user with "Authorization: token TOKEN" -> 401
+  * curl basic auth mememamaly-oss:TOKEN -> 401
+  (plus token-as-username URL: git prompts for password — wrong usage form, and the 4 above are conclusive regardless)
+- Conclusion: the token VALUE is dead at GitHub's end (revoked or expired) — NOT a local git/config/format issue. Notably this may be the round-2 token that was already recorded as revoked, or the "first PAT" which has since expired/been auto-revoked (GitHub secret-scanning revokes fine-grained PATs exposed in any public location; fine-grained PATs also have mandatory expiry dates).
+- Anonymous ls-remote prompts for credentials -> repo Sen is PRIVATE (or deleted); remote refs cannot be enumerated without a live token. Last verified remote state remains a3f2ae4's record: 9bc4e95 (main = release/v4.2.2 = tag v4.2.2, 6 branches + 5 tags).
+- Local readiness re-verified: working tree CLEAN; main@174ab6e; 4 commits pending since last verified remote 9bc4e95 (b367fdb IV13 round, 1e2159f state, bac2013 evidence-relabel, 174ab6e v4.2.3); release/v4.2.3@174ab6e; tag v4.2.3. Push payload ready and complete.
+- testfire.net re-checked during this round: HTTP + HTTPS both socket-timeout (15s) — still UNSCANNED(env), unchanged from Task 15.
+- This worklog entry committed locally as the round-5 record.
+
+Stage Summary:
+- Order-1 push remains BLOCKED: the supplied PAT is rejected by GitHub (401 Bad credentials on all four auth schemes). The supervisor's premise "the first PAT still works" is contradicted by GitHub's live response — 401 is ground truth.
+- Everything else is closed and verified (Tasks 14-15): all gates green, stop-line satisfied 4/5 targets, 3 gaps fixed + live-re-verified, 2 over-claims dropped, zero new false positives.
+- To unblock: a freshly generated fine-grained PAT (repo mememamaly-oss/Sen, permission Contents: Read & Write), sent inline. The push then completes in one command (main + release/v4.2.3 + tag v4.2.3) with ls-remote confirmation.
+- L2 REMAINS FROZEN. No engine changes this round — auth-only round.
