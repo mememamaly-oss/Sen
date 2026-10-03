@@ -1,0 +1,105 @@
+{
+ "testasp": {
+  "base": {
+   "q": "id=0",
+   "status": 200,
+   "len": 4335,
+   "err": "sql-injection/\" class=\"menu\">SQL scanner",
+   "body_head": null
+  },
+  "quote": {
+   "q": "id=0%27",
+   "status": 500,
+   "len": 1208,
+   "err": null,
+   "body_head": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r <html xmlns=\"http://www.w3.org/1999/xht"
+  },
+  "and-true": {
+   "q": "id=0+AND+1%3D1",
+   "status": 200,
+   "len": 4367,
+   "err": "sql-injection/\" class=\"menu\">SQL scanner",
+   "body_head": null
+  },
+  "and-false": {
+   "q": "id=0+AND+1%3D2",
+   "status": 500,
+   "len": 1208,
+   "err": null,
+   "body_head": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r <html xmlns=\"http://www.w3.org/1999/xht"
+  },
+  "or-true": {
+   "q": "id=0+OR+1%3D1",
+   "status": 200,
+   "len": 4527,
+   "err": "sql-injection/\" class=\"menu\">SQL scanner",
+   "body_head": null
+  },
+  "id1-true": {
+   "q": "id=1+AND+1%3D1",
+   "status": 200,
+   "len": 3109,
+   "err": "sql-injection/\" class=\"menu\">SQL scanner",
+   "body_head": null
+  },
+  "id1-false": {
+   "q": "id=1+AND+1%3D2",
+   "status": 500,
+   "len": 1208,
+   "err": null,
+   "body_head": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r <html xmlns=\"http://www.w3.org/1999/xht"
+  },
+  "nonexistent": {
+   "q": "id=99999",
+   "status": 500,
+   "len": 1208,
+   "err": null,
+   "body_head": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r <html xmlns=\"http://www.w3.org/1999/xht"
+  },
+  "search_plain": {
+   "status": 500,
+   "len": 1208,
+   "raw": false,
+   "escaped": false,
+   "context": ""
+  },
+  "search_tag": {
+   "status": 500,
+   "len": 1208,
+   "raw": false,
+   "escaped": false,
+   "context": ""
+  },
+  "search_plain-quote": {
+   "status": 500,
+   "len": 1208,
+   "raw": false,
+   "escaped": false,
+   "context": ""
+  }
+ },
+ "testaspnet": {
+  "readnews_trav": {
+   "base": [
+    200,
+    22883
+   ],
+   "fwd": [
+    200,
+    22923
+   ],
+   "back": [
+    200,
+    22923
+   ],
+   "diff_region": "on=\"ReadNews.aspx?id=0&amp;NewsAd=ads%2f..%2f..%2f..%2fweb.config\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<"
+  },
+  "comment_xss": {
+   "post_status": 500,
+   "reload_status": 200,
+   "raw_markup": false,
+   "escaped": false,
+   "plain": false
+  }
+ }
+}

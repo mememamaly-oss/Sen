@@ -1,0 +1,318 @@
+<HTML><HEAD><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<TITLE>Web Application Exploits and Defenses</TITLE>
+<LINK type="text/css" rel="stylesheet" href="../static/codelab.css">
+<!--MARK-Z-->
+<SCRIPT>
+function toggleBlock(heading, whichID) {
+  var image = heading.childNodes[0];
+  var block = document.getElementById(whichID);
+  if (block) {
+    if (getDisplay(block) == 'block') {
+      block.style.display = 'none';
+      image.src = 'static/closed.gif';
+    } else {    // "none" or ""
+      block.style.display = 'block';
+      image.src = 'static/open.gif';
+    }
+  }
+}
+
+function getDisplay(block) {
+  var value = block.style.display;
+  if (!value) {
+    if (document.defaultView) {
+      var computedStyle = document.defaultView.getComputedStyle(block, "");
+      value = computedStyle.getPropertyValue('display');
+    } else if (block.currentStyle) {
+      value = block.currentStyle.display;
+    }
+  }
+  return value;
+}
+</SCRIPT>
+</HEAD>
+<BODY bgcolor="#ffffff">
+
+<DIV class="banner"></DIV>
+<H1><FONT size="+2"><IMG src="/static/gruyere-78.png" style="vertical-align:middle">
+Web Application Exploits and Defenses  (Part 1)</FONT> </H1>
+<P>
+A Codelab by Bruce Leban, Mugdha Bendre, and Parisa Tabriz
+</P>
+<DIV class="printable">
+<DIV class="column1">
+Table of Contents
+<UL>
+<LI class="L1" style="padding-top:0pt"> <A href="/#0__hackers">Beat the hackers</A></LI>
+<LI class="L1" style="padding-top:0pt"> <A href="/#0__gruyere">Gruyere</A></LI>
+<LI class="L1"> <A href="/part1#1__setup">Set-up</A>
+  <UL>
+  <LI class="L2"> <A href="/part1#1__reset_button">Reset Button</A></LI>
+  <LI class="L2"> <A href="/part1#1__about_the_code">About the Code</A></LI>
+  <LI class="L2"> <A href="/part1#1__features_and_technologies">Features and Technologies</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part1#1__using_gruyere">Using Gruyere</A></LI>
+<LI class="L1"> <A href="/part2#2__cross_site_scripting">Cross-Site Scripting (XSS)</A>
+  <UL>
+  <LI class="L2"> <A href="/part2#2__xss_challenge">XSS Challenges</A></LI>
+  <LI class="L2"> <A href="/part2#2__file_upload_xss">File Upload XSS</A></LI>
+  <LI class="L2"> <A href="/part2#2__reflected_xss">Reflected XSS</A></LI>
+  <LI class="L2"> <A href="/part2#2__stored_xss">Stored XSS</A></LI>
+  <LI class="L2"> <A href="/part2#2__stored_xss_via_html_attribute">Stored XSS via HTML Attribute</A></LI>
+  <LI class="L2"> <A href="/part2#2__stored_xss_via_ajax">Stored XSS via AJAX</A></LI>
+  <LI class="L2"> <A href="/part2#2__reflected_xss_via_ajax">Reflected XSS via AJAX</A></LI>
+  <LI class="L2"> <A href="/part2#2__more_about_xss">More about XSS</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part3#3__client_state_manipulation">Client-State Manipulation</A>
+  <UL>
+  <LI class="L2"> <A href="/part3#3__elevation_of_privilege"> Elevation of Privilege </A></LI>
+  <LI class="L2"> <A href="/part3#3__cookie_manipulation"> Cookie Manipulation </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part3#3__cross_site_request_forgery">Cross-Site Request Forgery (XSRF)</A>
+  <UL>
+  <LI class="L2"> <A href="/part3#3__xsrf_challenge">XSRF Challenge</A></LI>
+  <LI class="L2"> <A href="/part3#3__more_about_preventing_xsrf">More about preventing XSRF</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part3#3__cross_site_script_inclusion">Cross Site Script Inclusion (XSSI)</A>
+  <UL>
+  <LI class="L2"> <A href="/part3#3__xssi_challenge">XSSI Challenge</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part4#4__path_traversal">Path Traversal</A>
+  <UL>
+  <LI class="L2"> <A href="/part4#4__information_disclosure_path_traversal">Information disclosure via path traversal </A></LI>
+  <LI class="L2"> <A href="/part4#4__data_tampering_path_traversal">Data tampering via path traversal </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part4#4__denial_of_service">Denial of Service</A>
+  <UL>
+  <LI class="L2"> <A href="/part4#4__dos_quit_server">DoS - Quit the Server</A></LI>
+  <LI class="L2"> <A href="/part4#4__dos_overload_server">DoS - Overloading the Server</A></LI>
+  <LI class="L2"> <A href="/part4#4__more_dos">More on Denial of Service</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part4#4__code_execution">Code Execution</A>
+  <UL>
+  <LI class="L2"> <A href="/part4#4__code_execution_challenge">Code Execution Challenge</A></LI>
+  <LI class="L2"> <A href="/part4#4__more_code_execution">More on Remote Code Execution</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__configuration_vulnerabilities">Configuration Vulnerabilities</A>
+  <UL>
+  <LI class="L2"> <A href="/part5#5__information_disclosure_config_1">Information disclosure #1</A></LI>
+  <LI class="L2"> <A href="/part5#5__information_disclosure_config_2">Information disclosure #2</A></LI>
+  <LI class="L2"> <A href="/part5#5__information_disclosure_bug_3">Information disclosure #3 </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__ajax_vulnerabilities">AJAX vulnerabilities</A>
+  <UL>
+  <LI class="L2"> <A href="/part5#5__dos_via_ajax">DoS via AJAX</A></LI>
+  <LI class="L2"> <A href="/part5#5__phishing_via_ajax">Phishing via AJAX</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__other_vulnerabilities"> Other Vulnerabilities </A> </H2>
+  <UL>
+  <LI class="L2"> <A href="/part5#5__buffer_and_integer_overflow">Buffer Overflow and Integer Overflow</A></LI>
+  <LI class="L2"> <A href="/part5#5__sql_injection"> SQL Injection </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__after_the_codelab">After the Codelab</A></LI>
+</UL>
+</DIV>
+<DIV class="column2">
+<P></P>
+<P></P>
+<P>
+<NOAUTOLINK>
+</NOAUTOLINK></P>
+
+<H2><A name="1__setup"> </A> Setup </H2>
+<P>
+To access Gruyere, go to
+<CODE><A href="/start">https://google-gruyere.appspot.com/start</A></CODE>.
+AppEngine will start a new instance of Gruyere for you, assign it a
+unique id and redirect you to
+<CODE>https://google-gruyere.appspot.com/<!--do not replace-->123/</CODE>
+(where <CODE>123</CODE> is your unique id). Each instance of Gruyere
+is "sandboxed" from the other instances so your instance won't be
+affected by anyone else using Gruyere. You'll need to use your
+unique id instead of <CODE>123</CODE> in all the examples. If you want
+to share your instance of Gruyere with someone else (e.g., to show
+them a successful attack), just share the full URL with them including
+your unique id.
+</P>
+<P>The Gruyere source code is available online so that you can use
+it for white-box hacking. You can browse the source code
+at <A href="/code/">https://google-gruyere.appspot.com/code/</A> or download
+all the files
+from <A href="/gruyere-code.zip">https://google-gruyere.appspot.com/gruyere-code.zip</A>.
+If want to debug it or actually try fixing the bugs, you can download
+it and run it locally. You do not need to run Gruyere locally in
+order to do the lab.
+</P>
+<DIV style="margin-left:18pt">
+<H4 style="cursor: pointer" onclick="toggleBlock(this, 'running_locally');"><IMG src="/static/closed.gif"> Running locally </H4>
+<DIV id="running_locally" style="display:none">
+<P>
+<FONT color="#ff0000">
+<B>WARNING:</B> Because Gruyere is very vulnerable, it
+includes some protection against being exploited by an external
+attacker when run locally. You'll see these parts of the code marked
+DO NOT CHANGE. Gruyere only accepts requests from localhost and uses
+a random unique id in the URL. However, it's difficult to fully
+protect against an external attack. And if you make changes to
+Gruyere you could make it more vulnerable to a real
+attack. Therefore, you should close other web pages while running
+Gruyere locally and you should make sure that no other user is
+logged in to the machine you are using.
+</FONT>
+</P>
+<P> To run Gruyere locally, you'll first need to install Python 2.7,
+if you don't already have it. Gruyere was developed and tested with
+version 2.7 and may not work with other versions of Python. You can
+download it from <A href="https://www.python.org/downloads/"
+target="_top">python.org</A>. Download Gruyere itself
+from <A href="/gruyere-code.zip">https://google-gruyere.appspot.com/gruyere-code.zip</A>
+and unpack it to your local disk. Then to run the application, simply
+type:
+</P>
+<P></P>
+<PRE>
+$ cd &lt;gruyere-directory&gt;
+$ ./gruyere.py</PRE>
+<P>
+You'll need to replace <CODE>google-gruyere.appspot.com</CODE> in all the
+examples with <CODE>localhost:8008</CODE> in addition to
+replacing <CODE>123</CODE> with your unique id. Note that the unique
+id appears in a different location. There are a few other small
+differences between running Gruyere locally vs. accessing the
+instance on App&nbsp;Engine. The most obvious is that the
+App&nbsp;Engine version runs in a limited sandbox. So if you do
+something that puts Gruyere into an infinite loop, the monitor will
+detect it and kill it. That might not happen when you run it locally,
+depending on what the loop is doing.
+</P>
+</DIV>
+</DIV>
+<BR>
+<H3><A name="1__reset_button"> </A> Reset Button </H3>
+As noted above, each instance is sandboxed so it can't consume
+infinite resources and it can't interfere with anyone else's
+instance. Notwithstanding that, it is possible to put your Gruyere
+instance into a state where it is completely unusable. If that
+happens, you can push a magic "reset button" to wipe out all the data
+in your instance and start from scratch. To do this, visit this
+URL with your instance id:
+<PRE>
+https://google-gruyere.appspot.com/resetbutton/123
+</PRE>
+<BR>
+<H3><A name="1__about_the_code"> </A> About the Code </H3>
+<P>
+Gruyere is small and compact. Here is a quick rundown of the
+application code:
+</P><UL>
+<LI> <CODE><A href="/code/?gruyere.py">gruyere.py</A></CODE>
+is the main Gruyere web server
+</LI>
+<LI> <CODE><A href="/code/?data.py">data.py</A></CODE>
+stores the default data in the database. There is an administrator
+account and two default users.
+</LI>
+<LI> <CODE><A href="/code/?gtl.py">gtl.py</A></CODE>
+is the Gruyere template language
+</LI>
+<LI> <CODE><A href="/code/?sanitize.py">sanitize.py</A></CODE>
+is the Gruyere module used for sanitizing HTML to protect the
+application from security holes.
+</LI>
+<LI> <CODE><A href="/code/">resources/...</A></CODE>
+holds all template files, images, CSS, etc.
+</LI>
+</UL>
+<P></P>
+<BR>
+<H3><A name="1__features_and_technologies"> </A> Features and Technologies </H3>
+<P>
+Gruyere includes a number of special features and technologies which
+add attack surface. We'll highlight them here so you'll be aware of
+them as you try to attack it. Each of these introduces new
+vulnerabilities.
+</P>
+<P></P>
+<UL>
+<LI> HTML in Snippets: Users can include a limited subset of HTML in
+their snippets.
+</LI>
+<LI> File upload: Users can upload files to the server, e.g., to
+include pictures in their snippets.
+</LI>
+<LI> Web administration: System administrators can manage the system
+using a web interface.
+</LI>
+<LI> New accounts: Users can create their own accounts.
+</LI>
+<LI> Template language: Gruyere Template Language(GTL) is a new
+language that makes writing web pages easy as the templates connect
+directly to the database. Documentation for GTL can be found
+in <CODE><A href="/code/?gtl.py">gruyere/gtl.py</A></CODE>.
+</LI>
+<LI> AJAX: Gruyere uses AJAX to implement refresh on the home and
+snippets page. You should ignore the AJAX parts of Gruyere except
+for the challenges that specifically tell you to focus on AJAX.
+<UL>
+<LI> In a real application, refresh would probably happen
+automatically, but in Gruyere we've made it manual so that you can
+be in complete control while you are working with it.  When you click
+the refresh link, Gruyere
+fetches <CODE><A href="/code/?resources/feed.gtl">feed.gtl</A></CODE>
+which contains refresh data for the current page and then client-side
+script uses the browser DOM API (Document Object Model) to insert the
+new snippets into the page. Since AJAX runs code on the client side,
+this script is visible to attackers who do not have access to your
+source code.
+</LI>
+</UL>
+</LI>
+</UL>
+<P></P>
+<BR>
+<H2><A name="1__using_gruyere"> </A> Using Gruyere </H2>
+<P>
+To familiarize yourself with the features of Gruyere, complete the
+following tasks:
+</P>
+<P></P>
+<UL>
+<LI> View another user's snippets by following the "All snippets" link
+on the main page. Also check out what they have their Homepage set to.
+</LI>
+<LI> Sign up for an account for yourself to use when
+hacking. <B>Do not use the same password for your Gruyere
+account as you use for any real service.</B>
+</LI>
+<LI> Fill in your account's profile, including a private snippet and
+an icon that will be displayed by your name.
+</LI>
+<LI> Create a snippet (via "New Snippet") containing your favorite
+joke.
+</LI>
+<LI> Upload a file (via "Upload") to your account.
+</LI>
+</UL>
+<P></P>
+<P> This covers the basic features provided by Gruyere. Now
+let's break them!
+</P>
+<BR><P></P>
+
+
+             <FONT SIZE="+2">
+             <A href="/part2">Continue &gt;&gt;</A>
+             </FONT><BR>
+<BR>
+<P style="font-size:x-small">
+&copy; Google 2017 <A href="https://www.google.com/intl/en/policies/terms/">Terms of Service</A>
+<BR>The code portions of this codelab are licensed under the
+Creative Commons Attribution-No Derivative Works 3.0 United States license
+&lt;<A href="https://creativecommons.org/licenses/by-nd/3.0/us/">https://creativecommons.org/licenses/by-nd/3.0/us</A>&gt;.
+Brief excerpts of the code may be used for educational or
+instructional purposes provided this notice is kept intact.
+Except as otherwise noted the remainder of this codelab is licensed under the
+Creative Commons Attribution 3.0 United States license
+&lt;<A href="https://creativecommons.org/licenses/by/3.0/us/">https://creativecommons.org/licenses/by/3.0/us</A>&gt;.
+</P>
+</BODY></HTML>

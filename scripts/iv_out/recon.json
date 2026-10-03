@@ -1,0 +1,625 @@
+{
+ "demo.testfire.net": {
+  "/": {
+   "url": "https://demo.testfire.net/",
+   "status": null,
+   "len": 138,
+   "err": "URLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)'))"
+  },
+  "/robots.txt": {
+   "url": "https://demo.testfire.net/robots.txt",
+   "status": null,
+   "len": 138,
+   "err": "URLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)'))"
+  },
+  "/login.jsp": {
+   "url": "https://demo.testfire.net/login.jsp",
+   "status": null,
+   "len": 138,
+   "err": "URLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: certificate has expired (_ssl.c:1010)'))"
+  }
+ },
+ "ginandjuice.shop": {
+  "/": {
+   "url": "https://ginandjuice.shop/",
+   "status": 200,
+   "headers": [
+    [
+     "Date",
+     "Sat, 03 Oct 2026 13:30:41 GMT"
+    ],
+    [
+     "Content-Type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "Content-Length",
+     "10487"
+    ],
+    [
+     "Connection",
+     "close"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:41 GMT; Path=/"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:41 GMT; Path=/; SameSite=None; Secure"
+    ],
+    [
+     "Set-Cookie",
+     "session=Y0aPpBqJ2FzJAkEyKtCrWztELiQfW3Si; Secure; HttpOnly; SameSite=None"
+    ],
+    [
+     "X-Backend",
+     "e0ec818b-8de4-433f-abd4-1d8f56858033"
+    ],
+    [
+     "X-Frame-Options",
+     "SAMEORIGIN"
+    ]
+   ],
+   "set_cookie": [
+    "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:41 GMT; Path=/",
+    "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:41 GMT; Path=/; SameSite=None; Secure",
+    "session=Y0aPpBqJ2FzJAkEyKtCrWztELiQfW3Si; Secure; HttpOnly; SameSite=None"
+   ],
+   "sec_headers": {
+    "X-Frame-Options": "SAMEORIGIN"
+   },
+   "len": 10487,
+   "title": "Home - Gin &amp; Juice Shop",
+   "forms": [],
+   "links_sample": [
+    "/about",
+    "/blog",
+    "/blog/post?postId=3",
+    "/blog/post?postId=4",
+    "/catalog",
+    "/catalog/cart",
+    "/catalog/product?productId=1",
+    "/catalog/product?productId=2",
+    "/catalog/product?productId=3",
+    "/my-account",
+    "/resources/images/icon-account.svg#account-icon",
+    "/resources/images/icon-cart.svg#cart-icon"
+   ]
+  },
+  "/robots.txt": {
+   "url": "https://ginandjuice.shop/robots.txt",
+   "status": 404,
+   "headers": [
+    [
+     "Date",
+     "Sat, 03 Oct 2026 13:30:42 GMT"
+    ],
+    [
+     "Content-Type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "Content-Length",
+     "7350"
+    ],
+    [
+     "Connection",
+     "close"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:42 GMT; Path=/"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:42 GMT; Path=/; SameSite=None; Secure"
+    ],
+    [
+     "Set-Cookie",
+     "session=hJulOmgUzIKXHSCWVSgWVt7iHCswKovv; Secure; HttpOnly; SameSite=None"
+    ],
+    [
+     "X-Backend",
+     "9ce4c47e-a992-46bd-8800-938793918ed2"
+    ],
+    [
+     "X-Frame-Options",
+     "SAMEORIGIN"
+    ]
+   ],
+   "set_cookie": [
+    "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:42 GMT; Path=/",
+    "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:42 GMT; Path=/; SameSite=None; Secure",
+    "session=hJulOmgUzIKXHSCWVSgWVt7iHCswKovv; Secure; HttpOnly; SameSite=None"
+   ],
+   "sec_headers": {
+    "X-Frame-Options": "SAMEORIGIN"
+   },
+   "len": 7350,
+   "err": "<!DOCTYPE html>\n<html>\n<!--LAB_HEAD_START-->\n    <head>\n        <link href=/resources/labheader/css/scanMeHeader.css rel=stylesheet>\n        <link hre"
+  },
+  "/login": {
+   "url": "https://ginandjuice.shop/login",
+   "status": 200,
+   "headers": [
+    [
+     "Date",
+     "Sat, 03 Oct 2026 13:30:43 GMT"
+    ],
+    [
+     "Content-Type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "Content-Length",
+     "7493"
+    ],
+    [
+     "Connection",
+     "close"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/; SameSite=None; Secure"
+    ],
+    [
+     "Set-Cookie",
+     "session=ECY6Mskw5I9Lul5C2Q772KB73RAPxfMP; Secure; HttpOnly; SameSite=None"
+    ],
+    [
+     "X-Backend",
+     "eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad"
+    ],
+    [
+     "X-Frame-Options",
+     "SAMEORIGIN"
+    ]
+   ],
+   "set_cookie": [
+    "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/",
+    "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/; SameSite=None; Secure",
+    "session=ECY6Mskw5I9Lul5C2Q772KB73RAPxfMP; Secure; HttpOnly; SameSite=None"
+   ],
+   "sec_headers": {
+    "X-Frame-Options": "SAMEORIGIN"
+   },
+   "len": 7493,
+   "title": "Login - Gin &amp; Juice Shop",
+   "forms": [
+    {
+     "action": "/login",
+     "method": "POST",
+     "fields": [
+      {
+       "tag": "input",
+       "type": "hidden",
+       "name": "csrf",
+       "value": "nlkYF0bMj3YYmrgJ7MbLynKubrbLMPLI"
+      },
+      {
+       "tag": "input",
+       "type": "username",
+       "name": "username",
+       "value": ""
+      },
+      {
+       "tag": "button",
+       "type": "submit",
+       "name": null,
+       "value": ""
+      }
+     ]
+    }
+   ],
+   "links_sample": [
+    "/about",
+    "/blog",
+    "/catalog",
+    "/catalog/cart",
+    "/my-account",
+    "/resources/images/icon-account.svg#account-icon",
+    "/resources/images/icon-cart.svg#cart-icon"
+   ]
+  },
+  "/catalog": {
+   "url": "https://ginandjuice.shop/catalog",
+   "status": 200,
+   "headers": [
+    [
+     "Date",
+     "Sat, 03 Oct 2026 13:30:43 GMT"
+    ],
+    [
+     "Content-Type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "Content-Length",
+     "16840"
+    ],
+    [
+     "Connection",
+     "close"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/; SameSite=None; Secure"
+    ],
+    [
+     "Set-Cookie",
+     "TrackingId=eyJ0eXBlIjoiY2xhc3MiLCJ2YWx1ZSI6Inlyb2VCV25neldBams2VU8ifQ==; Secure; HttpOnly"
+    ],
+    [
+     "Set-Cookie",
+     "session=otqYO7oHA6nMbV5sCH625ckqDobNXz5e; Secure; HttpOnly; SameSite=None"
+    ],
+    [
+     "X-Backend",
+     "c334ec7d-d72e-4fbd-b0b0-67a92b683523"
+    ],
+    [
+     "X-Frame-Options",
+     "SAMEORIGIN"
+    ]
+   ],
+   "set_cookie": [
+    "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/",
+    "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:43 GMT; Path=/; SameSite=None; Secure",
+    "TrackingId=eyJ0eXBlIjoiY2xhc3MiLCJ2YWx1ZSI6Inlyb2VCV25neldBams2VU8ifQ==; Secure; HttpOnly",
+    "session=otqYO7oHA6nMbV5sCH625ckqDobNXz5e; Secure; HttpOnly; SameSite=None"
+   ],
+   "sec_headers": {
+    "X-Frame-Options": "SAMEORIGIN"
+   },
+   "len": 16840,
+   "title": "Products - Gin &amp; Juice Shop",
+   "forms": [
+    {
+     "action": "/catalog",
+     "method": "GET",
+     "fields": [
+      {
+       "tag": "input",
+       "type": "text",
+       "name": "searchTerm",
+       "value": ""
+      },
+      {
+       "tag": "button",
+       "type": "submit",
+       "name": null,
+       "value": ""
+      }
+     ]
+    }
+   ],
+   "links_sample": [
+    "/about",
+    "/blog",
+    "/catalog",
+    "/catalog/cart",
+    "/catalog/product?productId=1",
+    "/catalog/product?productId=10",
+    "/catalog/product?productId=11",
+    "/catalog/product?productId=12",
+    "/catalog/product?productId=13",
+    "/catalog/product?productId=14",
+    "/catalog/product?productId=15",
+    "/catalog/product?productId=16",
+    "/catalog/product?productId=17",
+    "/catalog/product?productId=18",
+    "/catalog/product?productId=2",
+    "/catalog/product?productId=3",
+    "/catalog/product?productId=4",
+    "/catalog/product?productId=5",
+    "/catalog/product?productId=6",
+    "/catalog/product?productId=7",
+    "/catalog/product?productId=8",
+    "/catalog/product?productId=9",
+    "/my-account",
+    "/resources/images/icon-account.svg#account-icon",
+    "/resources/images/icon-cart.svg#cart-icon"
+   ]
+  },
+  "/catalog/cart": {
+   "url": "https://ginandjuice.shop/catalog/cart",
+   "status": 200,
+   "headers": [
+    [
+     "Date",
+     "Sat, 03 Oct 2026 13:30:44 GMT"
+    ],
+    [
+     "Content-Type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "Content-Length",
+     "5144"
+    ],
+    [
+     "Connection",
+     "close"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:44 GMT; Path=/"
+    ],
+    [
+     "Set-Cookie",
+     "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:44 GMT; Path=/; SameSite=None; Secure"
+    ],
+    [
+     "Set-Cookie",
+     "session=RYD2VUxVaw0KA7rex78mKlPGddfqLSVf; Secure; HttpOnly; SameSite=None"
+    ],
+    [
+     "X-Backend",
+     "83c88e8e-9bd6-47af-8559-a1d232eece55"
+    ],
+    [
+     "X-Frame-Options",
+     "SAMEORIGIN"
+    ]
+   ],
+   "set_cookie": [
+    "AWSALB=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:44 GMT; Path=/",
+    "AWSALBCORS=[REDACTED]; Expires=Sat, 10 Oct 2026 13:30:44 GMT; Path=/; SameSite=None; Secure",
+    "session=RYD2VUxVaw0KA7rex78mKlPGddfqLSVf; Secure; HttpOnly; SameSite=None"
+   ],
+   "sec_headers": {
+    "X-Frame-Options": "SAMEORIGIN"
+   },
+   "len": 5144,
+   "title": "Cart - Gin &amp; Juice Shop",
+   "forms": [],
+   "links_sample": [
+    "/about",
+    "/blog",
+    "/catalog",
+    "/catalog/cart",
+    "/my-account",
+    "/resources/images/icon-account.svg#account-icon",
+    "/resources/images/icon-cart.svg#cart-icon"
+   ]
+  }
+ },
+ "testasp.vulnweb.com": {
+  "/": {
+   "url": "https://testasp.vulnweb.com/",
+   "status": null,
+   "len": 35,
+   "err": "URLError(TimeoutError('timed out'))"
+  },
+  "/robots.txt": {
+   "url": "https://testasp.vulnweb.com/robots.txt",
+   "status": null,
+   "len": 35,
+   "err": "URLError(TimeoutError('timed out'))"
+  },
+  "/guestbook.asp": {
+   "url": "https://testasp.vulnweb.com/guestbook.asp",
+   "status": null,
+   "len": 35,
+   "err": "URLError(TimeoutError('timed out'))"
+  }
+ },
+ "testaspnet.vulnweb.com": {
+  "/": {
+   "url": "https://testaspnet.vulnweb.com/",
+   "status": null,
+   "len": 35,
+   "err": "URLError(TimeoutError('timed out'))"
+  },
+  "/robots.txt": {
+   "url": "https://testaspnet.vulnweb.com/robots.txt",
+   "status": null,
+   "len": 35,
+   "err": "URLError(TimeoutError('timed out'))"
+  },
+  "/guestbook.aspx": {
+   "url": "https://testaspnet.vulnweb.com/guestbook.aspx",
+   "status": null,
+   "len": 35,
+   "err": "URLError(TimeoutError('timed out'))"
+  }
+ },
+ "google-gruyere.appspot.com": {
+  "/": {
+   "url": "https://google-gruyere.appspot.com/",
+   "status": 200,
+   "headers": [
+    [
+     "cache-control",
+     "no-cache"
+    ],
+    [
+     "pragma",
+     "no-cache"
+    ],
+    [
+     "content-type",
+     "text/html; charset=utf-8"
+    ],
+    [
+     "x-cloud-trace-context",
+     "cd0ac673217756c7e208665215004774"
+    ],
+    [
+     "date",
+     "Sat, 03 Oct 2026 13:32:45 GMT"
+    ],
+    [
+     "server",
+     "Google Frontend"
+    ],
+    [
+     "Content-Length",
+     "11506"
+    ],
+    [
+     "Alt-Svc",
+     "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+    ],
+    [
+     "Connection",
+     "close"
+    ]
+   ],
+   "set_cookie": [],
+   "sec_headers": {
+    "cache-control": "no-cache",
+    "server": "Google Frontend"
+   },
+   "len": 11506,
+   "title": "Web Application Exploits and Defenses",
+   "forms": [],
+   "links_sample": [
+    "/#0__gruyere",
+    "/#0__hackers",
+    "/part1",
+    "/part1#1__about_the_code",
+    "/part1#1__features_and_technologies",
+    "/part1#1__reset_button",
+    "/part1#1__setup",
+    "/part1#1__using_gruyere",
+    "/part2#2__cross_site_scripting",
+    "/part2#2__file_upload_xss",
+    "/part2#2__more_about_xss",
+    "/part2#2__reflected_xss",
+    "/part2#2__reflected_xss_via_ajax",
+    "/part2#2__stored_xss",
+    "/part2#2__stored_xss_via_ajax",
+    "/part2#2__stored_xss_via_html_attribute",
+    "/part2#2__xss_challenge",
+    "/part3#3__client_state_manipulation",
+    "/part3#3__cookie_manipulation",
+    "/part3#3__cross_site_request_forgery",
+    "/part3#3__cross_site_script_inclusion",
+    "/part3#3__elevation_of_privilege",
+    "/part3#3__more_about_preventing_xsrf",
+    "/part3#3__xsrf_challenge",
+    "/part3#3__xssi_challenge",
+    "/part4#4__code_execution",
+    "/part4#4__code_execution_challenge",
+    "/part4#4__data_tampering_path_traversal",
+    "/part4#4__denial_of_service",
+    "/part4#4__dos_overload_server",
+    "/part4#4__dos_quit_server",
+    "/part4#4__information_disclosure_path_traversal",
+    "/part4#4__more_code_execution",
+    "/part4#4__more_dos",
+    "/part4#4__path_traversal",
+    "/part5#5__after_the_codelab",
+    "/part5#5__ajax_vulnerabilities",
+    "/part5#5__buffer_and_integer_overflow",
+    "/part5#5__configuration_vulnerabilities",
+    "/part5#5__dos_via_ajax"
+   ]
+  },
+  "/robots.txt": {
+   "url": "https://google-gruyere.appspot.com/robots.txt",
+   "status": 200,
+   "headers": [
+    [
+     "date",
+     "Sat, 03 Oct 2026 13:32:45 GMT"
+    ],
+    [
+     "expires",
+     "Sat, 03 Oct 2026 13:42:45 GMT"
+    ],
+    [
+     "cache-control",
+     "public, max-age=600"
+    ],
+    [
+     "etag",
+     "\"3m8CBg\""
+    ],
+    [
+     "x-cloud-trace-context",
+     "7d5ebe9e550655a028a553dfdc4eb656"
+    ],
+    [
+     "content-type",
+     "text/plain"
+    ],
+    [
+     "server",
+     "Google Frontend"
+    ],
+    [
+     "Alt-Svc",
+     "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+    ],
+    [
+     "Connection",
+     "close"
+    ],
+    [
+     "Transfer-Encoding",
+     "chunked"
+    ]
+   ],
+   "set_cookie": [],
+   "sec_headers": {
+    "cache-control": "public, max-age=600",
+    "server": "Google Frontend"
+   },
+   "len": 184,
+   "title": null,
+   "forms": [],
+   "links_sample": []
+  },
+  "/login": {
+   "url": "https://google-gruyere.appspot.com/login",
+   "status": 404,
+   "headers": [
+    [
+     "content-type",
+     "text/html; charset=UTF-8"
+    ],
+    [
+     "x-cloud-trace-context",
+     "30f2c6ea5eb1255eac2bf830396dc096"
+    ],
+    [
+     "date",
+     "Sat, 03 Oct 2026 13:32:45 GMT"
+    ],
+    [
+     "server",
+     "Google Frontend"
+    ],
+    [
+     "Content-Length",
+     "154"
+    ],
+    [
+     "Alt-Svc",
+     "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+    ],
+    [
+     "Connection",
+     "close"
+    ]
+   ],
+   "set_cookie": [],
+   "sec_headers": {
+    "server": "Google Frontend"
+   },
+   "len": 154,
+   "err": "<html>\n <head>\n  <title>404 Not Found</title>\n </head>\n <body>\n  <h1>404 Not Found</h1>\n  The resource could not be found.<br /><br />\n\n\n\n </body>\n</h"
+  }
+ }
+}

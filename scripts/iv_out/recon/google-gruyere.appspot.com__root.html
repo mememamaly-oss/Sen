@@ -1,0 +1,246 @@
+<HTML><HEAD><META http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<TITLE>Web Application Exploits and Defenses</TITLE>
+<LINK type="text/css" rel="stylesheet" href="../static/codelab.css">
+<!--MARK-Z-->
+<SCRIPT>
+function toggleBlock(heading, whichID) {
+  var image = heading.childNodes[0];
+  var block = document.getElementById(whichID);
+  if (block) {
+    if (getDisplay(block) == 'block') {
+      block.style.display = 'none';
+      image.src = 'static/closed.gif';
+    } else {    // "none" or ""
+      block.style.display = 'block';
+      image.src = 'static/open.gif';
+    }
+  }
+}
+
+function getDisplay(block) {
+  var value = block.style.display;
+  if (!value) {
+    if (document.defaultView) {
+      var computedStyle = document.defaultView.getComputedStyle(block, "");
+      value = computedStyle.getPropertyValue('display');
+    } else if (block.currentStyle) {
+      value = block.currentStyle.display;
+    }
+  }
+  return value;
+}
+</SCRIPT>
+</HEAD>
+<BODY bgcolor="#ffffff">
+
+<DIV class="banner"></DIV>
+<H1><FONT size="+2"><IMG src="/static/gruyere-78.png" style="vertical-align:middle">
+Web Application Exploits and Defenses <!--PART#--></FONT> </H1>
+<P>
+A Codelab by Bruce Leban, Mugdha Bendre, and Parisa Tabriz
+</P>
+<DIV class="printable">
+<DIV class="column1">
+Table of Contents
+<UL>
+<LI class="L1" style="padding-top:0pt"> <A href="/#0__hackers">Beat the hackers</A></LI>
+<LI class="L1" style="padding-top:0pt"> <A href="/#0__gruyere">Gruyere</A></LI>
+<LI class="L1"> <A href="/part1#1__setup">Set-up</A>
+  <UL>
+  <LI class="L2"> <A href="/part1#1__reset_button">Reset Button</A></LI>
+  <LI class="L2"> <A href="/part1#1__about_the_code">About the Code</A></LI>
+  <LI class="L2"> <A href="/part1#1__features_and_technologies">Features and Technologies</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part1#1__using_gruyere">Using Gruyere</A></LI>
+<LI class="L1"> <A href="/part2#2__cross_site_scripting">Cross-Site Scripting (XSS)</A>
+  <UL>
+  <LI class="L2"> <A href="/part2#2__xss_challenge">XSS Challenges</A></LI>
+  <LI class="L2"> <A href="/part2#2__file_upload_xss">File Upload XSS</A></LI>
+  <LI class="L2"> <A href="/part2#2__reflected_xss">Reflected XSS</A></LI>
+  <LI class="L2"> <A href="/part2#2__stored_xss">Stored XSS</A></LI>
+  <LI class="L2"> <A href="/part2#2__stored_xss_via_html_attribute">Stored XSS via HTML Attribute</A></LI>
+  <LI class="L2"> <A href="/part2#2__stored_xss_via_ajax">Stored XSS via AJAX</A></LI>
+  <LI class="L2"> <A href="/part2#2__reflected_xss_via_ajax">Reflected XSS via AJAX</A></LI>
+  <LI class="L2"> <A href="/part2#2__more_about_xss">More about XSS</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part3#3__client_state_manipulation">Client-State Manipulation</A>
+  <UL>
+  <LI class="L2"> <A href="/part3#3__elevation_of_privilege"> Elevation of Privilege </A></LI>
+  <LI class="L2"> <A href="/part3#3__cookie_manipulation"> Cookie Manipulation </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part3#3__cross_site_request_forgery">Cross-Site Request Forgery (XSRF)</A>
+  <UL>
+  <LI class="L2"> <A href="/part3#3__xsrf_challenge">XSRF Challenge</A></LI>
+  <LI class="L2"> <A href="/part3#3__more_about_preventing_xsrf">More about preventing XSRF</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part3#3__cross_site_script_inclusion">Cross Site Script Inclusion (XSSI)</A>
+  <UL>
+  <LI class="L2"> <A href="/part3#3__xssi_challenge">XSSI Challenge</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part4#4__path_traversal">Path Traversal</A>
+  <UL>
+  <LI class="L2"> <A href="/part4#4__information_disclosure_path_traversal">Information disclosure via path traversal </A></LI>
+  <LI class="L2"> <A href="/part4#4__data_tampering_path_traversal">Data tampering via path traversal </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part4#4__denial_of_service">Denial of Service</A>
+  <UL>
+  <LI class="L2"> <A href="/part4#4__dos_quit_server">DoS - Quit the Server</A></LI>
+  <LI class="L2"> <A href="/part4#4__dos_overload_server">DoS - Overloading the Server</A></LI>
+  <LI class="L2"> <A href="/part4#4__more_dos">More on Denial of Service</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part4#4__code_execution">Code Execution</A>
+  <UL>
+  <LI class="L2"> <A href="/part4#4__code_execution_challenge">Code Execution Challenge</A></LI>
+  <LI class="L2"> <A href="/part4#4__more_code_execution">More on Remote Code Execution</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__configuration_vulnerabilities">Configuration Vulnerabilities</A>
+  <UL>
+  <LI class="L2"> <A href="/part5#5__information_disclosure_config_1">Information disclosure #1</A></LI>
+  <LI class="L2"> <A href="/part5#5__information_disclosure_config_2">Information disclosure #2</A></LI>
+  <LI class="L2"> <A href="/part5#5__information_disclosure_bug_3">Information disclosure #3 </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__ajax_vulnerabilities">AJAX vulnerabilities</A>
+  <UL>
+  <LI class="L2"> <A href="/part5#5__dos_via_ajax">DoS via AJAX</A></LI>
+  <LI class="L2"> <A href="/part5#5__phishing_via_ajax">Phishing via AJAX</A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__other_vulnerabilities"> Other Vulnerabilities </A> </H2>
+  <UL>
+  <LI class="L2"> <A href="/part5#5__buffer_and_integer_overflow">Buffer Overflow and Integer Overflow</A></LI>
+  <LI class="L2"> <A href="/part5#5__sql_injection"> SQL Injection </A></LI>
+  </UL></LI>
+<LI class="L1"> <A href="/part5#5__after_the_codelab">After the Codelab</A></LI>
+</UL>
+</DIV>
+<DIV class="column2">
+<P></P>
+<P></P>
+<P>
+<NOAUTOLINK>
+</NOAUTOLINK></P>
+
+<STYLE>.column1 {display:none}</STYLE>
+<BR><P>
+<H2><A name="0__hackers"></A>Want to beat the hackers at their own game?</H2>
+<UL>
+<LI>Learn how hackers find security vulnerabilities!
+<LI>Learn how hackers exploit web applications!
+<LI>Learn how to stop them!
+</UL>
+</P>
+<!--MARK-0-->
+<P>
+This codelab shows how web application vulnerabilities can be
+exploited and how to defend against these attacks. The best way to
+learn things is by doing, so you'll get a chance to do some real
+penetration testing, actually exploiting a real
+application. Specifically, you'll learn the following:
+</P>
+<P></P>
+<UL>
+<LI> How an application can be attacked using common web security
+vulnerabilities, like cross-site scripting vulnerabilities (XSS) and
+cross-site request forgery (XSRF).
+</LI>
+<LI> How to find, fix, and avoid these common vulnerabilities and
+other bugs that have a security impact, such as denial-of-service,
+information disclosure, or remote code execution.
+</LI>
+</UL>
+<P>
+To get the most out of this lab, you should have some familiarity with
+how a web application works (e.g., general knowledge of HTML,
+templates, cookies, AJAX, etc.).
+</P>
+<!--MARK-1-->
+<BR>
+<BR>
+<H2><A name="1__gruyere"> </A> Gruyere </H2>
+<P>
+<A href="/static/gruyere.png">
+<IMG src="/static/gruyere.png" height="285" border="0"
+    style="float:left; vertical-align:middle; margin-right: 10; margin-bottom: 10">
+</A>
+This codelab is built around <B>Gruyere</B>
+ /&#609;ru&#720;&#712;j&#603;&#601;r/ <!--groo-yair--> - a
+small, cheesy web application that allows its users to publish
+snippets of text and store assorted files. "Unfortunately," Gruyere
+has multiple security bugs ranging from cross-site scripting and
+cross-site request forgery, to information disclosure, denial of
+service, and remote code execution. The goal of this codelab is to
+guide you through discovering some of these bugs and learning ways to
+fix them both in Gruyere and in general.
+</P>
+<P> The codelab is organized by types of vulnerabilities. In each
+section, you'll find a brief description of a vulnerability and a task
+to find an instance of that vulnerability in Gruyere. Your job is to
+play the role of a malicious hacker and find and exploit the security
+bugs. In this codelab, you'll use both black-box hacking and white-box
+hacking. In <B>black box hacking,</B> you try to find security bugs by
+experimenting with the application and manipulating input fields and
+URL parameters, trying to cause application errors, and looking at the
+HTTP requests and responses to guess server behavior. You do not have
+access to the source code, although understanding how to view source
+and being able to view http headers (as you can in Chrome or
+LiveHTTPHeaders for Firefox) is valuable. Using a web proxy
+like <A href="https://portswigger.net/burp/" target="_top">Burp</A>
+or <A href="https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project"
+target="_top">ZAP</A> may be helpful in creating or modifying
+requests. In <B>white-box hacking,</B> you have access to the source
+code and can use automated or manual analysis to identify bugs. You
+can treat Gruyere as if it's open source: you can read through the
+source code to try to find bugs. Gruyere is written in Python, so
+some familiarity with Python can be helpful. However, the security
+vulnerabilities covered are not Python-specific and you can do most of
+the lab without even looking at the code. You can run a local instance
+of Gruyere to assist in your hacking: for example, you can create an
+administrator account on your local instance to learn how
+administrative features work and then apply that knowledge to the
+instance you want to hack. Security researchers use both hacking
+techniques, often in combination, in real life.
+</P>
+<BR clear="left">
+We'll tag each challenge to indicate which techniques are
+required to solve them:
+<BR><BR>
+<IMG src="/static/cheese_b.png" style="vertical-align:middle;
+padding-right: 5px;"> Challenges that can be solved just by using
+black box techniques.<BR><BR>
+<IMG src="/static/cheese_w.png" style="vertical-align:middle;
+padding-right: 5px;"> Challenges that require that you look at the
+Gruyere source code.<BR><BR>
+<IMG src="/static/cheese_bw.png" style="vertical-align:middle;
+padding-right: 5px;"> Challenges that require some specific knowledge
+of Gruyere that will be given in the first hint.
+<BR>
+<P style="color:red">
+<B>WARNING:</B> Accessing or attacking a computer system without
+authorization is illegal in many jurisdictions. While doing this
+codelab, you are specifically granted authorization to attack the
+Gruyere application as directed. You may not attack Gruyere in
+ways other than described in this codelab, nor may you attack App
+Engine directly or any other Google service. You should use what you
+learn from the codelab to make your own applications more secure. You
+should not use it to attack any applications other than your own, and
+only do that with permission from the appropriate authorities (e.g.,
+your company's security team).
+</P>
+<P></P>
+
+
+             <FONT SIZE="+2">
+             <A href="/part1">Continue &gt;&gt;</A>
+             </FONT><BR>
+<BR>
+<P style="font-size:x-small">
+&copy; Google 2017 <A href="https://www.google.com/intl/en/policies/terms/">Terms of Service</A>
+<BR>The code portions of this codelab are licensed under the
+Creative Commons Attribution-No Derivative Works 3.0 United States license
+&lt;<A href="https://creativecommons.org/licenses/by-nd/3.0/us/">https://creativecommons.org/licenses/by-nd/3.0/us</A>&gt;.
+Brief excerpts of the code may be used for educational or
+instructional purposes provided this notice is kept intact.
+Except as otherwise noted the remainder of this codelab is licensed under the
+Creative Commons Attribution 3.0 United States license
+&lt;<A href="https://creativecommons.org/licenses/by/3.0/us/">https://creativecommons.org/licenses/by/3.0/us</A>&gt;.
+</P>
+</BODY></HTML>
