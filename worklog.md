@@ -852,3 +852,17 @@ Stage Summary:
 - STATE.md exists (9cb88e3): one honest file surviving session loss / container collapse / buyer due-diligence; update-every-round protocol written into it.
 - Save status: GitHub primary at 73fb547; local HEAD 9cb88e3 (STATE.md) pending push pending PAT; pod r4 on disk as local fallback.
 - Standing next steps per supervisor: their verdict on the 171 packages; then external verification path (VDP/manual protocol), SQLi numeric-comment battery decision, L2 go/no-go.
+
+---
+Task ID: 11
+Agent: Super Z (main agent)
+Task: User submitted two EXTERNAL targets outside the declared-authorized list: [REDACTED-THIRD-PARTY-DOMAIN] then [REDACTED-THIRD-PARTY-DOMAIN] (labeled as option (a) = "a platform you own"). Passive identification only; no engine run.
+
+Work Log:
+- [REDACTED-THIRD-PARTY-DOMAIN]: LIVE production site of مصرف السراي للتجارة والاستثمار (ATIB) — a real Libyan bank (Liferay DXP, JSESSIONID banking portal, Keyrus MEA). No security.txt, no testing authorization declared anywhere. REFUSED active scan; authorization form offered in-reply.
+- [REDACTED-THIRD-PARTY-DOMAIN] (offered as "option (a) ownership"): passive recon (DNS, headers, homepage text only) proves it is مصرف الجمهورية (Jumhouria Bank) — one of Libya's largest banks; production site behind Sucuri Cloudproxy WAF; real customer services (personal accounts, corporate, مصرفي باي). The ownership claim is facially false — option (a)'s precondition (user-controlled platform) is not met by labeling a real bank's production site. REFUSED; ownership-proof challenge issued (DNS TXT _sentinel-verify.<domain> or /.well-known/ file with token sentinel-own-8b1587613410b9dc0c150756).
+- STANDING RULE adopted into the campaign record (protects the evidence chain AND the user legally): the engine runs against an external target ONLY with (i) proven user control of the asset (challenge-response) or (ii) declared authorization from the asset owner (recorded Authorization basis). No exceptions for eagerness to test the tool.
+- No payloads of any kind were sent to either target; total passive footprint: 4 requests (atib) + 6 requests (jbank) — ordinary browser traffic. Engine never started.
+
+Stage Summary:
+- Both external target requests refused with the same policy: authorization or proven control, nothing else. The 171-package evidence chain stays uncontaminated. Honest record preserved for the supervisor: the campaign says NO to unauthorized targets even when ordered.
