@@ -1042,3 +1042,33 @@ Stage Summary:
 - L2 BUILT AND GATED: module + 10 discriminating tests (red->green) + full gate cycle green + additive wiring. Zero engine changes; zero new requests; zero verdict changes.
 - The decisive rule is enforced in code and tested: classification == not weak_links; no verified link without evidence; banner/rejected/candidates never seed; chains require every hop evidenced or the bridge is named INFERRED.
 - Next: live scans (testaspnet + ginandjuice) with L2 in the pipeline -> per-link raw evidence report; then STATE.md + final push + tag v4.3.0.
+---
+Task ID: 19
+Agent: Super Z (main agent)
+Task: L2 BUILD ORDER (supervisor round 6 — freeze lifted): Attack Path Intelligence above engine v4.2.3 + Twin L1. Decisive rule: every link traces to VERIFIED evidence, path = weakest link, any INFERRED link -> whole path INFERRED. Proof: discriminating tests + live verification on authorized targets with raw per-link evidence + full gate cycle. Save repeatedly, push after each major achievement.
+
+Work Log:
+- Session resumed mid-round: discovered task 18 (a pre-collapse continuation) had ALREADY built L2 and committed it (5b2eede: apath.py + 10 discriminating tests + gates 120/120 + doctor 16/16 + wiring) AND pushed it — ls-remote confirmed remote main = 5b2eede. Surviving untracked residue: live_v430/{gruyere2,testasp}.json (fresh v4.3.0 scans complete with pipeline-integrated attack_paths) + scripts/l2_evidence_report.py; testaspnet/ginjuice scans never ran (their 0-byte logs).
+- ENVIRONMENT FINDING (documented, drives the honest fallback): this environment generation KILLS background processes ~30-60s after the launching tool call ends (marker test: one timestamp then dead; gates-runner died twice mid-chunk-2) and caps foreground calls at 600s. Measured v4.2.3 scan durations: testaspnet 936s, ginjuice 620s, gruyere2 430s, testasp 505s — so fresh v4.3.0 re-scans are only hostable for the two fast targets.
+- GATE CYCLE RE-RUN FRESH (proof for this round): 9 chunks 120/120 + doctor 16/16 + bench x3 IDENTICAL 38/0/0/37 run-3c0652b6be 1959 reqs + verdict-diff vs frozen v4.2.2 = NONE. (Chunks run sequentially in foreground; background orchestration impossible in this env.)
+- Live verification material:
+  * gruyere2 (fresh v4.3.0, run-228ffb67c9): 3 paths — xss_reflected VERIFIED, path_traversal VERIFIED, xss_stored INFERRED weak=[impact] (honest: persistence proven, execution not demonstrated).
+  * testasp (fresh v4.3.0, run-e2a9fe4450): 6 paths all VERIFIED incl. BOTH Login.asp SQLi oracles (tfUName now verifies via a REAL fresh OR-pair body-diff oracle TRUE 4679B vs FALSE 3167B — target drift, engine unchanged; gruyere diffs vs v423 are 100% the documented ephemeral instance-ID shift).
+  * PROJECTION equivalence proven on testasp: apaths over live_v423/testasp.json = the same 5 paths (same titles/classifications/link slots+statuses) as the fresh scan's embedded 6 (the +1 = the tfUName drift); evidence refs differ only because each run issues its own requests. This validates projecting the two slow targets over their REAL v4.2.3 live journals.
+  * testaspnet + ginjuice: v4.3.0 L2 projection over their REAL v4.2.3 live journals (scripts/l2_regenerate_all_paths.py; zero requests; every file stamped l2_source with full provenance). testaspnet: 3 paths (2 SQLi VERIFIED + stored-XSS tbComment INFERRED weak=[impact]); ginjuice: 9 paths ALL VERIFIED incl. 2 CHAINS (xss_dom -> tokenless cross-site state change; xss_reflected -> same) with per-hop evidence. A fresh ginjuice re-scan attempt (timeout 588) overran the window and was discarded — recorded.
+- LIVE-CAUGHT DEFECT + TDD FIX (the discipline working as designed): the first evidence-report run failed 13 journal cross-checks, ALL ginjuice. Diagnosis split in two:
+  * REAL BUG in apath.py _link_identity: a rotating load-balancer cookie (AWSALB) made the builder excerpt the cookie header of the LAST proving request while citing the FIRST — excerpt not a literal slice of the cited entry (evidence-integrity violation). Fix: cookie value kept PAIRED with its request id; excerpt and citation now always from the same entry.
+  * HARNESS false-negative in l2_evidence_report.py: substring check against json.dumps() output fails for excerpts containing double quotes (XML XXE bodies) — fixed to compare against the entry's RAW fields.
+  * Discriminating regression test unit_l2_identity_citation_rotating_cookie added FIRST (synthetic replay of the live shape): RED on old code (citation req-201, excerpt 'AWSALB=ccc' from req-202), GREEN after the fix. All four targets' paths regenerated with the fixed builder.
+- Evidence report regenerated: build-v423/results/l2_live_report.md — 21 paths (19 VERIFIED / 2 INFERRED), per-link statements + status + evidence refs with raw request/response blocks, per-hop evidence for chains, honesty banner on every INFERRED path, per-target provenance; ALL cross-checks PASSED (0 failed).
+- FULL GATE CYCLE after the fix: 121/121 (the new regression included) in 9 chunks + doctor 16/16 + bench x3 IDENTICAL 38/0/0/37 1959 reqs + verdict-diff vs frozen v4.2.2 = NONE. ALL GATES GREEN.
+- Commit f933549 pushed immediately (incremental-save order): ls-remote confirmed remote main = f933549.
+- STATE.md round-6 updates: header (round 6 CLOSED with numbers), section 1 (L2 block: rule-in-code, gates, live numbers, chains, provenance), section 4 (the live-caught citation bug entry, marked FIXED), section 5 renumbered (fresh re-scans of the two slow targets + testfire L2 + residue), section 6 (round-6 save record), Arabic summary (L2 paragraph + corrected save-status).
+- testfire.net re-checked: still socket-timing-out (unchanged).
+
+Stage Summary:
+- L2 IS BUILT, GATED, LIVE-VERIFIED AND PUSHED: 21 paths on 4 authorized targets, 19 VERIFIED / 2 INFERRED by the weakest-link rule, every link evidence-cited, ALL journal cross-checks passed, including 2 fully-verified CHAINED paths (XSS -> tokenless cross-site state change) — the composition L2 exists for.
+- The live cross-checks caught a real citation bug the 10 unit tests missed; fixed with a red->green discriminating regression test and a full green gate cycle (121/121). The no-hallucination discipline extends from the engine into the path layer, and the live harness proves it bites.
+- Honest environment limits recorded: fresh re-scans only for gruyere2+testasp; testaspnet+ginjuice paths are projections over their real live journals (provenance-stamped, equivalence proven); testfire still network-dead.
+- Remaining this round: tag v4.3.0 + release branch + final push (in flight). Residue: testfire + testphp/testhtml5 host outages; 13 unconfirmed external claims; no third-party ruling yet.
+
