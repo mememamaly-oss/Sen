@@ -97,6 +97,18 @@ SQL_ERR_PATTERNS = [
     re.compile(r"sqlite3?\.(OperationalError|ProgrammingError)", re.I),
     re.compile(r"Warning: mysql_", re.I),
     re.compile(r"PostgreSQL.*ERROR", re.I),
+    # MAX-03 (maximum internal test, live-caught on Juice Shop 20.2.0): the
+    # raw SQLite C-library surface ("SQLITE_ERROR: near ...") — what Node/
+    # Sequelize and many drivers put in the 500 body — was NOT in the list.
+    # The v4.2.3 VF-04 tightening (DB-error STRING required, bare 5xx no
+    # longer counts) was correct, but this signature gap made the verifier
+    # reject a genuinely injectable endpoint (status_oracle candidate on
+    # /rest/products/search?q=, quote+data -> 500 with SQLITE_ERROR text).
+    re.compile(r"SQLITE_(ERROR|CONSTRAINT|MISUSE|RANGE)", re.I),
+    re.compile(r"SQLite3?::(SQLException|Exception)", re.I),   # Ruby / PHP bindings
+    re.compile(r"ORA-\d{4,5}", re.I),                          # Oracle raw
+    re.compile(r"System\.Data\.SqlClient\.SqlException|SqlException\b", re.I),  # .NET
+    re.compile(r"PSQLException|ERROR:\s+syntax error at or near", re.I),        # JDBC pg / pg text
 ]
 
 

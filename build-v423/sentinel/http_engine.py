@@ -167,6 +167,18 @@ class RequestEngine:
                 body = _json.dumps(obj)
         parsed = urllib.parse.urlsplit(ep.url)
         base = urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, "", ""))
+        # MAX-05 (maximum internal test, live-caught on Juice Shop 20.2.0):
+        # PATH-located endpoint parameters substitute into the URL template on
+        # EVERY render — the endpoint's own value for baseline/passive fetches,
+        # the mutation's value when the probe targets that param. Previously
+        # only an explicit m.param_location==PATH triggered substitution, which
+        # no caller set, so /rest/basket/{id} shipped with literal braces.
+        for p in ep.parameters:
+            if p.location == ParamLocation.PATH:
+                val = m.param_value if (m.param_name == p.name and m.param_value) \
+                    else (p.value or "1")
+                base = base.replace("{" + p.name + "}",
+                                    urllib.parse.quote(str(val), safe=""))
         url = base + ("?" + urllib.parse.urlencode(q) if q else "")
         if m.param_location == ParamLocation.PATH and m.param_name:
             url = url.replace("{" + m.param_name + "}", urllib.parse.quote(m.param_value, safe=""))

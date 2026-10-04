@@ -270,6 +270,32 @@ class TokenAuthEngine:
             self.state.last_error = f"success marker missing on {self.p.login_url}"
             self.bus.emit("AuthFailed", reason="marker", error=self.state.last_error)
             return False
+        # MAX-01 (maximum internal test): the closed-door proof the docstring
+        # always promised — fetch the SAME validation url WITHOUT the token.
+        # A url that opens just as wide anonymously (Juice Shop's live-caught
+        # /rest/user/whoami -> 200 {"user":{}} with ANY token, even garbage)
+        # proves NOTHING about the token; accepting it mislabels an anonymous
+        # scan as "authenticated". Accept only a real differential: the anon
+        # fetch is blocked (401/403, transport error, or login-gate bounce)
+        # OR the success marker appears only in the tokened body.
+        r_anon = self.engine.send(RequestMutation(
+            endpoint=Endpoint(url=self.p.login_url, method="GET"),
+            note="auth-validate-anon"))
+        anon_blocked = bool(r_anon.error) or r_anon.status in (401, 403)
+        if not r_anon.error:
+            hop_a = r_anon.hop_location()
+            if hop_a and self.p.login_marker.lower() in urllib.parse.urlsplit(hop_a).path.lower():
+                anon_blocked = True
+        marker_diff = bool(self.p.success_marker) and (
+            self.p.success_marker.lower() in (r.body or "").lower()
+            and self.p.success_marker.lower() not in (r_anon.body or "").lower())
+        if not (anon_blocked or marker_diff):
+            self.state.last_error = (f"validation url proves nothing: anonymously "
+                                     f"accessible with no marker differential "
+                                     f"(anon status={r_anon.status}) on {self.p.login_url}")
+            self.bus.emit("AuthFailed", reason="validation_proves_nothing",
+                          error=self.state.last_error)
+            return False
         # accepted: arm the header on every subsequent engine request
         self.engine.default_headers[self.p.auth_header] = hv
         self.state.authenticated = True

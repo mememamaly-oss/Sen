@@ -107,6 +107,15 @@ JS_PATTERNS = [
     re.compile(r"""(?:fetch|axios(?:\.\w+)?|\$\.(?:ajax|get|post))\(\s*['"`]([^'"`]{3,200})['"`]""", re.I),
     re.compile(r"""(?:url|endpoint|apiUrl|API_BASE)\s*[:=]\s*['"`]([^'"`]{3,200})['"`]""", re.I),
     re.compile(r"""new\s+WebSocket\(\s*['"`]([^'"`]+)['"`]""", re.I),
+    # MAX-06 (maximum internal test, live-caught on Juice Shop 20.2.0): bundled
+    # SPA frameworks (Angular HttpClient and friends) concatenate the API base
+    # with BACKTICK template literals — http.get(host+`/rest/user/whoami`) —
+    # which none of the fetch/axios/url patterns match. On the Juice Shop
+    # bundle the old patterns extracted 2 endpoints; the template-literal
+    # pattern extracts 95 (the whole /api/* + /rest/* surface). Interpolated
+    # templates (`${...}`) are rejected by the plausible_js_url gate (braces),
+    # keeping the DISC-01 minified-code-fragment precision lesson intact.
+    re.compile(r"`(/[^`\\]{2,200})`"),
 ]
 QUERY_RE = re.compile(r"[?&]([A-Za-z_][\w]*)=([^&#\s]*)")
 
@@ -561,9 +570,23 @@ def parse_openapi(spec: dict, base_url: str) -> list[Endpoint]:
             for prm in op.get("parameters", []) or []:
                 if not isinstance(prm, dict) or "name" not in prm:
                     continue
-                loc = {"query": ParamLocation.QUERY, "path": ParamLocation.QUERY,
-                       "header": ParamLocation.QUERY}.get(prm.get("in", "query"), ParamLocation.QUERY)
-                params.append(Parameter(prm["name"], loc, prm.get("schema", {}).get("example", "") or "").classify())
+                # MAX-05 (maximum internal test, live-caught on Juice Shop 20.2.0):
+                # spec "in": "path" parameters were mapped to QUERY with an empty
+                # value, so /rest/basket/{id} went out with LITERAL braces (404) —
+                # the entire path-parameter REST surface was invisible to passive,
+                # active AND the authz matrix (the Juice Shop BOLA basket class).
+                # Path params are now PATH-located and carry a concrete default
+                # (declared example, else "1") that _render substitutes into the
+                # URL template on every request.
+                in_mode = prm.get("in", "query")
+                if in_mode == "path":
+                    loc = ParamLocation.PATH
+                    default_val = str((prm.get("schema") or {}).get("example", "")
+                                      or prm.get("example", "") or "1")
+                else:
+                    loc = ParamLocation.QUERY
+                    default_val = prm.get("schema", {}).get("example", "") or ""
+                params.append(Parameter(prm["name"], loc, default_val).classify())
             body = (op.get("requestBody") or {}).get("content", {})
             if "application/json" in body:
                 for fld in ((body["application/json"].get("schema") or {}).get("properties") or {}).keys():

@@ -63,9 +63,14 @@ ADMIN_PATH_RE = re.compile(r"/(admin|manage|management|console|internal|dashboar
 ASSET_EXT_RE = re.compile(
     r"\.(css|js|mjs|png|jpe?g|gif|ico|svg|woff2?|ttf|eot|pdf|zip|gz|map|sql)([?#]|$)", re.I)
 LOGOUT_PATH_RE = re.compile(r"(log-?out|log-?off|sign-?out|sign-?off)", re.I)
-ID_PARAM_NAMES = {"user_id", "userid", "uid", "account", "account_id", "acct",
+ID_PARAM_NAMES = {"id", "user_id", "userid", "uid", "account", "account_id", "acct",
                   "customer_id", "profile_id", "doc_id", "order_id", "object_id",
                   "record_id", "employee_id", "member_id"}
+# ^ MAX-05b (maximum internal test, live-caught on Juice Shop 20.2.0): plain
+#   "id" — THE canonical REST object-param name — was missing from the set,
+#   so every /resource/{id} surface was skipped by the IDOR engine even with
+#   a full account matrix armed. The strict victim-marker oracle keeps this
+#   safe against noise; probes stay bounded by max_idor_endpoints/probes.
 
 
 def _rank(role: str) -> int:
@@ -108,6 +113,14 @@ class AuthzConfig:
         login = d.get("login_url", "")
         if login and not login.startswith(("http://", "https://")):
             login = target_url.rstrip("/") + (login if login.startswith("/") else "/" + login)
+        # MAX-02 (maximum internal test, live-caught on Juice Shop 20.2.0):
+        # token_validate_url went through UNRESOLVED — a relative "/rest/basket/1"
+        # produced Endpoint(url="/rest/basket/1") -> transport error -> EVERY
+        # token-mode account reported "token rejected" and the whole authz
+        # matrix silently degraded to ran=false. Resolve exactly like login_url.
+        tvurl = str(d.get("token_validate_url", ""))
+        if tvurl and not tvurl.startswith(("http://", "https://")):
+            tvurl = target_url.rstrip("/") + (tvurl if tvurl.startswith("/") else "/" + tvurl)
         accounts = [AuthzAccount(
             name=str(a.get("name", a.get("username", "acct"))),
             role=str(a.get("role", "user")),
@@ -128,7 +141,7 @@ class AuthzConfig:
                    max_idor_endpoints=int(d.get("max_idor_endpoints", 40)),
                    max_idor_probes=int(d.get("max_idor_probes", 60)),
                    max_role_view=int(d.get("max_role_view", 20)),
-                   token_validate_url=str(d.get("token_validate_url", "")))
+                   token_validate_url=tvurl)
 
 
 class AuthzEngine:

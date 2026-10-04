@@ -581,6 +581,80 @@ def regression_js_url_extraction_rejects_code_fragments():
 
 
 @case
+def unit_max06_spa_template_literal_endpoints():
+    """MAX-06 (maximum internal test, live-caught on Juice Shop 20.2.0):
+    bundled SPA frameworks (Angular HttpClient) concatenate the API base with
+    BACKTICK template literals — this.http.get(host+`/rest/things`) — which
+    none of the fetch/axios/url-assignment patterns match. On the real Juice
+    Shop main.js the old battery extracted 2 endpoints; the template-literal
+    pattern extracts 95 (the whole /api/* + /rest/* surface). Interpolated
+    templates (`/${id}`) must stay rejected (DISC-01 precision). Red pre-fix,
+    green post; end-to-end via a mini bundled-asset server."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.discovery import DiscoveryEngine, plausible_js_url, JS_PATTERNS
+
+    # (1) pattern-level: the Angular shape must extract, interpolated must not
+    body = ('this.http.get(this.hostServer+`/rest/things`);'
+            'this.http.post(this.hostServer+`/rest/submit`,e);'
+            'this.http.get(this.hostServer+`/rest/item/${e.id}/detail`);'
+            'fetch("/api/oldstyle");')
+    hits = sorted({m for pat in JS_PATTERNS for m in pat.findall(body)
+                   if plausible_js_url(m)})
+    assert "/rest/things" in hits, f"Angular template-literal endpoint missed: {hits}"
+    assert "/rest/submit" in hits, hits
+    assert "/api/oldstyle" in hits, "old fetch pattern must keep working"
+    assert not any("${" in h for h in hits), f"interpolated template leaked: {hits}"
+    assert not any(h.endswith("/detail") for h in hits), \
+        f"interpolated-segment path leaked: {hits}"
+
+    # (2) end-to-end: a page links the bundle; the crawler fetches it and the
+    # template-literal endpoint enters the surface with source js:static
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", ct="text/html"):
+            self.send_response(code)
+            self.send_header("Content-Type", ct)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            p = urlsplit(self.path).path
+            if p == "/":
+                self._send(200, b'<html><body>hi<script src="/app.js"></script></body></html>')
+            elif p == "/app.js":
+                self._send(200, ('var app=function(){'
+                                 'this.http.get(this.hostServer+`/rest/things`);'
+                                 'this.http.get(this.hostServer+`/rest/item/${e.id}/detail`);};'
+                                 ).encode(), ct="application/javascript")
+            elif p == "/rest/things":
+                self._send(200, b'{"data":[1,2,3]}', ct="application/json")
+            else:
+                self._send(404)
+    port = 8811
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{port}"
+    try:
+        eng = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                            EventBus("m6a"), timeout=5)
+        de = DiscoveryEngine(eng, max_pages=6)
+        eps, _js_hits, _cstats = de.crawl(base)
+        urls = {e.url for e in eps}
+        assert f"{base}/rest/things" in urls, \
+            f"template-literal endpoint must be discovered: {sorted(urls)}"
+        assert not any("/rest/item/" in u for u in urls), \
+            f"interpolated path must not be discovered verbatim: {sorted(urls)}"
+        src = {e.url: e.source for e in eps}
+        assert src[f"{base}/rest/things"] == "js:static", src.get(f"{base}/rest/things")
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
 def regression_sqli_or_redirect_oracle():
     """DETECT-01 regression (live-proven on demo.testfire.net/doLogin): string-context
     OR-tautology pair must (a) be emitted, (b) create a candidate on redirect
@@ -1977,6 +2051,311 @@ def unit_auth05_token_bearer_modes():
         p5 = AuthProfile(login_url=base + "/api/data", token="KEY-xyz",
                          auth_header="X-Api-Key", auth_scheme="")
         assert p5.header_value() == "KEY-xyz" and p5.mode == "token"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_max01_token_closed_door_proof():
+    """MAX-01 (maximum internal test, live-caught on Juice Shop 20.2.0):
+    token validation must PROVE the door is closed anonymously. A validation
+    url that answers 200 to anyone (/rest/user/whoami -> {"user":{}} even
+    with a garbage Bearer) validates nothing — accepting it mislabels an
+    anonymous scan as authenticated. Red on the pre-fix engine (open200
+    validated any token), green after the anon-fetch differential."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.core import ScopeRule, EventBus, Endpoint
+    from sentinel.http_engine import RequestEngine
+    from sentinel.auth import AuthProfile, TokenAuthEngine
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            p = urlsplit(self.path).path
+            authed = self.headers.get("Authorization") == "Bearer tok-123"
+            if p == "/open200":          # whoami pattern: 200 for ANYONE
+                body = b'{"user":{}}'
+                self.send_response(200); self.send_header("Content-Length", str(len(body)))
+                self.end_headers(); self.wfile.write(body); return
+            if p == "/marker-page":      # 200 for anyone, body differs with token
+                body = b"public SECRET-MARK" if authed else b"public"
+                self.send_response(200); self.send_header("Content-Length", str(len(body)))
+                self.end_headers(); self.wfile.write(body); return
+            self.send_response(404); self.send_header("Content-Length", "0")
+            self.end_headers(); return
+    port = 8807
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{port}"
+    try:
+        # (1) THE BUG: anonymously-open validation url + no marker -> REJECT.
+        #     Pre-fix engine accepted this and armed a garbage token.
+        eng = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                            EventBus("m1a"), timeout=5)
+        te = TokenAuthEngine(AuthProfile(login_url=base + "/open200", token="GARBAGE"),
+                             eng, EventBus("m1b"))
+        assert te.login() is False, "anonymously-open url must NOT validate a token"
+        assert "proves nothing" in te.state.last_error, te.state.last_error
+        assert "Authorization" not in eng.default_headers
+        # (2) same open url, but a marker that appears ONLY with the token ->
+        #     genuine differential -> ACCEPT (fail-closed must not over-block).
+        eng2 = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                             EventBus("m1c"), timeout=5)
+        te2 = TokenAuthEngine(AuthProfile(login_url=base + "/marker-page",
+                                          token="tok-123", success_marker="SECRET-MARK"),
+                              eng2, EventBus("m1d"))
+        assert te2.login() is True, "marker differential must validate"
+        assert eng2.default_headers["Authorization"] == "Bearer tok-123"
+        # (3) marker present in BOTH bodies (no differential) -> REJECT
+        eng3 = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                             EventBus("m1e"), timeout=5)
+        te3 = TokenAuthEngine(AuthProfile(login_url=base + "/open200",
+                                          token="tok-123", success_marker="user"),
+                              eng3, EventBus("m1f"))
+        assert te3.login() is False, "marker present anonymously too -> no differential"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_max02_authz_token_validate_url_resolution():
+    """MAX-02 (maximum internal test, live-caught on Juice Shop 20.2.0): a
+    RELATIVE token_validate_url in authz_accounts.json stayed unresolved —
+    Endpoint(url='/rest/basket/1') -> transport error -> every token-mode
+    account reported 'token rejected' and the whole authz matrix degraded
+    to ran=false with zero probe surface. Resolution must mirror login_url.
+    Red pre-fix, green post; plus an end-to-end login on a mini server."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.core import ScopeRule, EventBus, Endpoint
+    from sentinel.http_engine import RequestEngine
+    from sentinel.authz import AuthzConfig, AuthzEngine
+
+    # (1) unit: relative -> absolute against the target
+    cfg = AuthzConfig.from_dict({
+        "login_url": "/login",
+        "token_validate_url": "/rest/basket/1",
+        "accounts": [{"name": "a", "role": "admin", "token": "t"}],
+    }, "http://localhost:3100")
+    assert cfg.token_validate_url == "http://localhost:3100/rest/basket/1", cfg.token_validate_url
+    assert cfg.login_url == "http://localhost:3100/login"
+    # (2) unit: absolute passes through untouched
+    cfg2 = AuthzConfig.from_dict({
+        "login_url": "http://x/login",
+        "token_validate_url": "http://x/api/health",
+        "accounts": [{"name": "a", "token": "t"}],
+    }, "http://y")
+    assert cfg2.token_validate_url == "http://x/api/health"
+
+    # (3) end-to-end: token-mode authz login succeeds once the url resolves
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            if urlsplit(self.path).path == "/rest/basket/1":
+                if self.headers.get("Authorization") == "Bearer tok-123":
+                    body = b'{"data":[]}'
+                    self.send_response(200)
+                else:
+                    body = b'{"error":"unauthorized"}'
+                    self.send_response(401)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers(); self.wfile.write(body); return
+            self.send_response(404); self.send_header("Content-Length", "0")
+            self.end_headers()
+    port = 8808
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg3 = AuthzConfig.from_dict({
+            "login_url": "/rest/basket/1",
+            "token_validate_url": "/rest/basket/1",
+            "accounts": [{"name": "js-admin", "role": "admin", "token": "tok-123",
+                          "auth_scheme": "Bearer"}],
+        }, f"http://127.0.0.1:{port}")
+        aeng = AuthzEngine(cfg3, ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                           EventBus("m2a"), timeout=5)
+        n = aeng._login_all()
+        assert n == 1, f"token account must log in once the url resolves, got {n}: {aeng.errors}"
+        assert not aeng.errors, aeng.errors
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_max03_sqlite_error_signature():
+    """MAX-03 (maximum internal test, live-caught on Juice Shop 20.2.0
+    /rest/products/search?q=): the raw SQLite C-library surface
+    ('SQLITE_ERROR: near ...') was missing from SQL_ERR_PATTERNS, so the
+    VF-04-tightened verifier (DB-error STRING required) rejected a genuinely
+    injectable status-oracle candidate. The 500 body carries SQLITE_ERROR;
+    the pattern list must match it end-to-end. Red pre-fix (candidate
+    rejected), green post (sql_injection VERIFIED via error:replay-2variants)."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query).items()}
+            if u.path == "/":
+                self._send(200, b'<html><body><a href="/search?q=hello">s</a></body></html>')
+            elif u.path == "/search":
+                v = q.get("q", "")
+                if v == "hello" or v == "1":
+                    self._send(200, b'{"status":"success","data":[{"id":1}]}')
+                elif v == "1'":
+                    # the live-caught Juice Shop shape: raw SQLite C error text
+                    self._send(500, (b"<html><head><title>Error: SQLITE_ERROR: "
+                                     b'near &quot;&#39;%&quot;: syntax error</title></head>'
+                                     b"<body>500</body></html>"))
+                else:
+                    self._send(200, b'{"status":"success","data":[]}')
+            else:
+                self._send(404)
+    port = 8809
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{port}"
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5,
+                         seed="max03-sqlite", browser=False, oast=None)
+        rep = SentinelScanner(base, cfg).run()
+        sqls = [f for f in rep["findings"] if f["type"] == "sql_injection"]
+        assert sqls, ("SQLi must be found (SQLITE_ERROR signature)", 
+                      [f["type"] for f in rep["findings"]],
+                      [c.get("type") for c in rep.get("rejected_candidates", [])])
+        f = sqls[0]
+        assert f["status"] == "verified", f["verification"]
+        assert f["verification"]["method"] == "error:replay-2variants"
+        assert f["verification"]["passed"] is True
+        assert "SQLITE_ERROR" in f["verification"]["notes"], f["verification"]["notes"]
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_max05_openapi_path_template_instantiation():
+    """MAX-05 (maximum internal test, live-caught on Juice Shop 20.2.0): spec
+    'in': 'path' parameters were mapped to QUERY with empty value, so
+    /rest/basket/{id} went out with LITERAL braces (404) — the whole
+    path-parameter REST surface (incl. the basket BOLA class) was invisible
+    to passive, active AND the authz matrix. Fix chain: parse_openapi maps
+    path->PATH with a concrete default; _render substitutes PATH params on
+    every request (endpoint value for baselines, mutation value for probes).
+    Red pre-fix (literal-brace 404s, no IDOR), green post (endpoint reached,
+    cross-account IDOR VERIFIED through the path template)."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.core import ScopeRule, EventBus, Endpoint, Parameter, ParamLocation
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    USERS = {  # token -> (marker, object_id)
+        "tok-admin": ("admin@x.test", "1"),
+        "tok-usera": ("victima@x.test", "2"),
+        "tok-userb": ("victimb@x.test", "3"),
+    }
+    SPEC = {
+        "openapi": "3.0.0",
+        "info": {"title": "path-template spec", "version": "1"},
+        "paths": {
+            "/items/{id}": {"get": {
+                "parameters": [{"name": "id", "in": "path",
+                                "schema": {"type": "integer"}}],
+                "responses": {"200": {"description": "ok"}}}},
+        },
+    }
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            if u.path == "/openapi.json":
+                import json as _j
+                self._send(200, _j.dumps(SPEC).encode()); return
+            tok = (self.headers.get("Authorization") or "").replace("Bearer ", "")
+            if u.path.startswith("/items/"):
+                if tok not in USERS:
+                    self._send(401, b'{"error":"unauthorized"}'); return
+                oid = u.path.rsplit("/", 1)[1]
+                owner = next((m for m, i in USERS.values() if i == oid), None)
+                if owner is None:
+                    self._send(404, b"{}"); return
+                # every authenticated identity can read EVERY object (BOLA)
+                import json as _j
+                self._send(200, _j.dumps({"owner": owner, "secret": "s"}).encode())
+                return
+            self._send(404)
+    port = 8810
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{port}"
+
+    # ---- (1) render unit: PATH substitution, never literal braces
+    eng = RequestEngine(ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                        EventBus("m5a"), timeout=5)
+    bus_j = {}
+    eng.bus.request_journal = bus_j
+    ep = Endpoint(url=base + "/items/{id}", method="GET",
+                  parameters=[Parameter("id", ParamLocation.PATH, "1")])
+    r1 = eng.send(RequestMutation(endpoint=ep))
+    assert r1.status == 401, f"baseline render must hit the real /items/1 (got {r1.status})"
+    ep2 = Endpoint(url=base + "/items/{id}", method="GET",
+                   parameters=[Parameter("id", ParamLocation.PATH, "1")],
+                   headers={"Authorization": "Bearer tok-usera"})
+    # authorized endpoint object: engine replays its headers
+    r2 = eng.send(RequestMutation(endpoint=ep2, param_name="id", param_value="2"))
+    assert r2.status == 200 and b"victima@x.test" in (r2.body or "").encode(), \
+        f"mutation must substitute the path param (got {r2.status})"
+    for rid, entry in bus_j.items():
+        assert "{" not in entry["request"]["url"], f"literal braces left the engine: {entry['request']['url']}"
+
+    # ---- (2) end-to-end: spec-seeded template endpoint + authz IDOR through it
+    try:
+        authz_cfg = {
+            "login_url": "/items/1",
+            "token_validate_url": "/items/1",
+            "accounts": [
+                {"name": "adm", "role": "admin", "token": "tok-admin",
+                 "auth_scheme": "Bearer", "marker": "admin@x.test", "object_id": "1"},
+                {"name": "usera", "role": "user", "token": "tok-usera",
+                 "auth_scheme": "Bearer", "marker": "victima@x.test", "object_id": "2"},
+                {"name": "userb", "role": "user", "token": "tok-userb",
+                 "auth_scheme": "Bearer", "marker": "victimb@x.test", "object_id": "3"},
+            ],
+        }
+        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5,
+                         seed="max05-path", browser=False, oast=None,
+                         authz=authz_cfg)
+        rep = SentinelScanner(base, cfg).run()
+        idors = [f for f in rep["findings"] if f["type"] == "idor_bola"]
+        assert idors, ("IDOR must fire through the path template",
+                       [f["type"] for f in rep["findings"]],
+                       rep["stats"].get("authz"))
+        f = idors[0]
+        assert f["status"] == "verified", (f["status"], f.get("verification"))
+        assert f["verification"]["passed"] is True
+        # the spec-seeded template endpoint itself must be in coverage (reached)
+        cov = rep["stats"]["coverage"]["endpoints"]
+        assert any("{id}" in (e.get("url") or "") for e in cov), \
+            "the /items/{id} seeded endpoint must be in the covered surface"
     finally:
         srv.shutdown(); srv.server_close()
 
