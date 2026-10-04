@@ -3,7 +3,7 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-04 (UTC) — round 6 CLOSED: **L2 ATTACK PATH INTELLIGENCE BUILT, LIVE-VERIFIED, GATES GREEN, PUSHED** (v4.3.0, commits 5b2eede + f933549, main verified by ls-remote). 21 attack paths on 4 authorized targets (19 VERIFIED / 2 INFERRED by the weakest-link rule; every link evidence-cited; ALL journal cross-checks passed). One live-caught citation bug (rotating AWSALB cookie) fixed with a discriminating regression test; full gate cycle re-run green: 121/121 + doctor 16/16 + bench ×3 identical 38/0/0/37 + verdict-diff vs frozen v4.2.2 = NONE. Remaining open: testfire re-scan when the host recovers; tag v4.3.0.
+- Last updated: 2026-10-04 (UTC) — round 7 CLOSED: **L2 EVIDENCE IS NOW 100% FRESH-LIVE — ZERO PROJECTIONS** (supervisor order). The two projected targets were re-proven with TARGETED fresh live scans of exactly their attack-path surfaces (ginjuice run-1738d74ba4: 451.9s/395 live pairs, ALL 7 seeds re-verified with identical finding IDs, 9/9 paths VERIFIED incl. both chains; testaspnet run-4fe17c44cc: 493.4s/546 live pairs, 2/3 seeds re-verified). One path honestly NOT fresh-verified (testaspnet Comments.aspx SQLi — measured public-target content drift collapsed the boolean differential below the anti-FP threshold; recorded in the not-fresh-verified register, no fake proof). Totals: 20 paths / 18 VERIFIED / 2 INFERRED, all four targets freshness-confirmed (rebuild byte-identical, single-scan journal windows, 0 stale entries, every excerpt a literal slice). Full gate cycle re-run green: 121/121 + doctor 16/16 + bench ×3 identical 38/0/0/37 + verdict-diff vs frozen v4.2.2 = NONE. Remaining open: testfire re-scan when the host recovers.
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -56,21 +56,35 @@ into complete attack paths through the seven supervisor-defined links
 - Gates: **121/121** (110 engine + 10 L2 discriminating + 1 live-caught
   regression), doctor **16/16**, bench **×3 identical** 38/0/0/37 (L2 adds
   zero requests), verdict-diff vs frozen v4.2.2 **NONE**.
-- **Live verification on 4 authorized targets — 21 paths: 19 VERIFIED /
-  2 INFERRED**, every link carrying a cited evidence excerpt, ALL journal
-  cross-checks passed (excerpt ⊆ cited raw entry, entry exists):
-  - ginjuice: 9 paths incl. **2 CHAINS VERIFIED** (xss_dom → tokenless
-    cross-site state change; xss_reflected → same) — per-hop evidence
-  - testasp: 6 VERIFIED (incl. both Login.asp SQLi oracles), gruyere2:
-    2 VERIFIED + xss_stored honestly INFERRED (execution not demonstrated);
-    testaspnet: 2 VERIFIED + xss_stored honestly INFERRED
-  - per-target provenance is stamped in every file (`l2_source`): gruyere2 +
-    testasp = fresh v4.3.0 live scans; testaspnet + ginjuice = v4.3.0
-    projection over their REAL v4.2.3 live journals (this environment kills
-    background processes and caps calls at 600s; those scans measured 936s/
-    620s; engine verdict-identical per gates; equivalence proven on testasp)
-  - artifact: `build-v423/results/l2_live_report.md` — per-link raw request/
-    response blocks, per-hop evidence, honesty banner per INFERRED path
+- **Live verification on 4 authorized targets — 20 paths: 18 VERIFIED /
+  2 INFERRED, ALL on fresh-live evidence (round 7: zero projections)**,
+  every link carrying a cited evidence excerpt, ALL journal
+  cross-checks passed (excerpt ⊆ cited raw entry of THAT run's journal):
+  - ginjuice: round-7 TARGETED fresh live scan (run-1738d74ba4, 451.9s,
+    395 live req/resp pairs, freshness window PASS) — 9 paths incl. **2
+    CHAINS VERIFIED** (xss_dom → tokenless cross-site state change;
+    xss_reflected → same), every hop citing THIS run's journal; all 7
+    seed findings re-verified live with IDENTICAL finding IDs (surface
+    fingerprints are deterministic)
+  - testasp: 6 VERIFIED (round-6 fresh scan, re-confirmed), gruyere2:
+    2 VERIFIED + xss_stored honestly INFERRED (round-6 fresh scan,
+    re-confirmed); testaspnet: round-7 targeted fresh scan — ReadNews SQLi
+    VERIFIED + xss_stored honestly INFERRED (weak link: impact)
+  - **not-fresh-verified register (honesty contract):** testaspnet
+    Comments.aspx?id SQLi did NOT re-verify fresh — public-target content
+    drift collapsed the TRUE-condition body 23962B→14880B (FALSE side
+    byte-identical 13310B in both runs), differential 10652B/44% →
+    1570B/10.5%, below the anti-FP threshold max(200B, 25%); the engine
+    honestly declined; raw probe pairs preserved in the fresh journal
+  - freshness confirmation matrix (scripts/l2_reconfirm_fresh.py, zero
+    requests): all 4 targets — apaths rebuild byte-identical, single-scan
+    journal windows (443–829s), 0 stale entries, citations literal;
+    embedded in the report
+  - artifacts: `build-v423/results/l2_live_report.md` (per-link raw
+    request/response blocks, per-hop evidence, freshness matrix,
+    not-fresh-verified register) + `live_v430/l2_freshness_confirmation.json`;
+    round-6 projection files archived under
+    `live_v430/archive_round6_projections/`
 
 **SaaS platform** — Next.js multi-tenant console (orgs/members RBAC, audit
 log, scan lifecycle, HTML/SARIF reports, AR/EN i18n, dark/light).
@@ -313,18 +327,18 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
    — two via the documented xss-bridge, one via instance-ID path
    normalization; both normalizations are transparent in the report and in
    the matcher source).
-2. **L2 fresh re-scans of testaspnet + ginjuice in THIS environment.** L2
-   itself is BUILT, gated and live-verified (see section 1) — but the fresh
-   v4.3.0 re-scan could only be hosted for gruyere2 (430s) and testasp
-   (505s): this environment generation kills background processes between
-   tool calls and caps foreground calls at 600s, while the testaspnet scan
-   measured 936s and ginjuice 620s (v4.2.3 re-gate). For those two targets
-   the L2 paths are a v4.3.0 projection over their REAL v4.2.3 live journals
-   (same findings, same raw requests, zero new requests; engine
-   verdict-identical per the gate's verdict-level diff; projection≈pipeline
-   equivalence proven on testasp which has both). A fresh re-scan of each
-   lands the moment a >600s execution window exists; the projection files
-   are marked `l2_source` and are honest about their provenance.
+2. ~~L2 fresh re-scans of testaspnet + ginjuice~~ **DONE IN ROUND 7 (targeted
+   mode)**: full-site re-scans still do not fit the 600s window (936s/620s),
+   but the supervisor-ordered solution ran: TARGETED fresh live scans of
+   exactly the attack-path surfaces through the shipped pipeline (discovery
+   seeded to those surfaces; `stats.crawl.targeted_mode` records seeds and
+   keep-rules inside each result file). ginjuice: all 7 seeds re-verified
+   live. testaspnet: 2/3 seeds re-verified; the Comments.aspx?id SQLi is
+   honestly NOT fresh-verified (content drift — see the register in section
+   1); it stays out of the fresh L2 until the target's comment volume (and
+   therefore the boolean differential) recovers above the anti-FP
+   threshold. A full-site fresh scan of each remains desirable when a
+   >600s window exists; the round-6 projections are archived, not deleted.
 3. **testfire L2 paths** — blocked by the same target network outage recorded
    in section 4 (HTTP+HTTPS socket timeout, re-checked in round 6); re-scan
    when the host answers.
@@ -384,12 +398,21 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
   commit 5b2eede (built in the pre-collapse continuation, recovered intact
   from GitHub after rollback #14, pushed) + commit f933549 (live verification
   + citation-integrity hotfix + regenerated paths + evidence report), both
-  verified on GitHub by ls-remote (main = f933549 at the time). Incremental
-  push discipline honored: the L2 build landed on GitHub before the live
-  round began; the hotfix round landed immediately after its gates went
-  green. Remaining for the round: tag v4.3.0 + release branch + this STATE.md
-  push. The round-6 PAT is inline-only (never on disk); owner revokes at
-  round acceptance.
+  verified on GitHub by ls-remote. Tag v4.3.0 (f35fc2a → 8e70625) + release
+  branch release/v4.3.0 landed; main closed the round at 8e70625 (ls-remote
+  confirmed; rollback #15 then gutted the local tree — recovered again from
+  GitHub at the start of round 7, zero files lost). The round-6 PAT is
+  inline-only (never on disk); owner revokes at round acceptance.
+- **Round 7 (2026-10-04, L2 EVIDENCE MADE 100% FRESH-LIVE):** incremental
+  pushes, each ls-remote-confirmed: 053c6aa (ginjuice targeted fresh scan —
+  9/9 paths re-proven live incl. both chains), cf7277a (testaspnet targeted
+  fresh scan — honest 2/3 + the measured drift record), 52029ed (evidence
+  report regenerated from fresh journals + freshness matrix + register),
+  77c8e39 (full gate cycle green after the replacement), then this STATE.md
+  + worklog-20 commit. Engine code UNCHANGED all round (the scans ran the
+  shipped v4.3.0 pipeline; only discovery scoping was applied in-process
+  and recorded inside the result files). The round-7 PAT is inline-only
+  (never on disk); owner revokes at round acceptance.
 
 ---
 
@@ -431,21 +454,34 @@ L2 — ذكاء مسارات الهجوم (v4.3.0)، بُني فوق المحر�
 الحلقات السبع (هوية ← مدخل ← فعل ← كائن ← تصريح ← حالة ← أثر)، والقاعدة
 الحاسمة مفروضة في الكود ومُختبرة: المسار يساوي أضعف حلقة فيه — كل حلقة
 تتتبع دليلًا موثّقًا (سجلّ طلب خام / سجل ثغرة / صف توأم / أثر فحص)، وأي
-حلقة مستنتجة تُنزل المسار كله إلى INFERRED وتُسمّى بصراحة. الإثبات:
-21 مسارًا على 4 أهداف مصرّح بها (19 VERIFIED / 2 INFERRED بصدق —
-كلاهما XSS مخزنة حيث الثبات مُثبت والتنفيذ غير مُبرهَن)، منها سلسلتان
-مركّبتان VERIFIED في ginandjuice (XSS ← تغيير حالة عابر للمواقع بلا
-توكن، كل قفزة بدليلها)، وجميع الفحوص المتقاطعة ناجحة (كل مقتطف شريحة
-حرفية من إدخال السجل المُشار إليه). والانضباط أثبت نفسه حيًا: الفحوص
-المتقاطعة اكتشفت خلل استشهاد حقيقيًا (كوكي موازن الأحمال AWSALB يتجدد
-بين الطلبات فاقتُطع المقتطف من طلب وأُشير لآخر — 13 خرقًا في ginjuice)
-فأُصلح باختبار انحدار تمييزي (أحمر ← أخضر) وأُعيدت دورة البوابات كاملة:
-121/121 + doctor 16/16 + مرجعية ×3 متطابقة + صفر تغيير أحكام. حدود
-البيئة موثقة بلا تجميل: فحصا testaspnet (936ث) وginjuice (620ث) لا
-يستضيفهما هذا الجيل من البيئة (يقتل الخلفية ويحدّ الطلبات بـ600ث)،
-فمساراتهما إسقاط v4.3.0 فوق سجلاتهما الحية الحقيقية من حملة v4.2.3
-(نفس الطلبات الفعلية، صفر طلبات جديدة، تكافؤ الإسقاط مع خط الأنابيب
-مُثبت على testasp الذي يملك النسختين) — وكل ملف موسوم بمصدره l2_source.
+حلقة مستنتجة تُنزل المسار كله إلى INFERRED وتُسمّى بصراحة. الإثبات بعد
+الجولة السابعة (أمر المشرف: برهان حي طازج، لا إسقاط فوق سجلات):
+**20 مسارًا على 4 أهداف مصرّح بها (18 VERIFIED / 2 INFERRED بصدق —
+كلاهما XSS مخزنة حيث الثبات مُثبت والتنفيذ غير مُبرهَن)، وكل مسار
+يستند الآن إلى أزواج طلب/استجابة أُرسلت فعلًا إلى الهدف الحي في فحصه
+المذكور atop كل قسم في التقرير**. فحصا testasp وgruyere طازجان أصلًا
+وأُعيد تأكيدهما (إعادة بناء حتمية بايت-باطباق، نافذة مجلة واحدة لكل
+فحص، صفر مدخلات متقادمة)، وفحصا ginjuice وtestaspnet استُبدل إسقاطهما
+بفحص موجّه طازج لأسطح المسارات فقط عبر خط الأنابيب المُشحن نفسه مع
+توسيع نطاق الاكتشاف مُسجّلًا داخل كل ملف: ginjuice (run-1738d74ba4،
+395 زوجًا حيًا في 452ث) أعاد إثبات البذور السبع كلها بمعرفات النتائج
+نفسها والسلسلتان المركّبتان VERIFIED وكل قفزة فيهما موثقة بمجلة هذا
+الفحص (ترويسات date داخل نافذته)، وtestaspnet (run-4fe17c44cc، 546
+زوجًا حيًا في 493ث) أثبت اثنتين من ثلاث بذور. ومسار واحد سُجّل بصراحة
+في سجل «لم يُتحقق طازجًا»: SQLi في Comments.aspx — انجراف محتوى الموقع
+العام قلّص جسم شرط TRUE من 23962B إلى 14880B (جانب FALSE متطابق
+بايت-باطباق 13310B في الفحصين) فهوى الفارق البولياني من 10652B/44% إلى
+1570B/10.5% تحت عتبة مضاد الإيجابيات الزائفة max(200B, 25%) — فرفض
+المحرك شهادته بصدق، والمجسّان الطازجان محفوظان في المجلة (req-045e4187
+/ req-54e20175)، ولا برهان طازج زائف. وجميع الفحوص المتقاطعة ناجحة
+(كل مقتطف شريحة حرفية من إدخال مجلة الفحص الطازج المُشار إليه)،
+ومصفوفة تأكيد الطزاجة مدمجة في التقرير، وملفا إسقاط الجولة 6 مؤرشفان
+لا محذوفان. والانضباط أثبت نفسه حيًا في الجولة 6: الفحوص المتقاطعة
+اكتشفت خلل استشهاد حقيقيًا (كوكي AWSALB يتجدد بين الطلبات) فأُصلح
+باحتبار انحدار تمييزي وأُعيدت البوابات كاملة، وبعد استبدال الإسقاطات
+بالبرهان الطازج أعيدت دورة البوابات كاملة مجددًا: 121/121 + doctor
+16/16 + مرجعية ×3 متطابقة 38/0/0/37 + صفر تغيير أحكام مقابل v4.2.2
+المجمّدة.
 
 حدود البرهان بصراحة: 149 من الـ171 سلبيًا؛ F1=1.000 على المرجع المحلي تعني
 اتفاقًا مع المرجع لا مع الواقع — الدليل الوحيد المقبول على الاستدعاء هو
@@ -459,8 +495,10 @@ testphp/testhtml5 ما زالا معطلين؛ لا عميل ولا مشترٍ �
 مالي فرضية مشروطة بتحقق خارجي حقيقي ومشترٍ، وكلاهما غير موجود.
 
 حالة الحفظ: الأصل الدائم على GitHub (github.com/mememamaly-oss/Sen).
-الجولات 2–5 مدفوعة ومؤكدة بـls-remote (v4.2.2 ثم v4.2.3 كاملة)،
-وجولة 6 (L2) مدفوعة تباعًا فور كل إنجاز كما أُمر: بناء L2 (5b2eede) ثم
-التحقق الحي + الإصلاح (f933549) — ويليها وسم v4.3.0 وفرع الإصدار
-ودفعة STATE.md هذه. التوكن inline-only لم يُكتب على القرص قط؛ يُبطله
-المالك عند قبول الجولة.
+الجولات 2–6 مدفوعة ومؤكدة بـls-remote (v4.2.2 ثم v4.2.3 ثم v4.3.0
+بوسمها وفرعها)، والجولة 7 (البرهان الطازج) دُفعت تباعًا فور كل إنجاز
+كما أُمر: فحص ginjuice الطازج (053c6aa) ثم فحص testaspnet الصادق
+(cf7277a) ثم تقرير الأدلة المتجدد من المجلات الطازجة مع مصفوفة الطزاجة
+وسجل عدم التحقق (52029ed) ثم البوابات الكاملة الخضراء (77c8e39) —
+ودفعة STATE.md وworklog هذه تالية. التوكن inline-only لم يُكتب على
+القرص قط؛ يُبطله المالك عند قبول الجولة.
