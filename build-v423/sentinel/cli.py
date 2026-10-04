@@ -412,6 +412,10 @@ def main():
     imp.add_argument("--result", required=True, help="path to a scan result JSON")
     imp.add_argument("--execute", action="store_true", help="issue the planned probes live "
                       "(opt-in; the scan pipeline never does this)")
+    imp.add_argument("--allow-private", action="store_true", help="MAX-07: permit L3 "
+                      "probes against private/localhost targets (lab & training "
+                      "apps). Default OFF — the scan's own --allow-private is "
+                      "NEVER implicitly inherited by the impact layer")
     imp.add_argument("--redirect-sink", default="", help="our OAST channel URL for the "
                       "open-redirect landing proof (default: the deterministic probe sink)")
     imp.add_argument("--origin-probe", default="", help="hostile Origin header value "
@@ -774,7 +778,8 @@ def main():
             from sentinel.http_engine import RequestEngine
             from sentinel.core import EventBus
             host = _us(rep.get("target") or "").netloc or _us(rep.get("target") or "").hostname or ""
-            scope = ScopeRule(allowed_domains=[host] if host else [], allow_private=False)
+            scope = ScopeRule(allowed_domains=[host] if host else [],
+                              allow_private=a.allow_private)
             engine = RequestEngine(scope, EventBus("run-l3-cli"))
             journal = impact_mod.execute_impact_probes(plan, engine)
         assessment = impact_mod.assess_impacts(rep, plan, journal)

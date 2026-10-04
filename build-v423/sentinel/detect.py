@@ -153,6 +153,17 @@ class SQLiDetector(Detector):
             # 302 /bank/main.jsp while uid=1' OR 1=2-- -> 302 login.jsp.
             out.append(("ornum_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' OR 1=1--")))
             out.append(("ornum_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' OR 1=2--")))
+            # MAX-09 (maximum internal test, live-caught on Juice Shop 20.2.0
+            # /rest/products/search?q=): LIKE-inside-parentheses contexts —
+            # WHERE ((name LIKE '%q%' OR description LIKE '%q%')) — break out
+            # ONLY with paren-closing shapes: q=1')) OR 1=1-- separates TRUE/FALSE
+            # while every flat shape dies as unbalanced parens (HTTP 500) or stays
+            # a literal LIKE term (no differential). Apps without paren nesting
+            # 500 both variants symmetrically — no differential, no false positive.
+            out.append(("par2_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}')) OR 1=1--")))
+            out.append(("par2_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}')) OR 1=2--")))
+            out.append(("par1_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}') OR 1=1--")))
+            out.append(("par1_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}') OR 1=2--")))
         return out
 
     def analyze(self, pair, resp_map) -> Finding | None:
@@ -235,6 +246,28 @@ class SQLiDetector(Detector):
                     ev.append(Evidence("response_diff",
                         f"numeric-OR body-size differential on condition flip: TRUE {bnt}B vs FALSE {bnf}B "
                         f"(numeric-shape boolean oracle)", nt.request_id))
+        # 5) MAX-09 — paren-closing OR pairs (LIKE-inside-parens contexts).
+        #    Same two-oracle structure as (3)/(4): redirect differential first
+        #    (login flows), then the body-size differential (data endpoints).
+        #    Symmetric failure (500/500 or equal bodies) stays silent — the
+        #    anti-FP guard of the flat pairs applies unchanged.
+        for _pt, _pf, _lbl in (("par2_true", "par2_false", "paren2"),
+                               ("par1_true", "par1_false", "paren1")):
+            pt, pf = resp_map.get(_pt), resp_map.get(_pf)
+            if pt is not None and pf is not None and pt.status and pf.status:
+                lpt, lpf = pt.hop_location(), pf.hop_location()
+                if lpt and lpf and lpt != lpf:
+                    oracle = True
+                    ev.append(Evidence("redirect_diff",
+                        f"{_lbl} OR redirect differential: TRUE -> {lpt}, FALSE -> {lpf} — "
+                        "paren-closing auth-bypass oracle", pt.request_id))
+                elif pt.ok and pf.ok and pt.status == pf.status:
+                    bpt, bpf = len(pt.body or ""), len(pf.body or "")
+                    if abs(bpt - bpf) > max(200, 0.25 * max(bpt, bpf, 1)):
+                        oracle = True
+                        ev.append(Evidence("response_diff",
+                            f"{_lbl}-OR body-size differential on condition flip: TRUE {bpt}B vs "
+                            f"FALSE {bpf}B (paren-closing boolean oracle)", pt.request_id))
         if not ev:
             return None
         return Finding(type="sql_injection", severity=self.severity, endpoint_url=ep.url,

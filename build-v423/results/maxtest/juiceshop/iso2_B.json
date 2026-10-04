@@ -1,0 +1,2795 @@
+{
+ "run_id": "run-35d779b873",
+ "seed": "iso2-B",
+ "scanner": "sentinel-core/4.3.0",
+ "target": "http://localhost:3100",
+ "stats": {
+  "requests": 56,
+  "endpoints": 2,
+  "candidates": 1,
+  "verified": 2,
+  "rejected": 1,
+  "duration": 9.67,
+  "openapi": {
+   "source": "(inline-seed)",
+   "version": "3.0.0",
+   "title": "minimal isolation spec",
+   "paths": 1,
+   "new_endpoints": 1
+  },
+  "param_intel": {
+   "params_total": 1,
+   "by_kind": {
+    "search": 1
+   },
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "authz": {
+   "accounts_configured": 3,
+   "accounts_logged_in": 0,
+   "roles": [],
+   "matrix_endpoints": 0,
+   "login_errors": [
+    "js-admin: token rejected by /rest/basket/1",
+    "js-user-e: token rejected by /rest/basket/1",
+    "js-user-f: token rejected by /rest/basket/1"
+   ],
+   "requests": 3,
+   "ran": false
+  },
+  "graphql": {
+   "enabled": true,
+   "candidates": 0,
+   "endpoints": [],
+   "introspected": 0,
+   "queries": 0,
+   "mutations": 0,
+   "tests": 0,
+   "requests": 4,
+   "boundaries": 0
+  },
+  "websocket": {
+   "enabled": true,
+   "candidates": 0,
+   "channels": [],
+   "connected": 0,
+   "protocols": {},
+   "tests": 0,
+   "connections": 9,
+   "blocked_by_planner": 0
+  },
+  "request_journal": {
+   "req-538195ec": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 9.2
+    }
+   },
+   "req-a93e0a32": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 6.6
+    }
+   },
+   "req-7d9fdbdb": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 6.6
+    }
+   },
+   "req-ff48b4ab": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "path": "/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 6.5
+    }
+   },
+   "req-cd5ad257": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/../../../../etc/passwd",
+     "path": "/../../../../etc/passwd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 9.3
+    }
+   },
+   "req-ae52d317": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: Unexpected path: /rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: Unexpected path: /rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd</h2>\n      <ul id=\"stacktrace\"><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/angular.js:18:18</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/utils.js:235:26</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/verify.js:235:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/insecurity.js:218:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 2.9
+    }
+   },
+   "req-7c45809a": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2fetc%2fpasswd",
+     "path": "/rest/products/..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: Unexpected path: /rest/products/..%2f..%2fetc%2fpasswd</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: Unexpected path: /rest/products/..%2f..%2fetc%2fpasswd</h2>\n      <ul id=\"stacktrace\"><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/angular.js:18:18</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/utils.js:235:26</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/verify.js:235:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/insecurity.js:218:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 5.6
+    }
+   },
+   "req-cdabbca4": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: Unexpected path: /rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: Unexpected path: /rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd</h2>\n      <ul id=\"stacktrace\"><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/angular.js:18:18</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/utils.js:235:26</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/verify.js:235:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/insecurity.js:218:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 18.6
+    }
+   },
+   "req-e51061af": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "path": "/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: Unexpected path: /rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: Unexpected path: /rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini</h2>\n      <ul id=\"stacktrace\"><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/angular.js:18:18</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/utils.js:235:26</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/verify.js:235:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/insecurity.js:218:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 2.7
+    }
+   },
+   "req-e6e85529": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/../../../../etc/passwd",
+     "path": "/rest/products/../../../../etc/passwd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: Unexpected path: /rest/products/../../../../etc/passwd</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: Unexpected path: /rest/products/../../../../etc/passwd</h2>\n      <ul id=\"stacktrace\"><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/angular.js:18:18</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/utils.js:235:26</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/verify.js:235:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/insecurity.js:218:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 9.7
+    }
+   },
+   "req-469858f0": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "path": "",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 5.4
+    }
+   },
+   "req-943b84ca": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "path": "",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Origin": "https://sentinel-probe.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 1.8
+    }
+   },
+   "req-18759870": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "path": "",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Host": "sentinel-hh-2789c6537a.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 1.5
+    }
+   },
+   "req-67885169": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=apple",
+     "path": "/rest/products/search?q=apple",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "921",
+      "etag": "W/\"399-VDY6+QQLv5yZeaDZceBiVsDNsLc\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[{\"id\":1,\"name\":\"Apple Juice (1000ml)\",\"description\":\"The all-time classic.\",\"price\":1.99,\"deluxePrice\":0.99,\"image\":\"apple_juice.jpg\",\"createdAt\":\"2026-10-04 20:20:33.469 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.469 +00:00\",\"deletedAt\":null},{\"id\":24,\"name\":\"Apple Pomace\",\"description\":\"Finest pressings of apples. Allergy disclaimer: Might contain traces of worms. Can be <a href=\\\"/#recycle\\\">sent back to us</a> for recycling.\",\"price\":0.89,\"deluxePrice\":0.89,\"image\":\"apple_pressings.jpg\",\"createdAt\":\"2026-10-04 20:20:33.477 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.477 +00:00\",\"deletedAt\":null},{\"id\":47,\"name\":\"Pineapple Juice (1000ml)\",\"description\":\"Tropical refreshment from the finest sun-ripened pineapples.\",\"price\":2.99,\"deluxePrice\":2.99,\"image\":\"pineapple_juice.png\",\"createdAt\":\"2026-10-04 20:20:33.488 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.488 +00:00\",\"deletedAt\":null}]}",
+     "redirect_chain": [],
+     "elapsed_ms": 31.8
+    }
+   },
+   "req-93b00349": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1",
+     "path": "/rest/products/search?q=1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "8116",
+      "etag": "W/\"1fb4-04Dwnorx++Xd5Pp1NVIoLX4UL1A\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[{\"id\":1,\"name\":\"Apple Juice (1000ml)\",\"description\":\"The all-time classic.\",\"price\":1.99,\"deluxePrice\":0.99,\"image\":\"apple_juice.jpg\",\"createdAt\":\"2026-10-04 20:20:33.469 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.469 +00:00\",\"deletedAt\":null},{\"id\":6,\"name\":\"Banana Juice (1000ml)\",\"description\":\"Monkeys love it the most.\",\"price\":1.99,\"deluxePrice\":1.99,\"image\":\"banana_juice.jpg\",\"createdAt\":\"2026-10-04 20:20:33.469 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.469 +00:00\",\"deletedAt\":null},{\"id\":51,\"name\":\"Berry Juice (1000ml)\",\"description\":\"A delicious blend of fresh forest berries.\",\"price\":3.49,\"deluxePrice\":3.49,\"image\":\"berry_juice.png\",\"createdAt\":\"2026-10-04 20:20:33.488 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.488 +00:00\",\"deletedAt\":null},{\"id\":30,\"name\":\"Carrot Juice (1000ml)\",\"description\":\"As the old German saying goes: \\\"Carrots are good for the eyes. Or has anyone ever seen a rabbit with glasses?\\\"\",\"price\":2.99,\"deluxePrice\":2.99,\"image\":\"carrot_juice.jpeg\",\"createdAt\":\"2026-10-04 20:20:33.477 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.477 +00:00\",\"deletedAt\":null},{\"id\":49,\"name\":\"Grape Juice (1000ml)\",\"description\":\"Deep purple and full of antioxidants from selected grapes.\",\"price\":2.99,\"deluxePrice\":2.99,\"image\":\"grape_juice.png\",\"createdAt\":\"2026-10-04 20:20:33.488 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.488 +00:00\",\"deletedAt\":null},{\"id\":41,\"name\":\"Juice Shop \\\"Permafrost\\\" 2020 Edition\",\"description\":\"Exact version of <a href=\\\"https://github.com/juice-shop/juice-shop/releases/tag/v9.3.1-PERMAFROST\\\">OWASP Juice Shop that was archived on 02/02/2020</a> by the GitHub Archive Program and ultimately went into the <a href=\\\"https://github.blog/2020-07-16-github-archive-program-the-journey-of-the-worlds-open-source-code-to-the-arctic\\\">Arctic Code Vault</a> on July 8. 2020 where it will be safely stored for at least 1000 years.\",\"price\":9999.99,\"deluxePrice\":9999.99,\"image\":\"permafrost.jpg\",\"createdAt\":\"2026-10-04 20:20:33.487 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.487 +00:00\",\"deletedAt\":null},{\"id\":33,\"name\":\"Melon Bike (Comeback-Product 2018 Edition)\",\"description\":\"The wheels of this bicycle are made from real water melons. You might not want to ride it up/down the curb too hard.\",\"price\":2999,\"deluxePrice\":2999,\"image\":\"melon_bike.jpeg\",\"createdAt\":\"2026-10-04 20:20:33.477 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.477 +00:00\",\"deletedAt\":null},{\"id\":48,\"name\":\"Melon Juice (1000ml)\",\"description\":\"Refreshing and sweet juice made from ripe melons.\",\"price\":2.49,\"deluxePrice\":2.49,\"image\":\"melon_juice.png\",\"createdAt\":\"2026-10-04 20:20:33.488 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.488 +00:00\",\"deletedAt\":null},{\"id\":34,\"name\":\"OWASP Juice Shop Coaster (10pcs)\",\"description\":\"Our 95mm circle coasters are printed in full color and made from thick, premium coaster board.\",\"price\":19.99,\"deluxePrice\":19.99,\"image\":\"coaster.jpg\",\"createdAt\":\"2026-10-04 20:20:33.477 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.477 +00:00\",\"deletedAt\":null},{\"id\":37,\"name\":\"OWASP Juice Shop Holographic Sticker\",\"description\":\"Die-cut holographic sticker. Stand out from those 08/15-sticker-covered laptops with this shiny beacon of 80's coolness!\",\"price\":2,\"deluxePrice\":2,\"image\":\"holo_sticker.png\",\"createdAt\":\"2026-10-04 20:20:33.486 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.486 +00:00\",\"deletedAt\":null},{\"id\":13,\"name\":\"OWASP Juice Shop Iron-Ons (16pcs)\",\"description\":\"Upgrade your clothes with washer safe <a href=\\\"https://www.stickeryou.com/products/owasp-juice-shop/794\\\" target=\\\"_blank\\\">iron-ons</a> of the OWASP Juice Shop or CTF Extension logo!\",\"price\":14.99,\"deluxePrice\":14.99,\"image\":\"iron-on.jpg\",\"createdAt\":\"2026-10-04 20:20:33.471 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.471 +00:00\",\"deletedAt\":null},{\"id\":45,\"name\":\"OWASP Juice Shop LEGO\u2122 Tower\",\"description\":\"Want to host a Juice Shop CTF in style? Build <a href=\\\"https://github.com/OWASP/owasp-swag/blob/master/projects/juice-shop/lego/OWASP%20J",
+     "redirect_chain": [],
+     "elapsed_ms": 51.5
+    }
+   },
+   "req-ae823f0f": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27%27",
+     "path": "/rest/products/search?q=1%27%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 15.5
+    }
+   },
+   "req-e3095b67": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27",
+     "path": "/rest/products/search?q=1%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: near &quot;&#39;%&#39;&quot;: syntax error</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: near &quot;&#39;%&#39;&quot;: syntax error</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 13.8
+    }
+   },
+   "req-8b162016": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1+AND+1%3D1",
+     "path": "/rest/products/search?q=1+AND+1%3D1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 13.6
+    }
+   },
+   "req-c38ac4b6": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1+AND+1%3D2",
+     "path": "/rest/products/search?q=1+AND+1%3D2",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 10.4
+    }
+   },
+   "req-107aa50b": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%271%27%3D%271%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%271%27%3D%271%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 29.6
+    }
+   },
+   "req-42e3d521": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%271%27%3D%272%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%271%27%3D%272%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 10.7
+    }
+   },
+   "req-3c4de81e": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+1%3D1--",
+     "path": "/rest/products/search?q=1%27+OR+1%3D1--",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 12.4
+    }
+   },
+   "req-2006b37a": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+1%3D2--",
+     "path": "/rest/products/search?q=1%27+OR+1%3D2--",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 20.7
+    }
+   },
+   "req-20d9f30a": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1+AND+1%3D1",
+     "path": "/rest/products/search?q=1+AND+1%3D1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 9.3
+    }
+   },
+   "req-f46c1047": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1+AND+1%3D2",
+     "path": "/rest/products/search?q=1+AND+1%3D2",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 9.9
+    }
+   },
+   "req-77e08006": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%272%27%3E%271%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%272%27%3E%271%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 30.9
+    }
+   },
+   "req-c881ed63": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%271%27%3E%272%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%271%27%3E%272%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 9.6
+    }
+   },
+   "req-b0cddd79": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%271%27%3D%271%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%271%27%3D%271%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 9.2
+    }
+   },
+   "req-8a0def36": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%271%27%3D%272%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%271%27%3D%272%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 9.9
+    }
+   },
+   "req-67a1f0ee": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+1%3D1--",
+     "path": "/rest/products/search?q=1%27+OR+1%3D1--",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 11.3
+    }
+   },
+   "req-9c4dc35b": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+1%3D2--",
+     "path": "/rest/products/search?q=1%27+OR+1%3D2--",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: incomplete input</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: incomplete input</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 9.3
+    }
+   },
+   "req-a4612745": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%22",
+     "path": "/rest/products/search?q=1%22",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 9.3
+    }
+   },
+   "req-5ca1f29f": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27",
+     "path": "/rest/products/search?q=1%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: SQLITE_ERROR: near &quot;&#39;%&#39;&quot;: syntax error</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: SQLITE_ERROR: near &quot;&#39;%&#39;&quot;: syntax error</h2>\n      <ul id=\"stacktrace\"></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 10.7
+    }
+   },
+   "req-d66deeae": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E",
+     "path": "/rest/products/search?q=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 11.2
+    }
+   },
+   "req-0af993ed": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3Csentinelxssmarker%3Epro41%3C%2Fsentinelxssmarker%3E",
+     "path": "/rest/products/search?q=%3Csentinelxssmarker%3Epro41%3C%2Fsentinelxssmarker%3E",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 16.3
+    }
+   },
+   "req-1206d58a": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3Csentinelxssmarkerpro42",
+     "path": "/rest/products/search?q=%3Csentinelxssmarkerpro42",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 10.1
+    }
+   },
+   "req-2c94c8ff": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 10.1
+    }
+   },
+   "req-927a3d76": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 14.2
+    }
+   },
+   "req-bd8c33fa": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 10.0
+    }
+   },
+   "req-1b05612a": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 10.9
+    }
+   },
+   "req-8d0802ae": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=https%3A%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "path": "/rest/products/search?q=https%3A%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 9.8
+    }
+   },
+   "req-a7c6ee5e": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "path": "/rest/products/search?q=%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 12.2
+    }
+   },
+   "req-2df8573b": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=sentinelcrlf%0D%0AX-Sentinel-Probe%3A+injected",
+     "path": "/rest/products/search?q=sentinelcrlf%0D%0AX-Sentinel-Probe%3A+injected",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 10.1
+    }
+   },
+   "req-cacedfef": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=apple",
+     "path": "/rest/products/search?q=apple",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Origin": "https://sentinel-probe.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "921",
+      "etag": "W/\"399-VDY6+QQLv5yZeaDZceBiVsDNsLc\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:44 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[{\"id\":1,\"name\":\"Apple Juice (1000ml)\",\"description\":\"The all-time classic.\",\"price\":1.99,\"deluxePrice\":0.99,\"image\":\"apple_juice.jpg\",\"createdAt\":\"2026-10-04 20:20:33.469 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.469 +00:00\",\"deletedAt\":null},{\"id\":24,\"name\":\"Apple Pomace\",\"description\":\"Finest pressings of apples. Allergy disclaimer: Might contain traces of worms. Can be <a href=\\\"/#recycle\\\">sent back to us</a> for recycling.\",\"price\":0.89,\"deluxePrice\":0.89,\"image\":\"apple_pressings.jpg\",\"createdAt\":\"2026-10-04 20:20:33.477 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.477 +00:00\",\"deletedAt\":null},{\"id\":47,\"name\":\"Pineapple Juice (1000ml)\",\"description\":\"Tropical refreshment from the finest sun-ripened pineapples.\",\"price\":2.99,\"deluxePrice\":2.99,\"image\":\"pineapple_juice.png\",\"createdAt\":\"2026-10-04 20:20:33.488 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.488 +00:00\",\"deletedAt\":null}]}",
+     "redirect_chain": [],
+     "elapsed_ms": 16.1
+    }
+   },
+   "req-9fff984e": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%7B%7B7%2A7%7D%7D",
+     "path": "/rest/products/search?q=%7B%7B7%2A7%7D%7D",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 10.3
+    }
+   },
+   "req-e502c36c": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%24%7B7%2A7%7D",
+     "path": "/rest/products/search?q=%24%7B7%2A7%7D",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 12.0
+    }
+   },
+   "req-e13cb5de": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3C%25%3D+7%2A7+%25%3E",
+     "path": "/rest/products/search?q=%3C%25%3D+7%2A7+%25%3E",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 11.4
+    }
+   },
+   "req-f97d296e": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%23%7B7%2A7%7D",
+     "path": "/rest/products/search?q=%23%7B7%2A7%7D",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "30",
+      "etag": "W/\"1e-JkPcI+pGj7BBTxOuZTVVIm91zaY\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[]}",
+     "redirect_chain": [],
+     "elapsed_ms": 11.1
+    }
+   },
+   "req-3cd8e7d7": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=apple",
+     "path": "/rest/products/search?q=apple",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Host": "sentinel-hh-50ae8a5e76.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "application/json; charset=utf-8",
+      "content-length": "921",
+      "etag": "W/\"399-VDY6+QQLv5yZeaDZceBiVsDNsLc\"",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "{\"status\":\"success\",\"data\":[{\"id\":1,\"name\":\"Apple Juice (1000ml)\",\"description\":\"The all-time classic.\",\"price\":1.99,\"deluxePrice\":0.99,\"image\":\"apple_juice.jpg\",\"createdAt\":\"2026-10-04 20:20:33.469 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.469 +00:00\",\"deletedAt\":null},{\"id\":24,\"name\":\"Apple Pomace\",\"description\":\"Finest pressings of apples. Allergy disclaimer: Might contain traces of worms. Can be <a href=\\\"/#recycle\\\">sent back to us</a> for recycling.\",\"price\":0.89,\"deluxePrice\":0.89,\"image\":\"apple_pressings.jpg\",\"createdAt\":\"2026-10-04 20:20:33.477 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.477 +00:00\",\"deletedAt\":null},{\"id\":47,\"name\":\"Pineapple Juice (1000ml)\",\"description\":\"Tropical refreshment from the finest sun-ripened pineapples.\",\"price\":2.99,\"deluxePrice\":2.99,\"image\":\"pineapple_juice.png\",\"createdAt\":\"2026-10-04 20:20:33.488 +00:00\",\"updatedAt\":\"2026-10-04 20:20:33.488 +00:00\",\"deletedAt\":null}]}",
+     "redirect_chain": [],
+     "elapsed_ms": 11.1
+    }
+   },
+   "req-76f96335": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql",
+     "path": "/graphql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 6.3
+    }
+   },
+   "req-3d8b7326": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/api/graphql",
+     "path": "/api/graphql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 500,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "content-type": "text/html; charset=utf-8",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5",
+      "transfer-encoding": "chunked"
+     },
+     "body": "<html>\n  <head>\n    <meta charset='utf-8'> \n    <title>Error: Unexpected path: /api/graphql</title>\n    <style>* {\n  margin: 0;\n  padding: 0;\n  outline: 0;\n}\n\nbody {\n  padding: 80px 100px;\n  font: 13px \"Helvetica Neue\", \"Lucida Grande\", \"Arial\";\n  background: #ECE9E9 -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(#ECE9E9));\n  background: #ECE9E9 -moz-linear-gradient(top, #fff, #ECE9E9);\n  background-repeat: no-repeat;\n  color: #555;\n  -webkit-font-smoothing: antialiased;\n}\nh1, h2 {\n  font-size: 22px;\n  color: #343434;\n}\nh1 em, h2 em {\n  padding: 0 5px;\n  font-weight: normal;\n}\nh1 {\n  font-size: 60px;\n}\nh2 {\n  margin-top: 10px;\n}\nul li {\n  list-style: none;\n}\n#stacktrace {\n  margin-left: 60px;\n}\n</style>\n  </head>\n  <body>\n    <div id=\"wrapper\">\n      <h1>OWASP Juice Shop (Express ^4.22.1)</h1>\n      <h2><em>500</em> Error: Unexpected path: /api/graphql</h2>\n      <ul id=\"stacktrace\"><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/angular.js:18:18</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/utils.js:235:26</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/routes/verify.js:235:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:286:9</li><li> &nbsp; &nbsp;at Function.process_params (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:346:12)</li><li> &nbsp; &nbsp;at next (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:280:10)</li><li> &nbsp; &nbsp;at /home/z/my-project/live-targets/juice-shop_20.2.0/build/lib/insecurity.js:218:5</li><li> &nbsp; &nbsp;at Layer.handle [as handle_request] (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/layer.js:95:5)</li><li> &nbsp; &nbsp;at trim_prefix (/home/z/my-project/live-targets/juice-shop_20.2.0/node_modules/express/lib/router/index.js:328:13)</li></ul>\n    </div>\n  </body>\n</html>\n",
+     "redirect_chain": [],
+     "elapsed_ms": 2.5
+    }
+   },
+   "req-c55a02ea": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql/v1",
+     "path": "/graphql/v1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 12.2
+    }
+   },
+   "req-f68b92ed": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/gql",
+     "path": "/gql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "access-control-allow-origin": "*",
+      "x-content-type-options": "nosniff",
+      "x-frame-options": "SAMEORIGIN",
+      "feature-policy": "payment 'self'",
+      "x-recruiting": "/#/jobs",
+      "accept-ranges": "bytes",
+      "cache-control": "public, max-age=0",
+      "last-modified": "Sun, 04 Oct 2026 20:20:33 GMT",
+      "etag": "W/\"24b1-1a108934ca5\"",
+      "content-type": "text/html; charset=UTF-8",
+      "content-length": "9393",
+      "vary": "Accept-Encoding",
+      "date": "Sun, 04 Oct 2026 20:20:45 GMT",
+      "connection": "keep-alive",
+      "keep-alive": "timeout=5"
+     },
+     "body": "<!--\n  ~ Copyright (c) 2014-2026 Bjoern Kimminich & the OWASP Juice Shop contributors.\n  ~ SPDX-License-Identifier: MIT\n  -->\n\n<!doctype html>\n<html lang=\"en\" data-beasties-container>\n<head>\n  <meta charset=\"utf-8\">\n  <title>OWASP Juice Shop</title>\n  <meta name=\"description\" content=\"Probably the most modern and sophisticated insecure web application\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n  <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n  <style>@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isQFJXGdg.woff2) format('woff2');unicode-range:U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isRFJXGdg.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;}@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(https://fonts.gstatic.com/s/vt323/v18/pxiKyp0ihIEF2isfFJU.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>\n  <link id=\"favicon\" rel=\"icon\" type=\"image/x-icon\" href=\"assets/public/favicon_js.ico\">\n  <script>\n    window.addEventListener(\"load\", function(){\n      window.cookieconsent.initialise({\n        \"palette\": {\n          \"popup\": { \"background\": \"var(--theme-primary)\", \"text\": \"var(--theme-text)\" },\n          \"button\": { \"background\": \"var(--theme-accent)\", \"text\": \"var(--theme-text)\" }\n        },\n        \"theme\": \"classic\",\n        \"position\": \"bottom-right\",\n        \"content\": { \"message\": \"This website uses fruit cookies to ensure you get the juiciest tracking experience.\", \"dismiss\": \"Me want it!\", \"link\": \"But me wait!\", \"href\": \"https://www.youtube.com/watch?v=9PnbKL3wuH4\" }\n      })});\n  </script>\n<style>.bluegrey-lightgreen-theme{--mat-sys-background:#121316;--mat-sys-error:#ffb4ab;--mat-sys-error-container:#93000a;--mat-sys-inverse-on-surface:#2f3033;--mat-sys-inverse-primary:#005cbb;--mat-sys-inverse-surface:#e3e2e6;--mat-sys-on-background:#e3e2e6;--mat-sys-on-error:#690005;--mat-sys-on-error-container:#ffdad6;--mat-sys-on-primary:#002f65;--mat-sys-on-primary-container:#d7e3ff;--mat-sys-on-primary-fixed:#001b3f;--mat-sys-on-primary-fixed-variant:#00458f;--mat-sys-on-secondary:#283041;--mat-sys-on-secondary-container:#dae2f9;--mat-sys-on-secondary-fixed:#131c2b;--mat-sys-on-secondary-fixed-variant:#3e4759;--mat-sys-on-surface:#e3e2e6;--mat-sys-on-surface-variant:#e0e2ec;--mat-sys-on-tertiary:#173800;--mat-sys-on-tertiary-container:#82ff10;--mat-sys-on-tertiary-fixed:#0b2000;--mat-sys-on-tertiary-fixed-variant:#245100;--mat-sys-outline:#8e9099;--mat-sys-outline-variant:#44474e;--mat-sys-primary:#abc7ff;--mat-sys-primary-container:#00458f;--mat-sys-primary-fixed:#d7e3ff;--mat-sys-primary-fixed-dim:#abc7ff;--mat-sys-scrim:#000000;--mat-sys-secondary:#bec6dc;--mat-sys-secondary-container:#3e4759;--mat-sys-secondary-fixed:#dae2f9;--mat-sys-secondary-fixed-dim:#bec6dc;--mat-sys-shadow:#000000;--mat-sys-surface:#121316;--mat-sys-surface-bright:#38393c;--mat-sys-surface-container:#1f2022;--mat-sys-surface-container-high:#292a2c;--mat-sys-surface-container-highest:#343537;--mat-sys-surface-container-low:#1a1b1f;--mat-sys-surface-container-lowest:#0d0e11;--mat-sys-surface-dim:#121316;--mat-sys-surface-tint:#abc7ff;--mat-sys-surface-variant:#44474e;--mat-sys-tertiary:#70e000;--mat-sys-tertiary-conta",
+     "redirect_chain": [],
+     "elapsed_ms": 6.7
+    }
+   }
+  },
+  "request_journal_dropped": 0,
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {},
+    "cookies": [],
+    "frameworks": [],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "coverage": {
+   "discovered": 16,
+   "tested": 16,
+   "passive": 2,
+   "secrets_scanned": 2,
+   "active": 16,
+   "authz_probed": 0,
+   "active_or_authz": 16,
+   "untested": 0,
+   "skip_reasons": {},
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/../../../../etc/passwd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/api/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/gql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql/v1",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/../../../../etc/passwd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    }
+   ],
+   "detail_truncated": 0,
+   "dimensions": {
+    "endpoint": {
+     "dimension": "endpoint",
+     "discovered": 16,
+     "tested": 16,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "051d44bfee79",
+       "meta": {
+        "url": "http://localhost:3100/../../../../etc/passwd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "0b63b4e2b32e",
+       "meta": {
+        "url": "http://localhost:3100/graphql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "3ec0c137f15f",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "41b3a2337f29",
+       "meta": {
+        "url": "http://localhost:3100/gql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "442ed6bdf809",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "5355b7cd0f58",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/search",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "76c713798d50",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "7e3e3d40d102",
+       "meta": {
+        "url": "http://localhost:3100",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "828624ccba5c",
+       "meta": {
+        "url": "http://localhost:3100/graphql/v1",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "9921bf3261bd",
+       "meta": {
+        "url": "http://localhost:3100/..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "ae730b45d5e2",
+       "meta": {
+        "url": "http://localhost:3100/..%2f..%2f..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "b170c8f36784",
+       "meta": {
+        "url": "http://localhost:3100/api/graphql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 4
+    },
+    "parameter": {
+     "dimension": "parameter",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "5355b7cd0f58|q",
+       "meta": {
+        "endpoint": "http://localhost:3100/rest/products/search",
+        "name": "q"
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "authentication": {
+     "dimension": "authentication",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "anonymous-probe",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "identity": {
+     "dimension": "identity",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no identity surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "authorization": {
+     "dimension": "authorization",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no authorization surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "entity": {
+     "dimension": "entity",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no entity surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "object": {
+     "dimension": "object",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no object surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow": {
+     "dimension": "workflow",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow_branch": {
+     "dimension": "workflow_branch",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow branch surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "state": {
+     "dimension": "state",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no state surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "api_protocol": {
+     "dimension": "api_protocol",
+     "discovered": 2,
+     "tested": 2,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "http",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "openapi",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "graphql": {
+     "dimension": "graphql",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no graphql surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "websocket": {
+     "dimension": "websocket",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no websocket surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "browser": {
+     "dimension": "browser",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no browser surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "oast": {
+     "dimension": "oast",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {
+      "no OAST channel armed (blind classes inert)": 1
+     },
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no oast surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "detector": {
+     "dimension": "detector",
+     "discovered": 5,
+     "tested": 5,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "crlf",
+       "meta": {
+        "probes": 1
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "redirect",
+       "meta": {
+        "probes": 2
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "sqli",
+       "meta": {
+        "probes": 9
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "traversal",
+       "meta": {
+        "probes": 4
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "xss",
+       "meta": {
+        "probes": 2
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "evidence": {
+     "dimension": "evidence",
+     "discovered": 1,
+     "tested": 0,
+     "untested": 1,
+     "untested_reasons": {},
+     "pct": 0.0,
+     "status": "UNTESTED",
+     "items": [
+      {
+       "key": "verified-findings",
+       "meta": {},
+       "tested": false,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    }
+   }
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 1,
+     "endpoints": [
+      "http://localhost:3100"
+     ]
+    },
+    "api": {
+     "count": 1,
+     "endpoints": [
+      "http://localhost:3100/rest/products/search"
+     ]
+    },
+    "form_or_action": {
+     "count": 0,
+     "endpoints": []
+    },
+    "static": {
+     "count": 0,
+     "endpoints": []
+    }
+   },
+   "authentication": {
+    "mode": "anonymous",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": null,
+   "coverage": {
+    "discovered": 16,
+    "tested": 16,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {}
+   }
+  },
+  "reasoning": {
+   "generated": 0,
+   "tested": 0,
+   "tested_verified": 0,
+   "verified": 0,
+   "refuted": 0,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": []
+  },
+  "digital_twin": {
+   "nodes": 9,
+   "edges": 3,
+   "node_kinds": {
+    "boundary": 2,
+    "finding": 2,
+    "parameter": 1,
+    "role": 1,
+    "surface": 3
+   },
+   "edge_kinds": {
+    "carries": 1,
+    "produced_finding": 2
+   },
+   "identities": 0,
+   "roles": 1,
+   "surfaces_total": 3,
+   "surfaces_write": 0,
+   "surfaces_read": 2,
+   "entities": 0,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 2,
+   "secrets_masked": 0,
+   "hypotheses": 0,
+   "surfaces_with_untested_reasons": 0,
+   "flows": [],
+   "authorization_matrix": {},
+   "entity_inventory": [],
+   "belief_audit": [],
+   "why_examples": []
+  },
+  "boundary": {
+   "records": 2,
+   "by_state": {
+    "NOT_DISCOVERED": 2
+   },
+   "by_category": {
+    "graphql": 1,
+    "websocket": 1
+   },
+   "unresolved": 2,
+   "unresolved_detail": [
+    {
+     "category": "graphql",
+     "target": "http://localhost:3100",
+     "state": "NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)",
+     "remediation": ""
+    },
+    {
+     "category": "websocket",
+     "target": "http://localhost:3100",
+     "state": "NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)",
+     "remediation": ""
+    }
+   ],
+   "states_vocabulary": [
+    "TESTED",
+    "VERIFIED",
+    "REFUTED",
+    "UNTESTABLE",
+    "NOT_DISCOVERED",
+    "NOT_SUPPORTED",
+    "BLOCKED_BY_PERMISSION",
+    "BLOCKED_BY_AUTH",
+    "BLOCKED_BY_SAFETY",
+    "BLOCKED_BY_ENVIRONMENT",
+    "TIMEOUT",
+    "TOOL_FAILURE",
+    "DEPENDENCY_MISSING",
+    "NOT_APPLICABLE"
+   ]
+  },
+  "api_inventory": {
+   "total": 2,
+   "by_protocol": {
+    "http": 2
+   },
+   "apis": [
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/",
+     "channel": "",
+     "sources": [
+      "seed"
+     ],
+     "parameters": [],
+     "findings": 1,
+     "finding_types": [
+      "missing_security_headers"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/rest/products/search",
+     "channel": "",
+     "sources": [
+      "seed"
+     ],
+     "parameters": [
+      "q"
+     ],
+     "findings": 1,
+     "finding_types": [
+      "missing_security_headers"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    }
+   ]
+  },
+  "action_matrix": {
+   "identities": [
+    {
+     "name": "anonymous",
+     "role": "anonymous"
+    }
+   ],
+   "actions": [
+    "read",
+    "create",
+    "update",
+    "delete",
+    "approve",
+    "execute",
+    "export",
+    "admin"
+   ],
+   "matrix": {
+    "anonymous": {
+     "read": "untested:no anonymous baseline for these surfaces",
+     "create": "untested:no surface of this action class was probed under this identity",
+     "update": "untested:no surface of this action class was probed under this identity",
+     "delete": "untested:no surface of this action class was probed under this identity",
+     "approve": "untested:no surface of this action class was probed under this identity",
+     "execute": "untested:no surface of this action class was probed under this identity",
+     "export": "untested:no surface of this action class was probed under this identity",
+     "admin": "untested:no surface of this action class was probed under this identity"
+    }
+   },
+   "discovered_surface_actions": {
+    "read": 3
+   }
+  },
+  "planner": {
+   "operations_evaluated": 1,
+   "by_impact": {
+    "READ_ONLY": 1
+   },
+   "blocked": 0,
+   "logic_active": false,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked",
+   "decisions": [
+    {
+     "url": "http://localhost:3100",
+     "method": "GET",
+     "impact": "READ_ONLY",
+     "allowed": true,
+     "policy": "automatic",
+     "rationale": "GET fetch \u2014 observation only, no server state can change",
+     "note": "passive-baseline"
+    }
+   ]
+  },
+  "proofs": [
+   {
+    "finding_id": "F-a2b53e9009",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://localhost:3100",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-469858f0"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://localhost:3100",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://localhost:3100 as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-3c415c714f",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://localhost:3100/rest/products/search",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, referrer-policy",
+      "request_id": "req-67885169"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://localhost:3100/rest/products/search",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://localhost:3100/rest/products/search as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   }
+  ],
+  "unverified_candidates": 0,
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [
+  {
+   "id": "F-a2b53e9009",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://localhost:3100",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.3.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://localhost:3100",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-3c415c714f",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://localhost:3100/rest/products/search",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.3.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://localhost:3100/rest/products/search",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  }
+ ],
+ "rejected_candidates": [
+  {
+   "id": "F-60b534f835",
+   "type": "sql_injection",
+   "severity": "critical",
+   "status": "rejected",
+   "confidence": 0.15,
+   "method": "GET",
+   "url": "http://localhost:3100/rest/products/search",
+   "parameter": "q",
+   "evidence": [
+    {
+     "kind": "status_oracle",
+     "detail": "quote -> HTTP 500 (generic error, no DB string) while base -> 200 and doubled-quote -> 200 \u2014 SQL syntax break"
+    }
+   ],
+   "verification": {
+    "method": "error:replay-2variants",
+    "passed": false,
+    "confidence": 0.15,
+    "rounds": 2,
+    "notes": "quote variants reproduce a DB error string: False"
+   },
+   "scanner": "sentinel-core/4.3.0",
+   "run_id": "run-35d779b873"
+  }
+ ],
+ "unverified_candidates": [],
+ "attack_paths": {
+  "layer": "sentinel-apath/4.3.0",
+  "paths": [],
+  "summary": {
+   "target": "http://localhost:3100",
+   "run_id": "run-35d779b873",
+   "paths_total": 0,
+   "paths_verified": 0,
+   "paths_inferred": 0,
+   "singles": 0,
+   "chains": 0,
+   "weak_link_histogram": {},
+   "seed_findings": [],
+   "non_seed_findings": {
+    "F-3c415c714f": "missing_security_headers",
+    "F-a2b53e9009": "missing_security_headers"
+   },
+   "honesty": "A path equals its weakest link: 0/0 paths carry EVERY link verified; the rest are INFERRED and name their weak links. No link is ever marked verified without an evidence reference traceable to a verified finding, a raw journal entry, or a scan artifact. Chained paths additionally require every hop evidenced; an inferred bridge (e.g. script execution not demonstrated) makes the whole chain INFERRED."
+  }
+ }
+}

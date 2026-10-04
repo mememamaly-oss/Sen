@@ -1,0 +1,1504 @@
+{
+ "run_id": "run-79bd629c42",
+ "seed": "iso-B",
+ "scanner": "sentinel-core/4.3.0",
+ "target": "http://localhost:3100",
+ "stats": {
+  "requests": 46,
+  "endpoints": 2,
+  "candidates": 0,
+  "verified": 0,
+  "rejected": 0,
+  "duration": 0.02,
+  "openapi": {
+   "source": "(inline-seed)",
+   "version": "3.0.0",
+   "title": "minimal isolation spec",
+   "paths": 1,
+   "new_endpoints": 1
+  },
+  "param_intel": {
+   "params_total": 1,
+   "by_kind": {
+    "search": 1
+   },
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "authz": {
+   "accounts_configured": 3,
+   "accounts_logged_in": 0,
+   "roles": [],
+   "matrix_endpoints": 0,
+   "login_errors": [
+    "js-admin: token rejected by /rest/basket/1",
+    "js-user-e: token rejected by /rest/basket/1",
+    "js-user-f: token rejected by /rest/basket/1"
+   ],
+   "requests": 3,
+   "ran": false
+  },
+  "graphql": {
+   "enabled": true,
+   "candidates": 0,
+   "endpoints": [],
+   "introspected": 0,
+   "queries": 0,
+   "mutations": 0,
+   "tests": 0,
+   "requests": 4,
+   "boundaries": 0
+  },
+  "websocket": {
+   "enabled": true,
+   "candidates": 0,
+   "channels": [],
+   "connected": 0,
+   "protocols": {},
+   "tests": 0,
+   "connections": 9,
+   "blocked_by_planner": 0
+  },
+  "request_journal": {
+   "req-5c27ac0c": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-4a7dac5b": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-a8eb883f": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-43f6e80c": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "path": "/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-acc1a7a9": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/../../../../etc/passwd",
+     "path": "/../../../../etc/passwd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-785b7ca3": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-96706db3": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2fetc%2fpasswd",
+     "path": "/rest/products/..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-4672354b": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-47127841": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "path": "/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-f59b6817": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/../../../../etc/passwd",
+     "path": "/rest/products/../../../../etc/passwd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-76447bcc": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "path": "",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-326344a3": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "path": "",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Origin": "https://sentinel-probe.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-20007cbf": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "path": "",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Host": "sentinel-hh-2789c6537a.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-797b45ca": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=apple",
+     "path": "/rest/products/search?q=apple",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-2fcfd410": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1",
+     "path": "/rest/products/search?q=1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-c4b274d9": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27%27",
+     "path": "/rest/products/search?q=1%27%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-a9e6e006": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27",
+     "path": "/rest/products/search?q=1%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-627a0402": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1+AND+1%3D1",
+     "path": "/rest/products/search?q=1+AND+1%3D1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-690c88ac": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1+AND+1%3D2",
+     "path": "/rest/products/search?q=1+AND+1%3D2",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-addda915": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%271%27%3D%271%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%271%27%3D%271%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-32ba289b": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+%271%27%3D%272%27+--+",
+     "path": "/rest/products/search?q=1%27+OR+%271%27%3D%272%27+--+",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-b7ddf5a6": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+1%3D1--",
+     "path": "/rest/products/search?q=1%27+OR+1%3D1--",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-7aa725ec": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=1%27+OR+1%3D2--",
+     "path": "/rest/products/search?q=1%27+OR+1%3D2--",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-2456fe62": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E",
+     "path": "/rest/products/search?q=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-530c6aa0": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3Csentinelxssmarker%3Epro41%3C%2Fsentinelxssmarker%3E",
+     "path": "/rest/products/search?q=%3Csentinelxssmarker%3Epro41%3C%2Fsentinelxssmarker%3E",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-1ef66a0f": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3Csentinelxssmarkerpro42",
+     "path": "/rest/products/search?q=%3Csentinelxssmarkerpro42",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-365c443b": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-b6c4b994": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-abb31822": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-9fc31cf6": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "path": "/rest/products/search?q=..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-65c777f3": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=https%3A%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "path": "/rest/products/search?q=https%3A%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-e504264f": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "path": "/rest/products/search?q=%2F%2Fsentinel-redirect-check.example.org%2Fprobe",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-3d2960d6": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=sentinelcrlf%0D%0AX-Sentinel-Probe%3A+injected",
+     "path": "/rest/products/search?q=sentinelcrlf%0D%0AX-Sentinel-Probe%3A+injected",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-6e15b6bc": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=apple",
+     "path": "/rest/products/search?q=apple",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Origin": "https://sentinel-probe.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-1a97a05e": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%7B%7B7%2A7%7D%7D",
+     "path": "/rest/products/search?q=%7B%7B7%2A7%7D%7D",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-9e40bfe8": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%24%7B7%2A7%7D",
+     "path": "/rest/products/search?q=%24%7B7%2A7%7D",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-28aa43ac": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%3C%25%3D+7%2A7+%25%3E",
+     "path": "/rest/products/search?q=%3C%25%3D+7%2A7+%25%3E",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-6f6d6045": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=%23%7B7%2A7%7D",
+     "path": "/rest/products/search?q=%23%7B7%2A7%7D",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-b4f8c7bb": {
+    "request": {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search?q=apple",
+     "path": "/rest/products/search?q=apple",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Host": "sentinel-hh-50ae8a5e76.example"
+     },
+     "body": ""
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-2b0fb591": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql",
+     "path": "/graphql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-18ed6841": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/api/graphql",
+     "path": "/api/graphql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-1e4b7c01": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql/v1",
+     "path": "/graphql/v1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   },
+   "req-8efaa781": {
+    "request": {
+     "method": "POST",
+     "url": "http://localhost:3100/gql",
+     "path": "/gql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "error": "ConnectionRefusedError: [Errno 111] Connection refused"
+    }
+   }
+  },
+  "request_journal_dropped": 0,
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {},
+    "cookies": [],
+    "frameworks": [],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "coverage": {
+   "discovered": 16,
+   "tested": 16,
+   "passive": 2,
+   "secrets_scanned": 0,
+   "active": 16,
+   "authz_probed": 0,
+   "active_or_authz": 16,
+   "untested": 0,
+   "skip_reasons": {
+    "transport_error": 2
+   },
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://localhost:3100",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "active"
+     ],
+     "skips": [
+      "transport_error"
+     ],
+     "baseline": "error"
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/../../../../etc/passwd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/api/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/gql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://localhost:3100/graphql/v1",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/../../../../etc/passwd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://localhost:3100/rest/products/search",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "active"
+     ],
+     "skips": [
+      "transport_error"
+     ],
+     "baseline": "error"
+    }
+   ],
+   "detail_truncated": 0,
+   "dimensions": {
+    "endpoint": {
+     "dimension": "endpoint",
+     "discovered": 16,
+     "tested": 16,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "051d44bfee79",
+       "meta": {
+        "url": "http://localhost:3100/../../../../etc/passwd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "0b63b4e2b32e",
+       "meta": {
+        "url": "http://localhost:3100/graphql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "3ec0c137f15f",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "41b3a2337f29",
+       "meta": {
+        "url": "http://localhost:3100/gql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "442ed6bdf809",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "5355b7cd0f58",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/search",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "76c713798d50",
+       "meta": {
+        "url": "http://localhost:3100/rest/products/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "7e3e3d40d102",
+       "meta": {
+        "url": "http://localhost:3100",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "828624ccba5c",
+       "meta": {
+        "url": "http://localhost:3100/graphql/v1",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "9921bf3261bd",
+       "meta": {
+        "url": "http://localhost:3100/..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "ae730b45d5e2",
+       "meta": {
+        "url": "http://localhost:3100/..%2f..%2f..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "b170c8f36784",
+       "meta": {
+        "url": "http://localhost:3100/api/graphql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 4
+    },
+    "parameter": {
+     "dimension": "parameter",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "5355b7cd0f58|q",
+       "meta": {
+        "endpoint": "http://localhost:3100/rest/products/search",
+        "name": "q"
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "authentication": {
+     "dimension": "authentication",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "anonymous-probe",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "identity": {
+     "dimension": "identity",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no identity surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "authorization": {
+     "dimension": "authorization",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no authorization surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "entity": {
+     "dimension": "entity",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no entity surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "object": {
+     "dimension": "object",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no object surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow": {
+     "dimension": "workflow",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow_branch": {
+     "dimension": "workflow_branch",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow branch surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "state": {
+     "dimension": "state",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no state surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "api_protocol": {
+     "dimension": "api_protocol",
+     "discovered": 2,
+     "tested": 2,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "http",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "openapi",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "graphql": {
+     "dimension": "graphql",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no graphql surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "websocket": {
+     "dimension": "websocket",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no websocket surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "browser": {
+     "dimension": "browser",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no browser surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "oast": {
+     "dimension": "oast",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {
+      "no OAST channel armed (blind classes inert)": 1
+     },
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no oast surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "detector": {
+     "dimension": "detector",
+     "discovered": 5,
+     "tested": 5,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "crlf",
+       "meta": {
+        "probes": 1
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "redirect",
+       "meta": {
+        "probes": 2
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "sqli",
+       "meta": {
+        "probes": 9
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "traversal",
+       "meta": {
+        "probes": 4
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "xss",
+       "meta": {
+        "probes": 2
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "evidence": {
+     "dimension": "evidence",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no evidence surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    }
+   }
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 1,
+     "endpoints": [
+      "http://localhost:3100"
+     ]
+    },
+    "api": {
+     "count": 1,
+     "endpoints": [
+      "http://localhost:3100/rest/products/search"
+     ]
+    },
+    "form_or_action": {
+     "count": 0,
+     "endpoints": []
+    },
+    "static": {
+     "count": 0,
+     "endpoints": []
+    }
+   },
+   "authentication": {
+    "mode": "anonymous",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": null,
+   "coverage": {
+    "discovered": 16,
+    "tested": 16,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {
+     "transport_error": 2
+    }
+   }
+  },
+  "reasoning": {
+   "generated": 0,
+   "tested": 0,
+   "tested_verified": 0,
+   "verified": 0,
+   "refuted": 0,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": []
+  },
+  "digital_twin": {
+   "nodes": 6,
+   "edges": 1,
+   "node_kinds": {
+    "boundary": 2,
+    "parameter": 1,
+    "role": 1,
+    "surface": 2
+   },
+   "edge_kinds": {
+    "carries": 1
+   },
+   "identities": 0,
+   "roles": 1,
+   "surfaces_total": 2,
+   "surfaces_write": 0,
+   "surfaces_read": 2,
+   "entities": 0,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 0,
+   "secrets_masked": 0,
+   "hypotheses": 0,
+   "surfaces_with_untested_reasons": 1,
+   "flows": [],
+   "authorization_matrix": {},
+   "entity_inventory": [],
+   "belief_audit": [],
+   "why_examples": []
+  },
+  "boundary": {
+   "records": 2,
+   "by_state": {
+    "NOT_DISCOVERED": 2
+   },
+   "by_category": {
+    "graphql": 1,
+    "websocket": 1
+   },
+   "unresolved": 2,
+   "unresolved_detail": [
+    {
+     "category": "graphql",
+     "target": "http://localhost:3100",
+     "state": "NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)",
+     "remediation": ""
+    },
+    {
+     "category": "websocket",
+     "target": "http://localhost:3100",
+     "state": "NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)",
+     "remediation": ""
+    }
+   ],
+   "states_vocabulary": [
+    "TESTED",
+    "VERIFIED",
+    "REFUTED",
+    "UNTESTABLE",
+    "NOT_DISCOVERED",
+    "NOT_SUPPORTED",
+    "BLOCKED_BY_PERMISSION",
+    "BLOCKED_BY_AUTH",
+    "BLOCKED_BY_SAFETY",
+    "BLOCKED_BY_ENVIRONMENT",
+    "TIMEOUT",
+    "TOOL_FAILURE",
+    "DEPENDENCY_MISSING",
+    "NOT_APPLICABLE"
+   ]
+  },
+  "api_inventory": {
+   "total": 2,
+   "by_protocol": {
+    "http": 2
+   },
+   "apis": [
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/",
+     "channel": "",
+     "sources": [
+      "seed"
+     ],
+     "parameters": [],
+     "findings": 0,
+     "finding_types": [],
+     "authentication": "unknown",
+     "coverage_status": "tested",
+     "coverage_skips": [
+      "transport_error"
+     ]
+    },
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/rest/products/search",
+     "channel": "",
+     "sources": [
+      "seed"
+     ],
+     "parameters": [
+      "q"
+     ],
+     "findings": 0,
+     "finding_types": [],
+     "authentication": "unknown",
+     "coverage_status": "tested",
+     "coverage_skips": [
+      "transport_error"
+     ]
+    }
+   ]
+  },
+  "action_matrix": {
+   "identities": [
+    {
+     "name": "anonymous",
+     "role": "anonymous"
+    }
+   ],
+   "actions": [
+    "read",
+    "create",
+    "update",
+    "delete",
+    "approve",
+    "execute",
+    "export",
+    "admin"
+   ],
+   "matrix": {
+    "anonymous": {
+     "read": "untested:no anonymous baseline for these surfaces",
+     "create": "untested:no surface of this action class was probed under this identity",
+     "update": "untested:no surface of this action class was probed under this identity",
+     "delete": "untested:no surface of this action class was probed under this identity",
+     "approve": "untested:no surface of this action class was probed under this identity",
+     "execute": "untested:no surface of this action class was probed under this identity",
+     "export": "untested:no surface of this action class was probed under this identity",
+     "admin": "untested:no surface of this action class was probed under this identity"
+    }
+   },
+   "discovered_surface_actions": {
+    "read": 2
+   }
+  },
+  "planner": {
+   "operations_evaluated": 1,
+   "by_impact": {
+    "READ_ONLY": 1
+   },
+   "blocked": 0,
+   "logic_active": false,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked",
+   "decisions": [
+    {
+     "url": "http://localhost:3100",
+     "method": "GET",
+     "impact": "READ_ONLY",
+     "allowed": true,
+     "policy": "automatic",
+     "rationale": "GET fetch \u2014 observation only, no server state can change",
+     "note": "passive-baseline"
+    }
+   ]
+  },
+  "proofs": [],
+  "unverified_candidates": 0,
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [],
+ "rejected_candidates": [],
+ "unverified_candidates": [],
+ "attack_paths": {
+  "layer": "sentinel-apath/4.3.0",
+  "paths": [],
+  "summary": {
+   "target": "http://localhost:3100",
+   "run_id": "run-79bd629c42",
+   "paths_total": 0,
+   "paths_verified": 0,
+   "paths_inferred": 0,
+   "singles": 0,
+   "chains": 0,
+   "weak_link_histogram": {},
+   "seed_findings": [],
+   "non_seed_findings": {},
+   "honesty": "A path equals its weakest link: 0/0 paths carry EVERY link verified; the rest are INFERRED and name their weak links. No link is ever marked verified without an evidence reference traceable to a verified finding, a raw journal entry, or a scan artifact. Chained paths additionally require every hop evidenced; an inferred bridge (e.g. script execution not demonstrated) makes the whole chain INFERRED."
+  }
+ }
+}

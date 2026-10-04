@@ -655,6 +655,94 @@ def unit_max06_spa_template_literal_endpoints():
 
 
 @case
+def unit_max07_l3_impact_allow_private_flag():
+    """MAX-07 (maximum internal test, live-caught on Juice Shop 20.2.0): the
+    impact CLI built its ScopeRule with allow_private=False HARDCODED — every
+    L3 probe against a localhost/lab target was scope-blocked (status 0) and
+    the whole L3 layer silently degraded to PROBE_FAILED for every local
+    training target (the v4.4.0 live round only ever ran against public
+    hosts, so this was never exercised). Fix: explicit --allow-private flag,
+    default OFF. Red pre-fix (no flag exists; probes blocked), green post
+    (flag lifts the block; without it they stay blocked — safe default)."""
+    import threading, subprocess, tempfile, os as _os, sys as _sys
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    TRUE_CONDS = {"1=1", "'1'='1'", "sqlite_version() LIKE '%'",
+                  "SUBSTR(sqlite_version(),1,1)='3'"}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query).items()}
+            if u.path == "/":
+                self._send(200, b'<html><body><a href="/search?q=hello">s</a></body></html>')
+            elif u.path == "/search":
+                v = q.get("q", "")
+                if v == "hello" or v == "1":
+                    self._send(200, b'{"data":[{"id":1}]}')
+                elif v == "1'":
+                    self._send(500, b"Error: SQLITE_ERROR: near '%': syntax error")
+                else:
+                    # mini SQL evaluator: everything after OR is the condition
+                    import re as _re
+                    m = _re.match(r"^\d+'?\s+OR\s+(.+?)\s*--?\s*$", v)
+                    cond = (m.group(1).strip() if m else v).rstrip("-").strip()
+                    if cond in TRUE_CONDS:
+                        self._send(200, b"T" * 2000)
+                    else:
+                        self._send(200, b"F" * 40)
+            else:
+                self._send(404)
+    port = 8812
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{port}"
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5,
+                         seed="max07-l3", browser=False, oast=None)
+        rep = SentinelScanner(base, cfg).run()
+        sqls = [f for f in rep["findings"] if f["type"] == "sql_injection"
+                and f["status"] == "verified"]
+        assert sqls, ([f["type"] for f in rep["findings"]],
+                      [c.get("type") for c in rep.get("rejected_candidates", [])])
+        sqls[0]["evidence"] = [{"kind": "db_error", "detail": "SQLITE_ERROR matched"}]
+        with tempfile.TemporaryDirectory() as td:
+            rpath = _os.path.join(td, "res.json")
+            with open(rpath, "w") as fh:
+                json.dump(rep, fh)
+            root = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(
+                __file__)), ".."))
+            # (1) default (no flag): every probe scope-blocked -> PROBE_FAILED
+            out1 = _os.path.join(td, "j1.json")
+            r1 = subprocess.run([_sys.executable, "sentinel/cli.py", "impact",
+                                 "--result", rpath, "--execute",
+                                 "--probe-journal", out1],
+                                cwd=root, capture_output=True, text=True, timeout=200)
+            j1 = json.load(open(out1))
+            statuses = [e["response"]["status"] for e in j1.values()]
+            assert statuses and all(s == 0 for s in statuses), \
+                f"without --allow-private every local probe must be scope-blocked: {statuses}"
+            # (2) with the flag: probes reach the server, oracle separates, VERIFIED
+            out2 = _os.path.join(td, "assess2.json")
+            r2 = subprocess.run([_sys.executable, "sentinel/cli.py", "impact",
+                                 "--result", rpath, "--execute", "--allow-private",
+                                 "--assessment", out2],
+                                cwd=root, capture_output=True, text=True, timeout=200)
+            a2 = json.load(open(out2))
+            assert a2["summary"]["verified"] >= 1, a2["summary"]
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
 def regression_sqli_or_redirect_oracle():
     """DETECT-01 regression (live-proven on demo.testfire.net/doLogin): string-context
     OR-tautology pair must (a) be emitted, (b) create a candidate on redirect
@@ -6966,6 +7054,151 @@ def unit_l3_scan_pipeline_untouched():
         _socket.socket = real
     assert json.dumps(rep, sort_keys=True) == snap, "planning must not mutate the report"
     assert plan["summary"]["planned"] >= 8, plan["summary"]
+
+
+@case
+def unit_max08_l3_sql_family_conditions():
+    """MAX-08 (maximum internal test, live-caught on Juice Shop 20.2.0 — SQLite):
+    the L3 version oracle was hardcoded to the MSSQL family (@@version); on
+    any other backend every version predicate is a syntax error and the impact
+    honestly PROBE_FAILEDs. The family now derives from the finding's OWN
+    evidence (the db_error signature that verified it); every emitted shape
+    must still pass the fail-closed allowlist. Red pre-fix (sqlite evidence
+    still planned @@version), green post."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    # (1) sqlite-family evidence -> sqlite_version() shapes
+    rep_sqlite = _l3_fixture_report()
+    for f in rep_sqlite["findings"]:
+        if f["type"] == "sql_injection":
+            f["evidence"] = [{"kind": "db_error",
+                              "detail": "SQLITE_(ERROR|CONSTRAINT|MISUSE|RANGE) matched: SQLITE_ERROR"}]
+    plan = impact.plan_impact_probes(rep_sqlite)
+    sqli = [p for p in plan["path_plans"] if p["probe_kind"] == "sql_version_oracle"]
+    assert sqli and sqli[0]["status"] == "PLANNED", sqli[:1]
+    conds = [r["condition"] for r in sqli[0]["requests"] if r.get("condition")]
+    assert any("sqlite_version()" in c for c in conds), conds
+    assert not any("@@version" in c for c in conds), conds
+    for c in conds:
+        ok, why = impact.validate_sqli_condition(c)
+        assert ok, f"non-allowlisted condition emitted: {c} ({why})"
+    # (2) mysql-family evidence -> VERSION() shapes
+    rep_mysql = _l3_fixture_report()
+    for f in rep_mysql["findings"]:
+        if f["type"] == "sql_injection":
+            f["evidence"] = [{"kind": "db_error", "detail": "Warning: mysql_query failed"}]
+    plan2 = impact.plan_impact_probes(rep_mysql)
+    sqli2 = [p for p in plan2["path_plans"] if p["probe_kind"] == "sql_version_oracle"]
+    conds2 = [r["condition"] for r in sqli2[0]["requests"] if r.get("condition")]
+    assert any("VERSION()" in c for c in conds2) and not any("@@version" in c for c in conds2), conds2
+    # (3) no family evidence -> MSSQL default (the authorized-targets provenance)
+    plan3 = impact.plan_impact_probes(rep)
+    sqli3 = [p for p in plan3["path_plans"] if p["probe_kind"] == "sql_version_oracle"]
+    conds3 = [r["condition"] for r in sqli3[0]["requests"] if r.get("condition")]
+    assert any("@@version" in c for c in conds3), conds3
+    # (4) the taint registry stays intact: extraction material never plans
+    blob = json.dumps(plan) + json.dumps(plan2) + json.dumps(plan3)
+    for forbidden in ("UNION SELECT", "information_schema", "SLEEP(", "BENCHMARK(",
+                      "LOAD_FILE", "INTO OUTFILE", "password"):
+        assert forbidden.lower() not in blob.lower(), forbidden
+
+
+@case
+def unit_max09_paren_closing_sqli_context():
+    """MAX-09 + MAX-09b (maximum internal test, live-caught on Juice Shop
+    20.2.0 /rest/products/search?q=): LIKE-inside-double-parens contexts
+    (WHERE ((name LIKE '%q%' ...))) break out ONLY with paren-closing shapes.
+    Pre-fix: the battery's flat AND/OR pairs stay literal LIKE terms or die
+    as unbalanced parens — the finding verifies only via the error string,
+    and the L3 planner picks the non-separating AND template (impact
+    PROBE_FAILED). Post-fix: the paren-closing battery pair separates, the
+    verifier has a fresh paren OR-comparison pair (PATH D2), and the L3
+    ranking prefers the journal-separated template (impact VERIFIED)."""
+    import threading, subprocess, tempfile, os as _os, sys as _sys, re as _re
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    TRUES = {"1=1", "sqlite_version() LIKE '%'", "SUBSTR(sqlite_version(),1,1)='3'",
+             "'2'>'1'", "'1'='1'"}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query).items()}
+            if u.path == "/":
+                self._send(200, b'<html><body><a href="/search?q=hello">s</a></body></html>')
+            elif u.path == "/search":
+                v = q.get("q", "")
+                if v in ("hello", "1"):
+                    self._send(200, b'{"data":[{"id":1}]}')
+                elif v == "1'":
+                    self._send(500, b"Error: SQLITE_ERROR: near '%': syntax error")
+                else:
+                    m2 = _re.match(r"^1'\)\) OR (.+?)\s*--?\s*$", v)
+                    if m2:
+                        c = m2.group(1).strip()
+                        self._send(200, b"T" * 3000 if c in TRUES else b"F" * 40)
+                    elif "'" not in v and (" AND " in v):
+                        # flat AND stays a literal LIKE term: no differential
+                        self._send(200, b'{"data":[]}')
+                    elif "'" in v:
+                        # flat OR shapes die as unbalanced parens (500 both sides)
+                        self._send(500, b"Error: SQLITE_ERROR: unbalanced parens")
+                    else:
+                        self._send(200, b'{"data":[]}')
+            else:
+                self._send(404)
+    port = 8813
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{port}"
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5,
+                         seed="max09-paren", browser=False, oast=None)
+        rep = SentinelScanner(base, cfg).run()
+        sqls = [f for f in rep["findings"] if f["type"] == "sql_injection"
+                and f["status"] == "verified"]
+        assert sqls, ([f["type"] for f in rep["findings"]],
+                      [c.get("type") for c in rep.get("rejected_candidates", [])])
+        f = sqls[0]
+        # MAX-09: the paren-closing pair produced the boolean-oracle evidence
+        kinds = {e["kind"] for e in f["evidence"]}
+        assert "response_diff" in kinds, (kinds, f["evidence"])
+        assert any("paren-closing" in (e.get("detail") or "") for e in f["evidence"]), \
+            [e.get("detail") for e in f["evidence"]]
+        # MAX-09 (PATH D2): verification via the fresh paren OR-comparison pair
+        assert f["verification"]["method"] == "oracle:paren-or-bodydiff-2round", \
+            f["verification"]
+        # MAX-09b: L3 picks the journal-separated template -> impact VERIFIED
+        f["evidence"] = [{"kind": "db_error", "detail": "SQLITE_ERROR matched"}]
+        with tempfile.TemporaryDirectory() as td:
+            rpath = _os.path.join(td, "res.json")
+            with open(rpath, "w") as fh:
+                json.dump(rep, fh)
+            root = _os.path.abspath(_os.path.join(_os.path.dirname(_os.path.abspath(
+                __file__)), ".."))
+            out = _os.path.join(td, "assess.json")
+            subprocess.run([_sys.executable, "sentinel/cli.py", "impact",
+                            "--result", rpath, "--execute", "--allow-private",
+                            "--assessment", out],
+                           cwd=root, capture_output=True, text=True, timeout=200)
+            a = json.load(open(out))
+            assert a["summary"]["verified"] >= 1, a["summary"]
+            ver = [i for i in a["impacts"] if i["status"] == "VERIFIED"]
+            assert ver, a["impacts"]
+            d = ver[0].get("detail") or {}
+            # the oracle actually separated on THIS run (measured, not asserted)
+            assert d.get("control_true_size", 0) > d.get("control_false_size", 0) + 200, d
+            assert d.get("version_true_size", 0) > d.get("version_false_size", 0) + 200, d
+    finally:
+        srv.shutdown(); srv.server_close()
 
 
 def main():

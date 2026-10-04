@@ -55,7 +55,10 @@ SCANNER_LAYER = "sentinel-impact/4.4.0"
 # the live executor issues; the probe journal records exactly these.
 VERSION_TRUE_COND = "@@version LIKE '%'"
 VERSION_FALSE_COND = "@@version LIKE 'zzz-sentinel-nope%'"
-DIGIT_LADDER = ("8", "5")          # MySQL 8.x / 5.x major-version chars
+DIGIT_LADDER = ("8", "5", "3", "1")   # MySQL 8/5, SQLite 3, MSSQL/PG 1x majors
+                                            # (MAX-08 follow-up: the old (8,5)-only
+                                            # ladder could never read a SQLite or
+                                            # MSSQL/PostgreSQL major version char)
 
 XXE_CONTROL_FILE = "file:///nonexistent-sentinel-control"
 XXE_READ_FILE = "file:///etc/hostname"
@@ -109,9 +112,41 @@ _SQL_ALLOW = (
     re.compile(r"^\d+\s*=\s*\d+$"),
     re.compile(r"^'[^']*'\s*=\s*'[^']*'$"),
     re.compile(r"^@@version\s+LIKE\s+'[^']*'$"),
-    re.compile(r"^version\(\)\s+LIKE\s+'[^']*'$"),
-    re.compile(r"^SUBSTRING\(@@version,\d+,\d+\)\s*=\s*'[^']*'$"),
+    re.compile(r"^(?i:version)\(\)\s+LIKE\s+'[^']*'$"),
+    re.compile(r"^sqlite_version\(\)\s+LIKE\s+'[^']*'$"),
+    re.compile(r"^SUBSTRING\((?:@@version|(?i:version)\(\)|sqlite_version\(\)),\d+,\d+\)\s*=\s*'[^']*'$"),
+    re.compile(r"^SUBSTR\(sqlite_version\(\),\d+,\d+\)\s*=\s*'[^']*'$"),
 )
+# MAX-08 (maximum internal test, live-caught on Juice Shop 20.2.0 — SQLite):
+# the version oracle was hardcoded to the MSSQL family (@@version). On any
+# non-MSSQL backend every version predicate is a syntax error and the impact
+# honestly PROBE_FAILEDs. The family is now derived from the finding's OWN
+# evidence text (the db_error signature that verified it), defaulting to the
+# authorized-targets provenance (MSSQL). Every emitted shape stays inside the
+# fail-closed _SQL_ALLOW registry above.
+_SQL_FAMILY_CONDS = {
+    "mssql":    ("@@version LIKE '%'", "@@version LIKE 'zzz-sentinel-nope%'",
+                 "SUBSTRING(@@version,1,1)='{}'"),
+    "mysql":    ("VERSION() LIKE '%'", "VERSION() LIKE 'zzz-sentinel-nope%'",
+                 "SUBSTRING(VERSION(),1,1)='{}'"),
+    "postgres": ("version() LIKE '%'", "version() LIKE 'zzz-sentinel-nope%'",
+                 "SUBSTRING(version(),1,1)='{}'"),
+    "sqlite":   ("sqlite_version() LIKE '%'", "sqlite_version() LIKE 'zzz-sentinel-nope%'",
+                 "SUBSTR(sqlite_version(),1,1)='{}'"),
+}
+
+
+def _sql_family(f: dict) -> str:
+    hay = " ".join(str(e.get("detail", "")) for e in (f.get("evidence") or []))
+    hay += " " + str((f.get("verification") or {}).get("notes", ""))
+    hay = hay.lower()
+    if "sqlite" in hay:
+        return "sqlite"
+    if "mysql" in hay:
+        return "mysql"
+    if "postgres" in hay or "psql" in hay or "pgsql" in hay:
+        return "postgres"
+    return "mssql"
 # proven-vector taint: a finding proven with extraction/destructive material is
 # never used to derive an impact probe (fail-closed, never guessed)
 _SQL_TAINT = ("union", "information_schema", "sleep(", "benchmark(", "load_file",
@@ -421,6 +456,30 @@ def _plan_sql(f, ctx):
             n = int(m0)
             if n > true_size:
                 true_size = n
+    # MAX-09b (maximum internal test, live-caught on Juice Shop 20.2.0): prefer
+    # a template whose OWN battery pair already SEPARATED in the journal (the
+    # true/false variants of the same prefix+keyword returned different sizes).
+    # The old ranking (2xx, anchored-to-evidence-size, quoted, order) picked the
+    # numeric AND pair on Juice Shop — a pair that never separates there (the
+    # AND stays a literal LIKE term) — while the paren-closing pair in the same
+    # journal separated 4000B/30B. A separated pair is the strongest plan-time
+    # signal the probe will reproduce; it ranks directly after 2xx.
+    _pname = (f.get("parameter") or "").split(",")[0].strip()
+    by_pk: dict[tuple, list] = {}
+    for _rid2, _req2, _h2 in ents:
+        t2 = derive_bool_template(_req2.get("url", ""), _req2.get("body", ""), _pname)
+        if t2:
+            by_pk.setdefault((t2["prefix"], t2["keyword"]), []).append(_rid2)
+    separating: set[str] = set()
+    for _items in by_pk.values():
+        sizes = []
+        for _rid2 in _items:
+            e2 = ctx.entry(_rid2) or {}
+            sizes.append(len((e2.get("response") or {}).get("body") or ""))
+        if len(sizes) >= 2:
+            smax, smin = max(sizes), min(sizes)
+            if smax - smin > max(200, 0.25 * smax):
+                separating.update(_items)
     ranked = []
     for idx, (_rid, req, _hay) in enumerate(ents):
         tpl0 = derive_bool_template(req.get("url", ""), req.get("body", ""),
@@ -432,15 +491,16 @@ def _plan_sql(f, ctx):
         rlen = len((ent.get("response") or {}).get("body") or "")
         quoted = 1 if _COND_QUOTED.match(tpl0["orig_cond"] or "") else 0
         ok2xx = 1 if 200 <= st < 300 else 0
+        sep = 1 if _rid in separating else 0
         anchored = 0
         if true_size:
             if rlen == true_size:
                 anchored = 1
             elif rlen >= 3990 and true_size >= rlen:
                 anchored = 1     # journal-capped big response == a big TRUE side
-        ranked.append((-ok2xx, -anchored, -quoted, idx, tpl0))
+        ranked.append((-ok2xx, -sep, -anchored, -quoted, idx, tpl0))
     ranked.sort()
-    tpl = ranked[0][4] if ranked else None
+    tpl = ranked[0][5] if ranked else None
     if not tpl:
         return _refuse("no boolean-shaped proven vector on the finding's surface — "
                        "L3 never guesses a template")
@@ -449,13 +509,15 @@ def _plan_sql(f, ctx):
         false_cond = re.sub(r"=\s*\d+$", "=2", orig)
     else:
         false_cond = re.sub(r"'[^']*'\s*$", "'2'", orig)
-    for c in (orig, false_cond, VERSION_TRUE_COND, VERSION_FALSE_COND):
+    fam = _sql_family(f)
+    ver_true, ver_false, digit_tpl = _SQL_FAMILY_CONDS[fam]
+    for c in (orig, false_cond, ver_true, ver_false):
         ok, why = validate_sqli_condition(c)
         if not ok:
             return _refuse(f"derived condition failed the allowlist ({why})")
     conds = [("control_true", orig), ("control_false", false_cond),
-             ("version_true", VERSION_TRUE_COND), ("version_false", VERSION_FALSE_COND)]
-    conds += [(f"version_digit_{d}", f"SUBSTRING(@@version,1,1)='{d}'") for d in DIGIT_LADDER]
+             ("version_true", ver_true), ("version_false", ver_false)]
+    conds += [(f"version_digit_{d}", digit_tpl.format(d)) for d in DIGIT_LADDER]
     reqs = []
     base_headers = dict((ents[0][1].get("headers") or {})) if ents else {}
     base_method = (ents[0][1].get("method") or "GET").upper() if ents else "GET"

@@ -106,41 +106,62 @@ class VerificationEngine:
                             f.verification, f.confidence = v, v.confidence
                             f.status = FindingStatus.VERIFIED
                         else:
-                            # PATH B — error-based replay (v4.2.3, VF-04 precision
-                            # tightening): the quote replay must reproduce an actual
-                            # DB ERROR STRING. Until v4.2.2 a BARE 5xx counted as
-                            # "error reproduction" — that verified testasp
-                            # Search.asp/Login.asp (tfSearch/tfUName/tfUPass) as
-                            # CRITICAL SQLi on a generic IIS 500 with NO SQL text
-                            # and NO boolean differential (IV13/IV14 comparison
-                            # flagged it; the notes even claimed "reproduce DB
-                            # error" while the evidence said 'no DB string'). A
-                            # status-only signal (DETECT-04) remains a CANDIDATE —
-                            # visible and honest, but never VERIFIED. Endpoints that
-                            # carry a real oracle still verify through PATH A/D/C/C'.
-                            from .detect import SQL_ERR_PATTERNS
-                            import re as _re
-                            alt_quot = base + '"' if "'" in str(f.evidence) else base + "'"
-                            r3 = self._replay(ep, p, base + '"')
-                            r4 = self._replay(ep, p, base + "'")
-                            err_hit = None
-                            for r in (r3, r4):
-                                if r is None or not r.status:
-                                    continue
-                                for pat in SQL_ERR_PATTERNS:
-                                    mm = pat.search(r.body or "")
-                                    if mm:
-                                        err_hit = f"{pat.pattern[:40]} matched: {mm.group(0)[:60]}"
+                            # PATH D2 — MAX-09 (maximum internal test, live-caught on
+                            # Juice Shop 20.2.0 /rest/products/search?q=): paren-closing
+                            # fresh OR pair. WHERE ((name LIKE '%q%' ...)) contexts only
+                            # break out with ')) — the flat AND/OR pairs above stay
+                            # literal LIKE terms (no differential) or die as unbalanced
+                            # parens. Fresh comparison vectors keep this an INDEPENDENT
+                            # replay; guards mirror PATH A/D exactly (both OK, same
+                            # status, diff > max(200, 25%)).
+                            r9 = self._replay(ep, p, f"{base}')) OR '2'>'1' -- ")
+                            r10 = self._replay(ep, p, f"{base}')) OR '1'>'2' -- ")
+                            if (r9 is not None and r10 is not None and r9.ok and r10.ok
+                                    and r9.status == r10.status
+                                    and abs(len(r9.body or "") - len(r10.body or ""))
+                                    > max(200, 0.25 * max(len(r9.body or "x"), len(r10.body or "x"), 1))):
+                                v = Verification(method="oracle:paren-or-bodydiff-2round",
+                                                 passed=True, confidence=0.95, rounds=2,
+                                                 notes=(f"fresh paren-closing OR body differential: "
+                                                        f"TRUE {len(r9.body)}B vs FALSE {len(r10.body)}B"))
+                                f.verification, f.confidence = v, v.confidence
+                                f.status = FindingStatus.VERIFIED
+                            else:
+                                # PATH B — error-based replay (v4.2.3, VF-04 precision
+                                # tightening): the quote replay must reproduce an actual
+                                # DB ERROR STRING. Until v4.2.2 a BARE 5xx counted as
+                                # "error reproduction" — that verified testasp
+                                # Search.asp/Login.asp (tfSearch/tfUName/tfUPass) as
+                                # CRITICAL SQLi on a generic IIS 500 with NO SQL text
+                                # and NO boolean differential (IV13/IV14 comparison
+                                # flagged it; the notes even claimed "reproduce DB
+                                # error" while the evidence said 'no DB string'). A
+                                # status-only signal (DETECT-04) remains a CANDIDATE —
+                                # visible and honest, but never VERIFIED. Endpoints that
+                                # carry a real oracle still verify through PATH A/D/C/C'.
+                                from .detect import SQL_ERR_PATTERNS
+                                import re as _re
+                                alt_quot = base + '"' if "'" in str(f.evidence) else base + "'"
+                                r3 = self._replay(ep, p, base + '"')
+                                r4 = self._replay(ep, p, base + "'")
+                                err_hit = None
+                                for r in (r3, r4):
+                                    if r is None or not r.status:
+                                        continue
+                                    for pat in SQL_ERR_PATTERNS:
+                                        mm = pat.search(r.body or "")
+                                        if mm:
+                                            err_hit = f"{pat.pattern[:40]} matched: {mm.group(0)[:60]}"
+                                            break
+                                    if err_hit:
                                         break
-                                if err_hit:
-                                    break
-                            err_repro = err_hit is not None
-                            v = Verification(method="error:replay-2variants", passed=err_repro,
-                                             confidence=0.9 if err_repro else 0.15, rounds=2,
-                                             notes=(f"quote variants reproduce a DB error string: {err_repro}"
-                                                    + (f" [{err_hit}]" if err_hit else "")))
-                            f.verification, f.confidence = v, v.confidence
-                            f.status = FindingStatus.VERIFIED if err_repro else FindingStatus.REJECTED
+                                err_repro = err_hit is not None
+                                v = Verification(method="error:replay-2variants", passed=err_repro,
+                                                 confidence=0.9 if err_repro else 0.15, rounds=2,
+                                                 notes=(f"quote variants reproduce a DB error string: {err_repro}"
+                                                        + (f" [{err_hit}]" if err_hit else "")))
+                                f.verification, f.confidence = v, v.confidence
+                                f.status = FindingStatus.VERIFIED if err_repro else FindingStatus.REJECTED
 
         elif f.type == "xss_reflected":
             # VR-02 fix (2026-09-27, live-caught on demo.testfire.net): a single fixed
