@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 110,
+ "total": 120,
  "failed": 0,
  "cases": [
   {
@@ -342,12 +342,12 @@
   {
    "name": "unit_eng09_rate_limit_backoff",
    "ok": true,
-   "ms": 507
+   "ms": 509
   },
   {
    "name": "unit_auth05_token_bearer_modes",
    "ok": true,
-   "ms": 510
+   "ms": 511
   },
   {
    "name": "unit_op02_sarif_export",
@@ -357,22 +357,22 @@
   {
    "name": "unit_disc13_openapi_seed",
    "ok": true,
-   "ms": 517
+   "ms": 518
   },
   {
    "name": "regression_phase54_ops_stealth_composition",
    "ok": true,
-   "ms": 799
+   "ms": 315
   },
   {
    "name": "unit_phase55_detectors_and_gates",
    "ok": true,
-   "ms": 527
+   "ms": 525
   },
   {
    "name": "regression_phase55_five_classes_end_to_end",
    "ok": true,
-   "ms": 82279
+   "ms": 82822
   },
   {
    "name": "unit_paramintel_value_shape_inference",
@@ -397,17 +397,17 @@
   {
    "name": "unit_authz_engine_matrix_idor_vertical",
    "ok": true,
-   "ms": 555
+   "ms": 548
   },
   {
    "name": "regression_phase56_intelligence_end_to_end",
    "ok": true,
-   "ms": 81743
+   "ms": 81682
   },
   {
    "name": "unit_phase57_vault_crypto_lifecycle",
    "ok": true,
-   "ms": 88
+   "ms": 85
   },
   {
    "name": "regression_phase57_vault_end_to_end",
@@ -645,6 +645,66 @@
   },
   {
    "name": "unit_v423_ng_attribute_context_positive",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_seed_filtering_and_slot_structure",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_weakest_link_inferred_impact",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_journal_evidence_traceable",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_rejected_never_seed_and_banners_annotate",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_impact_grade_mapping",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_chain_composition_per_hop_evidence",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_zero_requests_socket_blocked",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
    "ok": true,
    "ms": 0,
    "skipped": true

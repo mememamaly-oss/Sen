@@ -1,7 +1,7 @@
 {
  "overall": "PASS",
- "passed": 15,
- "total": 15,
+ "passed": 16,
+ "total": 16,
  "checks": [
   {
    "check": "runtime",
@@ -55,6 +55,12 @@
    "check": "repair_registry",
    "status": "PASS",
    "detail": "3 repair rules loaded",
+   "auto_fix": ""
+  },
+  {
+   "check": "attack_path_layer",
+   "status": "PASS",
+   "detail": "L2 active: 2 fixture paths (1 verified / 1 inferred) \u2014 weakest-link classification live",
    "auto_fix": ""
   },
   {

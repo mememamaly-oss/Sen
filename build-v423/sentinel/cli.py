@@ -399,6 +399,12 @@ def main():
     cm.add_argument("--db", default="results/sentinel.db")
     cm.add_argument("--run-id", default="", help="default: the newest run")
     cm.add_argument("--out", default="CAPABILITY_MATRIX.md")
+    apa = sub.add_parser("apaths", help="v4.3.0 (L2): Attack Path Intelligence "
+                        "over a saved scan result — full attack paths with "
+                        "per-link evidence (weakest-link classified)")
+    apa.add_argument("--result", required=True, help="path to a scan result JSON")
+    apa.add_argument("--out", default="", help="write the paths JSON here (default: stdout)")
+    apa.add_argument("--paths-only", action="store_true", help="omit the summary block")
     srv = sub.add_parser("serve", help="REST API + web UI (Phase: REST/UI)")
     srv.add_argument("--host", default="127.0.0.1"); srv.add_argument("--port", type=int, default=8022)
     srv.add_argument("--db", default="results/sentinel.db")
@@ -709,6 +715,27 @@ def main():
             sys.exit(0 if result.get("replay") == "REPRODUCTION_VERIFIED" else 1)
         print(json.dumps(proof, indent=1, ensure_ascii=False))
         print("\n" + reproduce_command(proof))
+    elif a.cmd == "apaths":
+        # v4.3.0 (L2): Attack Path Intelligence over a saved scan result.
+        # Pure post-processing — reads the JSON, builds the paths, zero requests.
+        from sentinel.apath import build_attack_paths
+        try:
+            with open(a.result, encoding="utf-8") as fh:
+                rep = json.load(fh)
+        except Exception as e:
+            print(json.dumps({"error": f"cannot read result: {e}"}), file=sys.stderr)
+            sys.exit(2)
+        out = build_attack_paths(rep)
+        if a.paths_only:
+            out = {"paths": out["paths"]}
+        payload = json.dumps(out, indent=1, ensure_ascii=False)
+        if a.out:
+            with open(a.out, "w", encoding="utf-8") as fh:
+                fh.write(payload + "\n")
+            print(json.dumps({"written": a.out,
+                              "paths": len(out.get("paths", []))}))
+        else:
+            print(payload)
     elif a.cmd == "capability-matrix":
         from sentinel.store import Store
         from sentinel.report import _capability_rows

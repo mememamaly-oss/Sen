@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 110,
+ "total": 120,
  "failed": 0,
  "cases": [
   {
@@ -520,17 +520,17 @@
   {
    "name": "unit_v41_workflow_graph_model",
    "ok": true,
-   "ms": 576
+   "ms": 573
   },
   {
    "name": "regression_v41_flows_battery",
    "ok": true,
-   "ms": 769
+   "ms": 736
   },
   {
    "name": "regression_v41_graphql_battery",
    "ok": true,
-   "ms": 555
+   "ms": 544
   },
   {
    "name": "regression_v41_websocket_battery",
@@ -540,7 +540,7 @@
   {
    "name": "unit_v41_twin_provenance",
    "ok": true,
-   "ms": 9
+   "ms": 8
   },
   {
    "name": "unit_v41_reasoning_records",
@@ -555,7 +555,7 @@
   {
    "name": "unit_v41_replay",
    "ok": true,
-   "ms": 531
+   "ms": 541
   },
   {
    "name": "unit_v41_planner_realtime_and_ci",
@@ -645,6 +645,66 @@
   },
   {
    "name": "unit_v423_ng_attribute_context_positive",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_seed_filtering_and_slot_structure",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_weakest_link_inferred_impact",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_journal_evidence_traceable",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_rejected_never_seed_and_banners_annotate",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_impact_grade_mapping",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_chain_composition_per_hop_evidence",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_zero_requests_socket_blocked",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
    "ok": true,
    "ms": 0,
    "skipped": true

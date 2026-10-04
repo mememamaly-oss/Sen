@@ -1265,6 +1265,12 @@ class SentinelScanner:
                                       for f in self.findings
                                       if f.status == FindingStatus.CANDIDATE],
         }
+        # v4.3.0 (L2 — Attack Path Intelligence): pure post-processing over the
+        # serialized report above (findings + journal + twin stats). Zero extra
+        # requests, fully deterministic, never mutates verdicts — the additive
+        # key rides the report so every scan (bench included) carries its paths.
+        from .apath import build_attack_paths
+        rep["attack_paths"] = build_attack_paths(rep)
         # Phase 57: defense in depth — when a vault is armed, scrub the WHOLE
         # report of every known raw value. Findings carry masks by
         # construction; this catches any future accidental leakage path.
@@ -1329,6 +1335,22 @@ def doctor(allow_private=False) -> dict:
         add("persistence_layer", False, str(e)[:80])
     # repair registry
     add("repair_registry", len(RepairClassifier.RULES) >= 3, f"{len(RepairClassifier.RULES)} repair rules loaded")
+    # v4.3.0 (L2 — Attack Path Intelligence): the layer must build paths from a
+    # synthetic report AND classify honestly (one proven seed -> VERIFIED path,
+    # one indicated seed -> INFERRED path with the weak link named).
+    try:
+        from .apath import build_attack_paths, _doctor_fixture
+        ap = build_attack_paths(_doctor_fixture())
+        s = ap["summary"]
+        ok = (s["paths_total"] == 2 and s["paths_verified"] == 1
+              and s["paths_inferred"] == 1
+              and any(p["weak_links"] == ["impact"] for p in ap["paths"]))
+        add("attack_path_layer", ok,
+            f"L2 active: {s['paths_total']} fixture paths "
+            f"({s['paths_verified']} verified / {s['paths_inferred']} inferred) — "
+            "weakest-link classification live")
+    except Exception as e:
+        add("attack_path_layer", False, str(e)[:120])
     # browser engine (Phase 50): DOM XSS phase needs Playwright + Chromium.
     # Absent browser = WARN (degraded, not broken): static DOM sink analysis still
     # runs and every other phase is unaffected; browser-only checks are skipped.

@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 110,
+ "total": 120,
  "failed": 0,
  "cases": [
   {
@@ -594,27 +594,27 @@
   {
    "name": "unit_v411_value_shaped_precision",
    "ok": true,
-   "ms": 38
+   "ms": 17
   },
   {
    "name": "regression_v411_authz_token_accounts",
    "ok": true,
-   "ms": 541
+   "ms": 549
   },
   {
    "name": "regression_v41_self_security",
    "ok": true,
-   "ms": 2942
+   "ms": 2931
   },
   {
    "name": "unit_v41_no_hallucination_gate",
    "ok": true,
-   "ms": 874
+   "ms": 842
   },
   {
    "name": "regression_v41_full_platform",
    "ok": true,
-   "ms": 83294
+   "ms": 83063
   },
   {
    "name": "unit_v420_fail_closed_verification_defaults",
@@ -624,12 +624,12 @@
   {
    "name": "unit_v423_stored_xss_comment_form",
    "ok": true,
-   "ms": 516
+   "ms": 515
   },
   {
    "name": "unit_v423_stored_xss_get_form_cookie",
    "ok": true,
-   "ms": 510
+   "ms": 509
   },
   {
    "name": "unit_v423_path_traversal_urlpath",
@@ -639,17 +639,75 @@
   {
    "name": "unit_v423_sqli_pathb_requires_dbstring",
    "ok": true,
-   "ms": 515
+   "ms": 513
   },
   {
    "name": "unit_v423_ng_script_context_fp",
    "ok": true,
-   "ms": 507
+   "ms": 506
   },
   {
    "name": "unit_v423_ng_attribute_context_positive",
    "ok": true,
    "ms": 506
+  },
+  {
+   "name": "unit_l2_seed_filtering_and_slot_structure",
+   "ok": true,
+   "ms": 1
+  },
+  {
+   "name": "unit_l2_weakest_link_inferred_impact",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_journal_evidence_traceable",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_rejected_never_seed_and_banners_annotate",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_impact_grade_mapping",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_chain_composition_per_hop_evidence",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_zero_requests_socket_blocked",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
   }
  ],
  "passed": true

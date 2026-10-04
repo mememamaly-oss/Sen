@@ -5620,6 +5620,303 @@ def unit_v423_ng_attribute_context_positive():
         srv.shutdown(); srv.server_close()
 
 
+# ============================================================ L2 — ATTACK PATH INTELLIGENCE (v4.3.0)
+# Supervisor directive 2026-10-04 (L2 build order): discriminating tests FIRST —
+# these FAIL without the L2 module (ImportError) and PASS with it. The decisive
+# rule under test: a path equals its weakest link; any INFERRED link makes the
+# whole path INFERRED; no link is ever "verified" without an evidence reference
+# traceable to a verified finding / raw journal entry / scan artifact.
+
+
+def _l2_fixture_report():
+    """Synthetic scan report shaped exactly like a live orchestrator report:
+    journal with cookie provenance, twin stats, action matrix, 5 verified
+    findings (SQLi proven / xss_stored indicated / xss_dom proven / csrf
+    proven / missing-CSP banner) + rejected + unverified controls."""
+    def J(rid, method, url, req_headers=None, body="", status=200, resp_headers=None, resp_body=""):
+        return {rid: {"request": {"method": method, "url": url, "path": url.split("fixture.test", 1)[-1],
+                                  "headers": req_headers or {}, "body": body},
+                      "response": {"status": status, "headers": resp_headers or {}, "body": resp_body}}}
+    journal = {}
+    journal.update(J("req-100", "GET", "http://fixture.test/", {}, "", 200,
+                     {"set-cookie": "SID=anon1; Path=/"}, "<html>home</html>"))
+    journal.update(J("req-101", "GET", "http://fixture.test/item?id=7%20AND%201%3D1",
+                     {"Cookie": "SID=anon1"}, "", 200, {}, "rowA"))
+    journal.update(J("req-102", "GET", "http://fixture.test/item?id=7%20AND%201%3D2",
+                     {"Cookie": "SID=anon1"}, "", 200, {}, "rowB"))
+    journal.update(J("req-103", "POST", "http://fixture.test/comment",
+                     {"Cookie": "SID=anon1", "Content-Type": "application/x-www-form-urlencoded"},
+                     "text=%3Csentinelst0%3Ex&user=bob", 200, {}, "ok"))
+    journal.update(J("req-104", "GET", "http://fixture.test/comment",
+                     {"Cookie": "SID=anon1"}, "", 200, {}, "bob said: <sentinelst0>x"))
+    journal.update(J("req-105", "POST", "http://fixture.test/cart",
+                     {"Cookie": "SID=anon1", "Origin": "https://csrf-probe.example",
+                      "Content-Type": "application/x-www-form-urlencoded"},
+                     "productId=1&quantity=2&redir=%2Fcart", 200, {}, "added"))
+    journal.update(J("req-106", "GET", "http://fixture.test/blog?search=%3Cimg%20src%3Dx%3E",
+                     {"Cookie": "SID=anon1"}, "", 200, {}, "<div>blog</div>"))
+    return {
+        "run_id": "run-l2fixture", "seed": "seed-l2", "scanner": "sentinel-core/4.3.0",
+        "target": "http://fixture.test",
+        "stats": {"requests": 7, "request_journal": journal, "request_journal_dropped": 0,
+                  "digital_twin": {"identities": 0, "node_kinds": {"surface": 5},
+                                   "entity_inventory": [{"entity": "Message", "carried_by_params": 1,
+                                                         "surfaces": ["POST /comment"]}],
+                                   "authorization_matrix": {}},
+                  "action_matrix": {"identities": [{"name": "anonymous", "role": "anonymous"}],
+                                    "actions": ["read", "create"], "matrix": {}}},
+        "findings": [
+            {"id": "F-sqli01", "type": "sql_injection", "severity": "critical", "status": "verified",
+             "confidence": 0.95, "method": "GET", "url": "http://fixture.test/item", "parameter": "id",
+             "evidence": [{"kind": "response_diff", "detail": "body differential rowA vs rowB on condition flip"}],
+             "verification": {"method": "oracle:replay-2round", "passed": True, "confidence": 0.95,
+                              "rounds": 2, "notes": "replay TRUE=200 FALSE=200"},
+             "run_id": "run-l2fixture", "risk": 85,
+             "impact": {"grade": "proven", "statement": "Boolean differential oracle proven.",
+                        "safe_proof": "non-destructive verification",
+                        "evidence_chain": {"request": "GET http://fixture.test/item", "parameter": "id",
+                                           "evidence_kinds": ["response_diff"], "out_of_band": False,
+                                           "verification": "oracle:replay-2round", "verification_passed": True}}},
+            {"id": "F-sto01", "type": "xss_stored", "severity": "high", "status": "verified",
+             "confidence": 0.9, "method": "POST", "url": "http://fixture.test/comment", "parameter": "text",
+             "evidence": [{"kind": "stored_xss_reflection",
+                           "detail": "canary markup persisted server-side and rendered RAW on /comment — survived an independent re-fetch"},
+                          {"kind": "stored_xss_surfaces", "detail": "render surfaces: http://fixture.test/comment"}],
+             "verification": {"method": "re-test:fresh-canary-resubmit", "passed": True, "confidence": 0.9,
+                              "rounds": 2, "notes": "fresh canary re-submitted via the real form persisted raw"},
+             "run_id": "run-l2fixture", "risk": 27,
+             "impact": {"grade": "indicated",
+                        "statement": "Defect confirmed by verification; direct impact demonstration not implemented for this class.",
+                        "safe_proof": "non-destructive verification",
+                        "evidence_chain": {"request": "POST http://fixture.test/comment", "parameter": "text",
+                                           "evidence_kinds": ["stored_xss_reflection", "stored_xss_surfaces"],
+                                           "out_of_band": False,
+                                           "verification": "re-test:fresh-canary-resubmit", "verification_passed": True}}},
+            {"id": "F-dom01", "type": "xss_dom", "severity": "high", "status": "verified",
+             "confidence": 0.9, "method": "GET", "url": "http://fixture.test/blog", "parameter": "search",
+             "evidence": [{"kind": "dom_execution",
+                           "detail": "source=search sink=document.write — payload executed as markup; window.__SENTINEL_XSS__ set in live DOM"}],
+             "verification": {"method": "re-probe:fresh-canary", "passed": True, "confidence": 0.9,
+                              "rounds": 1, "notes": "execution probe fired"},
+             "run_id": "run-l2fixture", "risk": 60,
+             "impact": {"grade": "proven",
+                        "statement": "Attacker-controlled data reaches a dangerous DOM sink and EXECUTES in a real browser.",
+                        "safe_proof": "non-destructive verification",
+                        "evidence_chain": {"request": "GET http://fixture.test/blog", "parameter": "search",
+                                           "evidence_kinds": ["dom_execution"], "out_of_band": False,
+                                           "verification": "re-probe:fresh-canary", "verification_passed": True}}},
+            {"id": "F-csrf01", "type": "csrf", "severity": "medium", "status": "verified",
+             "confidence": 0.9, "method": "POST", "url": "http://fixture.test/cart",
+             "parameter": "productId, quantity, redir",
+             "evidence": [{"kind": "cross_origin_acceptance",
+                           "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200, cross-origin replay -> HTTP 200"}],
+             "verification": {"method": "re-test:fresh-hostile-origin", "passed": True, "confidence": 0.9,
+                              "rounds": 2, "notes": "hostile origin accepted"},
+             "run_id": "run-l2fixture", "risk": 40,
+             "impact": {"grade": "proven",
+                        "statement": "A state-changing request from a hostile origin was accepted.",
+                        "safe_proof": "non-destructive verification",
+                        "evidence_chain": {"request": "POST http://fixture.test/cart",
+                                           "parameter": "productId, quantity, redir",
+                                           "evidence_kinds": ["cross_origin_acceptance"], "out_of_band": False,
+                                           "verification": "re-test:fresh-hostile-origin", "verification_passed": True}}},
+            {"id": "F-hdr01", "type": "missing_security_headers", "severity": "low", "status": "verified",
+             "confidence": 0.98, "method": "GET", "url": "http://fixture.test/", "parameter": "",
+             "evidence": [{"kind": "header_absent", "detail": "missing: content-security-policy, x-frame-options"}],
+             "verification": {"method": "passive:header-scan", "passed": True, "confidence": 0.98,
+                              "rounds": 1, "notes": ""},
+             "run_id": "run-l2fixture", "risk": 20,
+             "impact": {"grade": "indicated", "statement": "Protective headers absent.",
+                        "safe_proof": "passive observation",
+                        "evidence_chain": {"request": "GET http://fixture.test/", "parameter": "",
+                                           "evidence_kinds": ["header_absent"], "out_of_band": False,
+                                           "verification": "passive:header-scan", "verification_passed": True}}},
+        ],
+        "rejected_candidates": [
+            {"id": "F-rej01", "type": "sql_injection", "severity": "critical", "status": "rejected",
+             "confidence": 0.2, "method": "GET", "url": "http://fixture.test/search", "parameter": "q",
+             "evidence": [{"kind": "response_diff", "detail": "noise"}],
+             "verification": {"method": "oracle:replay-2round", "passed": False, "confidence": 0.2,
+                              "rounds": 2, "notes": "did not reproduce"},
+             "run_id": "run-l2fixture", "risk": 10, "impact": {"grade": "indicated", "statement": "-",
+                                                               "safe_proof": "-", "evidence_chain": {}}}],
+        "unverified_candidates": [
+            {"id": "F-unc01", "type": "xss_reflected", "severity": "medium", "status": "candidate",
+             "confidence": 0.3, "method": "GET", "url": "http://fixture.test/search", "parameter": "q",
+             "evidence": [{"kind": "unescaped_reflection", "detail": "single observation"}],
+             "verification": None, "run_id": "run-l2fixture", "risk": 15,
+             "impact": {"grade": "indicated", "statement": "-", "safe_proof": "-", "evidence_chain": {}}}],
+    }
+
+
+@case
+def unit_l2_seed_filtering_and_slot_structure():
+    import sentinel.apath as apath
+    out = apath.build_attack_paths(_l2_fixture_report())
+    assert out["summary"]["paths_total"] == 6, out["summary"]  # 4 singles + 2 chains
+    seeds = {p["findings"][0] for p in out["paths"] if not p.get("hops")}
+    assert seeds == {"F-sqli01", "F-sto01", "F-dom01", "F-csrf01"}, seeds
+    all_ids = {f for p in out["paths"] for f in p["findings"]}
+    assert "F-rej01" not in all_ids and "F-unc01" not in all_ids, \
+        "rejected/unverified findings must never seed or join a path"
+    assert "F-hdr01" not in all_ids, "banner findings are annotations, never path seeds"
+    for p in out["paths"]:
+        assert [l["slot"] for l in p["links"]] == list(apath.PATH_SLOTS), p["id"]
+        assert p["classification"] in ("VERIFIED", "INFERRED")
+        assert (p["classification"] == "VERIFIED") == (not p["weak_links"]), \
+            "weakest-link rule: classification must match weak_links exactly"
+
+
+@case
+def unit_l2_weakest_link_inferred_impact():
+    import sentinel.apath as apath
+    out = apath.build_attack_paths(_l2_fixture_report())
+    p = next(p for p in out["paths"] if p["findings"] == ["F-sto01"])
+    assert p["classification"] == "INFERRED", "xss_stored (impact grade=indicated) must be INFERRED"
+    assert p["weak_links"] == ["impact"], p["weak_links"]
+    imp = next(l for l in p["links"] if l["slot"] == "impact")
+    assert imp["status"] == "inferred"
+    assert "not directly demonstrated" in imp["statement"] or "inferred" in imp["statement"].lower()
+    # every OTHER link of this path is verified — the defect chain itself is real
+    assert all(l["status"] == "verified" for l in p["links"] if l["slot"] != "impact"), \
+        [(l["slot"], l["status"]) for l in p["links"]]
+
+
+@case
+def unit_l2_fully_verified_path_requires_evidence_everywhere():
+    import sentinel.apath as apath
+    out = apath.build_attack_paths(_l2_fixture_report())
+    p = next(p for p in out["paths"] if p["findings"] == ["F-sqli01"])
+    assert p["classification"] == "VERIFIED" and p["weak_links"] == []
+    for l in p["links"]:
+        assert l["status"] == "verified", (l["slot"], l["status"])
+        assert l["evidence"], f"verified link {l['slot']} with NO evidence reference"
+        for e in l["evidence"]:
+            assert e["ref"] and e["excerpt"], f"empty ref/excerpt on {l['slot']}"
+
+
+@case
+def unit_l2_journal_evidence_traceable():
+    import sentinel.apath as apath
+    rep = _l2_fixture_report()
+    journal = rep["stats"]["request_journal"]
+    out = apath.build_attack_paths(rep)
+    p = next(p for p in out["paths"] if p["findings"] == ["F-sqli01"])
+    raw = json.dumps(journal)
+    # identity: cookie provenance cited from the journal (Set-Cookie on the unauthenticated GET /)
+    ident = next(l for l in p["links"] if l["slot"] == "identity")
+    ident_refs = {e["ref"] for e in ident["evidence"] if e["kind"] == "journal"}
+    assert "req-100" in ident_refs, f"cookie provenance req-100 must be cited: {ident_refs}"
+    assert "req-101" in ident_refs or "req-102" in ident_refs, "proving requests must be cited"
+    for e in ident["evidence"]:
+        if e["kind"] == "journal":
+            assert e["ref"] in journal, f"cited req {e['ref']} not in journal"
+            assert e["excerpt"] and e["excerpt"] in raw, \
+                f"excerpt must be a literal slice of the raw journal: {e['excerpt']!r}"
+    # entry: cites a raw proving request whose method+path match the finding
+    entry = next(l for l in p["links"] if l["slot"] == "entry")
+    entry_refs = [e for e in entry["evidence"] if e["kind"] == "journal"]
+    assert entry_refs, "entry link must cite the raw proving request"
+    assert any(journal[e["ref"]]["request"]["method"] == "GET"
+               and journal[e["ref"]]["request"]["url"].startswith("http://fixture.test/item")
+               for e in entry_refs), [(e["ref"], journal[e["ref"]]["request"]["url"]) for e in entry_refs]
+
+
+@case
+def unit_l2_rejected_never_seed_and_banners_annotate():
+    import sentinel.apath as apath
+    out = apath.build_attack_paths(_l2_fixture_report())
+    flat = json.dumps(out)
+    assert "F-rej01" not in flat and "F-unc01" not in flat
+    # the missing-CSP banner attaches as a verified mitigation-absence annotation on XSS paths
+    xss_paths = [p for p in out["paths"] if any(f in ("F-sto01", "F-dom01") for f in p["findings"])]
+    assert xss_paths and any(
+        m.get("header") == "content-security-policy" and m.get("finding_id") == "F-hdr01"
+        for p in xss_paths for m in p.get("mitigations_absent", [])), \
+        "CSP-absence must annotate XSS paths with its finding id"
+
+
+@case
+def unit_l2_determinism():
+    import sentinel.apath as apath
+    a = json.dumps(apath.build_attack_paths(_l2_fixture_report()), sort_keys=True)
+    b = json.dumps(apath.build_attack_paths(_l2_fixture_report()), sort_keys=True)
+    assert a == b, "L2 must be fully deterministic (same input -> byte-identical output)"
+    ids = [p["id"] for p in json.loads(a)["paths"]]
+    assert len(set(ids)) == len(ids), "path ids must be unique and stable"
+
+
+@case
+def unit_l2_impact_grade_mapping():
+    import sentinel.apath as apath
+    out = apath.build_attack_paths(_l2_fixture_report())
+    by_seed = {p["findings"][0]: p for p in out["paths"] if not p.get("hops")}
+    imp = {s: next(l for l in p["links"] if l["slot"] == "impact") for s, p in by_seed.items()}
+    assert imp["F-sqli01"]["status"] == "verified"      # grade proven
+    assert imp["F-dom01"]["status"] == "verified"       # grade proven
+    assert imp["F-csrf01"]["status"] == "verified"      # grade proven
+    assert imp["F-sto01"]["status"] == "inferred"       # grade indicated
+
+
+@case
+def unit_l2_chain_composition_per_hop_evidence():
+    import sentinel.apath as apath
+    out = apath.build_attack_paths(_l2_fixture_report())
+    chains = [p for p in out["paths"] if p.get("hops")]
+    assert len(chains) == 2, [p["title"] for p in chains]
+    # strong chain: xss_dom (executes in a real browser, proven) + csrf (tokenless cross-origin, proven)
+    strong = next(p for p in chains if set(p["findings"]) == {"F-dom01", "F-csrf01"})
+    assert strong["classification"] == "VERIFIED", (strong["classification"], strong["weak_links"])
+    hop_ids = {h["finding_id"] for h in strong["hops"]}
+    assert hop_ids == {"F-dom01", "F-csrf01"}, strong["hops"]
+    for h in strong["hops"]:
+        assert h["status"] == "verified" and h["evidence"], h
+    # weak chain: xss_stored (impact indicated — execution not demonstrated) + csrf -> bridge INFERRED
+    weak = next(p for p in chains if set(p["findings"]) == {"F-sto01", "F-csrf01"})
+    assert weak["classification"] == "INFERRED", weak["classification"]
+    assert weak["weak_links"] == ["bridge"], weak["weak_links"]
+    bridge = next(l for l in weak["links"] if l["slot"] == "action")
+    assert bridge["status"] == "inferred"
+
+
+@case
+def unit_l2_zero_requests_socket_blocked():
+    import sentinel.apath as apath
+    import socket as _socket
+    real = _socket.socket
+    def _boom(*a, **k):
+        raise AssertionError("L2 attempted a network call — it must be a pure projection")
+    _socket.socket = _boom
+    try:
+        out = apath.build_attack_paths(_l2_fixture_report())
+        assert out["summary"]["paths_total"] == 6
+    finally:
+        _socket.socket = real
+
+
+@case
+def unit_l2_no_verified_link_without_evidence_degraded_journal():
+    import sentinel.apath as apath
+    rep = _l2_fixture_report()
+    rep["stats"]["request_journal"] = {}   # degrade: journal stripped (older reports)
+    out = apath.build_attack_paths(rep)
+    assert out["summary"]["paths_total"] == 6
+    for p in out["paths"]:
+        for l in p["links"]:
+            if l["status"] == "verified":
+                assert l["evidence"], f"verified link {l['slot']} with no evidence after degradation"
+    # identity falls back to the scan artifact (action matrix), never to a guess
+    p = next(p for p in out["paths"] if p["findings"] == ["F-sqli01"])
+    ident = next(l for l in p["links"] if l["slot"] == "identity")
+    assert ident["status"] in ("verified", "unproven")
+    if ident["status"] == "verified":
+        assert any(e["kind"] == "scan_artifact" for e in ident["evidence"]), ident
+    # authorization without raw requests cannot stay verified for the SQLi seed
+    authz = next(l for l in p["links"] if l["slot"] == "authorization")
+    assert authz["status"] in ("inferred", "unproven"), authz
+    assert p["classification"] == "INFERRED", "journal-less degradation must weaken honestly, not pretend"
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

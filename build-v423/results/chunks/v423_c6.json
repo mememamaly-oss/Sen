@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 110,
+ "total": 120,
  "failed": 0,
  "cases": [
   {
@@ -426,12 +426,12 @@
   {
    "name": "regression_phase57_vault_end_to_end",
    "ok": true,
-   "ms": 11836
+   "ms": 11641
   },
   {
    "name": "unit_phase58_workflow_engine",
    "ok": true,
-   "ms": 19
+   "ms": 21
   },
   {
    "name": "unit_eng15_csrf_state_classifier",
@@ -486,12 +486,12 @@
   {
    "name": "unit_report_executive_and_glass",
    "ok": true,
-   "ms": 11
+   "ms": 12
   },
   {
    "name": "regression_phase58_logic_end_to_end",
    "ok": true,
-   "ms": 82044
+   "ms": 82743
   },
   {
    "name": "unit_v41_boundary_engine",
@@ -645,6 +645,66 @@
   },
   {
    "name": "unit_v423_ng_attribute_context_positive",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_seed_filtering_and_slot_structure",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_weakest_link_inferred_impact",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_journal_evidence_traceable",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_rejected_never_seed_and_banners_annotate",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_impact_grade_mapping",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_chain_composition_per_hop_evidence",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_zero_requests_socket_blocked",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
    "ok": true,
    "ms": 0,
    "skipped": true

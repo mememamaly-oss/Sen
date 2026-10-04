@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 110,
+ "total": 120,
  "failed": 0,
  "cases": [
   {
@@ -90,7 +90,7 @@
   {
    "name": "regression_form_param_location_follows_method",
    "ok": true,
-   "ms": 14
+   "ms": 13
   },
   {
    "name": "regression_scope_blocks_metadata_service",
@@ -105,7 +105,7 @@
   {
    "name": "unit_eng20_benchmark_owned_fixture",
    "ok": true,
-   "ms": 353
+   "ms": 359
   },
   {
    "name": "chaos_connection_reset_fail_safe",
@@ -115,7 +115,7 @@
   {
    "name": "chaos_garbage_and_huge_fail_safe",
    "ok": true,
-   "ms": 510
+   "ms": 508
   },
   {
    "name": "chaos_strategy_store_counts_only_verified",
@@ -130,7 +130,7 @@
   {
    "name": "regression_benchmark_autostarts_fixture",
    "ok": true,
-   "ms": 83065
+   "ms": 83106
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
@@ -145,7 +145,7 @@
   {
    "name": "regression_inline_js_url_extraction",
    "ok": true,
-   "ms": 566
+   "ms": 563
   },
   {
    "name": "regression_sqli_quote500_and_orpair_oracles",
@@ -645,6 +645,66 @@
   },
   {
    "name": "unit_v423_ng_attribute_context_positive",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_seed_filtering_and_slot_structure",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_weakest_link_inferred_impact",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_journal_evidence_traceable",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_rejected_never_seed_and_banners_annotate",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_impact_grade_mapping",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_chain_composition_per_hop_evidence",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_zero_requests_socket_blocked",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
    "ok": true,
    "ms": 0,
    "skipped": true

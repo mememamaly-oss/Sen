@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 110,
+ "total": 120,
  "failed": 0,
  "cases": [
   {
@@ -179,7 +179,7 @@
   {
    "name": "regression_crlf_header_injection_and_xxe_live",
    "ok": true,
-   "ms": 11216
+   "ms": 11240
   },
   {
    "name": "regression_vuln_js_dependency_passive",
@@ -189,7 +189,7 @@
   {
    "name": "regression_crawl_preserves_link_query",
    "ok": true,
-   "ms": 503
+   "ms": 504
   },
   {
    "name": "unit_oast_server_records_interactions",
@@ -199,7 +199,7 @@
   {
    "name": "regression_store_persistence_and_intelligence",
    "ok": true,
-   "ms": 8
+   "ms": 7
   },
   {
    "name": "regression_report_builder_outputs",
@@ -209,12 +209,12 @@
   {
    "name": "regression_oob_blind_xxe_end_to_end",
    "ok": true,
-   "ms": 71759
+   "ms": 72282
   },
   {
    "name": "unit_public_oast_provider_protocol",
    "ok": true,
-   "ms": 1111
+   "ms": 1114
   },
   {
    "name": "unit_make_oast_channel_policy",
@@ -224,12 +224,12 @@
   {
    "name": "regression_oob_public_channel_end_to_end",
    "ok": true,
-   "ms": 217542
+   "ms": 217680
   },
   {
    "name": "regression_eng08_self_callback_guard",
    "ok": true,
-   "ms": 3192
+   "ms": 3239
   },
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
@@ -239,7 +239,7 @@
   {
    "name": "regression_ssrf_cmdi_cors_end_to_end",
    "ok": true,
-   "ms": 73404
+   "ms": 73742
   },
   {
    "name": "regression_rest_api_server",
@@ -645,6 +645,66 @@
   },
   {
    "name": "unit_v423_ng_attribute_context_positive",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_seed_filtering_and_slot_structure",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_weakest_link_inferred_impact",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_journal_evidence_traceable",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_rejected_never_seed_and_banners_annotate",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_impact_grade_mapping",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_chain_composition_per_hop_evidence",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_zero_requests_socket_blocked",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
    "ok": true,
    "ms": 0,
    "skipped": true
