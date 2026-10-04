@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 133,
+ "total": 142,
  "failed": 0,
  "cases": [
   {
@@ -90,7 +90,7 @@
   {
    "name": "regression_form_param_location_follows_method",
    "ok": true,
-   "ms": 13
+   "ms": 63
   },
   {
    "name": "regression_scope_blocks_metadata_service",
@@ -105,7 +105,7 @@
   {
    "name": "unit_eng20_benchmark_owned_fixture",
    "ok": true,
-   "ms": 372
+   "ms": 362
   },
   {
    "name": "chaos_connection_reset_fail_safe",
@@ -115,7 +115,7 @@
   {
    "name": "chaos_garbage_and_huge_fail_safe",
    "ok": true,
-   "ms": 510
+   "ms": 509
   },
   {
    "name": "chaos_strategy_store_counts_only_verified",
@@ -130,12 +130,22 @@
   {
    "name": "regression_benchmark_autostarts_fixture",
    "ok": true,
-   "ms": 83095
+   "ms": 83221
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
    "ok": true,
    "ms": 0
+  },
+  {
+   "name": "unit_max06_spa_template_literal_endpoints",
+   "ok": true,
+   "ms": 504
+  },
+  {
+   "name": "unit_max07_l3_impact_allow_private_flag",
+   "ok": true,
+   "ms": 912
   },
   {
    "name": "regression_sqli_or_redirect_oracle",
@@ -145,17 +155,19 @@
   {
    "name": "regression_inline_js_url_extraction",
    "ok": true,
-   "ms": 562
+   "ms": 564
   },
   {
    "name": "regression_sqli_quote500_and_orpair_oracles",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "regression_sqli_orpair_bodydiff_verification_path_d",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "regression_xss_slashfree_canary",
@@ -333,6 +345,30 @@
   },
   {
    "name": "unit_auth05_token_bearer_modes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max01_token_closed_door_proof",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max02_authz_token_validate_url_resolution",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max03_sqlite_error_signature",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max05_openapi_path_template_instantiation",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -783,6 +819,24 @@
   },
   {
    "name": "unit_l3_scan_pipeline_untouched",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max08_l3_sql_family_conditions",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max09_paren_closing_sqli_context",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max10_logout_crawl_and_cookie_diet",
    "ok": true,
    "ms": 0,
    "skipped": true

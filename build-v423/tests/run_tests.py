@@ -4518,7 +4518,15 @@ def regression_v41_graphql_battery():
 
         def token_engine(tok):
             eng = RequestEngine(scope, bus, timeout=6)
-            prof = AuthProfile(login_url=base + "/gql/safe", token=tok)
+            # MAX-01 (closed-door proof): validate the token against the
+            # fixture's actually-GATED surface — {user(id:1)} answers 401
+            # anonymously and 200 with a valid token. The old /gql/safe
+            # validation URL is anonymously readable (the introspection
+            # exposure is the safe twin's ONE finding) and only ever
+            # "validated" under the pre-MAX-01 lax check this round fixed.
+            from urllib.parse import quote as _quote
+            prof = AuthProfile(login_url=base + "/gql/safe?query="
+                               + _quote("{user(id:1){id}}"), token=tok)
             return eng if TokenAuthEngine(prof, eng, bus).login() else None
 
         main = token_engine("alice-token")

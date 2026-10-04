@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 133,
+ "total": 142,
  "failed": 0,
  "cases": [
   {
@@ -143,6 +143,18 @@
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max06_spa_template_literal_endpoints",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max07_l3_impact_allow_private_flag",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -330,39 +342,57 @@
   {
    "name": "unit_waf_fingerprinter_named_signatures",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 20
   },
   {
    "name": "unit_tech_fingerprinter_platform_map",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 0
   },
   {
    "name": "unit_eng09_rate_limit_backoff",
    "ok": true,
-   "ms": 508
+   "ms": 516
   },
   {
    "name": "unit_auth05_token_bearer_modes",
    "ok": true,
-   "ms": 510
+   "ms": 511
+  },
+  {
+   "name": "unit_max01_token_closed_door_proof",
+   "ok": true,
+   "ms": 507
+  },
+  {
+   "name": "unit_max02_authz_token_validate_url_resolution",
+   "ok": true,
+   "ms": 516
+  },
+  {
+   "name": "unit_max03_sqlite_error_signature",
+   "ok": true,
+   "ms": 601
+  },
+  {
+   "name": "unit_max05_openapi_path_template_instantiation",
+   "ok": true,
+   "ms": 546
   },
   {
    "name": "unit_op02_sarif_export",
    "ok": true,
-   "ms": 12
+   "ms": 13
   },
   {
    "name": "unit_disc13_openapi_seed",
    "ok": true,
-   "ms": 518
+   "ms": 506
   },
   {
    "name": "regression_phase54_ops_stealth_composition",
    "ok": true,
-   "ms": 807
+   "ms": 789
   },
   {
    "name": "unit_phase55_detectors_and_gates",
@@ -372,7 +402,7 @@
   {
    "name": "regression_phase55_five_classes_end_to_end",
    "ok": true,
-   "ms": 82545
+   "ms": 82573
   },
   {
    "name": "unit_paramintel_value_shape_inference",
@@ -382,32 +412,38 @@
   {
    "name": "unit_coverage_tracker_accounting",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_secrets_scanner_classification_and_gates",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_evidence_impact_profiles",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_authz_engine_matrix_idor_vertical",
    "ok": true,
-   "ms": 547
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "regression_phase56_intelligence_end_to_end",
    "ok": true,
-   "ms": 81751
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_phase57_vault_crypto_lifecycle",
    "ok": true,
-   "ms": 89
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "regression_phase57_vault_end_to_end",
@@ -783,6 +819,24 @@
   },
   {
    "name": "unit_l3_scan_pipeline_untouched",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max08_l3_sql_family_conditions",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max09_paren_closing_sqli_context",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max10_logout_crawl_and_cookie_diet",
    "ok": true,
    "ms": 0,
    "skipped": true

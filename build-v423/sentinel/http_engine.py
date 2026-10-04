@@ -167,6 +167,18 @@ class RequestEngine:
                 body = _json.dumps(obj)
         parsed = urllib.parse.urlsplit(ep.url)
         base = urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path, "", ""))
+        # MAX-11 (maximum internal test, live-caught via the gql fixture):
+        # a bare Endpoint(url='...?a=1&b=2') with no parsed parameters used to
+        # render WITHOUT its query string — the URL's own query pairs are now
+        # preserved for any name the parameter list does not cover (callers
+        # like TokenAuthEngine build bare endpoints from URLs that carry state
+        # in the query; the auth validation silently degraded to "unknown
+        # operation" and MAX-01 then honestly refused the token).
+        _covered = {p.name for p in ep.parameters
+                    if p.location == ParamLocation.QUERY}
+        for _k, _v in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True):
+            if _k not in _covered and _k != m.param_name:
+                q.append((_k, _v))
         # MAX-05 (maximum internal test, live-caught on Juice Shop 20.2.0):
         # PATH-located endpoint parameters substitute into the URL template on
         # EVERY render — the endpoint's own value for baseline/passive fetches,

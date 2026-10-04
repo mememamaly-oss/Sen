@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 133,
+ "total": 142,
  "failed": 0,
  "cases": [
   {
@@ -51,7 +51,7 @@
   {
    "name": "regression_verification_rejects_false_candidate",
    "ok": true,
-   "ms": 23
+   "ms": 85
   },
   {
    "name": "regression_xss_verifier_waf_bypass",
@@ -66,12 +66,12 @@
   {
    "name": "regression_engine_preserves_redirect_oracle_e2e",
    "ok": true,
-   "ms": 534
+   "ms": 551
   },
   {
    "name": "unit_v422_sqli_numeric_comment_family",
    "ok": true,
-   "ms": 542
+   "ms": 552
   },
   {
    "name": "regression_form_param_location_follows_method",
@@ -129,6 +129,18 @@
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max06_spa_template_literal_endpoints",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max07_l3_impact_allow_private_flag",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -333,6 +345,30 @@
   },
   {
    "name": "unit_auth05_token_bearer_modes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max01_token_closed_door_proof",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max02_authz_token_validate_url_resolution",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max03_sqlite_error_signature",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max05_openapi_path_template_instantiation",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -783,6 +819,24 @@
   },
   {
    "name": "unit_l3_scan_pipeline_untouched",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max08_l3_sql_family_conditions",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max09_paren_closing_sqli_context",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max10_logout_crawl_and_cookie_diet",
    "ok": true,
    "ms": 0,
    "skipped": true

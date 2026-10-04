@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 133,
+ "total": 142,
  "failed": 0,
  "cases": [
   {
@@ -143,6 +143,18 @@
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max06_spa_template_literal_endpoints",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max07_l3_impact_allow_private_flag",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -352,6 +364,30 @@
    "skipped": true
   },
   {
+   "name": "unit_max01_token_closed_door_proof",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max02_authz_token_validate_url_resolution",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max03_sqlite_error_signature",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max05_openapi_path_template_instantiation",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
    "name": "unit_op02_sarif_export",
    "ok": true,
    "ms": 0,
@@ -390,48 +426,42 @@
   {
    "name": "unit_coverage_tracker_accounting",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 2
   },
   {
    "name": "unit_secrets_scanner_classification_and_gates",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 2
   },
   {
    "name": "unit_evidence_impact_profiles",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 2
   },
   {
    "name": "unit_authz_engine_matrix_idor_vertical",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 570
   },
   {
    "name": "regression_phase56_intelligence_end_to_end",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 83131
   },
   {
    "name": "unit_phase57_vault_crypto_lifecycle",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 90
   },
   {
    "name": "regression_phase57_vault_end_to_end",
    "ok": true,
-   "ms": 11886
+   "ms": 11608
   },
   {
    "name": "unit_phase58_workflow_engine",
    "ok": true,
-   "ms": 18
+   "ms": 21
   },
   {
    "name": "unit_eng15_csrf_state_classifier",
@@ -466,32 +496,38 @@
   {
    "name": "unit_planner_safety_gates",
    "ok": true,
-   "ms": 1
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_reasoning_hypothesis_lifecycle",
    "ok": true,
-   "ms": 1
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_evidence_os_proof_files",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_workflow_cross_identity_preconditions",
    "ok": true,
-   "ms": 1
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_report_executive_and_glass",
    "ok": true,
-   "ms": 11
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "regression_phase58_logic_end_to_end",
    "ok": true,
-   "ms": 82550
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_v41_boundary_engine",
@@ -783,6 +819,24 @@
   },
   {
    "name": "unit_l3_scan_pipeline_untouched",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max08_l3_sql_family_conditions",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max09_paren_closing_sqli_context",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max10_logout_crawl_and_cookie_diet",
    "ok": true,
    "ms": 0,
    "skipped": true

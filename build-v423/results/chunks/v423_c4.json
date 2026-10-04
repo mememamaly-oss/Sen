@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 133,
+ "total": 142,
  "failed": 0,
  "cases": [
   {
@@ -148,6 +148,18 @@
    "skipped": true
   },
   {
+   "name": "unit_max06_spa_template_literal_endpoints",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max07_l3_impact_allow_private_flag",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
    "name": "regression_sqli_or_redirect_oracle",
    "ok": true,
    "ms": 0,
@@ -246,24 +258,22 @@
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 507
   },
   {
    "name": "regression_ssrf_cmdi_cors_end_to_end",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 74354
   },
   {
    "name": "regression_rest_api_server",
    "ok": true,
-   "ms": 18812
+   "ms": 45817
   },
   {
    "name": "regression_cli_script_mode_all_subcommands",
    "ok": true,
-   "ms": 27352
+   "ms": 27685
   },
   {
    "name": "unit_disc10_divform_parsing",
@@ -288,7 +298,7 @@
   {
    "name": "e2e_browser_phase_full",
    "ok": true,
-   "ms": 12343
+   "ms": 12520
   },
   {
    "name": "unit_eng06_body_serialization_without_mutation",
@@ -298,7 +308,7 @@
   {
    "name": "unit_eng07_cookie_refresh_across_redirect_hops",
    "ok": true,
-   "ms": 503
+   "ms": 504
   },
   {
    "name": "unit_auth01_form_intelligent_login",
@@ -308,22 +318,24 @@
   {
    "name": "regression_auth_scan_finds_gated_surface_and_anonymous_does_not",
    "ok": true,
-   "ms": 3719
+   "ms": 3856
   },
   {
    "name": "regression_auth03_watchdog_reauth_midscan",
    "ok": true,
-   "ms": 2119
+   "ms": 2355
   },
   {
    "name": "unit_waf_fingerprinter_named_signatures",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_tech_fingerprinter_platform_map",
    "ok": true,
-   "ms": 0
+   "ms": 0,
+   "skipped": true
   },
   {
    "name": "unit_eng09_rate_limit_backoff",
@@ -333,6 +345,30 @@
   },
   {
    "name": "unit_auth05_token_bearer_modes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max01_token_closed_door_proof",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max02_authz_token_validate_url_resolution",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max03_sqlite_error_signature",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max05_openapi_path_template_instantiation",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -783,6 +819,24 @@
   },
   {
    "name": "unit_l3_scan_pipeline_untouched",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max08_l3_sql_family_conditions",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max09_paren_closing_sqli_context",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max10_logout_crawl_and_cookie_diet",
    "ok": true,
    "ms": 0,
    "skipped": true

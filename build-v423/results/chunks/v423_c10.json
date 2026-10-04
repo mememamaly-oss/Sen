@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 133,
+ "total": 142,
  "failed": 0,
  "cases": [
   {
@@ -143,6 +143,18 @@
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max06_spa_template_literal_endpoints",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max07_l3_impact_allow_private_flag",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -347,6 +359,30 @@
   },
   {
    "name": "unit_auth05_token_bearer_modes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max01_token_closed_door_proof",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max02_authz_token_validate_url_resolution",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max03_sqlite_error_signature",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max05_openapi_path_template_instantiation",
    "ok": true,
    "ms": 0,
    "skipped": true
@@ -726,43 +762,37 @@
   {
    "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 6
   },
   {
    "name": "unit_l3_safety_registries_fail_closed",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 13
   },
   {
    "name": "unit_l3_sqli_template_derivation_four_shapes",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 0
   },
   {
    "name": "unit_l3_sqli_plan_version_oracle_only",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 4
   },
   {
    "name": "unit_l3_traversal_allowlist_enforced",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 3
   },
   {
    "name": "unit_l3_xxe_hostname_file_only",
    "ok": true,
-   "ms": 0,
-   "skipped": true
+   "ms": 3
   },
   {
    "name": "unit_l3_csrf_own_session_additive_only",
    "ok": true,
-   "ms": 21
+   "ms": 3
   },
   {
    "name": "unit_l3_assessment_weakest_rule",
@@ -787,12 +817,29 @@
   {
    "name": "unit_l3_determinism",
    "ok": true,
-   "ms": 4
+   "ms": 5
   },
   {
    "name": "unit_l3_scan_pipeline_untouched",
    "ok": true,
-   "ms": 53
+   "ms": 55
+  },
+  {
+   "name": "unit_max08_l3_sql_family_conditions",
+   "ok": true,
+   "ms": 6
+  },
+  {
+   "name": "unit_max09_paren_closing_sqli_context",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
   }
  ],
  "passed": true
