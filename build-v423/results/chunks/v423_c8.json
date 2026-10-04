@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 121,
+ "total": 133,
  "failed": 0,
  "cases": [
   {
@@ -599,22 +599,22 @@
   {
    "name": "regression_v411_authz_token_accounts",
    "ok": true,
-   "ms": 551
+   "ms": 549
   },
   {
    "name": "regression_v41_self_security",
    "ok": true,
-   "ms": 2939
+   "ms": 2927
   },
   {
    "name": "unit_v41_no_hallucination_gate",
    "ok": true,
-   "ms": 891
+   "ms": 835
   },
   {
    "name": "regression_v41_full_platform",
    "ok": true,
-   "ms": 83302
+   "ms": 83086
   },
   {
    "name": "unit_v420_fail_closed_verification_defaults",
@@ -624,7 +624,7 @@
   {
    "name": "unit_v423_stored_xss_comment_form",
    "ok": true,
-   "ms": 515
+   "ms": 516
   },
   {
    "name": "unit_v423_stored_xss_get_form_cookie",
@@ -639,12 +639,12 @@
   {
    "name": "unit_v423_sqli_pathb_requires_dbstring",
    "ok": true,
-   "ms": 516
+   "ms": 513
   },
   {
    "name": "unit_v423_ng_script_context_fp",
    "ok": true,
-   "ms": 506
+   "ms": 505
   },
   {
    "name": "unit_v423_ng_attribute_context_positive",
@@ -711,6 +711,78 @@
   },
   {
    "name": "unit_l2_identity_citation_rotating_cookie",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_safety_registries_fail_closed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_template_derivation_four_shapes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_plan_version_oracle_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_traversal_allowlist_enforced",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_xxe_hostname_file_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_csrf_own_session_additive_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_assessment_weakest_rule",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_chain_conjunction",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_not_safe_to_prove_class",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_evidence_literal_slice",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_scan_pipeline_untouched",
    "ok": true,
    "ms": 0,
    "skipped": true

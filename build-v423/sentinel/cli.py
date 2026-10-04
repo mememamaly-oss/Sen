@@ -405,6 +405,20 @@ def main():
     apa.add_argument("--result", required=True, help="path to a scan result JSON")
     apa.add_argument("--out", default="", help="write the paths JSON here (default: stdout)")
     apa.add_argument("--paths-only", action="store_true", help="omit the summary block")
+    imp = sub.add_parser("impact", help="v4.4.0 (L3): Proven Real Impact — "
+                        "plan SAFE minimal-benign impact probes over a saved "
+                        "scan result; optionally execute them live and assess "
+                        "(VERIFIED only via a confirming fresh probe)")
+    imp.add_argument("--result", required=True, help="path to a scan result JSON")
+    imp.add_argument("--execute", action="store_true", help="issue the planned probes live "
+                      "(opt-in; the scan pipeline never does this)")
+    imp.add_argument("--redirect-sink", default="", help="our OAST channel URL for the "
+                      "open-redirect landing proof (default: the deterministic probe sink)")
+    imp.add_argument("--origin-probe", default="", help="hostile Origin header value "
+                      "for the CSRF own-session proof (default: the deterministic probe origin)")
+    imp.add_argument("--probe-journal", default="", help="write the raw probe journal JSON here")
+    imp.add_argument("--assessment", default="", help="write the assessment JSON here")
+    imp.add_argument("--report", default="", help="write the human evidence report (MD) here")
     srv = sub.add_parser("serve", help="REST API + web UI (Phase: REST/UI)")
     srv.add_argument("--host", default="127.0.0.1"); srv.add_argument("--port", type=int, default=8022)
     srv.add_argument("--db", default="results/sentinel.db")
@@ -736,6 +750,45 @@ def main():
                               "paths": len(out.get("paths", []))}))
         else:
             print(payload)
+    elif a.cmd == "impact":
+        # v4.4.0 (L3): Proven Real Impact. Pure planning by default (zero
+        # requests); --execute issues the planned probes live and assesses.
+        # The scan pipeline NEVER calls this layer (strictly opt-in).
+        from sentinel import impact as impact_mod
+        try:
+            with open(a.result, encoding="utf-8") as fh:
+                rep = json.load(fh)
+        except Exception as e:
+            print(json.dumps({"error": f"cannot read result: {e}"}), file=sys.stderr)
+            sys.exit(2)
+        kw = {}
+        if a.redirect_sink:
+            kw["redirect_sink"] = a.redirect_sink
+        if a.origin_probe:
+            kw["origin_probe"] = a.origin_probe
+        plan = impact_mod.plan_impact_probes(rep, **kw)
+        journal = {}
+        if a.execute:
+            from urllib.parse import urlsplit as _us
+            from sentinel.core import ScopeRule
+            from sentinel.http_engine import RequestEngine
+            from sentinel.core import EventBus
+            host = _us(rep.get("target") or "").netloc or _us(rep.get("target") or "").hostname or ""
+            scope = ScopeRule(allowed_domains=[host] if host else [], allow_private=False)
+            engine = RequestEngine(scope, EventBus("run-l3-cli"))
+            journal = impact_mod.execute_impact_probes(plan, engine)
+        assessment = impact_mod.assess_impacts(rep, plan, journal)
+        if a.probe_journal and journal:
+            with open(a.probe_journal, "w", encoding="utf-8") as fh:
+                fh.write(json.dumps(journal, indent=1, ensure_ascii=False) + "\n")
+        if a.assessment:
+            with open(a.assessment, "w", encoding="utf-8") as fh:
+                fh.write(json.dumps(assessment, indent=1, ensure_ascii=False) + "\n")
+        if a.report:
+            impact_mod.write_report(assessment, plan, journal, a.report)
+        print(json.dumps({"plan": plan["summary"],
+                          "assessment": assessment["summary"]},
+                         ensure_ascii=False))
     elif a.cmd == "capability-matrix":
         from sentinel.store import Store
         from sentinel.report import _capability_rows

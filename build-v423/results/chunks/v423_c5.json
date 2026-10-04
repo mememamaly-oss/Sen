@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 121,
+ "total": 133,
  "failed": 0,
  "cases": [
   {
@@ -347,12 +347,12 @@
   {
    "name": "unit_auth05_token_bearer_modes",
    "ok": true,
-   "ms": 509
+   "ms": 510
   },
   {
    "name": "unit_op02_sarif_export",
    "ok": true,
-   "ms": 13
+   "ms": 12
   },
   {
    "name": "unit_disc13_openapi_seed",
@@ -362,17 +362,17 @@
   {
    "name": "regression_phase54_ops_stealth_composition",
    "ok": true,
-   "ms": 859
+   "ms": 807
   },
   {
    "name": "unit_phase55_detectors_and_gates",
    "ok": true,
-   "ms": 524
+   "ms": 525
   },
   {
    "name": "regression_phase55_five_classes_end_to_end",
    "ok": true,
-   "ms": 82717
+   "ms": 82545
   },
   {
    "name": "unit_paramintel_value_shape_inference",
@@ -397,17 +397,17 @@
   {
    "name": "unit_authz_engine_matrix_idor_vertical",
    "ok": true,
-   "ms": 550
+   "ms": 547
   },
   {
    "name": "regression_phase56_intelligence_end_to_end",
    "ok": true,
-   "ms": 81898
+   "ms": 81751
   },
   {
    "name": "unit_phase57_vault_crypto_lifecycle",
    "ok": true,
-   "ms": 86
+   "ms": 89
   },
   {
    "name": "regression_phase57_vault_end_to_end",
@@ -711,6 +711,78 @@
   },
   {
    "name": "unit_l2_identity_citation_rotating_cookie",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_safety_registries_fail_closed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_template_derivation_four_shapes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_plan_version_oracle_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_traversal_allowlist_enforced",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_xxe_hostname_file_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_csrf_own_session_additive_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_assessment_weakest_rule",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_chain_conjunction",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_not_safe_to_prove_class",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_evidence_literal_slice",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_scan_pipeline_untouched",
    "ok": true,
    "ms": 0,
    "skipped": true

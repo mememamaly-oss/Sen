@@ -1351,6 +1351,15 @@ def doctor(allow_private=False) -> dict:
             "weakest-link classification live")
     except Exception as e:
         add("attack_path_layer", False, str(e)[:120])
+    # v4.4.0 (L3 — Proven Real Impact): the layer must plan safely from the
+    # fail-closed registries, refuse honestly, and NEVER verify an impact
+    # without a confirming fresh probe record (empty journal -> 0 verified).
+    try:
+        from .impact import doctor_check
+        ok, detail = doctor_check()
+        add("impact_layer", ok, detail)
+    except Exception as e:
+        add("impact_layer", False, str(e)[:120])
     # browser engine (Phase 50): DOM XSS phase needs Playwright + Chromium.
     # Absent browser = WARN (degraded, not broken): static DOM sink analysis still
     # runs and every other phase is unaffected; browser-only checks are skipped.

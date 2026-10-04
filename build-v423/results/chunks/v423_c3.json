@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 121,
+ "total": 133,
  "failed": 0,
  "cases": [
   {
@@ -179,7 +179,7 @@
   {
    "name": "regression_crlf_header_injection_and_xxe_live",
    "ok": true,
-   "ms": 11485
+   "ms": 11401
   },
   {
    "name": "regression_vuln_js_dependency_passive",
@@ -199,22 +199,22 @@
   {
    "name": "regression_store_persistence_and_intelligence",
    "ok": true,
-   "ms": 9
+   "ms": 7
   },
   {
    "name": "regression_report_builder_outputs",
    "ok": true,
-   "ms": 10
+   "ms": 14
   },
   {
    "name": "regression_oob_blind_xxe_end_to_end",
    "ok": true,
-   "ms": 71889
+   "ms": 72392
   },
   {
    "name": "unit_public_oast_provider_protocol",
    "ok": true,
-   "ms": 1114
+   "ms": 1113
   },
   {
    "name": "unit_make_oast_channel_policy",
@@ -224,12 +224,12 @@
   {
    "name": "regression_oob_public_channel_end_to_end",
    "ok": true,
-   "ms": 217515
+   "ms": 217476
   },
   {
    "name": "regression_eng08_self_callback_guard",
    "ok": true,
-   "ms": 3240
+   "ms": 3211
   },
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
@@ -239,7 +239,7 @@
   {
    "name": "regression_ssrf_cmdi_cors_end_to_end",
    "ok": true,
-   "ms": 73574
+   "ms": 73409
   },
   {
    "name": "regression_rest_api_server",
@@ -711,6 +711,78 @@
   },
   {
    "name": "unit_l2_identity_citation_rotating_cookie",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_safety_registries_fail_closed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_template_derivation_four_shapes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_plan_version_oracle_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_traversal_allowlist_enforced",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_xxe_hostname_file_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_csrf_own_session_additive_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_assessment_weakest_rule",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_chain_conjunction",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_not_safe_to_prove_class",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_evidence_literal_slice",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_scan_pipeline_untouched",
    "ok": true,
    "ms": 0,
    "skipped": true

@@ -5980,6 +5980,615 @@ def unit_l2_identity_citation_rotating_cookie():
     assert cited_any, "identity link must cite the journal when cookies are carried"
 
 
+# ============================================================================
+# L3 — PROVEN REAL IMPACT (v4.4.0). Discriminating tests (supervisor order,
+# trace 1a107bbe20c548bd). L3 sits above L2: for every attack path it proves
+# what the attacker ACTUALLY REACHES at the end (data / object / capability)
+# with the MINIMAL BENIGN live probe — "capability proven, not exploited".
+# Decisive rule: impact VERIFIED only via a fresh live probe from THIS L3 run;
+# reasoned-only -> INFERRED; attempted-but-unconfirmed -> PROBE_FAILED with the
+# measured numbers; no safe probe exists -> NOT_SAFE_TO_PROVE. Safety limits
+# are enforced in code (fail-closed allowlists) and tested below. All tests
+# here are pure/offline — the LIVE proofs run on the four authorized targets
+# and are recorded in build-v423/results/l3_impact_report.md.
+# ============================================================================
+
+def _l3_fixture_report():
+    """Reality-mirroring synthetic report: every journal shape below is the
+    byte-shape of a REAL round-7 live proving request (ginjuice / testasp /
+    testaspnet / gruyere2), so the planner's template derivation is exercised
+    against the same syntaxes the live targets accepted."""
+    def J(rid, method, url, req_headers=None, body="", status=200, resp_headers=None, resp_body=""):
+        return {rid: {"request": {"method": method, "url": url, "path": url.split("fixture.test", 1)[-1],
+                                  "headers": req_headers or {}, "body": body},
+                      "response": {"status": status, "headers": resp_headers or {}, "body": resp_body}}}
+    journal = {}
+    journal.update(J("req-300", "GET", "http://fixture.test/", {}, "", 200,
+                     {"set-cookie": "SID=anon3; Path=/"}, "<html>home</html>"))
+    # --- SQLi, string-context OR shape (ginjuice /catalog?category) ---
+    journal.update(J("req-301", "GET", "http://fixture.test/catalog?category=Gifts%27+OR+1%3D1--",
+                     {}, "", 200, {"content-length": "17111"}, "A" * 17111))
+    journal.update(J("req-302", "GET", "http://fixture.test/catalog?category=Gifts%27+OR+1%3D2--",
+                     {}, "", 200, {"content-length": "9426"}, "B" * 9426))
+    # --- SQLi, quoted-pair POST shape (testasp /Login.asp tfUName) ---
+    journal.update(J("req-311", "POST", "http://fixture.test/Login.asp",
+                     {"Content-Type": "application/x-www-form-urlencoded"},
+                     "tfUName=1%27+OR+%271%27%3D%271%27+--+&tfUPass=x", 200, {}, "T" * 4679))
+    journal.update(J("req-312", "POST", "http://fixture.test/Login.asp",
+                     {"Content-Type": "application/x-www-form-urlencoded"},
+                     "tfUName=1%27+OR+%271%27%3D%272%27+--+&tfUPass=x", 200, {}, "F" * 3167))
+    # --- SQLi, numeric AND shape (testasp /showforum.asp?id) ---
+    journal.update(J("req-321", "GET", "http://fixture.test/showforum.asp?id=2+AND+1%3D1",
+                     {}, "", 200, {}, "C" * 4679))
+    journal.update(J("req-322", "GET", "http://fixture.test/showforum.asp?id=2+AND+1%3D2",
+                     {}, "", 200, {}, "D" * 3167))
+    # --- XXE (ginjuice POST /catalog/product/stock) ---
+    journal.update(J("req-331", "POST", "http://fixture.test/catalog/product/stock",
+                     {"Content-Type": "application/xml"},
+                     '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe '
+                     'SYSTEM "file:///nonexistent-sentinel-control">]><stockCheck><productId>1</productId>'
+                     '<storeId>1</storeId><productId>&sentinelxxe;</productId></stockCheck>',
+                     200, {}, "0 units"))
+    # --- CSRF (ginjuice POST /catalog/cart): clean accepted shape + hostile replay ---
+    journal.update(J("req-341", "POST", "http://fixture.test/catalog/cart",
+                     {"Content-Type": "application/x-www-form-urlencoded"},
+                     "productId=1&redir=PRODUCT&quantity=1", 200, {}, "added to cart"))
+    journal.update(J("req-342", "POST", "http://fixture.test/catalog/cart",
+                     {"Content-Type": "application/x-www-form-urlencoded", "Origin": "https://csrf-probe.example"},
+                     "productId=1&redir=PRODUCT&quantity=1", 200, {}, "added to cart"))
+    # --- XSS reflected (ginjuice /catalog?category — JS-string reflection) ---
+    journal.update(J("req-351", "GET", "http://fixture.test/catalog?category=sentinelxssmarkerpro42",
+                     {}, "", 200, {}, 'const selectedCategory = "<sentinelxssmarkerpro42";'))
+    # --- XSS stored (testaspnet POST /Comments.aspx tbComment + render) ---
+    journal.update(J("req-361", "POST", "http://fixture.test/Comments.aspx",
+                     {"Content-Type": "application/x-www-form-urlencoded"},
+                     "__VIEWSTATE=%2FwEPDwUK&tbComment=%22+onload%3D%22sentinelAttr&storeId=1", 200, {}, "ok"))
+    journal.update(J("req-362", "GET", "http://fixture.test/Comments.aspx", {}, "", 200, {},
+                     '<div class=comment>" onload="sentinelAttr</div>'))
+    # --- path traversal (testasp /Templatize.asp?item win.ini) ---
+    journal.update(J("req-371", "GET", "http://fixture.test/Templatize.asp?item=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+                     {}, "", 200, {}, "; for 16-bit app support\n[fonts]\n[extensions]\n"))
+    # --- open redirect (ginjuice /blog/?search client redirect sink) ---
+    journal.update(J("req-381", "GET", "http://fixture.test/blog/?search=https%3A%2F%2Fsecond-host.example%2Fx",
+                     {}, "", 200, {}, "location = 'https://second-host.example/x';"))
+    # --- CRLF (ginjuice /catalog?category) ---
+    journal.update(J("req-391", "GET", "http://fixture.test/catalog?category=x%0d%0ax-sentinel-probe%3a%20injected",
+                     {}, "", 200, {"x-sentinel-probe": "injected; Secure; HttpOnly"}, "<html>catalog</html>"))
+
+    def mk(fid, ftype, method, url, param, ev, verif, grade, risk):
+        return {"id": fid, "type": ftype, "severity": "high", "status": "verified",
+                "confidence": 0.9, "method": method, "url": url, "parameter": param,
+                "evidence": ev, "verification": verif, "run_id": "run-l3fixture", "risk": risk,
+                "impact": {"grade": grade, "statement": "-", "safe_proof": "non-destructive verification",
+                           "evidence_chain": {"request": f"{method} {url}", "parameter": param,
+                                              "evidence_kinds": [e["kind"] for e in ev],
+                                              "out_of_band": False,
+                                              "verification": verif["method"],
+                                              "verification_passed": True}}}
+    findings = [
+        mk("F-l3sqli", "sql_injection", "GET", "http://fixture.test/catalog", "category",
+           [{"kind": "response_diff", "detail": "OR-pair body-size differential: TRUE 17111B vs FALSE 9426B"}],
+           {"method": "oracle:or-bodydiff-2round", "passed": True, "confidence": 0.95, "rounds": 2,
+            "notes": "fresh OR-pair body differential"}, "proven", 85),
+        mk("F-l3sqli2", "sql_injection", "POST", "http://fixture.test/Login.asp", "tfUName",
+           [{"kind": "response_diff", "detail": "body-size differential 4679B vs 3167B on condition flip"}],
+           {"method": "oracle:or-bodydiff-2round", "passed": True, "confidence": 0.95, "rounds": 2,
+            "notes": "login oracle"}, "proven", 85),
+        mk("F-l3sqli3", "sql_injection", "GET", "http://fixture.test/showforum.asp", "id",
+           [{"kind": "response_diff", "detail": "body-size differential 4679B vs 3167B on condition flip"}],
+           {"method": "oracle:replay-2round", "passed": True, "confidence": 0.95, "rounds": 2,
+            "notes": "numeric oracle"}, "proven", 85),
+        mk("F-l3xxe", "xxe", "POST", "http://fixture.test/catalog/product/stock", "productId",
+           [{"kind": "oob_callback", "detail": "target fetched the external entity out-of-band"}],
+           {"method": "re-test:fresh-interaction-id", "passed": True, "confidence": 0.9, "rounds": 1,
+            "notes": "fresh interaction id fetched out-of-band: True"}, "proven", 63),
+        mk("F-l3csrf", "csrf", "POST", "http://fixture.test/catalog/cart", "productId, redir, quantity",
+           [{"kind": "cross_origin_acceptance",
+             "detail": "state-changing POST accepted from hostile origin (https://csrf-probe.example)"}],
+           {"method": "re-test:fresh-hostile-origin", "passed": True, "confidence": 0.85, "rounds": 3,
+            "notes": "cross-origin replay accepted; malformed control rejected"}, "proven", 40),
+        mk("F-l3xssr", "xss_reflected", "GET", "http://fixture.test/catalog", "category",
+           [{"kind": "unescaped_reflection", "detail": "canary reflected raw in context"}],
+           {"method": "re-test:variant-battery-6", "passed": True, "confidence": 0.9, "rounds": 6,
+            "notes": "4/6 diverse vectors reflected raw"}, "proven", 55),
+        mk("F-l3sto", "xss_stored", "POST", "http://fixture.test/Comments.aspx", "tbComment",
+           [{"kind": "stored_xss_reflection", "detail": "canary persisted and rendered raw on /Comments.aspx"},
+            {"kind": "stored_xss_surfaces", "detail": "render surfaces: http://fixture.test/Comments.aspx"}],
+           {"method": "re-test:fresh-canary-resubmit", "passed": True, "confidence": 0.9, "rounds": 2,
+            "notes": "fresh canary resubmitted, persisted raw"}, "indicated", 27),
+        mk("F-l3trav", "path_traversal", "GET", "http://fixture.test/Templatize.asp", "item",
+           [{"kind": "path_file_marker", "detail": "content of win.ini leaked (marker '[fonts]' present)"}],
+           {"method": "re-test:same-marker-alt-depth", "passed": True, "confidence": 0.9, "rounds": 1,
+            "notes": "fresh GET reproduces the file marker: True"}, "proven", 63),
+        mk("F-l3redir", "open_redirect", "GET", "http://fixture.test/blog/", "search",
+           [{"kind": "body_redirect", "detail": "off-site URL injected into client redirect sink"}],
+           {"method": "re-test:second-host", "passed": True, "confidence": 0.85, "rounds": 1,
+            "notes": ""}, "proven", 45),
+        mk("F-l3crlf", "http_response_header_injection", "GET", "http://fixture.test/catalog", "category",
+           [{"kind": "header_value", "detail": "CRLF in param split a second response header"}],
+           {"method": "re-test:fresh-header-name", "passed": True, "confidence": 0.9, "rounds": 1,
+            "notes": "fresh vector split response header"}, "proven", 50),
+        mk("F-l3dom", "xss_dom", "GET", "http://fixture.test/blog/", "search",
+           [{"kind": "dom_execution",
+             "detail": "source=search sink=document.write — window.__SENTINEL_XSS__ set in live DOM"}],
+           {"method": "re-probe:fresh-canary", "passed": True, "confidence": 0.9, "rounds": 1,
+            "notes": "fresh canary executed as markup: True"}, "proven", 60),
+    ]
+    return {
+        "run_id": "run-l3fixture", "seed": "seed-l3", "scanner": "sentinel-core/4.4.0",
+        "target": "http://fixture.test",
+        "stats": {"requests": 18, "request_journal": journal, "request_journal_dropped": 0,
+                  "digital_twin": {"identities": 0, "node_kinds": {"surface": 9},
+                                   "entity_inventory": [], "authorization_matrix": {}},
+                  "action_matrix": {"identities": [{"name": "anonymous", "role": "anonymous"}],
+                                    "actions": ["read", "create"], "matrix": {}}},
+        "findings": findings,
+    }
+
+
+@case
+def unit_l3_safety_registries_fail_closed():
+    """The safety contract is enforced by allowlist/denylist CODE, not by good
+    intentions: version predicates in, data extraction out; benign files in,
+    secret files out; additive actions in, destructive actions out."""
+    import sentinel.impact as impact
+    assert impact.IMPACT_LAYER == "L3-proven-impact"
+    # SQLi conditions: only controls + version predicates over DB metadata
+    for cond in ("1=1", "1=2", "@@version LIKE '%'", "@@version LIKE 'zzz-sentinel-nope%'",
+                 "SUBSTRING(@@version,1,1)='8'", "version() LIKE '%'"):
+        ok, why = impact.validate_sqli_condition(cond)
+        assert ok, f"allowed condition refused: {cond} ({why})"
+    for cond in ("1=1 UNION SELECT password FROM users",
+                 "1=1; DROP TABLE users",
+                 "1=1 AND SLEEP(5)",
+                 "1=1 AND BENCHMARK(5000000,MD5('x'))",
+                 "1=1 UNION SELECT table_name FROM information_schema.tables",
+                 "1=1 INTO OUTFILE '/tmp/x'",
+                 "1=1 AND (SELECT password FROM users LIMIT 1)='x'",
+                 "1=1' WAITFOR DELAY '0:0:5'",
+                 "1=1 AND LOAD_FILE('/etc/passwd')",
+                 "1=1; SHUTDOWN"):
+        ok, why = impact.validate_sqli_condition(cond)
+        assert not ok, f"dangerous condition accepted: {cond}"
+        assert why, "refusal must carry a reason"
+    # file reads: benign allowlist only
+    for path in ("/etc/hostname", "/etc/passwd", "win.ini", "/etc/hosts"):
+        ok, why = impact.validate_read_file(path)
+        assert ok, f"benign file refused: {path} ({why})"
+    for path in ("/etc/shadow", "C:/boot.ini/../../web.config", "/home/user/.env",
+                 "/root/.ssh/id_rsa", "/app/.env", "etc/passwd/../../../etc/shadow",
+                 "/var/www/wp-config.php", "/proc/self/environ"):
+        ok, why = impact.validate_read_file(path)
+        assert not ok, f"secret file accepted: {path}"
+    # state changes: additive only, never destructive
+    ok, why = impact.validate_state_change("http://t/catalog/cart", "productId=1&redir=PRODUCT&quantity=1")
+    assert ok, why
+    for url, body in (("http://t/logout", ""), ("http://t/catalog/cart", "productId=1&action=delete"),
+                      ("http://t/account/delete", ""), ("http://t/reset-password", "pass=x"),
+                      ("http://t/catalog/cart", "productId=1&remove=all")):
+        ok, why = impact.validate_state_change(url, body)
+        assert not ok, f"destructive action accepted: {url} {body}"
+
+
+@case
+def unit_l3_sqli_template_derivation_four_shapes():
+    """Template derivation must reproduce the EXACT byte-shape of every real
+    working vector (roundtrip property) and substitute the version predicate
+    while preserving quote style, keyword and comment."""
+    import sentinel.impact as impact
+    # shape 1: string-context OR with comment (ginjuice/testaspnet GET)
+    t = impact.derive_bool_template("http://t/ReadNews.aspx?id=2%27+OR+1%3D1--", "", "id")
+    assert t and t["keyword"] == "OR" and t["kind"] == "query"
+    assert t["render"](t["orig_cond"]) == "2%27+OR+1%3D1--", t["render"](t["orig_cond"])
+    sub = t["render"]("@@version LIKE '%'")
+    assert sub == "2%27+OR+%40%40version+LIKE+%27%25%27--", sub
+    # shape 2: quoted-pair OR in a POST body (testasp Login.asp tfUName)
+    t2 = impact.derive_bool_template("http://t/Login.asp",
+                                     "tfUName=1%27+OR+%271%27%3D%271%27+--+&tfUPass=x", "tfUName")
+    assert t2 and t2["keyword"] == "OR" and t2["kind"] == "body" and t2["param"] == "tfUName"
+    assert t2["render"](t2["orig_cond"]) == "1%27+OR+%271%27%3D%271%27+--", t2["render"](t2["orig_cond"])
+    # shape 3: numeric AND without comment (testasp showforum.asp?id)
+    t3 = impact.derive_bool_template("http://t/showforum.asp?id=2+AND+1%3D1", "", "id")
+    assert t3 and t3["keyword"] == "AND"
+    assert t3["render"](t3["orig_cond"]) == "2+AND+1%3D1"
+    # shape 4: same shape on the FALSE side (1=2) derives the same template
+    t4 = impact.derive_bool_template("http://t/showforum.asp?id=2+AND+1%3D2", "", "id")
+    assert t4["render"](t4["orig_cond"]) == "2+AND+1%3D2"
+    # no boolean pattern -> no template -> planner must refuse (never guess)
+    assert impact.derive_bool_template("http://t/item?id=2", "", "id") is None
+
+
+@case
+def unit_l3_sqli_plan_version_oracle_only():
+    """The SQLi impact plan carries ONLY allowlisted predicates, derived from
+    the finding's own proven vector; a vector outside the allowlist is refused
+    at planning time (fail-closed, never guessed)."""
+    import socket as _socket
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    real = _socket.socket
+    def _boom(*a, **k):
+        raise AssertionError("L3 planning attempted a network call — planning must be pure")
+    _socket.socket = _boom
+    try:
+        plan = impact.plan_impact_probes(rep)
+    finally:
+        _socket.socket = real
+    sqli_plans = [p for p in plan["path_plans"] if p["probe_kind"] == "sql_version_oracle"]
+    assert len(sqli_plans) == 3, [p.get("probe_kind") for p in plan["path_plans"]]
+    for p in sqli_plans:
+        assert p["status"] == "PLANNED", p.get("refusal_reason")
+        labels = [r["label"] for r in p["requests"]]
+        assert "control_true" in labels and "control_false" in labels
+        assert "version_true" in labels and "version_false" in labels
+        blob = json.dumps(p)
+        for forbidden in ("UNION", "information_schema", "SLEEP", "BENCHMARK", "LOAD_FILE",
+                          "INTO OUTFILE", "password", "WAITFOR"):
+            assert forbidden.lower() not in blob.lower(), (forbidden, blob[:400])
+        for r in p["requests"]:
+            for cond in (r.get("condition") or "",):
+                if cond:
+                    ok, why = impact.validate_sqli_condition(cond)
+                    assert ok, f"plan emitted a non-allowlisted condition: {cond} ({why})"
+    # fail-closed: a finding whose proven vector itself is outside the allowlist
+    # (e.g. a UNION-based proof) never yields a version-oracle plan
+    rep2 = _l3_fixture_report()
+    rep2["stats"]["request_journal"]["req-301"]["request"]["url"] = \
+        "http://fixture.test/catalog?category=Gifts%27+UNION+SELECT+password+FROM+users--"
+    plan2 = impact.plan_impact_probes(rep2)
+    sqli2 = [p for p in plan2["path_plans"]
+             if p.get("findings") == ["F-l3sqli"] and p["probe_kind"] == "sql_version_oracle"]
+    assert sqli2 and sqli2[0]["status"] == "REFUSED", sqli2
+
+
+@case
+def unit_l3_traversal_allowlist_enforced():
+    """Traversal impact probes may only re-read the allowlisted benign file of
+    the proven shape (or the hostname variant); a secret-file vector is refused
+    at planning time and never appears in any planned request."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    plan = impact.plan_impact_probes(rep)
+    trav = [p for p in plan["path_plans"] if p["probe_kind"] == "traversal_file_read"]
+    assert len(trav) == 1 and trav[0]["status"] == "PLANNED", trav
+    urls = [r["url"] for r in trav[0]["requests"]]
+    assert any("win.ini" in u for u in urls), urls
+    for u in urls:
+        ok, _ = impact.validate_read_file(u)
+        assert ok, f"plan emitted a non-allowlisted file read: {u}"
+    # a traversal finding proven on a SECRET file must be refused, not probed
+    rep2 = _l3_fixture_report()
+    rep2["stats"]["request_journal"]["req-371"]["request"]["url"] = \
+        "http://fixture.test/Templatize.asp?item=..%2F..%2F..%2F..%2Fetc%2Fshadow"
+    plan2 = impact.plan_impact_probes(rep2)
+    blob = json.dumps(plan2)
+    assert "shadow" not in blob.replace("etc%2Fshadow", "shadow") or \
+        all(p["status"] == "REFUSED" for p in plan2["path_plans"]
+            if p["probe_kind"] == "traversal_file_read"), "secret file must be refused"
+    trav2 = [p for p in plan2["path_plans"] if p["probe_kind"] == "traversal_file_read"]
+    assert trav2 and trav2[0]["status"] == "REFUSED" and trav2[0]["refusal_reason"], trav2
+
+
+@case
+def unit_l3_xxe_hostname_file_only():
+    """XXE impact probes read ONE benign file (hostname) with a nonexistent-file
+    control, exfiltrating only to OUR OAST channel; secret files are refused."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    plan = impact.plan_impact_probes(rep)
+    xxe = [p for p in plan["path_plans"] if p["probe_kind"] == "xxe_file_read"]
+    assert len(xxe) == 1 and xxe[0]["status"] == "PLANNED", xxe
+    bodies = [r.get("body") or "" for r in xxe[0]["requests"]]
+    assert any("file:///etc/hostname" in b for b in bodies), bodies
+    assert any("nonexistent-sentinel-control" in b for b in bodies), "control entity missing"
+    for b in bodies:
+        for secret in ("shadow", ".env", "id_rsa", "web.config", ".ssh"):
+            assert secret not in b, f"XXE plan touches a secret path: {secret}"
+    # refusal path: a finding proven via a secret file never yields a plan
+    rep2 = _l3_fixture_report()
+    rep2["stats"]["request_journal"]["req-331"]["request"]["body"] = \
+        '<?xml version="1.0"?><!DOCTYPE d [<!ENTITY x SYSTEM "file:///etc/shadow">]><d>&x;</d>'
+    plan2 = impact.plan_impact_probes(rep2)
+    xxe2 = [p for p in plan2["path_plans"] if p["probe_kind"] == "xxe_file_read"]
+    assert xxe2 and xxe2[0]["status"] == "REFUSED", xxe2
+
+
+@case
+def unit_l3_csrf_own_session_additive_only():
+    """CSRF impact proof = a hostile-origin state change on a session WE minted
+    in this run (never a victim's), additive only, with before/after state."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    plan = impact.plan_impact_probes(rep)
+    csrf = [p for p in plan["path_plans"] if p["probe_kind"] == "csrf_own_session_state_change"]
+    assert len(csrf) == 1 and csrf[0]["status"] == "PLANNED", csrf
+    labels = [r["label"] for r in csrf[0]["requests"]]
+    assert labels == ["session_mint", "cart_baseline", "cross_origin_state_change", "cart_after"], labels
+    hostile = next(r for r in csrf[0]["requests"] if r["label"] == "cross_origin_state_change")
+    assert "Origin" in hostile["headers"] and hostile["headers"]["Origin"].startswith("https://")
+    assert hostile["headers"]["Origin"].endswith(".example")
+    ok, why = impact.validate_state_change(hostile["url"], hostile.get("body") or "")
+    assert ok, why
+    # the plan carries NO cookie material: the session is minted live by the
+    # executor on the same engine (own session by construction)
+    for r in csrf[0]["requests"]:
+        assert not any(k.lower() == "cookie" for k in (r.get("headers") or {})), r
+    # destructive surfaces are refused at planning time
+    rep2 = _l3_fixture_report()
+    for f in rep2["findings"]:
+        if f["id"] == "F-l3csrf":
+            f["url"] = "http://fixture.test/logout"
+    for k in ("req-341", "req-342"):
+        e = rep2["stats"]["request_journal"][k]["request"]
+        e["url"] = "http://fixture.test/logout"
+    plan2 = impact.plan_impact_probes(rep2)
+    csrf2 = [p for p in plan2["path_plans"] if p["probe_kind"] == "csrf_own_session_state_change"]
+    assert csrf2 and csrf2[0]["status"] == "REFUSED" and "destructive" in csrf2[0]["refusal_reason"].lower(), csrf2
+
+
+def _l3_probe_journal_confirming():
+    """A synthetic L3 probe journal whose entries CONFIRM every probe kind
+    (shaped exactly like the live executor records)."""
+    def E(rid, label, method, url, status=200, resp_headers=None, body="", req_body="", extra=None):
+        e = {"request": {"method": method, "url": url, "headers": {}, "body": req_body},
+             "response": {"status": status, "headers": resp_headers or {}, "body": body,
+                          "size": len(body)},
+             "label": label, "t": 1759614000.0 + int(rid[-4:]) * 0.5}
+        if extra:
+            e.update(extra)
+        return {rid: e}
+    j = {}
+    # SQLi version oracle (string OR shape): T=17111 F=9426, version_true with T-size,
+    # version_false with F-size, digit '8' with T-size (char extracted)
+    j.update(E("pr-0001", "control_true", "GET",
+               "http://fixture.test/catalog?category=Gifts%27+OR+1%3D1--", body="A" * 17111))
+    j.update(E("pr-0002", "control_false", "GET",
+               "http://fixture.test/catalog?category=Gifts%27+OR+1%3D2--", body="B" * 9426))
+    j.update(E("pr-0003", "version_true", "GET",
+               "http://fixture.test/catalog?category=Gifts%27+OR+%40%40version+LIKE+%27%25%27--",
+               body="A" * 17105))
+    j.update(E("pr-0004", "version_false", "GET",
+               "http://fixture.test/catalog?category=Gifts%27+OR+%40%40version+LIKE+%27zzz-sentinel-nope%25%27--",
+               body="B" * 9430))
+    j.update(E("pr-0005", "version_digit_8", "GET",
+               "http://fixture.test/catalog?category=Gifts%27+OR+SUBSTRING%28%40%40version%2C1%2C1%29%3D%278%27--",
+               body="A" * 17100))
+    # XXE: direct file read answers with the hostname content
+    j.update(E("pr-0011", "xxe_control", "POST", "http://fixture.test/catalog/product/stock",
+               req_body='<?xml version="1.0"?><!DOCTYPE d [<!ENTITY c SYSTEM '
+                        '"file:///nonexistent-sentinel-control">]><d>&c;</d>', body="Invalid product ID"))
+    j.update(E("pr-0012", "xxe_file_read", "POST", "http://fixture.test/catalog/product/stock",
+               req_body='<?xml version="1.0"?><!DOCTYPE d [<!ENTITY f SYSTEM '
+                        '"file:///etc/hostname">]><d>&f;</d>',
+               body="Invalid product ID: ip-10-2-31-142.eu-west-1.compute.internal"))
+    # CSRF own-session state change: baseline has 0 items, after has the item
+    j.update(E("pr-0021", "session_mint", "GET", "http://fixture.test/", body="<html>home</html>"))
+    j.update(E("pr-0022", "cart_baseline", "GET", "http://fixture.test/cart", body="<html>your cart is empty</html>"))
+    j.update(E("pr-0023", "cross_origin_state_change", "POST", "http://fixture.test/catalog/cart",
+               req_body="productId=1&redir=PRODUCT&quantity=1", body="added"))
+    j.update(E("pr-0024", "cart_after", "GET", "http://fixture.test/cart",
+               body="<html>your cart<ul><li><a href='/catalog/product?productId=1'>Fruit Press</a></li></ul></html>"))
+    # traversal: win.ini content
+    j.update(E("pr-0031", "file_read", "GET",
+               "http://fixture.test/Templatize.asp?item=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+               body="; for 16-bit app support\n[fonts]\n[extensions]\n"))
+    # CRLF: injected header present
+    j.update(E("pr-0041", "header_injection", "GET",
+               "http://fixture.test/catalog?category=x%0d%0ax-sentinel-l3-proof%3a%20capability-proven",
+               resp_headers={"x-sentinel-l3-proof": "capability-proven"}, body="<html>catalog</html>"))
+    # XSS browser executions (reflected attr-inject, stored raw markup, DOM)
+    j.update(E("pr-0051", "browser_exec", "GET",
+               "http://fixture.test/catalog?category=%22+onerror%3D%22window.__SENTINEL_XSS__%3D%27l3canary%27%22",
+               extra={"response": {"status": 200, "headers": {}, "body": "", "size": 0,
+                                   "browser": {"fired": True, "flag_value": "l3canary",
+                                               "variant": "attr_inject_onerror"}}}))
+    j.update(E("pr-0052", "browser_exec_stored", "GET", "http://fixture.test/Comments.aspx",
+               extra={"response": {"status": 200, "headers": {}, "body": "", "size": 0,
+                                   "browser": {"fired": True, "flag_value": "l3stocanary",
+                                               "variant": "raw_markup"}}}))
+    j.update(E("pr-0053", "browser_exec_dom", "GET",
+               "http://fixture.test/blog/?search=%22+onload%3D%22window.__SENTINEL_XSS__%3D%27l3domcanary%27%22",
+               extra={"response": {"status": 200, "headers": {}, "body": "", "size": 0,
+                                   "browser": {"fired": True, "flag_value": "l3domcanary",
+                                               "variant": "attr_inject_onload"}}}))
+    # open redirect: browser landed off-site on our OAST channel
+    j.update(E("pr-0061", "browser_redirect", "GET",
+               "http://fixture.test/blog/?search=https%3A%2F%2Fwebhook.site%2Ftoken%3Fi%3Dl3redir-ab12",
+               extra={"response": {"status": 200, "headers": {}, "body": "", "size": 0,
+                                   "browser": {"navigated_off_site": True,
+                                               "landed_url": "https://webhook.site/token?i=l3redir-ab12"}}}))
+    # stored-XSS resubmit + reflected resubmit requests
+    j.update(E("pr-0071", "stored_resubmit", "POST", "http://fixture.test/Comments.aspx",
+               req_body="__VIEWSTATE=%2FwEPDwUK&tbComment=%3Cimg+src%3Dx+onerror%3D%27window.__SENTINEL_XSS__%3D%22l3stocanary%22%27%3E&storeId=1",
+               body="ok"))
+    return j
+
+
+@case
+def unit_l3_assessment_weakest_rule():
+    """VERIFIED only with a confirming fresh probe; no evidence -> INFERRED;
+    attempted-but-unconfirmed -> PROBE_FAILED with the measured numbers —
+    the honest register, never a fake proof."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    plan = impact.plan_impact_probes(rep)
+    # empty journal: everything probed-but-missing degrades to INFERRED, never VERIFIED
+    empty = impact.assess_impacts(rep, plan, {})
+    assert empty["summary"]["verified"] == 0, empty["summary"]
+    assert all(i["status"] in ("INFERRED", "NOT_SAFE_TO_PROVE") for i in empty["impacts"])
+    for i in empty["impacts"]:
+        if i["status"] == "INFERRED":
+            assert i["reason"], "INFERRED must name its reason"
+    # confirming journal: the SQLi oracle verifies with the extracted version char
+    res = impact.assess_impacts(rep, plan, _l3_probe_journal_confirming())
+    by_pid = {i["path_id"]: i for i in res["impacts"]}
+    sqli = next(i for i in res["impacts"]
+                if i["probe_kind"] == "sql_version_oracle" and "F-l3sqli" in (i.get("findings") or []))
+    assert sqli["status"] == "VERIFIED", sqli
+    assert sqli["detail"]["version_char"] == "8", sqli["detail"]
+    assert sqli["evidence"], "VERIFIED impact must cite evidence"
+    # non-separating oracle (target drift): PROBE_FAILED with measured sizes, never VERIFIED
+    j = _l3_probe_journal_confirming()
+    j["pr-0003"]["response"]["body"] = "A" * 9500          # version_true collapsed toward FALSE
+    j["pr-0003"]["response"]["size"] = 9500
+    res2 = impact.assess_impacts(rep, plan, j)
+    sqli2 = next(i for i in res2["impacts"]
+                 if i["probe_kind"] == "sql_version_oracle" and "F-l3sqli" in (i.get("findings") or []))
+    assert sqli2["status"] == "PROBE_FAILED", sqli2
+    assert sqli2["detail"].get("version_true_size") == 9500, sqli2["detail"]
+
+
+@case
+def unit_l3_chain_conjunction():
+    """A chain's terminal impact is VERIFIED only when EVERY leg's impact is
+    proven fresh in this run; one failed leg names itself and the chain stays
+    INFERRED (the L2 weakest-link discipline extended to impact proofs)."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    plan = impact.plan_impact_probes(rep)
+    chains = [p for p in plan["path_plans"] if p["probe_kind"] == "chain_conjunction"]
+    assert len(chains) == 2, [p.get("probe_kind") for p in plan["path_plans"]]
+    for c in chains:
+        leg_kinds = {leg["probe_kind"] for leg in c["legs"]}
+        assert leg_kinds == {"xss_browser_execution", "csrf_own_session_state_change"}, leg_kinds
+    j = _l3_probe_journal_confirming()
+    res = impact.assess_impacts(rep, plan, j)
+    chain_impacts = [i for i in res["impacts"] if i["probe_kind"] == "chain_conjunction"]
+    assert chain_impacts and all(i["status"] == "VERIFIED" for i in chain_impacts), chain_impacts
+    # break ONE leg (the browser execution of the reflected leg): the chain that
+    # depends on it degrades to INFERRED naming the failed leg
+    j2 = _l3_probe_journal_confirming()
+    j2["pr-0051"]["response"]["browser"]["fired"] = False
+    res2 = impact.assess_impacts(rep, plan, j2)
+    for i in res2["impacts"]:
+        if i["probe_kind"] == "chain_conjunction":
+            if any(f == "F-l3xssr" for f in i.get("findings", [])):
+                assert i["status"] == "INFERRED", i
+                assert "xss" in i["reason"].lower(), i["reason"]
+    singles = {i["path_id"]: i for i in res2["impacts"] if i.get("findings") == ["F-l3csrf"]}
+    assert all(i["status"] == "VERIFIED" for i in singles.values()), singles
+
+
+@case
+def unit_l3_not_safe_to_prove_class():
+    """A class with no SAFE probe (command execution would need a real command)
+    is honestly recorded NOT_SAFE_TO_PROVE — never VERIFIED, never faked — with
+    the supervisor's exact honest label."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    # plant a verified command_injection finding + journal proof entry
+    cmd = {"id": "F-l3cmd", "type": "command_injection", "severity": "critical", "status": "verified",
+           "confidence": 0.9, "method": "GET", "url": "http://fixture.test/ping", "parameter": "host",
+           "evidence": [{"kind": "marker_in_body", "detail": "echo marker reflected"}],
+           "verification": {"method": "re-test:fresh-marker", "passed": True, "confidence": 0.9,
+                            "rounds": 1, "notes": "marker echoed"},
+           "run_id": "run-l3fixture", "risk": 90,
+           "impact": {"grade": "proven", "statement": "-", "safe_proof": "-",
+                      "evidence_chain": {"request": "GET http://fixture.test/ping", "parameter": "host",
+                                         "evidence_kinds": ["marker_in_body"], "out_of_band": False,
+                                         "verification": "re-test:fresh-marker", "verification_passed": True}}}
+    rep["findings"].append(cmd)
+    rep["stats"]["request_journal"]["req-399"] = {
+        "request": {"method": "GET", "url": "http://fixture.test/ping?host=sentinel-marker",
+                    "headers": {}, "body": ""},
+        "response": {"status": 200, "headers": {}, "body": "sentinel-marker"}}
+    plan = impact.plan_impact_probes(rep)
+    cmd_plan = next(p for p in plan["path_plans"] if p.get("findings") == ["F-l3cmd"])
+    assert cmd_plan["status"] == "NOT_SAFE_TO_PROVE", cmd_plan
+    # even a "confirming" journal entry can never promote it to VERIFIED
+    j = _l3_probe_journal_confirming()
+    j["pr-0099"] = {"request": {"method": "GET", "url": "http://fixture.test/ping?host=x",
+                                "headers": {}, "body": ""},
+                    "response": {"status": 200, "headers": {}, "body": "sentinel-marker", "size": 15},
+                    "label": "cmd", "t": 1759614099.0}
+    res = impact.assess_impacts(rep, plan, j)
+    cmd_impact = next(i for i in res["impacts"] if i.get("findings") == ["F-l3cmd"])
+    assert cmd_impact["status"] == "NOT_SAFE_TO_PROVE", cmd_impact
+    assert "غير قابلة للإثبات الآمن" in cmd_impact["reason"], cmd_impact["reason"]
+
+
+@case
+def unit_l3_evidence_literal_slice():
+    """Every VERIFIED impact's excerpt must be a literal substring of the cited
+    probe-journal entry's raw fields — the L2 evidence-integrity discipline,
+    extended to the L3 probe journal (zero-tolerance cross-check)."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    plan = impact.plan_impact_probes(rep)
+    j = _l3_probe_journal_confirming()
+    res = impact.assess_impacts(rep, plan, j)
+    assert res["summary"]["verified"] >= 7, res["summary"]
+    for i in res["impacts"]:
+        if i["status"] != "VERIFIED":
+            continue
+        assert i["evidence"], f"VERIFIED impact {i['path_id']} without evidence"
+        for e in i["evidence"]:
+            entry = j.get(e["ref"])
+            assert entry is not None, f"cited probe {e['ref']} not in journal"
+            req, resp = entry.get("request") or {}, entry.get("response") or {}
+            raw_fields = ([str(v) for v in (req.get("headers") or {}).values()]
+                          + [str(req.get("url") or ""), str(req.get("body") or "")]
+                          + [str(v) for v in (resp.get("headers") or {}).values()]
+                          + [str(resp.get("body") or ""), str(resp.get("body") or "")]
+                          + [str((resp.get("browser") or {}).get("flag_value") or ""),
+                             str((resp.get("browser") or {}).get("landed_url") or "")])
+            assert e["excerpt"] and any(e["excerpt"] in fld for fld in raw_fields), (
+                f"excerpt not a literal slice of cited probe {e['ref']}: {e['excerpt']!r}")
+
+
+@case
+def unit_l3_determinism():
+    """Planning and assessment are pure functions of their inputs: same report
+    and probe journal -> byte-identical serialized output (probe ids stable)."""
+    import sentinel.impact as impact
+    rep = _l3_fixture_report()
+    p1 = impact.plan_impact_probes(rep)
+    p2 = impact.plan_impact_probes(rep)
+    assert json.dumps(p1, sort_keys=True) == json.dumps(p2, sort_keys=True)
+    j = _l3_probe_journal_confirming()
+    a1 = impact.assess_impacts(rep, p1, j)
+    a2 = impact.assess_impacts(rep, p2, j)
+    assert json.dumps(a1, sort_keys=True) == json.dumps(a2, sort_keys=True)
+    # probe ids are deterministic (order-based, stable across runs)
+    assert [r["rid"] for p in p1["path_plans"] for r in p.get("requests", [])] == \
+           [r["rid"] for p in p2["path_plans"] for r in p.get("requests", [])]
+
+
+@case
+def unit_l3_scan_pipeline_untouched():
+    """L3 issues live requests, so it is STRICTLY OPT-IN: the scan pipeline and
+    its report never plan or execute impact probes, and L2's output is not
+    altered by L3's presence in the package (request-count stability is proven
+    separately by the bench gate staying 1959 requests)."""
+    import inspect
+    import sentinel.impact as impact
+    import sentinel.apath as apath
+    from sentinel import orchestrator
+    rep = _l3_fixture_report()
+    ap = apath.build_attack_paths(rep)
+    assert ap["summary"]["paths_total"] >= 8, ap["summary"]
+    # L2's serialized output carries no L3 contamination
+    assert "L3-proven-impact" not in json.dumps(ap)
+    # the scan coordinator's report path does not invoke the L3 layer
+    src = inspect.getsource(orchestrator.SentinelScanner.report)
+    for forbidden in ("from .impact", "import impact", "plan_impact_probes",
+                      "execute_impact_probes", "assess_impacts"):
+        assert forbidden not in src, f"report() must not reference L3 ({forbidden})"
+    # L3 planning itself is pure (no sockets) and never mutates the input report
+    import socket as _socket
+    snap = json.dumps(rep, sort_keys=True)
+    real = _socket.socket
+    def _boom(*a, **k):
+        raise AssertionError("L3 planning attempted a network call")
+    _socket.socket = _boom
+    try:
+        plan = impact.plan_impact_probes(rep)
+    finally:
+        _socket.socket = real
+    assert json.dumps(rep, sort_keys=True) == snap, "planning must not mutate the report"
+    assert plan["summary"]["planned"] >= 8, plan["summary"]
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

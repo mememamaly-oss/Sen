@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 121,
+ "total": 133,
  "failed": 0,
  "cases": [
   {
@@ -510,32 +510,32 @@
   {
    "name": "unit_v41_boundary_engine",
    "ok": true,
-   "ms": 2
+   "ms": 6
   },
   {
    "name": "unit_v41_coverage_dimensions",
    "ok": true,
-   "ms": 6
+   "ms": 4
   },
   {
    "name": "unit_v41_workflow_graph_model",
    "ok": true,
-   "ms": 593
+   "ms": 572
   },
   {
    "name": "regression_v41_flows_battery",
    "ok": true,
-   "ms": 775
+   "ms": 744
   },
   {
    "name": "regression_v41_graphql_battery",
    "ok": true,
-   "ms": 549
+   "ms": 543
   },
   {
    "name": "regression_v41_websocket_battery",
    "ok": true,
-   "ms": 18409
+   "ms": 18408
   },
   {
    "name": "unit_v41_twin_provenance",
@@ -550,12 +550,12 @@
   {
    "name": "unit_v41_memory",
    "ok": true,
-   "ms": 4
+   "ms": 3
   },
   {
    "name": "unit_v41_replay",
    "ok": true,
-   "ms": 546
+   "ms": 540
   },
   {
    "name": "unit_v41_planner_realtime_and_ci",
@@ -565,7 +565,7 @@
   {
    "name": "unit_v41_apintel_and_action_matrix",
    "ok": true,
-   "ms": 3
+   "ms": 2
   },
   {
    "name": "unit_v411_ws_shape_harvest",
@@ -575,7 +575,7 @@
   {
    "name": "unit_v411_ws_discovery_js_var_and_port",
    "ok": true,
-   "ms": 2514
+   "ms": 2513
   },
   {
    "name": "unit_v411_value_shaped_precision",
@@ -711,6 +711,78 @@
   },
   {
    "name": "unit_l2_identity_citation_rotating_cookie",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_safety_registries_fail_closed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_template_derivation_four_shapes",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_sqli_plan_version_oracle_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_traversal_allowlist_enforced",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_xxe_hostname_file_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_csrf_own_session_additive_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_assessment_weakest_rule",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_chain_conjunction",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_not_safe_to_prove_class",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_evidence_literal_slice",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_scan_pipeline_untouched",
    "ok": true,
    "ms": 0,
    "skipped": true

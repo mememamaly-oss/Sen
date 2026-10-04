@@ -3,7 +3,7 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-04 (UTC) — round 7 CLOSED: **L2 EVIDENCE IS NOW 100% FRESH-LIVE — ZERO PROJECTIONS** (supervisor order). The two projected targets were re-proven with TARGETED fresh live scans of exactly their attack-path surfaces (ginjuice run-1738d74ba4: 451.9s/395 live pairs, ALL 7 seeds re-verified with identical finding IDs, 9/9 paths VERIFIED incl. both chains; testaspnet run-4fe17c44cc: 493.4s/546 live pairs, 2/3 seeds re-verified). One path honestly NOT fresh-verified (testaspnet Comments.aspx SQLi — measured public-target content drift collapsed the boolean differential below the anti-FP threshold; recorded in the not-fresh-verified register, no fake proof). Totals: 20 paths / 18 VERIFIED / 2 INFERRED, all four targets freshness-confirmed (rebuild byte-identical, single-scan journal windows, 0 stale entries, every excerpt a literal slice). Full gate cycle re-run green: 121/121 + doctor 16/16 + bench ×3 identical 38/0/0/37 + verdict-diff vs frozen v4.2.2 = NONE. Remaining open: testfire re-scan when the host recovers.
+- Last updated: 2026-10-05 (UTC) — round 8 CLOSED: **L3 PROVEN REAL IMPACT BUILT, LIVE-EXECUTED, GATES GREEN** (supervisor order, trace 1a107bbe20c548bd). Layer `sentinel-impact/4.4.0` (`build-v423/sentinel/impact.py`): for every attack path, a SAFE minimal-benign live probe proves what the attacker actually reaches. LIVE run on all 4 authorized targets: **20 impact plans / 12 VERIFIED / 7 PROBE_FAILED / 1 INFERRED** — every VERIFIED backed by this run's own probe journal (literal-slice evidence, zero tolerance); every failure carries the measured numbers (no fake proof anywhere). Full gate cycle re-run green after the live iteration: **133/133** (121 + 12 L3 discriminating), doctor **17/17** (new impact_layer check), bench ×3 identical 38/0/0/37 @ 1959 reqs (L3 adds ZERO scan requests — strictly opt-in), verdict-diff vs frozen v4.2.2 NONE. The live iteration caught and fixed 5 real product defects (below). Round 7 state (L2 100% fresh-live) intact underneath.
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -85,6 +85,43 @@ into complete attack paths through the seven supervisor-defined links
     not-fresh-verified register) + `live_v430/l2_freshness_confirmation.json`;
     round-6 projection files archived under
     `live_v430/archive_round6_projections/`
+
+**L3 Proven Real Impact (v4.4.0)** — `build-v423/sentinel/impact.py`, the
+layer ABOVE L2. For every attack path: ONE safe minimal-benign live probe
+proving what the attacker ACTUALLY reaches at the end. 12 discriminating
+tests (121 → 133), doctor check 17 (impact_layer), CLI `impact` (pure plan
+by default; `--execute` is the only path that ever issues L3 requests —
+the scan pipeline NEVER calls this layer).
+- **The decisive rules, enforced in code and tested**: an impact is VERIFIED
+  only via a confirming fresh probe from THIS run's own journal; reasoned-
+  only → INFERRED; attempted-but-unconfirmed → PROBE_FAILED with the measured
+  numbers; no safe probe exists → NOT_SAFE_TO_PROVE with the honest Arabic
+  label (غير قابلة للإثبات الآمن). Safety ceiling fail-closed: SQLi =
+  tautology controls + version predicates + a 2-digit ladder over DB metadata
+  only; XXE/traversal = benign allowlisted files (hostname/passwd/hosts/
+  win.ini) only; state change = ONE additive cart-add in OUR OWN session with
+  a hostile Origin header; NEVER a destructive action, never a secret file,
+  never a victim session. أُثبتت القدرة، لم تُستغَل.
+- **LIVE run on the 4 authorized targets (2026-10-05): 20 impact plans /
+  12 VERIFIED / 7 PROBE_FAILED / 1 INFERRED** — ginjuice 5V (own-session
+  CSRF state change w/ hostile Origin; CRLF fresh-header split; open redirect
+  landed on OUR OAST channel — 1 recorded interaction; DOM XSS execution
+  attr_inject_onload; and the **xss_dom→csrf chain VERIFIED with BOTH legs
+  fresh**), testasp 5V (4 SQL version oracles incl. both Login.asp
+  auth-bypass surfaces + a win.ini read), testaspnet 1V (ReadNews version
+  oracle: control pair 30554B/13444B, version pair 30608B/13552B, digit
+  ladder measured null — the MSSQL version string starts with a letter),
+  gruyere2 1V (traversal /etc/passwd: the fresh read shares real passwd
+  lines with the original proving read).
+- Every honest failure is in the register with its measured numbers
+  (`results/l3_impact/l3_impact_report.md` + per-target probe journals /
+  plans / assessments under `results/l3_impact/<target>/`).
+- **5 live-caught product defects fixed with the L3 suite green after each**
+  (see section 4): the executor dropped every query string (Parameter field
+  order); str.replace corrupted cross-pair payload placement; stale
+  __VIEWSTATE silently rejected (WebForms needs the submit-button field);
+  traversal false-verified on shared ERROR-page boilerplate; the SQL
+  template could derive from the FALSE-side vector.
 
 **SaaS platform** — Next.js multi-tenant console (orgs/members RBAC, audit
 log, scan lifecycle, HTML/SARIF reports, AR/EN i18n, dark/light).
@@ -309,6 +346,41 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
   fix); all four targets' paths regenerated; ALL cross-checks now pass. The
   live-check discipline caught a real defect the 10 unit tests missed —
   which is exactly what live verification is for.
+- **L3 round 8 (2026-10-05): FIVE live-caught product defects, all fixed with
+  the discriminating suite (133/133) green after each, then the full gate
+  cycle re-run green at the end:**
+  1. **Executor dropped every query string** — `Parameter(name, value,
+     location)` was passed with the wrong field order (location is the
+     SECOND dataclass field); every GET probe went out URL-less (the
+     testaspnet oracle answered 200/0B pages). Caught by comparing the
+     engine's rendered URL against a direct request.
+  2. **str.replace corrupted cross-pair payload placement** — replacing a
+     param value by global substring hit the FIRST same-value pair (the
+     tbComment payload landed under `__EVENTTARGET=sentinel`). Fix: exact
+     pair-swap helpers (`_swap_query_value`/`_swap_body_value`) that touch
+     only the target pair, preserving every other byte.
+  3. **Stale `__VIEWSTATE` silently rejected + missing submit-button field**
+     — a WebForms postback replays the scan-journal body only when the
+     button field (`btnSend`) rides along AND the hidden fields are FRESH.
+     Fix: the planner prefers real-form entries (submit-button heuristic),
+     drops `__*` pairs from the planned bytes, and the executor harvests a
+     live GET before every stored_resubmit. (The app filtering the
+     `<img onerror>` comment TODAY was measured honestly: PROBE_FAILED.)
+  4. **Traversal false-VERIFIED on error pages** — the shared-marker rule
+     matched the DOCTYPE of two identical 500 pages. Fix: the fresh read
+     must be 2xx, and the planner/assessor both anchor to 2xx proving
+     entries. (This was a caught FALSE verification — the class of bug the
+     whole discipline exists to prevent.)
+  5. **SQL template could derive from the FALSE-side vector** (control_true
+     == control_false → guaranteed failure), and an arbitrary same-shape
+     entry could land the oracle on a different page. Fix: TRUE-form
+     normalization + a pick ranked by 2xx-first, then anchored to the
+     finding's own TRUE-side size, then quoted-shape.
+  Also fixed live: the CRLF split value may carry the merged next-header
+  tail (`; Secure; HttpOnly`) — confirmation now accepts the expected value
+  as a prefix; the redirect probe builds from the L0 verification entry
+  (ginjuice's linkback UI only renders while a search is active) and
+  exercises the page's own location-assigning anchor once.
 
 ---
 
@@ -413,17 +485,49 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
   shipped v4.3.0 pipeline; only discovery scoping was applied in-process
   and recorded inside the result files). The round-7 PAT is inline-only
   (never on disk); owner revokes at round acceptance.
+- **Round 8 (2026-10-05, L3 PROVEN REAL IMPACT — supervisor order
+  trace 1a107bbe20c548bd):** the L3 tests had been drafted in the pre-
+  collapse continuation (uncommitted 609-line insertion); this round built
+  `sentinel/impact.py` (~760 lines) to their spec, wired CLI `impact` +
+  doctor check 17, then LIVE-executed on the 4 authorized targets with
+  5 live-caught defects fixed (section 4) and the L3 suite green after
+  each. Final register: 20 impact plans / 12 VERIFIED / 7 PROBE_FAILED /
+  1 INFERRED. Full gate cycle re-run green (133/133, doctor 17/17, bench
+  ×3 identical 38/0/0/37 @ 1959 reqs, verdict-diff vs frozen v4.2.2 NONE).
+  Artifacts: results/l3_impact/ (per-target journals/plans/assessments +
+  combined report) + scripts/l3_live_probe.py, l3_build_report.py.
+  Push + ls-remote confirmation recorded in the worklog at round close.
+  The round-8 PAT is inline-only (never on disk); owner revokes at
+  round acceptance.
 
 ---
 
 ## ملخص عربي صادق (Arabic honest summary)
 
 ما هو مبني ومُثبت بالأرقام: محرك فحص DAST بإعادة تنفيذ حقيقية (v4.2.3، 16
-كاشفًا نشطًا، اختبارات 121/121، doctor 16/16، مرجعية ×3 متطابقة تمامًا
+كاشفًا نشطًا، اختبارات 133/133، doctor 17/17، مرجعية ×3 متطابقة تمامًا
 38/0/0/37 مع صفر تغيير أحكام مقابل v4.2.2 المجمّدة)، طبقة Twin أمنية
-بإصلاحات المشرف الأربعة (195/195 و210/210)، **طبقة L2 لذكاء مسارات
-الهجوم (v4.3.0)** — مفصولة أدناه —، منصة SaaS كاملة باختبارات عزل، وحملة
-حية على 5 أهداف مصرّح بها أنتجت 171 حزمة أدلة خام (577KB).
+بإصلاحات المشرف الأربعة (195/195 و210/210)، طبقة L2 لذكاء مسارات
+الهجوم (v4.3.0)، **طبقة L3 للأثر الحقيقي المُثبَت (v4.4.0)** — مفصولة
+أدناه —، منصة SaaS كاملة باختبارات عزل، وحملة حية على 5 أهداف مصرّح بها
+أنتجت 171 حزمة أدلة خام (577KB).
+
+طبقة L3 (الأثر الحقيقي المُثبَت، أمر المشرف trace 1a107bbe20c548bd):
+لكل مسار هجوم، مسبار واحد آمن بسيط يثبت ماذا يصل إليه المهاجم فعلًا في
+نهاية المسار — لا وصفًا بل قياسًا حيًا من تشغيل نفسه. القاعدة الحاسمة
+(مفروضة في الكود ومُختبرة): الأثر يُوثَّق VERIFIED فقط بمسبار حي مؤكِّد
+من دورة التشغيل نفسها؛ الاستنتاج وحده يبقى INFERRED؛ المحاولة الفاشلة
+تُسجَّل PROBE_FAILED بأرقامها المقاسة؛ ولا إثبات آمن موجود →
+NOT_SAFE_TO_PROVE بالعبارة الصادقة «القدرة مستنتَجة، غير قابلة
+للإثبات الآمن». سقف الأمان fail-closed في الكود: SQLi = عبارات تحكم
+ومسندات الإصدار فقط (لا استخراج بيانات أبدًا)، XXE/الاجتياز = ملفات
+حميدة من قائمة نافية فقط، تغيير الحالة = إضافة سلة واحدة في جلستنا
+نحن برأس معادٍ — أُثبتت القدرة، لم تُستغَل. التنفيذ الحي على الأهداف
+الأربعة: 20 خطة أثر / 12 VERIFIED / 7 PROBE_FAILED / 1 INFERRED،
+كل فشل بأرقامه، ولا برهان مزيف واحد — بما فيها سلسلة xss_dom→csrf
+كاملة الرجلين حيًا، وهبوط متصفح على قناة OAST الخاصة بنا. خمسة عيوب
+منتج حقيقية اصطادها الاختبار الحي وأُصلحت جميعًا (منها توثيق كاذب
+اكتُشف وأُبطل قبل الاعتماد) ثم أعيدت البوابات كاملة خضراء.
 
 المقايضة المكتشفة — نقرّ بها بصراحة كاملة: المحرك مضبوط للدقة وهذا يكلفه
 الاستدعاء في الاتجاهين. (1) فجوات حقيقية فاتته في الحملة: XSS مخزنة في

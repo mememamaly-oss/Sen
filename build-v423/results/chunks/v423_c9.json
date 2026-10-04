@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 121,
+ "total": 133,
  "failed": 0,
  "cases": [
   {
@@ -678,7 +678,7 @@
   {
    "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
    "ok": true,
-   "ms": 11
+   "ms": 6
   },
   {
    "name": "unit_l2_journal_evidence_traceable",
@@ -719,6 +719,73 @@
    "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0
+  },
+  {
+   "name": "unit_l3_safety_registries_fail_closed",
+   "ok": true,
+   "ms": 13
+  },
+  {
+   "name": "unit_l3_sqli_template_derivation_four_shapes",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_l3_sqli_plan_version_oracle_only",
+   "ok": true,
+   "ms": 4
+  },
+  {
+   "name": "unit_l3_traversal_allowlist_enforced",
+   "ok": true,
+   "ms": 3
+  },
+  {
+   "name": "unit_l3_xxe_hostname_file_only",
+   "ok": true,
+   "ms": 3
+  },
+  {
+   "name": "unit_l3_csrf_own_session_additive_only",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_assessment_weakest_rule",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_chain_conjunction",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_not_safe_to_prove_class",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_evidence_literal_slice",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_determinism",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l3_scan_pipeline_untouched",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
   }
  ],
  "passed": true

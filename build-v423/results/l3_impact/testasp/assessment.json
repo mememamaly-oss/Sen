@@ -1,0 +1,230 @@
+{
+ "layer": "sentinel-impact/4.4.0",
+ "target": "http://testasp.vulnweb.com",
+ "run_id": "run-e2a9fe4450",
+ "impacts": [
+  {
+   "path_id": "L3P-f398e21dd6",
+   "probe_kind": "sql_version_oracle",
+   "findings": [
+    "F-1b63b983d5"
+   ],
+   "title": "sql_version_oracle at /Login.asp (param tfUPass) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "control_true_size": 5931,
+    "control_false_size": 3235,
+    "version_true_size": 5931,
+    "version_false_size": 3235,
+    "version_char": null,
+    "digit_probes": {
+     "version_digit_5": 3235,
+     "version_digit_8": 3235
+    }
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0001",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0002",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0003",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0004",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-35d00e26d3",
+   "probe_kind": "sql_version_oracle",
+   "findings": [
+    "F-392b76b39c"
+   ],
+   "title": "sql_version_oracle at /showforum.asp (param id) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "control_true_size": 2965,
+    "control_false_size": 1208,
+    "version_true_size": 3035,
+    "version_false_size": 1208,
+    "version_char": null,
+    "digit_probes": {
+     "version_digit_5": 1208,
+     "version_digit_8": 1208
+    }
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0007",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0008",
+     "excerpt": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"ht"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0009",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0010",
+     "excerpt": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"ht"
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-3b04c26017",
+   "probe_kind": "sql_version_oracle",
+   "findings": [
+    "F-513d590d27"
+   ],
+   "title": "sql_version_oracle at /Login.asp (param tfUName) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "control_true_size": 5939,
+    "control_false_size": 3235,
+    "version_true_size": 5950,
+    "version_false_size": 3235,
+    "version_char": null,
+    "digit_probes": {
+     "version_digit_5": 3235,
+     "version_digit_8": 3235
+    }
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0013",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0014",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0015",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0016",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-253df22e59",
+   "probe_kind": "sql_version_oracle",
+   "findings": [
+    "F-5257ed42db"
+   ],
+   "title": "sql_version_oracle at /showthread.asp (param id) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "control_true_size": 3142,
+    "control_false_size": 1208,
+    "version_true_size": 3212,
+    "version_false_size": 1208,
+    "version_char": null,
+    "digit_probes": {
+     "version_digit_5": 1208,
+     "version_digit_8": 1208
+    }
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0019",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0020",
+     "excerpt": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"ht"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0021",
+     "excerpt": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional/"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0022",
+     "excerpt": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"ht"
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-16d0d4e8cc",
+   "probe_kind": "xss_browser_execution",
+   "findings": [
+    "F-9e99b000d0"
+   ],
+   "title": "xss_browser_execution at /Search.asp (param tfSearch) — minimal benign proof",
+   "status": "PROBE_FAILED",
+   "reason": "the browser did not execute the planned canary (measured below) — honest failure, never a fake proof",
+   "detail": {
+    "fired": false,
+    "observed_flag": "",
+    "expected_flag": "l3canary"
+   },
+   "evidence": []
+  },
+  {
+   "path_id": "L3P-2320951de8",
+   "probe_kind": "traversal_file_read",
+   "findings": [
+    "F-acb5de3e87"
+   ],
+   "title": "traversal_file_read at /Templatize.asp (param item) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "file": "om/Templatize.asp?item=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+    "shared_markers": [
+     "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">",
+     "<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->",
+     "<!-- InstanceBeginEditable name=\"doctitle\" -->",
+     "<title>Untitled Document</title>"
+    ]
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0026",
+     "excerpt": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.or"
+    }
+   ]
+  }
+ ],
+ "summary": {
+  "total": 6,
+  "verified": 5,
+  "inferred": 0,
+  "probe_failed": 1,
+  "not_safe": 0,
+  "refused": 0,
+  "honesty": "an impact is VERIFIED only via a confirming fresh live probe from this run; reasoned-only stays INFERRED; attempted-but-unconfirmed is PROBE_FAILED with the measured numbers. Capability proven, not exploited — أُثبتت القدرة، لم تُستغَل"
+ }
+}

