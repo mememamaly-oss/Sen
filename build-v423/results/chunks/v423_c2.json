@@ -90,7 +90,7 @@
   {
    "name": "regression_form_param_location_follows_method",
    "ok": true,
-   "ms": 37
+   "ms": 14
   },
   {
    "name": "regression_scope_blocks_metadata_service",
@@ -105,7 +105,7 @@
   {
    "name": "unit_eng20_benchmark_owned_fixture",
    "ok": true,
-   "ms": 365
+   "ms": 366
   },
   {
    "name": "chaos_connection_reset_fail_safe",
@@ -115,7 +115,7 @@
   {
    "name": "chaos_garbage_and_huge_fail_safe",
    "ok": true,
-   "ms": 509
+   "ms": 508
   },
   {
    "name": "chaos_strategy_store_counts_only_verified",
@@ -130,7 +130,7 @@
   {
    "name": "regression_benchmark_autostarts_fixture",
    "ok": true,
-   "ms": 83039
+   "ms": 83025
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
@@ -145,7 +145,7 @@
   {
    "name": "regression_inline_js_url_extraction",
    "ok": true,
-   "ms": 565
+   "ms": 563
   },
   {
    "name": "regression_sqli_quote500_and_orpair_oracles",

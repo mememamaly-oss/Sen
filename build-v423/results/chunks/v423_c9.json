@@ -678,7 +678,7 @@
   {
    "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
    "ok": true,
-   "ms": 6
+   "ms": 11
   },
   {
    "name": "unit_l2_journal_evidence_traceable",

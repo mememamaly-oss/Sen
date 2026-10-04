@@ -31,7 +31,7 @@
   {
    "name": "unit_strategy_ordering_deterministic",
    "ok": true,
-   "ms": 6
+   "ms": 5
   },
   {
    "name": "unit_repair_classifier_rules",
@@ -51,12 +51,12 @@
   {
    "name": "regression_verification_rejects_false_candidate",
    "ok": true,
-   "ms": 20
+   "ms": 28
   },
   {
    "name": "regression_xss_verifier_waf_bypass",
    "ok": true,
-   "ms": 513
+   "ms": 512
   },
   {
    "name": "regression_xss_verifier_rejects_encoded_only",
@@ -66,12 +66,12 @@
   {
    "name": "regression_engine_preserves_redirect_oracle_e2e",
    "ok": true,
-   "ms": 539
+   "ms": 537
   },
   {
    "name": "unit_v422_sqli_numeric_comment_family",
    "ok": true,
-   "ms": 540
+   "ms": 539
   },
   {
    "name": "regression_form_param_location_follows_method",

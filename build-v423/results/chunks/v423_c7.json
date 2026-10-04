@@ -515,32 +515,32 @@
   {
    "name": "unit_v41_coverage_dimensions",
    "ok": true,
-   "ms": 3
+   "ms": 6
   },
   {
    "name": "unit_v41_workflow_graph_model",
    "ok": true,
-   "ms": 586
+   "ms": 593
   },
   {
    "name": "regression_v41_flows_battery",
    "ok": true,
-   "ms": 760
+   "ms": 775
   },
   {
    "name": "regression_v41_graphql_battery",
    "ok": true,
-   "ms": 545
+   "ms": 549
   },
   {
    "name": "regression_v41_websocket_battery",
    "ok": true,
-   "ms": 18411
+   "ms": 18409
   },
   {
    "name": "unit_v41_twin_provenance",
    "ok": true,
-   "ms": 9
+   "ms": 8
   },
   {
    "name": "unit_v41_reasoning_records",
@@ -550,12 +550,12 @@
   {
    "name": "unit_v41_memory",
    "ok": true,
-   "ms": 3
+   "ms": 4
   },
   {
    "name": "unit_v41_replay",
    "ok": true,
-   "ms": 542
+   "ms": 546
   },
   {
    "name": "unit_v41_planner_realtime_and_ci",
@@ -565,7 +565,7 @@
   {
    "name": "unit_v41_apintel_and_action_matrix",
    "ok": true,
-   "ms": 2
+   "ms": 3
   },
   {
    "name": "unit_v411_ws_shape_harvest",

@@ -342,7 +342,7 @@
   {
    "name": "unit_eng09_rate_limit_backoff",
    "ok": true,
-   "ms": 506
+   "ms": 508
   },
   {
    "name": "unit_auth05_token_bearer_modes",
@@ -352,27 +352,27 @@
   {
    "name": "unit_op02_sarif_export",
    "ok": true,
-   "ms": 12
+   "ms": 13
   },
   {
    "name": "unit_disc13_openapi_seed",
    "ok": true,
-   "ms": 517
+   "ms": 518
   },
   {
    "name": "regression_phase54_ops_stealth_composition",
    "ok": true,
-   "ms": 790
+   "ms": 859
   },
   {
    "name": "unit_phase55_detectors_and_gates",
    "ok": true,
-   "ms": 523
+   "ms": 524
   },
   {
    "name": "regression_phase55_five_classes_end_to_end",
    "ok": true,
-   "ms": 82702
+   "ms": 82717
   },
   {
    "name": "unit_paramintel_value_shape_inference",
@@ -397,17 +397,17 @@
   {
    "name": "unit_authz_engine_matrix_idor_vertical",
    "ok": true,
-   "ms": 629
+   "ms": 550
   },
   {
    "name": "regression_phase56_intelligence_end_to_end",
    "ok": true,
-   "ms": 81920
+   "ms": 81898
   },
   {
    "name": "unit_phase57_vault_crypto_lifecycle",
    "ok": true,
-   "ms": 85
+   "ms": 86
   },
   {
    "name": "regression_phase57_vault_end_to_end",

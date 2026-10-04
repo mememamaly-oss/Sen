@@ -258,12 +258,12 @@
   {
    "name": "regression_rest_api_server",
    "ok": true,
-   "ms": 18824
+   "ms": 18810
   },
   {
    "name": "regression_cli_script_mode_all_subcommands",
    "ok": true,
-   "ms": 26495
+   "ms": 27397
   },
   {
    "name": "unit_disc10_divform_parsing",
@@ -283,12 +283,12 @@
   {
    "name": "unit_eng05_cookie_jar_session_continuity",
    "ok": true,
-   "ms": 513
+   "ms": 512
   },
   {
    "name": "e2e_browser_phase_full",
    "ok": true,
-   "ms": 12357
+   "ms": 12474
   },
   {
    "name": "unit_eng06_body_serialization_without_mutation",
@@ -303,17 +303,17 @@
   {
    "name": "unit_auth01_form_intelligent_login",
    "ok": true,
-   "ms": 516
+   "ms": 517
   },
   {
    "name": "regression_auth_scan_finds_gated_surface_and_anonymous_does_not",
    "ok": true,
-   "ms": 3352
+   "ms": 3440
   },
   {
    "name": "regression_auth03_watchdog_reauth_midscan",
    "ok": true,
-   "ms": 1892
+   "ms": 2129
   },
   {
    "name": "unit_waf_fingerprinter_named_signatures",

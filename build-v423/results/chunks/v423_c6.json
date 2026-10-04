@@ -426,12 +426,12 @@
   {
    "name": "regression_phase57_vault_end_to_end",
    "ok": true,
-   "ms": 11860
+   "ms": 11654
   },
   {
    "name": "unit_phase58_workflow_engine",
    "ok": true,
-   "ms": 21
+   "ms": 19
   },
   {
    "name": "unit_eng15_csrf_state_classifier",
@@ -486,12 +486,12 @@
   {
    "name": "unit_report_executive_and_glass",
    "ok": true,
-   "ms": 13
+   "ms": 11
   },
   {
    "name": "regression_phase58_logic_end_to_end",
    "ok": true,
-   "ms": 82808
+   "ms": 82707
   },
   {
    "name": "unit_v41_boundary_engine",

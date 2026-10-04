@@ -594,27 +594,27 @@
   {
    "name": "unit_v411_value_shaped_precision",
    "ok": true,
-   "ms": 18
+   "ms": 16
   },
   {
    "name": "regression_v411_authz_token_accounts",
    "ok": true,
-   "ms": 553
+   "ms": 551
   },
   {
    "name": "regression_v41_self_security",
    "ok": true,
-   "ms": 2934
+   "ms": 2939
   },
   {
    "name": "unit_v41_no_hallucination_gate",
    "ok": true,
-   "ms": 871
+   "ms": 891
   },
   {
    "name": "regression_v41_full_platform",
    "ok": true,
-   "ms": 83200
+   "ms": 83302
   },
   {
    "name": "unit_v420_fail_closed_verification_defaults",
@@ -624,7 +624,7 @@
   {
    "name": "unit_v423_stored_xss_comment_form",
    "ok": true,
-   "ms": 516
+   "ms": 515
   },
   {
    "name": "unit_v423_stored_xss_get_form_cookie",
@@ -634,12 +634,12 @@
   {
    "name": "unit_v423_path_traversal_urlpath",
    "ok": true,
-   "ms": 508
+   "ms": 507
   },
   {
    "name": "unit_v423_sqli_pathb_requires_dbstring",
    "ok": true,
-   "ms": 515
+   "ms": 516
   },
   {
    "name": "unit_v423_ng_script_context_fp",
@@ -659,7 +659,7 @@
   {
    "name": "unit_l2_weakest_link_inferred_impact",
    "ok": true,
-   "ms": 1
+   "ms": 0
   },
   {
    "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
