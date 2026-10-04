@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -515,32 +515,32 @@
   {
    "name": "unit_v41_coverage_dimensions",
    "ok": true,
-   "ms": 2
+   "ms": 3
   },
   {
    "name": "unit_v41_workflow_graph_model",
    "ok": true,
-   "ms": 573
+   "ms": 586
   },
   {
    "name": "regression_v41_flows_battery",
    "ok": true,
-   "ms": 736
+   "ms": 760
   },
   {
    "name": "regression_v41_graphql_battery",
    "ok": true,
-   "ms": 544
+   "ms": 545
   },
   {
    "name": "regression_v41_websocket_battery",
    "ok": true,
-   "ms": 18409
+   "ms": 18411
   },
   {
    "name": "unit_v41_twin_provenance",
    "ok": true,
-   "ms": 8
+   "ms": 9
   },
   {
    "name": "unit_v41_reasoning_records",
@@ -550,17 +550,17 @@
   {
    "name": "unit_v41_memory",
    "ok": true,
-   "ms": 4
+   "ms": 3
   },
   {
    "name": "unit_v41_replay",
    "ok": true,
-   "ms": 541
+   "ms": 542
   },
   {
    "name": "unit_v41_planner_realtime_and_ci",
    "ok": true,
-   "ms": 12
+   "ms": 13
   },
   {
    "name": "unit_v41_apintel_and_action_matrix",
@@ -575,7 +575,7 @@
   {
    "name": "unit_v411_ws_discovery_js_var_and_port",
    "ok": true,
-   "ms": 2513
+   "ms": 2514
   },
   {
    "name": "unit_v411_value_shaped_precision",
@@ -705,6 +705,12 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0,
    "skipped": true

@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -31,7 +31,7 @@
   {
    "name": "unit_strategy_ordering_deterministic",
    "ok": true,
-   "ms": 5
+   "ms": 6
   },
   {
    "name": "unit_repair_classifier_rules",
@@ -51,12 +51,12 @@
   {
    "name": "regression_verification_rejects_false_candidate",
    "ok": true,
-   "ms": 24
+   "ms": 20
   },
   {
    "name": "regression_xss_verifier_waf_bypass",
    "ok": true,
-   "ms": 512
+   "ms": 513
   },
   {
    "name": "regression_xss_verifier_rejects_encoded_only",
@@ -66,12 +66,12 @@
   {
    "name": "regression_engine_preserves_redirect_oracle_e2e",
    "ok": true,
-   "ms": 536
+   "ms": 539
   },
   {
    "name": "unit_v422_sqli_numeric_comment_family",
    "ok": true,
-   "ms": 537
+   "ms": 540
   },
   {
    "name": "regression_form_param_location_follows_method",
@@ -705,6 +705,12 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0,
    "skipped": true

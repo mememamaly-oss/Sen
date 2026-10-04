@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -258,12 +258,12 @@
   {
    "name": "regression_rest_api_server",
    "ok": true,
-   "ms": 18838
+   "ms": 18824
   },
   {
    "name": "regression_cli_script_mode_all_subcommands",
    "ok": true,
-   "ms": 27882
+   "ms": 26495
   },
   {
    "name": "unit_disc10_divform_parsing",
@@ -288,7 +288,7 @@
   {
    "name": "e2e_browser_phase_full",
    "ok": true,
-   "ms": 12674
+   "ms": 12357
   },
   {
    "name": "unit_eng06_body_serialization_without_mutation",
@@ -303,17 +303,17 @@
   {
    "name": "unit_auth01_form_intelligent_login",
    "ok": true,
-   "ms": 518
+   "ms": 516
   },
   {
    "name": "regression_auth_scan_finds_gated_surface_and_anonymous_does_not",
    "ok": true,
-   "ms": 3834
+   "ms": 3352
   },
   {
    "name": "regression_auth03_watchdog_reauth_midscan",
    "ok": true,
-   "ms": 2215
+   "ms": 1892
   },
   {
    "name": "unit_waf_fingerprinter_named_signatures",
@@ -705,6 +705,12 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0,
    "skipped": true

@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -594,27 +594,27 @@
   {
    "name": "unit_v411_value_shaped_precision",
    "ok": true,
-   "ms": 17
+   "ms": 18
   },
   {
    "name": "regression_v411_authz_token_accounts",
    "ok": true,
-   "ms": 549
+   "ms": 553
   },
   {
    "name": "regression_v41_self_security",
    "ok": true,
-   "ms": 2931
+   "ms": 2934
   },
   {
    "name": "unit_v41_no_hallucination_gate",
    "ok": true,
-   "ms": 842
+   "ms": 871
   },
   {
    "name": "regression_v41_full_platform",
    "ok": true,
-   "ms": 83063
+   "ms": 83200
   },
   {
    "name": "unit_v420_fail_closed_verification_defaults",
@@ -624,22 +624,22 @@
   {
    "name": "unit_v423_stored_xss_comment_form",
    "ok": true,
-   "ms": 515
+   "ms": 516
   },
   {
    "name": "unit_v423_stored_xss_get_form_cookie",
    "ok": true,
-   "ms": 509
+   "ms": 510
   },
   {
    "name": "unit_v423_path_traversal_urlpath",
    "ok": true,
-   "ms": 507
+   "ms": 508
   },
   {
    "name": "unit_v423_sqli_pathb_requires_dbstring",
    "ok": true,
-   "ms": 513
+   "ms": 515
   },
   {
    "name": "unit_v423_ng_script_context_fp",
@@ -659,7 +659,7 @@
   {
    "name": "unit_l2_weakest_link_inferred_impact",
    "ok": true,
-   "ms": 0
+   "ms": 1
   },
   {
    "name": "unit_l2_fully_verified_path_requires_evidence_everywhere",
@@ -705,6 +705,12 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0,
    "skipped": true

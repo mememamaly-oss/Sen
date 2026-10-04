@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -712,6 +712,11 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0
   }

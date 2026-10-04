@@ -227,11 +227,17 @@ def _link_identity(f, ctx, rids):
             if k.lower() == "cookie":
                 for n in _cookie_names(v):
                     cookies.append(n)
-                    cookie_vals[n] = v
+                    # REGRESSION FIX (live ginjuice, round 6): a load-balancer
+                    # cookie (AWSALB) ROTATES between proving requests. Keep the
+                    # value PAIRED with the request id it was seen in, so the
+                    # excerpt is always a literal slice of the CITED entry —
+                    # citation and excerpt must never come from different entries.
+                    cookie_vals[n] = (r, v)
     cookies = sorted(set(cookies))[:3]
     if cookies and rids:
         prov = ctx.cookie_provenance(cookies)
-        ev = [_ev("journal", rids[0], cookie_vals.get(cookies[0], "; ".join(cookies)))]
+        crid, cval = cookie_vals.get(cookies[0], (rids[0], "; ".join(cookies)))
+        ev = [_ev("journal", crid, cval)]
         if cookies[0] in prov:
             prid, setc = prov[cookies[0]]
             ev.append(_ev("journal", prid, setc))

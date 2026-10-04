@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -179,7 +179,7 @@
   {
    "name": "regression_crlf_header_injection_and_xxe_live",
    "ok": true,
-   "ms": 11240
+   "ms": 11419
   },
   {
    "name": "regression_vuln_js_dependency_passive",
@@ -199,22 +199,22 @@
   {
    "name": "regression_store_persistence_and_intelligence",
    "ok": true,
-   "ms": 7
+   "ms": 8
   },
   {
    "name": "regression_report_builder_outputs",
    "ok": true,
-   "ms": 10
+   "ms": 11
   },
   {
    "name": "regression_oob_blind_xxe_end_to_end",
    "ok": true,
-   "ms": 72282
+   "ms": 71820
   },
   {
    "name": "unit_public_oast_provider_protocol",
    "ok": true,
-   "ms": 1114
+   "ms": 1113
   },
   {
    "name": "unit_make_oast_channel_policy",
@@ -224,12 +224,12 @@
   {
    "name": "regression_oob_public_channel_end_to_end",
    "ok": true,
-   "ms": 217680
+   "ms": 217468
   },
   {
    "name": "regression_eng08_self_callback_guard",
    "ok": true,
-   "ms": 3239
+   "ms": 3255
   },
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
@@ -239,7 +239,7 @@
   {
    "name": "regression_ssrf_cmdi_cors_end_to_end",
    "ok": true,
-   "ms": 73742
+   "ms": 73627
   },
   {
    "name": "regression_rest_api_server",
@@ -705,6 +705,12 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0,
    "skipped": true

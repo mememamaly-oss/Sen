@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -90,7 +90,7 @@
   {
    "name": "regression_form_param_location_follows_method",
    "ok": true,
-   "ms": 13
+   "ms": 37
   },
   {
    "name": "regression_scope_blocks_metadata_service",
@@ -105,7 +105,7 @@
   {
    "name": "unit_eng20_benchmark_owned_fixture",
    "ok": true,
-   "ms": 359
+   "ms": 365
   },
   {
    "name": "chaos_connection_reset_fail_safe",
@@ -115,7 +115,7 @@
   {
    "name": "chaos_garbage_and_huge_fail_safe",
    "ok": true,
-   "ms": 508
+   "ms": 509
   },
   {
    "name": "chaos_strategy_store_counts_only_verified",
@@ -130,7 +130,7 @@
   {
    "name": "regression_benchmark_autostarts_fixture",
    "ok": true,
-   "ms": 83106
+   "ms": 83039
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
@@ -145,7 +145,7 @@
   {
    "name": "regression_inline_js_url_extraction",
    "ok": true,
-   "ms": 563
+   "ms": 565
   },
   {
    "name": "regression_sqli_quote500_and_orpair_oracles",
@@ -705,6 +705,12 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0,
    "skipped": true

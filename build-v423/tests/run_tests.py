@@ -5917,6 +5917,69 @@ def unit_l2_no_verified_link_without_evidence_degraded_journal():
     assert p["classification"] == "INFERRED", "journal-less degradation must weaken honestly, not pretend"
 
 
+@case
+def unit_l2_identity_citation_rotating_cookie():
+    """REGRESSION (live ginjuice, round 6): a load-balancer cookie (AWSALB)
+    ROTATES between proving requests. The identity builder excerpted the
+    cookie header of the LAST proving request while citing the FIRST one, so
+    the excerpt was not a literal slice of the cited journal entry — an
+    evidence-integrity violation caught by the live cross-checks. Rule: the
+    excerpt and the citation must come from the SAME journal entry."""
+    import sentinel.apath as apath
+    def J(rid, method, url, req_headers=None, body="", status=200, resp_headers=None, resp_body=""):
+        return {rid: {"request": {"method": method, "url": url, "path": url.split("fixture.test", 1)[-1],
+                                  "headers": req_headers or {}, "body": body},
+                      "response": {"status": status, "headers": resp_headers or {}, "body": resp_body}}}
+    journal = {}
+    journal.update(J("req-200", "GET", "http://fixture.test/", {}, "", 200,
+                     {"set-cookie": "AWSALB=aaa; Path=/"}, "<html>home</html>"))
+    # two proving requests: SAME cookie name, DIFFERENT values (rotated by the LB)
+    journal.update(J("req-201", "GET", "http://fixture.test/item?id=7%20AND%201%3D1",
+                     {"Cookie": "AWSALB=bbb"}, "", 200, {}, "rowA"))
+    journal.update(J("req-202", "GET", "http://fixture.test/item?id=7%20AND%201%3D2",
+                     {"Cookie": "AWSALB=ccc"}, "", 200, {}, "rowB"))
+    finding = {"id": "F-rot01", "type": "sql_injection", "severity": "critical", "status": "verified",
+               "confidence": 0.95, "method": "GET", "url": "http://fixture.test/item", "parameter": "id",
+               "evidence": [{"kind": "response_diff", "detail": "body differential rowA vs rowB on condition flip"}],
+               "verification": {"method": "oracle:replay-2round", "passed": True, "confidence": 0.95,
+                                "rounds": 2, "notes": "replay"},
+               "run_id": "run-rotfixture", "risk": 85,
+               "impact": {"grade": "proven", "statement": "Boolean differential oracle proven.",
+                          "safe_proof": "non-destructive verification",
+                          "evidence_chain": {"request": "GET http://fixture.test/item", "parameter": "id",
+                                             "evidence_kinds": ["response_diff"], "out_of_band": False,
+                                             "verification": "oracle:replay-2round", "verification_passed": True}}}
+    rep = {"run_id": "run-rotfixture", "seed": "seed-rot", "scanner": "sentinel-core/4.3.0",
+           "target": "http://fixture.test",
+           "stats": {"requests": 3, "request_journal": journal, "request_journal_dropped": 0,
+                     "digital_twin": {"identities": 0, "node_kinds": {"surface": 1},
+                                      "entity_inventory": [], "authorization_matrix": {}},
+                     "action_matrix": {"identities": [{"name": "anonymous", "role": "anonymous"}],
+                                       "actions": ["read"], "matrix": {}}},
+           "findings": [finding]}
+    out = apath.build_attack_paths(rep)
+    assert out["summary"]["paths_total"] == 1
+    p = out["paths"][0]
+    ident = next(l for l in p["links"] if l["slot"] == "identity")
+    assert ident["status"] == "verified"
+    cited_any = False
+    for e in ident["evidence"]:
+        if e["kind"] != "journal":
+            continue
+        cited_any = True
+        entry = journal.get(e["ref"])
+        assert entry is not None, f"cited request {e['ref']} not in journal"
+        req, resp = entry.get("request") or {}, entry.get("response") or {}
+        raw_fields = ([str(v) for v in (req.get("headers") or {}).values()]
+                      + [str(req.get("url") or ""), str(req.get("body") or "")]
+                      + [str(v) for v in (resp.get("headers") or {}).values()]
+                      + [str(resp.get("body") or "")])
+        assert any(e["excerpt"] and e["excerpt"] in fld for fld in raw_fields), (
+            f"excerpt not a literal slice of the CITED entry {e['ref']} "
+            f"(rotating-cookie citation bug): {e['excerpt']!r}")
+    assert cited_any, "identity link must cite the journal when cookies are carried"
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

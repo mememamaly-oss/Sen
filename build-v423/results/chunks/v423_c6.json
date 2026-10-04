@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 120,
+ "total": 121,
  "failed": 0,
  "cases": [
   {
@@ -426,7 +426,7 @@
   {
    "name": "regression_phase57_vault_end_to_end",
    "ok": true,
-   "ms": 11641
+   "ms": 11860
   },
   {
    "name": "unit_phase58_workflow_engine",
@@ -486,12 +486,12 @@
   {
    "name": "unit_report_executive_and_glass",
    "ok": true,
-   "ms": 12
+   "ms": 13
   },
   {
    "name": "regression_phase58_logic_end_to_end",
    "ok": true,
-   "ms": 82743
+   "ms": 82808
   },
   {
    "name": "unit_v41_boundary_engine",
@@ -705,6 +705,12 @@
   },
   {
    "name": "unit_l2_no_verified_link_without_evidence_degraded_journal",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
    "ms": 0,
    "skipped": true
