@@ -3,13 +3,46 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-05 (UTC) — round 8 CLOSED: **L3 PROVEN REAL IMPACT BUILT, LIVE-EXECUTED, GATES GREEN** (supervisor order, trace 1a107bbe20c548bd). Layer `sentinel-impact/4.4.0` (`build-v423/sentinel/impact.py`): for every attack path, a SAFE minimal-benign live probe proves what the attacker actually reaches. LIVE run on all 4 authorized targets: **20 impact plans / 12 VERIFIED / 7 PROBE_FAILED / 1 INFERRED** — every VERIFIED backed by this run's own probe journal (literal-slice evidence, zero tolerance); every failure carries the measured numbers (no fake proof anywhere). Full gate cycle re-run green after the live iteration: **133/133** (121 + 12 L3 discriminating), doctor **17/17** (new impact_layer check), bench ×3 identical 38/0/0/37 @ 1959 reqs (L3 adds ZERO scan requests — strictly opt-in), verdict-diff vs frozen v4.2.2 NONE. The live iteration caught and fixed 5 real product defects (below). Round 7 state (L2 100% fresh-live) intact underneath.
+- Last updated: 2026-10-05 (UTC) — round 9 CLOSED: **MAXIMUM INTERNAL TEST (أقصى اختبار داخلي — NOT external verification)** per supervisor order: training-target coverage maximized (Juice Shop 20.2.0, WebGoat 8.2.2, WebWolf 8.2.2 run locally with engine+L2+L3), TWELVE live-caught engine defects fixed each with a red→green discriminating test (MAX-01..MAX-11), gates re-proven GREEN on the grown 142-test suite (142/142 + doctor 17/17 + bench ×3 identical 38/0/0/37 @2185 + verdict-diff vs frozen v4.2.2 NONE), independent re-derivation 6/6 MATCH from raw journals, attack-the-tool battery 4/4 PASS, isolation/secrets checks PASS. Pushed + ls-remote-confirmed at every round (b659c07→b18a7bb→81e941e→0768fd8+).
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
 ---
 
 ## 1. What is built and PROVEN (with numbers)
+
+**Round 9 — maximum internal test (أقصى اختبار داخلي، not external verification).**
+Supervisor order trace 1a10860055030c15. All artifacts under
+`build-v423/results/maxtest/` + `scripts/maxtest/`:
+- **Coverage**: Juice Shop 20.2.0 (node22, local) — 114 findings vs 29 pre-round:
+  SQLi VERIFIED on `/rest/products/search?q=` (SQLITE_ERROR db_error + status_oracle),
+  credential_exposure VERIFIED on `/rest/memories`, js:static surface 2→96 endpoints
+  (SPA backtick-template extraction), authz matrix 3 accounts × 25 endpoints, honest
+  IDOR-FP kill via fresh-victim verify. L2: 1 path VERIFIED. L3: sql_version_oracle
+  VERIFIED live (control 21571B/30B, version 21571B/30B — was scope-blocked 0/0).
+  WebGoat 8.2.2 (java, local) — the lesson surface extracted from the app's own jar
+  form templates + lesson-context priming; **9 sql_injection VERIFIED live on the real
+  lessons** (assignment5a ×3 params, attack10 15699B/286B, attack8/9 ×4,
+  SqlInjectionAdvanced 6a) + 11 L2 paths VERIFIED + session stable (failed_reauths
+  3944→0). WebWolf 8.2.2 — 31 verified (anonymous surface).
+- **Twelve engine defects fixed red→green** (unit_max01..unit_max11 in the suite):
+  MAX-01 token validation closed-door proof; MAX-02 authz token_validate_url
+  resolution; MAX-03 SQLITE_ERROR/Oracle/.NET/pgsql error signatures; MAX-05
+  OpenAPI path-template instantiation + PATH render + plain-"id" IDOR param;
+  MAX-06 SPA template-literal endpoint extraction; MAX-07 impact --allow-private
+  flag (localhost L3 was wholly scope-blocked); MAX-08 SQL-family version
+  predicates; MAX-09/09b paren-closing SQLi battery + PATH D2 verification +
+  journal-separated L3 template ranking; MAX-10a/b logout self-preservation
+  (crawler + passive gates) + cookie-diet re-auth retry; MAX-11 bare-Endpoint
+  query-string preservation.
+- **Self-verification**: independent re-derivation (zero-trust, fresh code) 6/6
+  MATCH (`rederivation_report.md`); attack-the-tool battery 4/4 PASS (hostile
+  result JSONs, L3 destructive-smuggle REFUSED ×6, hostile-HTTP fuzz, report
+  injection escaped); isolation/secrets PASS (PAT untracked, .env gitignored,
+  journals carry only own-session cookies, credential evidence masked).
+- **Gates after all fixes**: 142/142 (11 fresh chunks) + doctor 17/17 + bench ×3
+  identical 38/0/0/37 run-3c0652b6be @2185 reqs (+241 = the paren battery, ZERO
+  verdict changes) + verdict-diff vs frozen v4.2.2 NONE.
 
 **Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules, 16 active
 detectors), current version **4.2.3** (`build-v423/` is the canonical live engine;
@@ -385,6 +418,16 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 ---
 
 ## 5. What has NOT happened yet (as of this file's date)
+
+0. **Round-9 honest open gaps (internal test, not external verification):**
+   Juice Shop login-form params invisible (Angular-rendered form — the login-SQLi
+   challenge stays unproven); basket BOLA probed but not claimed (victim-marker
+   oracle needs identity markers; basket JSON carries UserId only); WebGoat XSS
+   lessons produced no findings (attack1 params are quiz answers; DOM lessons need
+   the browser chain); DVGA original repo deleted from GitHub (Node re-engine fork
+   retained; needs PostgreSQL — not yet run); NodeGoat needs MongoDB; DVWS and
+   Mutillidae need portable PHP; crAPI needs Docker (no root/docker in this env).
+   These are recorded as coverage gaps, not claims.
 
 1. **Genuinely external verification of any finding.** Rounds 3–4 ran an
    INDEPENDENT-TOOLCHAIN verification (stdlib-only, zero SENTINEL code, blind

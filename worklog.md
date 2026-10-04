@@ -1122,3 +1122,39 @@ Stage Summary:
 - L3 IS BUILT, GATED, LIVE-EXECUTED AND PUSHED: 20 impact plans across the 4 authorized targets — 12 VERIFIED / 7 PROBE_FAILED / 1 INFERRED — every VERIFIED backed by its own run's probe journal (literal-slice evidence), every failure carrying its measured numbers, no fake proof anywhere. The flagship proofs: the full xss_dom→csrf chain with both legs fresh; a hostile-origin state change in OUR OWN session; a browser physically landing on our OAST channel; MSSQL version-metadata reads on 5 surfaces; benign file reads (win.ini, /etc/passwd) reproducing the original proving content.
 - The live run caught 5 real product defects (including one FALSE verification that was caught and killed before it could stand) — all fixed with the discriminating suite green after each and a full gate cycle at the end. This is the live-verification doctrine paying for itself again.
 - Honest register for everything unproven: ginjuice version predicates (DB rejects them), ginjuice XXE (response-blind), testaspnet stored XSS (app filters img today), gruyere stored/reflected XSS, testasp tfSearch — all PROBE_FAILED with measurements, all documented in l3_impact_report.md.
+
+---
+Task ID: maxtest-r1
+Agent: Super Z (main agent)
+Task: Maximum comprehensive internal test (supervisor order, trace 1a10860055030c15): (1) maximize coverage on every available training target (engine+L2+L3), close every gap with a discriminating fix; (2) attack the tool itself; (3) confirm isolation/internal security; (4) independently re-derive every VERIFIED. Honest naming: internal maximum test, NOT external verification.
+
+Work Log:
+- Ground truth re-established in the rebuilt environment: local was a stale Oct-3 snapshot; remote main was already at v4.4.0 (3ff7b46, L3 complete). Synced local to remote (the L3 build order from the lost context was ALREADY DONE AND PUSHED).
+- Baseline gates re-proven BEFORE any change: 133/133 + doctor 17/17 + bench x3 identical 38/0/0/37 @1959 + verdict-diff vs frozen v422 NONE.
+- Environment lesson: this sandbox reaps even setsid'd processes at tool-call end -> all-in-one single-call scripts (launch->setup->scan->kill), the proven v4.1 pattern.
+- Training targets rebuilt locally: Juice Shop 20.2.0 (node22 userspace, port 3100 - Next.js owns 3000; engines.node=="22" precondition), WebGoat 8.2.2 + WebWolf 8.2.2 (jars, HSQLDB 9001/9090), DVGA original repo deleted from GitHub (Node re-engine fork kept as source; needs PostgreSQL - pending).
+- TWELVE live-caught engine defects fixed, each red->green discriminated (test names unit_max01..unit_max11):
+  MAX-01 TokenAuthEngine validated tokens against anonymously-open URLs (whoami-class 200-anon): garbage tokens "authenticated" the scan. Fix: closed-door proof (anon fetch must be blocked OR marker differential).
+  MAX-02 authz token_validate_url never resolved against the target -> relative urls zeroed the whole matrix (Juice Shop: accounts_logged_in 0). Fix: resolve like login_url.
+  MAX-03 SQL_ERR_PATTERNS lacked the raw SQLite C surface (SQLITE_ERROR) + Oracle/.NET/pgsql shapes -> VF-04-tightened verifier rejected the true Juice Shop search SQLi. Fix: signature families added; the SQLi now VERIFIED (db_error + status_oracle).
+  MAX-05 OpenAPI "in":"path" params mapped to QUERY with empty value -> /rest/basket/{id} shipped with LITERAL braces (404): the whole path-param REST surface invisible. Fix: path->PATH + concrete default + _render PATH substitution on every request.
+  MAX-05b ID_PARAM_NAMES lacked plain "id" (THE canonical REST object param) -> IDOR engine skipped every /resource/{id}. Fix: added (marker oracle keeps it FP-safe).
+  MAX-06 JS endpoint extraction missed bundled-SPA backtick template literals (Angular http.get(host+`/rest/x`)) -> Juice Shop js:static surface 2 -> 96 endpoints.
+  MAX-07 impact CLI ScopeRule allow_private=False HARDCODED -> every localhost target's whole L3 layer scope-blocked (status 0). Fix: explicit --allow-private flag (default OFF).
+  MAX-08 L3 SQL version oracle hardcoded MSSQL @@version -> family now derived from the finding's own db_error evidence (sqlite/mysql/postgres/mssql), all shapes inside the fail-closed allowlist; digit ladder 8,5 -> 8,5,3,1.
+  MAX-09 SQLi battery had NO paren-closing shapes -> WHERE ((LIKE '%q%')) contexts (all of Juice Shop) never separate. Fix: par1/par2 battery pairs + PATH D2 fresh paren OR-comparison verification.
+  MAX-09b L3 template ranking picked non-separating pairs -> prefers journal-separated pairs now.
+  MAX-10a crawler AND passive baseline page-fetched /logout (in every authenticated header) -> destroyed the scan's own session at journal idx 6/4504 (6 logins/5 reauths/3944 dead-session requests, whole WebGoat surface answering login pages). Fix: logout discovered-but-never-fetched, both gates, boundary-recorded.
+  MAX-10b re-auth replayed a DEAD session cookie which session-fixation-aware logins reject forever -> one clean-jar cookieless retry (AuthCookieDiet event). failed_reauths 3944 -> 0.
+  MAX-11 bare Endpoint(url='...?a=1') rendered WITHOUT its query string (TokenAuthEngine validation URLs degraded to 'unknown operation'). Fix: uncovered query pairs preserved.
+- Campaign results (all artifacts under build-v423/results/maxtest/):
+  Juice Shop 20.2.0: 114 findings (SQLi VERIFIED on /rest/products/search?q= w/ SQLITE_ERROR db_error+status_oracle; credential_exposure VERIFIED /rest/memories; 96-endpoint js:static surface; authz 3 accounts x 25 endpoints; honest IDOR-FP kill on reviews via fresh-victim verify). L2: 1 path VERIFIED. L3: sql_version_oracle VERIFIED live (control 21571B/30B, version 21571B/30B separation; was scope-blocked 0/0 pre-MAX-07).
+  WebGoat 8.2.2: lesson surface extracted from the app's own jar form templates (90 actions+params) + lesson-context priming (POST /WebGoat/{Lesson}.lesson before its attacks; LessonTrackerInterceptor NPEs otherwise). 9 sql_injection VERIFIED live on the real lessons (assignment5a x3, attack10 15699B/286B, attack8/9 x4, SqlInjectionAdvanced 6a) + 11 L2 paths VERIFIED + session stable (failed_reauths 0).
+  WebWolf 8.2.2: 31 verified (host_header x7, headers x24) - anonymous surface only.
+- FULL GATE CYCLE GREEN after all fixes: 142/142 (11 chunks) + doctor 17/17 + bench x3 identical 38/0/0/37 run-3c0652b6be @2185 reqs (+241 = paren battery, ZERO verdict changes) + verdict-diff vs frozen v4.2.2 NONE.
+- Pushed and ls-remote-confirmed at every round: b659c07 -> b18a7bb -> 81e941e -> 0768fd8 (remote main = local HEAD, byte-confirmed).
+
+Stage Summary:
+- 12 engine defects fixed red->green; coverage transformed on 2 gold-standard targets; honest FP-kill + honest PROBE_FAILED discipline held throughout.
+- Known open gaps (honest): Juice Shop login-form params invisible (Angular-rendered form not extracted by the browser engine - login SQLi challenge stays unproven); basket BOLA (/rest/basket/{id}) probed but not claimed (victim-marker oracle needs identity markers; basket JSON carries UserId only); WebGoat XSS lessons produced no findings (attack1 params are quiz answers; DOM lessons need the browser chain); DVGA-Node needs PostgreSQL, NodeGoat needs MongoDB, DVWS/Mutillidae need portable PHP, crAPI needs Docker (env lacks root/docker) - pending or infeasible, to be documented.
+- Remaining per the order: Phase 2 (adversarial-input battery vs the tool), Phase 3 (isolation/secrets re-verify), Phase 4 (independent re-derivation of every VERIFIED from raw journals), final STATE.md + push.
