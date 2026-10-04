@@ -119,7 +119,29 @@ class AuthEngine:
 
         # 3. submit (ENG-06 serializes the body; ENG-05 replays the session cookie)
         ep = Endpoint(url=action_abs, method="POST", parameters=params)
-        r = self.engine.send(RequestMutation(endpoint=ep, note="auth-submit"))
+        host = urllib.parse.urlsplit(base).hostname or ""
+        r = None
+        hop = None
+        redirected_to_login = False
+        for attempt in (1, 2):
+            r = self.engine.send(RequestMutation(endpoint=ep, note="auth-submit"))
+            if r.error:
+                break
+            hop = r.hop_location()
+            redirected_to_login = bool(hop) and self._login_marker_hit(hop)
+            if (not hop or redirected_to_login) and attempt == 1 \
+                    and self.engine.cookie_jar.get(host):
+                # MAX-10b (maximum internal test, live-caught on WebGoat 8.2.2):
+                # a re-auth that replays a DEAD session cookie is rejected by
+                # session-fixation-aware logins (Spring Security bounces the
+                # POST straight back to /login with correct credentials) — and
+                # then fails FOREVER in a death spiral. One clean-jar retry:
+                # drop this host's cookies and handshake fresh.
+                self.engine.cookie_jar.pop(host, None)
+                self.bus.emit("AuthCookieDiet", host=host,
+                              note="re-login with stale cookies rejected; retrying cookieless")
+                continue
+            break
         if r.error:
             self.state.last_error = f"login submit failed: {r.error}"
             self.bus.emit("AuthFailed", reason="submit", error=self.state.last_error)

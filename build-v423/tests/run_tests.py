@@ -7201,6 +7201,128 @@ def unit_max09_paren_closing_sqli_context():
         srv.shutdown(); srv.server_close()
 
 
+@case
+def unit_max10_logout_crawl_and_cookie_diet():
+    """MAX-10a + MAX-10b (maximum internal test, live-caught on WebGoat 8.2.2):
+    (a) the crawler page-fetched /logout — linked in the header of virtually
+    every authenticated page — destroying the scan's own session at journal
+    index 6 of 4504; the whole lesson surface then answered with login pages
+    (6 logins / 5 reauths / 3944 dead-session requests). Logout paths are now
+    discovered-but-never-fetched, like destructive GETs.
+    (b) a re-auth that replays a DEAD session cookie is rejected forever by
+    session-fixation-aware logins (correct credentials still bounce); the
+    auth engine now does ONE clean-jar (cookieless) retry. Red pre-fix on
+    both halves, green post."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    from sentinel.core import Endpoint, Parameter, ParamLocation
+    from sentinel.auth import AuthProfile, AuthEngine
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    SESSIONS = {"s-live": "ok"}   # server-side session store (token -> state)
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", headers=None):
+            self.send_response(code)
+            for k, v in (headers or {}).items():
+                self.send_header(k, v)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path).path
+            tok = None
+            for c in (self.headers.get("Cookie") or "").split(";"):
+                if "SID=" in c:
+                    tok = c.split("SID=")[1].strip()
+            authed = tok in SESSIONS
+            if u == "/":
+                self._send(200, b'<html><body><a href="/page">p</a></body></html>')
+            elif u == "/login":
+                self._send(200, b'<html><body>login page</body></html>')
+            elif u == "/page":
+                # the authenticated header: logout link + a protected link
+                self._send(200, (b'<html><body><a href="/logout">lo</a>'
+                                 b'<a href="/secret-page">sp</a></body></html>'))
+            elif u == "/secret-page":
+                if authed:
+                    self._send(200, b"<html><body>SECRET-MARK visible</body></html>")
+                else:
+                    self._send(302, b"", {"Location": "/login"})
+            elif u == "/logout":
+                if tok:
+                    SESSIONS.pop(tok, None)   # session destruction
+                self._send(302, b"", {"Location": "/login"})
+            else:
+                self._send(404)
+        def do_POST(self):
+            u = urlsplit(self.path)
+            n = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(n).decode()
+            q = {k: v[0] for k, v in parse_qs(body).items()}
+            if u.path == "/login":
+                if q.get("user") == "u1" and q.get("pass") == "p1":
+                    tok = self.headers.get("Cookie") or ""
+                    # MAX-10b shape: a cookie-bearing login with an UNKNOWN
+                    # session id is REJECTED (Spring session-fixation style,
+                    # live-observed on WebGoat 8.2.2)
+                    if "SID=" in tok:
+                        sid = tok.split("SID=")[1].split(";")[0].strip()
+                        if sid not in SESSIONS:
+                            self._send(302, b"", {"Location": "/login"})
+                            return
+                    import random
+                    sid = "s-" + str(random.randint(1000, 9999))
+                    SESSIONS[sid] = "ok"
+                    self._send(302, b"", {"Location": "/welcome",
+                                          "Set-Cookie": f"SID={sid}; Path=/"})
+                    return
+                self._send(302, b"", {"Location": "/login"})
+            else:
+                self._send(404)
+    port = 8814
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{port}"
+
+    # ---- (1) MAX-10b unit: dead cookie -> clean-jar retry succeeds
+    scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+    eng = RequestEngine(scope, EventBus("m10a"), timeout=5)
+    eng.cookie_jar["127.0.0.1"] = {"SID": "s-dead"}   # stale/dead session
+    bus = EventBus("m10b")
+    prof = AuthProfile(login_url=base + "/login", username="u1", password="p1",
+                       user_field="user", pass_field="pass")
+    ae = AuthEngine(prof, eng, bus)
+    ok = ae.login()
+    assert ok is True, ae.state.last_error
+    assert bus.by_kind("AuthCookieDiet"), \
+        "the cookie-diet retry must fire for a dead-cookie rejection"
+    assert "127.0.0.1" not in eng.cookie_jar or \
+        not any(v == "s-dead" for v in eng.cookie_jar.get("127.0.0.1", {}).values())
+
+    # ---- (2) MAX-10a scan-level: logout never fetched, session survives
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5,
+                         seed="max10-logout", browser=False, oast=None,
+                         auth=AuthProfile(login_url=base + "/login", username="u1",
+                                          password="p1", user_field="user",
+                                          pass_field="pass"))
+        rep = SentinelScanner(base, cfg).run()
+        jr = rep["stats"].get("request_journal", {})
+        fetched = [v["request"]["url"] for v in jr.values()]
+        assert not any("/logout" in u for u in fetched), \
+            "the crawler must NEVER page-fetch a logout link (self-preservation)"
+        assert rep["stats"]["auth"]["failed_reauths"] == 0, rep["stats"]["auth"]
+        assert any("SECRET-MARK" in (v.get("response", {}).get("body") or "")
+                   for v in jr.values()), "session must survive the whole crawl"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

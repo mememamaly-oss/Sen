@@ -7,6 +7,10 @@ from html.parser import HTMLParser
 from .websocket import harvest_ws_shapes, observe_ws_urls  # V411-WS
 from .core import DiscoverySource, Endpoint, Parameter, ParamLocation
 from .http_engine import RequestEngine
+# MAX-10a: the same logout vocabulary the authz engine refuses to probe —
+# the crawler must never page-fetch it either (self-preservation of the
+# scan's own session; live-caught on WebGoat 8.2.2).
+LOGOUT_PATH_RE = re.compile(r"(log-?out|log-?off|sign-?out|sign-?off)", re.I)
 
 
 class _LinkParser(HTMLParser):
@@ -272,6 +276,21 @@ class DiscoveryEngine:
             # V411-DISC-SAFE: destructive-GET vocabulary is never page-fetched
             # (the endpoint stays discovered; the planner gates any probe)
             if DESTRUCTIVE_GET_RE.search(fpath):
+                self.crawl_skips = getattr(self, "crawl_skips", [])
+                if fpath not in self.crawl_skips:
+                    self.crawl_skips.append(fpath)
+                ep = self._mk_endpoint(norm, DiscoverySource.CRAWL_HTML)
+                endpoints[ep.id] = ep
+                continue
+            # MAX-10a (maximum internal test, live-caught on WebGoat 8.2.2):
+            # LOGOUT links sit in the header of virtually every authenticated
+            # page — the crawler page-fetched /WebGoat/logout at journal index
+            # 6 of 4504, destroying the scan's own session; every re-auth then
+            # re-logged-in and re-crawled into logout again (6 logins, 5
+            # reauths, 3944 dead-session requests, the whole lesson surface
+            # answered by login pages). Same doctrine as destructive-GET: the
+            # logout endpoint stays DISCOVERED (never fetched).
+            if LOGOUT_PATH_RE.search(fpath):
                 self.crawl_skips = getattr(self, "crawl_skips", [])
                 if fpath not in self.crawl_skips:
                     self.crawl_skips.append(fpath)

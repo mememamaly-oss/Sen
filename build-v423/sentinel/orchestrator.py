@@ -434,6 +434,21 @@ class SentinelScanner:
                                     "staging copy if its coverage matters",
                         provenance="orchestrator:passive-vocabulary-gate")
                     continue
+                # MAX-10a (live-caught on WebGoat 8.2.2): a logout endpoint
+                # destroys the scan's OWN session — never fetched, even as a
+                # passive baseline. The endpoint stays discovered and accounted.
+                from .discovery import LOGOUT_PATH_RE as _LOGOUT_RE
+                if _LOGOUT_RE.search(urllib.parse.urlsplit(ep.url).path or "/"):
+                    self.coverage.skipped(ep, "logout_self_preservation")
+                    self.boundary.record(
+                        "passive/logout", ep.url, "BLOCKED_BY_SAFETY",
+                        "logout path — fetching it (even as a passive baseline) "
+                        "destroys the scan's own authenticated session; the "
+                        "endpoint stays discovered, never requested",
+                        remediation="verify logout behavior manually if its "
+                                    "coverage matters",
+                        provenance="orchestrator:passive-logout-gate")
+                    continue
                 r = self.engine.send(RequestMutation(endpoint=ep, note="passive-baseline"))
                 if r.error:
                     self.coverage.skipped(ep, "transport_error")
