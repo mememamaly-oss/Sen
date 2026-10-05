@@ -481,6 +481,14 @@ class SentinelScanner:
                             self.findings.append(self.verifier.verify(sf, ep))
             if not self.cfg.active:
                 continue
+            # OWSP-02 (OWASP campaign, live-caught on WrongSecrets 1.8.1): the
+            # pre-OWSP-01 scan sent its whole battery into a route/CSRF gate
+            # (uniform 405 on every probe) and recorded NOTHING — candidates=0
+            # with no accounting, an entire POST surface silently absorbed.
+            # Every battery response status is now collected per endpoint so a
+            # uniform-reject surface is EXPLICITLY accounted (boundary +
+            # coverage skip) instead of disappearing.
+            _ep_probe_statuses = []
             for dname, det in detectors.items():
                 try:
                     if dname == "sqli":
@@ -495,6 +503,8 @@ class SentinelScanner:
                             for strat, m in grp:
                                 r = self.engine.send(m)
                                 self._det_probe_counts["sqli"] += 1
+                                if not r.error:
+                                    _ep_probe_statuses.append(r.status)
                                 if r.error:
                                     fid = self.failures.record("sqli", r.error, {"url": ep.url})
                                     self.bus.emit("ScannerFailed", scanner="sqli", failure=fid, error=r.error)
@@ -599,6 +609,8 @@ class SentinelScanner:
                                 m = m[1]
                             r = self.engine.send(m)
                             self._det_probe_counts[det.name] += 1
+                            if not r.error:
+                                _ep_probe_statuses.append(r.status)
                             if r.error:
                                 fid = self.failures.record(det.name, r.error, {"url": ep.url})
                                 self.bus.emit("ScannerFailed", scanner=det.name, failure=fid, error=r.error)
@@ -617,6 +629,22 @@ class SentinelScanner:
                 except Exception as e:
                     fid = self.failures.record(dname, f"{type(e).__name__}: {e}", {"url": ep.url})
                     self.bus.emit("ScannerFailed", scanner=dname, failure=fid, error=str(e)[:200])
+            # OWSP-02 accounting: every battery probe on this endpoint was
+            # uniformly rejected by a gate (route params filter / CSRF) — the
+            # surface exists but was NOT testable as probed. Recorded loudly,
+            # never silently absorbed. Partial rejections (mixed statuses) are
+            # normal battery behavior and stay unrecorded.
+            if _ep_probe_statuses and all(s in (403, 405) for s in _ep_probe_statuses):
+                self.coverage.skipped(ep, "probes_uniformly_rejected")
+                self.boundary.record(
+                    "active/uniform-reject", ep.url, "UNTESTABLE",
+                    f"all {len(_ep_probe_statuses)} battery probes answered HTTP "
+                    f"{sorted(set(_ep_probe_statuses))} (route/CSRF gate) — the "
+                    "endpoint exists but no probe reached application logic",
+                    provenance="orchestrator:owsp02-uniform-reject-accounting",
+                    remediation="inspect the form/route contract (submit-button "
+                                "pairs, CSRF token lifecycle) and re-probe with "
+                                "the corrected flow control")
 
         # ---- Phase 50: DOM XSS execution probes (browser; static sink candidates).
         # search sources probe the extracted param names; hash sources take the

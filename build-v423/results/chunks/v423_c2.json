@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -90,7 +90,7 @@
   {
    "name": "regression_form_param_location_follows_method",
    "ok": true,
-   "ms": 63
+   "ms": 15
   },
   {
    "name": "regression_scope_blocks_metadata_service",
@@ -105,12 +105,12 @@
   {
    "name": "unit_eng20_benchmark_owned_fixture",
    "ok": true,
-   "ms": 362
+   "ms": 368
   },
   {
    "name": "chaos_connection_reset_fail_safe",
    "ok": true,
-   "ms": 502
+   "ms": 503
   },
   {
    "name": "chaos_garbage_and_huge_fail_safe",
@@ -130,7 +130,7 @@
   {
    "name": "regression_benchmark_autostarts_fixture",
    "ok": true,
-   "ms": 83221
+   "ms": 83217
   },
   {
    "name": "regression_js_url_extraction_rejects_code_fragments",
@@ -145,7 +145,7 @@
   {
    "name": "unit_max07_l3_impact_allow_private_flag",
    "ok": true,
-   "ms": 912
+   "ms": 909
   },
   {
    "name": "regression_sqli_or_redirect_oracle",
@@ -155,7 +155,7 @@
   {
    "name": "regression_inline_js_url_extraction",
    "ok": true,
-   "ms": 564
+   "ms": 565
   },
   {
    "name": "regression_sqli_quote500_and_orpair_oracles",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

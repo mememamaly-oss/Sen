@@ -3,7 +3,7 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-05 (UTC) — round 9 CLOSED: **MAXIMUM INTERNAL TEST (أقصى اختبار داخلي — NOT external verification)** per supervisor order: training-target coverage maximized (Juice Shop 20.2.0, WebGoat 8.2.2, WebWolf 8.2.2 run locally with engine+L2+L3), TWELVE live-caught engine defects fixed each with a red→green discriminating test (MAX-01..MAX-11), gates re-proven GREEN on the grown 142-test suite (142/142 + doctor 17/17 + bench ×3 identical 38/0/0/37 @2185 + verdict-diff vs frozen v4.2.2 NONE), independent re-derivation 6/6 MATCH from raw journals, attack-the-tool battery 4/4 PASS, isolation/secrets checks PASS. Pushed + ls-remote-confirmed at every round (b659c07→b18a7bb→81e941e→0768fd8+).
+- Last updated: 2026-10-05 (UTC) — round 10 IN PROGRESS: **OWASP EXTENDED CAMPAIGN (حملة OWASP الموسّعة)** per supervisor order — deliberately-vulnerable official OWASP apps only, push after each app. App 1/6 DONE: **WrongSecrets 1.8.1** (built from source at tag 1.8.2 — HEAD demands Java 26, we have 21; userspace Maven 3.9.16 + Temurin JDK 21 built because the sandbox ships a JRE only): FIVE live-caught engine defects fixed red→green (OWSP-01 static form parser dropped submit-button name=value pairs -> entire params-filter-gated POST surface dead 405; OWSP-02 uniform-405 absorption silently vanished surfaces -> now boundary UNTESTABLE + coverage skip; OWSP-03 planner probed the flow-control param itself (base-value overwrite); OWSP-04 cmdi OOB battery APPENDED payloads onto the flow-control value ("submit; curl..."); OWSP-05 browser DOM extraction excluded <button>/input[type=submit] entirely) — suite 141→146 (5 discriminating cases, each stash-cycle-proven RED pre-fix), gates GREEN (146/146 + doctor 17/17 + bench ×3 identical 38/0/0/37 @2185 + verdict-diff vs frozen v4.2.2 NONE), final scan honest: 64 passive, ZERO verified active (the app is a secrets-training target, not injection-shaped — true negative), 0 uniform-rejects, battery reaches the gated surface (200s) with ~1200 dead requests eliminated. Round 9 before it: **MAXIMUM INTERNAL TEST (أقصى اختبار داخلي — NOT external verification)** per supervisor order: training-target coverage maximized (Juice Shop 20.2.0, WebGoat 8.2.2, WebWolf 8.2.2 run locally with engine+L2+L3), TWELVE live-caught engine defects fixed each with a red→green discriminating test (MAX-01..MAX-11), gates re-proven GREEN on the grown 142-test suite (142/142 + doctor 17/17 + bench ×3 identical 38/0/0/37 @2185 + verdict-diff vs frozen v4.2.2 NONE), independent re-derivation 6/6 MATCH from raw journals, attack-the-tool battery 4/4 PASS, isolation/secrets checks PASS. Pushed + ls-remote-confirmed at every round (b659c07→b18a7bb→81e941e→0768fd8+).
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -471,6 +471,10 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 ---
 
 ## 6. Save status (updated every round)
+
+- **Round 10 (2026-10-05, OWASP campaign app 1/6):** WrongSecrets round committed
+  (5 defects OWSP-01..05 + 5 tests + gates + artifacts); push + ls-remote confirm
+  executed at round close (see git log for the exact sha).
 
 - **PRIMARY (durable): GitHub — `github.com/mememamaly-oss/Sen` (private).**
   Last verified push (ls-remote, 2026-10-03 round 2): main = release/v4.2.2 =

@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -258,22 +258,22 @@
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
    "ok": true,
-   "ms": 507
+   "ms": 506
   },
   {
    "name": "regression_ssrf_cmdi_cors_end_to_end",
    "ok": true,
-   "ms": 74354
+   "ms": 74350
   },
   {
    "name": "regression_rest_api_server",
    "ok": true,
-   "ms": 45817
+   "ms": 45815
   },
   {
    "name": "regression_cli_script_mode_all_subcommands",
    "ok": true,
-   "ms": 27685
+   "ms": 27923
   },
   {
    "name": "unit_disc10_divform_parsing",
@@ -298,7 +298,7 @@
   {
    "name": "e2e_browser_phase_full",
    "ok": true,
-   "ms": 12520
+   "ms": 13007
   },
   {
    "name": "unit_eng06_body_serialization_without_mutation",
@@ -308,22 +308,22 @@
   {
    "name": "unit_eng07_cookie_refresh_across_redirect_hops",
    "ok": true,
-   "ms": 504
+   "ms": 503
   },
   {
    "name": "unit_auth01_form_intelligent_login",
    "ok": true,
-   "ms": 516
+   "ms": 517
   },
   {
    "name": "regression_auth_scan_finds_gated_surface_and_anonymous_does_not",
    "ok": true,
-   "ms": 3856
+   "ms": 4039
   },
   {
    "name": "regression_auth03_watchdog_reauth_midscan",
    "ok": true,
-   "ms": 2355
+   "ms": 2314
   },
   {
    "name": "unit_waf_fingerprinter_named_signatures",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

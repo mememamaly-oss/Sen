@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -846,12 +846,32 @@
   {
    "name": "unit_max09_paren_closing_sqli_context",
    "ok": true,
-   "ms": 812
+   "ms": 832
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
    "ok": true,
-   "ms": 543
+   "ms": 531
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 512
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 536
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 504
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
+   "ok": true,
+   "ms": 2445
   }
  ],
  "passed": true

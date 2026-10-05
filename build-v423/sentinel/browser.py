@@ -126,10 +126,20 @@ _FORM_JS = """() => {
     const action = el.getAttribute('action') || el.getAttribute('data-action') || location.pathname;
     const method = (el.getAttribute('method') || el.getAttribute('data-method') || 'GET').toUpperCase();
     const params = [];
-    el.querySelectorAll('input[name], textarea[name], select[name]').forEach(i => {
-      if (i.type !== 'submit' && i.type !== 'button') params.push([i.name, i.value || '']);
+    let submitCtl = null;
+    // OWSP-05 (OWASP campaign, live-caught on WrongSecrets 1.8.1): submit
+    // controls (input[type=submit] AND <button>) carry the name=value pair the
+    // route's params filter demands; dropping them made every browser-discovered
+    // POST surface dead-on-arrival (uniform 405, wrong-session token replay).
+    el.querySelectorAll('input[name], textarea[name], select[name], button[name]').forEach(i => {
+      const t = (i.tagName === 'BUTTON') ? (i.type || 'submit') : (i.type || 'text');
+      if (t === 'submit') {
+        if (!submitCtl && i.name && i.value) { params.push([i.name, i.value]); submitCtl = i.name; }
+      } else if (t !== 'button' && t !== 'reset') {
+        params.push([i.name, i.value || '']);
+      }
     });
-    if (params.length) out.push({action, method, params, tag: el.tagName});
+    if (params.length) out.push({action, method, params, tag: el.tagName, submitctl: submitCtl});
   });
   return out.slice(0, 25);
 }"""
@@ -256,7 +266,8 @@ class BrowserEngine:
             for f in r["forms"][:25]:
                 ep = _mk_dom_endpoint(f["action"] if "://" in f["action"] else
                                       urllib.parse.urljoin(url, f["action"]),
-                                      url, f["method"], f["params"], json_hint=None)
+                                      url, f["method"], f["params"], json_hint=None,
+                                      submitctl=f.get("submitctl"))
                 if ep and ep.id not in existing and ep.id not in [e.id for e in new_eps]:
                     new_eps.append(ep)
             # rendered links (client-side routing / JS-generated anchors)
@@ -328,7 +339,7 @@ class BrowserEngine:
 
 
 def _mk_dom_endpoint(action_url: str, page_url: str, method: str, params: list,
-                     json_hint) -> Endpoint | None:
+                     json_hint, submitctl: str | None = None) -> Endpoint | None:
     """Build an Endpoint from a browser-observed form/link, mirroring the static
     discovery conventions (params classified; location follows the method)."""
     p = urllib.parse.urlsplit(action_url)
@@ -339,7 +350,12 @@ def _mk_dom_endpoint(action_url: str, page_url: str, method: str, params: list,
     m = (method or "GET").upper()
     loc = ParamLocation.BODY if m in ("POST", "PUT", "PATCH") else ParamLocation.QUERY
     for n, v in (params or [])[:12]:
-        plist.append(Parameter(n, loc, v).classify())
+        pobj = Parameter(n, loc, v).classify()
+        # OWSP-05: the form's first submit control is flow control — carried
+        # verbatim, never probed (route params filters demand the literal).
+        if submitctl and n == submitctl:
+            pobj.flow_control = True
+        plist.append(pobj)
     clean = urllib.parse.urlunsplit((p.scheme, p.netloc, p.path, "", ""))
     return Endpoint(url=clean, method=m, parameters=plist, source=DiscoverySource.DOM,
                     tags=["dom"])

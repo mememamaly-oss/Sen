@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -515,7 +515,7 @@
   {
    "name": "unit_reasoning_hypothesis_lifecycle",
    "ok": true,
-   "ms": 13
+   "ms": 12
   },
   {
    "name": "unit_evidence_os_proof_files",
@@ -525,7 +525,7 @@
   {
    "name": "unit_workflow_cross_identity_preconditions",
    "ok": true,
-   "ms": 20
+   "ms": 19
   },
   {
    "name": "unit_report_executive_and_glass",
@@ -535,7 +535,7 @@
   {
    "name": "regression_phase58_logic_end_to_end",
    "ok": true,
-   "ms": 83384
+   "ms": 83121
   },
   {
    "name": "unit_v41_boundary_engine",
@@ -550,7 +550,7 @@
   {
    "name": "unit_v41_workflow_graph_model",
    "ok": true,
-   "ms": 537
+   "ms": 536
   },
   {
    "name": "regression_v41_flows_battery",
@@ -560,7 +560,7 @@
   {
    "name": "regression_v41_graphql_battery",
    "ok": true,
-   "ms": 538
+   "ms": 539
   },
   {
    "name": "regression_v41_websocket_battery",
@@ -575,7 +575,7 @@
   {
    "name": "unit_v41_reasoning_records",
    "ok": true,
-   "ms": 1
+   "ms": 2
   },
   {
    "name": "unit_v41_memory",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

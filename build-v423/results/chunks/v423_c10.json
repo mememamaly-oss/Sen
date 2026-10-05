@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -762,12 +762,12 @@
   {
    "name": "unit_l2_identity_citation_rotating_cookie",
    "ok": true,
-   "ms": 6
+   "ms": 5
   },
   {
    "name": "unit_l3_safety_registries_fail_closed",
    "ok": true,
-   "ms": 13
+   "ms": 12
   },
   {
    "name": "unit_l3_sqli_template_derivation_four_shapes",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

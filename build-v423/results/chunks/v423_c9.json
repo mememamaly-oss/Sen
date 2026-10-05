@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -678,12 +678,12 @@
   {
    "name": "unit_v423_path_traversal_urlpath",
    "ok": true,
-   "ms": 584
+   "ms": 576
   },
   {
    "name": "unit_v423_sqli_pathb_requires_dbstring",
    "ok": true,
-   "ms": 517
+   "ms": 519
   },
   {
    "name": "unit_v423_ng_script_context_fp",
@@ -693,7 +693,7 @@
   {
    "name": "unit_v423_ng_attribute_context_positive",
    "ok": true,
-   "ms": 505
+   "ms": 506
   },
   {
    "name": "unit_l2_seed_filtering_and_slot_structure",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

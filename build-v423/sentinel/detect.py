@@ -64,6 +64,12 @@ def plan_for(ep: Endpoint) -> list[dict]:
     """Deterministic scan plan: (param, vuln_class) pairs."""
     plan = []
     for p in ep.parameters:
+        # OWSP-03: submit-button pairs are flow control — the route's params
+        # filter demands the exact literal; probing them only produces uniform
+        # 405s (live-caught on WrongSecrets: ~1200 wasted requests, half the
+        # battery). They ride along verbatim as siblings instead.
+        if p.flow_control:
+            continue
         for kind, classes in PLANNER_RULES:
             if p.kind.value == kind.value:
                 for c in classes:
@@ -126,7 +132,7 @@ class SQLiDetector(Detector):
     def candidates(self, ep: Endpoint):
         out = []
         for p in ep.parameters:
-            if p.kind == ParamKind.TOKEN:
+            if p.kind == ParamKind.TOKEN or p.flow_control:
                 continue          # Phase 50: CSRF tokens ride along verbatim, never mutated
             base = p.value if p.value.isdigit() else "1"
             # DETECT-04 (live-caught on ginandjuice.shop /catalog?category=): quote ->
@@ -308,7 +314,7 @@ class XSSDetector(Detector):
     def candidates(self, ep: Endpoint):
         out = []
         for p in ep.parameters:
-            if p.kind == ParamKind.TOKEN:
+            if p.kind == ParamKind.TOKEN or p.flow_control:
                 continue          # Phase 50: mutating a CSRF token only breaks the flow
             mode, angular = self._context_probe(ep, p)
             # VR-03 (live-caught on ginandjuice.shop /catalog?category=): the full-tag
@@ -384,7 +390,7 @@ class TraversalDetector(Detector):
             payloads.append("../" * depth + "etc/passwd")
         payloads.append("....//....//....//windows/win.ini")
         return [(pl, RequestMutation(endpoint=ep, param_name=p.name, param_value=pl))
-                for p in ep.parameters if p.kind != ParamKind.TOKEN
+                for p in ep.parameters if p.kind != ParamKind.TOKEN and not p.flow_control
                 for pl in payloads[:4]]
 
     def analyze(self, pair, resp):
@@ -741,7 +747,7 @@ class RedirectDetector(Detector):
     def candidates(self, ep: Endpoint):
         ev = "sentinel-redirect-check.example.org"
         return [(v, RequestMutation(endpoint=ep, param_name=p.name, param_value=v))
-                for p in ep.parameters if p.kind != ParamKind.TOKEN
+                for p in ep.parameters if p.kind != ParamKind.TOKEN and not p.flow_control
                 for v in (f"https://{ev}/probe", f"//{ev}/probe")]
 
     def analyze(self, pair, resp):
@@ -776,7 +782,7 @@ class CrlfDetector(Detector):
 
     def candidates(self, ep: Endpoint):
         return [RequestMutation(endpoint=ep, param_name=p.name, param_value=self.PROBE_VALUE)
-                for p in ep.parameters if p.kind not in (ParamKind.NUMERIC, ParamKind.TOKEN)]
+                for p in ep.parameters if p.kind not in (ParamKind.NUMERIC, ParamKind.TOKEN) and not p.flow_control]
 
     def analyze(self, pair, resp):
         ep, p = pair
@@ -992,7 +998,7 @@ class SsrfDetector(Detector):
             return []
         out = []
         for p in ep.parameters:
-            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC):
+            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC) or p.flow_control:
                 continue
             val = (p.value or "").lower()
             urlish = p.name.lower() in self.URL_NAMES or val.startswith(("http://", "https://", "//"))
@@ -1062,7 +1068,11 @@ class CommandInjectionDetector(Detector):
             return []
         out = []
         for p in ep.parameters:
-            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC) or not p.name:
+            # OWSP-04: flow-control (submit-button) params must never carry an
+            # APPEND payload either — base+v turned action=submit into
+            # "submit; curl ..." and the gated route 405'd the whole probe
+            # (live-caught on WrongSecrets 1.8.1, 360 dead requests).
+            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC) or p.flow_control or not p.name:
                 continue
             base = p.value or "localhost"
             if len(base) > 60:
@@ -1167,7 +1177,8 @@ class SstiDetector(Detector):
         for p in ep.parameters:
             if self._probes >= self.MAX_PARAMS:
                 break
-            if p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC, ParamKind.URL, ParamKind.FILENAME):
+            if (p.kind in (ParamKind.TOKEN, ParamKind.NUMERIC, ParamKind.URL, ParamKind.FILENAME)
+                    or p.flow_control):
                 continue
             self._probes += 1
             for expr in self.BATTERY:
@@ -1255,7 +1266,7 @@ class CsrfDetector(Detector):
                        <= max(150, 0.25 * max(len(base.body or "x"), 1)))
         if hostile.ok and similar:
             return Finding("csrf", Severity.MEDIUM, ep.url,
-                           ", ".join(p.name for p in ep.parameters if p.kind != ParamKind.TOKEN) or "-",
+                           ", ".join(p.name for p in ep.parameters if p.kind != ParamKind.TOKEN and not p.flow_control) or "-",
                            ep.method,
                 [Evidence("cross_origin_acceptance",
                           f"state-changing {ep.method} accepted from hostile origin "
@@ -1303,7 +1314,7 @@ class NosqlDetector(Detector):
         if self._done >= self.MAX_ENDPOINTS:
             return None
         self._done += 1
-        carrier = next((p for p in ep.parameters if p.kind != ParamKind.TOKEN), None)
+        carrier = next((p for p in ep.parameters if p.kind != ParamKind.TOKEN and not p.flow_control), None)
         if carrier is None:
             return None
         import json as _json

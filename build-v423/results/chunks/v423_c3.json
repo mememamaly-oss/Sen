@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -189,7 +189,7 @@
   {
    "name": "regression_crlf_header_injection_and_xxe_live",
    "ok": true,
-   "ms": 11420
+   "ms": 11797
   },
   {
    "name": "regression_vuln_js_dependency_passive",
@@ -214,17 +214,17 @@
   {
    "name": "regression_report_builder_outputs",
    "ok": true,
-   "ms": 10
+   "ms": 11
   },
   {
    "name": "regression_oob_blind_xxe_end_to_end",
    "ok": true,
-   "ms": 72437
+   "ms": 72559
   },
   {
    "name": "unit_public_oast_provider_protocol",
    "ok": true,
-   "ms": 1113
+   "ms": 1112
   },
   {
    "name": "unit_make_oast_channel_policy",
@@ -234,12 +234,12 @@
   {
    "name": "regression_oob_public_channel_end_to_end",
    "ok": true,
-   "ms": 217636
+   "ms": 217718
   },
   {
    "name": "regression_eng08_self_callback_guard",
    "ok": true,
-   "ms": 3250
+   "ms": 3266
   },
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

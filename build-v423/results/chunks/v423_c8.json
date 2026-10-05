@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -594,12 +594,12 @@
   {
    "name": "unit_v41_memory",
    "ok": true,
-   "ms": 3
+   "ms": 6
   },
   {
    "name": "unit_v41_replay",
    "ok": true,
-   "ms": 576
+   "ms": 636
   },
   {
    "name": "unit_v41_planner_realtime_and_ci",
@@ -609,7 +609,7 @@
   {
    "name": "unit_v41_apintel_and_action_matrix",
    "ok": true,
-   "ms": 10
+   "ms": 11
   },
   {
    "name": "unit_v411_ws_shape_harvest",
@@ -624,7 +624,7 @@
   {
    "name": "unit_v411_value_shaped_precision",
    "ok": true,
-   "ms": 11
+   "ms": 10
   },
   {
    "name": "regression_v411_authz_token_accounts",
@@ -634,17 +634,17 @@
   {
    "name": "regression_v41_self_security",
    "ok": true,
-   "ms": 2945
+   "ms": 2935
   },
   {
    "name": "unit_v41_no_hallucination_gate",
    "ok": true,
-   "ms": 916
+   "ms": 896
   },
   {
    "name": "regression_v41_full_platform",
    "ok": true,
-   "ms": 83421
+   "ms": 83175
   },
   {
    "name": "unit_v420_fail_closed_verification_defaults",
@@ -654,7 +654,7 @@
   {
    "name": "unit_v423_stored_xss_comment_form",
    "ok": true,
-   "ms": 515
+   "ms": 516
   },
   {
    "name": "unit_v423_stored_xss_get_form_cookie",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

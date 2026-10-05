@@ -7331,6 +7331,334 @@ def unit_max10_logout_crawl_and_cookie_diet():
         srv.shutdown(); srv.server_close()
 
 
+
+@case
+def unit_owsp01_button_form_params():
+    """OWSP-01 (OWASP campaign, live-caught on WrongSecrets 1.8.1): the form
+    parser captured <input>/<textarea>/<select> but NOT <button name= value=>
+    submit controls. WrongSecrets routes POST /challenge/{name} behind a
+    Spring params="action=submit" filter whose action pair comes from the
+    submit BUTTON — every engine probe answered 405 and the whole active
+    battery was silently absorbed (candidates=0, no coverage note). HTML form
+    submission includes the activated submit button's name=value pair; the
+    parser must capture it (and only submit-type buttons), and the rendered
+    probes must carry it so the surface is reachable at all. Red pre-fix on
+    both halves, green post."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.discovery import DiscoveryEngine, _LinkParser
+
+    # ---- Part A: parser captures submit-button pairs (and only those)
+    html = ('<form action="/challenge/challenge-1" method="post">'
+            '<input type="hidden" name="_csrf" value="tok123"/>'
+            '<input type="text" id="a" name="solution" value=""/>'
+            '<button class="btn" type="submit" name="action" value="submit">Go</button>'
+            '<button type="button" name="clearbtn" value="x">Clear</button>'
+            '<button name="plainbtn">NoValue</button>'
+            '</form>')
+    hp = _LinkParser(); hp.feed(html)
+    assert len(hp.forms) == 1, hp.forms
+    names = [n for n, _v in hp.forms[0]["params"]]
+    assert "solution" in names and "_csrf" in names, names
+    assert "action" in names, (
+        f"RED: submit-button pair missing from form params (got {names}) — "
+        "the Spring params=-filtered surface is unreachable")
+    av = dict(hp.forms[0]["params"]).get("action")
+    assert av == "submit", av
+    assert "clearbtn" not in names, "type=button controls are never submitted"
+    assert "plainbtn" not in names, "nameless-value buttons carry no pair"
+
+    # ---- Part B: live mini-app mirroring the WrongSecrets route shape
+    RECEIVED = []   # (path, dict-of-body)
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", headers=None):
+            self.send_response(code)
+            for k, v in (headers or {}).items():
+                self.send_header(k, v)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            if self.path == "/":
+                self._send(200, (
+                    b'<html><body><a href="/challenge/challenge-1">c1</a></body></html>'))
+            elif urlsplit(self.path).path == "/challenge/challenge-1":
+                self._send(200, (
+                    b'<form action="/challenge/challenge-1" method="post">'
+                    b'<input type="hidden" name="_csrf" value="tok123"/>'
+                    b'<input type="text" name="solution" value=""/>'
+                    b'<button type="submit" name="action" value="submit">Go</button>'
+                    b'</form>'))
+            else:
+                self._send(404)
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(n).decode() if n else ""
+            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
+            RECEIVED.append((self.path, q))
+            if q.get("action") != "submit":
+                # Spring: route params filter does not match -> 405, surface dead
+                self._send(405, b"wrong way")
+                return
+            sol = q.get("solution", "")
+            self._send(200, f"<html><body>PROCESSED {sol} echo</body></html>".encode())
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+        eng = RequestEngine(scope, EventBus("run-owsp01"), timeout=5.0)
+        disc = DiscoveryEngine(eng, max_pages=3)
+        endpoints, _js, _st = disc.crawl(base)
+        posts = [e for e in (endpoints if isinstance(endpoints, list) else endpoints.values())
+                 if e.method == "POST" and "challenge-1" in e.url]
+        assert posts, "POST form endpoint must be discovered"
+        assert any(p.name == "action" for p in posts[0].parameters), (
+            "RED: the discovered POST endpoint lacks the button-derived param")
+
+        # fire the engine's own sqli battery against the discovered endpoint
+        from sentinel.detect import SQLiDetector
+        det = SQLiDetector(eng, EventBus("run-owsp01"))
+        cands = det.candidates(posts[0])
+        assert cands, "battery must generate probes for the solution param"
+        sent_ok = 0
+        for strat, m in cands:
+            r = eng.send(m)
+            if r.error or r.status == 0:
+                continue
+            if r.status == 200 and "PROCESSED" in (r.body or ""):
+                sent_ok += 1
+        assert sent_ok > 0, (
+            "RED: every battery probe was absorbed by the 405 route filter — "
+            f"received={RECEIVED[:3]} — the surface exists but the engine "
+            "cannot reach it")
+        assert any(q.get("action") == "submit" for _p, q in RECEIVED), (
+            "RED: no engine request carried the submit-button pair")
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+
+@case
+def unit_owsp02_uniform_reject_accounting():
+    """OWSP-02 (OWASP campaign, live-caught on WrongSecrets 1.8.1): when every
+    battery probe on an endpoint is uniformly rejected by a route/CSRF gate
+    (HTTP 405/403), the scan used to record NOTHING — candidates=0, no
+    coverage note, an entire POST surface silently absorbed. The orchestrator
+    now collects every battery response status per endpoint and records an
+    explicit boundary (SURFACE_UNREACHABLE_AS_PROBED) + coverage skip when
+    ALL probes were uniformly rejected. Mixed statuses (normal battery
+    behavior) must NOT trigger the record."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.core import ScopeRule
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            if self.path == "/":
+                self._send(200, b'<html><body><a href="/gate">g</a></body></html>')
+            elif urlsplit(self.path).path == "/gate":
+                # a form whose POST route demands a pair the battery can never
+                # satisfy (mirror of a params= filter the parser cannot know)
+                self._send(200, (b'<form action="/gate" method="post">'
+                                 b'<input type="hidden" name="_csrf" value="tok1"/>'
+                                 b'<input type="text" name="solution" value=""/>'
+                                 b'<button type="submit" name="action" value="submit">Go</button>'
+                                 b'</form>'))
+            else:
+                self._send(404)
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length") or 0)
+            self.rfile.read(n)
+            self._send(405, b"route params filter never matches")   # uniform reject
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=3, browser=False,
+                         seed="owsp02", oast=None)
+        scanner = SentinelScanner(base, cfg)
+        rep = scanner.run()
+        # battery actually fired at the gated endpoint
+        assert scanner._det_probe_counts.get("sqli", 0) > 0, "battery must have probed"
+        recs = [r for r in scanner.boundary.records
+                if r.category == "active/uniform-reject" and "/gate" in r.target]
+        assert recs, (
+            "RED: a uniformly-405-rejected surface left NO accounting — "
+            "the surface was silently absorbed")
+        assert recs[0].state == "UNTESTABLE"
+        assert "405" in recs[0].reason
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+
+@case
+def unit_owsp03_flow_control_never_probed():
+    """OWSP-03 (OWASP campaign, live-caught on WrongSecrets 1.8.1): after OWSP-01
+    made submit-button pairs reachable, the planner classified them GENERIC and
+    probed them — replacing action=submit with a payload, so every such probe
+    405'd at the route's params filter (~1200 uniform-405 requests, half the
+    battery, on 13 endpoints). Button pairs are FLOW CONTROL: carried verbatim
+    like CSRF tokens, never an injection target. plan_for() must yield entries
+    for the sibling params only, and every detector's candidates() must never
+    mutate a flow_control param."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.discovery import DiscoveryEngine
+    from sentinel.detect import plan_for, ACTIVE_DETECTORS
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            if self.path == "/":
+                self._send(200, b'<html><body><a href="/form">f</a></body></html>')
+            elif urlsplit(self.path).path == "/form":
+                self._send(200, (b'<form action="/submit" method="post">'
+                                 b'<input type="text" name="note" value=""/>'
+                                 b'<button type="submit" name="action" value="submit">Go</button>'
+                                 b'</form>'))
+            else:
+                self._send(404)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+        eng = RequestEngine(scope, EventBus("run-owsp03"), timeout=5.0)
+        disc = DiscoveryEngine(eng, max_pages=3)
+        endpoints, _js, _st = disc.crawl(base)
+        eps = [e for e in (endpoints if isinstance(endpoints, list) else endpoints.values())
+               if e.method == "POST"]
+        assert eps, "POST endpoint must be discovered"
+        ep = eps[0]
+        act = next(p for p in ep.parameters if p.name == "action")
+        note = next(p for p in ep.parameters if p.name == "note")
+        assert act.flow_control, "RED: the submit-button pair is not marked flow control"
+        assert not note.flow_control, "normal fields must stay probed"
+
+        planned_params = {id(p["param"]) for p in plan_for(ep)}
+        assert all(p["param"].name != "action" for p in plan_for(ep)), (
+            "RED: plan_for still schedules batteries against the flow-control param")
+        assert any(p["param"].name == "note" for p in plan_for(ep)), (
+            "sibling params must still be fully planned")
+
+        class _FakeOast:
+            # OWSP-04: cmdi/ssrf OOB batteries are inert without an OAST channel —
+            # a fake channel makes them fire so the flow-control gate is actually
+            # exercised (the live 405s on WrongSecrets were exactly this battery
+            # APPENDING "submit; curl ..." onto the action param).
+            def url(self, iid):
+                return f"http://127.0.0.1:1/{iid}"
+        for cls in ACTIVE_DETECTORS:
+            det = cls(eng, EventBus("run-owsp03"))
+            if getattr(det, "needs_oast", False):
+                det.oast = _FakeOast()
+            try:
+                cands = det.candidates(ep)
+            except Exception:
+                continue
+            for c in cands:
+                m = c[1] if isinstance(c, tuple) else c
+                assert getattr(m, "param_name", None) != "action", (
+                    f"RED: {det.name} mutates the flow-control param")
+                pv = getattr(m, "param_value", "") or ""
+                assert "action" not in (getattr(m, "param_name", "") or ""), ""  # noop guard
+                if getattr(m, "param_name", None) == "solution":
+                    assert "submit;" not in pv or pv.startswith("sentinel"), (
+                        f"RED: {det.name} appended a payload onto a sibling value")
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+
+@case
+def unit_owsp05_browser_dom_submit_controls():
+    """OWSP-05 (OWASP campaign, live-caught on WrongSecrets 1.8.1): the browser
+    engine's DOM form extraction (querySelectorAll in _FORM_JS) excluded
+    input[type=submit] AND never queried <button> at all — every browser-
+    discovered POST surface lacked the flow-control pair and 405'd at the
+    route's params filter with a wrong-session token (312 dead requests on
+    13 endpoints, live-measured). The DOM extraction must capture the FIRST
+    name+value submit control (input OR button), report it as submitctl, and
+    the endpoint builder must mark it flow_control."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.browser import BrowserEngine, browser_available
+    if not browser_available():
+        raise AssertionError("playwright/chromium required for this gate")
+
+    PAGE = b"""<html><body>
+<form action="/submit" method="post">
+<input type="text" name="note" value=""/>
+<input type="hidden" name="_csrf" value="tok1"/>
+<button type="submit" name="action" value="submit">Go</button>
+<button type="button" name="clearbtn" value="x">Clear</button>
+</form></body></html>"""
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html")
+            self.send_header("Content-Length", str(len(PAGE)))
+            self.end_headers()
+            self.wfile.write(PAGE)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+        eng = RequestEngine(scope, EventBus("run-owsp05"), timeout=5.0)
+        be = BrowserEngine(eng, timeout=5.0)
+        r = be.render(base + "/")
+        assert r, "render must succeed"
+        forms = r.get("forms") or []
+        assert forms, f"DOM forms must be extracted; got {r.keys()}"
+        f0 = forms[0]
+        names = [n for n, _v in f0["params"]]
+        assert "note" in names and "_csrf" in names, names
+        assert "action" in names, (
+            f"RED: the DOM extraction missed the submit-button pair (got {names})")
+        assert f0.get("submitctl") == "action", f0.get("submitctl")
+        assert "clearbtn" not in names, "type=button controls are never submitted"
+        eps = be.render_merge([base + "/"], "127.0.0.1", {})
+        posts = [e for e in eps if (e.method or "GET").upper() == "POST"]
+        assert posts, "render_merge must produce the POST endpoint"
+        fc = [p for p in posts[0].parameters if p.flow_control]
+        assert fc and fc[0].name == f0["submitctl"], (
+            "RED: the DOM endpoint does not mark the submit control flow_control")
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

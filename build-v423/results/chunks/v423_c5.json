@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -342,7 +342,7 @@
   {
    "name": "unit_waf_fingerprinter_named_signatures",
    "ok": true,
-   "ms": 20
+   "ms": 2
   },
   {
    "name": "unit_tech_fingerprinter_platform_map",
@@ -352,7 +352,7 @@
   {
    "name": "unit_eng09_rate_limit_backoff",
    "ok": true,
-   "ms": 516
+   "ms": 509
   },
   {
    "name": "unit_auth05_token_bearer_modes",
@@ -372,17 +372,17 @@
   {
    "name": "unit_max03_sqlite_error_signature",
    "ok": true,
-   "ms": 601
+   "ms": 609
   },
   {
    "name": "unit_max05_openapi_path_template_instantiation",
    "ok": true,
-   "ms": 546
+   "ms": 553
   },
   {
    "name": "unit_op02_sarif_export",
    "ok": true,
-   "ms": 13
+   "ms": 14
   },
   {
    "name": "unit_disc13_openapi_seed",
@@ -392,7 +392,7 @@
   {
    "name": "regression_phase54_ops_stealth_composition",
    "ok": true,
-   "ms": 789
+   "ms": 787
   },
   {
    "name": "unit_phase55_detectors_and_gates",
@@ -402,7 +402,7 @@
   {
    "name": "regression_phase55_five_classes_end_to_end",
    "ok": true,
-   "ms": 82573
+   "ms": 82540
   },
   {
    "name": "unit_paramintel_value_shape_inference",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

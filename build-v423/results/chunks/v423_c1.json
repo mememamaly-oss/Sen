@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 142,
+ "total": 146,
  "failed": 0,
  "cases": [
   {
@@ -51,27 +51,27 @@
   {
    "name": "regression_verification_rejects_false_candidate",
    "ok": true,
-   "ms": 85
+   "ms": 22
   },
   {
    "name": "regression_xss_verifier_waf_bypass",
    "ok": true,
-   "ms": 512
+   "ms": 513
   },
   {
    "name": "regression_xss_verifier_rejects_encoded_only",
    "ok": true,
-   "ms": 506
+   "ms": 507
   },
   {
    "name": "regression_engine_preserves_redirect_oracle_e2e",
    "ok": true,
-   "ms": 551
+   "ms": 557
   },
   {
    "name": "unit_v422_sqli_numeric_comment_family",
    "ok": true,
-   "ms": 552
+   "ms": 559
   },
   {
    "name": "regression_form_param_location_follows_method",
@@ -837,6 +837,30 @@
   },
   {
    "name": "unit_max10_logout_crawl_and_cookie_diet",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp01_button_form_params",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp02_uniform_reject_accounting",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp03_flow_control_never_probed",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp05_browser_dom_submit_controls",
    "ok": true,
    "ms": 0,
    "skipped": true

@@ -41,10 +41,37 @@ class _LinkParser(HTMLParser):
         elif tag in ("link", "script") and a.get("href") or (tag == "script" and a.get("src")):
             self.links.append(a.get("href") or a.get("src"))
         elif tag == "form":
-            self._cur_form = {"action": a.get("action", ""), "method": (a.get("method") or "GET").upper(), "params": []}
+            self._cur_form = {"action": a.get("action", ""), "method": (a.get("method") or "GET").upper(), "params": [], "submitctl": None}
         elif tag == "input" and self._cur_form is not None:
-            if a.get("type") not in ("submit", "button", "reset") and a.get("name"):
+            if a.get("type") in ("submit", "button", "reset"):
+                # OWSP-01 (OWASP campaign, live-caught on WrongSecrets 1.8.1):
+                # a submit INPUT's name=value pair is PART of the submission
+                # (routes gated on it: Spring params="action=submit" filters,
+                # WebGoat lesson forms). Flow-control pairs were silently
+                # dropped, every probe answered 405 and the whole POST
+                # surface went dead while the gates stayed green.
+                if (a.get("type") == "submit" and a.get("name") and a.get("value")
+                        and not self._cur_form.get("submitctl")):
+                    self._cur_form["params"].append((a["name"], a["value"]))
+                    self._cur_form["submitctl"] = a["name"]
+            elif a.get("name"):
                 self._cur_form["params"].append((a["name"], a.get("value", "")))
+        elif tag == "button" and self._cur_form is not None:
+            # OWSP-01 (live-caught on WrongSecrets 1.8.1): <button type=submit
+            # name= value=> contributes its name=value pair to the submission —
+            # POST /challenge/{name} sits behind params="action=submit" whose
+            # pair comes from the BUTTON; the form-only-inputs parser made the
+            # entire challenge surface unreachable (candidates=0, all probes
+            # 405, no coverage note). Capture name+value-bearing submit-type
+            # buttons (spec: a button without type IS type=submit); only the
+            # FIRST per form — one activated control per real submission, and
+            # duplicate keys would corrupt param ordering. Valueless buttons
+            # are inert for flow control and stay out (noise only).
+            _btype = (a.get("type") or "submit").lower()
+            if (_btype == "submit" and a.get("name") and a.get("value")
+                    and not self._cur_form.get("submitctl")):
+                self._cur_form["params"].append((a["name"], a["value"]))
+                self._cur_form["submitctl"] = a["name"]
         elif tag == "textarea" and self._cur_form is not None and a.get("name"):
             self._cur_form["params"].append((a["name"], ""))
         elif tag == "select" and a.get("name") and (self._cur_form is not None
@@ -216,7 +243,8 @@ class DiscoveryEngine:
         if p.scheme not in ("http", "https"): return ""
         return urllib.parse.urlunsplit((p.scheme, p.netloc, p.path, p.query, ""))
 
-    def _mk_endpoint(self, url: str, source: DiscoverySource, params=None, method="GET") -> Endpoint:
+    def _mk_endpoint(self, url: str, source: DiscoverySource, params=None, method="GET",
+                     flow_control=()) -> Endpoint:
         p = urllib.parse.urlsplit(url)
         qs = [(k, v[0]) for k, v in urllib.parse.parse_qs(p.query, keep_blank_values=True).items()]
         plist = [Parameter(n, ParamLocation.QUERY, v).classify() for n, v in qs]
@@ -227,7 +255,11 @@ class DiscoveryEngine:
         # the endpoint's actual method.
         form_loc = ParamLocation.BODY if (method or "GET").upper() == "POST" else ParamLocation.QUERY
         for n, v in (params or []):
-            plist.append(Parameter(n, form_loc, v).classify())
+            pobj = Parameter(n, form_loc, v).classify()
+            # OWSP-03: submit-button pairs ride along verbatim — never probed
+            if n in flow_control:
+                pobj.flow_control = True
+            plist.append(pobj)
         clean = urllib.parse.urlunsplit((p.scheme, p.netloc, p.path, "", ""))
         return Endpoint(url=clean, method=method, parameters=plist, source=source)
 
@@ -337,8 +369,13 @@ class DiscoveryEngine:
             for form in hp.forms:
                 action = self._normalize(norm, form["action"] or norm)
                 if not action: continue
+                # OWSP-03: the form's first submit control is flow control — its
+                # name=value pair is required verbatim by gated routes (Spring
+                # params="action=submit" filters); it must never be probed.
+                _fc = {form["submitctl"]} if form.get("submitctl") else ()
                 e3 = self._mk_endpoint(action, DiscoverySource.CRAWL_FORM,
-                                       params=form["params"], method=form["method"])
+                                       params=form["params"], method=form["method"],
+                                       flow_control=_fc)
                 # DETECT-16 (v4.2.3): record WHERE the form was discovered — the
                 # stored-XSS flow re-fetches this page for a fresh form round-trip
                 # (rotating __VIEWSTATE / CSRF tokens) and uses it as a render

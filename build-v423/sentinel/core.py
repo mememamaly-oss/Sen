@@ -89,6 +89,13 @@ class Parameter:
     location: ParamLocation = ParamLocation.QUERY
     value: str = ""
     kind: ParamKind = ParamKind.GENERIC
+    # OWSP-03 (OWASP campaign, live-caught on WrongSecrets 1.8.1): submit-button
+    # pairs (action=submit & co.) are FLOW CONTROL — the route's params filter
+    # demands the exact literal, so replacing the value with a payload makes
+    # every probe 405 before application logic runs. Carried verbatim as
+    # siblings (like TOKEN), never an injection target. Set by the discovery
+    # form parser for the form's first submit control.
+    flow_control: bool = False
 
     def classify(self) -> "Parameter":
         v, n = (self.value or "").strip(), (self.name or "").lower()
