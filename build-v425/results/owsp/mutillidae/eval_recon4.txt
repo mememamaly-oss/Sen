@@ -1,0 +1,30 @@
+===== RECON4 (vs recon3) =====
+run_id=run-8e08a2f4fb requests=24993 endpoints=680 candidates=204 verified=289 rejected=2 duration=4267.35s browser=15p/0b journal_dropped=18993
+
+findings list: 36  statuses: {'verified': 36}
+
+[SCOPE] off-target findings: 0  (clean)
+[SCOPE] off-target endpoints: 0
+
+[COVERAGE] form-bearing pages reached: 0/27
+  reached: 
+  MISSED (27): add-to-your-blog.php client-side-control-challenge.php conference-room-lookup.php content-security-policy.php cors.php database-offline.php dns-lookup.php document-viewer.php echo.php edit-account-profile.php html5-storage.php login.php password-generator.php pen-test-tool-lookup-ajax.php pen-test-tool-lookup.php register.php repeater.php set-background-color.php source-viewer.php test-connectivity.php text-file-viewer.php upload-file.php user-info-xpath.php user-info.php user-poll.php view-someones-blog.php xml-validator.php
+
+[FINDINGS] active+content classes: 11
+  credential_exposure      verified   x1
+  open_redirect            verified   x4
+  path_traversal           verified   x1
+  ssrf                     verified   x1
+  xss_reflected            verified   x4
+
+[FINDINGS] per vuln-page (index.php?page=...):
+  fetched-but-zero-findings (0): 
+
+[DELTA] new findings vs recon3: 0
+[DELTA] off-target findings REMOVED: 0
+
+[UNVERIFIED] candidates kept visible: 1
+  csrf                   http://127.0.0.1:4290/webservices/soap/ws-user-account.php
+[REJECTED] honest rejects: 2
+  ssti                   http://127.0.0.1:4290/index.php reason=
+  ssti                   http://127.0.0.1:4290/index.php reason=

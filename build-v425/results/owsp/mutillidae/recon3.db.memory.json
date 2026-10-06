@@ -1,0 +1,833 @@
+{
+ "version": 1,
+ "apps": {
+  "127.0.0.1:4290": {
+   "runs": 1,
+   "fingerprints": [
+    {
+     "run": "run-c3407735e7",
+     "endpoints": 1520,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/set-up-database.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/a|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4290/index.php|firstname",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4290/index.php|lastname",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/ajax/lookup-pen-test-tool.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/mutillidae/capture-data.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/evil-tabby-cat.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/documentation/\\'http:/192.168.56.103/beef/hook/beefmagic.js.php\\'|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/documentation/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/images/favicon.ico|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/styles/global-styles.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/jquery.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/hints-menu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/set-up-database.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/framer.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/rest/docs/rest-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/rest/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/soap/docs/soap-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/images/favicon.ico|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/styles/global-styles.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/javascript/jQuery/jquery.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/javascript/hints/hints-menu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/set-up-database.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/framer.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/rest/docs/rest-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/rest/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/soap/docs/soap-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/images/favicon.ico|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/styles/global-styles.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/javascript/jQuery/jquery.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/javascript/hints/hints-menu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/set-up-database.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/framer.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/rest/docs/rest-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/rest/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/soap/docs/soap-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/images/favicon.ico|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/styles/global-styles.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/javascript/jQuery/jquery.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/javascript/hints/hints-menu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/set-up-database.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/framer.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/rest/docs/rest-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/rest/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/soap/docs/soap-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/images/favicon.ico|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/styles/global-styles.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/javascript/jQuery/jquery.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/javascript/hints/hints-menu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/set-up-database.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/framer.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/rest/docs/rest-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/rest/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/soap/docs/soap-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/images/favicon.ico|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/styles/global-styles.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/javascript/jQuery/jquery.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/javascript/hints/hints-menu.js|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/index.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/set-up-database.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/framer.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/rest/docs/rest-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/rest/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/docs/soap-services.html|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-login.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/webservices/soap/ws-echo.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/hints-page-wrapper.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4290/configuration/openldap/index.php|firstname",
+     "first_seen": "run-c3407735e7"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4290/configuration/openldap/index.php|lastname",
+     "first_seen": "run-c3407735e7"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [
+    "R-TOKENLESS-WRITE"
+   ],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "active/command-endpoint|BLOCKED_BY_SAFETY",
+     "reason": "endpoint parameters carry a command-shaped value (do=logout / do=toggle-... style) — the base request of any battery aga"
+    },
+    {
+     "key": "crawl/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — a plain GET is state-changing on this surface (state-changing-GET anti"
+    }
+   ]
+  }
+ }
+}

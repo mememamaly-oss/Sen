@@ -134,7 +134,30 @@ class Endpoint:
 
     def __post_init__(self):
         if not self.id:
-            self.id = hashlib.sha1(f"{self.method}|{self.url}|{sorted(p.name for p in self.parameters)}".encode()).hexdigest()[:12]
+            # OWSP-25 (OWASP campaign, live-caught on Mutillidae II 2.12.7):
+            # identity was method|url|sorted param NAMES — a query-routed app
+            # serves MANY logical surfaces through one url (index.php?page=X)
+            # and two forms with identical name sets are DIFFERENT surfaces.
+            # Live proof: user-info.php and user-info-xpath.php share the
+            # exact param names username/password/user-info-php-submit-button
+            # (Mutillidae's own copy-paste button name) — one Endpoint.id, the
+            # first-crawled twin (xpath) won the page value, every battery
+            # fired in the WRONG context (1,131 username SQLi probes under
+            # page=user-info-xpath.php, ZERO under page=user-info.php where
+            # the classic SQLi lives; request-level proof from the target's
+            # own access log). File-shaped router param VALUES now join the
+            # identity — the same insight as OWSP-23's fetch-cap key: a value
+            # shaped like a script filename selects a different actual page.
+            # Params without file-shaped values are unaffected (material
+            # byte-identical -> same id -> zero behavioral change).
+            router_vals = sorted(
+                f"{p.name}={p.value}" for p in self.parameters
+                if str(p.value or "").lower().endswith(
+                    (".php", ".html", ".htm", ".asp", ".aspx", ".jsp", ".js")))
+            material = f"{self.method}|{self.url}|{sorted(p.name for p in self.parameters)}"
+            if router_vals:
+                material += "|" + "&".join(router_vals)
+            self.id = hashlib.sha1(material.encode()).hexdigest()[:12]
 
     def param(self, name: str) -> Optional[Parameter]:
         return next((p for p in self.parameters if p.name == name), None)

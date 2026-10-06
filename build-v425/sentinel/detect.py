@@ -1175,6 +1175,17 @@ class CommandInjectionDetector(Detector):
         if self.oast is None or self._probes >= self.SCAN_WIDE_CAP:
             return []
         out = []
+        # OWSP-26 (OWASP campaign, live-caught on Mutillidae II 2.12.7): the
+        # old `if self._probes >= self.MAX_PARAMS: break` compared the
+        # SCAN-WIDE counter inside the PER-ENDPOINT param loop — after the
+        # first 24 params anywhere in the scan, every later endpoint got
+        # exactly ONE param probed (its first, typically the dead router
+        # `page` field), and its real surfaces (dns-lookup.php's target_host,
+        # a live OS-cmdi proven by manual callback /pwn1) were NEVER probed.
+        # MAX_PARAMS is now a PER-ENDPOINT param bound (the 'deterministic
+        # floor for small surfaces' its comment always claimed); SCAN_WIDE_CAP
+        # remains the only scan-wide bound.
+        ep_params = 0
         for p in ep.parameters:
             # OWSP-04: flow-control (submit-button) params must never carry an
             # APPEND payload either — base+v turned action=submit into
@@ -1191,7 +1202,8 @@ class CommandInjectionDetector(Detector):
                                            param_value=base + v.format(u=self.oast.url(iid)),
                                            note=f"cmdi:{iid}"))
             self._probes += 1
-            if self._probes >= self.MAX_PARAMS:
+            ep_params += 1
+            if ep_params >= self.MAX_PARAMS or self._probes >= self.SCAN_WIDE_CAP:
                 break
         return out
 

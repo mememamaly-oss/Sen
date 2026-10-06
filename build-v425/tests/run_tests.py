@@ -9081,6 +9081,76 @@ def unit_owsp24_impact_scope_hostname():
     assert not ok2, "netloc-scoped domains must NOT pass (port never matches)"
 
 
+@case
+def unit_owsp25_router_value_identity():
+    """OWSP-25 (OWASP campaign, live-caught on Mutillidae II 2.12.7): Endpoint
+    identity was method|url|sorted param NAMES — a query-routed app serves many
+    logical surfaces through ONE url (index.php?page=X) and twin forms with
+    identical name sets are different surfaces. Live proof (request-level,
+    from the target's own access log): user-info.php and user-info-xpath.php
+    share the exact param names username/password/user-info-php-submit-button
+    (Mutillidae's own copy-paste button name) -> ONE Endpoint.id, the
+    first-crawled twin (xpath) won the page value, and every battery fired in
+    the wrong context: 1,131 username SQLi probes under page=user-info-xpath.
+    php, ZERO under page=user-info.php where the classic SQLi lives; the page
+    was fetched exactly once. File-shaped router param VALUES now join the
+    identity (the OWSP-23 cap-key insight applied to identity)."""
+    from sentinel.core import Endpoint, Parameter, ParamLocation
+
+    def twin(page_value):
+        params = [Parameter(n, ParamLocation.QUERY, v).classify() for n, v in (
+            ("page", page_value), ("username", "admin"),
+            ("password", "x"), ("user-info-php-submit-button", "View Account Details"))]
+        return Endpoint(url="http://127.0.0.1:4290/index.php", method="GET",
+                        parameters=params)
+
+    a, b = twin("user-info.php"), twin("user-info-xpath.php")
+    assert a.id != b.id, (
+        "RED: twin router forms with different file-shaped page values collapsed "
+        "into ONE endpoint — the first-crawled twin won the context and the other "
+        "surface was structurally unreachable")
+
+    # byte-stability for DATA values: same names, no file-shaped values ->
+    # identity unchanged (template dedup preserved; bench/fixtures unaffected)
+    def plain(v):
+        return Endpoint(url="http://t/search", method="GET",
+                        parameters=[Parameter("q", ParamLocation.QUERY, v).classify()])
+    assert plain("a").id == plain("b").id, (
+        "non-router DATA values must NOT split identity (template dedup preserved)")
+
+
+@case
+def unit_owsp26_cmdi_per_endpoint_budget():
+    """OWSP-26 (OWASP campaign, live-caught on Mutillidae II 2.12.7): the cmdi
+    battery compared the SCAN-WIDE param counter against MAX_PARAMS inside the
+    PER-ENDPOINT loop — after the first 24 params anywhere in the scan, every
+    later endpoint got exactly ONE param probed (its first, on Mutillidae
+    always the dead router `page` field), so dns-lookup.php's target_host
+    (a LIVE OS command injection — manual probe callback /pwn1 landed) was
+    never probed: zero command_injection findings on the whole app. MAX_PARAMS
+    is now a per-endpoint bound; SCAN_WIDE_CAP stays the only scan-wide bound."""
+    from sentinel.core import ScopeRule, EventBus, Endpoint, Parameter, ParamLocation
+    from sentinel.http_engine import RequestEngine
+    from sentinel.detect import CommandInjectionDetector
+
+    class _FakeOast:
+        def url(self, iid): return "http://127.0.0.1:1/" + iid
+
+    scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+    eng = RequestEngine(scope, EventBus("run-owsp26"))
+    det = CommandInjectionDetector(eng, EventBus("run-owsp26"), oast=_FakeOast())
+    det._probes = det.MAX_PARAMS + 10          # scan-wide long past the floor
+    ep = Endpoint(url="http://127.0.0.1:4290/index.php", method="GET",
+                  parameters=[Parameter("page", ParamLocation.QUERY, "dns-lookup.php").classify(),
+                              Parameter("target_host", ParamLocation.QUERY, "127.0.0.1").classify()])
+    cands = det.candidates(ep)
+    probed = {c.param_name for c in cands}
+    assert "target_host" in probed, (
+        f"RED: after 24 scan-wide params the endpoint got first-param-only "
+        f"(probed={sorted(probed)}) — the live cmdi surface starved")
+    assert "page" in probed, "the router param keeps its (dead but honest) probe"
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite
