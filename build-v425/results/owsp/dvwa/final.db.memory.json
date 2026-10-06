@@ -1,0 +1,503 @@
+{
+ "version": 1,
+ "apps": {
+  "127.0.0.1:4280": {
+   "runs": 3,
+   "fingerprints": [
+    {
+     "run": "run-8517db34e8",
+     "endpoints": 70,
+     "tech": [],
+     "waf": ""
+    },
+    {
+     "run": "run-8517db34e8",
+     "endpoints": 76,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "sql_injection|http://127.0.0.1:4280/vulnerabilities/brute/|username",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "command_injection|http://127.0.0.1:4280/vulnerabilities/exec/|ip",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "sql_injection|http://127.0.0.1:4280/vulnerabilities/sqli/|id",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "sql_injection|http://127.0.0.1:4280/vulnerabilities/sqli_blind/|id",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "path_traversal|http://127.0.0.1:4280/vulnerabilities/fi/|page",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "ssrf|http://127.0.0.1:4280/vulnerabilities/fi/|page",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4280/vulnerabilities/xss_s/|txtName",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4280/vulnerabilities/xss_s/|mtxMessage",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4280/vulnerabilities/csp/|include",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4280/vulnerabilities/xss_r/|name",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/index.php|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/instructions.php|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/brute/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/exec/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/csrf/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/fi/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/upload/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/captcha/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/sqli/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/sqli_blind/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/weak_id/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/xss_d/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/xss_r/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4280/vulnerabilities/xss_s/|Host",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "open_redirect|http://127.0.0.1:4280/vulnerabilities/open_redirect/source/low.php|redirect",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/index.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/dvwa/css/main.css|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/favicon.ico|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/dvwa/js/dvwaPage.js|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/instructions.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/brute/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/exec/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/csrf/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/fi/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/upload/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/captcha/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/sqli/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/sqli_blind/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/weak_id/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/xss_d/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/xss_r/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/xss_s/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/csp/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/javascript/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/authbypass/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/open_redirect/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/cryptography/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/api/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/security.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/phpinfo.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/about.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/dvwa/js/add_event_listeners.js|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.ar.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.zh.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.fr.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.ko.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.fa.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.pl.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.pt.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.es.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.tr.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.id.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.vi.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.it.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.uk.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/README.ru.md|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/config/config.inc.php.dist|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/compose.yml|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/authbypass/authbypass.js|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/open_redirect/source/low.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/cryptography/index.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/api/v2/user/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/bac/log_viewer.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/docs/DVWA_v1.3.pdf|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4280/vulnerabilities/authbypass/change_user_details.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/index.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/instructions.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/brute/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/exec/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/csrf/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/fi/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/upload/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/captcha/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/sqli/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/sqli_blind/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/weak_id/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/xss_d/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/xss_r/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/xss_s/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/csp/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/javascript/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/authbypass/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/open_redirect/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/cryptography/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/api/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/security.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/phpinfo.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/about.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4280/vulnerabilities/xss_s/|txtName",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4280/vulnerabilities/xss_s/|mtxMessage",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/open_redirect/source/low.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/cryptography/index.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/api/v2/user/|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/bac/log_viewer.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4280/vulnerabilities/authbypass/change_user_details.php|",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "xss_dom|http://127.0.0.1:4280/vulnerabilities/xss_d/|default",
+     "first_seen": "run-8517db34e8"
+    },
+    {
+     "key": "unrestricted_file_upload|http://127.0.0.1:4280/vulnerabilities/upload/|uploaded",
+     "first_seen": "run-8517db34e8"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [
+    "R-TOKENLESS-WRITE"
+   ],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "crawl/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — a plain GET is state-changing on this surface (state-changing-GET anti"
+    },
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "passive/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — even a passive baseline GET is state-changing on this surface (state-c"
+    },
+    {
+     "key": "passive/logout|BLOCKED_BY_SAFETY",
+     "reason": "logout path — fetching it (even as a passive baseline) destroys the scan's own authenticated session; the endpoint stays"
+    },
+    {
+     "key": "websocket|NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)"
+    }
+   ]
+  }
+ }
+}
