@@ -12,6 +12,31 @@ from .http_engine import RequestEngine
 # scan's own session; live-caught on WebGoat 8.2.2).
 LOGOUT_PATH_RE = re.compile(r"(log-?out|log-?off|sign-?out|sign-?off)", re.I)
 
+# OWSP-21 (OWASP campaign, live-caught on Mutillidae II 2.12.7): the app
+# routes its commands through the QUERY STRING (index.php?do=toggle-security,
+# index.php?do=logout) — the path is a constant "/index.php" for the whole
+# app. Every safety vocabulary in the engine was path-scoped, so a
+# query-routed state change was INVISIBLE to all of them: the crawler
+# followed the do=toggle-security header-menu link at journal index 11, and
+# the scan session's security level oscillated 0->1->5->0 across 95 hits —
+# 4661/4672 requests ran under an uncontrolled app posture while the scan
+# looked perfectly healthy. Application-configuration toggles are a
+# self-preservation class: fetching one changes the conditions every later
+# request is tested under (the subtler sibling of the DVGA /start_over
+# database re-seed).
+STATE_CHANGE_GET_RE = re.compile(
+    r"(toggle|switch|enable|disable|turn[_-]?(?:on|off))", re.I)
+
+
+def gate_scope(url: str) -> str:
+    """Path + query string of a URL — the surface the safety vocabularies
+    (destructive-get / logout / state-change-toggle) must match against.
+    Query-routed apps (index.php?do=toggle-security, ?do=logout) carry their
+    commands in the query string; a path-only check never sees them. The '?'
+    separator keeps words from straddling the boundary."""
+    p = urllib.parse.urlsplit(url or "")
+    return (p.path or "/") + ("?" + p.query if p.query else "")
+
 
 class _LinkParser(HTMLParser):
     def __init__(self):
@@ -315,12 +340,17 @@ class DiscoveryEngine:
             fpath = urllib.parse.urlsplit(norm).path or "/"
             if self._path_queued.get(fpath, 0) >= self.SAME_PATH_PAGE_CAP:
                 continue
+            # OWSP-21: the vocabulary gates match PATH + QUERY — the command
+            # of a query-routed app (index.php?do=toggle-security) lives in
+            # the query string, invisible to a path-only check.
+            gscope = gate_scope(norm)
             # V411-DISC-SAFE: destructive-GET vocabulary is never page-fetched
             # (the endpoint stays discovered; the planner gates any probe)
-            if DESTRUCTIVE_GET_RE.search(fpath):
+            if (DESTRUCTIVE_GET_RE.search(gscope)
+                    or STATE_CHANGE_GET_RE.search(gscope)):
                 self.crawl_skips = getattr(self, "crawl_skips", [])
-                if fpath not in self.crawl_skips:
-                    self.crawl_skips.append(fpath)
+                if gscope not in self.crawl_skips:
+                    self.crawl_skips.append(gscope)
                 ep = self._mk_endpoint(norm, DiscoverySource.CRAWL_HTML)
                 endpoints[ep.id] = ep
                 continue
@@ -332,10 +362,10 @@ class DiscoveryEngine:
             # reauths, 3944 dead-session requests, the whole lesson surface
             # answered by login pages). Same doctrine as destructive-GET: the
             # logout endpoint stays DISCOVERED (never fetched).
-            if LOGOUT_PATH_RE.search(fpath):
+            if LOGOUT_PATH_RE.search(gscope):
                 self.crawl_skips = getattr(self, "crawl_skips", [])
-                if fpath not in self.crawl_skips:
-                    self.crawl_skips.append(fpath)
+                if gscope not in self.crawl_skips:
+                    self.crawl_skips.append(gscope)
                 ep = self._mk_endpoint(norm, DiscoverySource.CRAWL_HTML)
                 endpoints[ep.id] = ep
                 continue

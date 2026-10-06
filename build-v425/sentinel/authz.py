@@ -51,6 +51,7 @@ from dataclasses import dataclass, field
 from .auth import AuthEngine, AuthProfile
 from .core import (Endpoint, Evidence, Finding, FindingStatus, ScopeRule,
                    Severity, Verification)
+from .discovery import gate_scope as _gate_scope
 from .http_engine import RequestEngine, RequestMutation
 
 ROLE_RANK = {"admin": 0, "administrator": 0, "root": 0,
@@ -246,17 +247,21 @@ class AuthzEngine:
         return out
 
     def _probeable(self, path: str) -> bool:
-        """A path the battery may GET-replay: not an asset, not a session
+        """A surface the battery may GET-replay: not an asset, not a session
         killer (logout-shaped), not the login gate itself, and — V411-DISC-SAFE
         (live-caught on DVGA) — never a destructive/global-reset GET: the
         role-view replay fetched /start_over under every account and re-seeded
         the whole database mid-scan. The planner vocabulary already blocks
         these paths for ACTIVE probes; the same discipline gates the
-        matrix/role-view replay."""
-        from .discovery import DESTRUCTIVE_GET_RE
+        matrix/role-view replay.
+        OWSP-21: the argument is a GATE SCOPE (path + query) — callers with a
+        full URL pass discovery.gate_scope(url); a query-routed command
+        (index.php?do=toggle-security / ?do=logout) must be refused here just
+        like its path-routed sibling."""
+        from .discovery import DESTRUCTIVE_GET_RE, STATE_CHANGE_GET_RE
         if ASSET_EXT_RE.search(path) or LOGOUT_PATH_RE.search(path):
             return False
-        if DESTRUCTIVE_GET_RE.search(path):
+        if DESTRUCTIVE_GET_RE.search(path) or STATE_CHANGE_GET_RE.search(path):
             return False
         if self.cfg.login_marker and self.cfg.login_marker.lower() in path.lower():
             return False
@@ -275,7 +280,7 @@ class AuthzEngine:
             if (ep.method or "GET").upper() != "GET":
                 continue
             path = urllib.parse.urlsplit(ep.url).path
-            if not path or path in fetched or not self._probeable(path):
+            if not path or path in fetched or not self._probeable(_gate_scope(ep.url)):
                 continue
             if len(fetched) >= self.cfg.max_role_view:
                 break

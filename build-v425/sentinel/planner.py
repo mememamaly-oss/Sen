@@ -40,7 +40,20 @@ DESTRUCTIVE_WORDS = ("delete", "drop", "purge", "wipe", "truncate", "destroy",
                      "start over", "start_over", "reseed", "reinitialize",
                      "setup", "install", "migrate", "seed db", "seed all",
                      "flush all", "flush db", "clear data", "drop all",
-                     "drop db", "drop table", "restore default", "reset world")
+                     "drop db", "drop table", "restore default", "reset world",
+                     # OWSP-21 (OWASP campaign, live-caught on Mutillidae II
+                     # 2.12.7): application-configuration toggles. The app
+                     # routes commands through the query string
+                     # (index.php?do=toggle-security); the crawler followed
+                     # that header-menu link at journal index 11 and the scan
+                     # session's security level oscillated 0->1->5->0 across
+                     # 95 hits — 4661/4672 requests under an uncontrolled app
+                     # posture while the scan looked healthy. A config toggle
+                     # is blocked-always for the same reason as /start_over:
+                     # it changes the conditions every later request is
+                     # tested under.
+                     "toggle", "switch", "enable", "disable",
+                     "turn on", "turn off")
 
 # words that make a surface STATE_CHANGING (creation/mutation of app objects)
 STATE_WORDS = ("create", "add", "new", "submit", "update", "edit", "modify",
@@ -85,6 +98,14 @@ def classify_operation(url: str, method: str = "GET", fields: list | None = None
 
     def _has(wordlist) -> bool:
         hay = " ".join(segs) + " " + path.replace("-", " ").replace("_", " ")
+        # OWSP-21: the vocabulary must see the QUERY STRING too — query-routed
+        # apps (index.php?do=toggle-security) carry their commands in it.
+        q = urllib.parse.urlsplit(url or "").query or ""
+        if q:
+            qh = urllib.parse.unquote_plus(q)
+            for sep in ("=", "&", "+", "%", "|", ";"):
+                qh = qh.replace(sep, " ")
+            hay += " " + qh.replace("-", " ").replace("_", " ")
         return any(re.search(rf"(?<!\w){re.escape(w)}(?!\w)", hay) for w in wordlist)
 
     # 0) v4.1.0 safety fix: DESTRUCTIVE vocabulary wins over EVERYTHING —

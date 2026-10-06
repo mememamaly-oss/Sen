@@ -344,8 +344,14 @@ class SentinelScanner:
                 # mid-scan (the crawler was already gated; the browser pass
                 # repeated the mistake). Operator exclusions apply equally.
                 from .discovery import DESTRUCTIVE_GET_RE as _DGR
+                from .discovery import (STATE_CHANGE_GET_RE as _SGR,
+                                        LOGOUT_PATH_RE as _LOGOUT_QRE,
+                                        gate_scope as _gscope)
+                # OWSP-21: path + query — query-routed command links
+                # (index.php?do=toggle-security) must be gated too
                 render_targets = [u for u in render_targets
-                                  if not _DGR.search(urllib.parse.urlsplit(u).path or "/")
+                                  if not (_DGR.search(_gscope(u)) or _SGR.search(_gscope(u)))
+                                  and not _LOGOUT_QRE.search(_gscope(u))
                                   and not any(x and x in u for x in _excl)][:15]
                 new_eps = self.browser.render_merge(render_targets, self.target.host, existing)
                 endpoints.extend(e for e in new_eps if e.id not in {x.id for x in endpoints})
@@ -422,7 +428,13 @@ class SentinelScanner:
                 # PASSIVE BASELINE — /start_over re-seeded the whole database
                 # from this very loop. No request is sent; the skip is
                 # accounted, the boundary is recorded, nothing is silent.
-                if DESTRUCTIVE_GET_RE.search(urllib.parse.urlsplit(ep.url).path or "/"):
+                # OWSP-21: gate on path + QUERY — a query-routed command
+                # (index.php?do=toggle-security) changes app config on a
+                # plain GET; the passive baseline must not fire it either.
+                from .discovery import DESTRUCTIVE_GET_RE as _DGR2
+                from .discovery import STATE_CHANGE_GET_RE as _SGR2, gate_scope as _gscope2
+                if (_DGR2.search(_gscope2(ep.url))
+                        or _SGR2.search(_gscope2(ep.url))):
                     self.coverage.skipped(ep, "destructive_get_vocabulary")
                     self.boundary.record(
                         "passive/destructive-get", ep.url, "BLOCKED_BY_SAFETY",
@@ -438,7 +450,8 @@ class SentinelScanner:
                 # destroys the scan's OWN session — never fetched, even as a
                 # passive baseline. The endpoint stays discovered and accounted.
                 from .discovery import LOGOUT_PATH_RE as _LOGOUT_RE
-                if _LOGOUT_RE.search(urllib.parse.urlsplit(ep.url).path or "/"):
+                from .discovery import gate_scope as _gscope3
+                if _LOGOUT_RE.search(_gscope3(ep.url)):
                     self.coverage.skipped(ep, "logout_self_preservation")
                     self.boundary.record(
                         "passive/logout", ep.url, "BLOCKED_BY_SAFETY",

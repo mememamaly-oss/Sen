@@ -8634,6 +8634,155 @@ def unit_owsp19c_decodeuri_minimal_encoding():
         srv.shutdown()
 
 
+@case
+def unit_owsp21_query_routed_state_change_gates():
+    """OWSP-21 (OWASP campaign, live-caught on Mutillidae II 2.12.7): the app
+    routes its commands through the QUERY STRING (index.php?do=toggle-security,
+    index.php?do=logout) — the path is a constant /index.php for the whole
+    app. Every safety vocabulary in the engine was PATH-scoped, so a
+    query-routed state change was invisible to all of them. Live evidence
+    (recon run owsp-muti-r0): the crawler followed the do=toggle-security
+    header-menu link at journal index 11 of 4672; the scan session's security
+    level then oscillated 0->1->5->0 across 95 toggle hits — 4661/4672
+    requests ran under an uncontrolled app posture while the scan looked
+    perfectly healthy (the subtler sibling of the DVGA /start_over re-seed:
+    the target keeps answering, every later verdict is measured against a
+    posture the scanner itself corrupted). Fix: a path+query gate scope for
+    the destructive/logout vocabularies, a new STATE_CHANGE_GET_RE toggle
+    family, planner vocabulary extended, authz _probeable query-aware."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from types import SimpleNamespace
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.discovery import (DiscoveryEngine, gate_scope,
+                                    STATE_CHANGE_GET_RE, DESTRUCTIVE_GET_RE,
+                                    LOGOUT_PATH_RE)
+    from sentinel.planner import classify_operation
+
+    # ---- Part A: the units
+    gs = gate_scope("http://127.0.0.1:9/index.php?do=toggle-security")
+    assert gs == "/index.php?do=toggle-security", gs
+    assert STATE_CHANGE_GET_RE.search(gs), "query-routed toggle must match"
+    assert STATE_CHANGE_GET_RE.search(gate_scope(
+        "http://x/index.php?do=toggle-enforce-ssl"))
+    assert not STATE_CHANGE_GET_RE.search(gate_scope(
+        "http://x/index.php?page=user-info.php")), "benign routed page"
+    assert LOGOUT_PATH_RE.search(gate_scope("http://x/index.php?do=logout")), \
+        "query-routed logout must match (same defect class)"
+    assert DESTRUCTIVE_GET_RE.search(gate_scope(
+        "http://x/index.php?do=reset-database")), \
+        "query-routed destructive command must match"
+    c = classify_operation("http://127.0.0.1:9/index.php?do=toggle-security", "GET")
+    assert c["impact"] == "DESTRUCTIVE", (
+        f"RED: planner must classify the toggle command blocked-always, got {c}")
+    assert classify_operation(
+        "http://x/index.php?page=user-info.php", "GET")["impact"] == "READ_ONLY"
+    # authz _probeable refuses the query-routed forms too
+    from sentinel.authz import AuthzEngine
+    az = AuthzEngine.__new__(AuthzEngine)
+    az.cfg = SimpleNamespace(login_marker="")
+    assert az._probeable("/index.php"), "plain router page is probeable"
+    assert not az._probeable(gate_scope(
+        "http://x/index.php?do=toggle-security")), \
+        "RED: authz replay must refuse the query-routed toggle"
+    assert not az._probeable(gate_scope("http://x/index.php?do=logout")), \
+        "RED: authz replay must refuse the query-routed logout"
+
+    # ---- Part B: live mini-app mirroring Mutillidae's router shape.
+    # The server tracks its own session state: a toggle GET flips the level
+    # (observable on every page), a logout GET kills the session. Both
+    # command links sit in the header of EVERY page — exactly the live shape.
+    RECEIVED = []
+    SESSIONS = {}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", headers=None):
+            self.send_response(code)
+            for k, v in (headers or {}).items():
+                self.send_header(k, v)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            sid = self.headers.get("Cookie", "")
+            if "sessid" not in sid:
+                # first visit: issue the session cookie AND render the page
+                # with its links (exactly the live router shape — every page
+                # carries the header-menu command links)
+                RECEIVED.append(self.path)
+                body = (b'<html><body>SECURITY-LEVEL: 0'
+                        b'<a href="/index.php?page=home.php">home</a>'
+                        b'<a href="/index.php?do=toggle-security">toggle</a>'
+                        b'<a href="/index.php?do=logout">logout</a>'
+                        b'</body></html>')
+                self._send(200, body, {"Set-Cookie": "sessid=s1"})
+                return
+            st = SESSIONS.setdefault("s1", {"level": 0, "alive": True})
+            u = urlsplit(self.path)
+            RECEIVED.append(self.path)
+            if not st["alive"]:
+                self._send(200, b"<html><body>LOGIN PLEASE</body></html>")
+                return
+            if u.query == "do=toggle-security":
+                st["level"] = {0: 1, 1: 5}.get(st["level"], 0)
+            elif u.query == "do=logout":
+                st["alive"] = False
+            body = (f'<html><body>SECURITY-LEVEL: {st["level"]}'
+                    f'<a href="/index.php?page=home.php">home</a>'
+                    f'<a href="/index.php?do=toggle-security">toggle</a>'
+                    f'<a href="/index.php?do=logout">logout</a>'
+                    f'</body></html>').encode()
+            self._send(200, body)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+        eng = RequestEngine(scope, EventBus("run-owsp21"), timeout=5.0)
+        disc = DiscoveryEngine(eng, max_pages=6)
+        endpoints, _js, _st = disc.crawl(base)
+        eps = list(endpoints.values()) if isinstance(endpoints, dict) else list(endpoints)
+        fetched = [r for r in RECEIVED]
+        toggles = [r for r in fetched if "do=toggle-security" in r]
+        logouts = [r for r in fetched if "do=logout" in r]
+        assert not toggles, (
+            f"RED: crawler fetched the query-routed toggle {len(toggles)}x — "
+            "the scan session's app posture is corrupted (live: Mutillidae "
+            "security level oscillated 0->1->5->0 across 95 hits)")
+        assert not logouts, (
+            "RED: crawler fetched the query-routed logout — the scan's own "
+            "session is destroyed (MAX-10a failure mode via query routing)")
+        assert SESSIONS["s1"]["level"] == 0, (
+            f"RED: session security level changed mid-crawl: {SESSIONS}")
+        assert SESSIONS["s1"]["alive"], "RED: session killed mid-crawl"
+        urls = {e.url for e in eps}
+        # the surfaces stay DISCOVERED (never fetched, never silent). The
+        # engine's canonical model strips the query into typed params — the
+        # command surface is /index.php + the 'do' param (toggle and logout
+        # share one endpoint id: same method+path+param names).
+        eps_do = [e for e in eps
+                  if e.url.rstrip("/").endswith("/index.php")
+                  and any(p.name == "do" for p in e.parameters)]
+        assert eps_do, (
+            "the query-routed command surface must stay discovered "
+            "(endpoint /index.php + param 'do'), got "
+            f"{[(e.url, [p.name for p in e.parameters]) for e in eps]}")
+        assert any(p.name == "page"
+                   for e in eps for p in e.parameters), \
+            "benign routed page (param 'page') discovered"
+        skips = getattr(disc, "crawl_skips", [])
+        assert any("do=toggle-security" in s for s in skips), \
+            f"toggle skip must be recorded, got {skips}"
+        assert any("do=logout" in s for s in skips), \
+            f"logout skip must be recorded, got {skips}"
+    finally:
+        srv.shutdown()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite
