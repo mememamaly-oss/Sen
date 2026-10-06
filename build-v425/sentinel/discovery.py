@@ -278,7 +278,30 @@ DESTRUCTIVE_GET_RE = re.compile(
 
 
 class DiscoveryEngine:
-    SAME_PATH_PAGE_CAP = 4    # DISC-09: max queued fetches per URL path (see below)
+    SAME_PATH_PAGE_CAP = 4    # DISC-09: max fetched pages per template key (see below)
+
+    def _page_cap_key(self, norm: str) -> str:
+        """OWSP-23 (OWASP campaign, live-caught on Mutillidae II 2.12.7):
+        DISC-09's per-path fetch cap keyed on the BARE PATH — a query-routed
+        app (every page is /index.php?page=X) had its ENTIRE menu strangled
+        at 4 fetches: 20 of the 26 core vuln pages (user-info SQLi,
+        dns-lookup OS-cmdi, privilege-escalation, jwt, source-viewer,
+        pen-test-tool-lookup, ...) were never fetched, their forms never
+        discovered, their batteries never scheduled — while the crawl looked
+        busy on path-diverse decoration (documentation mirrors). The key now
+        separates TEMPLATE duplicates (same path + same param names,
+        differing DATA values — the cap's original target) from ROUTER pages
+        (a param value shaped like a script filename selects a different
+        actual page and gets its own budget)."""
+        p = urllib.parse.urlsplit(norm)
+        base = (p.path or "/").lower()
+        q = urllib.parse.parse_qsl(p.query or "", keep_blank_values=True)
+        names = "&".join(sorted(n for n, _v in q))
+        router_vals = "&".join(
+            f"{n}={v}" for n, v in sorted(q)
+            if str(v).lower().endswith((".php", ".html", ".htm", ".asp",
+                                        ".aspx", ".jsp", ".js")))
+        return base + "?" + names + ("|" + router_vals if router_vals else "")
 
     def __init__(self, engine: RequestEngine, max_pages: int = 25):
         self.engine, self.max_pages = engine, max_pages
@@ -359,7 +382,12 @@ class DiscoveryEngine:
             # actual FETCHES keeps the template-page cap honest while duplicates
             # dedupe for free at pop-time via seen_pages.
             fpath = urllib.parse.urlsplit(norm).path or "/"
-            if self._path_queued.get(fpath, 0) >= self.SAME_PATH_PAGE_CAP:
+            # OWSP-23: the template cap keys on path + param names +
+            # file-shaped (router) param VALUES — a bare path strangled
+            # query-routed apps at 4 fetches total (live: 20 of 26 core
+            # Mutillidae vuln pages never fetched).
+            capkey = self._page_cap_key(norm)
+            if self._path_queued.get(capkey, 0) >= self.SAME_PATH_PAGE_CAP:
                 continue
             # OWSP-21: the vocabulary gates match PATH + QUERY — the command
             # of a query-routed app (index.php?do=toggle-security) lives in
@@ -390,7 +418,7 @@ class DiscoveryEngine:
                 ep = self._mk_endpoint(norm, DiscoverySource.CRAWL_HTML)
                 endpoints[ep.id] = ep
                 continue
-            self._path_queued[fpath] = self._path_queued.get(fpath, 0) + 1
+            self._path_queued[capkey] = self._path_queued.get(capkey, 0) + 1
             resp = self.engine.send(self.engine.__class__ and _simple_get(norm))
             pages += 1
             if resp.error or not resp.body: continue

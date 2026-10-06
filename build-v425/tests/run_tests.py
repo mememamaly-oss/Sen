@@ -8963,6 +8963,92 @@ def unit_owsp22_scope_escape_offhost_forms():
         off.shutdown()
 
 
+@case
+def unit_owsp23_router_page_cap():
+    """OWSP-23 (OWASP campaign, live-caught on Mutillidae II 2.12.7): DISC-09's
+    per-path fetch cap keyed on the BARE PATH — a query-routed app (every page
+    is /index.php?page=X) had its whole menu strangled at 4 fetches. Live
+    proof (recon owsp-muti-r1): 20 of the 26 core vuln pages (user-info
+    SQLi, dns-lookup OS-cmdi, privilege-escalation, jwt, source-viewer,
+    pen-test-tool-lookup, sqlmap-targets ...) were NEVER fetched while the
+    crawl burned 600 fetches on path-diverse decoration (documentation
+    mirrors, openldap trees). Fix: the cap key = path + param names +
+    file-shaped (router) param values — router pages get their own budget,
+    template duplicates (same names, different DATA values) stay capped."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.discovery import DiscoveryEngine
+
+    RECEIVED = []
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            RECEIVED.append(self.path)
+            q = parse_qs(urlsplit(self.path).query, keep_blank_values=True)
+            page = (q.get("page") or [""])[0]
+            pid = (q.get("id") or [""])[0]
+            if page:
+                body = (f'<html><body>ROUTER PAGE {page}'
+                        f'<a href="/index.php?page=a.php">a</a>'
+                        f'<a href="/index.php?page=b.php">b</a>'
+                        f'<a href="/index.php?page=c.php">c</a>'
+                        f'<a href="/index.php?page=d.php">d</a>'
+                        f'<a href="/index.php?page=e.php">e</a>'
+                        f'<a href="/index.php?page=f.php">f</a>'
+                        f'</body></html>').encode()
+                self._send(200, body)
+            elif pid:
+                self._send(200, f"<html><body>ITEM {pid}</body></html>".encode())
+            else:
+                self._send(200, (
+                    b'<html><body>home'
+                    b'<a href="/index.php?page=a.php">a</a>'
+                    b'<a href="/index.php?page=b.php">b</a>'
+                    b'<a href="/index.php?page=c.php">c</a>'
+                    b'<a href="/index.php?page=d.php">d</a>'
+                    b'<a href="/index.php?page=e.php">e</a>'
+                    b'<a href="/index.php?page=f.php">f</a>'
+                    b'<a href="/items?id=1">i1</a>'
+                    b'<a href="/items?id=2">i2</a>'
+                    b'<a href="/items?id=3">i3</a>'
+                    b'<a href="/items?id=4">i4</a>'
+                    b'<a href="/items?id=5">i5</a>'
+                    b'<a href="/items?id=6">i6</a>'
+                    b'</body></html>'))
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{srv.server_address[1]}"
+    try:
+        scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+        eng = RequestEngine(scope, EventBus("run-owsp23"), timeout=5.0)
+        disc = DiscoveryEngine(eng, max_pages=30)
+        disc.crawl(base)
+        router_pages = {r for r in RECEIVED if "page=" in r}
+        # RED (frozen): bare-path cap let only ~4 distinct page= fetches
+        # through; GREEN (fixed): every file-shaped router page is fetched
+        assert len(router_pages) >= 6, (
+            f"RED: query-routed pages starved by the bare-path cap — only "
+            f"{len(router_pages)} fetched: {sorted(router_pages)} (live: 20 "
+            "of 26 core Mutillidae vuln pages never fetched)")
+        # the template cap still bounds DATA-value duplicates: /items?id=1..6
+        # share one key, at most SAME_PATH_PAGE_CAP fetches
+        item_fetches = [r for r in RECEIVED if "id=" in r]
+        assert len(item_fetches) <= DiscoveryEngine.SAME_PATH_PAGE_CAP, (
+            f"template duplicates must stay capped, got {len(item_fetches)}")
+    finally:
+        srv.shutdown()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite
