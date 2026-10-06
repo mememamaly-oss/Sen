@@ -319,9 +319,23 @@ class RequestEngine:
         if p.scheme not in self.scope.allowed_schemes:
             return False, f"scheme {p.scheme} not allowed"
         host = p.hostname or ""
-        if self.scope.allowed_hosts and host not in self.scope.allowed_hosts:
-            if not any(host.endswith("." + d) or host == d for d in self.scope.allowed_domains):
-                return False, f"host {host} outside allowed set"
+        # OWSP-22 (OWASP campaign, live-caught on Mutillidae II 2.12.7): the
+        # allowed_domains suffix-match was NESTED inside the allowed_hosts
+        # branch — with the default scan configuration (allowed_domains=
+        # [target host], allowed_hosts=[]) NO host restriction ran at all.
+        # A PayPal donation form on the Mutillidae front page became an
+        # endpoint and the batteries sent 140 unauthorized POSTs to
+        # www.paypal.com production, plus a false VERIFIED SQLi finding
+        # against the third party. Both lists now gate INDEPENDENTLY:
+        # allowed_hosts (if set) must contain the host; allowed_domains
+        # (if set) must suffix-match. Neither set = no host restriction
+        # (the pre-existing public-scan semantic, unchanged).
+        host_ok = (not self.scope.allowed_hosts) or (host in self.scope.allowed_hosts)
+        if host_ok and self.scope.allowed_domains:
+            host_ok = any(host == d or host.endswith("." + d)
+                          for d in self.scope.allowed_domains)
+        if not host_ok:
+            return False, f"host {host} outside allowed set"
         if self.scope.allowed_ports and p.port and p.port not in self.scope.allowed_ports:
             return False, f"port {p.port} not allowed"
         for dp in self.scope.denied_paths:

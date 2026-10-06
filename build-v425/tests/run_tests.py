@@ -8809,6 +8809,160 @@ def unit_owsp21_query_routed_state_change_gates():
         srv.shutdown()
 
 
+@case
+def unit_owsp22_scope_escape_offhost_forms():
+    """OWSP-22 (OWASP campaign, live-caught on Mutillidae II 2.12.7): the
+    scope engine's allowed_domains suffix-match was NESTED inside the
+    allowed_hosts branch — with the default scan configuration
+    (allowed_domains=[target host], allowed_hosts=[]) NO host restriction ran
+    at all. The PayPal donation form on the Mutillidae front page became an
+    endpoint and the batteries sent 140 unauthorized POSTs to
+    www.paypal.com production (journal proof, recon run owsp-muti-r1), plus a
+    false VERIFIED SQLi finding against the third party. Fix: both lists gate
+    INDEPENDENTLY in _scope_ok, and the crawler refuses off-scope form
+    actions at discovery."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    from sentinel.discovery import DiscoveryEngine
+
+    # ---- Part A: the scope gate units
+    scope = ScopeRule(allowed_domains=["target.local"], allow_private=True)
+    eng = RequestEngine(scope, EventBus("run-owsp22a"), timeout=5.0)
+    ok, _ = eng._scope_ok("http://target.local/index.php")
+    assert ok, "the target host itself must pass"
+    ok, _ = eng._scope_ok("http://sub.target.local/x")
+    assert ok, "subdomain suffix-match must pass"
+    ok, why = eng._scope_ok("https://www.paypal.com/cgi-bin/webscr")
+    assert not ok, (
+        "RED: an off-target host must be REFUSED when allowed_domains is "
+        f"set — got ok with reason '{why}' (live: 140 unauthorized POSTs to "
+        "paypal production)")
+    ok2, _ = eng._scope_ok("http://127.0.0.1:9/x")
+    assert not ok2, (
+        "a scan pinned to target.local must refuse 127.0.0.1 too — "
+        "domain pinning is independent of the private-IP lift")
+    # the lab-scan configuration: domain pin INCLUDES the private host
+    scope_p = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+    eng_p = RequestEngine(scope_p, EventBus("run-owsp22p"), timeout=5.0)
+    okp, _ = eng_p._scope_ok("http://127.0.0.1:9/x")
+    assert okp, "private host passes when pinned + allow_private (lab semantics)"
+    # hosts-list-only rule set still gates
+    scope_h = ScopeRule(allowed_hosts=["a.local"], allow_private=True)
+    eng_h = RequestEngine(scope_h, EventBus("run-owsp22b"), timeout=5.0)
+    okh, _ = eng_h._scope_ok("http://a.local/x")
+    assert okh
+    okh2, _whyh = eng_h._scope_ok("http://b.local/x")
+    assert not okh2, "allowed_hosts alone must still gate"
+    # neither set = no host restriction (public-scan semantic unchanged)
+    scope_n = ScopeRule(allow_private=True)
+    eng_n = RequestEngine(scope_n, EventBus("run-owsp22c"), timeout=5.0)
+    okn, _ = eng_n._scope_ok("http://any.public.example/x")
+    assert okn, "empty rule set imposes no host restriction (unchanged)"
+
+    # ---- Part B: live two-server shape — target page carries an off-host
+    # donate form (exactly Mutillidae's PayPal block). The second server
+    # records every request it receives: it must stay at ZERO.
+    RECEIVED_OFFHOST = []
+
+    class OffHostH(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_POST(self):
+            RECEIVED_OFFHOST.append(("POST", self.path))
+            self._send(200, b"<html><body>donate ok</body></html>")
+        def do_GET(self):
+            RECEIVED_OFFHOST.append(("GET", self.path))
+            self._send(200, b"<html><body>donate page</body></html>")
+
+    class TargetH(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            if urlsplit(self.path).path == "/":
+                self._send(200, (
+                    b'<html><body><h1>target home</h1>'
+                    b'<form action="OFFHOST_URL/cgi-bin/webscr" method="post">'
+                    b'<input type="text" name="cmd" value="_s-xclick"/>'
+                    b'<input type="text" name="hosted_button_id" value="ABC"/>'
+                    b'<input type="submit" name="submit" value="Donate"/>'
+                    b'</form>'
+                    b'<a href="/index.php?page=home.php">home</a>'
+                    b'</body></html>'))
+            else:
+                self._send(200, b"<html><body>page</body></html>")
+
+    off = ThreadingHTTPServer(("127.0.0.1", 0), OffHostH)
+    threading.Thread(target=off.serve_forever, daemon=True).start()
+    tgt = ThreadingHTTPServer(("localhost", 0), TargetH)
+    threading.Thread(target=tgt.serve_forever, daemon=True).start()
+    off_url = f"http://127.0.0.1:{off.server_address[1]}"
+    tgt_url = f"http://localhost:{tgt.server_address[1]}"
+    try:
+        # patch the donate action to the real off-host server
+        import sentinel.discovery as _disc
+        orig_crawl = DiscoveryEngine.crawl
+
+        class H2(TargetH):
+            pass
+
+        # simpler: serve the off-host URL dynamically
+        class DynTargetH(TargetH):
+            def do_GET(self):
+                if urlsplit(self.path).path == "/":
+                    body = (f'<html><body><h1>target home</h1>'
+                            f'<form action="{off_url}/cgi-bin/webscr" method="post">'
+                            f'<input type="text" name="cmd" value="_s-xclick"/>'
+                            f'<input type="text" name="hosted_button_id" value="ABC"/>'
+                            f'<input type="submit" name="submit" value="Donate"/>'
+                            f'</form>'
+                            f'<a href="/index.php?page=home.php">home</a>'
+                            f'</body></html>').encode()
+                    self._send(200, body)
+                else:
+                    self._send(200, b"<html><body>page</body></html>")
+
+        tgt.shutdown()
+        tgt2 = ThreadingHTTPServer(("localhost", 0), DynTargetH)
+        threading.Thread(target=tgt2.serve_forever, daemon=True).start()
+        tgt_url = f"http://localhost:{tgt2.server_address[1]}"
+
+        from urllib.parse import urlsplit as _us
+        thost = _us(tgt_url).hostname
+        scope_b = ScopeRule(allowed_domains=[thost], allow_private=True)
+        eng_b = RequestEngine(scope_b, EventBus("run-owsp22d"), timeout=5.0)
+        disc = DiscoveryEngine(eng_b, max_pages=4)
+        eps, _js, _st = disc.crawl(tgt_url)
+        eplist = list(eps.values()) if isinstance(eps, dict) else list(eps)
+        # the batteries' transport path: even a direct send to the off-host
+        # endpoint must be refused (fail-closed second line)
+        from sentinel.core import Endpoint, Parameter, ParamLocation
+        off_ep = Endpoint(url=f"{off_url}/cgi-bin/webscr", method="POST",
+                          parameters=[Parameter("cmd", ParamLocation.BODY, "_s-xclick").classify()])
+        resp = eng_b.send(RequestMutation(endpoint=off_ep, note="owsp22-direct"))
+        assert resp.error and resp.error.startswith("scope:"), (
+            f"RED: transport must refuse the off-host endpoint, got {resp.error!r}")
+        assert not RECEIVED_OFFHOST, (
+            f"RED: the off-host server received {len(RECEIVED_OFFHOST)} "
+            f"requests {RECEIVED_OFFHOST[:3]} — the scan escaped the target "
+            "scope (live: 140 unauthorized POSTs to paypal production)")
+        urls = {e.url for e in eplist}
+        assert not any(off_url in u for u in urls), (
+            f"RED: off-host form action must not become an endpoint: {urls}")
+    finally:
+        off.shutdown()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

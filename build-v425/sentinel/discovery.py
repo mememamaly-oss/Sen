@@ -450,6 +450,18 @@ class DiscoveryEngine:
                     _act = link_base
                 action = self._normalize(link_base, _act)
                 if not action: continue
+                # OWSP-22: an off-scope form action (a donate form pointing
+                # at a third-party host) is NOT our surface — live-caught on
+                # Mutillidae: the PayPal donate form became an endpoint and
+                # the batteries sent 140 unauthorized POSTs to production
+                # PayPal. Skip at discovery; the transport-level _scope_ok is
+                # the fail-closed second line.
+                ok_act, _why = self.engine._scope_ok(action)
+                if not ok_act:
+                    self.crawl_skips = getattr(self, "crawl_skips", [])
+                    if action not in self.crawl_skips:
+                        self.crawl_skips.append(action)
+                    continue
                 # OWSP-03: the form's first submit control is flow control — its
                 # name=value pair is required verbatim by gated routes (Spring
                 # params="action=submit" filters); it must never be probed.
@@ -485,6 +497,10 @@ class DiscoveryEngine:
             for df in hp.divforms:
                 action = self._normalize(link_base, df["action"] or link_base)
                 if not action: continue
+                # OWSP-22: div-pseudo-forms obey the same scope rule
+                ok_df, _whydf = self.engine._scope_ok(action)
+                if not ok_df:
+                    continue
                 e3b = self._mk_endpoint(action, DiscoverySource.CRAWL_FORM,
                                         params=df["params"], method=df["method"])
                 e3b.tags.append("divform")
