@@ -9,10 +9,12 @@ from .core import (Endpoint, EventBus, Evidence, Finding, FindingStatus, ScopeRu
 from .http_engine import RequestEngine, RequestMutation
 from .discovery import DiscoveryEngine
 from .discovery import DESTRUCTIVE_GET_RE   # V411-DISC-SAFE vocabulary gate
+from .discovery import (STATE_CHANGE_GET_RE, LOGOUT_PATH_RE,
+                        gate_scope, endpoint_gate_scope)
 from .detect import (ACTIVE_DETECTORS, SQLiDetector, XSSDetector, TraversalDetector,
                      RedirectDetector, CrlfDetector, XxeDetector, passive_audit, plan_for,
                      StoredXSSDetector, PathTraversalDetector,
-                     RUN_STYLE_DETECTORS)
+                     RUN_STYLE_DETECTORS, command_shaped_endpoint)
 from .intel import VerificationEngine, FindingPipeline, StrategyStore, FailureMemory, RepairClassifier
 from .auth import AuthProfile, AuthEngine, AuthedEngineProxy, TokenAuthEngine, TokenWatchdogProxy
 from .fingerprint import FingerprintCollector
@@ -394,6 +396,24 @@ class SentinelScanner:
                             "jwt_security": "jwt", "host_header_injection": "hostheader"}
         plan = []
         for ep in endpoints:
+            # OWSP-21b: command-shaped endpoints (a param VALUE names a
+            # command: do=logout / do=toggle-security — the canonical ep.url
+            # is query-stripped, so the check MUST read the Parameters) get
+            # NO battery plan: the BASE request of any battery executes the
+            # command (live: 16 do=logout base requests through the
+            # authenticated jar). Blocked loudly, never silently.
+            if command_shaped_endpoint(ep):
+                self.coverage.skipped(ep, "command_shaped_endpoint")
+                self.boundary.record(
+                    "active/command-endpoint", ep.url, "BLOCKED_BY_SAFETY",
+                    "endpoint parameters carry a command-shaped value "
+                    "(do=logout / do=toggle-... style) — the base request of "
+                    "any battery against it executes the app command; no "
+                    "active probe is sent",
+                    remediation="verify the command surface manually if its "
+                                "coverage matters",
+                    provenance="orchestrator:owsp21b-command-gate")
+                continue
             plan.extend(plan_for(ep))
         self.bus.emit("ScanPlanReady", planned=len(plan))
 
@@ -431,10 +451,12 @@ class SentinelScanner:
                 # OWSP-21: gate on path + QUERY — a query-routed command
                 # (index.php?do=toggle-security) changes app config on a
                 # plain GET; the passive baseline must not fire it either.
+                # OWSP-21b: endpoint_gate_scope also reads the canonical
+                # endpoint's Parameters (the query is stripped from ep.url).
                 from .discovery import DESTRUCTIVE_GET_RE as _DGR2
-                from .discovery import STATE_CHANGE_GET_RE as _SGR2, gate_scope as _gscope2
-                if (_DGR2.search(_gscope2(ep.url))
-                        or _SGR2.search(_gscope2(ep.url))):
+                from .discovery import STATE_CHANGE_GET_RE as _SGR2
+                if (_DGR2.search(endpoint_gate_scope(ep))
+                        or _SGR2.search(endpoint_gate_scope(ep))):
                     self.coverage.skipped(ep, "destructive_get_vocabulary")
                     self.boundary.record(
                         "passive/destructive-get", ep.url, "BLOCKED_BY_SAFETY",
@@ -450,8 +472,7 @@ class SentinelScanner:
                 # destroys the scan's OWN session — never fetched, even as a
                 # passive baseline. The endpoint stays discovered and accounted.
                 from .discovery import LOGOUT_PATH_RE as _LOGOUT_RE
-                from .discovery import gate_scope as _gscope3
-                if _LOGOUT_RE.search(_gscope3(ep.url)):
+                if _LOGOUT_RE.search(endpoint_gate_scope(ep)):
                     self.coverage.skipped(ep, "logout_self_preservation")
                     self.boundary.record(
                         "passive/logout", ep.url, "BLOCKED_BY_SAFETY",

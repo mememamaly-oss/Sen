@@ -51,7 +51,7 @@ from dataclasses import dataclass, field
 from .auth import AuthEngine, AuthProfile
 from .core import (Endpoint, Evidence, Finding, FindingStatus, ScopeRule,
                    Severity, Verification)
-from .discovery import gate_scope as _gate_scope
+from .discovery import endpoint_gate_scope as _gate_scope
 from .http_engine import RequestEngine, RequestMutation
 
 ROLE_RANK = {"admin": 0, "administrator": 0, "root": 0,

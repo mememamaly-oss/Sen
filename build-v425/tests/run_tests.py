@@ -8690,6 +8690,32 @@ def unit_owsp21_query_routed_state_change_gates():
     assert not az._probeable(gate_scope("http://x/index.php?do=logout")), \
         "RED: authz replay must refuse the query-routed logout"
 
+    # ---- Part A2 (OWSP-21b): the canonical endpoint model strips the query
+    # into typed Parameters — ep.url alone is blind to the command VALUE.
+    # Live evidence: batteries fired 16 do=logout BASE requests through the
+    # authenticated jar (recon2); the session survived only because the
+    # level-0 app re-authenticates from the uid cookie — target luck.
+    from sentinel.core import Endpoint, Parameter, ParamLocation
+    from sentinel.detect import command_shaped_endpoint, plan_for
+    ep_cmd = Endpoint(url="http://x/index.php", parameters=[
+        Parameter("do", ParamLocation.QUERY, "logout").classify()])
+    assert command_shaped_endpoint(ep_cmd), \
+        "RED: do=logout in a Parameter must read as command-shaped"
+    assert plan_for(ep_cmd) == [], \
+        "RED: command endpoint must get NO battery plan (base = execution)"
+    ep_tog = Endpoint(url="http://x/index.php", parameters=[
+        Parameter("do", ParamLocation.QUERY, "toggle-security").classify()])
+    assert command_shaped_endpoint(ep_tog) and plan_for(ep_tog) == []
+    ep_ok = Endpoint(url="http://x/index.php", parameters=[
+        Parameter("page", ParamLocation.QUERY, "user-info.php").classify()])
+    assert not command_shaped_endpoint(ep_ok), "benign routed page"
+    assert plan_for(ep_ok) != [], "benign endpoint keeps its battery plan"
+    ep_mix = Endpoint(url="http://x/index.php", parameters=[
+        Parameter("page", ParamLocation.QUERY, "home.php").classify(),
+        Parameter("do", ParamLocation.QUERY, "logout").classify()])
+    assert command_shaped_endpoint(ep_mix), \
+        "sibling command param poisons the whole endpoint (rides along)"
+
     # ---- Part B: live mini-app mirroring Mutillidae's router shape.
     # The server tracks its own session state: a toggle GET flips the level
     # (observable on every page), a logout GET kills the session. Both

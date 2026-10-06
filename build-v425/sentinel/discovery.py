@@ -38,6 +38,27 @@ def gate_scope(url: str) -> str:
     return (p.path or "/") + ("?" + p.query if p.query else "")
 
 
+def endpoint_gate_scope(ep) -> str:
+    """OWSP-21b: gate scope of a CANONICAL Endpoint. _mk_endpoint strips the
+    query into typed Parameters — ep.url carries no query, so a command value
+    (index.php?do=logout) lives in a Parameter, invisible to gate_scope(ep.url).
+    The active-battery gates must see the param name=value pairs too (live:
+    batteries fired 16 do=logout BASE requests through the authenticated jar;
+    the session survived only because the level-0 app re-authenticates from
+    the uid cookie — target luck, not engine correctness)."""
+    base = gate_scope(getattr(ep, "url", "") or "")
+    pairs = []
+    for p in (getattr(ep, "parameters", None) or []):
+        try:
+            pairs.append(f"{p.name}={getattr(p, 'value', '') or ''}")
+        except Exception:
+            continue
+    if not pairs:
+        return base
+    sep = "&" if "?" in base else "?"
+    return base + sep + "&".join(pairs)
+
+
 class _LinkParser(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)

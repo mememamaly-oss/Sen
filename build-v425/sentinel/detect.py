@@ -8,6 +8,25 @@ from html.parser import HTMLParser
 from .core import (Endpoint, EventBus, Finding, FindingStatus, ParamKind, Severity,
                    Evidence, Verification, Parameter, ParamLocation, DiscoverySource)
 from .http_engine import USER_AGENT, RequestEngine, RequestMutation
+from .discovery import (DESTRUCTIVE_GET_RE, STATE_CHANGE_GET_RE,
+                        LOGOUT_PATH_RE, endpoint_gate_scope)
+
+# OWSP-21b: a param whose VALUE is command-shaped makes the whole endpoint
+# unprobeable — the BASE request of any battery executes the command (live:
+# 16 do=logout base requests through the authenticated jar on Mutillidae;
+# the session survived only because the level-0 app re-authenticates from
+# the uid cookie — target luck, not engine correctness), and payload
+# mutations on the command param are dead requests (the route's switch
+# matches the exact literal — the WrongSecrets OWSP-03 lesson, command flavor).
+_COMMAND_SCOPES = (DESTRUCTIVE_GET_RE, STATE_CHANGE_GET_RE, LOGOUT_PATH_RE)
+
+
+def command_shaped_endpoint(ep) -> bool:
+    """True when ANY of the endpoint's params carries a command-shaped
+    name=value (do=logout, do=toggle-security, ...) — the canonical ep.url is
+    query-stripped, so this MUST look at the Parameters."""
+    gs = endpoint_gate_scope(ep)
+    return any(rx.search(gs) for rx in _COMMAND_SCOPES)
 
 
 def in_script_or_style(body: str, idx: int) -> bool:
@@ -75,6 +94,10 @@ PLANNER_RULES = [
 
 def plan_for(ep: Endpoint) -> list[dict]:
     """Deterministic scan plan: (param, vuln_class) pairs."""
+    # OWSP-21b: command-shaped endpoints get NO battery plan at all — the
+    # base request executes the command (sibling params ride along verbatim).
+    if command_shaped_endpoint(ep):
+        return []
     plan = []
     for p in ep.parameters:
         # OWSP-03: submit-button pairs are flow control — the route's params
