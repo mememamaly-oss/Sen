@@ -9049,6 +9049,38 @@ def unit_owsp23_router_page_cap():
         srv.shutdown()
 
 
+@case
+def unit_owsp24_impact_scope_hostname():
+    """OWSP-24 (OWASP campaign, caught by the Mutillidae-round gate cycle —
+    unit_max07 went RED the moment OWSP-22 made allowed_domains gate
+    independently): the impact and replay CLI paths built
+    ScopeRule.allowed_domains from the NETLOC ('127.0.0.1:8812' — port
+    included) while _scope_ok matches the port-free HOSTNAME, so every L3
+    impact probe / finding replay against a non-default-port target was
+    scope-blocked with status 0 even under --allow-private (live proof:
+    the MAX-07 fixture received ZERO hits during the impact phase). Pre-
+    OWSP-22 the nested-scope bug masked the mismatch (allowed_domains
+    never gated at all). Fix: hostname, never netloc — both CLI sites."""
+    from urllib.parse import urlsplit
+    from sentinel.core import ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+
+    target = "http://127.0.0.1:8812"
+    probe = "http://127.0.0.1:8812/search?q=1%27+OR+1%3D1+--"
+
+    # post-fix construction (both CLI paths): hostname, port-free
+    host = urlsplit(target).hostname or ""
+    scope = ScopeRule(allowed_domains=[host] if host else [], allow_private=True)
+    ok, why = RequestEngine(scope, EventBus("owsp24-good"))._scope_ok(probe)
+    assert ok, f"hostname-scoped probe must pass, got: {why}"
+
+    # the trap, documented: netloc in allowed_domains can never match
+    # (this is exactly what both CLI sites built pre-fix — RED proof)
+    bad = ScopeRule(allowed_domains=[urlsplit(target).netloc], allow_private=True)
+    ok2, why2 = RequestEngine(bad, EventBus("owsp24-bad"))._scope_ok(probe)
+    assert not ok2, "netloc-scoped domains must NOT pass (port never matches)"
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

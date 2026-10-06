@@ -725,7 +725,15 @@ def main():
             from sentinel.evidence import replay_finding
             req = (proof.get("requests") or [{}])[0]
             origin = "{0.scheme}://{0.netloc}".format(urlsplit(req.get("url", "")))
-            scope = ScopeRule(allowed_domains=[urlsplit(req.get("url", "")).netloc],
+            # OWSP-24 (OWASP campaign, caught by the Mutillidae-round gate
+            # cycle): allowed_domains must carry the HOSTNAME, never the
+            # netloc — netloc keeps the port ("127.0.0.1:8812") while
+            # _scope_ok matches against the port-free hostname, so every
+            # replay against a non-default-port target was scope-blocked
+            # (status 0). Pre-OWSP-22 the nested-scope bug masked this
+            # (allowed_domains never gated at all); the independent gating
+            # exposed the latent mismatch.
+            scope = ScopeRule(allowed_domains=[urlsplit(req.get("url", "")).hostname],
                               allow_private=True)
             result = replay_finding(proof, scope, EventBus("replay"),
                                     timeout=a.timeout)
@@ -777,7 +785,11 @@ def main():
             from sentinel.core import ScopeRule
             from sentinel.http_engine import RequestEngine
             from sentinel.core import EventBus
-            host = _us(rep.get("target") or "").netloc or _us(rep.get("target") or "").hostname or ""
+            # OWSP-24 (cont.): hostname, not netloc — the impact path built
+            # host from netloc (port included) and every L3 probe got
+            # scope-blocked with status 0 even under --allow-private (live
+            # proof: unit_max07 red on this exact symptom).
+            host = _us(rep.get("target") or "").hostname or ""
             scope = ScopeRule(allowed_domains=[host] if host else [],
                               allow_private=a.allow_private)
             engine = RequestEngine(scope, EventBus("run-l3-cli"))
