@@ -1259,3 +1259,16 @@ Stage Summary:
 - The Mutillidae round's signature insight: QUERY-ROUTED APPS (index.php?page=X) break every identity/dedup/budget assumption built for path-routed apps — the campaign has now fixed the fetch cap (OWSP-23), the scope gate (OWSP-22), the endpoint identity (OWSP-25) and the battery budget (OWSP-26) for this class; PHP-stack findings (db_error-in-200, '--'-space comments) were already unlocked by DVWA.
 - Honest gaps: the two surgically-confirmed surfaces (user-info SQLi, dns-lookup cmdi) await a clean end-to-end engine-verified run — blocked by the sandbox's DNS-sinkhole stalls + process reaper (fully diagnosed, documented), NOT by engine logic; the scan-stall poll() defect logged for a future hunt; SSRF/SSTI scan-wide budget caps (12) remain documented bounded budgets; recon4's truncated crawl (max-pages 120) documented as a coverage-vs-budget data point.
 - Campaign order remaining: NodeGoat (MongoDB tarball staged in tools/dl) → DVWS (static-php has pcntl+sockets — Ratchet feasible) → DVGA (zonky embedded-postgres reachable) → crAPI (docker absent = the order's own condition unmet, documented).
+
+---
+Task ID: 25-push-status
+Agent: Super Z (main agent)
+Task: Push app-4/6 round to GitHub + ls-remote confirm (campaign protocol).
+
+Work Log:
+- All Mutillidae-round content committed locally: 6b5662d (OWSP-24 insurance commit) -> 33238e4 (app 4/6 full round: OWSP-25/26 fixes + tests + recon/recon2/recon3/recon4 artifacts + surgical journals + eval outputs + scripts + STATE.md round-12 + worklog).
+- PUSH BLOCKED: the session PAT (len 93, github_pat_ prefix) is REJECTED by GitHub across all four channels (API Bearer 401, API token 401, ls-remote 401, basic-auth 401) — revoked/expired, the same pattern as rounds 3-4 in this worklog. A fresh PAT from the supervisor completes the push.
+- Local state is durable: everything committed; nothing uncommitted except the stack logs (gitignored).
+
+Stage Summary:
+- App 4/6 COMPLETE locally; GitHub sync pending a fresh PAT (protocol: push https://mememamaly-oss:<NEW_PAT>@github.com/mememamaly-oss/Sen.git main + ls-remote confirm).

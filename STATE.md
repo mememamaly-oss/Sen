@@ -472,6 +472,8 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- Round-12 (2026-10-06, app 4/6 Mutillidae): ALL content committed locally (6b5662d -> 33238e4). PUSH BLOCKED — the session PAT is revoked (401 on all four auth channels, the rounds-3/4 pattern). A fresh PAT from the supervisor completes: push + ls-remote confirm.
+
 - **Round 10 (2026-10-05, OWASP campaign app 1/6):** WrongSecrets round committed
   (5 defects OWSP-01..05 + 5 tests + gates + artifacts); push + ls-remote confirm
   executed at round close (see git log for the exact sha).
