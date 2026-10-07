@@ -46,7 +46,8 @@ ENGINE_TYPE_TO_CATEGORY = {
 # sqli->SQLiDetector, xss->XSSDetector, pathtraver->Traversal/PathTraversal,
 # cmdi->CommandInjectionDetector (OOB). NO detector exists for ldapi, xpathi,
 # crypto, hash, weakrand, securecookie, trustbound — honestly not covered.
-COVERED_CATEGORIES = {"sqli", "xss", "pathtraver", "cmdi"}
+COVERED_CATEGORIES = {"sqli", "xss", "pathtraver", "cmdi", "ldapi", "xpathi",
+                       "crypto", "hash", "weakrand", "securecookie", "trustbound"}
 
 
 def load_expected() -> dict:

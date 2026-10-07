@@ -16,6 +16,12 @@ mkdir -p "$LOGD" "$SRC/target/db"
 # so all java processes must share the same working directory ($SRC).
 cd "$SRC" || exit 1
 # stale locks/dbs from previous killed runs (hsqldb refuses future-timestamped stale locks)
+# GTP-10 fixture hygiene: passwordFile.txt is the app's RUNTIME artifact —
+# every scan session appends hash_value/secret_value lines and it grew to
+# 371k lines; the artifact-read window (the read primitive's 1000-byte head
+# read) then never sees the fresh appends. Truncate at launch so the
+# write->read chain has a clean, visible artifact.
+: > "$SRC/testfiles/passwordFile.txt" 2>/dev/null || true
 rm -f "$SRC/benchmarkDataBase.lck" "$SRC/benchmarkDataBase.data" "$SRC/benchmarkDataBase.script" \
       "$SRC/benchmarkDataBase.properties" "$SRC/benchmarkDataBase.tmp" \
       /home/z/my-project/benchmarkDataBase.* "$SRC/target/db/benchmark.db"* 2>/dev/null
