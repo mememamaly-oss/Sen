@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 170,
+ "total": 179,
  "failed": 0,
  "cases": [
   {
@@ -352,27 +352,27 @@
   {
    "name": "unit_eng09_rate_limit_backoff",
    "ok": true,
-   "ms": 508
+   "ms": 509
   },
   {
    "name": "unit_auth05_token_bearer_modes",
    "ok": true,
-   "ms": 511
+   "ms": 510
   },
   {
    "name": "unit_max01_token_closed_door_proof",
    "ok": true,
-   "ms": 508
+   "ms": 507
   },
   {
    "name": "unit_max02_authz_token_validate_url_resolution",
    "ok": true,
-   "ms": 515
+   "ms": 518
   },
   {
    "name": "unit_max03_sqlite_error_signature",
    "ok": true,
-   "ms": 587
+   "ms": 589
   },
   {
    "name": "unit_max05_openapi_path_template_instantiation",
@@ -392,7 +392,7 @@
   {
    "name": "regression_phase54_ops_stealth_composition",
    "ok": true,
-   "ms": 782
+   "ms": 814
   },
   {
    "name": "unit_phase55_detectors_and_gates",
@@ -402,7 +402,7 @@
   {
    "name": "regression_phase55_five_classes_end_to_end",
    "ok": true,
-   "ms": 86298
+   "ms": 86992
   },
   {
    "name": "unit_paramintel_value_shape_inference",
@@ -1005,6 +1005,60 @@
   },
   {
    "name": "unit_owsp26_cmdi_per_endpoint_budget",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp27_redirect_echo_not_sqli",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp28_vertical_tiered_confirmation",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp29_body_redirect_proximity",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp30_mongo_error_nosql",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp31_js_tautology_battery",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp32_ssrf_concat_companion_fill",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp33_idor_path_segment",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp34_markdown_datauri_xss",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp35_roleview_gate_scope_endpoint",
    "ok": true,
    "ms": 0,
    "skipped": true

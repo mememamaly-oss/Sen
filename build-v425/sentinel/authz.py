@@ -59,8 +59,19 @@ ROLE_RANK = {"admin": 0, "administrator": 0, "root": 0,
              "user": 2, "member": 2, "customer": 2, "client": 2, "viewer": 2,
              "guest": 3, "anonymous": 3}
 
-ADMIN_PATH_RE = re.compile(r"/(admin|manage|management|console|internal|dashboard|moderation)(/|$|\.)",
+ADMIN_PATH_RE = re.compile(r"/(admin|manage|management|console|internal|moderation)(/|$|\.)",
                            re.I)
+# OWSP-28 (NodeGoat round, live-caught on /dashboard): 'dashboard' demoted
+# from the strong set. Every app gives ORDINARY users a dashboard — the name
+# alone is not an admin-surface signal (live FP: NodeGoat /dashboard, a
+# role-agnostic authenticated page, nominated by the old name heuristic and
+# verified by the access differential while the REAL function-level break
+# /benefits went unseen). Ambiguous names require DATA-LEVEL corroboration:
+# cross-account markers or cross-object state-change forms in the low-role
+# view. Strong names (admin|manage|console|...) keep the name+differential
+# oracle — that convention is near-universal.
+WEAK_ADMIN_PATH_RE = re.compile(r"/(dashboard|settings|configuration|control|system|overview)(/|$|\.)",
+                                re.I)
 ASSET_EXT_RE = re.compile(
     r"\.(css|js|mjs|png|jpe?g|gif|ico|svg|woff2?|ttf|eot|pdf|zip|gz|map|sql)([?#]|$)", re.I)
 LOGOUT_PATH_RE = re.compile(r"(log-?out|log-?off|sign-?out|sign-?off)", re.I)
@@ -155,6 +166,9 @@ class AuthzEngine:
         self._extra_requests = 0                  # anon-engine honesty counter
         self.matrix: dict[str, dict[str, int]] = {}
         self.errors: list[str] = []
+        # OWSP-28: cross-object-management surfaces collected during role-view
+        # replay (state-change forms over OTHER accounts' object ids).
+        self._crossobj_paths: set[str] = set()
 
     # ---------------------------------------------------------------- helpers
     def _login_all(self) -> int:
@@ -273,14 +287,19 @@ class AuthzEngine:
         matrix row for each, and collect the links only this role can see.
         Role-specific menus frequently render on inner pages (the testfire
         ADMINISTRATION menu lives on the account page, not the landing), so a
-        landing-only differential is blind to them."""
+        landing-only differential is blind to them.
+        OWSP-28: pages carrying state-change forms over OTHER accounts' object
+        ids (the /benefits shape — one POST form per user row with a hidden
+        userId input) are collected as cross-object-management surfaces: they
+        are nomination candidates for the vertical differential regardless of
+        any path-name signal."""
         out: set[str] = set()
         fetched: set[str] = set()
         for ep in sorted(endpoints, key=lambda e: e.url):
             if (ep.method or "GET").upper() != "GET":
                 continue
             path = urllib.parse.urlsplit(ep.url).path
-            if not path or path in fetched or not self._probeable(_gate_scope(ep.url)):
+            if not path or path in fetched or not self._probeable(_gate_scope(ep)):
                 continue
             if len(fetched) >= self.cfg.max_role_view:
                 break
@@ -289,8 +308,38 @@ class AuthzEngine:
             self._mx(ep.url, f"role:{sess['account'].role}", r.status, resp=r)
             if r.error or not r.body:
                 continue
+            if self._cross_object_forms(r.body, sess["account"]):
+                self._crossobj_paths.add(path)
             out |= self._page_links(r.body, ep.url)
         return out
+
+    def _cross_object_forms(self, body: str, own_account) -> bool:
+        """OWSP-28: TRUE when the page carries a state-changing form whose
+        id-named input targets ANOTHER account's object id — an object-
+        management surface (live shape: NodeGoat /benefits, <form method=POST
+        action=/benefits><input type=hidden name=userId value=2|3> per user
+        row, readable and writable by every logged-in role)."""
+        others = {a.object_id for a in self.cfg.accounts
+                  if a.object_id and a.name != own_account.name}
+        if not others:
+            return False
+        for block in re.split(r"</form>", body, flags=re.I):
+            if "<form" not in block.lower():
+                continue
+            if not re.search(r'<form\b[^>]*method=["\']?(post|put)["\']?', block, re.I):
+                continue          # only state-change forms manage objects
+            for m in re.finditer(r"<input\b[^>]*>", block, re.I):
+                tag = m.group(0)
+                nm = re.search(r'name=["\']?([\w.\-]+)', tag, re.I)
+                vl = re.search(r'value=["\']?([\w.\-]+)', tag, re.I)
+                if not nm or not vl:
+                    continue
+                n = nm.group(1).lower()
+                if n not in ID_PARAM_NAMES and not n.endswith("_id"):
+                    continue
+                if vl.group(1) in others:
+                    return True
+        return False
 
     def _fetch(self, engine, ep, note, param_name="", param_value=""):
         m = RequestMutation(endpoint=ep, note=note,
@@ -327,6 +376,14 @@ class AuthzEngine:
                 if self.sessions[h]["rank"] < self.sessions[l]["rank"]:
                     candidates |= (links_by_name[h] - links_by_name[l])
         candidates |= {p for p in by_path if ADMIN_PATH_RE.search(p)}
+        # OWSP-28: cross-object-management surfaces (collected during the
+        # role-view replay above) are nominated regardless of path naming —
+        # NodeGoat's /benefits carries no admin-ish name yet is the real
+        # function-level break (POST forms over other users' ids, open to
+        # every authenticated role). NOTE: by_path keys are FULL URLs;
+        # _crossobj_paths stores PATHS — match on the parsed path.
+        candidates |= {u for u in by_path
+                       if urllib.parse.urlsplit(u).path in self._crossobj_paths}
         # crawl-set candidates first (they carry discovered parameters), then
         # privileged-only surfaces the crawl never saw — synthesized as GET
         # endpoints so the differential can actually be tested.
@@ -346,6 +403,12 @@ class AuthzEngine:
         if not lows:
             return findings                       # single-role deployment: no ladder to climb
         for path in ordered:
+            # OWSP-35 (defensive depth): every fetched candidate passes the
+            # probeable gate — logout/destructive/state-change surfaces must
+            # never be fetched by the battery itself, whichever nomination
+            # source produced them.
+            if not self._probeable(path):
+                continue
             ep = by_path[path]
             anon = self._fetch(self._anon, ep, "authz-anon")
             self._mx(ep.url, "anonymous", anon.status, resp=anon)
@@ -365,6 +428,20 @@ class AuthzEngine:
                 sim = self._similar(high.body, low.body)
                 if not self._gated(anon) or sim < 0.6:
                     continue
+                # OWSP-28: ambiguous admin-ish names (dashboard/settings/...)
+                # are NOT nominated on the name alone — an ordinary role-
+                # agnostic authenticated page passes every step above (live
+                # FP: NodeGoat /dashboard). Data-level corroboration is
+                # required: another account's marker in the low view, or a
+                # cross-object state-change form. Strong-name and
+                # cross-object-nominated surfaces keep the plain differential.
+                if (WEAK_ADMIN_PATH_RE.search(path) and not ADMIN_PATH_RE.search(path)
+                        and urllib.parse.urlsplit(path).path not in self._crossobj_paths):
+                    other_markers = [a.marker for a in self.cfg.accounts
+                                     if a.marker and a.name != s["account"].name]
+                    cross_marker = any(mk in (low.body or "") for mk in other_markers)
+                    if not (cross_marker or self._cross_object_forms(low.body or "", s["account"])):
+                        continue          # name-only signal, zero privileged data: honest skip
                 cand = Finding(
                     "vertical_privilege_escalation", Severity.HIGH, ep.url, "",
                     ep.method or "GET",
@@ -469,6 +546,91 @@ class AuthzEngine:
                     found_paths.add(ep.url.split("?")[0])
                     hit = True
                     break            # one finding per endpoint; next endpoint continues
+
+        # OWSP-33 (NodeGoat round, live-caught on /allocations/:userId): object
+        # ids riding as the FINAL PATH SEGMENT have no Parameter at all — the
+        # parameter-model loop above never sees them, so the object-level break
+        # on /allocations/<id> was structurally invisible (live: user1 read
+        # admin's allocations; the scanner said nothing). Synthesize direct
+        # URL-substitution probes for id-shaped trailing segments — same strict
+        # victim-marker oracle, same listing guard, same VR-17 fresh-victim
+        # replay as the parameter path.
+        obj_ids = {a.object_id for a in accounts if a.object_id}
+        for ep in sorted(endpoints, key=lambda e: e.url):
+            if done >= self.cfg.max_idor_endpoints:
+                break
+            if (ep.method or "GET").upper() != "GET":
+                continue
+            pu = urllib.parse.urlsplit(ep.url)
+            base_path, _, tail = pu.path.rstrip("/").rpartition("/")
+            if not base_path or not tail:
+                continue
+            if not (tail in obj_ids or (tail.isdigit() and len(tail) <= 12)):
+                continue          # only id-shaped trailing segments
+            if base_path in found_paths:
+                continue          # one finding per path template
+            # endpoints carrying an id-shaped QUERY param are handled above
+            if any(((p.name or "").lower() in ID_PARAM_NAMES) for p in ep.parameters):
+                continue
+            if not self._probeable(_gate_scope(ep)):
+                continue
+            done += 1
+
+            def _swap_url(oid: str) -> str:
+                np = base_path + "/" + urllib.parse.quote(str(oid), safe="")
+                return urllib.parse.urlunsplit((pu.scheme, pu.netloc, np, pu.query, pu.fragment))
+
+            hit = False
+            for acc in sorted(attackers, key=lambda a: a.name):
+                if hit:
+                    break
+                sess = self.sessions.get(acc.name)
+                if sess is None:
+                    continue
+                for victim in sorted(accounts, key=lambda a: a.name):
+                    if victim.name == acc.name or not victim.marker or not victim.object_id:
+                        continue
+                    u2 = _swap_url(victim.object_id)
+                    probe = self._fetch(sess["engine"], Endpoint(url=u2, method="GET"),
+                                        "authz-idor-path")
+                    self._mx(u2, f"role:{acc.role}", probe.status, resp=probe)
+                    if probe.error or not probe.ok or victim.marker not in (probe.body or ""):
+                        continue
+                    markers_seen = sum(1 for m in all_markers if m in (probe.body or ""))
+                    if markers_seen > 1:
+                        continue      # directory surface, not object-level access
+                    cand = Finding(
+                        "idor_bola", Severity.HIGH, u2, "path_id", "GET",
+                        [Evidence("object_access_broken",
+                                  f"account {acc.name} (role={acc.role}) retrieved "
+                                  f"account {victim.name}'s private object via PATH "
+                                  f"SEGMENT substitution ({base_path}/ -> {u2.split('?')[0]}): "
+                                  f"victim marker present in response — no object-level "
+                                  "authorization on the path-carried object id (OWSP-33)",
+                                  probe.request_id)],
+                        status=FindingStatus.CANDIDATE)
+                    cand.authz_context = (f"attacker={acc.name}(role={acc.role}) "
+                                          f"victim={victim.name}(role={victim.role})")
+                    # VR-17: FRESH victim (different account), same attacker
+                    others = [v for v in sorted(accounts, key=lambda a: a.name)
+                              if v.name not in (acc.name, victim.name)
+                              and v.marker and v.object_id]
+                    fresh = others[0] if others else victim
+                    uf = _swap_url(fresh.object_id)
+                    vr = self._fetch(sess["engine"], Endpoint(url=uf, method="GET"),
+                                     "authz-verify")
+                    ok = (not vr.error and vr.ok and fresh.marker in (vr.body or ""))
+                    cand.verification = Verification(
+                        method="re-test:fresh-victim-object", passed=ok,
+                        confidence=0.9 if ok else 0.15, rounds=1,
+                        notes=f"fresh victim object ({uf.split('?')[0]}, account={fresh.name}) "
+                              f"also readable by {acc.name}: {ok}")
+                    cand.confidence = cand.verification.confidence
+                    cand.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+                    findings.append(cand)
+                    found_paths.add(base_path)
+                    hit = True
+                    break
         return findings
 
     # ---------------------------------------------------------------- run

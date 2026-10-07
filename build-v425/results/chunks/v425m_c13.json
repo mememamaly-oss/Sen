@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 170,
+ "total": 179,
  "failed": 0,
  "cases": [
   {
@@ -1019,7 +1019,52 @@
   {
    "name": "unit_owsp26_cmdi_per_endpoint_budget",
    "ok": true,
-   "ms": 1
+   "ms": 45
+  },
+  {
+   "name": "unit_owsp27_redirect_echo_not_sqli",
+   "ok": true,
+   "ms": 661
+  },
+  {
+   "name": "unit_owsp28_vertical_tiered_confirmation",
+   "ok": true,
+   "ms": 521
+  },
+  {
+   "name": "unit_owsp29_body_redirect_proximity",
+   "ok": true,
+   "ms": 634
+  },
+  {
+   "name": "unit_owsp30_mongo_error_nosql",
+   "ok": true,
+   "ms": 542
+  },
+  {
+   "name": "unit_owsp31_js_tautology_battery",
+   "ok": true,
+   "ms": 542
+  },
+  {
+   "name": "unit_owsp32_ssrf_concat_companion_fill",
+   "ok": true,
+   "ms": 3339
+  },
+  {
+   "name": "unit_owsp33_idor_path_segment",
+   "ok": true,
+   "ms": 516
+  },
+  {
+   "name": "unit_owsp34_markdown_datauri_xss",
+   "ok": true,
+   "ms": 571
+  },
+  {
+   "name": "unit_owsp35_roleview_gate_scope_endpoint",
+   "ok": true,
+   "ms": 516
   }
  ],
  "passed": true

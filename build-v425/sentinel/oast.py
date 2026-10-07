@@ -32,9 +32,13 @@ OOB-confirmed finding is VERIFIED — never merely "candidate".
 """
 from __future__ import annotations
 import json as _json
+import re as _re
 import threading, time
 import urllib.request as _urlreq
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+# OWSP-32: canonical interaction-id shape ('oob-' + 12 hex) for prefix matching.
+_IID_PREFIX_RE = _re.compile(r"^(oob-[0-9a-f]{12})")
 
 
 class _OastHandler(BaseHTTPRequestHandler):
@@ -44,8 +48,18 @@ class _OastHandler(BaseHTTPRequestHandler):
         pass                              # silent — the interaction log IS the output
 
     def _record(self):
-        iid = self.path.lstrip("/").split("?")[0]
-        self.oast._record(iid, method=self.command,
+        raw = self.path.lstrip("/").split("?")[0]
+        # OWSP-32 (NodeGoat round, live-caught on /research?url=&symbol=): the
+        # target CONCATENATED the callback URL with another param value
+        # (needle.get(url + symbol)), so the requested path arrived as
+        # /oob-<id><suffix> — an exact-path lookup recorded the hit under a key
+        # no poll() would ever use and the interaction silently vanished.
+        # Interaction ids are ALWAYS 'oob-' + 12 hex chars (detector-side sha1
+        # slices): match by PREFIX so URL-concatenated callbacks land, and keep
+        # the full path as the fallback key for non-canonical shapes.
+        m = _IID_PREFIX_RE.match(raw)
+        iid = m.group(1) if m else raw
+        self.oast._record(iid, method=self.command, raw_path=raw,
                           ua=self.headers.get("User-Agent", ""),
                           host=self.headers.get("Host", ""))
         body = b"ok"

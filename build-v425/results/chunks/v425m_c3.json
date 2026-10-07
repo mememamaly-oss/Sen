@@ -1,6 +1,6 @@
 {
  "suite": "all",
- "total": 170,
+ "total": 179,
  "failed": 0,
  "cases": [
   {
@@ -189,7 +189,7 @@
   {
    "name": "regression_crlf_header_injection_and_xxe_live",
    "ok": true,
-   "ms": 11627
+   "ms": 11666
   },
   {
    "name": "regression_vuln_js_dependency_passive",
@@ -199,7 +199,7 @@
   {
    "name": "regression_crawl_preserves_link_query",
    "ok": true,
-   "ms": 503
+   "ms": 504
   },
   {
    "name": "unit_oast_server_records_interactions",
@@ -219,7 +219,7 @@
   {
    "name": "regression_oob_blind_xxe_end_to_end",
    "ok": true,
-   "ms": 76037
+   "ms": 76186
   },
   {
    "name": "unit_public_oast_provider_protocol",
@@ -234,12 +234,12 @@
   {
    "name": "regression_oob_public_channel_end_to_end",
    "ok": true,
-   "ms": 283995
+   "ms": 287065
   },
   {
    "name": "regression_eng08_self_callback_guard",
    "ok": true,
-   "ms": 3249
+   "ms": 3265
   },
   {
    "name": "unit_cors_detector_and_fresh_origin_verify",
@@ -1005,6 +1005,60 @@
   },
   {
    "name": "unit_owsp26_cmdi_per_endpoint_budget",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp27_redirect_echo_not_sqli",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp28_vertical_tiered_confirmation",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp29_body_redirect_proximity",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp30_mongo_error_nosql",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp31_js_tautology_battery",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp32_ssrf_concat_companion_fill",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp33_idor_path_segment",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp34_markdown_datauri_xss",
+   "ok": true,
+   "ms": 0,
+   "skipped": true
+  },
+  {
+   "name": "unit_owsp35_roleview_gate_scope_endpoint",
    "ok": true,
    "ms": 0,
    "skipped": true

@@ -78,7 +78,18 @@ class VerificationEngine:
                     r5 = self._replay(ep, p, f"{base}' OR '1'='1' -- ")
                     r6 = self._replay(ep, p, f"{base}' OR '1'='2' -- ")
                     l5, l6 = (r5.hop_location() if r5 else ""), (r6.hop_location() if r6 else "")
-                    if l5 and l6 and l5 != l6:
+                    # OWSP-27 (NodeGoat round, live-caught on /learn?url=): a
+                    # Location that CONTAINS the submitted payload is an
+                    # open-redirect ECHO, not an auth-bypass oracle — TRUE/FALSE
+                    # locations differ only because the PAYLOADS differ
+                    # (behavioral zero). Both sides must echo for the guard to
+                    # suppress; real oracles echo neither.
+                    from urllib.parse import unquote as _uq27
+                    def _echo27(loc, payload):
+                        try: return payload in _uq27(str(loc or ""))
+                        except Exception: return False
+                    _p5, _p6 = f"{base}' OR '1'='1' -- ", f"{base}' OR '1'='2' -- "
+                    if l5 and l6 and l5 != l6 and not (_echo27(l5, _p5) and _echo27(l6, _p6)):
                         v = Verification(method="oracle:or-redirect-2round", passed=True, confidence=0.95, rounds=2,
                                          notes=f"replay OR TRUE -> {l5}, FALSE -> {l6}")
                         f.verification, f.confidence = v, v.confidence
@@ -94,7 +105,10 @@ class VerificationEngine:
                         r8 = self._replay(ep, p, f"{base}' OR 1=2-- ")
                         l7, l8 = (r7.hop_location() if r7 else ""), (r8.hop_location() if r8 else "")
                         b7, b8 = (r7.body or "") if r7 else "", (r8.body or "") if r8 else ""
-                        num_redirect = l7 and l8 and l7 != l8
+                        num_redirect = (l7 and l8 and l7 != l8
+                                        # OWSP-27 echo guard (numeric family)
+                                        and not (_echo27(l7, f"{base}' OR 1=1-- ")
+                                                 and _echo27(l8, f"{base}' OR 1=2-- ")))
                         num_body = (r7 is not None and r8 is not None and r7.ok and r8.ok
                                     and r7.status == r8.status
                                     and abs(len(b7) - len(b8)) > max(200, 0.25 * max(len(b7), len(b8), 1)))
@@ -194,7 +208,31 @@ class VerificationEngine:
             # Angular-expression candidates with a fresh {{expression}}, so a filter
             # that blocks every tag can no longer veto the very class it produced.
             kinds = {e.kind for e in (f.evidence or [])}
-            if "attribute_injection_reflection" in kinds:
+            if "md_datauri_reflection" in kinds:
+                # OWSP-34 (NodeGoat round, live-caught on /memos POST memo=):
+                # fresh markdown-link canary with a DIFFERENT base64 — the
+                # RENDERED ANCHOR must reproduce (the anchor shape is the
+                # oracle; the payload text itself is inert, so a plain
+                # raw-reflection re-test can never verify this family).
+                import base64 as _b64_34, re as _re34
+                _b34 = _b64_34.b64encode(b"sentinelxssmarkervr").decode()
+                fresh34 = f"[sentinelxssmarkervrmd](data:text/html;base64,{_b34})"
+                r34 = self._replay(ep, f.parameter, fresh34)
+                ok34 = False
+                ctx34 = ""
+                if r34 is not None and r34.body:
+                    for m34 in _re34.finditer(r'<a\s[^>]*href=["\']?\s*data:text/html', r34.body):
+                        seg34 = r34.body[m34.start():m34.start() + 500]
+                        if ("sentinelxssmarkervrmd" in seg34) or (_b34 in seg34):
+                            ok34, ctx34 = True, seg34[:120]
+                            break
+                executed_ctx = ok34
+                v = Verification(method="re-test:fresh-md-anchor", passed=ok34,
+                                 confidence=0.85 if ok34 else 0.15, rounds=1,
+                                 notes=f"fresh markdown data:URI canary rendered as a raw "
+                                       f"executable anchor: {ok34}"
+                                       + (f" [ctx: {ctx34}]" if ctx34 else ""))
+            elif "attribute_injection_reflection" in kinds:
                 variants = ['pro44" onfocus="vr1', 'pro45" onload="vr2', "pro46' onerror='vr3"]
                 passed_vecs = 0
                 for alt in variants:
@@ -337,9 +375,35 @@ class VerificationEngine:
             f.status = FindingStatus.VERIFIED if hit else FindingStatus.REJECTED
 
         elif f.type == "open_redirect":
+            # OWSP-29 (NodeGoat round, live-caught on /research?symbol=): the
+            # re-test used to accept the URL ANYWHERE in the body — on a
+            # fetch-proxy surface the replayed URL rode inside server-side-
+            # fetched third-party content (HTML comment echo) with no sink near
+            # it, and the FP VERIFIED. Body-only evidence now requires the URL
+            # within a bounded window of an actual redirect sink; a Location
+            # header hit is unchanged (that IS the header oracle).
+            import re as _re_or
+            _SINK_OR = _re_or.compile(r"(location\.href|window\.location|http\.refresh|meta[^>]+refresh)", _re_or.I)
             r = self._replay(ep, f.parameter, "https://sentinel-redirect-check.example.org/second")
-            ok = "sentinel-redirect-check.example.org" in (r.headers.get("location", "") or r.body or "")
-            v = Verification(method="re-test:second-host", passed=ok, confidence=0.85 if ok else 0.2, rounds=1)
+            if r is not None and "sentinel-redirect-check.example.org" in (
+                    (r.headers or {}).get("location", "") or ""):
+                ok = True
+                note = "second-host Location header redirect reproduced"
+            elif r is not None and "sentinel-redirect-check.example.org" in (r.body or ""):
+                ok = False
+                i_or = (r.body or "").find("sentinel-redirect-check.example.org")
+                w_or = (r.body or "")[max(0, i_or - 200): i_or + 260]
+                if _SINK_OR.search(w_or):
+                    ok = True
+                    note = "second-host URL present in body within a redirect-sink window"
+                else:
+                    note = ("second-host URL present in body but NOT within any redirect-sink "
+                            "window (fetched-content echo shape — OWSP-29)")
+            else:
+                ok = False
+                note = "second-host neither redirected nor present in body"
+            v = Verification(method="re-test:second-host", passed=ok,
+                             confidence=0.85 if ok else 0.2, rounds=1, notes=note)
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
 
@@ -448,6 +512,19 @@ class VerificationEngine:
             rv = self.engine.send(RequestMutation(endpoint=ep, param_name=param9,
                                                   param_value=self.oast.url(iid), note="ssrf-verify"))
             hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
+            if hit is None and rv is not None and not rv.error:
+                # OWSP-32 (NodeGoat round, live-caught on /research?url=&symbol=):
+                # the companion-gated fetch shape — the plain replay ships empty
+                # sibling query params verbatim and the server-side fetch never
+                # executes (if (req.query.symbol) stays falsy). The FILLER twin
+                # gives empty companions a benign constant, mirroring the
+                # detector's twin probes; without it every candidate of this
+                # shape dies at verification.
+                rv = self.engine.send(RequestMutation(endpoint=ep, param_name=param9,
+                                                      param_value=self.oast.url(iid),
+                                                      note="ssrf-verify-fill",
+                                                      fill_query_siblings=True))
+                hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
             if hit and is_self_callback(hit, rv, self.oast.url(iid)):
                 hit = None                             # ENG-08: scanner-initiated fetch
             ok = hit is not None
@@ -632,6 +709,64 @@ class VerificationEngine:
                 f.status = FindingStatus.REJECTED
 
         elif f.type == "nosql_injection":
+            # OWSP-30/31 (NodeGoat round, live-caught on /allocations/1?threshold=):
+            # findings produced by the injection BATTERY carry js_or_differential
+            # and/or Mongo db_error evidence — the $ne operator-bypass replay below
+            # is shape-wrong for them (it builds JSON bodies and expects an
+            # auth-bypass flip). Route by evidence kind: the JS pair gets an
+            # INDEPENDENT fresh-vector replay (comparison operators, not the
+            # detection tautologies), the error family a 2-variant error-string
+            # replay — the BR-01 spirit applied to JS sinks.
+            kinds30 = {e.kind for e in (f.evidence or [])}
+            if "js_or_differential" in kinds30 or "db_error" in kinds30:
+                base30 = "1"
+                if ep is not None and f.parameter:
+                    bp = ep.param(f.parameter)
+                    if bp is not None and (bp.value or "").isdigit():
+                        base30 = bp.value
+                rj1 = self._replay(ep, f.parameter, f"{base30}' || '2'>'1")
+                rj2 = self._replay(ep, f.parameter, f"{base30}' && '1'>'2")
+                js_flip = (rj1 is not None and rj2 is not None and not rj1.error and not rj2.error
+                           and rj1.ok and not rj2.ok)
+                js_note = (f"fresh JS comparison vectors: TRUE -> {getattr(rj1, 'status', 0)} "
+                           f"({len(getattr(rj1, 'body', '') or '')}B), FALSE -> "
+                           f"{getattr(rj2, 'status', 0)} — the JS-evaluation flip reproduces")
+                if js_flip:
+                    v = Verification(method="oracle:js-or-2round", passed=True,
+                                     confidence=0.9, rounds=2, notes=js_note)
+                    f.verification, f.confidence = v, v.confidence
+                    f.status = FindingStatus.VERIFIED
+                else:
+                    # fallback: the Mongo error signature must reproduce on a
+                    # fresh quote variant (VF-04 discipline: a DB-error STRING,
+                    # never a bare 5xx)
+                    from .detect import MONGO_ERR_PATTERNS
+                    err_hit30 = None
+                    for variant30 in (base30 + '"', base30 + "'"):
+                        r30 = self._replay(ep, f.parameter, variant30)
+                        if r30 is None or not r30.status:
+                            continue
+                        for pat30 in MONGO_ERR_PATTERNS:
+                            m30 = pat30.search(r30.body or "")
+                            if m30:
+                                err_hit30 = f"{pat30.pattern[:40]} matched: {m30.group(0)[:60]}"
+                                break
+                        if err_hit30:
+                            break
+                    ok30 = err_hit30 is not None
+                    v = Verification(method="error:mongo-replay-2variants", passed=ok30,
+                                     confidence=0.85 if ok30 else 0.15, rounds=2,
+                                     notes=(f"JS pair did not flip (TRUE "
+                                            f"{getattr(rj1, 'status', 0)}/FALSE "
+                                            f"{getattr(rj2, 'status', 0)}); quote variants "
+                                            f"reproduce a Mongo error string: {ok30}"
+                                            + (f" [{err_hit30}]" if err_hit30 else "")))
+                    f.verification, f.confidence = v, v.confidence
+                    f.status = FindingStatus.VERIFIED if ok30 else FindingStatus.REJECTED
+                self.bus.emit("VerificationCompleted", finding=f.id, type=f.type,
+                              passed=f.verification.passed if f.verification else False,
+                              status=f.status.value, confidence=f.confidence)
+                return f
             # VR-14 (v4.2.0 VF-02): the old oracle was `r.ok` on a single $gt
             # request — an endpoint answering 2xx to ANY body passed it vacuously.
             # The oracle is now a REPRODUCED FLIP: a fresh literal-credential

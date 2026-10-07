@@ -9151,6 +9151,725 @@ def unit_owsp26_cmdi_per_endpoint_budget():
     assert "page" in probed, "the router param keeps its (dead but honest) probe"
 
 
+@case
+def unit_owsp27_redirect_echo_not_sqli():
+    """OWSP-27 (NodeGoat round, live-caught on /learn?url=): an endpoint whose
+    redirect Location ECHOES the submitted payload (express res.redirect(
+    req.query.url)) trivially 'differs' between TRUE and FALSE OR-probes — the
+    Location IS the payload text, so the differential is behavioral ZERO. The
+    redirect_diff oracle (detector sites + verifier PATH C/C') mistook that
+    self-echo for an auth-bypass oracle and VERIFIED a sql_injection with no
+    database anywhere in the handler. Guard: when the (unquoted) Location
+    contains the very payload string that was submitted, the differential is
+    suppressed. The REAL oracle on /gate (TRUE->/bank, FALSE->/login) must
+    keep verifying — the guard may not over-suppress."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs, quote
+    from sentinel.orchestrator import ScanConfig, SentinelScanner
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", loc=""):
+            self.send_response(code)
+            if loc: self.send_header("Location", loc)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path); q = parse_qs(u.query)
+            if u.path == "/":
+                return self._send(200, (
+                    b'<html><body><a href="/learn?url=1">learn</a>'
+                    b'<a href="/gate?uid=1">gate</a></body></html>'))
+            if u.path == "/learn":
+                return self._send(302, b"", loc="/" + quote(q.get("url", [""])[0], safe=""))
+            if u.path == "/gate":
+                uid = q.get("uid", [""])[0]
+                if "OR '1'='1'" in uid or "OR 1=1" in uid:
+                    return self._send(302, b"", loc="/bank/main.jsp")
+                if "OR '1'='2'" in uid or "OR 1=2" in uid:
+                    return self._send(302, b"", loc="/login.jsp")
+                return self._send(200, b"<html>profile page for " + uid.encode() + b"</html>")
+            if u.path in ("/bank/main.jsp", "/login.jsp"):
+                return self._send(200, ("<html>%s page</html>" % u.path.split("/")[1]).encode())
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5,
+                         seed="owsp27", browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        echo_sqli = [f for f in rep["findings"] + rep.get("unverified_candidates", [])
+                     if f["type"] == "sql_injection" and "/learn" in f["url"]]
+        assert not echo_sqli, (
+            "RED: echo-redirect Location (= the payload text itself) produced a "
+            "sql_injection verdict — a behavioral-zero differential misread as an "
+            "auth-bypass oracle",
+            [(f["type"], f.get("status"), f["url"]) for f in echo_sqli])
+        gates = [f for f in rep["findings"]
+                 if f["type"] == "sql_injection" and "/gate" in f["url"]
+                 and f.get("status") == "verified"]
+        assert gates, ("control regression: the REAL redirect oracle on /gate no "
+                       "longer verifies — the echo guard over-suppresses",
+                       [f["type"] for f in rep["findings"]])
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp28_vertical_tiered_confirmation():
+    """OWSP-28 (NodeGoat round, live-caught): the vertical-escalation oracle
+    fired on /dashboard — a ROLE-AGNOSTIC authenticated page nominated by the
+    'dashboard' name heuristic — while MISSING /benefits, the real function-
+    level break (an object-management page carrying POST forms over OTHER
+    accounts' ids, accessible to every logged-in user). Fix, tiered: strong
+    admin-path names keep the name+differential oracle; ambiguous names
+    ('dashboard') require DATA-LEVEL corroboration (cross-account markers or
+    cross-object state-change forms); cross-object-management pages are
+    NOMINATED from the privileged role-view even without any name signal."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.authz import AuthzEngine, AuthzConfig
+    from sentinel.core import ScopeRule, EventBus
+
+    SESSIONS = {}
+    USERS = {"admin": ("admin-pass", "admin", "1001", "root-admin@ngt.fixture"),
+             "bob": ("bob-pass", "user", "2002", "bob-user@ngt.fixture"),
+             "carol": ("carol-pass", "user", "3003", "carol-user@ngt.fixture")}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", loc="", cookie=""):
+            self.send_response(code)
+            if loc: self.send_header("Location", loc)
+            if cookie: self.send_header("Set-Cookie", cookie)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def _user(self):
+            c = (self.headers.get("Cookie") or "").replace("sid=", "").strip()
+            return SESSIONS.get(c)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            su = self._user()
+            if u.path == "/":
+                return self._send(200, (
+                    b'<html><body><a href="/dashboard">Home</a>'
+                    b'<a href="/benefits">Benefits</a> Sign Off</body></html>'))
+            if u.path == "/dashboard":
+                if not su: return self._send(302, b"", loc="/login")
+                name, role, oid, marker = USERS[su]
+                return self._send(200, ("<html>welcome %s to your dashboard — role-agnostic "
+                                        "content for every authenticated user</html>" % name).encode())
+            if u.path == "/benefits":
+                if not su: return self._send(302, b"", loc="/login")
+                rows = ""
+                for n, (pw, r, oid, mk) in sorted(USERS.items()):
+                    if r != "user": continue
+                    rows += ('<tr><td>%s</td><td><form method="POST" action="/benefits">'
+                             '<input type="hidden" name="userId" value="%s">'
+                             '<input name="benefitStartDate" value="2030-01-10"></form></td></tr>'
+                             % (mk, oid))
+                return self._send(200, ("<html><body>Benefits administration Sign Off"
+                                        "<table>%s</table></body></html>" % rows).encode())
+            self._send(404)
+        def do_POST(self):
+            u = urlsplit(self.path)
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+            q = parse_qs(body)
+            if u.path == "/login":
+                uid, pw = (q.get("uid", [""])[0], q.get("passw", [""])[0])
+                if uid in USERS and USERS[uid][0] == pw:
+                    sid = "s-" + uid
+                    SESSIONS[sid] = uid
+                    return self._send(302, b"", loc="/", cookie="sid=" + sid)
+                return self._send(200, b"<html>login failed - try again</html>")
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        accts = [{"name": n, "role": USERS[n][1], "username": n, "password": USERS[n][0],
+                  "marker": USERS[n][3], "object_id": USERS[n][2]} for n in USERS]
+        cfgd = AuthzConfig.from_dict({"login_url": base + "/login", "user_field": "uid",
+                                      "pass_field": "passw", "success_marker": "Sign Off",
+                                      "accounts": accts}, base)
+        eng = AuthzEngine(cfgd, ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                          EventBus("owsp28"))
+        from sentinel.core import Endpoint
+        eps = [Endpoint(url=base + "/dashboard", method="GET"),
+               Endpoint(url=base + "/benefits", method="GET")]
+        out = eng.run(eps)
+        byp = {(f.endpoint_url.split("?")[0], f.type) for f in out["findings"]}
+        dash_v = [p for p, t in byp if t == "vertical_privilege_escalation" and p.endswith("/dashboard")]
+        ben_v = [p for p, t in byp if t == "vertical_privilege_escalation" and p.endswith("/benefits")]
+        assert not dash_v, (
+            "RED: role-agnostic /dashboard (name-only nomination, zero privileged "
+            "data) verified as vertical_privilege_escalation — the FP live-caught "
+            "on NodeGoat", sorted(byp))
+        assert ben_v, ("RED: /benefits — a cross-object management surface (POST forms "
+                       "over other accounts' ids) open to every role — MISSED",
+                       sorted(byp))
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp29_body_redirect_proximity():
+    """OWSP-29 (NodeGoat round, live-caught on /research?symbol=): the body
+    redirect oracle matched an off-site URL string ANYWHERE in the body plus a
+    redirect-sink regex ANYWHERE ELSE — the URL sat inside an HTML comment of
+    SERVER-SIDE-FETCHED third-party content while the sink was an unrelated
+    'window.location.hostname' beacon in the same fetched page. Fix: (a) the
+    sink must be WITHIN a bounded window around the injected URL; (b) a
+    fetch-proxy endpoint shape (a sibling param carrying an off-target http
+    base value) gets an honest attribution note. The REAL adjacent sink on
+    /jump must keep verifying."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.orchestrator import ScanConfig, SentinelScanner
+
+    PADDING = ("<div>beacon js follows</div>" * 60) + \
+              "<script>var h = window.location.hostname; var d = document;</script>" + \
+              ("<!-- filler -->" * 40)
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path); q = parse_qs(u.query)
+            if u.path == "/":
+                return self._send(200, (
+                    b'<html><body><a href="/fetcher?url=https://ext.example/stock&symbol=1">'
+                    b'fetcher</a><a href="/jump?next=1">jump</a></body></html>'))
+            if u.path == "/fetcher":
+                sym = q.get("symbol", [""])[0]
+                if not sym:
+                    return self._send(200, b"<html>stock research form</html>")
+                body = ("<h1>The following is the stock information you requested.</h1>"
+                        "<!DOCTYPE html><html><head><title>Third party</title></head><body>"
+                        "<!-- url: https://ext.example/stock" + sym + " -->"
+                        + PADDING + "</body></html>")
+                return self._send(200, body.encode())
+            if u.path == "/jump":
+                nxt = q.get("next", [""])[0]
+                return self._send(200, ("<html><script>window.location=\"%s\";</script>"
+                                        "</html>" % nxt).encode())
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5,
+                         seed="owsp29", browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        fake = [f for f in rep["findings"]
+                if f["type"] == "open_redirect" and "/fetcher" in f["url"]
+                and f.get("parameter") == "symbol" and f.get("status") == "verified"]
+        assert not fake, (
+            "RED: open_redirect VERIFIED on a sink that lives in server-side-fetched "
+            "third-party content, far from the injected URL — the NodeGoat /research FP",
+            [(f["url"], f.get("parameter")) for f in fake])
+        jumps = [f for f in rep["findings"]
+                 if f["type"] == "open_redirect" and "/jump" in f["url"]
+                 and f.get("status") == "verified"]
+        assert jumps, ("control regression: the REAL adjacent client-redirect sink on "
+                       "/jump no longer verifies", [f["type"] for f in rep["findings"]])
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp30_mongo_error_nosql():
+    """OWSP-30 (NodeGoat round, live-caught on /allocations/1?threshold=): the
+    $where sink answers a quote probe with HTTP 500 'MongoError: SyntaxError:
+    unexpected token: string literal' — a clean DB-error oracle on the world's
+    most common NoSQL server — but SQL_ERR_PATTERNS carries no MongoDB family,
+    so the injection was invisible. The Mongo signature family now fires, and
+    because '' (a valid SQL string) is INVALID JS, the pair_quote control is
+    satisfied by the JS-tautology differential instead. The finding type is
+    nosql_injection, not sql_injection — the error family identifies the
+    engine, and a misattributed class is a false positive of its own."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.orchestrator import ScanConfig, SentinelScanner
+
+    ROWS = "<tr><td>AAA</td></tr>" * 30
+    ROWS_ALL = "<tr><td>AAA</td></tr>" * 90
+
+    def alloc_response(threshold):
+        if threshold == "":
+            return 200, ("<html><table>%s</table></html>" % ROWS).encode()
+        if "'" in threshold:
+            if "||" in threshold and "==" in threshold:
+                return 200, ("<html><table>%s</table></html>" % ROWS_ALL).encode()
+            if "&&" in threshold:
+                return 500, (b"<html><body>Oops..<br>MongoError: no allocations found"
+                             b"</body></html>")
+            return 500, (b"<html><body>Oops..<br>MongoError: SyntaxError: unexpected "
+                         b"token: string literal</body></html>")
+        return 200, ("<html><table>%s</table></html>" % ROWS).encode()
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path); q = parse_qs(u.query)
+            if u.path == "/":
+                return self._send(200, (
+                    b'<html><body><a href="/alloc?threshold=1">allocations</a>'
+                    b'</body></html>'))
+            if u.path == "/alloc":
+                code, body = alloc_response(q.get("threshold", [""])[0])
+                return self._send(code, body)
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5,
+                         seed="owsp30", browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        nos = [f for f in rep["findings"] + rep.get("unverified_candidates", [])
+               if f["type"] == "nosql_injection" and "/alloc" in f["url"]]
+        assert nos, ("RED: the MongoError quote oracle produced no nosql_injection "
+                     "finding — the $where error family is invisible to the engine",
+                     [f["type"] for f in rep["findings"]])
+        for f in nos:
+            assert any(e.get("kind") == "db_error" for e in f.get("evidence", [])), (
+                "the nosql finding must carry the db_error evidence (Mongo signature)",
+                [e.get("kind") for e in f.get("evidence", [])])
+        sql_fp = [f for f in rep["findings"] + rep.get("unverified_candidates", [])
+                  if f["type"] == "sql_injection" and "/alloc" in f["url"]]
+        assert not sql_fp, ("a JS/$where sink must NOT be reported as sql_injection — "
+                            "the class identifies the engine", [])
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp31_js_tautology_battery():
+    """OWSP-31 (NodeGoat round, live-caught on /allocations/1?threshold=): the
+    $where sink evaluates raw JAVASCRIPT — every SQL-shaped OR pair dies as an
+    identical JS SyntaxError (no differential), while the JS-syntax pair
+    (1' || '1'=='1 matches ALL rows, 1' && '1'=='2 matches NONE) separates
+    cleanly: 200/full-table vs 500/no-rows on NodeGoat live (8251B vs error
+    page). The battery gains the JS pair family; its differential (status flip
+    or body-size diff) is the oracle. The '==' shape is the JS discriminator —
+    invalid SQL everywhere, so SQL engines answer symmetric errors (honest
+    silence)."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.orchestrator import ScanConfig, SentinelScanner
+
+    ROWS = "<tr><td>AAA</td></tr>" * 30
+    ROWS_ALL = "<tr><td>AAA</td></tr>" * 90
+
+    def alloc_response(threshold):
+        if threshold == "":
+            return 200, ("<html><table>%s</table></html>" % ROWS).encode()
+        if "'" in threshold:
+            if "||" in threshold and "==" in threshold:
+                return 200, ("<html><table>%s</table></html>" % ROWS_ALL).encode()
+            if "&&" in threshold:
+                return 500, (b"<html><body>Oops..<br>MongoError: no allocations found"
+                             b"</body></html>")
+            return 500, (b"<html><body>Oops..<br>MongoError: SyntaxError: unexpected "
+                         b"token: string literal</body></html>")
+        return 200, ("<html><table>%s</table></html>" % ROWS).encode()
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path); q = parse_qs(u.query)
+            if u.path == "/":
+                return self._send(200, (
+                    b'<html><body><a href="/alloc?threshold=1">allocations</a>'
+                    b'</body></html>'))
+            if u.path == "/alloc":
+                code, body = alloc_response(q.get("threshold", [""])[0])
+                return self._send(code, body)
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5,
+                         seed="owsp31", browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        nos = [f for f in rep["findings"]
+               if f["type"] == "nosql_injection" and "/alloc" in f["url"]
+               and f.get("status") == "verified"]
+        assert nos, ("RED: the JS-tautology differential never verifies — the battery "
+                     "has no JS-syntax pair family for $where sinks",
+                     [f["type"] for f in rep["findings"]],
+                     [c.get("type") for c in rep.get("unverified_candidates", [])])
+        assert any(any(e.get("kind") == "js_or_differential" for e in f.get("evidence", []))
+                   for f in nos), ("the verified finding must carry the js_or_differential "
+                                   "evidence kind", [])
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp32_ssrf_concat_companion_fill():
+    """OWSP-32 (NodeGoat round, live-caught on /research?url=&symbol=): the
+    server-side fetch (needle.get(url + symbol)) sits behind `if (req.query.
+    symbol)` — the OAST probe put the callback URL into `url` while `symbol`
+    (empty base value) gated the fetch OFF; the probe never executed the code
+    path. Two-part fix: (a) the SSRF battery emits a FILLER variant that gives
+    empty sibling QUERY params a benign constant; (b) the local OAST listener
+    matches interaction ids by PREFIX (oob-<12hex>) so URL-concatenated
+    callbacks (url + symbol appending chars to the path) still land."""
+    import threading, urllib.request
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.orchestrator import ScanConfig, SentinelScanner
+    from sentinel.oast import OastServer
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path); q = parse_qs(u.query)
+            if u.path == "/":
+                # the REAL NodeGoat shape: the symbol input's discovered base
+                # value is EMPTY (blank input) — the plain OAST probe ships
+                # symbol= (falsy) and never executes the fetch; only the
+                # FILLER variant (empty companions -> "1") reaches the sink.
+                return self._send(200, (
+                    b'<html><body><a href="/research?url=http://127.0.0.1:1/base&symbol=">'
+                    b'research</a></body></html>'))
+            if u.path == "/research":
+                url, sym = q.get("url", [""])[0], q.get("symbol", [""])[0]
+                if not sym:
+                    return self._send(200, b"<html>stock research form</html>")
+                try:
+                    with urllib.request.urlopen(url + sym, timeout=3) as r:
+                        r.read()
+                    return self._send(200, b"<html>stock info fetched</html>")
+                except Exception:
+                    return self._send(200, b"<html>stock info fetched (error ignored)</html>")
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=6,
+                         seed="owsp32", browser=False, oast=oast)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        ssrfs = [f for f in rep["findings"]
+                 if f["type"] == "ssrf" and "/research" in f["url"]
+                 and f.get("status") == "verified"]
+        assert ssrfs, ("RED: the server-side fetch never fired — the OAST probe rode "
+                       "in `url` while the empty `symbol` companion gated the fetch off",
+                       [f["type"] for f in rep["findings"]],
+                       [c.get("type") for c in rep.get("unverified_candidates", [])])
+    finally:
+        oast.stop()
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp33_idor_path_segment():
+    """OWSP-33 (NodeGoat round, live-caught on /allocations/:userId): the
+    object id rides as the FINAL PATH SEGMENT — no query/body parameter at
+    all — so the IDOR engine (which iterates ep.parameters only) never probed
+    it: user1 could read admin's allocations live and the scanner said
+    nothing. Fix: id-shaped trailing path segments get direct URL-substitution
+    probes (attacker session x victim object_id) under the same strict
+    victim-marker oracle + VR-17 fresh-victim replay."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.authz import AuthzEngine, AuthzConfig
+    from sentinel.core import ScopeRule, EventBus, Endpoint
+
+    SESSIONS = {}
+    USERS = {"admin": ("admin-pass", "admin", "1001", "root-admin@ngt.fixture"),
+             "bob": ("bob-pass", "user", "2002", "bob-user@ngt.fixture"),
+             "carol": ("carol-pass", "user", "3003", "carol-user@ngt.fixture")}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", loc="", cookie=""):
+            self.send_response(code)
+            if loc: self.send_header("Location", loc)
+            if cookie: self.send_header("Set-Cookie", cookie)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def _user(self):
+            c = (self.headers.get("Cookie") or "").replace("sid=", "").strip()
+            return SESSIONS.get(c)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            su = self._user()
+            if u.path == "/":
+                return self._send(200, (b'<html><body><a href="/allocations/1001">'
+                                        b'my allocations</a> Sign Off</body></html>'))
+            if u.path.startswith("/allocations/"):
+                if not su: return self._send(302, b"", loc="/login")
+                oid = u.path.rsplit("/", 1)[-1]
+                for n, (pw, r, o, mk) in USERS.items():
+                    if o == oid:
+                        # NO object-level check: any authenticated user reads it
+                        return self._send(200, ("<html>Asset Allocations for %s</html>"
+                                                % mk).encode())
+                return self._send(404, b"<html>no such object</html>")
+            self._send(404)
+        def do_POST(self):
+            u = urlsplit(self.path)
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+            from urllib.parse import parse_qs
+            q = parse_qs(body)
+            if u.path == "/login":
+                uid, pw = (q.get("uid", [""])[0], q.get("passw", [""])[0])
+                if uid in USERS and USERS[uid][0] == pw:
+                    sid = "s-" + uid
+                    SESSIONS[sid] = uid
+                    return self._send(302, b"", loc="/", cookie="sid=" + sid)
+                return self._send(200, b"<html>login failed</html>")
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        accts = [{"name": n, "role": USERS[n][1], "username": n, "password": USERS[n][0],
+                  "marker": USERS[n][3], "object_id": USERS[n][2]} for n in USERS]
+        cfgd = AuthzConfig.from_dict({"login_url": base + "/login", "user_field": "uid",
+                                      "pass_field": "passw", "success_marker": "Sign Off",
+                                      "accounts": accts}, base)
+        eng = AuthzEngine(cfgd, ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                          EventBus("owsp33"))
+        eps = [Endpoint(url=base + "/allocations/1001", method="GET")]
+        out = eng.run(eps)
+        idors = [f for f in out["findings"] if f.type == "idor_bola"
+                 and "/allocations/" in f.endpoint_url]
+        assert idors, ("RED: path-segment object ids are invisible to the IDOR engine — "
+                       "the /allocations/<id> object-level break never probed",
+                       [(f.type, f.endpoint_url) for f in out["findings"]])
+        assert idors[0].verification.method == "re-test:fresh-victim-object", (
+            "VR-17 fresh-victim replay must govern the path-segment IDOR too",
+            idors[0].verification.method)
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp34_markdown_datauri_xss():
+    """OWSP-34 (NodeGoat round, live-caught on /memos POST memo=): the sink
+    renders user markdown through marked 0.3.5 with sanitize:true — raw HTML
+    tags are correctly escaped (the classic battery honestly finds nothing)
+    but markdown links pass data:text/html;base64 URIs through RAW:
+    [x](data:text/html;base64,<b64>) -> <a href="data:text/html;base64,...">x</a>
+    — an executable-URI XSS the engine had no battery family for. New family:
+    a markdown-link canary whose href carries a data:text/html payload; the
+    oracle is the RENDERED ANCHOR shape (not raw reflection — the payload text
+    itself is inert). The escaped-text twin must stay silent."""
+    import threading, base64
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.orchestrator import ScanConfig, SentinelScanner
+
+    B64 = base64.b64encode(b"sentinelxssmarker").decode()
+
+    def md_render(memo):
+        import html as _html, re
+        out = ["<p>" + _html.escape(memo) + "</p>"]
+        m = re.match(r"^\[([^\]]+)\]\((data:text/html[^\s)]*)\)$", memo.strip())
+        if m:
+            out.append('<a href="%s">%s</a>' % (m.group(2), _html.escape(m.group(1))))
+        return "".join(out)
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b""):
+            self.send_response(code)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            if u.path == "/":
+                return self._send(200, (
+                    b'<html><body><a href="/memo">memo</a>'
+                    b'<a href="/memo-safe">memo safe</a></body></html>'))
+            if u.path in ("/memo", "/memo-safe"):
+                return self._send(200, (
+                    b'<html><body><form method="POST" action="' + u.path.encode() +
+                    b'"><textarea name="memo"></textarea>'
+                    b'<button type="submit" name="submit">Add</button></form></body></html>'))
+            self._send(404)
+        def do_POST(self):
+            u = urlsplit(self.path)
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+            from urllib.parse import parse_qs
+            q = parse_qs(body)
+            memo = q.get("memo", [""])[0]
+            if u.path == "/memo":
+                return self._send(200, ("<html><body>%s</body></html>"
+                                        % md_render(memo)).encode())
+            if u.path == "/memo-safe":
+                import html as _html
+                return self._send(200, ("<html><body>%s</body></html>"
+                                        % _html.escape(memo)).encode())
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=8, timeout=5,
+                         seed="owsp34", browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        mds = [f for f in rep["findings"]
+               if f["type"] in ("xss_reflected", "xss_stored") and "/memo" in f["url"]
+               and f.get("status") == "verified"]
+        assert mds, ("RED: the markdown data:URI link family produced no XSS finding — "
+                     "the sanitizer-bypass vector has no battery",
+                     [f["type"] for f in rep["findings"]],
+                     [c.get("type") for c in rep.get("unverified_candidates", [])])
+        assert any(any(e.get("kind") == "md_datauri_reflection" for e in f.get("evidence", []))
+                   for f in mds), ("the finding must carry the md_datauri_reflection "
+                                   "evidence kind", [])
+        safe_fp = [f for f in rep["findings"] + rep.get("unverified_candidates", [])
+                   if f["type"] in ("xss_reflected", "xss_stored") and "/memo-safe" in f["url"]]
+        assert not safe_fp, ("the escaped-text twin (no anchor ever rendered) must stay "
+                             "silent", [(f["type"], f["url"]) for f in safe_fp])
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_owsp35_roleview_gate_scope_endpoint():
+    """OWSP-35 (NodeGoat round, live-caught via the authz IDOR miss): the
+    role-view replay called _gate_scope(ep.url) — a STRING — but the OWSP-21b
+    alias is endpoint_gate_scope(ep), which expects the ENDPOINT OBJECT:
+    getattr(<str>, 'url', '') collapsed to '' and the whole probeable gate
+    (logout/destructive/state-change/login filtering) silently passed
+    EVERYTHING. Live: the replay fetched /logout under every account, KILLED
+    all sessions (auto-reauth rotated cookies, then died again), the IDOR
+    probes landed on login pages (no victim markers), and the vertical
+    differential compared login-page-to-login-page. Fix: pass the Endpoint;
+    the sessions must survive the replay."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit, parse_qs
+    from sentinel.authz import AuthzEngine, AuthzConfig
+    from sentinel.core import ScopeRule, EventBus, Endpoint
+
+    SESSIONS = {}
+    FETCHED = []
+    USERS = {"admin": ("admin-pass", "admin", "1001", "root-admin@ngt.fixture"),
+             "bob": ("bob-pass", "user", "2002", "bob-user@ngt.fixture"),
+             "carol": ("carol-pass", "user", "3003", "carol-user@ngt.fixture")}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _send(self, code, body=b"", loc="", cookie=""):
+            self.send_response(code)
+            if loc: self.send_header("Location", loc)
+            if cookie: self.send_header("Set-Cookie", cookie)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            if body: self.wfile.write(body)
+        def _user(self):
+            c = (self.headers.get("Cookie") or "").replace("sid=", "").strip()
+            return SESSIONS.get(c)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            FETCHED.append(u.path)
+            su = self._user()
+            if u.path == "/":
+                return self._send(200, (b'<html><body><a href="/allocations/1001">mine</a>'
+                                        b'<a href="/logout">Sign Off</a></body></html>'))
+            if u.path == "/logout":
+                # session killer: drop the session, land on the login page
+                if su: del SESSIONS[su]
+                return self._send(200, b"<html>you are signed out - login again</html>")
+            if u.path.startswith("/allocations/"):
+                if not su: return self._send(302, b"", loc="/login")
+                oid = u.path.rsplit("/", 1)[-1]
+                for n, (pw, r, o, mk) in USERS.items():
+                    if o == oid:
+                        return self._send(200, ("<html>Asset Allocations for %s</html>"
+                                                % mk).encode())
+                return self._send(404, b"<html>no such object</html>")
+            self._send(404)
+        def do_POST(self):
+            u = urlsplit(self.path)
+            n = int(self.headers.get("Content-Length") or 0)
+            body = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+            q = parse_qs(body)
+            if u.path == "/login":
+                uid, pw = (q.get("uid", [""])[0], q.get("passw", [""])[0])
+                if uid in USERS and USERS[uid][0] == pw:
+                    sid = "s-" + uid + "-%d" % len(SESSIONS)
+                    SESSIONS[sid] = uid
+                    return self._send(302, b"", loc="/", cookie="sid=" + sid)
+                return self._send(200, b"<html>login failed</html>")
+            self._send(404)
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        accts = [{"name": n, "role": USERS[n][1], "username": n, "password": USERS[n][0],
+                  "marker": USERS[n][3], "object_id": USERS[n][2]} for n in USERS]
+        cfgd = AuthzConfig.from_dict({"login_url": base + "/login", "user_field": "uid",
+                                      "pass_field": "passw", "success_marker": "Sign Off",
+                                      "accounts": accts}, base)
+        eng = AuthzEngine(cfgd, ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True),
+                          EventBus("owsp35"))
+        # the crawl set carries BOTH the object surface and the logout link
+        # (exactly the NodeGoat shape: sidebar logout + /allocations/:userId)
+        eps = [Endpoint(url=base + "/allocations/1001", method="GET"),
+               Endpoint(url=base + "/logout", method="GET")]
+        out = eng.run(eps)
+        logout_fetches = sum(1 for p in FETCHED if p == "/logout")
+        assert logout_fetches == 0, (
+            "RED: the role-view replay fetched /logout — the probeable gate is dead "
+            "(endpoint_gate_scope received a STRING, not the Endpoint) and every "
+            "session gets killed by the replay itself",
+            f"{logout_fetches} logout fetches")
+        idors = [f for f in out["findings"] if f.type == "idor_bola"
+                 and "/allocations/" in f.endpoint_url and f.status.value == "verified"]
+        assert idors, ("RED: sessions died during the replay — the IDOR probes landed on "
+                       "login pages and the victim markers vanished",
+                       [(f.type, str(f.status)) for f in out["findings"]])
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

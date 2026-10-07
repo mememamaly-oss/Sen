@@ -4,7 +4,7 @@ Scanners never build HTTP requests directly — they emit RequestMutations.
 from __future__ import annotations
 import http.client, re, socket, ssl, time, urllib.parse, uuid
 from dataclasses import dataclass, field
-from .core import Endpoint, EventBus, ParamLocation, ScopeRule, VERSION, is_private_ip
+from .core import Endpoint, EventBus, ParamKind, ParamLocation, ScopeRule, VERSION, is_private_ip
 
 DEFAULT_TIMEOUT = 12.0
 # Engine fingerprint — OAST-channel detectors use it to reject SELF-callbacks
@@ -59,6 +59,14 @@ class RequestMutation:
     body_override: str = ""
     extra_headers: dict = field(default_factory=dict)
     note: str = ""
+    # OWSP-32 (NodeGoat round, live-caught on /research?url=&symbol=): the
+    # target gated its server-side fetch behind `if (req.query.symbol)` while
+    # symbol's DISCOVERED base value was EMPTY — every probe that mutated `url`
+    # shipped symbol= (falsy) and never executed the fetch code path. When this
+    # flag is set (SSRF filler variant), empty sibling QUERY params render with
+    # a benign constant, mirroring the DISC-04 body-field fill. Default OFF so
+    # every other battery renders byte-identically to before.
+    fill_query_siblings: bool = False
 
 
 @dataclass
@@ -181,6 +189,14 @@ class RequestEngine:
                 if p.location == ParamLocation.QUERY:
                     if p.name == m.param_name and eff_loc == ParamLocation.QUERY:
                         q.append((p.name, m.param_value)); hit = True
+                    elif (getattr(m, "fill_query_siblings", False)
+                          and not (p.value or "") and not p.flow_control
+                          and p.kind not in (ParamKind.TOKEN, ParamKind.NUMERIC)
+                          and not getattr(p, "is_file", False)):
+                        # OWSP-32: empty companions often gate behavior
+                        # (`if (req.query.x)`) — a probe that leaves them
+                        # empty can structurally never execute the sink.
+                        q.append((p.name, "1"))
                     else:
                         q.append((p.name, p.value))
             if not hit and eff_loc == ParamLocation.QUERY:

@@ -1,3 +1,123 @@
+# SENTINEL v4.2.6 — NodeGoat: nine live-caught defects, the JS/NoSQL + authz-matrix class unlocked
+
+OWASP extended campaign app 5/6: **OWASP NodeGoat 1.3.0** — MongoDB 4.4.29
+(ubuntu2004 bintar, userspace; OpenSSL 1.1 from a bullseye .deb because the
+build links libcrypto.so.1.1 while the sandbox ships OpenSSL 3) + `node
+server.js` on Node 24, deployed from source with `artifacts/db-reset.js`
+seeding (admin/Admin_123, user1/User1_123, user2/User2_123 — plaintext
+passwords by design) and the full 3-account authorization matrix armed.
+
+## The target's verdict (final scan of record, final3: 874 requests, 30 endpoints, 34s)
+
+**14 VERIFIED active findings, ZERO false positives, every marquee vulnerability class covered:**
+`nosql_injection` (/allocations/1?threshold= — the $where JS-evaluation sink),
+`vertical_privilege_escalation` (/benefits — the real A7 function-level break),
+`idor_bola` (/allocations/:userId — path-segment object substitution),
+`xss_reflected` ×9 (7 profile params + benefits date + **/memos via the marked
+0.3.5 sanitizer-bypass markdown data:URI link**), `ssrf` (/research —
+needle.get(url + symbol), OOB-callback verified), `open_redirect` (/learn — the
+true one), csrf as an honest CANDIDATE (csurf is commented out in the app).
+
+## Nine live-caught engine defects, each RED-proven then fixed (suite 170 → 179)
+
+- **OWSP-27 redirect_diff payload self-echo**: an endpoint whose redirect
+  Location ECHOES the submitted payload (express `res.redirect(req.query.url)`)
+  "differs" between TRUE/FALSE OR-probes because the payloads differ — a
+  behavioral ZERO misread as an auth-bypass oracle, VERIFIED as sql_injection
+  on /learn (no DB anywhere in the handler). Guard at all three detector
+  redirect_diff sites + verifier PATH C/C': a Location containing the very
+  payload string that was submitted is not a differential.
+- **OWSP-28 vertical-escalation tiered confirmation**: "dashboard" was in the
+  strong admin-path set — every app gives ordinary users a dashboard; the name
+  alone nominated NodeGoat's role-agnostic /dashboard and the access
+  differential "verified" it, while the REAL break (/benefits — POST forms over
+  other accounts' ids, open to every role) carried no admin-ish name and was
+  never nominated. Fix: two-tier path vocabulary (strong names keep the
+  name+differential oracle; ambiguous names require data-level corroboration —
+  cross-account markers or cross-object state-change forms) + a NEW nomination
+  source: cross-object-management surfaces collected from the privileged
+  role-view replay.
+- **OWSP-29 body-redirect proximity**: the open_redirect body oracle matched
+  the off-site URL ANYWHERE and the sink regex ANYWHERE ELSE — on /research the
+  URL rode inside an HTML comment of SERVER-SIDE-FETCHED Yahoo content while
+  the only "sink" was an unrelated window.location.hostname beacon 3KB away.
+  Fix: the sink must sit within a bounded window of the injected URL
+  (detector + verifier), plus an honest attribution note on fetch-proxy
+  endpoint shapes (a sibling param carrying an off-target URL base).
+- **OWSP-30 MongoDB error family**: the $where sink answers a quote probe with
+  HTTP 500 "MongoError: SyntaxError: unexpected token: string literal" — a
+  clean DB-error oracle on the most common NoSQL server, invisible because
+  SQL_ERR_PATTERNS carried no Mongo family. New MONGO_ERR_PATTERNS; matches
+  route to `nosql_injection`, never `sql_injection` (a misattributed class is
+  an FP of its own). The pair_quote control ('' is valid SQL but INVALID JS)
+  yields to the JS-tautology differential.
+- **OWSP-31 JS-tautology battery**: every SQL-shaped OR pair dies as an
+  identical JS SyntaxError on a $where sink (no differential); the JS pair
+  (1' || '1'=='1 matches all rows, 1' && '1'=='2 matches none) separates
+  cleanly (live: 200/8251B vs 500). '==' is the JS discriminator — invalid SQL
+  in every engine, so the family cannot fire on SQL backends.
+- **OWSP-32 companion-gated SSRF**: the server-side fetch (needle.get(url +
+  symbol)) sits behind `if (req.query.symbol)` while symbol's discovered base
+  value is EMPTY — the OAST probe rode in `url` with symbol= (falsy) and the
+  fetch code path never executed. Four-part fix: the detector emits a FILLER
+  twin (empty sibling QUERY params render with a benign constant — the DISC-04
+  body-field discipline applied to the query string), the local OAST listener
+  matches interaction ids by PREFIX (oob-<12hex>) so URL-concatenated
+  callbacks (/oob-<id><suffix>) still land, the render gained
+  `fill_query_siblings` (default OFF — every other battery renders
+  byte-identically), and the VR-09 verifier replay got the same twin (without
+  it every candidate of this shape died at verification).
+- **OWSP-33 path-segment object ids**: /allocations/:userId carries the object
+  id as the FINAL PATH SEGMENT — no Parameter at all — so the IDOR engine
+  (which iterates ep.parameters) never probed it: user1 could read admin's
+  allocations live and the scanner said nothing. Synthesized URL-substitution
+  probes under the same victim-marker oracle + VR-17 fresh-victim replay.
+- **OWSP-34 markdown data:URI link family**: marked 0.3.5 with sanitize:true
+  correctly escapes raw HTML (the classic battery honestly finds nothing) but
+  passes data:text/html;base64 URIs through RAW — an executable-URI XSS with
+  no battery family. The ORACLE is the RENDERED ANCHOR SHAPE (the payload text
+  itself is inert; a markdown renderer transforms it away), so the family
+  cannot fire on plain reflections.
+- **OWSP-35 the authz gate-scope type error**: `_gate_scope` aliases
+  `endpoint_gate_scope(ep)` (expects the ENDPOINT OBJECT) but both call sites
+  passed `ep.url` (a STRING) — getattr(<str>, 'url', '') collapsed to '' and
+  the whole probeable gate (logout/destructive/state-change/login filtering)
+  silently passed EVERYTHING. Live: the role-view replay fetched /logout under
+  every account, killed all sessions (auto-reauth rotated cookies, then died
+  again), the IDOR probes landed on login pages (no victim markers), and the
+  vertical differential compared login-page-to-login-page. Found by chasing
+  the IDOR miss; the fix passes the Endpoint and adds a defensive probeable
+  gate on every vertical-loop fetch.
+
+Also fixed en route: `http_engine.py` did not import `ParamKind` (the filler
+branch raised NameError inside the per-detector exception handler — the probe
+silently never shipped; caught live on the final2 scan), and the OWSP-32 unit
+fixture initially used a NON-EMPTY symbol base (the plain probe already
+reached the sink — it passed vacuously; corrected to the real empty-base
+shape).
+
+## Gates (all green)
+
+Suite **179/179** (170 + owsp27..35 discriminating cases, each RED-proven on
+the unfixed engine first) + doctor 17/17 + bench ×3 IDENTICAL 38/0/0/37
+F1=1.000 run-3c0652b6be @2515 requests (+166 vs the Mutillidae cycle = the
+jsor/md/ssrf-filler battery families' bounded effect; ZERO verdict changes) +
+verdict-diff vs frozen v4.2.2: NONE.
+
+## Honest gaps
+
+NodeGoat's /research SSRF verification rides the needle fetch of a
+CONCATENATED URL (url + symbol) — the callback lands on /oob-<id><suffix>
+(prefix-matched); an app that sanitizes the URL before fetching would need a
+response-oracle family. The authz IDOR battery covers GET surfaces only —
+POST object mutations (/benefits' updateBenefits with an arbitrary userId)
+are a documented future surface. The vertical-escalation oracle still relies
+on path-name vocabulary for the strong tier (admin|manage|console|...) —
+name-less admin surfaces without cross-object forms remain invisible. DVWA's
+logic modules, Mutillidae's two environment-blocked surfaces, and the
+Benchmark's cmdi/pathtraver oracles remain open from their rounds.
+
+
 # SENTINEL v4.2.5 — DVWA: eight live-caught defects, the PHP/MySQL class unlocked
 
 OWASP extended campaign app 3/6: **DVWA 3.x (master 088256f)** — PHP 8.5.8

@@ -1272,3 +1272,43 @@ Work Log:
 
 Stage Summary:
 - App 4/6 COMPLETE locally; GitHub sync pending a fresh PAT (protocol: push https://mememamaly-oss:<NEW_PAT>@github.com/mememamaly-oss/Sen.git main + ls-remote confirm).
+
+---
+Task ID: 26 (owasp-campaign app 5/6)
+Agent: Super Z (main agent)
+Task: OWASP NodeGoat 1.3.0 — app 5/6 of the supervisor's extended OWASP campaign: red-team deep testing, every tool defect red→green discriminated, full gate cycle, honest coverage record, push + ls-remote.
+
+Work Log:
+- GROUND TRUTH RE-ESTABLISHED: local main was at bdaf0d2 (Mutillidae round + the crash-recovered v425m gate artifacts commit — bench x3 F1=1.0 @2355, consistent with STATE round 12); remote main stale at 4520f62 — PUSHED with the supervisor's fresh PAT (the previous session's token was revoked; 401 x4) + fast-forwarded release/v4.2.5; ls-remote-confirmed both.
+- NODEGOAT DEPLOYMENT (userspace, no root): MongoDB 4.4.29 ubuntu2004 bintar (the app's own compose pins mongo:4.4 — driver 2.x speaks OP_QUERY, dead against 7.x; the staged 7.0.14 tarball is wire-incompatible) from the /linux/ fastdl path (the /ubuntu/ paths 403); libssl1.1 extracted from a bullseye .deb (mongod links libcrypto.so.1.1, sandbox ships OpenSSL 3); bind_ip 127.0.0.1,::1 + explicit MONGODB_URI=127.0.0.1 (Node 24 resolves localhost to ::1 first); db-reset.js seeding (admin/Admin_123, user1/User1_123, user2/User2_123); UV_THREADPOOL_SIZE=16 for the DNS-sinkhole; nodegoat_stack.sh idempotent + nodegoat_recon.sh all-in-one. Stack traps fixed en route: mongo-shell ping grep false-positive ("27017" contains "1" — grep -qx 1), shell default-db in the seed check (getSiblingDB), smoke curl without --max-time.
+- RECON1 (v4.2.5 engine, auth + 3-account authz matrix): 846 req / 30 endpoints / 32s — 12 active findings. Manual ground truth: 3 FPs (sql_injection @ /learn — the Location IS the payload; vertical @ /dashboard — role-agnostic page nominated by the 'dashboard' name; open_redirect @ /research symbol — the "sink" was a window.location.hostname beacon 3KB away inside server-side-fetched Yahoo content) + 5 misses ($where SSJS @ /allocations/1?threshold= — 500 'MongoError: SyntaxError' + JS-tautology separation 7209B→8251B proven live; SSRF @ /research — needle.get(url+symbol) behind `if (req.query.symbol)`, symbol base EMPTY so the OAST probe never executed the fetch; memos stored XSS — marked 0.3.5 sanitize passes data:text/html;base64 URIs raw; IDOR @ /allocations/:userId — path-segment ids; vertical @ /benefits — the real A7 cross-object management surface).
+- NINE DEFECTS RED→GREEN (OWSP-27..35, tests written FIRST and proven RED on the unfixed engine, then fixed):
+  * OWSP-27 redirect_diff payload self-echo — guard at 3 detector sites + verifier PATH C/C' (a Location containing the submitted payload is behavioral zero).
+  * OWSP-28 vertical tiering — 'dashboard' demoted to a weak tier requiring data-level corroboration; NEW cross-object-form nomination (POST forms over other accounts' object ids) caught /benefits. Fixed a path-vs-URL key mismatch found in the first GREEN attempt.
+  * OWSP-29 body-redirect proximity — sink within ±200 chars of the injected URL (detector + verifier) + fetch-proxy attribution note.
+  * OWSP-30 MONGO_ERR_PATTERNS → nosql_injection (never sql_injection); pair_quote control ('' is invalid JS) yields to the JS differential.
+  * OWSP-31 jsor battery (1' || '1'=='1 / 1' && '1'=='2) — '==' is the JS discriminator, invalid SQL everywhere.
+  * OWSP-32 companion-gated SSRF — detector FILLER twin + fill_query_siblings render flag (default OFF) + OAST prefix matching (oob-<12hex>) + VR-09 verifier twin. THREE sub-defects found live: http_engine.py missing ParamKind import (NameError inside the per-detector except handler — the probe silently never shipped, caught on final2), the verifier replay lacking the twin (candidates died at verification), and the unit fixture passing vacuously (non-empty symbol base — corrected to the real empty-base shape).
+  * OWSP-33 path-segment IDOR — URL-substitution probes + VR-17 fresh-victim.
+  * OWSP-34 markdown data:URI battery — oracle is the RENDERED ANCHOR shape, never raw reflection.
+  * OWSP-35 authz gate-scope TYPE ERROR (found chasing the IDOR miss): _gate_scope(ep.url) passed a STRING to endpoint_gate_scope(ep) — the ENTIRE probeable gate was dead; the role-view replay fetched /logout, killed every session, IDOR probes landed on login pages, the vertical differential compared login pages. Fix: pass the Endpoint + defensive probeable gate in the vertical loop.
+- FINAL SCAN OF RECORD (final3, engine v4.2.6): 874 req / 30 endpoints / 34s — 14 VERIFIED active, ZERO FPs: nosql_injection, vertical (/benefits), idor_bola (path_id), xss x9 (incl. memos md data:URI), ssrf (/research OOB), open_redirect (/learn), csrf honest CANDIDATE.
+- GATES ALL GREEN: suite 179/179 (170 + owsp27..35, 13 chunks — run chunk-by-chunk in FOREGROUND calls after the detached cycle was reaper-killed twice) + doctor 17/17 + bench x3 IDENTICAL 38/0/0/37 F1=1.000 run-3c0652b6be @2515 (+166 reqs = the new battery families, ZERO verdict changes) + verdict-diff vs frozen v4.2.2 NONE.
+- Artifacts: build-v425/results/owsp/nodegoat/{recon1,final,final2,final3}.{json,db,log} + scripts/owsp/{nodegoat_stack.sh,nodegoat_recon.sh,nodegoat_authz.json} + CHANGELOG v4.2.6 + STATE.md round-13.
+
+Stage Summary:
+- App 5/6 COMPLETE: NodeGoat swept with the full methodology — the JS/NoSQL ($where) class, the markdown-sanitizer-bypass XSS class, the path-segment IDOR class, the companion-gated SSRF class, and the authz-matrix class (tiered vertical + cross-object nomination) all structurally unlocked; three FP generators killed; the biggest single-round defect count of the campaign (9).
+- Environment lessons: the reaper now kills detached setsid cycles at tool-call end (gate chunks must run foreground per-call); fastdl.mongodb.org /ubuntu/ paths 403 (use /linux/); Node>=17 localhost=::1 first; concurrent scans during gate cycles cause hard kills — serialize.
+- Campaign order remaining: DVWS (static-php pcntl+sockets — Ratchet feasible) → DVGA (zonky embedded-postgres) → crAPI (docker absent = the order's own condition unmet, documented).
+
+---
+Task ID: 26-push
+Agent: Super Z (main agent)
+Task: Push app-5/6 round to GitHub + ls-remote confirm (campaign protocol).
+
+Work Log:
+- NodeGoat round content committed: engine v4.2.6 (OWSP-27..35 + sub-fixes), tests 170→179, gate artifacts (13 fresh chunks + doctor + bench x3 @2515), final3 scan of record, CHANGELOG v4.2.6, STATE.md round-13, worklog.
+- Pushed with the fresh PAT; ls-remote-confirmed.
+
+Stage Summary:
+- App 5/6 COMPLETE and saved. Campaign: WrongSecrets, Benchmark, DVWA, Mutillidae, NodeGoat done; DVWS/DVGA/crAPI remain (feasibility notes in the worklog above).

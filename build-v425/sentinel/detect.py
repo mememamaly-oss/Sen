@@ -157,6 +157,19 @@ SQL_ERR_PATTERNS = [
     re.compile(r"PSQLException|ERROR:\s+syntax error at or near", re.I),        # JDBC pg / pg text
 ]
 
+# OWSP-30 (NodeGoat round, live-caught on /allocations/1?threshold=): MongoDB's
+# $where sink answers a quote probe with HTTP 500 'MongoError: SyntaxError:
+# unexpected token: string literal' (also 'not terminated before end of script'
+# live) — a clean DB-error oracle on the most common NoSQL server. These
+# signatures identify the ENGINE family: matches route the finding to
+# nosql_injection, never sql_injection — a misattributed class is a false
+# positive of its own.
+MONGO_ERR_PATTERNS = [
+    re.compile(r"Mongo(Error|ServerError)", re.I),
+    re.compile(r"MongoDB[^\n]{0,80}\b(exception|error)\b", re.I),
+    re.compile(r"\$where[^\n]{0,120}\b(SyntaxError|ReferenceError|TypeError)\b", re.I),
+]
+
 
 class SQLiDetector(Detector):
     """Error-based + boolean-blind oracle. Strategies ordered by verified stats (Phase 19)."""
@@ -230,12 +243,64 @@ class SQLiDetector(Detector):
             # as literal values -> no flip -> honest silence.
             out.append(("nb_or_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value="' OR '1'='1' -- ")))
             out.append(("nb_or_false", RequestMutation(endpoint=ep, param_name=p.name, param_value="' OR '1'='2' -- ")))
+            # OWSP-31 (NodeGoat round, live-caught on /allocations/1?threshold=):
+            # JS/NoSQL $where tautology pair — MongoDB's $where evaluates raw
+            # JAVASCRIPT (this.userId == 1 && this.stocks > '<payload>'), so every
+            # SQL-shaped family dies as an IDENTICAL JS SyntaxError (no differential;
+            # live: all OR pairs -> 500 'not terminated before end of script'). The
+            # JS-syntax pair separates: `||` tautology matches ALL rows (live: 200,
+            # 8251B vs base 7209B), `&&` contradiction matches NONE (live: 500
+            # 'no allocations found'). '==' is the JS discriminator — invalid SQL
+            # in every engine, so SQL backends answer symmetric errors (honest
+            # silence) and the family cannot fire on SQL sinks.
+            out.append(("jsor_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' || '1'=='1")))
+            out.append(("jsor_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' && '1'=='2")))
         return out
 
     def analyze(self, pair, resp_map) -> Finding | None:
         """pair = (endpoint, param). resp_map: strategy->Response."""
         ep, p = pair
         ev = []
+        # OWSP-27: payload reconstruction for the echo guard (same shapes the
+        # battery built — candidates() and analyze() derive base identically).
+        from urllib.parse import unquote as _uq
+        _base = p.value if (p.value or "").isdigit() else "1"
+        def _echo_diff(lt, lf, pt, pf):
+            """OWSP-27 (NodeGoat round, live-caught on /learn?url=): payload
+            self-echo — the redirect Location CONTAINS the very payload text
+            that was submitted, so the TRUE/FALSE 'differential' is behavioral
+            ZERO (an open-redirect echo shape: res.redirect(req.query.url)),
+            not an auth-bypass oracle. Both sides must echo for the guard to
+            suppress (a real oracle echoes neither)."""
+            try:
+                return (pt in _uq(str(lt or ""))) and (pf in _uq(str(lf or "")))
+            except Exception:
+                return False
+        # OWSP-31: JS-tautology pair ($where/JS-evaluation sinks) — evaluated
+        # FIRST because the Mongo db_error control below accepts the JS
+        # differential as the pair_quote substitute ('' is a valid SQL string
+        # but INVALID JS, so a $where sink fails the doubled-quote control BY
+        # DESIGN; base-clean + quote-errors + JS-pair-separates is strictly
+        # stronger evidence than a doubled quote).
+        jt, jf = resp_map.get("jsor_true"), resp_map.get("jsor_false")
+        js_ev = []
+        js_oracle = False
+        if jt is not None and jf is not None and jt.status and jf.status:
+            rbj = resp_map.get("base")
+            if rbj is not None and rbj.ok and jt.ok and not jf.ok:
+                js_oracle = True
+                js_ev.append(Evidence("js_or_differential",
+                    f"JS-tautology status flip: base -> {rbj.status}, TRUE ({jt.status}, "
+                    f"{len(jt.body or '')}B) vs FALSE ({jf.status}, {len(jf.body or '')}B) "
+                    "— $where/JS-evaluation boolean oracle", jt.request_id))
+            elif jt.ok and jf.ok and jt.status == jf.status:
+                bt, bf = len(jt.body or ""), len(jf.body or "")
+                if abs(bt - bf) > max(200, 0.25 * max(bt, bf, 1)):
+                    js_oracle = True
+                    js_ev.append(Evidence("js_or_differential",
+                        f"JS-tautology body differential: TRUE {bt}B vs FALSE {bf}B "
+                        "(string-context JS boolean oracle)", jt.request_id))
+        mongo_ev = []
         # 1) error-based
         # OWSP-12 (OWASP campaign, live-caught via the Benchmark's ground truth):
         # the error-string match alone fired on surfaces where the server answers
@@ -270,6 +335,24 @@ class SQLiDetector(Detector):
             mm = _sig(r.body or "")
             if mm and not base_pat and not pair_pat:
                 ev.append(Evidence("db_error", f"{mm.re.pattern[:40]} matched: {mm.group(0)[:80]}", r.request_id))
+            # OWSP-30 (NodeGoat round, live-caught on /allocations/1?threshold=):
+            # the Mongo signature family — same paired-control discipline
+            # (base must not carry the signature; an always-erroring surface
+            # stays dead), except the pair_quote control yields to the JS
+            # differential when one is present, because '' is invalid JS.
+            def _mongo_sig(body: str):
+                for pat in MONGO_ERR_PATTERNS:
+                    m2 = pat.search(body)
+                    if m2:
+                        return m2
+                return None
+            mo = _mongo_sig(r.body or "")
+            mo_base = _mongo_sig(rbase.body or "") if (rbase is not None and rbase.status) else None
+            mo_pair = _mongo_sig(rq2.body or "") if (rq2 is not None and rq2.status) else None
+            if mo and not mo_base and (not mo_pair or js_oracle):
+                mongo_ev.append(Evidence("db_error",
+                    f"{mo.re.pattern[:40]} matched: {mo.group(0)[:80]} "
+                    "(MongoDB/JS engine family — routed to nosql_injection)", r.request_id))
         # 1b) DETECT-04 — status oracle: quote breaks the server (5xx) while the base
         # value AND a syntactically-valid doubled quote both succeed. A 5xx-on-quote
         # alone is weak (apps crash on odd input); the paired controls make it a
@@ -300,7 +383,10 @@ class SQLiDetector(Detector):
         ot, of = resp_map.get("or_true"), resp_map.get("or_false")
         if ot is not None and of is not None and ot.status and of.status:
             lt, lf = ot.hop_location(), of.hop_location()
-            if lt and lf and lt != lf:
+            # OWSP-27: echo guard — a Location that CONTAINS the submitted
+            # payload is behavioral zero (open-redirect echo), not an oracle.
+            if lt and lf and lt != lf and not _echo_diff(
+                    lt, lf, f"{_base}' OR '1'='1' -- ", f"{_base}' OR '1'='2' -- "):
                 oracle = True
                 ev.append(Evidence("redirect_diff",
                     f"OR-tautology redirect differential: TRUE -> {lt}, FALSE -> {lf} — auth-bypass oracle",
@@ -325,7 +411,9 @@ class SQLiDetector(Detector):
         nt, nf = resp_map.get("ornum_true"), resp_map.get("ornum_false")
         if nt is not None and nf is not None and nt.status and nf.status:
             lnt, lnf = nt.hop_location(), nf.hop_location()
-            if lnt and lnf and lnt != lnf:
+            # OWSP-27 echo guard (numeric family)
+            if lnt and lnf and lnt != lnf and not _echo_diff(
+                    lnt, lnf, f"{_base}' OR 1=1-- ", f"{_base}' OR 1=2-- "):
                 oracle = True
                 ev.append(Evidence("redirect_diff",
                     f"numeric-OR redirect differential: TRUE -> {lnt}, FALSE -> {lnf} — auth-bypass oracle",
@@ -355,12 +443,14 @@ class SQLiDetector(Detector):
                     f"no-base OR existence flip: base -> {rb2.status}, tautology TRUE -> {nt2.status} "
                     f"({len(nt2.body or '')}B), FALSE -> {nf2.status} ({len(nf2.body or '')}B) "
                     "— boolean-blind oracle", nt2.request_id))
-        for _pt, _pf, _lbl in (("par2_true", "par2_false", "paren2"),
-                               ("par1_true", "par1_false", "paren1")):
+        for _pt, _pf, _lbl, _ppt, _ppf in (("par2_true", "par2_false", "paren2", "')) OR 1=1-- ", "')) OR 1=2-- "),
+                               ("par1_true", "par1_false", "paren1", "') OR 1=1-- ", "') OR 1=2-- ")):
             pt, pf = resp_map.get(_pt), resp_map.get(_pf)
             if pt is not None and pf is not None and pt.status and pf.status:
                 lpt, lpf = pt.hop_location(), pf.hop_location()
-                if lpt and lpf and lpt != lpf:
+                # OWSP-27 echo guard (paren families)
+                if lpt and lpf and lpt != lpf and not _echo_diff(
+                        lpt, lpf, _base + _ppt, _base + _ppf):
                     oracle = True
                     ev.append(Evidence("redirect_diff",
                         f"{_lbl} OR redirect differential: TRUE -> {lpt}, FALSE -> {lpf} — "
@@ -372,10 +462,18 @@ class SQLiDetector(Detector):
                         ev.append(Evidence("response_diff",
                             f"{_lbl}-OR body-size differential on condition flip: TRUE {bpt}B vs "
                             f"FALSE {bpf}B (paren-closing boolean oracle)", pt.request_id))
-        if not ev:
+        if not ev and not mongo_ev and not js_ev:
             return None
-        return Finding(type="sql_injection", severity=self.severity, endpoint_url=ep.url,
-                       parameter=p.name, method=ep.method, evidence=ev, status=FindingStatus.CANDIDATE)
+        if ev:
+            return Finding(type="sql_injection", severity=self.severity, endpoint_url=ep.url,
+                           parameter=p.name, method=ep.method, evidence=ev, status=FindingStatus.CANDIDATE)
+        # OWSP-30/31 (NodeGoat round): Mongo error signatures and/or the JS
+        # tautology differential WITHOUT any SQL-family evidence — the sink
+        # evaluates JAVASCRIPT, not SQL. The class names the engine family;
+        # verification replays the JS pair / error signature (intel.py).
+        return Finding(type="nosql_injection", severity=self.severity, endpoint_url=ep.url,
+                       parameter=p.name, method=ep.method, evidence=(mongo_ev + js_ev),
+                       status=FindingStatus.CANDIDATE)
 
 
 class XSSDetector(Detector):
@@ -394,6 +492,16 @@ class XSSDetector(Detector):
     # candidate (it contains no battery needle).
     ATTR_PAYLOAD = 'pro43" onfocus="sentinelAttr'
     NG_PAYLOAD = "{{91*7}}sentinelngmark"
+    # OWSP-34 (NodeGoat round, live-caught on /memos POST memo=): markdown
+    # sanitizer-bypass family. The sink renders user markdown (marked 0.3.5
+    # with sanitize:true) — raw HTML tags are correctly ESCAPED (the classic
+    # battery honestly finds nothing) but markdown links pass data:text/html
+    # URIs through RAW: [x](data:text/html;base64,...) -> <a href="data:...">.
+    # The ORACLE is the RENDERED ANCHOR SHAPE, not raw reflection — the
+    # payload text itself is inert, so this family cannot fire on plain
+    # reflections (the payload echoed raw contains no '<a href=data:' shape).
+    MD_B64 = __import__("base64").b64encode(b"sentinelxssmarker").decode()
+    MD_PAYLOAD = "[sentinelxssmarkermd](data:text/html;base64," + MD_B64 + ")"
 
     def _context_probe(self, ep, p) -> tuple[str, bool]:
         """Send '<b>canaryflt</b>'; classify the param's input context."""
@@ -434,6 +542,12 @@ class XSSDetector(Detector):
             if angular:
                 out.append(("ng_expr", RequestMutation(endpoint=ep, param_name=p.name,
                         param_value=self.NG_PAYLOAD)))
+            # OWSP-34: markdown-link family fires in EVERY context (no '<' in
+            # the payload — survives tag filters; escaped-HTML sinks still
+            # render markdown links raw when a markdown renderer sits behind
+            # the escaping).
+            out.append(("md_link", RequestMutation(endpoint=ep, param_name=p.name,
+                    param_value=self.MD_PAYLOAD)))
         return out
 
     def analyze(self, pair, resp):
@@ -472,6 +586,22 @@ class XSSDetector(Detector):
                 return Finding("xss_reflected", Severity.HIGH, ep.url, p.name, ep.method,
                            [Evidence(kind, detail + f" [ctx: …{ctx}…]", resp.request_id)],
                            status=FindingStatus.CANDIDATE)
+        # OWSP-34: markdown data:URI link — the oracle is the RENDERED ANCHOR
+        # (<a href="data:text/html...">), never raw reflection of the payload
+        # text: a markdown renderer TRANSFORMS the syntax (the raw text is gone
+        # on a real marked/sanitizer sink), so the payload-text precondition
+        # would kill the very case this family exists for. The canary-derived
+        # link text or the canary-derived base64 inside the anchor segment is
+        # the tie to OUR probe (an app-native data: anchor carries neither).
+        for m in re.finditer(r'<a\s[^>]*href=["\']?\s*data:text/html', resp.body):
+            seg = resp.body[m.start():m.start() + 500]
+            if ("sentinelxssmarkermd" in seg) or (self.MD_B64 in seg):
+                return Finding("xss_reflected", Severity.HIGH, ep.url, p.name, ep.method,
+                    [Evidence("md_datauri_reflection",
+                              f"markdown link rendered as a raw anchor with an executable "
+                              f"data:text/html href (sanitizer-bypass shape): {seg[:160]}",
+                              resp.request_id)],
+                    status=FindingStatus.CANDIDATE)
         return None
 
 
@@ -841,12 +971,47 @@ class PathTraversalDetector(Detector):
 class RedirectDetector(Detector):
     name, vuln_type = "redirect", "open_redirect"
     severity = Severity.MEDIUM
+    PROBE_HOST = "sentinel-redirect-check.example.org"
+    SINK_RE = re.compile(r"(location\.href|window\.location|http\.refresh|meta[^>]+refresh)", re.I)
+    SINK_WINDOW = 200            # chars on each side of the injected URL occurrence
 
     def candidates(self, ep: Endpoint):
         ev = "sentinel-redirect-check.example.org"
         return [(v, RequestMutation(endpoint=ep, param_name=p.name, param_value=v))
                 for p in ep.parameters if p.kind != ParamKind.TOKEN and not p.flow_control
                 for v in (f"https://{ev}/probe", f"//{ev}/probe")]
+
+    def _sink_near_url(self, body: str) -> str:
+        """OWSP-29 (NodeGoat round, live-caught on /research?symbol=): the URL
+        string and the sink regex used to be checked INDEPENDENTLY anywhere in
+        the body — on a server-side-fetched third-party page the injected URL
+        rode inside an HTML comment while the only 'sink' was an unrelated
+        window.location.hostname beacon 3KB away, and the FP verified. The
+        sink must now sit within a bounded window of an injected-URL
+        occurrence. Returns the matched window (evidence context) or ''."""
+        for m in re.finditer(re.escape(self.PROBE_HOST), body):
+            w = body[max(0, m.start() - self.SINK_WINDOW): m.end() + self.SINK_WINDOW + 60]
+            if self.SINK_RE.search(w):
+                return w
+        return ""
+
+    def _fetch_proxy_note(self, ep: Endpoint, probed_name: str) -> str:
+        """OWSP-29: an endpoint carrying a sibling param whose base value is an
+        OFF-TARGET absolute URL is a fetch-proxy shape — the response body may
+        be third-party content the app fetched and served, in which case a
+        sink found there belongs to the REMOTE page, not the app's template."""
+        thost = (urllib.parse.urlsplit(ep.url).netloc or "").lower()
+        for p in ep.parameters:
+            if p.name == probed_name or p.kind == ParamKind.TOKEN:
+                continue
+            v = (p.value or "").lower()
+            if v.startswith(("http://", "https://", "//")):
+                ph = urllib.parse.urlsplit(v if v.startswith("//") else v).netloc
+                if ph and ph != thost:
+                    return (f" [attribution: sibling param '{p.name}' carries an off-target "
+                            f"URL base ({v[:60]}) — this body may be server-side-fetched "
+                            "third-party content; the sink may belong to the remote page]")
+        return ""
 
     def analyze(self, pair, resp):
         ep, p = pair
@@ -856,11 +1021,16 @@ class RedirectDetector(Detector):
             return Finding("open_redirect", Severity.MEDIUM, ep.url, p.name, ep.method,
                            [Evidence("header_value", f"Location redirects off-site to {loc[:100]}", resp.request_id)],
                            status=FindingStatus.CANDIDATE)
-        # reflected/meta/JS redirect context
-        if resp.body and ("sentinel-redirect-check.example.org" in resp.body and
-                          re.search(r"(location\.href|window\.location|http\.refresh|meta[^>]+refresh)", resp.body, re.I)):
-            return Finding("open_redirect", Severity.MEDIUM, ep.url, p.name, ep.method,
-                           [Evidence("body_redirect", "off-site URL injected into client redirect sink", resp.request_id)],
+        # reflected/meta/JS redirect context — OWSP-29: proximity-gated
+        if resp.body and "sentinel-redirect-check.example.org" in resp.body:
+            w = self._sink_near_url(resp.body)
+            if w:
+                return Finding("open_redirect", Severity.MEDIUM, ep.url, p.name, ep.method,
+                           [Evidence("body_redirect",
+                                     "off-site URL injected into a client redirect sink "
+                                     f"within {self.SINK_WINDOW} chars of the URL" +
+                                     self._fetch_proxy_note(ep, p.name) +
+                                     f" [ctx: …{w[:180]}…]", resp.request_id)],
                            status=FindingStatus.CANDIDATE)
         return None
 
@@ -1105,6 +1275,16 @@ class SsrfDetector(Detector):
             iid = self._iid(ep, p.name, "detect")
             out.append(RequestMutation(endpoint=ep, param_name=p.name,
                                        param_value=self.oast.url(iid), note=f"ssrf:{iid}"))
+            # OWSP-32 (NodeGoat round, live-caught on /research?url=&symbol=):
+            # the FILLER twin — same carrier, same interaction id, but empty
+            # sibling QUERY params render with a benign constant. The target
+            # gated its fetch behind `if (req.query.symbol)` with symbol's
+            # discovered base value EMPTY, so the plain probe shipped symbol=
+            # (falsy) and the fetch code path never executed. The twin shares
+            # the iid: whichever variant's fetch fires, poll() sees the hit.
+            out.append(RequestMutation(endpoint=ep, param_name=p.name,
+                                       param_value=self.oast.url(iid), note=f"ssrf-fill:{iid}",
+                                       fill_query_siblings=True))
             self._probes += 1
             if self._probes >= self.MAX_PROBES:
                 break
