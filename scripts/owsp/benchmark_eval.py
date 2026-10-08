@@ -37,8 +37,8 @@ ENGINE_TYPE_TO_CATEGORY = {
     "csrf": "csrf",
     "secure_cookie": "securecookie",
     "weak_random": "weakrand",
-    "crypto": "crypto",
-    "hash": "hash",
+    "crypto": "crypto", "weak_crypto": "crypto",
+    "hash": "hash", "weak_hash": "hash",
     "trust_bound": "trustbound",
 }
 

@@ -49,9 +49,15 @@ class VerificationEngine:
 
     def _chain_read(self, recipe: dict) -> str:
         from .core import Endpoint as _E, ParamLocation
+        _loc27 = recipe.get("read_loc") or "query"
+        try:
+            _loc27 = ParamLocation(_loc27)
+        except ValueError:
+            _loc27 = ParamLocation.QUERY
         ep = _E(url=recipe.get("read_url", ""), method=recipe.get("read_method", "GET"))
         r = self.engine.send(RequestMutation(endpoint=ep,
                                              param_name=recipe.get("read_param", ""),
+                                             param_location=_loc27,
                                              param_value=recipe.get("artifact", ""),
                                              note="vr-chain-read"))
         if r is None or r.error:
@@ -59,17 +65,46 @@ class VerificationEngine:
         return r.body or ""
 
     def _chain_write(self, f: Finding, ep: Endpoint | None, recipe: dict, value: str):
-        from .core import Endpoint as _E
+        from .core import Endpoint as _E, ParamLocation
         from .detect import last_path_segment
+        _locw = recipe.get("write_loc") or "query"
+        try:
+            _locw = ParamLocation(_locw)
+        except ValueError:
+            _locw = ParamLocation.QUERY
+        # GTP-12f: honor the recipe's write method — the form-body channel
+        # rides POST (GET-with-body is structurally dead in the transport)
+        _methw = recipe.get("write_method") or f.method or "POST"
         if ep is not None:
             return self._replay(ep, recipe.get("write_param") or
                                 next((p.name for p in ep.parameters
                                       if p.kind != ParamKind.TOKEN and not p.flow_control),
                                      last_path_segment(ep.url)), value)
-        wep = _E(url=f.endpoint_url, method=f.method or "POST")
+        wep = _E(url=f.endpoint_url, method=_methw)
         wparam = recipe.get("write_param") or last_path_segment(f.endpoint_url)
         return self.engine.send(RequestMutation(endpoint=wep, param_name=wparam,
+                                                param_location=_locw,
                                                 param_value=value, note="vr-chain-write"))
+
+    def _chain_truncate(self, recipe: dict):
+        """GTP-12c: zero the artifact through the verified write sink before
+        the replay — the read window is the artifact's first 1000 bytes and
+        the batteries' own appends have pushed past it. Without a truncate
+        leg in the recipe this is a no-op (legacy chains)."""
+        from .core import Endpoint as _E, ParamLocation
+        if not recipe.get("truncate_url"):
+            return None
+        _loct = recipe.get("truncate_loc") or "query"
+        try:
+            _loct = ParamLocation(_loct)
+        except ValueError:
+            _loct = ParamLocation.QUERY
+        tep = _E(url=recipe["truncate_url"], method="POST")
+        return self.engine.send(RequestMutation(endpoint=tep,
+                                                param_name=recipe.get("truncate_param", ""),
+                                                param_location=_loct,
+                                                param_value=recipe.get("artifact", ""),
+                                                note="vr-chain-truncate"))
 
     def verify(self, f: Finding, ep: Endpoint | None = None) -> Finding:
         self.bus.emit("VerificationStarted", finding=f.id, type=f.type)
@@ -484,10 +519,13 @@ class VerificationEngine:
                     if rk43.status != rm43.status:
                         hit, used43 = True, f"depth {depth43}: HTTP {rk43.status} vs {rm43.status}"
                         break
-                    bk43 = _en43(rk43.body or "")
-                    bm43 = _en43(rm43.body or "")
-                    bk43 = bk43.replace(up43 + "etc/passwd", "").replace("etc/passwd", "")
-                    bm43 = bm43.replace(up43 + "etc/" + miss2, "").replace("etc/" + miss2, "").replace(miss2, "")
+                    # GTP-12a: transformation-aware echo neutralization (the
+                    # plain replace missed the %-encoded + last-char-stripped
+                    # echo and false-verified crypto servlets — 6 live FPs).
+                    from .detect import echo_neutralize as _ez43
+                    bk43 = _ez43(rk43.body or "", up43 + "etc/passwd", "etc/passwd")
+                    bm43 = _ez43(rm43.body or "", up43 + "etc/" + miss2, "etc/" + miss2)
+                    bk43 = bk43.replace(miss2, "")
                     # GTP-03b(w3): drop the >8 length gate — the real exists-oracle
                     # answers are 4B apart ('already exists.' 23B vs "doesn't exist
                     # yet." 27B); after echo neutralization any remaining difference
@@ -506,8 +544,8 @@ class VerificationEngine:
                         if ra is None or rb2 is None or ra.error or rb2.error \
                                 or not ra.status or not rb2.status:
                             continue
-                        ba = _en43(ra.body or "").replace(up43 + "tmp/" + wr2, "").replace("tmp/" + wr2, "").replace(wr2, "")
-                        bb2 = _en43(rb2.body or "").replace(up43 + "etc/" + wr2, "").replace("etc/" + wr2, "").replace(wr2, "")
+                        ba = _ez43(ra.body or "", up43 + "tmp/" + wr2, "tmp/" + wr2, wr2)
+                        bb2 = _ez43(rb2.body or "", up43 + "etc/" + wr2, "etc/" + wr2, wr2)
                         if ba != bb2:
                             hit, used43 = True, f"writability axis depth {depth43}"
                             break
@@ -524,7 +562,7 @@ class VerificationEngine:
                 # writable (ladder+tmp) vs unwritable (ladder+etc) must differ
                 # again beyond the echo on a write-capable sink.
                 import random as _r45
-                from .detect import entity_normalize as _en45
+                from .detect import echo_neutralize as _ez45
                 hit = False
                 used45 = ""
                 wr3 = f"sentinel-w-{_r45.randrange(1000, 99999)}"
@@ -535,8 +573,8 @@ class VerificationEngine:
                     if ra45 is None or rb45 is None or ra45.error or rb45.error \
                             or not ra45.status or not rb45.status:
                         continue
-                    ba45 = _en45(ra45.body or "").replace(up45 + "tmp/" + wr3, "").replace("tmp/" + wr3, "").replace(wr3, "")
-                    bb45 = _en45(rb45.body or "").replace(up45 + "etc/" + wr3, "").replace("etc/" + wr3, "").replace(wr3, "")
+                    ba45 = _ez45(ra45.body or "", up45 + "tmp/" + wr3, "tmp/" + wr3, wr3)
+                    bb45 = _ez45(rb45.body or "", up45 + "etc/" + wr3, "etc/" + wr3, wr3)
                     if ba45 != bb45:
                         hit, used45 = True, f"writability depth {depth45}"
                         break
@@ -1280,26 +1318,92 @@ class VerificationEngine:
             f.status = FindingStatus.VERIFIED if ok26 else FindingStatus.REJECTED
 
         elif f.type == "weak_hash":
-            # VR-27 (GTP-10): re-execute the chain with a FRESH marker — the
-            # artifact's new line must match the locally computed weak digest
-            # again (exact cryptographic match, zero-FP by construction).
+            # VR-27 (GTP-10, GTP-12c): re-execute the chain with a FRESH marker
+            # through a TRUNCATED artifact window — the artifact's new line
+            # must match the locally computed weak digest again (exact
+            # cryptographic match, zero-FP by construction).
+            # GTP-12h: the digest_length_const family replays the CONSTANT
+            # oracle instead — two distinct inputs must reproduce the SAME
+            # 16/20-byte line.
             import base64 as _b64, hashlib as _hl
             ok27 = False
+            _kinds27 = {e.kind for e in f.evidence}
             recipe = self._chain_recipe(f)
-            if recipe:
-                K2 = "sentinel-vr27-K2"
-                before = self._chain_read(recipe)
-                r27 = self._chain_write(f, ep, recipe, K2)
-                after = self._chain_read(recipe)
-                if r27 is not None and not r27.error:
-                    from collections import Counter as _C27
-                    _cb, _ca = Counter(before.splitlines()), Counter(after.splitlines())
-                    new_lines = [ln for ln, n in _ca.items()
-                                 for _ in range(n - _cb.get(ln, 0)) if n > _cb.get(ln, 0)]
+            if "digest_length_const" in _kinds27 and recipe:
+                _c1 = None
+                _c2 = None
+                if recipe.get("truncate_url"):
+                    if self._chain_truncate(recipe) is not None:
+                        self._chain_write(f, ep, recipe, "vr27-const-A")
+                        from .detect import entity_normalize as _en27c
+                        body = _en27c(self._chain_read(recipe))
+                        i = body.find("hash_value=")
+                        if i >= 0:
+                            seg = body[i + len("hash_value="):]
+                            m27c = re.search(r"\n\s*\w+=", seg)
+                            if m27c:
+                                seg = seg[:m27c.start()]
+                            seg = re.sub(r"\s+", "", seg)
+                            try:
+                                _c1 = _b64.b64decode(seg + "=" * (-len(seg) % 4))
+                            except Exception:
+                                _c1 = None
+                    if _c1 is not None and self._chain_truncate(recipe) is not None:
+                        self._chain_write(f, ep, recipe, "vr27-const-B-different")
+                        from .detect import entity_normalize as _en27d
+                        body = _en27d(self._chain_read(recipe))
+                        i = body.find("hash_value=")
+                        if i >= 0:
+                            seg = body[i + len("hash_value="):]
+                            m27d = re.search(r"\n\s*\w+=", seg)
+                            if m27d:
+                                seg = seg[:m27d.start()]
+                            seg = re.sub(r"\s+", "", seg)
+                            try:
+                                _c2 = _b64.b64decode(seg + "=" * (-len(seg) % 4))
+                            except Exception:
+                                _c2 = None
+                ok27 = (_c1 is not None and _c2 is not None and _c1 == _c2
+                        and len(_c1) in (16, 20))
+                v = Verification(method="re-test:fresh-const-digest", passed=ok27,
+                                 confidence=0.85 if ok27 else 0.15, rounds=1,
+                                 notes=("two distinct fresh inputs reproduced the SAME "
+                                        f"{None if _c1 is None else len(_c1)}-byte digest line "
+                                        "(input-independent, MD/SHA-1 family length)" if ok27
+                                        else "the constant-digest family did not reproduce"))
+                f.verification, f.confidence = v, v.confidence
+                f.status = FindingStatus.VERIFIED if ok27 else FindingStatus.REJECTED
+            else:
+                if recipe:
+                    K2 = "sentinel-vr27-K2"
+                    if recipe.get("truncate_url"):
+                        # GTP-12c: deterministic window — truncate, write, read;
+                        # everything in the read is the fresh marker's.
+                        # GTP-12g(h): a FAILED truncate aborts — a stale window
+                        # reads the previous probe's line
+                        if self._chain_truncate(recipe) is None:
+                            new_lines = []
+                            r27 = None
+                        else:
+                            r27 = self._chain_write(f, ep, recipe, K2)
+                        after = self._chain_read(recipe)
+                        new_lines = after.splitlines() if (r27 is not None and not r27.error) else []
+                    else:
+                        before = self._chain_read(recipe)
+                        r27 = self._chain_write(f, ep, recipe, K2)
+                        after = self._chain_read(recipe)
+                        if r27 is None or r27.error:
+                            new_lines = []
+                        else:
+                            from collections import Counter as _C27
+                            _cb, _ca = Counter(before.splitlines()), Counter(after.splitlines())
+                            new_lines = [ln for ln, n in _ca.items()
+                                         for _ in range(n - _cb.get(ln, 0)) if n > _cb.get(ln, 0)]
                     md5v = _hl.md5(K2.encode()).digest()
                     sha1v = _hl.sha1(K2.encode()).digest()
+                    from .detect import entity_normalize as _en27
                     for ln in new_lines:
-                        m = re.search(r"hash_value=([A-Za-z0-9+/=]+)", ln)
+                        m = re.search(r"hash_value=([A-Za-z0-9+/=]+)", _en27(ln))
                         if not m:
                             continue
                         try:
@@ -1309,42 +1413,98 @@ class VerificationEngine:
                         if d in (md5v, sha1v):
                             ok27 = True
                             break
-            v = Verification(method="re-test:fresh-chain", passed=ok27,
-                             confidence=0.9 if ok27 else 0.15, rounds=1,
-                             notes=("fresh marker re-entered the artifact and the locally "
-                                    "computed weak digest matched again" if ok27 else
-                                    "chain not reproduced on fresh marker"))
-            f.verification, f.confidence = v, v.confidence
-            f.status = FindingStatus.VERIFIED if ok27 else FindingStatus.REJECTED
+                v = Verification(method="re-test:fresh-chain", passed=ok27,
+                                 confidence=0.9 if ok27 else 0.15, rounds=1,
+                                 notes=("fresh marker re-entered the artifact and the locally "
+                                        "computed weak digest matched again" if ok27 else
+                                        "chain not reproduced on fresh marker"))
+                f.verification, f.confidence = v, v.confidence
+                f.status = FindingStatus.VERIFIED if ok27 else FindingStatus.REJECTED
 
         elif f.type == "weak_crypto":
-            # VR-28 (GTP-10): fresh 16-byte plaintext through the chain —
-            # the block-size class must reproduce.
+            # VR-28 (GTP-10, GTP-12c): fresh plaintexts through the chain —
+            # the weak block class must reproduce through the SAME tier
+            # logic the detector used (direct 24B signature, the all-mod-8
+            # +8-step block signature on stream surfaces, or the ECB repeat).
             import base64 as _b64
             ok28 = False
+            used28 = ""
             recipe = self._chain_recipe(f)
             if recipe:
-                before = self._chain_read(recipe)
-                r28 = self._chain_write(f, ep, recipe, "B" * 16)
-                after = self._chain_read(recipe)
-                if r28 is not None and not r28.error:
+                from .detect import entity_normalize as _en28
+                def _fresh_ct(value: str) -> bytes | None:
+                    if recipe.get("truncate_url"):
+                        # GTP-12g(h): abort on a failed truncate (stale window)
+                        if self._chain_truncate(recipe) is None:
+                            return None
+                        r28 = self._chain_write(f, ep, recipe, value)
+                        if r28 is None or r28.error:
+                            return None
+                        body = _en28(self._chain_read(recipe))
+                        i = body.find("secret_value=")
+                        if i < 0:
+                            return None
+                        seg = body[i + len("secret_value="):]
+                        m28 = re.search(r"\n\s*\w+=", seg)
+                        if m28:
+                            seg = seg[:m28.start()]
+                        seg = re.sub(r"\s+", "", seg)
+                        try:
+                            return _b64.b64decode(seg + "=" * (-len(seg) % 4))
+                        except Exception:
+                            return None
+                    before = self._chain_read(recipe)
+                    r28 = self._chain_write(f, ep, recipe, value)
+                    after = self._chain_read(recipe)
+                    if r28 is None or r28.error:
+                        return None
                     from collections import Counter as _C28
                     _cb, _ca = Counter(before.splitlines()), Counter(after.splitlines())
                     for ln in [l for l, n in _ca.items()
                                for _ in range(n - _cb.get(l, 0)) if n > _cb.get(l, 0)]:
-                        m = re.search(r"secret_value=([A-Za-z0-9+/=]+)", ln)
+                        m = re.search(r"secret_value=([A-Za-z0-9+/=]+)", _en28(ln))
                         if not m:
                             continue
                         try:
-                            ct = _b64.b64decode(m.group(1))
+                            return _b64.b64decode(m.group(1))
                         except Exception:
                             continue
-                        ok28 = len(ct) == 24      # 16B plaintext -> 24B = 8-byte block
-                        break
+                    return None
+                ct16 = _fresh_ct("B" * 16)
+                if ct16 is not None:
+                    if len(ct16) == 24:
+                        # GTP-12g: the off-boundary probe must confirm a BLOCK
+                        # cipher (15B plaintext still answers a multiple of 8) —
+                        # AES/GCM with an 8-byte tag collides with the bare
+                        # 16/24/32 curve and false-verified 25 secure servlets
+                        ct15 = _fresh_ct("B" * 15)
+                        if ct15 is not None and len(ct15) % 8 == 0:
+                            ok28, used28 = True, (f"16B -> 24B + 15B -> {len(ct15)}B "
+                                                  "off-boundary block multiple (8-byte block)")
+                    if not ok28:
+                        ct8 = _fresh_ct("B" * 8)
+                        ct24 = _fresh_ct("B" * 24)
+                        if ct8 is not None and ct24 is not None and ct8 != ct16 \
+                                and len(ct8) % 8 == 0 and len(ct16) % 8 == 0 \
+                                and len(ct24) % 8 == 0 \
+                                and len(ct16) - len(ct8) == 8 and len(ct24) - len(ct16) == 8:
+                            ct15 = _fresh_ct("B" * 15)
+                            if ct15 is not None and len(ct15) % 8 == 0:
+                                ok28, used28 = True, (f"block-step 8/16/24 + 15B -> "
+                                                      f"{len(ct15)}B off-boundary multiple")
+                        if not ok28:
+                            ct64 = _fresh_ct("B" * 64)
+                            if ct64 is not None and len(ct64) >= 24:
+                                for bs in (8, 16):
+                                    bl = [ct64[i:i + bs] for i in range(0, len(ct64) - bs + 1, bs)]
+                                    if len(ct64) % bs == 0 and len(bl) != len(set(bl)):
+                                        ok28, used28 = True, f"ECB repeat ({bs}B blocks)"
+                                        break
             v = Verification(method="re-test:fresh-chain", passed=ok28,
                              confidence=0.85 if ok28 else 0.15, rounds=1,
-                             notes=("fresh plaintext reproduced the weak block-size class" if ok28
-                                    else "block-size class not reproduced"))
+                             notes=(f"fresh plaintext reproduced the weak block class "
+                                    f"({used28})" if ok28 else
+                                    "block-size class not reproduced"))
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok28 else FindingStatus.REJECTED
 

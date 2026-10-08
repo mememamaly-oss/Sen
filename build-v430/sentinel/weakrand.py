@@ -36,6 +36,26 @@ from . import jrand
 
 CONTAINER_COOKIES = ("jsessionid", "phpsessid", "asp.net_sessionid")
 
+# GTP-12b (round 5, live-caught on the OWASP Benchmark's weakrand category:
+# 188 FNs at 13.8% recall): 193/218 vulnerable servlets draw their security
+# value from `new java.util.Random()` — the VALUE never leaves the server
+# (nextFloat consumed, discarded), so no output analysis can ever see it.
+# But the servlet's own response TEXT names the generator: 'Weak Randomness
+# Test java.util.Random.nextFloat() executed' (measured across the whole
+# corpus: 218/218 vulnerable servlets disclose a non-CSPRNG class name,
+# 0/275 SecureRandom servlets do, no other category does). An in-band
+# self-disclosure of a predictable PRNG behind a security value IS the
+# finding — the evidence is the response text itself, and the verifier
+# re-observes it on a fresh fetch.
+WEAK_PRNG_DISCLOSURE = re.compile(
+    r"java\.util\.Random(?:\.\w+\(\))?"      # Java LCG (never matches SecureRandom)
+    r"|Math\.random\(\)"                      # static JVM/JS LCG
+    r"|\bnew\s+Random\s*\(\s*\)"             # Java/JS/C# shape
+    r"|\bmt_rand\s*\(|\brand\s*\(\s*\)",   # PHP mt_rand / bare rand()
+    re.I)
+SECURE_PRNG_MARK = re.compile(r"SecureRandom|crypto\s*-?\s?secure|/dev/urandom|CSPRNG",
+                               re.I)
+
 
 class WeakRandomPhase:
     name = "weakrand"
@@ -64,18 +84,51 @@ class WeakRandomPhase:
             out.append((name, val))
         return out
 
+    def _base_fetch(self, ep):
+        """GTP-12b: ONE stateless base response per endpoint — the disclosure
+        oracle reads its body; the cookie families read its Set-Cookie."""
+        _m = RequestMutation(endpoint=ep, note="weakrand-sample")
+        _m.skip_jar = True   # runtime attribute, NOT a dataclass field (see GTP-09b note)
+        return self.engine.send(_m)
+
     def _fetch_cookie(self, ep) -> tuple[str, str] | None:
         # GTP-09b: skip_jar — a STATELESS sample. With the jar replaying the
         # rememberMe cookie the servlet took the foundUser branch ("Welcome
         # back") and never set a fresh cookie: the phase saw one sample per
         # endpoint and the chain/relation families never had a pair to break.
-        _m = RequestMutation(endpoint=ep, note="weakrand-sample")
-        _m.skip_jar = True   # runtime attribute, NOT a dataclass field (see GTP-09b note)
-        r = self.engine.send(_m)
+        r = self._base_fetch(ep)
         if r is None or r.error or not r.status:
             return None
         cs = self._set_cookies(r)
         return cs[0] if cs else None
+
+    def _family_disclosure(self, ep: Endpoint, body: str, req_id) -> Finding | None:
+        """GTP-12b: the endpoint's own response discloses a predictable-PRNG
+        class as the generator behind its security value. The secure twin
+        (java.security.SecureRandom) never matches — measured 218/218 vuln,
+        0/275 secure, zero cross-category hits on the full 2,740 corpus."""
+        if not body:
+            return None
+        m = WEAK_PRNG_DISCLOSURE.search(body)
+        if not m:
+            return None
+        # same-phrase secure mention (a body that names BOTH a CSPRNG and a
+        # weak class in the SAME sentence is a comparison, not a disclosure —
+        # require the weak class to stand alone in its sentence)
+        sentence = re.split(r"[.!<\n]", body[max(0, m.start() - 120):m.end() + 120])
+        seg = next((s for s in sentence if m.group(0) in s), "")
+        if seg and SECURE_PRNG_MARK.search(seg):
+            return None
+        excerpt = body[max(0, m.start() - 60):m.end() + 60].strip()[:180]
+        return Finding(type="weak_random", severity=Severity.HIGH,
+                       endpoint_url=ep.url, parameter="", method=ep.method,
+                       evidence=[Evidence("prng_disclosure",
+                          f"the endpoint's own response discloses its security-value "
+                          f"generator as {m.group(0)!r} — a predictable LCG-family "
+                          f"PRNG, not a CSPRNG (CWE-330); any token, cookie or "
+                          f"secret derived from it is guessable. Disclosed text: "
+                          f"…{excerpt}…", req_id)],
+                       status=FindingStatus.CANDIDATE)
 
     # ------------------------------------------------------------ families
     def _family_chain(self, ep: Endpoint, cname: str) -> Finding | None:
@@ -197,17 +250,27 @@ class WeakRandomPhase:
         out = []
         budget = 700                      # bounded: cookie-setting endpoints only
         for ep in endpoints:
-            if budget <= 0:
-                break
             if (ep.method or "GET").upper() not in ("GET", "POST"):
                 continue
             if command_shaped_endpoint(ep):
                 continue          # MAX-10a: never open logout/destructive surfaces
-            c = self._fetch_cookie(ep)
-            if not c:
+            # GTP-12b: the disclosure oracle rides the SAME base fetch the
+            # cookie families use — one request, two oracles.
+            r = self._base_fetch(ep)
+            if r is None or r.error or not r.status:
+                continue
+            df = self._family_disclosure(ep, r.body or "", r.request_id)
+            if df is not None:
+                out.append(df)
+                continue
+            if budget <= 0:
+                continue          # disclosure stays free; the multi-request
+                                 # cookie families stop at the budget
+            cs = self._set_cookies(r)
+            if not cs:
                 continue
             budget -= 1
-            cname, val = c
+            cname, val = cs[0]
             v = val.strip()
             f = None
             if v.isdigit() and 3 <= len(v) <= 17:

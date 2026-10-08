@@ -902,40 +902,50 @@ class TraversalDetector(Detector):
             # ENCODING, and on a canonicalizing app the two payloads' own
             # length delta (~30B for sentinel-missing-<d> vs passwd) could
             # masquerade as a leak. Normalized + stripped = real differential.
-            bk, bm = entity_normalize(rk.body or ""), entity_normalize(rm.body or "")
-            bk2 = bk.replace(base_up + "etc/passwd", "").replace("etc/passwd", "")
-            bm2 = bm.replace(base_up + "etc/" + missing, "").replace("etc/" + missing, "")
+            # GTP-12a: echo_neutralize also kills the %-encoded echo and the
+            # app-side last-char strip (six crypto-servlet FPs live-caught).
+            bk2 = echo_neutralize(rk.body or "", base_up + "etc/passwd", "etc/passwd")
+            bm2 = echo_neutralize(rm.body or "", base_up + "etc/" + missing, "etc/" + missing)
             bk2 = bk2.replace(missing, "")
-            if len(bk2) != len(bm2) or bk2 != bm2:
-                # GTP-03c: the WRITABILITY axis first — a write-capable sink answers
-                # identical empty responses on the existence pair (both unwritable)
-                # and only separates on writable-vs-unwritable targets.
-                if rw is not None and rnx is not None and not rw.error and not rnx.error \
-                        and rw.status and rnx.status:
-                    bw = entity_normalize(rw.body or "")
-                    bn = entity_normalize(rnx.body or "")
-                    bw = bw.replace(base_up + "tmp/" + wr, "").replace("tmp/" + wr, "").replace(wr, "")
-                    bn = bn.replace(base_up + "etc/" + wr, "").replace("etc/" + wr, "").replace(wr, "")
-                    if bw != bn:
-                        return Finding("path_traversal", Severity.HIGH, ep.url, p.name, ep.method,
-                            [Evidence("writability_oracle",
-                                      f"blind WRITABILITY differential at depth {depth}: writable "
-                                      f"({base_up}tmp/{wr}) vs unwritable ({base_up}etc/{wr}) "
-                                      f"answers differ beyond the echo — write-capable sink "
-                                      f"(FileOutputStream family) leaks path writability "
-                                      f"outside its base", rw.request_id)],
-                            status=FindingStatus.CANDIDATE)
+            if bk2 != bm2:
                 # GTP-03b(w3): the >8 length gate killed REAL differentials — the
                 # exists-oracle answers ('And file already exists.' 23B vs "But
                 # file doesn't exist yet." 27B) are 4B apart; after echo
                 # neutralization ANY remaining difference IS the oracle's answer.
-                if bk2 != bm2 or rk.status != rm.status:
+                return Finding("path_traversal", Severity.HIGH, ep.url, p.name, ep.method,
+                    [Evidence("exists_oracle",
+                              f"blind file-existence differential at depth {depth}: known file "
+                              f"({len(rk.body or '')}B) vs missing ({len(rm.body or '')}B) differ "
+                              f"beyond the echoed payload — the sink leaks file existence "
+                              f"outside its base", rk.request_id)],
+                    status=FindingStatus.CANDIDATE)
+            # GTP-12e (round 5, live-caught: BenchmarkTest00002 — the type case
+            # of GTP-03c's own comment): a write-capable sink answers IDENTICAL
+            # EMPTY responses on the existence pair (/etc/passwd and
+            # /etc/<miss> are both unwritable) and only separates on
+            # writable-vs-unwritable targets — but the writability check was
+            # nested INSIDE the exists-DIFFERS branch, so it never ran for the
+            # exact family it was built for (34 FileOutputStream FNs on the
+            # round-4 measurement: tmp 193B 'Now ready to write to file:' vs
+            # etc 0B, verified live, zero candidates produced). Hoisted to run
+            # exactly when the existence oracle stays silent.
+            if rw is not None and rnx is not None and not rw.error and not rnx.error \
+                    and rw.status and rnx.status:
+                # GTP-12a: transformation-aware echo neutralization — the
+                # plain replace missed the %-encoded + last-char-stripped
+                # echo and false-verified crypto servlets (6 live FPs).
+                bw = echo_neutralize(rw.body or "", base_up + "tmp/" + wr,
+                                     "tmp/" + wr, wr)
+                bn = echo_neutralize(rnx.body or "", base_up + "etc/" + wr,
+                                     "etc/" + wr, wr)
+                if bw != bn:
                     return Finding("path_traversal", Severity.HIGH, ep.url, p.name, ep.method,
-                        [Evidence("exists_oracle",
-                                  f"blind file-existence differential at depth {depth}: known file "
-                                  f"({len(bk)}B) vs missing ({len(bm)}B) differ beyond the echoed "
-                                  f"payload — the sink leaks file existence outside its base",
-                                  rk.request_id)],
+                        [Evidence("writability_oracle",
+                                  f"blind WRITABILITY differential at depth {depth}: writable "
+                                  f"({base_up}tmp/{wr}) vs unwritable ({base_up}etc/{wr}) "
+                                  f"answers differ beyond the echo — write-capable sink "
+                                  f"(FileOutputStream family) leaks path writability "
+                                  f"outside its base", rw.request_id)],
                         status=FindingStatus.CANDIDATE)
         return None
 
@@ -966,6 +976,45 @@ def entity_normalize(text: str) -> str:
             pass
         return m.group(0)
     return _RX.sub(_dec, text)
+
+
+def echo_neutralize(body: str, *payloads: str) -> str:
+    """GTP-12a (round 5, live-caught on the OWASP Benchmark): strip EVERY
+    transformation of the probe payloads from a response body BEFORE a
+    differential comparison. The writability oracle false-verified six
+    crypto servlets (eval_v430_final: crypto FP=6, precision 99.02%): the
+    engine sends form values percent-encoded (..%2F..%2Ftmp%2Fsentinel-w-N),
+    ESAPI re-encodes '%' as &#x25; in the echo, and the plain
+    .replace(payload) never matched — the differential measured the
+    payload's OWN tmp-vs-etc text and VERIFIED a write leak that does not
+    exist. Transformations neutralized, in order: HTML entities
+    (entity_normalize), percent-encoding (unquote, two passes — the raw
+    %-encoded payload variant is stripped as well), and the app-side
+    last-char strip (the Benchmark servlets substring(0, len-1) the param
+    before echoing). Idempotent on bodies that carry none of the payloads."""
+    import urllib.parse as _up
+    v = entity_normalize(body or "")
+    for _ in range(2):
+        prev = v
+        v = _up.unquote(v)
+        if v == prev:
+            break
+    for p in payloads:
+        if not p:
+            continue
+        # Deterministic order — FULL payload (plain, then %-encoded) BEFORE
+        # the last-char variant: set-iteration order once stripped
+        # p[:-1] first, mangling a FULL echo and leaving its final character
+        # behind as a phantom difference (live-caught on BenchmarkTest00003:
+        # residual 'd' from 'passwd' -> a false exists_oracle differential).
+        for x in (p, _up.quote(p, safe="")):
+            v = v.replace(x, "")
+        if len(p) > 1:
+            short = p[:-1]          # app-side last-char strip
+            for x in (short, _up.quote(short, safe="")):
+                v = v.replace(x, "")
+    return v
+
 
 # ------------------------------------------------------------ DETECT-16 (v4.2.3): stored XSS
 class _StoredFormParser(HTMLParser):

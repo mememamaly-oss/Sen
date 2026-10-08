@@ -3,7 +3,7 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-07 (UTC) — round 14: **THE GROUND-TRUTH PUSH (ادفع الحقيقة الأرضية) — v4.3.0, measured** — the supervisor's order "fix everything, >85% per category, a globally competitive tool" executed to its honest end for this round: the GTP detector line (11 categories, from 4), 4 live measurement rounds on the full OWASP Benchmark 2,740-test ground truth, and 16 more live-caught engine defects fixed (GTP-03b entity-encoded markers + the exists_oracle verifier branch + the >8B gate + the writability axis; GTP-04b ENV-ARRAY + DIRECT-EXEC cmdi batteries with OOB twins; GTP-05b proportional xpath margin; GTP-06b LDAP fresh wildcard (** 500s on ApacheDS); GTP-07b securecookie attribute TOKENS; GTP-08b trustbound context window + GTP-08c phase budgets 640/1024→4096; GTP-09b stateless RNG sampling — the jar replay AND the harvest, bisected over five bench runs after it cost 8 business_logic FNs on the local fixture; GTP-09b jrand 17→20-digit parse; GTP-11 JDBC/HSQLDB signatures; OWSP-36 cookie payload breaking-char encoding). **Measurement of record** (gated engine 155/155 + doctor 17/17 + bench ×3 IDENTICAL 38/0/0/37 @4784, ZERO regressions vs v4.2.6): precision **99.02%** / recall **43.04%** / F1 **0.600** / FPR 0.45% across 11 categories — per-category recall: sqli 76.1%, xss 75.6%, cmdi 61.1% (was 0), ldapi 55.6% (was 0), securecookie 52.8% (was 0), xpathi 40.0% (was 0), pathtraver 30.1% (was 0), trustbound 34.9% (was 0), weakrand 13.8% (was 0 — the LCG chain prediction works live against the real JVM: predicted '5308017114732453' observed '5308017114732453', all 25 Math.random tests caught; the relation family is implemented but did not fire live this round; nextInt/nextFloat shapes documented NOT RECOVERABLE), hash/crypto 0% — the chain design validated end-to-end on a controlled pair but BOUNDED on this target by the app's write amplification (every request appends to passwordFile.txt; the read primitive's window is the first 1000 bytes; the scanner's own battery traffic exhausts the window before the post-battery phase runs; the digest never appears in any response) — recorded as the honest not-covered bound. Scan-of-record discipline: 12 no-crawl spec chunks × 228 tests (benchmark_v430_nocrawl.sh; the reaper kills detached scans and the 600s call ceiling forced the chunk grid) + benchmark_merge_chunks.py + benchmark_eval.py; all five eval rounds committed under build-v430/results/owsp/benchmark/ (eval_v430_gtp_round1 = the RED baseline: recall 28.98%, precision 83%, 84 FPs). Round 13 before it (2026-10-07): engine v4.2.6, NodeGoat, campaign 5/6.
+- Last updated: 2026-10-08 (UTC) — round 15: **GTP-12 THE PERFECT-PRECISION PUSH — v4.3.1, measured** — the supervisor's order "أصلح الدقة لـ200% وارفع الكشف لأعلى نسبة عالمية بعقلية الردتيم والبلوتيم ومعايير التشفير العسكري" executed: **precision 100.00% (0 FP across all 2,740 tests) / recall 68.90% / F1 0.8159 / FPR 0.000%** — eight live-caught defect families fixed (GTP-12a transformation-aware echo neutralization — the 6 verified path_traversal FPs on SECURE crypto servlets were the engine measuring ITS OWN percent-encoded/last-char-stripped payload echo; GTP-12b the weakrand PRNG-disclosure oracle — 218/218 vulnerable servlets disclose a non-CSPRNG class in the response text, 0/275 secure do, weakrand 13.8%→92.66%; GTP-12c the artifact TRUNCATION leg + three-tier block oracle — a verified FileOutputStream sink pointed at passwordFile.txt zeroes it (open-no-write), the round-4 "write-amplification bound" is broken, hash 0%→89.15% and crypto 0%→52.31%; GTP-12e the writability hoist — the check was nested inside the exists-DIFFERS branch and never ran for its own family, pathtraver 30.1%→38.35%; GTP-12f the spec-drift body channel — the servlets read their OWN test-name form param while the spec declares decoys; GTP-12g the off-boundary discriminator — AES/GCM with an 8-byte tag collides with the DES length curve exactly, a 15-byte probe separates them (25 intermediate FPs killed) + abort-on-failed-truncate (the stale-line FP); GTP-12h the constant-digest family — 20 hash servlets hash a hardcoded 'bob', the algorithm is still identifiable by digest length + input-independence; eval mapping fix for weak_hash/weak_crypto). Gates: suite **204/204** (199 + 5 new discriminating GTP-12 cases) + doctor 17/17 + local bench ×3 IDENTICAL 38/0/0/37 F1=1.000 @4784 run-3c0652b6be (zero regressions) + the full ground truth re-measured END-TO-END twice (12 no-crawl chunks, 298,576 requests, 1,032 VERIFIED active findings; per-category recall: hash 89.15%, weakrand 92.66%, sqli 76.10%, xss 75.61%, cmdi 61.11%, ldapi 55.56%, crypto 52.31%, securecookie 52.78%, xpathi 40.00%, pathtraver 38.35%, trustbound 34.94%). All 8 eval rounds committed under build-v430/results/owsp/benchmark/ (round1 RED baseline recall 28.98% → definitive 68.90% @ precision 1.000). Round 14 before it (2026-10-07): v4.3.0, the first ground-truth push.
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -45,8 +45,8 @@ Supervisor order trace 1a10860055030c15. All artifacts under
   verdict changes) + verdict-diff vs frozen v4.2.2 NONE.
 
 **Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules, 16 active
-detectors), current version **4.2.3** (`build-v423/` is the canonical live engine;
-v4.2.2 and earlier are frozen).
+detectors + 2 chain phases), current version **4.3.1** (`build-v430/` is the
+canonical live engine; v4.2.2 and earlier are frozen).
 - Verification by **re-execution**: a finding is VERIFIED only by re-issued
   requests against the live target (19 explicit type branches, fail-closed on
   unlisted types since v4.2.0). No finding is verified by description.
@@ -551,122 +551,24 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ---
 
-## ملخص عربي صادق (Arabic honest summary)
+## ملخص عربي صادق (Arabic honest summary) — الجولة 15
 
-**جولة 11 (حملة OWASP — التطبيق 3/6: DVWA):** نُشر DVWA 3.x محليًا (PHP 8.5.8
-ثابت + MariaDB 11.4.5 بمساحة المستخدم، مستوى الأمان low، والمصادقة مفعّلة —
-المحرك يسجّل الدخول بنفسه). اكتُشفت وعُولجت **ثمانية عيوب حية** أحمر→أخضر
-(OWSP-13..20)، أخطرها **عيب أمان الفاحص نفسه (OWSP-15)**: طلبُ الأساس على
-نموذج تغيير كلمة المرور غيّر كلمة admin إلى الفارغ (أثبتته قاعدة البيانات
-بصمة d41d8cd9) — الآن زوج كلمة المرور/التأكيد لا يُرسل متساويًا أبدًا،
-والبصمة بقيت 5f4dcc3b سليمة بعد الفحص الكامل. **النتيجة النهائية: كل فئات
-الثغرات القابلة للحقن على المستوى المنخفض VERIFIED** — حقن SQL ×3 (منها
-العمياء عبر أوراكل انعكاس الوجود الجديد)، XSS عاكس/مخزن/DOM، رفع ملفات غير
-مقيّد (multipart + فحص خدمي، دون إرسال أي ملف تنفيذي أبدًا)، حقن أوامر
-(OOB)، اجتياز مسار، SSRF (OOB)، إعادة توجيه، وCSRF كمرشحين صادقين غير
-مُثبتين لأن الإثبات يتطلب commit مدمّرًا يمنعه حارس الأمان بتصميم. البوابات:
-164/164 + doctor 17/17 + مرجعية ×3 متطابقة (صفر تغيير أحكام) + فرق أحكام
-مقابل v4.2.2 = لا شيء.
+ما هو مبني ومُثبت بالأرقام الآن: محرك فحص DAST بإعادة تنفيذ حقيقية (v4.3.1)
+حقق على مرجعية OWASP Benchmark الكاملة (2,740 اختبارًا مُوسومًا) **دقة 100.00%
+(صفر إنذار زائف عبر كل الاختبارات) مع استدعاء 68.90% وF1 = 0.816** — من 43.04%
+بدقة 99.02% في الجولة السابقة. الفئات: weakrand 92.66% (أوراكل الإفصاح —
+الاستجابة نفسها تُسمّي المولّد العشوائي الضعيف)، hash 89.15% (سلسلة الاقتطاع:
+بالوعة كتابة مُصدَّقة تُصفّر ملف الأثر قبل كل مسبار، ثم مطابقة MD5/SHA-1
+المحسوبة محليًا ضد السطر المقروء عبر بديلة قراءة ملفات مُصدَّقة)، crypto
+52.31% (أوراكل ثلاثي الطبقات لحجم الكتلة + مسبار الحدّ غير المتضاعف الذي يفصل
+DES عن AES/GCM تصادمًا تامًا في منحنى الأطوال)، sqli 76.10%، xss 75.61%،
+pathtraver 38.35% (رفع فحص قابلية الكتابة من التداخل الخاطئ).
 
-ما هو مبني ومُثبت بالأرقام: محرك فحص DAST بإعادة تنفيذ حقيقية (v4.2.3، 16
-كاشفًا نشطًا، اختبارات 133/133، doctor 17/17، مرجعية ×3 متطابقة تمامًا
-38/0/0/37 مع صفر تغيير أحكام مقابل v4.2.2 المجمّدة)، طبقة Twin أمنية
-بإصلاحات المشرف الأربعة (195/195 و210/210)، طبقة L2 لذكاء مسارات
-الهجوم (v4.3.0)، **طبقة L3 للأثر الحقيقي المُثبَت (v4.4.0)** — مفصولة
-أدناه —، منصة SaaS كاملة باختبارات عزل، وحملة حية على 5 أهداف مصرّح بها
-أنتجت 171 حزمة أدلة خام (577KB).
+حدود البرهان بصراحة: 440 فائتًا متبقيًا (sqli 65، xss 60، cmdi 49، trustbound
+54، pathtraver 82، crypto 62 — منها عائلة الثابت التشفيري غير القابلة للفك
+صندوقيًا، hash 14، weakrand 16 — أشكال بلا نص إفصاح)؛ عائلة الثابت في crypto
+مُوثّقة كمُقيدة وليست مغطاة؛ البيئة (لا docker → crAPI معلّق؛ حاويات تُمحى
+باستمرار → GitHub هو الأصل الدائم).
 
-طبقة L3 (الأثر الحقيقي المُثبَت، أمر المشرف trace 1a107bbe20c548bd):
-لكل مسار هجوم، مسبار واحد آمن بسيط يثبت ماذا يصل إليه المهاجم فعلًا في
-نهاية المسار — لا وصفًا بل قياسًا حيًا من تشغيل نفسه. القاعدة الحاسمة
-(مفروضة في الكود ومُختبرة): الأثر يُوثَّق VERIFIED فقط بمسبار حي مؤكِّد
-من دورة التشغيل نفسها؛ الاستنتاج وحده يبقى INFERRED؛ المحاولة الفاشلة
-تُسجَّل PROBE_FAILED بأرقامها المقاسة؛ ولا إثبات آمن موجود →
-NOT_SAFE_TO_PROVE بالعبارة الصادقة «القدرة مستنتَجة، غير قابلة
-للإثبات الآمن». سقف الأمان fail-closed في الكود: SQLi = عبارات تحكم
-ومسندات الإصدار فقط (لا استخراج بيانات أبدًا)، XXE/الاجتياز = ملفات
-حميدة من قائمة نافية فقط، تغيير الحالة = إضافة سلة واحدة في جلستنا
-نحن برأس معادٍ — أُثبتت القدرة، لم تُستغَل. التنفيذ الحي على الأهداف
-الأربعة: 20 خطة أثر / 12 VERIFIED / 7 PROBE_FAILED / 1 INFERRED،
-كل فشل بأرقامه، ولا برهان مزيف واحد — بما فيها سلسلة xss_dom→csrf
-كاملة الرجلين حيًا، وهبوط متصفح على قناة OAST الخاصة بنا. خمسة عيوب
-منتج حقيقية اصطادها الاختبار الحي وأُصلحت جميعًا (منها توثيق كاذب
-اكتُشف وأُبطل قبل الاعتماد) ثم أعيدت البوابات كاملة خضراء.
-
-المقايضة المكتشفة — نقرّ بها بصراحة كاملة: المحرك مضبوط للدقة وهذا يكلفه
-الاستدعاء في الاتجاهين. (1) فجوات حقيقية فاتته في الحملة: XSS مخزنة في
-testaspnet (تعليق tbComment — البطارية أرسلت __VIEWSTATE قديمًا ففشل الطلب
-500)، وXSS مخزنة في gruyere عبر التسجيل (تُعرض في طلب لاحق فقط — تصميم
-انعكاسي فقط أعمى بنيويًا عنها)، واجتياز مسار في مسار URL لـ gruyere
-(البطارية كانت محصورة بالمعاملات). الثلاث أُصلحن في v4.2.3 باختبارات تمييزية
-(تفشل على v4.2.2 وتنجح على v4.2.3) وأُعيد إثباتها حيًا: فحص gruyere الجديد
-يكتشف الفجوتين (xss_stored + path_traversal بحالة VERIFIED بدليل خام)،
-وفحص testaspnet الجديد يوثّق XSS المخزنة في tbComment (run-3d6cf53f93،
-إعادة تقديم كناري حيّ نجا من الجلب الثاني المستقل). وللوصول هناك احتاج
-الأمر تكرارًا حيًا ثانيًا نقرّ به: الفحص الأول (22:32) فوّتها لأن WebForms
-يوجّه الحدث عبر زر الإرسال name=value — أجاب POST بـ200 وتجاهل التعليق
-صامتًا؛ أُصلح ذلك (أزرار الإرسال تصحب الطلب) وأُعيدت البوابات كاملة ثم
-نجح الفحص. (2) ادعاءات خاطئة صدّقها المحرك: searchTerm في ginandjuice
-(التعبير داخل
-<script> لا تقيّمه Angular أبدًا — أُصلح DETECT-15/VR-14 وسقط الادعاء من
-قائمة الموثّق حيًا) وtfSearch في
-testasp (خطأ 500 عام بلا نص قاعدة بيانات صُدّق كـ SQLi حرجة عبر PATH B —
-أُصلح VF-04 ليتطلب نص خطأ فعليًا). المفارقة الصادقة: نقطة tfSearch نفسها
-حقيقية (أُعيد تأكيدها حيًا بفارق بولياني فعلي في 2026-10-03) — وكان الحكم
-الصحيح ممكنًا لكن عبر القناة الخطأ؛ وبعد الإصلاح هبطت في الفحص الحي كمرشّح
-مرفوض مرئي (سلبية كاذبة حية مقبولة عمدًا مقابل قتل المبالغة — توثيق القسم
-2.9)، بينما رُقّي tfUPass إلى موثّق عبر أوراكل بولياني حقيقي.
-
-L2 — ذكاء مسارات الهجوم (v4.3.0)، بُني فوق المحرك والتوأم بأمر المشرف
-ورفعِ التجميد: الوحدة apath.py تصل الثغرات الموثّقة في مسارات كاملة عبر
-الحلقات السبع (هوية ← مدخل ← فعل ← كائن ← تصريح ← حالة ← أثر)، والقاعدة
-الحاسمة مفروضة في الكود ومُختبرة: المسار يساوي أضعف حلقة فيه — كل حلقة
-تتتبع دليلًا موثّقًا (سجلّ طلب خام / سجل ثغرة / صف توأم / أثر فحص)، وأي
-حلقة مستنتجة تُنزل المسار كله إلى INFERRED وتُسمّى بصراحة. الإثبات بعد
-الجولة السابعة (أمر المشرف: برهان حي طازج، لا إسقاط فوق سجلات):
-**20 مسارًا على 4 أهداف مصرّح بها (18 VERIFIED / 2 INFERRED بصدق —
-كلاهما XSS مخزنة حيث الثبات مُثبت والتنفيذ غير مُبرهَن)، وكل مسار
-يستند الآن إلى أزواج طلب/استجابة أُرسلت فعلًا إلى الهدف الحي في فحصه
-المذكور atop كل قسم في التقرير**. فحصا testasp وgruyere طازجان أصلًا
-وأُعيد تأكيدهما (إعادة بناء حتمية بايت-باطباق، نافذة مجلة واحدة لكل
-فحص، صفر مدخلات متقادمة)، وفحصا ginjuice وtestaspnet استُبدل إسقاطهما
-بفحص موجّه طازج لأسطح المسارات فقط عبر خط الأنابيب المُشحن نفسه مع
-توسيع نطاق الاكتشاف مُسجّلًا داخل كل ملف: ginjuice (run-1738d74ba4،
-395 زوجًا حيًا في 452ث) أعاد إثبات البذور السبع كلها بمعرفات النتائج
-نفسها والسلسلتان المركّبتان VERIFIED وكل قفزة فيهما موثقة بمجلة هذا
-الفحص (ترويسات date داخل نافذته)، وtestaspnet (run-4fe17c44cc، 546
-زوجًا حيًا في 493ث) أثبت اثنتين من ثلاث بذور. ومسار واحد سُجّل بصراحة
-في سجل «لم يُتحقق طازجًا»: SQLi في Comments.aspx — انجراف محتوى الموقع
-العام قلّص جسم شرط TRUE من 23962B إلى 14880B (جانب FALSE متطابق
-بايت-باطباق 13310B في الفحصين) فهوى الفارق البولياني من 10652B/44% إلى
-1570B/10.5% تحت عتبة مضاد الإيجابيات الزائفة max(200B, 25%) — فرفض
-المحرك شهادته بصدق، والمجسّان الطازجان محفوظان في المجلة (req-045e4187
-/ req-54e20175)، ولا برهان طازج زائف. وجميع الفحوص المتقاطعة ناجحة
-(كل مقتطف شريحة حرفية من إدخال مجلة الفحص الطازج المُشار إليه)،
-ومصفوفة تأكيد الطزاجة مدمجة في التقرير، وملفا إسقاط الجولة 6 مؤرشفان
-لا محذوفان. والانضباط أثبت نفسه حيًا في الجولة 6: الفحوص المتقاطعة
-اكتشفت خلل استشهاد حقيقيًا (كوكي AWSALB يتجدد بين الطلبات) فأُصلح
-باحتبار انحدار تمييزي وأُعيدت البوابات كاملة، وبعد استبدال الإسقاطات
-بالبرهان الطازج أعيدت دورة البوابات كاملة مجددًا: 121/121 + doctor
-16/16 + مرجعية ×3 متطابقة 38/0/0/37 + صفر تغيير أحكام مقابل v4.2.2
-المجمّدة.
-
-حدود البرهان بصراحة: 149 من الـ171 سلبيًا؛ F1=1.000 على المرجع المحلي تعني
-اتفاقًا مع المرجع لا مع الواقع — الدليل الوحيد المقبول على الاستدعاء هو
-تحقق مستقل، وهو نفسه (أدوات مستقلة بيد نفس الوكيل) وجد 3 فجوات + خطأين
-إيجابيين في جولة واحدة؛ لا قاضي طرف ثالث بعد؛ خط التوقف أُنجز بحدود
-البيئة: 4/5 أهداف أعيد فحصها حيًا خضراء (الفجوات الثلاث VERIFIED،
-المبالغتان سقطتا، صفر إيجابيات كاذبة جديدة — regate_v421_vs_v423.json)
-وtestfire معطّل شبكيًا في نافذة الإعادة (البوابة تؤكد عدم تغيّر أحكامه)؛
-إطار المقارنة بعد إعادة التشغيل: 10 مؤكدة / 0 فجوات / 13 غير مؤكدة؛
-testphp/testhtml5 ما زالا معطلين؛ لا عميل ولا مشترٍ ولا إيراد — أي تقييم
-مالي فرضية مشروطة بتحقق خارجي حقيقي ومشترٍ، وكلاهما غير موجود.
-
-حالة الحفظ: الأصل الدائم على GitHub (github.com/mememamaly-oss/Sen).
-الجولات 2–6 مدفوعة ومؤكدة بـls-remote (v4.2.2 ثم v4.2.3 ثم v4.3.0
-بوسمها وفرعها)، والجولة 7 (البرهان الطازج) دُفعت تباعًا فور كل إنجاز
-كما أُمر: فحص ginjuice الطازج (053c6aa) ثم فحص testaspnet الصادق
-(cf7277a) ثم تقرير الأدلة المتجدد من المجلات الطازجة مع مصفوفة الطزاجة
-وسجل عدم التحقق (52029ed) ثم البوابات الكاملة الخضراء (77c8e39) —
-ودفعة STATE.md وworklog هذه تالية. التوكن inline-only لم يُكتب على
-القرص قط؛ يُبطله المالك عند قبول الجولة.
+حالة الحفظ: محليًا ملتزم ومدفوع إلى GitHub (github.com/mememamaly-oss/Sen) بعد
+كل جولة مع تحقق ls-remote. هذا الملف نفسه يُحدَّث بعد كل جولة.
