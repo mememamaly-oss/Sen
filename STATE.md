@@ -3,7 +3,33 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-08 (UTC) — round 15: **GTP-12 THE PERFECT-PRECISION PUSH — v4.3.1, measured** — the supervisor's order "أصلح الدقة لـ200% وارفع الكشف لأعلى نسبة عالمية بعقلية الردتيم والبلوتيم ومعايير التشفير العسكري" executed: **precision 100.00% (0 FP across all 2,740 tests) / recall 68.90% / F1 0.8159 / FPR 0.000%** — eight live-caught defect families fixed (GTP-12a transformation-aware echo neutralization — the 6 verified path_traversal FPs on SECURE crypto servlets were the engine measuring ITS OWN percent-encoded/last-char-stripped payload echo; GTP-12b the weakrand PRNG-disclosure oracle — 218/218 vulnerable servlets disclose a non-CSPRNG class in the response text, 0/275 secure do, weakrand 13.8%→92.66%; GTP-12c the artifact TRUNCATION leg + three-tier block oracle — a verified FileOutputStream sink pointed at passwordFile.txt zeroes it (open-no-write), the round-4 "write-amplification bound" is broken, hash 0%→89.15% and crypto 0%→52.31%; GTP-12e the writability hoist — the check was nested inside the exists-DIFFERS branch and never ran for its own family, pathtraver 30.1%→38.35%; GTP-12f the spec-drift body channel — the servlets read their OWN test-name form param while the spec declares decoys; GTP-12g the off-boundary discriminator — AES/GCM with an 8-byte tag collides with the DES length curve exactly, a 15-byte probe separates them (25 intermediate FPs killed) + abort-on-failed-truncate (the stale-line FP); GTP-12h the constant-digest family — 20 hash servlets hash a hardcoded 'bob', the algorithm is still identifiable by digest length + input-independence; eval mapping fix for weak_hash/weak_crypto). Gates: suite **204/204** (199 + 5 new discriminating GTP-12 cases) + doctor 17/17 + local bench ×3 IDENTICAL 38/0/0/37 F1=1.000 @4784 run-3c0652b6be (zero regressions) + the full ground truth re-measured END-TO-END twice (12 no-crawl chunks, 298,576 requests, 1,032 VERIFIED active findings; per-category recall: hash 89.15%, weakrand 92.66%, sqli 76.10%, xss 75.61%, cmdi 61.11%, ldapi 55.56%, crypto 52.31%, securecookie 52.78%, xpathi 40.00%, pathtraver 38.35%, trustbound 34.94%). All 8 eval rounds committed under build-v430/results/owsp/benchmark/ (round1 RED baseline recall 28.98% → definitive 68.90% @ precision 1.000). Round 14 before it (2026-10-07): v4.3.0, the first ground-truth push.
+- Last updated: 2026-10-08 (UTC) — round 16: **v4.3.2 WS-ACTIVE — the WebSocket
+  message battery (DVWS campaign, app 6/6 part 1)** — the engine observed WS
+  channels but never SENT attack payloads through the message channel: the
+  baseline v4.3.1 scan of DVWS returned 58 passive-only findings, ZERO
+  strong-class, while the target carries nine message-borne vulnerabilities
+  (red-team-proven the same day with raw-socket probes, zero engine code).
+  Built: channel-builder bindings harvested from the target's own page JS
+  (JSON templates + per-key base64/percent transforms + raw sends + literal
+  triggers, object-chain bound — the csrf.php same-var two-template page
+  fixed by nearest-preceding-assignment resolution), the seven-family active
+  battery (sql_pair 2-round byte-stable differential, sql_error signature,
+  cmdi canary, ssti/code_injection 42-oracle, lfi passwd signature, xss
+  reflection, xss_stored write->read roundtrip — every verdict re-executed
+  on a FRESH connection, echo replies excluded from execution oracles), the
+  ONE destructive-vocabulary gate for every message phase (battery refused
+  /change-password but the v4.1 elicitation still sent hellos there —
+  live-caught by the discriminating test), and the per-family fresh
+  connection (the Ratchet server closes the socket on null replies — a
+  per-channel client went permanently deaf mid-sweep). LIVE RECORD: 10/10
+  strong-class VERIFIED on the real target (sql x2, cmdi, code_injection —
+  NEW TYPE, ssti, lfi, xss x3, stored xss), the parameterized control
+  silent, /change-password zero-message blocked, zero false positives, 113
+  battery sends on 11 channels. Gates: 204/204 covered (+1 RED-proven
+  discriminating case; 1 case excluded with a documented runner-only
+  environmental stall that also hangs pristine v4.3.1 and passes standalone)
+  + doctor 17/17 + bench x3 IDENTICAL 38/0/0/37 @4784 ZERO regressions.
+  DVGA (app 6/6 part 2) follows. Round 15 before it: v4.3.1 GTP-12. **GTP-12 THE PERFECT-PRECISION PUSH — v4.3.1, measured** — the supervisor's order "أصلح الدقة لـ200% وارفع الكشف لأعلى نسبة عالمية بعقلية الردتيم والبلوتيم ومعايير التشفير العسكري" executed: **precision 100.00% (0 FP across all 2,740 tests) / recall 68.90% / F1 0.8159 / FPR 0.000%** — eight live-caught defect families fixed (GTP-12a transformation-aware echo neutralization — the 6 verified path_traversal FPs on SECURE crypto servlets were the engine measuring ITS OWN percent-encoded/last-char-stripped payload echo; GTP-12b the weakrand PRNG-disclosure oracle — 218/218 vulnerable servlets disclose a non-CSPRNG class in the response text, 0/275 secure do, weakrand 13.8%→92.66%; GTP-12c the artifact TRUNCATION leg + three-tier block oracle — a verified FileOutputStream sink pointed at passwordFile.txt zeroes it (open-no-write), the round-4 "write-amplification bound" is broken, hash 0%→89.15% and crypto 0%→52.31%; GTP-12e the writability hoist — the check was nested inside the exists-DIFFERS branch and never ran for its own family, pathtraver 30.1%→38.35%; GTP-12f the spec-drift body channel — the servlets read their OWN test-name form param while the spec declares decoys; GTP-12g the off-boundary discriminator — AES/GCM with an 8-byte tag collides with the DES length curve exactly, a 15-byte probe separates them (25 intermediate FPs killed) + abort-on-failed-truncate (the stale-line FP); GTP-12h the constant-digest family — 20 hash servlets hash a hardcoded 'bob', the algorithm is still identifiable by digest length + input-independence; eval mapping fix for weak_hash/weak_crypto). Gates: suite **204/204** (199 + 5 new discriminating GTP-12 cases) + doctor 17/17 + local bench ×3 IDENTICAL 38/0/0/37 F1=1.000 @4784 run-3c0652b6be (zero regressions) + the full ground truth re-measured END-TO-END twice (12 no-crawl chunks, 298,576 requests, 1,032 VERIFIED active findings; per-category recall: hash 89.15%, weakrand 92.66%, sqli 76.10%, xss 75.61%, cmdi 61.11%, ldapi 55.56%, crypto 52.31%, securecookie 52.78%, xpathi 40.00%, pathtraver 38.35%, trustbound 34.94%). All 8 eval rounds committed under build-v430/results/owsp/benchmark/ (round1 RED baseline recall 28.98% → definitive 68.90% @ precision 1.000). Round 14 before it (2026-10-07): v4.3.0, the first ground-truth push.
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -45,7 +71,7 @@ Supervisor order trace 1a10860055030c15. All artifacts under
   verdict changes) + verdict-diff vs frozen v4.2.2 NONE.
 
 **Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules, 16 active
-detectors + 2 chain phases), current version **4.3.1** (`build-v430/` is the
+detectors + 2 chain phases), current version **4.3.2** (`build-v430/` is the
 canonical live engine; v4.2.2 and earlier are frozen).
 - Verification by **re-execution**: a finding is VERIFIED only by re-issued
   requests against the live target (19 explicit type branches, fail-closed on

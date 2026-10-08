@@ -4,7 +4,7 @@ Phase 5: Endpoint/Parameter Intelligence (parameters classified on ingest).
 from __future__ import annotations
 import re, urllib.parse
 from html.parser import HTMLParser
-from .websocket import harvest_ws_shapes, observe_ws_urls  # V411-WS
+from .websocket import harvest_ws_bindings, harvest_ws_shapes, observe_ws_urls  # V411-WS + V4.3.2
 from .core import DiscoverySource, Endpoint, Parameter, ParamLocation
 from .http_engine import RequestEngine
 # MAX-10a: the same logout vocabulary the authz engine refuses to probe —
@@ -569,6 +569,9 @@ class DiscoveryEngine:
                 # application's own client code is the observed schema source
                 # for the WS elicitation/reflection battery)
                 harvest_ws_shapes(resp.body)
+                # V4.3.2: per-channel message builders (JSON keys + transforms)
+                # for the active battery
+                harvest_ws_bindings(resp.body)
                 # V411-WS-DISC-2: observed ws:// channels — the DVWS pattern
                 # (`var wsUri = "ws://host:8080/path"; new WebSocket(wsUri)`)`
                 # hides the channel URL in a variable the literal-only
@@ -583,6 +586,8 @@ class DiscoveryEngine:
                 # V411-WS: inline <script> bodies also carry the WebSocket
                 # message builders — same observed-schema harvest.
                 harvest_ws_shapes(resp.body)
+                # V4.3.2: inline builders bind to their page's channels
+                harvest_ws_bindings(resp.body)
                 # V411-WS-DISC-2: inline <script> blocks are where DVWS keeps
                 # `var wsUri = "ws://..."` — extract observed channels from
                 # the SCRIPT bodies only (not the whole HTML: a ws:// string in
@@ -652,6 +657,8 @@ class DiscoveryEngine:
             for wu in observe_ws_urls(resp.body):
                 if wu not in self.ws_observed:
                     self.ws_observed.append(wu)
+            # V4.3.2: same builder harvest for tail-fetched JS
+            harvest_ws_bindings(resp.body)
             # DISC-06: learn JS-driven XML request transformations (XXE surface)
             if _JS_XML_CT.search(resp.body):
                 for root in _JS_XML_ROOT.findall(resp.body):

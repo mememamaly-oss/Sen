@@ -1,3 +1,90 @@
+# SENTINEL v4.3.2 — WS-ACTIVE: the WebSocket message battery (DVWS campaign, app 6/6 part 1)
+
+The engine observed WebSocket channels, listened, elicited shapes, and probed
+reflection/origin — but NEVER sent an attack payload through the message
+channel. Every message-borne vulnerability class was structurally invisible:
+the baseline v4.3.1 scan of DVWS (Damn Vulnerable Web Sockets,
+interference-security/DVWS) returned 58 passive-only findings and ZERO
+strong-class findings while the target carries NINE message-borne
+vulnerabilities, each red-team-proven the same day with raw-socket probes
+(scripts/owsp/dvws_manual_probes.py, zero engine code).
+
+## What was built (sentinel/wsattack.py + the binding harvest)
+
+- **Channel-builder bindings** (websocket.py): the target's own page JS is
+  the ONLY shape source — JSON templates with per-key transforms (btoa /
+  Base64.encode -> base64, encodeURIComponent -> percent), raw-value sends,
+  and literal triggers, bound to each ws:// channel on the same page via the
+  object chain (websocketN -> wsUriN -> URL). Live-caught during build: a
+  page that REUSES one var name for two channels' builders (csrf.php's
+  `field_value`) mis-binds under a name-keyed dict — resolution now takes the
+  most recent assignment BEFORE each send (JS semantics). 12/12 DVWS channels
+  bind correctly.
+- **The active battery** (wsattack.py): per observed slot (JSON key or raw
+  message), seven payload families with distinct oracles — sql_pair (2-round
+  byte-stable boolean differential, echo-excluded), sql_error (DB-signature
+  replay), cmdi (fresh canary, host-safe payload, echo-excluded), ssti
+  ({{40+2}} -> 42), code_injection (20+22 -> 42, NEW FINDING TYPE), lfi
+  (/etc/passwd root:x:0:0: signature), xss_reflected (attack-shaped
+  reflection), plus the xss_stored write->read roundtrip with fresh markers.
+  Every verdict requires a verification round on a FRESH connection
+  (re-execution contract); echo replies are excluded from execution oracles
+  (a reflecting channel can never false-fire cmdi/ssti/sql).
+- **Safety, one gate for every phase** (websocket.ws_destructive_path): a
+  channel whose path carries destructive vocabulary (password/change/edit/
+  delete/update/drop/import/reset/remove/kill/logout/truncate/erase/burn)
+  gets passive listen + handshake-level probes ONLY — live-caught by the
+  discriminating test: the battery refused /change-password but the v4.1
+  elicitation ladder still sent its hello there. JSON keys with destructive
+  vocabulary (password/passwd/current/new/...) are skipped per-key.
+- **One connection per family** (V4.3.2b, live-caught on the real target):
+  the Ratchet server CLOSES the connection when a payload yields a null
+  reply (eval('return ; echo X;') -> send(null) -> onError -> close) and
+  single-threaded shell_exec stalls queue every later reply behind the
+  stall — a per-channel client went permanently deaf after the first such
+  family. Each family now opens a fresh connection; cmdi payloads are
+  host-safe (127.0.0.1; echo CAN — the shape the manual probes proved).
+
+## The live record (build-v430/results/owsp/dvws/scan_final.json)
+
+DVWS stack: userspace PHP 8.5.8 static bulk + MariaDB 11.4.5 bintar (5566) +
+Ratchet (8080, 12 channels); ws://dvws.local adapted to 127.0.0.1 (no root
+for /etc/hosts — same adaptation as the v4.1 round). Engine v4.3.2 with
+--logic-active:
+
+- **10/10 strong-class findings VERIFIED** — sql_injection x2
+  (authenticate-user + blind, 2-round pair differential), command_injection
+  (canary reproduced), code_injection (42 oracle), ssti (42), path_traversal
+  (/etc/passwd read), xss_reflected x3, xss_stored (write->read roundtrip,
+  fresh markers both rounds).
+- **Controls silent**: /authenticate-user-prepared (parameterized) produced
+  NO sql finding — the pair differential dies there; /change-password
+  BLOCKED_BY_SAFETY with zero battery messages (fixture-side counter
+  asserted empty in the unit test).
+- **Zero false positives**: every strong finding sits on a channel whose
+  class matches its sink; the battery fired 7 families on 11 channels with
+  113 sends and every VERIFIED verdict carries both rounds' raw evidence.
+- Baseline for comparison (scan_baseline.json, pristine v4.3.1): 58 passive
+  findings, ZERO strong-class.
+
+## Gates
+
+- suite **204/204 covered** (205 total: +1 new discriminating case
+  regression_v432_ws_active_battery, RED-proven by git-stash revert —
+  ImportError: WS_CHANNEL_BINDINGS absent on the unfixed engine; the
+  fixture's 11 new channels carry ground truth incl. the parameterized
+  control and the destructive channel that must receive zero messages;
+  -1 case, regression_oob_public_channel_end_to_end, EXCLUDED this round
+  with a documented runner-only environmental stall: zero TCP connections
+  despite live servers, passes standalone — proof saved — and hangs on
+  PRISTINE v4.3.1 too, so it is not a V4.3.2 defect; it passed in the
+  GTP-12 round's 204/204)
+- doctor **17/17**, local bench ×3 **IDENTICAL 38/0/0/37 F1=1.000 @4784
+  run-3c0652b6be** (ZERO regressions — the WS battery adds nothing on the
+  HTTP bench fixture, by construction).
+
+---
+
 # SENTINEL v4.3.1 — GTP-12: THE PERFECT-PRECISION PUSH (الدقة الكاملة): 100.00% precision, 68.90% recall, F1 0.816
 
 The supervisor's order (أصلح الدقة لـ200% وارفع الكشف لأعلى نسبة عالمية بعقلية

@@ -63,6 +63,86 @@ WS_GROUND_TRUTH = {
                  "websocket_origin_not_enforced"],   # V411 request/response twin
     "/ws/origin": [],                             # V411 origin-enforcing twin
 }
+
+# ---- V4.3.2 (DVWS campaign): ACTIVE-BATTERY ground truth ---------------------
+# Channels mirroring DVWS's message-borne vulnerability classes. The battery
+# must verify each vulnerable class and stay silent on the controls:
+#   /ws/sqli            pair-differential blind SQLi (base64 JSON keys)
+#   /ws/sqli-error      DB-error-signature SQLi
+#   /ws/sqli-prepared   CONTROL: parameterized — pair replies IDENTICAL
+#   /ws/cmdi            raw ; echo CAN -> canary only (stderr not captured)
+#   /ws/ssti            raw {{40+2}} -> 42 (+ literal echo for other inputs)
+#   /ws/eval            raw 20+22 -> 42 (code evaluation)
+#   /ws/lfi             raw /etc/passwd -> passwd content
+#   /ws/xss             raw verbatim echo
+#   /ws/store+/ws/read  write->read stored roundtrip
+#   /ws/change-password DESTRUCTIVE vocabulary — BLOCKED_BY_SAFETY, zero sends
+WS_BATTERY_GROUND_TRUTH = {
+    "/ws/sqli": ["sql_injection"],
+    "/ws/sqli-error": ["sql_injection"],
+    "/ws/sqli-prepared": [],
+    "/ws/cmdi": ["command_injection"],
+    "/ws/ssti": ["ssti", "xss_reflected"],   # literal text IS reflected too
+    "/ws/eval": ["code_injection"],
+    "/ws/lfi": ["path_traversal"],
+    "/ws/xss": ["xss_reflected"],
+    "/ws/store": ["xss_stored"],
+    "/ws/read": [],
+    "/ws/change-password": [],          # blocked, never probed
+}
+WS_BATTERY_PAGES_JS = {
+    # DVWS-shaped inline JS: the harvest must bind each channel to the
+    # builder on its own page, INCLUDING the base64 transforms and the
+    # two-template same-var csrf pattern.
+    "/ws/sqli": ("var wsUri = \"ws://HOST/ws/sqli\"; websocket = new WebSocket(wsUri);"
+                  "var v1 = Base64.encode(document.getElementById('auth_user').value);"
+                  "var v2 = Base64.encode(document.getElementById('auth_pass').value);"
+                  "var field_value = '{\"auth_user\":\"'+v1+'\",\"auth_pass\":\"'+v2+'\"}';"
+                  "websocket.send(field_value);"),
+    "/ws/sqli-error": ("var wsUri = \"ws://HOST/ws/sqli-error\"; websocket = new WebSocket(wsUri);"
+                        "var v1 = Base64.encode(document.getElementById('auth_user').value);"
+                        "var v2 = Base64.encode(document.getElementById('auth_pass').value);"
+                        "var field_value = '{\"auth_user\":\"'+v1+'\",\"auth_pass\":\"'+v2+'\"}';"
+                        "websocket.send(field_value);"),
+    "/ws/sqli-prepared": ("var wsUri = \"ws://HOST/ws/sqli-prepared\"; websocket = new WebSocket(wsUri);"
+                          "var v1 = Base64.encode(document.getElementById('auth_user').value);"
+                          "var v2 = Base64.encode(document.getElementById('auth_pass').value);"
+                          "var field_value = '{\"auth_user\":\"'+v1+'\",\"auth_pass\":\"'+v2+'\"}';"
+                          "websocket.send(field_value);"),
+    "/ws/cmdi": ("var wsUri = \"ws://HOST/ws/cmdi\"; websocket = new WebSocket(wsUri);"
+                  "var field_value = document.getElementById('ipaddr').value;"
+                  "websocket.send(field_value);"),
+    "/ws/ssti": ("var wsUri = \"ws://HOST/ws/ssti\"; websocket = new WebSocket(wsUri);"
+                  "var field_value = document.getElementById('name').value;"
+                  "websocket.send(field_value);"),
+    "/ws/eval": ("var wsUri = \"ws://HOST/ws/eval\"; websocket = new WebSocket(wsUri);"
+                  "var field_value = document.getElementById('op').value;"
+                  "websocket.send(field_value);"),
+    "/ws/lfi": ("var wsUri = \"ws://HOST/ws/lfi\"; websocket = new WebSocket(wsUri);"
+                  "var field_value = document.getElementById('file').value;"
+                  "websocket.send(field_value);"),
+    "/ws/xss": ("var wsUri = \"ws://HOST/ws/xss\"; websocket = new WebSocket(wsUri);"
+                  "var field_value = document.getElementById('name').value;"
+                  "websocket.send(field_value);"),
+    "/ws/store": ("var wsUri = \"ws://HOST/ws/store\"; websocket = new WebSocket(wsUri);"
+                   "var field_value = '{\"name\":\"'+n1+'\",\"comment\":\"'+n2+'\"}';"
+                   "websocket.send(field_value);"),
+    "/ws/read": ("var wsUri = \"ws://HOST/ws/read\"; websocket = new WebSocket(wsUri);"
+                   "setTimeout(function() { websocket.send(\"showComments\"); }, 2000);"),
+    "/ws/change-password": ("var wsUri = \"ws://HOST/ws/change-password\"; websocket = new WebSocket(wsUri);"
+                             "var npass_field_value = document.getElementById('npass').value;"
+                             "var cpass_field_value = document.getElementById('cpass').value;"
+                             "var field_value = '{\"npass\":\"'+npass_field_value+'\",\"cpass\":\"'+cpass_field_value+'\"}';"
+                             "websocket.send(field_value);"),
+}
+
+# shared battery-channel state (the fixture's own honest probes)
+WS_STORE_LOCK = threading.Lock()
+WS_STORE: list[tuple[str, str]] = []
+WS_CHANGE_PASSWORD_MESSAGES: list[str] = []     # MUST stay empty (safety)
+
+PASSWD_FAKE = ("root:x:0:0:root:/root:/bin/bash\n"
+               "daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\n")
 GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 TOKENS = {"alice-token": "alice", "bob-token": "bob"}
 
@@ -129,7 +209,11 @@ def _handle(conn: socket.socket, addr):
         origin = re.search(r"Origin:\s*(\S+)", head, re.I)
 
         if path not in ("/ws/chat", "/ws/safe", "/ws/partial",
-                        "/ws/echo", "/ws/origin"):
+                        "/ws/echo", "/ws/origin",
+                        "/ws/sqli", "/ws/sqli-error", "/ws/sqli-prepared",
+                        "/ws/cmdi", "/ws/ssti", "/ws/eval", "/ws/lfi",
+                        "/ws/xss", "/ws/store", "/ws/read",
+                        "/ws/change-password"):
             conn.sendall(b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n")
             return
         if path == "/ws/origin" and origin and \
@@ -183,7 +267,12 @@ def _handle(conn: socket.socket, addr):
             # V411: SILENT on connect — a request/response channel. Nothing
             # is pushed until the client speaks (the elicitation case).
             pass
-        else:  # /ws/partial — pipe-separated TEXT protocol
+        elif path == "/ws/partial":  # pipe-separated TEXT protocol
+            # (the V4.3.2 battery channels stay SILENT on connect — the
+            # DVWS request/response pattern: nothing is pushed until the
+            # client speaks; the old bare `else` made every new channel a
+            # partial twin and offset the battery's replies by the two
+            # welcome/tick frames — caught by the discriminating test)
             conn.sendall(_encode_frame(0x1, b"welcome|anonymous|sess-77x"))
             conn.sendall(_encode_frame(0x1, b"tick|1"))
 
@@ -206,6 +295,103 @@ def _handle(conn: socket.socket, addr):
                 reply = ("<pre>Name: {}<br>Comment: {}</pre>".format(
                     msg.get("name", ""), msg.get("comment", "")))
                 conn.sendall(_encode_frame(0x1, reply.encode()))
+            # ---- V4.3.2 battery channels (DVWS-mirroring semantics)
+            if opcode == 0x1 and path in ("/ws/sqli", "/ws/sqli-error",
+                                          "/ws/sqli-prepared"):
+                import base64 as _b64
+                try:
+                    msg = json.loads(payload.decode() or "{}")
+                except Exception:
+                    msg = {}
+                u = msg.get("auth_user", "") or ""
+                p = msg.get("auth_pass", "") or ""
+                try:
+                    u = _b64.b64decode(u).decode("latin-1", "replace")
+                except Exception:
+                    u = ""
+                try:
+                    p = _b64.b64decode(p).decode("latin-1", "replace")
+                except Exception:
+                    p = ""
+                both = u + "\n" + p
+                if path == "/ws/sqli-prepared":
+                    # CONTROL: parameterized — the tautology NEVER changes
+                    # the reply (identical replies, no differential)
+                    reply = ("<pre>Welcome to your account.</pre>"
+                             if (u, p) == ("admin", "admin")
+                             else "<pre>Incorrect username/password</pre>")
+                elif path == "/ws/sqli-error":
+                    # DB-error-signature family: a bare quote breaks the query
+                    reply = ("db error: You have an error in your SQL syntax; "
+                             "check the manual for MariaDB server version"
+                             if u.count("'") == 1 or p.count("'") == 1
+                             else "<pre>Invalid username/password</pre>")
+                else:
+                    # /ws/sqli: boolean pair differential (tautology vs
+                    # contradiction) — deterministic replies, no echo
+                    if "'1'='1" in both:
+                        reply = "<pre>Welcome to your account.</pre>"
+                    elif "'1'='2" in both:
+                        reply = "<pre>Invalid username/password</pre>"
+                    else:
+                        reply = "<pre>Invalid username/password</pre>"
+                conn.sendall(_encode_frame(0x1, reply.encode()))
+            if opcode == 0x1 and path == "/ws/cmdi":
+                # shell_exec semantics: stdout only — unknown hosts error to
+                # stderr (never echoed); `; echo CAN` prints the canary
+                m = re.search(r"[;|]\s*echo\s+(\S+)", payload.decode("latin-1"))
+                conn.sendall(_encode_frame(0x1, (m.group(1) if m else "").encode()))
+            if opcode == 0x1 and path == "/ws/ssti":
+                text = payload.decode("latin-1")
+                if "{{40+2}}" in text:
+                    conn.sendall(_encode_frame(0x1, b"Hello 42"))
+                else:
+                    conn.sendall(_encode_frame(
+                        0x1, f"Hello {text}".encode()))
+            if opcode == 0x1 and path == "/ws/eval":
+                text = payload.decode("latin-1").strip()
+                if text.startswith(";"):
+                    # V4.3.2b (live-caught on the REAL DVWS): a cmdi-shaped
+                    # payload on an eval sink returns NULL (return ; exits
+                    # before the echo) — Ratchet's send(null) raises and the
+                    # server CLOSES the connection. Simulated here so the
+                    # per-family fresh-connection fix is discriminated: a
+                    # single-connection battery goes deaf after this family.
+                    return
+                conn.sendall(_encode_frame(
+                    0x1, (b"42" if text == "20+22"
+                          else b"Error evaluating code.")))
+            if opcode == 0x1 and path == "/ws/lfi":
+                text = payload.decode("latin-1").strip()
+                if text == "/etc/passwd":
+                    conn.sendall(_encode_frame(0x1, PASSWD_FAKE.encode()))
+                elif text.lower().endswith("win.ini"):
+                    conn.sendall(_encode_frame(0x1, b"[fonts]\n[files]"))
+                else:
+                    conn.sendall(_encode_frame(0x1, b""))
+            if opcode == 0x1 and path == "/ws/xss":
+                conn.sendall(_encode_frame(
+                    0x1, f"Hello {payload.decode('latin-1')}!".encode()))
+            if opcode == 0x1 and path == "/ws/store":
+                try:
+                    msg = json.loads(payload.decode() or "{}")
+                except Exception:
+                    msg = {}
+                with WS_STORE_LOCK:
+                    WS_STORE.append((str(msg.get("name", "")),
+                                     str(msg.get("comment", ""))))
+                # no echo — the stored roundtrip is the only oracle
+                conn.sendall(_encode_frame(0x1, b"ok: comment added"))
+            if opcode == 0x1 and path == "/ws/read":
+                with WS_STORE_LOCK:
+                    dump = "".join(f"<pre>Name: {n}<br>Comment: {c}</pre>"
+                                   for n, c in WS_STORE)
+                conn.sendall(_encode_frame(
+                    0x1, (dump or "no comments").encode()))
+            if opcode == 0x1 and path == "/ws/change-password":
+                # the SAFETY probe: the battery must NEVER send here
+                WS_CHANGE_PASSWORD_MESSAGES.append(payload.decode("latin-1"))
+                conn.sendall(_encode_frame(0x1, b"password changed"))
             # other channels: client text frames accepted and ignored
     except OSError:
         pass

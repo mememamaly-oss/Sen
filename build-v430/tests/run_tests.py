@@ -4711,6 +4711,119 @@ def regression_v41_websocket_battery():
 
 
 @case
+def regression_v432_ws_active_battery():
+    """V4.3.2 (DVWS campaign, live-caught 2026-10-08): the engine observed
+    WS channels but never SENT attack payloads through the message channel —
+    every message-borne vulnerability class was invisible. This case pins
+    the ACTIVE MESSAGE BATTERY: observed-builder-gated, per-family oracles
+    (pair differential / DB signature / canary / evaluation / file-read /
+    reflection / stored roundtrip), two-round fresh-connection verification,
+    destructive-channel safety, and the parameterized CONTROL staying silent.
+    RED-proven: with the battery reverted, every assertion below fails
+    (baseline scan of the real DVWS: 58 passive findings, ZERO strong-class)."""
+    import importlib.util as _iu
+    import os as _os
+    from sentinel.core import ScopeRule, EventBus, Endpoint, DiscoverySource
+    from sentinel.websocket import (WebSocketEngine, WS_MESSAGE_SHAPES,
+                                    WS_CHANNEL_BINDINGS, harvest_ws_bindings)
+    from sentinel.planner import SafeAttackPlanner
+    from sentinel.boundary import BoundaryEngine
+    from sentinel.coverage import CoverageTracker
+    spec = _iu.spec_from_file_location("ws_app", _os.path.join(
+        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+        "fixtures", "ws_app.py"))
+    mod = _iu.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    base, t, srv = mod.serve(port=8947)
+    _saved_shapes = list(WS_MESSAGE_SHAPES)
+    _saved_bindings = {k: list(v) for k, v in WS_CHANNEL_BINDINGS.items()}
+    WS_MESSAGE_SHAPES.clear()
+    WS_MESSAGE_SHAPES.extend([{"name": "", "comment": ""},
+                              {"auth_user": "", "auth_pass": ""}])
+    WS_CHANNEL_BINDINGS.clear()
+    # simulate the discovery pass: each page's OWN inline JS feeds the
+    # binding harvest (the DVWS pattern — builders observed, never guessed)
+    for page_js in mod.WS_BATTERY_PAGES_JS.values():
+        harvest_ws_bindings(page_js.replace("HOST", base.split("//")[1]))
+    try:
+        # the binding harvest itself: base64 transforms + the two-template
+        # same-var page resolve to the RIGHT channels
+        wsbase = base.replace("http", "ws", 1)
+        b_sqli = WS_CHANNEL_BINDINGS.get(wsbase + "/ws/sqli")
+        assert b_sqli and b_sqli[0]["kind"] == "json" \
+            and b_sqli[0]["keys"]["auth_user"] == "base64", b_sqli
+        b_cp = WS_CHANNEL_BINDINGS.get(wsbase + "/ws/change-password")
+        assert b_cp and b_cp[0]["keys"] == {"npass": "raw", "cpass": "raw"}, b_cp
+        b_read = WS_CHANNEL_BINDINGS.get(wsbase + "/ws/read")
+        assert b_read and b_read[0] == {"kind": "literal",
+                                        "value": "showComments"}, b_read
+
+        bus = EventBus("t432-ws")
+        scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+        boundary = BoundaryEngine()
+        wse = WebSocketEngine(scope, bus, timeout=6,
+                              planner=SafeAttackPlanner(logic_active=True),
+                              boundary=boundary, coverage=CoverageTracker(),
+                              logic_active=True, listen_seconds=2.0)
+        eps = [Endpoint(url=wsbase + p, source=DiscoverySource.JS_STATIC)
+               for p in mod.WS_BATTERY_GROUND_TRUTH]
+        res = wse.run(eps, base)
+        # ---- ground truth: every vulnerable class VERIFIED on its channel
+        battery_types = {"sql_injection", "command_injection", "ssti",
+                         "code_injection", "path_traversal", "xss_reflected",
+                         "xss_stored"}
+        for chan, expected in mod.WS_BATTERY_GROUND_TRUTH.items():
+            url = wsbase + chan
+            got = {f.type for f in res["findings"]
+                   if f.endpoint_url == url and f.type in battery_types}
+            assert got == set(expected), \
+                f"{chan}: expected {expected}, got {sorted(got)}; " \
+                f"all={[ (f.endpoint_url, f.type) for f in res['findings']]}"
+        for chan, expected in mod.WS_BATTERY_GROUND_TRUTH.items():
+            for f in res["findings"]:
+                if f.endpoint_url == wsbase + chan and f.type in battery_types:
+                    assert f.status.value == "verified", (chan, f.type,
+                                                          f.status)
+                    assert f.verification and f.verification.rounds == 2 \
+                        and f.verification.passed, (chan, f.type)
+        # ---- the CONTROL: /ws/sqli-prepared must produce NO sql finding
+        # (the parameterized sink kills the pair differential — the
+        # discriminating negative, RED on a battery without echo discipline)
+        # (already asserted via ground truth == [] above)
+        # ---- SAFETY: the destructive channel received ZERO messages and
+        # carries a BLOCKED_BY_SAFETY boundary record
+        assert mod.WS_CHANGE_PASSWORD_MESSAGES == [], \
+            mod.WS_CHANGE_PASSWORD_MESSAGES
+        recs = {(r.category, r.target.rsplit("/", 1)[-1]): r.state
+                for r in boundary.records}
+        # the SHARED gate: run() refuses every message phase on the channel
+        assert recs.get(("websocket/message-probes", "change-password")) \
+            == "BLOCKED_BY_SAFETY", \
+            [k for k in recs if "change" in k[1] or k[0] == "websocket"]
+        # ---- the battery account is in the stats and bounded
+        bs = res["stats"]["battery"]
+        assert bs["sends"] > 0 and bs["sends"] <= 150, bs
+        assert wsbase + "/ws/change-password" not in bs["channels"], bs
+        assert "sends" in bs and bs["fired"], bs
+        # ---- verification evidence: the pair finding carries BOTH rounds
+        sq = [f for f in res["findings"]
+              if f.type == "sql_injection"
+              and f.endpoint_url == wsbase + "/ws/sqli"][0]
+        ev_kinds = {e.kind for e in sq.evidence}
+        assert "ws_pair_differential" in ev_kinds \
+            and "ws_pair_replay" in ev_kinds, ev_kinds
+        assert sq.verification.method == "ws:battery-pair-2round"
+    finally:
+        WS_MESSAGE_SHAPES.clear()
+        WS_MESSAGE_SHAPES.extend(_saved_shapes)
+        WS_CHANNEL_BINDINGS.clear()
+        WS_CHANNEL_BINDINGS.update(_saved_bindings)
+        mod.WS_CHANGE_PASSWORD_MESSAGES.clear()
+        mod.WS_STORE.clear()
+        srv.close()
+
+
+@case
 def unit_v41_twin_provenance():
     """Phase V41-07: Twin 2.0 — every node and edge carries belief + provenance
     (the audit is EMPTY), inference is never labeled observed, and why()

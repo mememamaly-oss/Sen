@@ -1555,6 +1555,7 @@ class VerificationEngine:
 RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "xss_dom": 7, "path_traversal": 7, "xxe": 9,
                 "command_injection": 9, "ssrf": 7, "cors_misconfig": 6,
                 "ssti": 9, "nosql_injection": 9, "csrf": 5, "jwt_security": 5,
+                "code_injection": 9,   # V4.3.2 (DVWS): eval/code-execution class via WS messages
                 "host_header_injection": 5,
                 "idor_bola": 8, "vertical_privilege_escalation": 9,
                 "credential_exposure": 8,

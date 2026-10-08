@@ -154,12 +154,143 @@ def observe_ws_urls(js_text: str) -> list[str]:
     return sorted(added)
 
 
+# ---- V4.3.2 (DVWS campaign, WS-ACTIVE): per-CHANNEL message builders.
+# The DVWS pattern binds each channel to the message builder on the SAME
+# page:  var wsUri = "ws://host:8080/authenticate-user";
+#         websocket = new WebSocket(wsUri);
+#         var v1 = Base64.encode(document.getElementById('auth_user').value);
+#         var field_value = '{"auth_user":"'+v1+'","auth_pass":"'+v2+'"}';
+#         websocket.send(field_value);
+# The harvest records, per ws:// URL, the OBSERVED builder (JSON keys with
+# per-key transforms / raw value send / literal trigger). The active
+# battery (wsattack.py) never guesses a shape: no binding, no battery.
+_WS_URL_ASSIGN_RE = re.compile(
+    r"var\s+(wsUri\w*)\s*=\s*[\"'](ws[s]?://[^\"']+)[\"']", re.I)
+_WS_OBJECT_RE = re.compile(
+    r"(\w+)\s*=\s*new\s+WebSocket\(\s*(wsUri\w*)\s*\)", re.I)
+_WS_SEND_RE = re.compile(r"(\w+)\.send\(\s*([^)]{1,300}?)\s*\)")
+_WS_TEMPLATE_VAR_RE = re.compile(
+    r"var\s+(\w+)\s*=\s*'(\{.{0,500}?\})'\s*;", re.S)
+_WS_TEMPLATE_KEY_RE = re.compile(
+    r"[\"'](\w+)[\"']\s*:\s*\"?'?\s*\+\s*(\w+)\s*\+\s*\"?")
+_WS_TRANSFORM_RE = re.compile(
+    r"var\s+(\w+)\s*=\s*(Base64\.encode|btoa|encodeURIComponent|escape)\s*\(",
+    re.I)
+_WS_RAWVAL_RE = re.compile(
+    r"var\s+(\w+)\s*=\s*(?:document\.getElementById\([^)]+\)\.value"
+    r"|\$\([^)]{1,60}\)\.val\(\))", re.S)
+_WS_DOM_DIRECT_RE = re.compile(
+    r"document\.getElementById\([^)]+\)\.value|\$\([^)]{1,60}\)\.val\(\)")
+_WS_BINDING_CAP = 3             # builders remembered per channel
+
+
+def harvest_ws_bindings(js_text: str) -> int:
+    """Bind ws:// channels to the message builders observed in the SAME
+    JavaScript/page body. Returns the number of (url, builder) bindings
+    added. Idempotent per (url, builder signature); bounded."""
+    if not js_text:
+        return 0
+    urls: dict[str, str] = {}
+    for m in _WS_URL_ASSIGN_RE.finditer(js_text):
+        urls[m.group(1)] = m.group(2)
+    if not urls:
+        return 0
+    obj_to_uri = {m.group(1): m.group(2)
+                  for m in _WS_OBJECT_RE.finditer(js_text)}
+    transforms = {m.group(1): ("base64" if m.group(2).lower() in
+                                ("base64.encode", "btoa") else "percent")
+                  for m in _WS_TRANSFORM_RE.finditer(js_text)}
+    # template assignments are ORDERED (a page may REUSE the same var name
+    # for two channels' builders — csrf.php's `field_value` serves BOTH
+    # the session-auth and the change-password template; a name-keyed dict
+    # would bind the SECOND template to BOTH sends). JS semantics: a send
+    # resolves to the most recent assignment BEFORE it, textually.
+    templates: list[tuple[int, str, dict]] = []
+    for m in _WS_TEMPLATE_VAR_RE.finditer(js_text):
+        var, body = m.group(1), m.group(2)
+        pairs = _WS_TEMPLATE_KEY_RE.findall(body)
+        if 1 <= len(pairs) <= 8:
+            keys: dict[str, str] = {}
+            for key, splice_var in pairs:
+                keys[key] = transforms.get(splice_var, "raw")
+            templates.append((m.start(), var, {"kind": "json",
+                                               "keys": keys}))
+    raws = {m.group(1) for m in _WS_RAWVAL_RE.finditer(js_text)}
+
+    def _resolve_template(var: str, send_pos: int):
+        best = None
+        for pos, tvar, shape in templates:
+            if tvar == var and pos < send_pos:
+                if best is None or pos > best[0]:
+                    best = (pos, shape)
+        return best[1] if best else None
+
+    added = 0
+    all_urls = sorted(set(urls.values()))
+    for m in _WS_SEND_RE.finditer(js_text):
+        obj, expr = m.group(1), m.group(2).strip()
+        builder = None
+        if expr.startswith("'") or expr.startswith('"'):
+            builder = {"kind": "literal", "value": expr[1:-1]}
+        else:
+            tmpl = _resolve_template(expr, m.start())
+            if tmpl is not None:
+                builder = tmpl
+            elif expr in raws or _WS_DOM_DIRECT_RE.search(expr):
+                builder = {"kind": "raw"}
+            elif expr in transforms:
+                builder = {"kind": "raw"}
+        if builder is None:
+            continue
+        # resolve the object -> wsUri var -> URL chain; fallback (no chain,
+        # e.g. minified code) binds to every URL observed in this body
+        uri_var = obj_to_uri.get(obj)
+        targets = [urls[uri_var]] if uri_var and uri_var in urls else all_urls
+        for u in targets:
+            sig = json.dumps(builder, sort_keys=True)
+            have = [json.dumps(b, sort_keys=True)
+                    for b in WS_CHANNEL_BINDINGS.get(u, [])]
+            if sig in have or len(have) >= _WS_BINDING_CAP:
+                continue
+            WS_CHANNEL_BINDINGS.setdefault(u, []).append(builder)
+            added += 1
+    return added
+
+
+WS_CHANNEL_BINDINGS: dict[str, list] = {}
+
+
+# ---- V4.3.2: destructive-channel vocabulary — ONE gate for EVERY message-
+# sending phase (elicitation / reflection / replay / tampering / battery).
+# Live-caught by the discriminating test: the battery refused the channel
+# but the v4.1 elicitation ladder still sent its hello — an unknown message
+# on a destructive surface (change-password) must NEVER be sent, by ANY
+# phase, fail-closed.
+_DESTRUCTIVE_PATH_VOCAB = (
+    "password", "passwd", "change", "edit", "delete", "update", "drop",
+    "import", "reset", "remove", "kill", "logout", "truncate", "erase",
+    "burn",
+)
+
+
+def ws_destructive_path(url_or_path: str) -> bool:
+    """True when the channel's path carries destructive vocabulary — no
+    message-active phase may send here (passive listen + handshake-level
+    probes only)."""
+    p = (url_or_path or "").lower()
+    if "://" in p:
+        p = p.split("/", 3)[-1]
+    return any(w in p for w in _DESTRUCTIVE_PATH_VOCAB)
+
+
 def reset_ws_intel() -> None:
     """Per-scan reset of the JS-harvested registries (shapes + observed
-    channels). Called by the orchestrator before discovery so a second scan
-    in the same process never inherits the previous target's JS intel."""
+    channels + channel bindings). Called by the orchestrator before
+    discovery so a second scan in the same process never inherits the
+    previous target's JS intel."""
     WS_MESSAGE_SHAPES.clear()
     WS_OBSERVED_URLS.clear()
+    WS_CHANNEL_BINDINGS.clear()
 
 
 def _safe_canary() -> str:
@@ -379,6 +510,28 @@ class WsClient:
             out.append({"opcode": "text" if f.opcode == OP_TEXT else "binary",
                         "text": f.payload.decode("utf-8", "replace")[:400]})
         return out
+
+    def wait_text(self, seconds: float = 2.5) -> str | None:
+        """V4.3.2 battery reply wait: return the FIRST text frame as soon as
+        it arrives (no idle window after the answer — a request/response
+        channel costs one RTT, not the full listen budget). None on timeout
+        or close; '' for an empty text frame (a legitimate reply)."""
+        if not self.connected:
+            return None
+        deadline = time.time() + seconds
+        while time.time() < deadline:
+            self.sock.settimeout(max(0.1, deadline - time.time()))
+            f = self.recv_frame()
+            if f is None:
+                if not self.connected:
+                    return None
+                continue
+            if f.opcode == OP_CLOSE:
+                return None
+            if f.opcode == OP_TEXT:
+                return f.payload.decode("utf-8", "replace")[:2000]
+            # ping/pong/binary frames: keep waiting for the text reply
+        return None
 
     def close(self) -> None:
         if self.connected and self.sock is not None:
@@ -851,6 +1004,27 @@ class WebSocketEngine:
             elicited_hello = ""
             elicited_reply: list[dict] = []
 
+            # ---- V4.3.2: destructive-vocabulary channel — passive listen
+            # already done; EVERY message-sending phase (elicitation,
+            # reflection, replay, tampering, the battery) is refused from
+            # here on. An unknown message on a change-password-class surface
+            # could mutate operator state; fail-closed, boundary-recorded.
+            destructive = ws_destructive_path(url)
+            if destructive:
+                self._record(
+                    "websocket/message-probes", url, "BLOCKED_BY_SAFETY",
+                    "channel path carries destructive vocabulary — no "
+                    "message-active probe (elicitation/reflection/replay/"
+                    "battery) is ever sent; only the passive listen and "
+                    "handshake-level probes ran",
+                    remediation="verify the channel's message authorization "
+                                "manually on a staging copy",
+                    provenance="websocket:destructive-gate")
+                client.close()
+                # handshake-level probes only (no messages)
+                findings += self._origin_probe(url, stats, unauth_ok=True)
+                continue
+
             # ---- V411-WS-01: elicitation — silent request/response channels
             # say nothing until spoken to; one benign JSON hello (planner-
             # gated STATE_CHANGING, --logic-active only)
@@ -1029,5 +1203,27 @@ class WebSocketEngine:
                              "reflection and replay probes)",
                              provenance="websocket:protocol")
             client.close()
+        # ---- V4.3.2 (DVWS campaign, live-caught): ACTIVE MESSAGE BATTERIES.
+        # The engine observed channels, listened, elicited, and probed
+        # reflection/origin — but never SENT an attack payload through the
+        # message channel. Every message-borne vulnerability class was
+        # invisible (DVWS baseline 2026-10-08: 58 passive findings, ZERO
+        # strong-class, while the target carries nine message-borne vulns
+        # red-team-proven the same day). The battery runs ONLY under
+        # --logic-active (STATE_CHANGING class), uses ONLY observed message
+        # builders (page-JS bindings), and verifies every hit on a fresh
+        # connection (re-execution contract).
+        if self.logic_active and candidates:
+            try:
+                from .wsattack import run_ws_battery
+                findings.extend(run_ws_battery(self, candidates, stats))
+            except Exception as e:                     # tool-failure honesty
+                self._record("websocket/battery", base_url, "UNTESTABLE",
+                             f"active battery aborted: {type(e).__name__}: "
+                             f"{str(e)[:120]}",
+                             provenance="websocket:battery")
+                if self.bus is not None:
+                    self.bus.emit("ScannerFailed", scanner="ws-battery",
+                                  error=str(e)[:200])
         stats["connections"] = self.connections
         return {"findings": findings, "stats": stats, "candidates": candidates}
