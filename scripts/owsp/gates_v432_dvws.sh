@@ -36,7 +36,9 @@ for entry in "${CHUNKS[@]}"; do
   out="$CACHE/$name.json"
   if [ -f "$out" ] && python3 -c "
 import json,sys
-d=json.load(open('$out'))
+try: d=json.load(open('$out'))
+except Exception:
+    d,_=json.JSONDecoder().raw_decode(open('$out').read().lstrip())
 sys.exit(0 if d.get('passed') else 1)" 2>/dev/null; then
     echo "chunk $name: cached PASS"
     continue
@@ -48,8 +50,14 @@ sys.exit(0 if d.get('passed') else 1)" 2>/dev/null; then
 import json, sys
 try:
     d = json.load(open(sys.argv[1]))
-except Exception as e:
-    print(f"  CHUNK OUTPUT INVALID: {e}"); sys.exit(1)
+except Exception:
+    # tolerate trailing output after the result object (a chunk run may
+    # print extra lines after the JSON) — parse the FIRST valid object
+    try:
+        raw = open(sys.argv[1]).read()
+        d, _ = json.JSONDecoder().raw_decode(raw.lstrip())
+    except Exception as e:
+        print(f"  CHUNK OUTPUT INVALID: {e}"); sys.exit(1)
 ran = [c for c in d["cases"] if not c.get("skipped")]
 fails = [c for c in ran if not c["ok"]]
 print(f"  ran={len(ran)} failed={len(fails)} passed={d['passed']}")
@@ -69,7 +77,11 @@ for f in sorted(glob.glob("/tmp/v432_gate_chunks/c*.json")):
     try:
         d = json.load(open(f))
     except Exception:
-        continue
+        try:
+            raw = open(f).read()
+            d, _ = json.JSONDecoder().raw_decode(raw.lstrip())
+        except Exception:
+            continue
     for c in d["cases"]:
         if c.get("skipped"):
             continue

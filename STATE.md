@@ -3,7 +3,23 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-08 (UTC) — round 16: **v4.3.2 WS-ACTIVE — the WebSocket
+- Last updated: 2026-10-08 (UTC) — round 17: **v4.3.3 GraphQL STORED-XSS +
+  FIELD-SUGGESTIONS batteries — DVGA leg complete, THE OWASP CAMPAIGN CLOSES
+  AT 6/6** (WrongSecrets, OWASP Benchmark, DVWA, Mutillidae, NodeGoat,
+  DVWS+DVGA). Against DVGA's own 22 official solutions the GraphQL layer had
+  two live-caught gaps: no write->read oracle (stored XSS through mutations,
+  solution #12 — proven manually first with raw urllib, then built as
+  _stored_xss_battery: additive-write mutations only, fresh-marker 2-round
+  verification, the marker key riding the first non-slot String arg) and no
+  field-suggestion probe (solution #8 — a typo DERIVED from a real
+  introspected field answers 'Did you mean <field>?'; the escaped-quote form
+  was live-caught and fixed). LIVE RECORD: 30/30 findings VERIFIED (the five
+  baseline GraphQL classes + xss_stored + graphql_field_suggestions — a NEW
+  finding type), zero false positives, destructive mutations never exercised,
+  DoS-class solutions excluded by design. Gates: 205/206 covered (+1
+  RED-proven discriminating case on the new /gql/dvga fixture twin; the same
+  1 documented environmental exclusion) + doctor 17/17 + bench x3 IDENTICAL
+  38/0/0/37 @4784 ZERO regressions. Round 16 before it: v4.3.2 WS-ACTIVE. **v4.3.2 WS-ACTIVE — the WebSocket
   message battery (DVWS campaign, app 6/6 part 1)** — the engine observed WS
   channels but never SENT attack payloads through the message channel: the
   baseline v4.3.1 scan of DVWS returned 58 passive-only findings, ZERO
@@ -71,7 +87,7 @@ Supervisor order trace 1a10860055030c15. All artifacts under
   verdict changes) + verdict-diff vs frozen v4.2.2 NONE.
 
 **Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules, 16 active
-detectors + 2 chain phases), current version **4.3.2** (`build-v430/` is the
+detectors + 2 chain phases), current version **4.3.3** (`build-v430/` is the
 canonical live engine; v4.2.2 and earlier are frozen).
 - Verification by **re-execution**: a finding is VERIFIED only by re-issued
   requests against the live target (19 explicit type branches, fail-closed on

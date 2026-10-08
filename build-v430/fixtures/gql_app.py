@@ -56,6 +56,24 @@ GQL_GROUND_TRUTH = {
     "/gql/partial": [],
 }
 
+# ---- V4.3.3 (DVGA campaign): the STORED-XSS + FIELD-SUGGESTIONS twin ------
+# /gql/dvga mirrors the two DVGA defects the campaign caught live:
+#   * createUser(name, email) executes ANONYMOUSLY and stores the name RAW;
+#     search(filter) serves it back with the tag structure intact — the
+#     write->read stored-XSS oracle (DVGA solution #12)
+#   * a near-miss field name answers `Did you mean "<real>"?` — schema
+#     vocabulary leak through error suggestions (DVGA solution #8)
+# The CONTROL lives in the same twin: systemDebug exists but answers empty
+# (no cmdi), search filter is parameterized (no sqli), and updateUser is
+# present-but-blocked vocabulary.
+GQL_DVGA_GROUND_TRUTH = [
+    "graphql_introspection_enabled",
+    "graphql_mutation_authorization",     # anonymous createUser executes
+    "xss_stored",                         # V4.3.3 stored-marker roundtrip
+    "graphql_field_suggestions",         # V4.3.3 Did-you-mean leak
+]
+GQL_DVGA_STORED: list[dict] = []          # (name, email) rows, raw
+
 USERS = {
     1: {"id": 1, "name": "Alice", "email": "alice@sentinel-fixture.local",
         "passwordHash": "$2a$10$alicehash", "ssn": "111-22-3333"},
@@ -150,7 +168,8 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/" or path == "/index":
             html = ("<h1>GraphQL fixture</h1><p>APIs:</p>"
                     '<a href="/gql/safe">safe api</a> '
-                    '<a href="/gql/partial">partial api</a>'
+                    '<a href="/gql/partial">partial api</a> '
+                    '<a href="/gql/dvga">dvga twin</a>'
                     "<script>fetch('/api/graphql', {method:'POST',"
                     "headers:{'Content-Type':'application/json'},"
                     "body:JSON.stringify({query:'{products{name}}}'})});</script>")
@@ -160,14 +179,15 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(b)))
             self.end_headers()
             return self.wfile.write(b)
-        if path in ("/api/graphql", "/gql/safe", "/gql/partial"):
+        if path in ("/api/graphql", "/gql/safe", "/gql/partial", "/gql/dvga"):
             q = parse_qs(self.path.split("?", 1)[1]) if "?" in self.path else {}
             return self._graphql(path, unquote(q.get("query", [""])[0]))
         return self._not_found()
 
     def do_POST(self):
         path = self.path.split("?")[0]
-        if path not in ("/api/graphql", "/gql/safe", "/gql/partial"):
+        if path not in ("/api/graphql", "/gql/safe", "/gql/partial",
+                        "/gql/dvga"):
             return self._not_found()
         length = int(self.headers.get("Content-Length", 0) or 0)
         try:
@@ -181,7 +201,70 @@ class Handler(BaseHTTPRequestHandler):
         uid, role = self._caller()
         safe = path == "/gql/safe"
         partial = path == "/gql/partial"
+        dvga = path == "/gql/dvga"
         q = (query or "").strip()
+
+        # ---- V4.3.3 /gql/dvga: the stored-XSS + field-suggestions twin
+        if dvga:
+            if "__schema" in q:
+                return self._send(200, _schema_json())
+            if "__typename" in q:
+                # a real GraphQL server answers the standard probe with data
+                return self._send(200, {"data": {"__typename": "Query"}})
+            # field suggestions: near-miss field names leak the vocabulary
+            munknown = re.search(r"^\s*\{\s*(\w+)\s*\}", q)
+            if munknown and munknown.group(1) not in (
+                    "me", "user", "products", "search", "createUser",
+                    "updateUser", "systemDebug"):
+                cand = munknown.group(1)
+                best = None
+                for real in ("products", "search", "createUser", "user"):
+                    if cand[:-1] in real or real[:-1] in cand:
+                        best = real
+                        break
+                if best:
+                    return self._send(200, _err(
+                        'Cannot query field "%s" on type "Query". '
+                        'Did you mean "%s"?' % (cand, best)))
+                return self._send(200, _err(
+                    'Cannot query field "%s" on type "Query".' % cand))
+            if "createUser" in q:
+                # anonymous write, RAW storage (the DVGA createPaste defect)
+                mname = re.search(r'name:\s*"([^"]*)"', q)
+                memail = re.search(r'email:\s*"([^"]*)"', q)
+                row = {"id": 90 + len(GQL_DVGA_STORED),
+                       "name": mname.group(1) if mname else "",
+                       "email": memail.group(1) if memail else "",
+                       "passwordHash": "******", "ssn": "[REDACTED]"}
+                GQL_DVGA_STORED.append(row)
+                return self._send(200, {"data": {"createUser": row}})
+            if "updateUser" in q:
+                # blocked vocabulary must NEVER be exercised (the engine's
+                # destructive gate) — reaching here means a safety regression
+                GQL_DVGA_STORED.append({"name": "!! updateUser EXECUTED !!"})
+                return self._send(200, _err("updateUser executed"))
+            msearch = re.search(r"\bsearch\s*\(\s*filter:\s*\"((?:[^\"\\]|\\.)*)\"", q)
+            if msearch:
+                flt = msearch.group(1)
+                # parameterized (no sqli) — but serves stored rows RAW
+                # (the filter matches EITHER storage column, like a real
+                # OR-predicate over title/content would)
+                sel = [r for r in GQL_DVGA_STORED
+                       if flt in (r["name"], r["email"])]
+                prods = [p for p in PRODUCTS if p["name"] == flt]
+                return self._send(200, {"data": {"search": (sel + prods) or []}})
+            if re.search(r"\bsearch\b", q):
+                return self._send(200, {"data": {"search": PRODUCTS}})
+            if "systemDebug" in q:
+                return self._send(200, {"data": {"systemDebug": ""}})
+            if re.search(r"\buser\s*\(", q or ""):
+                mid = re.search(r"user\s*\(\s*id:\s*(\d+)", q)
+                if mid is None:
+                    return self._send(200, _err("user requires id"))
+                return self._send(200, {"data": {"user": USERS.get(int(mid.group(1)))}})
+            if "products" in q:
+                return self._send(200, {"data": {"products": PRODUCTS}})
+            return self._send(200, _err("unknown operation"))
 
         # V411-GL-11 (live-caught on DVGA, emulated here): GraphQL validation —
         # an OBJECT/LIST return REQUIRES a selection set; a SCALAR return must

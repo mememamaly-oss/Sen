@@ -4824,6 +4824,72 @@ def regression_v432_ws_active_battery():
 
 
 @case
+def regression_v433_graphql_dvga_battery():
+    """V4.3.3 (DVGA campaign, live-caught 2026-10-08): the GraphQL layer had
+    no write->read oracle — stored XSS through mutations (DVGA solution #12:
+    createPaste carries an HTML marker served back intact) and no field-
+    suggestion probe (solution #8: near-miss fields answer 'Did you mean?')
+    were both invisible. This case pins both batteries on the /gql/dvga
+    fixture twin: the stored-marker roundtrip with a FRESH-marker
+    verification round, the suggestion echo with a replay, the SAFETY
+    control (updateUser is present-but-blocked vocabulary — the fixture
+    records any execution as a poisoned row), and the precision control
+    (parameterized search filter must NOT fire sqli). RED-proven: with the
+    V4.3.3 batteries reverted both new findings vanish and this fails."""
+    from sentinel.core import ScopeRule, EventBus, Endpoint, DiscoverySource
+    from sentinel.http_engine import RequestEngine
+    from sentinel.graphql import GraphqlEngine
+    from sentinel.planner import SafeAttackPlanner
+    from sentinel.boundary import BoundaryEngine
+    from sentinel.coverage import CoverageTracker
+    base, srv, mod = _start_fixture("gql_app", 8948)
+    try:
+        bus = EventBus("t433-gql")
+        scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
+        engine = RequestEngine(scope, bus, timeout=6)
+        anon = RequestEngine(scope, bus, timeout=6)
+        boundary = BoundaryEngine()
+        gql = GraphqlEngine(engine, scope, bus, timeout=6,
+                            planner=SafeAttackPlanner(logic_active=True),
+                            boundary=boundary, coverage=CoverageTracker(),
+                            logic_active=True)
+        eps = [Endpoint(url=base + "/gql/dvga",
+                        source=DiscoverySource.CRAWL_HTML)]
+        res = gql.run(eps, base, anonymous_engine=anon)
+        dvga = [f for f in res["findings"]
+                if f.endpoint_url.endswith("/gql/dvga")]
+        got = {f.type for f in dvga}
+        for t in mod.GQL_DVGA_GROUND_TRUTH:
+            assert t in got, f"missing {t}: {sorted(got)}"
+        # precision controls: parameterized filter never fires sqli; the
+        # empty-answer systemDebug never fires command execution
+        assert "graphql_sql_injection" not in got, got
+        assert "graphql_command_execution" not in got, got
+        # every dvga finding is VERIFIED with its 2-round proof
+        for f in dvga:
+            assert f.status.value == "verified", (f.type, f.status)
+            assert f.verification and f.verification.passed, (f.type,)
+        # the stored-XSS finding: fresh-marker roundtrip evidence + rounds>=2
+        sx = [f for f in dvga if f.type == "xss_stored"][0]
+        assert "gql_stored_marker_roundtrip" in {e.kind for e in sx.evidence}
+        assert sx.verification.method == \
+            "graphql:response-verification:stored-marker-roundtrip"
+        # the suggestion finding: derived from a REAL schema field
+        fs = [f for f in dvga if f.type == "graphql_field_suggestions"][0]
+        assert fs.verification.method == \
+            "graphql:response-verification:field-suggestion-echo"
+        assert fs.parameter.endswith("z"), fs.parameter   # the derived typo
+        # SAFETY: updateUser (blocked vocabulary) was NEVER executed — the
+        # fixture poisons the store if it ever arrives
+        assert not [r for r in mod.GQL_DVGA_STORED
+                    if "EXECUTED" in r.get("name", "")], \
+            "updateUser was exercised — the destructive gate broke!"
+    finally:
+        mod.GQL_DVGA_STORED.clear()
+        srv.shutdown(); srv.server_close()
+
+
+@case
 def unit_v41_twin_provenance():
     """Phase V41-07: Twin 2.0 — every node and edge carries belief + provenance
     (the audit is EMPTY), inference is never labeled observed, and why()

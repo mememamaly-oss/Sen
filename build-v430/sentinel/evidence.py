@@ -64,6 +64,11 @@ IMPACT_PROFILES: dict[str, tuple[str, str]] = {
          "battery): a fresh arithmetic expression was computed by the "
          "target's eval/code path (42-style oracle, reproduced on a fresh "
          "connection) — application-language code execution context."),
+    "graphql_field_suggestions":
+        ("indicated", "Schema vocabulary leak: a near-miss field name "
+         "answers 'Did you mean <field>?' — the GraphQL API discloses its "
+         "field names through error suggestions even when introspection is "
+         "disabled (V4.3.3, DVGA solution #8)."),
     "nosql_injection":
         ("proven", "Query operator injection proven: an attacker-supplied "
          "$operator object flipped an authentication rejection into "
@@ -283,6 +288,8 @@ HYPOTHESIS_BY_CLASS: dict[str, str] = {
     "ssti": "a template engine evaluates a fresh arithmetic expression",
     "code_injection": "an eval/code path evaluates a fresh arithmetic "
                       "expression (WS message battery, 2-round)",
+    "graphql_field_suggestions": "a near-miss field name gets a "
+                                 "'Did you mean' suggestion (2-round)",
     "nosql_injection": "an injected query-operator object flips an auth decision",
     "csrf": "a hostile-origin state-changing request is accepted like a "
             "same-origin one",
@@ -453,7 +460,7 @@ REPLAYABLE_TYPES = {
     "xxe": "xxe", "command_injection": "cmdi", "csrf": "csrf",
     "nosql_injection": "nosql", "jwt_security": "jwt",
     "host_header_injection": "hostheader", "ssti": "ssti",
-    "code_injection": "codei",
+    "code_injection": "codei", "graphql_field_suggestions": "gqlsuggest",
 }
 
 

@@ -1,3 +1,64 @@
+# SENTINEL v4.3.3 — GraphQL STORED-XSS + FIELD-SUGGESTIONS batteries (DVGA campaign, app 6/6 part 2 — CAMPAIGN CLOSED)
+
+The OWASP application-testing campaign closes at 6/6 (WrongSecrets, OWASP
+Benchmark, DVWA, Mutillidae, NodeGoat, DVWS+DVGA). The DVGA leg (Damn
+Vulnerable GraphQL Application, the faithful invicticoreteam fork —
+login/JWT + /difficulty + systemDiagnostics + the dolevf pin set) exposed
+the last two live-caught capability gaps against the app's own 22 official
+solutions: the GraphQL layer had no write->read oracle (stored XSS through
+mutations, solution #12) and no field-suggestion probe (schema vocabulary
+leak through near-miss errors, solution #8). Both were red-team-proven
+manually first (scripts/owsp/dvga_manual_probes.py, raw urllib, zero engine
+code), then built, then live-verified.
+
+## What was built (sentinel/graphql.py)
+
+- **_stored_xss_battery**: schema-driven write->read marker roundtrip —
+  additive-write mutations only (create/add/post/submit/new/publish; the
+  destructive/import/upload vocabulary is NEVER exercised), one text slot
+  per mutation, the read fan-out bounded to 3 queries, and a FRESH-marker
+  verification round on the same transport (re-execution contract). The
+  marker key rides the first non-slot String arg (DVGA's title, the
+  fixture's email) so the read filter finds the row generically.
+- **_field_suggestions_probe**: ONE typo derived from a REAL introspected
+  field (never guessed) + a verification replay; the parser accepts the
+  backslash-escaped quotes the suggestion arrives with inside the JSON
+  error string (live-caught: the first probe missed the escaped form).
+- New finding type graphql_field_suggestions (LOW) wired into
+  RISK_WEIGHTS + the evidence impact profiles; two new _derive_gql rules
+  (stored-marker-roundtrip, field-suggestion-echo — fail-closed).
+
+## The live record (build-v430/results/owsp/dvga/scan_final.json)
+
+DVGA stack: userspace venv (Flask 2.2.5 / graphene 2.1.9 / the v4.1-era pin
+recipe), SQLite (fresh DB each boot — Docker parity), setup.py provisioning
+through the venv (the app's initialize() shells out to a bare python3 that
+lacks SQLAlchemy here), two campaign identities + fresh JWTs + private
+marker pastes (scripts/owsp/dvga_identities.py). Engine v4.3.3 with
+--logic-active --workflow, JWT Bearer + authz accounts, /difficulty/ pinned:
+
+- **30/30 findings VERIFIED** — the five baseline GraphQL classes (bola,
+  command_execution via systemDiagnostics, introspection,
+  mutation_authorization, sql_injection via pastes.filter) PLUS the two new
+  batteries: **xss_stored** (createPaste content -> pastes(filter) serves
+  the HTML marker back intact, fresh-marker 2-round) and
+  **graphql_field_suggestions** (auditz -> "Did you mean audits?").
+- Zero false positives; the destructive mutations (edit/delete/import/
+  upload/readAndBurn/deleteAllPastes) were never exercised (vocabulary
+  gates), and the DoS-class solutions (#1-5, #20) are excluded by design.
+
+## Gates
+
+- suite **205/206 covered** (+1 new discriminating case
+  regression_v433_graphql_dvga_battery on the new /gql/dvga fixture twin —
+  RED-proven via git-stash revert: both new findings vanish; GREEN after;
+  the old regression_v41_graphql_battery untouched-green; the same 1
+  documented environmental exclusion as the v4.3.2 round)
+- doctor **17/17**, local bench ×3 **IDENTICAL 38/0/0/37 F1=1.000 @4784
+  run-3c0652b6be** (ZERO regressions).
+
+---
+
 # SENTINEL v4.3.2 — WS-ACTIVE: the WebSocket message battery (DVWS campaign, app 6/6 part 1)
 
 The engine observed WebSocket channels, listened, elicited shapes, and probed

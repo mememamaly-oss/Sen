@@ -148,6 +148,17 @@ def _derive_gql(proof: dict) -> bool:
         return (obs.get("exposed", 0) > 0) or (obs.get("hits", 0) > 0)
     if rule == "executed-no-errors":
         return bool(obs.get("data_present")) and not obs.get("errors")
+    if rule == "stored-marker-roundtrip":
+        # V4.3.3 (DVGA campaign): a mutation-carried HTML marker survived the
+        # write->read cycle AND was served back with its tag structure intact
+        # (the stored-XSS oracle) — and a FRESH marker reproduced it (2-round).
+        return (bool(obs.get("read_marker")) and obs.get("rounds", 0) >= 2
+                and bool(obs.get("replay_marker")))
+    if rule == "field-suggestion-echo":
+        # V4.3.3: a near-miss field name got a "Did you mean <real field>"
+        # error — the schema leaks its vocabulary through suggestions
+        return (bool(obs.get("suggestion")) and bool(obs.get("real_field"))
+                and obs.get("reproduced", False))
     raise ValueError(f"unknown graphql proof rule {rule!r} — add an explicit "
                      "derivation branch in _derive_gql (fail-closed)")
 
@@ -782,6 +793,250 @@ class GraphqlEngine:
                                 "on a staging copy",
                     provenance="graphql:vocabulary-gate")
 
+    # ------------------------------------------------------------ V4.3.3
+    _GQL_ADDITIVE_WRITE_RE = None      # compiled lazily below
+    _GQL_WRITE_WORDS = ("create", "add", "post", "submit", "new", "publish")
+    _GQL_TEXT_SLOTS = ("content", "body", "text", "value", "message",
+                       "comment", "title", "name", "description")
+    _GQL_READ_QUERIES = ("pastes", "paste", "search", "searchpaste", "list",
+                         "listpastes", "items", "posts", "messages",
+                         "comments", "all", "find", "query")
+
+    def _stored_xss_battery(self, url, ops, stats) -> list:
+        """V4.3.3 (DVGA campaign, live-caught): stored XSS through the
+        GraphQL transport. Red-team proof on DVGA 2026-10-08 (raw urllib,
+        zero engine code): createPaste(content: "<b id=MK>..</b>") then
+        pastes(filter: title) serves the marker back WITH its tag structure
+        intact — the write->read oracle the HTTP xss_stored battery has, now
+        through mutations. Safety: additive-write mutations only (the
+        destructive vocabulary — edit/delete/update/remove/reset/import/
+        upload/password — is never exercised here), one text slot per
+        mutation, bounded read fan-out, and a FRESH-marker verification
+        round on the same transport (re-execution contract)."""
+        import random as _random
+        rand = _random.Random(20261008)
+        if self._GQL_ADDITIVE_WRITE_RE is None:
+            import re as _re
+            self.__class__._GQL_ADDITIVE_WRITE_RE = _re.compile(
+                "|".join(self._GQL_WRITE_WORDS), _re.I)
+
+        client = GraphqlClient(self.engine)
+        findings: list[Finding] = []
+        mutations = ops.get("mutations") or []
+        queries = ops.get("queries") or []
+        read_q = [q for q in queries
+                  if q.get("name", "").lower() in self._GQL_READ_QUERIES]
+        if not read_q:
+            # fallback: any list-shaped query (return type plural-ish or a
+            # filter arg exists) — still schema-driven, never guessed
+            read_q = [q for q in queries
+                      if any(a.get("name") == "filter"
+                             for a in (q.get("args") or []))][:3] \
+                or queries[:3]
+        read_q = read_q[:3]
+        write_muts = []
+        for m in mutations:
+            name = (m.get("name") or "").lower()
+            if not self._GQL_ADDITIVE_WRITE_RE.search(name):
+                continue
+            if any(w in name for w in ("delete", "update", "remove", "edit",
+                                       "reset", "import", "upload", "password",
+                                       "passwd", "burn")):
+                continue            # destructive/import/upload — never probed here
+            slots = [a.get("name") for a in (m.get("args") or [])
+                     if (a.get("type") or "") == "String"
+                     and (a.get("name") or "").lower() in self._GQL_TEXT_SLOTS]
+            if slots:
+                write_muts.append((m, slots[0]))
+        if not write_muts or not read_q:
+            self._record_boundary(
+                "graphql/stored-xss", url, "UNTESTABLE",
+                "no additive-write mutation with a text slot paired with a "
+                "read query in the schema inventory — the write->read "
+                "roundtrip cannot be shaped",
+                provenance="graphql:stored-xss-shape-gate")
+            return findings
+
+        marker_html = None
+        for mut, slot in write_muts[:2]:
+            mk = "GQLSX" + "".join(rand.choice("0123456789abcdef")
+                                   for _ in range(8))
+            marker_html = f"<b id={mk}>s</b>"
+            # every String arg gets a benign value; the SLOT carries the
+            # marker, the FIRST other String arg carries the bare marker key
+            # (the read filter — DVGA's `title`, the fixture's `email`)
+            string_args = [a.get("name") for a in (mut.get("args") or [])
+                           if (a.get("type") or "") == "String"]
+            key_arg = next((a for a in string_args if a != slot), None)
+
+            def _lit():
+                out = []
+                for an in string_args:
+                    if an == slot:
+                        val = marker_html
+                    elif an == key_arg:
+                        val = mk
+                    else:
+                        val = "sentinel"
+                    out.append(f'{an}: "{val}"')
+                return ", ".join(out)
+
+            sel = self._selection_set(mut) or "id"
+            write_q = 'mutation { %s(%s) { %s } }' % (
+                mut.get("name"), _lit(), sel)
+            r = client.query(url, write_q, note="gql-storedxss-write")
+            stats["tests"] += 1
+            self.requests += 1
+            if not r or r.error or '"errors"' in (r.body or "")[:200]:
+                continue
+            # read fan-out: find the marker through the read queries
+            read_body = ""
+            for rq in read_q:
+                rsel = self._selection_set(rq) or "id"
+                rargs = []
+                for a in (rq.get("args") or [])[:3]:
+                    if (a.get("type") or "") == "String":
+                        rargs.append(f'{a.get("name")}: "{mk}"')
+                rq_q = '{ %s(%s) { %s } }' % (rq.get("name"),
+                                              ", ".join(rargs), rsel)
+                rr = client.query(url, rq_q, note="gql-storedxss-read")
+                stats["tests"] += 1
+                self.requests += 1
+                if rr and not rr.error and mk in (rr.body or ""):
+                    read_body = rr.body or ""
+                    break
+            if not read_body or marker_html not in read_body:
+                continue
+            # verification round: a FRESH marker, same write->read cycle
+            mk2 = "GQLSX" + "".join(rand.choice("0123456789abcdef")
+                                    for _ in range(8))
+            marker2 = f"<b id={mk2}>s</b>"
+            key_arg2 = key_arg
+
+            def _lit2():
+                out = []
+                for an in string_args:
+                    if an == slot:
+                        val = marker2
+                    elif an == key_arg2:
+                        val = mk2
+                    else:
+                        val = "sentinel"
+                    out.append(f'{an}: "{val}"')
+                return ", ".join(out)
+
+            w2 = 'mutation { %s(%s) { %s } }' % (mut.get("name"),
+                                                 _lit2(),
+                                                 self._selection_set(mut) or "id")
+            r2 = client.query(url, w2, note="gql-storedxss-verify-write")
+            stats["tests"] += 1
+            self.requests += 1
+            replay_ok = False
+            if r2 and not r2.error and '"errors"' not in (r2.body or "")[:200]:
+                for rq in read_q:
+                    rargs = []
+                    for a in (rq.get("args") or [])[:3]:
+                        if (a.get("type") or "") == "String":
+                            rargs.append(f'{a.get("name")}: "{mk2}"')
+                    rq_q = '{ %s(%s) { %s } }' % (
+                        rq.get("name"), ", ".join(rargs),
+                        self._selection_set(rq) or "id")
+                    rr2 = client.query(url, rq_q, note="gql-storedxss-verify-read")
+                    stats["tests"] += 1
+                    self.requests += 1
+                    if rr2 and not rr2.error and marker2 in (rr2.body or ""):
+                        replay_ok = True
+                        break
+            findings.append(_gql_finding(
+                "xss_stored", Severity.HIGH, url, slot,
+                Evidence("gql_stored_marker_roundtrip",
+                         f"mutation {mut.get('name')}({slot}=...) carried an "
+                         f"HTML marker that survived the write->read cycle "
+                         f"and was served back with its tag structure intact: "
+                         f"{marker_html!r} present in the read reply — the "
+                         f"content is stored and rendered raw", ""),
+                "stored marker reproduced with a FRESH marker on the same "
+                "transport (2-round write->read)",
+                query=write_q[:160],
+                response=(read_body or "")[:160],
+                proof={"rule": "stored-marker-roundtrip",
+                       "obs": {"marker": marker_html,
+                               "read_marker": True,
+                               "replay_marker": replay_ok,
+                               "rounds": 2}}))
+            if replay_ok:
+                break               # one verified finding is the honest cap
+        if not findings:
+            self._record_boundary(
+                "graphql/stored-xss", url, "TESTED",
+                "additive-write mutations probed with HTML markers; no "
+                "roundtripped marker with intact tag structure",
+                provenance="graphql:stored-xss-battery")
+        return findings
+
+    def _field_suggestions_probe(self, url, ops, stats) -> list:
+        """V4.3.3 (DVGA campaign, live-caught): GraphQL field suggestions.
+        A near-miss field name (one edit from a REAL schema field) answers
+        `Did you mean "<real field>"?` — the schema vocabulary leaks through
+        error messages even when introspection is disabled (DVGA solution
+        #8). Bounded: ONE typo probe per endpoint + one verification replay;
+        the typo is DERIVED from the introspected field names (never
+        guessed)."""
+        queries = ops.get("queries") or []
+        if not queries:
+            return []
+        real = None
+        for q in queries:
+            if len(q.get("name") or "") >= 4:
+                real = q["name"]
+                break
+        if not real:
+            return []
+        typo = real[:-1] + ("z" if not real.endswith("z") else "x")
+        client = GraphqlClient(self.engine)
+        probe = "{ %s }" % typo
+        r = client.query(url, probe, note="gql-field-suggestion")
+        stats["tests"] += 1
+        self.requests += 1
+        body = (r.body or "") if r else ""
+        import re as _re2
+        # the suggestion text rides INSIDE a JSON string — the quotes around
+        # the field name arrive BACKSLASH-ESCAPED (\"audits\") in the raw
+        # body; accept both the escaped and the plain form
+        m = _re2.search(r'Did you mean \\?"([A-Za-z0-9_]+)\\?"', body)
+        if not m:
+            self._record_boundary(
+                "graphql/field-suggestions", url, "TESTED",
+                f"near-miss field probe '{typo}' answered without a "
+                "suggestion — field suggestions appear disabled",
+                evidence=body[:120],
+                provenance="graphql:suggestion-probe")
+            return []
+        suggestion = m.group(1)
+        # verification replay (re-execution contract)
+        r2 = client.query(url, probe, note="gql-field-suggestion-verify")
+        stats["tests"] += 1
+        self.requests += 1
+        reproduced = bool(
+            r2 and not r2.error
+            and _re2.search(r'Did you mean \\?"%s\\?"' % suggestion,
+                            (r2.body or "")))
+        return [_gql_finding(
+            "graphql_field_suggestions", Severity.LOW, url, typo,
+            Evidence("gql_field_suggestion",
+                     f"the near-miss field '{typo}' answered "
+                     f"'Did you mean \"{suggestion}\"?' — the schema's field "
+                     f"vocabulary leaks through error suggestions (the real "
+                     f"field '{real}' was confirmed present by the reply)",
+                     ""),
+            "suggestion echo reproduced on a fresh request (2-round)",
+            query=probe,
+            response=body[:160],
+            proof={"rule": "field-suggestion-echo",
+                   "obs": {"suggestion": suggestion,
+                           "real_field": real,
+                           "reproduced": reproduced}})]
+
     def _battery(self, url, ops, anonymous_engine, low_identity,
                  primary_identity, stats) -> list[Finding]:
         findings: list[Finding] = []
@@ -797,6 +1052,19 @@ class GraphqlEngine:
 
         # ---- V411-GL-02: command execution through system/debug-shaped args
         findings += self._cmdexec_battery(url, ops, stats)
+
+        # ---- V4.3.3 (DVGA campaign, live-caught): STORED XSS through
+        # GraphQL mutations — the write->read marker roundtrip (the DVGA
+        # createPaste solution #12). The battery is gated on the operation
+        # inventory: only additive-write mutations, only string-arg slots,
+        # never destructive vocabulary, and a fresh-marker verification
+        # round on the SAME transport.
+        findings += self._stored_xss_battery(url, ops, stats)
+
+        # ---- V4.3.3: GraphQL FIELD SUGGESTIONS — a near-miss field name
+        # (one edit away from a REAL field) answers "Did you mean <field>?"
+        # and leaks the schema vocabulary even when introspection is off.
+        findings += self._field_suggestions_probe(url, ops, stats)
 
         # ---- V411-GL-04: variables / fragments / aliases / nested selection
         self._features_probe(url, ops, stats)

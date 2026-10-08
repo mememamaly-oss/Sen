@@ -1411,3 +1411,23 @@ Work Log:
 Stage Summary:
 - DVWS leg COMPLETE: v4.3.2 ships the WebSocket active message battery — a capability most DAST tools lack entirely (channel-bound observed shapes, seven oracle families, two-round re-execution verification, one safety gate for every message phase). 10/10 live-verified strong findings at zero false positives, controls silent.
 - Campaign 6/6 status: DVWS DONE (part 1); DVGA (part 2) remains — Python/Flask DVGA fork + venv (setup scripts committed from the v4.1 era), scan, fix, gates, close.
+
+---
+Task ID: 31 (DVGA — app 6/6 part 2: CAMPAIGN CLOSED)
+Agent: Super Z (main agent)
+Task: Complete the DVGA leg of campaign 6/6 (deploy, red-team scan, fix live-caught gaps red->green, gates, close the campaign).
+
+Work Log:
+- FORK RESOLUTION: FredMarchildon/DVGA is an early simplified fork (no login/JWT) — the faithful twin is invicticoreteam/Damn-Vulnerable-GraphQL-Application (login+JWT mutation, /difficulty/<level>, systemDiagnostics, UserInput{username,email,password}, the EXACT graphene 2.1.9/graphql-core 2.3.2/Flask-GraphQL-Auth 1.3.3 pins of the v4.1-era recipe). Kazuya256 is the Node re-engine (not used).
+- STACK (userspace): venv with the committed v4.1 pin recipe; SQLite fresh DB each boot; the app's initialize() shells to a bare `python3` from PATH (no SQLAlchemy) — scripts/owsp/dvga_stack.sh runs setup.py through the venv explicitly + boots app.py on 5013 + runs scripts/owsp/dvga_identities.py (two users + fresh JWTs + private marker pastes -> accounts.json).
+- BASELINE (v4.3.2 engine): 28/28 VERIFIED incl. graphql_bola, graphql_command_execution (systemDiagnostics), graphql_introspection_enabled, graphql_mutation_authorization, graphql_sql_injection (pastes.filter) — the v4.1 GraphQL layer held up.
+- GROUND TRUTH AUDIT vs the app's 22 official solutions (db/solutions.py): DoS classes #1-5/#20 excluded by design (destructive); #16/#17/#22 partially covered by mutation_authorization/BOLA; TWO safe-to-prove gaps: #12 STORED XSS through mutations and #8 FIELD SUGGESTIONS.
+- RED-TEAM MANUAL PROOF (scripts/owsp/dvga_manual_probes.py, raw urllib): createPaste(content:"<b id=MK>..</b>") + pastes(filter:MK,public:true) serves the marker back WITH intact tag structure = PROVEN; near-miss field "pastez" answers 'Did you mean "pastes" or "paste"?' = PROVEN. (First probe round caught the pastes resolver's exact-match + public=False default semantics.)
+- BUILT (v4.3.3, build-v430/sentinel/graphql.py): _stored_xss_battery (schema-driven: additive-write mutations only, one text slot, bounded read fan-out, FRESH-marker verification round; the marker key rides the first non-slot String arg so the read filter is generic — live-caught: the first shape hard-coded `title` and the fixture twin's email-keyed store missed it) + _field_suggestions_probe (typo DERIVED from a real introspected field + replay; live-caught: the suggestion arrives with BACKSLASH-ESCAPED quotes inside the JSON error string — the first regex missed it). New type graphql_field_suggestions wired into RISK_WEIGHTS + evidence profiles; two new fail-closed _derive_gql rules.
+- FIXTURE + TEST: /gql/dvga twin in gql_app.py (anonymous raw-storage createUser + RAW search serving + Did-you-mean errors + the poisoned-row updateUser control + parameterized filter precision control + empty systemDebug control); regression_v433_graphql_dvga_battery RED-proven clean (stash-revert: both new findings vanish) then GREEN; old regression_v41_graphql_battery untouched-green.
+- LIVE RECORD (results/owsp/dvga/scan_final.json): 30/30 VERIFIED — the five baseline GraphQL classes + xss_stored (2-round fresh marker) + graphql_field_suggestions. Zero FPs; destructive vocabulary never exercised.
+- GATES: suite 205/206 covered (chunk runner; the same 1 documented env exclusion; chunk reader hardened for trailing-output JSON) + doctor 17/17 + bench x3 IDENTICAL 38/0/0/37 @4784 run-3c0652b6be ZERO regressions.
+
+Stage Summary:
+- THE OWASP APPLICATION CAMPAIGN IS CLOSED AT 6/6: WrongSecrets (OWSP-01..05), OWASP Benchmark 1.2 (v4.2.4->v4.3.1 ground-truth program, precision 100% / recall 68.90%), DVWA (OWSP-13..20), Mutillidae (OWSP-21..26), NodeGoat (OWSP-27..35), DVWS (v4.3.2 WS-ACTIVE), DVGA (v4.3.3). Engine now 4.3.3. crAPI remains docker-blocked (documented, the order's own condition unmet).
+- Campaign totals across 6 apps: 47 live-caught engine defect families fixed red->green with discriminating tests; suite 141->206; two whole new attack-surface layers (WebSocket message batteries + GraphQL stored-XSS/suggestions); precision discipline held at every step (bench x3 identical each round).
