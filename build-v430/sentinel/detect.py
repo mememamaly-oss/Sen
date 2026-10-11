@@ -1354,8 +1354,22 @@ class RedirectDetector(Detector):
     name, vuln_type = "redirect", "open_redirect"
     severity = Severity.MEDIUM
     PROBE_HOST = "sentinel-redirect-check.example.org"
-    SINK_RE = re.compile(r"(location\.href|window\.location|http\.refresh|meta[^>]+refresh)", re.I)
-    SINK_WINDOW = 200            # chars on each side of the injected URL occurrence
+    # iv14 @ 23c4619 (branch iv14/session-round-v423-gap-closure, the v4.2.3
+    # gap-closure round, transferred to main per supervisor order 2026-10-12,
+    # fix + its distinctive test only): CLIENT_REDIRECT_SINK_RE — the
+    # sink-CONTEXT contract. The probe host must sit INSIDE the redirect
+    # expression itself (JS assignment / http.refresh call / meta-refresh
+    # content carrying the URL). The old OWSP-29 criterion — ANY sink keyword
+    # within a 200-char window of a raw reflection — was the structural
+    # open_redirect FP live-caught on testaspnet tbComment during IV14: the
+    # value rode a div reflection while an unrelated window.location sat
+    # ~35 chars away (inside the window), and the detector fired
+    # open_redirect on a page that never redirects with the value.
+    CLIENT_REDIRECT_SINK_RE = re.compile(
+        r"(?:location\.href|window\.location)\s*=\s*[\"']?\s*(?:https?:)?//" + re.escape(PROBE_HOST)
+        + r"|http\.refresh\s*\(\s*[\"']?\s*(?:https?:)?//" + re.escape(PROBE_HOST)
+        + r"|meta[^>]{0,120}?refresh[^>]{0,240}?(?:https?:)?//" + re.escape(PROBE_HOST),
+        re.I)
 
     def candidates(self, ep: Endpoint):
         ev = "sentinel-redirect-check.example.org"
@@ -1363,19 +1377,14 @@ class RedirectDetector(Detector):
                 for p in ep.parameters if p.kind != ParamKind.TOKEN and not p.flow_control
                 for v in (f"https://{ev}/probe", f"//{ev}/probe")]
 
-    def _sink_near_url(self, body: str) -> str:
-        """OWSP-29 (NodeGoat round, live-caught on /research?symbol=): the URL
-        string and the sink regex used to be checked INDEPENDENTLY anywhere in
-        the body — on a server-side-fetched third-party page the injected URL
-        rode inside an HTML comment while the only 'sink' was an unrelated
-        window.location.hostname beacon 3KB away, and the FP verified. The
-        sink must now sit within a bounded window of an injected-URL
-        occurrence. Returns the matched window (evidence context) or ''."""
-        for m in re.finditer(re.escape(self.PROBE_HOST), body):
-            w = body[max(0, m.start() - self.SINK_WINDOW): m.end() + self.SINK_WINDOW + 60]
-            if self.SINK_RE.search(w):
-                return w
-        return ""
+    def _sink_expression(self, body: str) -> str:
+        """iv14 @ 23c4619: the probe host must sit INSIDE a client redirect
+        sink expression. A sink keyword merely NEAR a raw reflection (the old
+        OWSP-29 200-char window) no longer counts — that proximity produced
+        the structural FP live-caught on testaspnet tbComment (IV14).
+        Returns the matched expression (evidence context) or ''."""
+        m = self.CLIENT_REDIRECT_SINK_RE.search(body)
+        return m.group(0) if m else ""
 
     def _fetch_proxy_note(self, ep: Endpoint, probed_name: str) -> str:
         """OWSP-29: an endpoint carrying a sibling param whose base value is an
@@ -1403,16 +1412,18 @@ class RedirectDetector(Detector):
             return Finding("open_redirect", Severity.MEDIUM, ep.url, p.name, ep.method,
                            [Evidence("header_value", f"Location redirects off-site to {loc[:100]}", resp.request_id)],
                            status=FindingStatus.CANDIDATE)
-        # reflected/meta/JS redirect context — OWSP-29: proximity-gated
+        # reflected/meta/JS redirect context — iv14 @ 23c4619: sink-CONTEXT
+        # (the probe host INSIDE the redirect expression), replacing the
+        # OWSP-29 proximity window that fired the structural FP on raw
+        # reflections with an unrelated sink nearby.
         if resp.body and "sentinel-redirect-check.example.org" in resp.body:
-            w = self._sink_near_url(resp.body)
-            if w:
+            sx = self._sink_expression(resp.body)
+            if sx:
                 return Finding("open_redirect", Severity.MEDIUM, ep.url, p.name, ep.method,
                            [Evidence("body_redirect",
-                                     "off-site URL injected into a client redirect sink "
-                                     f"within {self.SINK_WINDOW} chars of the URL" +
+                                     "off-site host inside a client redirect sink expression" +
                                      self._fetch_proxy_note(ep, p.name) +
-                                     f" [ctx: …{w[:180]}…]", resp.request_id)],
+                                     f" [ctx: …{sx[:180]}…]", resp.request_id)],
                            status=FindingStatus.CANDIDATE)
         return None
 

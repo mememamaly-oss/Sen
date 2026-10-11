@@ -9569,6 +9569,109 @@ def unit_owsp29_body_redirect_proximity():
 
 
 @case
+def unit_v423_open_redirect_sink_context():
+    """iv14 @ 23c4619 (branch iv14/session-round-v423-gap-closure, the v4.2.3
+    gap-closure round, transferred to main per supervisor order 2026-10-12 —
+    this discriminating test ONLY, nothing else from the branch): the
+    open_redirect STRUCTURAL FP live-caught on testaspnet tbComment during
+    IV14. The value reflected RAW in a div while an unrelated window.location
+    sat ~35 chars away — INSIDE OWSP-29's 200-char proximity window — and the
+    detector fired open_redirect on a page that never redirects with the
+    value; the verifier then upheld it. CLIENT_REDIRECT_SINK_RE now requires
+    the probe host INSIDE the redirect expression itself (sink-CONTEXT
+    contract), and the verifier uses the SAME regex (detector and verifier
+    can never disagree on what a sink is).
+
+    Three independent verdicts (fixture transplanted VERBATIM from the
+    branch — preserved byte-for-byte by the Task-32 supervisor audit in
+    scripts/verify_v433_openredirect_fp.py; RED on unfixed v4.3.3 re-proven
+    this round at results/verify_v433_sinkcontext/openredirect_fp_red.json,
+    matching the audit's openredirect_fp_audit.json):
+      (1) fp_negative : raw reflection + unrelated window.location -> the
+          detector MUST stay silent;
+      (2) true_positive: value inside location.href -> candidate + VERIFIED
+          re-test:second-host (no capability loss);
+      (3) fp_verify   : a forged body_redirect candidate on the reflection
+          page -> the verifier MUST reject it on replay.
+    """
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs
+    from sentinel.http_engine import RequestEngine
+    from sentinel.core import (ScopeRule, EventBus, Endpoint, Parameter, ParamLocation,
+                                Finding, Evidence, Severity, FindingStatus)
+    from sentinel.detect import RedirectDetector
+    from sentinel.intel import VerificationEngine
+
+    class H(BaseHTTPRequestHandler):
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0))
+            q = parse_qs(self.rfile.read(n).decode(), keep_blank_values=True).get("note", [""])[0]
+            # FP shape: value reflected RAW (XSS-style) in a div, while generic
+            # page JS carries an UNRELATED window.location statement ~35 chars later.
+            body = ("<html><body><div class='refl'>" + q + "</div>"
+                    "<script>function goHome(){ window.location = '/home'; }</script>"
+                    "</body></html>")
+            self.send_response(200); self.end_headers(); self.wfile.write(body.encode())
+        def do_GET(self):
+            u = parse_qs(self.path.split("?", 1)[1]).get("u", [""])[0] if "?" in self.path else ""
+            if "/sink" in self.path:
+                # true positive shape: the value lands INSIDE the sink expression
+                body = ("<html><script>if (confirm('go?')) "
+                        "location.href = '" + u + "';</script></html>")
+                self.send_response(200); self.end_headers(); self.wfile.write(body.encode())
+            else:
+                self.send_response(200); self.end_headers(); self.wfile.write(b"<html>ok</html>")
+        def log_message(self, *a): pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), H)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        base = f"http://127.0.0.1:{port}"
+        bus = EventBus("v423-sinkctx")
+        eng = RequestEngine(ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+                            bus, timeout=3.0)
+
+        # ---- (1) FP shape: raw reflection + unrelated window.location -> silent
+        ep_fp = Endpoint(url=base + "/reflect", method="POST",
+                         parameters=[Parameter("note", ParamLocation.BODY, "").classify()])
+        fired = []
+        for _, m in RedirectDetector(eng, bus).candidates(ep_fp):
+            r = eng.send(m)
+            fd = RedirectDetector(eng, bus).analyze((ep_fp, ep_fp.parameters[0]), r)
+            if fd is not None:
+                fired.append((fd.type, fd.evidence[0].detail[:160]))
+        assert not fired, ("RED: open_redirect fired on a raw reflection + unrelated "
+                           "nearby sink — the testaspnet tbComment structural FP", fired)
+
+        # ---- (2) true shape: value INSIDE location.href -> candidate + VERIFIED
+        ep_tp = Endpoint(url=base + "/sink", method="GET",
+                         parameters=[Parameter("u", ParamLocation.QUERY, "").classify()])
+        found = None
+        for _, m in RedirectDetector(eng, bus).candidates(ep_tp):
+            r = eng.send(m)
+            found = RedirectDetector(eng, bus).analyze((ep_tp, ep_tp.parameters[0]), r)
+            if found: break
+        assert found is not None, "capability loss: the /sink true-positive shape no longer candidates"
+        out = VerificationEngine(eng, bus).verify(found, ep_tp)
+        assert out.status == FindingStatus.VERIFIED, (
+            "verification must hold on the true shape (re-test:second-host)",
+            str(out.verification))
+
+        # ---- (3) forged candidate on the FP page -> the verifier MUST reject it
+        forged = Finding("open_redirect", Severity.MEDIUM, ep_fp.url, "note", "POST",
+                         [Evidence("body_redirect", "off-site URL injected into client redirect sink", "t")],
+                         status=FindingStatus.CANDIDATE)
+        outf = VerificationEngine(eng, bus).verify(forged, ep_fp)
+        assert outf.status == FindingStatus.REJECTED, (
+            "RED: the verifier upheld a forged body_redirect candidate on a mere "
+            "reflection page", str(outf.verification))
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
 def unit_owsp30_mongo_error_nosql():
     """OWSP-30 (NodeGoat round, live-caught on /allocations/1?threshold=): the
     $where sink answers a quote probe with HTTP 500 'MongoError: SyntaxError:

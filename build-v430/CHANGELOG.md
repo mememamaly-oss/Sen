@@ -1,3 +1,66 @@
+# SENTINEL v4.3.3-sinkcontext — open_redirect structural FP fixed ON MAIN: the iv14 sink-context transfer (supervisor order 2026-10-12, round 2)
+
+The ONE confirmed live defect of shipped main v4.3.3 (the Task-32 audit's
+verdict) is closed ON origin/main by this commit: branch
+fix/openredirect-sinkcontext-433 cut from 412d64f, the previously-proven
+transfer re-applied and re-proven fresh, then pushed to main. Nothing else
+from the branch, nothing else in the engine.
+
+## What was transferred (branch iv14/session-round-v423-gap-closure @ 23c4619)
+
+- **CLIENT_REDIRECT_SINK_RE** (sentinel/detect.py): the probe host must sit
+  INSIDE the redirect expression itself (JS assignment / http.refresh call /
+  meta-refresh content carrying the URL). Replaces the OWSP-29 criterion —
+  ANY sink keyword within a 200-char window of a raw reflection — which
+  produced the structural FP live-caught on testaspnet tbComment during
+  IV14 (value on a div reflection, unrelated window.location ~35 chars away).
+- **Sink-context verifier contract** (sentinel/intel.py): the re-test
+  second-host replay must place the host INSIDE a redirect sink expression —
+  the SAME CLIENT_REDIRECT_SINK_RE the detector fires on (one source of
+  truth; detector and verifier can never disagree on what a sink is).
+- **unit_v423_open_redirect_sink_context** — the branch's discriminating
+  test (three shapes), and NOTHING else from the branch. Suite 206 -> 207.
+
+## Source fidelity (this round)
+
+The true commit 23c4619 was FETCHED from the branch and compared this
+round: this transfer is the previously-proven ADAPTATION of the branch's
+contract to the v4.3.3 engine structure, not a byte copy — the branch's
+v4.2.3-era regex covers a wider location-sink family (location.assign/
+replace, document.location, 60-char slack, strict http-equiv meta form),
+while this adaptation adds the http.refresh() call form and parameterizes
+the probe host. Both implementations enforce the SAME contract (the host
+INSIDE the expression). The adaptation is the version that was RED/GREEN-
+proven and gate-cycled on the v4.3.3 tree (previous round) and re-proven
+fresh this round.
+
+## Proof (this round's fresh runs only — RED/GREEN + full gate cycle)
+
+- RED on pristine 412d64f: results/verify_v433_sinkcontext/openredirect_fp_red.json
+  — the detector FIRED on reflection+unrelated-sink AND the verifier upheld
+  the forged candidate (the Task-32 audit's verdict reproduced exactly).
+- GREEN after the transfer: openredirect_fp_green.json — FP silent, true
+  shape VERIFIED re-test:second-host (no capability loss), forged REJECTED.
+- Full gate cycle: suite 207 (206 covered + the same 1 documented env-stall
+  exclusion, 0 failed), doctor 17/17, bench ×3 IDENTICAL 38/0/0/37 @4784
+  run-3c0652b6be; verdict-diff vs the shipped-v4.3.3 audit baseline = NONE
+  (+0 requests); open_redirect evidence level identical.
+- Tooling (reproducible): scripts/verify_v433_openredirect_fp.py (RED/GREEN
+  prover), scripts/gate_v433_sinkcontext.sh (resumable 12-chunk suite
+  runner), scripts/gate_v433_sinkcontext_verify.py (unified gate assert).
+  Full bench JSONs and chunk outputs stay untracked (size); the small
+  summaries are committed.
+
+## Honest limits
+
+- The engine VERSION string is untouched (the known stale "4.3.0" scanner
+  label, documented by the Task-32 audit) — no version bump, per the
+  supervisor's "touch nothing else" constraint.
+- The 2,740-test OWASP Benchmark was NOT re-run this round (not part of the
+  ordered gate cycle); the audit's numbers remain the record for it.
+
+---
+
 # SENTINEL v4.3.3 — GraphQL STORED-XSS + FIELD-SUGGESTIONS batteries (DVGA campaign, app 6/6 part 2 — CAMPAIGN CLOSED)
 
 The OWASP application-testing campaign closes at 6/6 (WrongSecrets, OWASP

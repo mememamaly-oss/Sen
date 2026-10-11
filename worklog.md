@@ -1431,3 +1431,58 @@ Work Log:
 Stage Summary:
 - THE OWASP APPLICATION CAMPAIGN IS CLOSED AT 6/6: WrongSecrets (OWSP-01..05), OWASP Benchmark 1.2 (v4.2.4->v4.3.1 ground-truth program, precision 100% / recall 68.90%), DVWA (OWSP-13..20), Mutillidae (OWSP-21..26), NodeGoat (OWSP-27..35), DVWS (v4.3.2 WS-ACTIVE), DVGA (v4.3.3). Engine now 4.3.3. crAPI remains docker-blocked (documented, the order's own condition unmet).
 - Campaign totals across 6 apps: 47 live-caught engine defect families fixed red->green with discriminating tests; suite 141->206; two whole new attack-surface layers (WebSocket message batteries + GraphQL stored-XSS/suggestions); precision discipline held at every step (bench x3 identical each round).
+
+---
+Task ID: 34 (supervisor order 2026-10-12 round 2 — the fix ON origin/main)
+Agent: Super Z (main agent)
+
+Task: Fetch origin/main (412d64f), cut a small branch from it, re-apply the
+previously-proven open_redirect sink-context fix (RED/GREEN + full gate
+cycle), make a clean small commit, push directly to main. Touch no other
+branch, delete nothing.
+
+Work Log:
+- Rollback #15 discovered at round start: the environment reverted the
+  local tree again (local main back at the 6fcb15c era; the restore commit,
+  the previous round's transfer commit, and the Task-32/33 worklog records
+  all gone locally). Ground truth recovered from GitHub with the round-3
+  PAT: fetch of origin/main 412d64f (v4.3.3) + branch
+  iv14/session-round-v423-gap-closure (the true 23c4619 now local), plus
+  the /tmp/my-project boot snapshot (2026-10-11 19:30: full build-v430, the
+  previous round's transferred files + scripts + the 1559-line worklog).
+- True-source comparison (fresh, this round): the previous round's transfer
+  is an ADAPTATION of 23c4619's contract to the v4.3.3 engine (sink-family
+  and test-shape deltas — documented in the CHANGELOG entry), not a byte
+  copy; the supervisor had already ruled red/green + gate proof sufficient.
+  Re-applied THAT proven version verbatim (3 files: detect.py
+  CLIENT_REDIRECT_SINK_RE + _sink_expression replacing the OWSP-29 window;
+  intel.py sink-context verifier contract importing the detector's regex;
+  run_tests.py + unit_v423_open_redirect_sink_context, suite 206 -> 207).
+- RED (fresh, on the pristine 412d64f worktree): fp_negative FAIL (detector
+  fired on reflection + unrelated sink — evidence ctx matches the audit
+  record), true_positive PASS, fp_verify_reject FAIL (verifier upheld the
+  forged candidate). GREEN after the 3-file transfer: all three parts PASS
+  (silent / VERIFIED re-test:second-host / REJECTED).
+- FULL GATE CYCLE (fresh, this round): suite 207 total / 206 covered / 1
+  documented env-stall exclusion / 0 failed (resumable 12-chunk runner; the
+  environment's 595s call kills resumed clean); doctor 17/17; bench x3
+  IDENTICAL 38/0/0/37 @4784 run-3c0652b6be; verdict-diff vs the
+  shipped-v4.3.3 audit baseline (Task-32's fresh run on the byte-identical
+  tree) = NONE (+0 requests); open_redirect evidence level identical.
+- COMMIT (clean + small): the 3 engine/test files + the CHANGELOG entry +
+  the 3 round scripts (RED/GREEN prover, resumable suite runner, unified
+  gate assert) + the small gate-evidence summaries (6.2KB). Full bench
+  JSONs (7.7MB each) and chunk outputs left untracked.
+- PUSH (immediately after this commit): fix/openredirect-sinkcontext-433 ->
+  origin/main, fast-forward from 412d64f; ls-remote verification follows;
+  no other branch touched, nothing deleted.
+
+Stage Summary:
+- The open_redirect structural FP — the ONE confirmed live defect of
+  shipped main v4.3.3 — is FIXED on origin/main with the branch's fix
+  contract + its distinctive test ONLY; RED/GREEN-proven and gate-cycled
+  fresh this round, ZERO regressions (verdict-diff vs baseline = NONE).
+- Local note: the local main line stays the diverged 6fcb15c-era chain
+  (rollback #15); origin/main is the authoritative history. The round-3 PAT
+  was used for fetch (read) + push (write) exactly as ordered and is
+  revoked by the supervisor at round end.

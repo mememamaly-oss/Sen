@@ -6,7 +6,8 @@ from __future__ import annotations
 import json, math, os, time, hashlib, re
 from .core import Endpoint, EventBus, Finding, FindingStatus, Severity, Verification, ParamKind
 from .http_engine import RequestEngine, RequestMutation
-from .detect import SQLiDetector, XSSDetector, TraversalDetector, passive_audit, SECURITY_HEADERS
+from .detect import (SQLiDetector, XSSDetector, TraversalDetector, RedirectDetector,
+                      passive_audit, SECURITY_HEADERS)
 
 # ---- VF-01 (v4.2.0) fail-closed verification defaults --------------------------
 # The single-response presence classes: the ONLY finding types that may be
@@ -611,30 +612,31 @@ class VerificationEngine:
             f.status = FindingStatus.VERIFIED if hit else FindingStatus.REJECTED
 
         elif f.type == "open_redirect":
-            # OWSP-29 (NodeGoat round, live-caught on /research?symbol=): the
-            # re-test used to accept the URL ANYWHERE in the body — on a
-            # fetch-proxy surface the replayed URL rode inside server-side-
-            # fetched third-party content (HTML comment echo) with no sink near
-            # it, and the FP VERIFIED. Body-only evidence now requires the URL
-            # within a bounded window of an actual redirect sink; a Location
-            # header hit is unchanged (that IS the header oracle).
-            import re as _re_or
-            _SINK_OR = _re_or.compile(r"(location\.href|window\.location|http\.refresh|meta[^>]+refresh)", _re_or.I)
+            # iv14 @ 23c4619 (transferred to main per supervisor order
+            # 2026-10-12): sink-CONTEXT verifier contract. The re-test replay
+            # must place the second host INSIDE a redirect sink expression in
+            # the replayed body — the SAME CLIENT_REDIRECT_SINK_RE the detector
+            # fires on, so detector and verifier can never disagree on what a
+            # sink is. The old ±200-char keyword window (OWSP-29) VERIFIED
+            # forged candidates on mere reflection pages: an unrelated sink
+            # near a raw echo — the verification half of the structural FP
+            # (Task-32 audit part 3). A Location header hit is unchanged
+            # (that IS the header oracle).
             r = self._replay(ep, f.parameter, "https://sentinel-redirect-check.example.org/second")
             if r is not None and "sentinel-redirect-check.example.org" in (
                     (r.headers or {}).get("location", "") or ""):
                 ok = True
                 note = "second-host Location header redirect reproduced"
             elif r is not None and "sentinel-redirect-check.example.org" in (r.body or ""):
-                ok = False
-                i_or = (r.body or "").find("sentinel-redirect-check.example.org")
-                w_or = (r.body or "")[max(0, i_or - 200): i_or + 260]
-                if _SINK_OR.search(w_or):
+                sx = RedirectDetector.CLIENT_REDIRECT_SINK_RE.search(r.body or "")
+                if sx:
                     ok = True
-                    note = "second-host URL present in body within a redirect-sink window"
+                    note = ("second-host host inside a client redirect sink expression "
+                            "(sink-context contract)")
                 else:
-                    note = ("second-host URL present in body but NOT within any redirect-sink "
-                            "window (fetched-content echo shape — OWSP-29)")
+                    ok = False
+                    note = ("second-host URL present in body but NOT inside any redirect "
+                            "sink expression (raw reflection — iv14 sink-context contract)")
             else:
                 ok = False
                 note = "second-host neither redirected nor present in body"
