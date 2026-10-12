@@ -68,6 +68,17 @@ class VerificationEngine:
     def _chain_write(self, f: Finding, ep: Endpoint | None, recipe: dict, value: str):
         from .core import Endpoint as _E, ParamLocation
         from .detect import last_path_segment
+        # CR-2 (crypto recall round): the five Benchmark input channels replay
+        # through the SAME channel mutation the detector used — a value/param
+        # swap would probe a channel the app never reads (the PT-2 lesson).
+        _chanw = recipe.get("write_channel") or ""
+        if _chanw in ("header", "hdrname", "cookie", "qs", "valmatch"):
+            from .chainphase import chain_channel_mutation
+            wep = _E(url=f.endpoint_url, method="POST")
+            m = chain_channel_mutation(wep, _chanw, value)
+            if m is None:
+                return None
+            return self.engine.send(m)
         _locw = recipe.get("write_loc") or "query"
         try:
             _locw = ParamLocation(_locw)

@@ -1,3 +1,30 @@
+# SENTINEL v4.3.8-cr2 — crypto recall round 2: the channel LADDER (5 new write channels, 16 live catches at zero TN cost)
+
+23 of the 75 crypto FNs take their plaintext through input channels the
+declared/body write legs never reach (live-proven by a manual battery over all
+246 crypto tests): the test-id-named HEADER value, the first NON-STANDARD
+header NAME, the test-id-named COOKIE value, the RAW query string after
+"<test-id>=", and the value-matching param NAME (PT-3's shape, value side).
+Fix: chain_channel_mutation() rides param-bare endpoint copies through the five
+shapes; the crypto leg becomes a channel LADDER (declared -> body -> header ->
+hdrname -> cookie -> qs -> valmatch) screened by an 8B/16B marker pair — the
+first channel whose ciphertext LENGTH follows the marker runs the unchanged
+three-tier block oracle; VR-28 replays through the SAME channel
+(recipe.write_channel). FP safety is structural: the 116 secure twins are ALL
+GCM/CCM/ESAPI (zero DES/ECB — full static inventory) and answer pt+tag curves
+that die on the P15 off-boundary gate (live: 00058, 01227).
+
+The discriminating fixture caught a real defect BEFORE any live run: the first
+liveness check compared ciphertext BYTES (always differ under a fresh key) —
+every constant endpoint looked live and the ladder never moved past 'declared';
+liveness is now the LENGTH comparison.
+
+RED/GREEN: unit_cr2 (5 channel twins + 2 GCM-8tag controls) RED 0 catches on
+the stashed engine, GREEN all-fire + controls silent + VR-28 verified; LIVE
+16/16 targets, TN guards 0, TP controls lost 0. Gates: suite 18/18 (212
+registered), doctor 17/17, bench x3 IDENTICAL 38/0/0/37. Proof:
+results/verify_cr2/.
+
 # SENTINEL v4.3.7-cr1 — crypto/hash recall round 1: chunk-spec primitive seeding (the 12-chunk split was killing the whole chain in chunks 5-6)
 
 Root cause (live-proven, zero guessing): HashCryptoChainPhase.run() returns []

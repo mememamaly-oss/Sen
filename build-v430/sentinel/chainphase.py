@@ -96,6 +96,58 @@ def _extract_value(body: str, prefix: str) -> bytes | None:
         return None
 
 
+# CR-2 (crypto recall round, 2026-10-12): the five Benchmark input channels
+# the declared/body write legs never reach (all shapes live-proven on the
+# target this round — see results/verify_cr2/).
+_CR2_CHANNELS = ("header", "hdrname", "cookie", "qs", "valmatch")
+
+
+def chain_channel_mutation(ep, channel: str, value: str):
+    """CR-2: the RequestMutation that submits VALUE to a hash/crypto-shaped
+    endpoint through one of the five input channels the declared/body legs
+    miss (the live-proven Benchmark shapes):
+      header   : request.getHeader("<test-id>") — the test-id-named header's
+                 VALUE is the plaintext (24+ crypto FNs).
+      hdrname  : the first NON-STANDARD header's NAME is the plaintext — the
+                 app's commonHeaders filter skips user-agent/accept/etc.
+                 (live-proven by PT-2's traversal battery on the same shape).
+      cookie   : the test-id-named cookie's VALUE (getCookies loop).
+      qs       : everything after "<test-id>=" in the RAW query string
+                 (getQueryString().substring shape).
+      valmatch : the param NAME whose VALUE equals the test id
+                 (getParameterNames value-matching loop — the PT-3 shape's
+                 value side; the NAME is the plaintext).
+    The probes ride PARAM-BARE endpoint copies (the PT-2 pollution lesson:
+    the spec's decoy header param otherwise steals the first-non-standard
+    slot and probe==control goes byte-identical)."""
+    from .core import Endpoint, ParamLocation
+    seg = (urllib.parse.urlsplit(ep.url).path or "").rstrip("/").split("/")[-1]
+    if not seg:
+        return None
+    bare = Endpoint(url=ep.url, method="POST")
+    if channel == "header":
+        return RequestMutation(endpoint=bare, param_name=seg,
+                               param_location=ParamLocation.HEADER,
+                               param_value=value, note="chain-write-header")
+    if channel == "hdrname":
+        return RequestMutation(endpoint=bare, param_name=value,
+                               param_location=ParamLocation.HEADER,
+                               param_value="1", note="chain-write-hdrname")
+    if channel == "cookie":
+        return RequestMutation(endpoint=bare, param_name=seg,
+                               param_location=ParamLocation.COOKIE,
+                               param_value=value, note="chain-write-cookie")
+    if channel == "qs":
+        return RequestMutation(endpoint=bare, param_name=seg,
+                               param_location=ParamLocation.QUERY, method="POST",
+                               param_value=value, note="chain-write-qs")
+    if channel == "valmatch":
+        return RequestMutation(endpoint=bare, param_name=value,
+                               param_location=ParamLocation.BODY, method="POST",
+                               param_value=seg, note="chain-write-valmatch")
+    return None
+
+
 class HashCryptoChainPhase:
     name = "hashchain"
 
@@ -279,6 +331,13 @@ class HashCryptoChainPhase:
                                                  param_location=ParamLocation.BODY,
                                                  method="POST",
                                                  param_value=value, note="chain-write-body"))
+        elif channel in _CR2_CHANNELS:
+            # CR-2: the five Benchmark input channels (param-bare copies —
+            # the PT-2 pollution lesson)
+            m = chain_channel_mutation(ep, channel, value)
+            if m is None:
+                return None
+            r = self.engine.send(m)
         else:
             r, _wp = self._submit(ep, value)
         if r is None or r.error:
@@ -478,21 +537,45 @@ class HashCryptoChainPhase:
             DES -> 16, 00019 DES-stream -> 40, 00345 CCM -> 42)."""
             return all(c is not None and len(c) % 8 == 0 for c in cts)
 
+        # CR-2: the channel LADDER — declared, body, then the five Benchmark
+        # input channels (header / header-name / cookie / query-string /
+        # value-match). The first channel whose ciphertext LENGTH follows the
+        # marker length (the input provably arrives) runs the full three-tier
+        # oracle; a channel whose ct ignores the input is a constant candidate
+        # (the CR-3 family) and the ladder moves on. Live-proven this round:
+        # 23 of the 75 crypto FNs are controllable ONLY through these channels
+        # (header-name 9, value-match 6, header-value 6, cookie 3, qs 4); the
+        # 116 secure twins are ALL GCM/CCM (pt+tag curves) and die on the P15
+        # off-boundary gate (live: 00058 16/24 + 15->23; 01227 24/32/40 +
+        # 15->31) — zero DES/ECB exists in the secure set (static inventory of
+        # all 246 crypto tests), so a fired block oracle cannot be a secure
+        # twin on this surface.
+        _WLOC = {"body": "body", "header": "header", "hdrname": "header",
+                 "cookie": "cookie", "qs": "query", "valmatch": "body"}
         for ep in crypto_eps[:260]:
-            chan, wloc = "declared", self._prim_loc(ep, self._write_param_of(ep))
             if write_ep is None:
                 continue      # legacy before/after mode cannot bound the window
-            # T1: direct-param DES — 16B plaintext -> exactly 24B ciphertext
-            ct16 = self._probe(ep, P16, read_ep, read_param, artifact_name,
-                               write_ep, write_param)
-            if ct16 is None or len(ct16) != 24:
-                # GTP-12f: the body-channel fallback (spec drift) — retry P16
-                ct16b = self._probe(ep, P16, read_ep, read_param, artifact_name,
-                                    write_ep, write_param, channel="body")
-                if ct16b is not None and (ct16 is None or len(ct16b) in (24, 40, 48)):
-                    ct16, chan, wloc = ct16b, "body", "body"
-            if ct16 is None:
+            live = None       # (chan, ct8, ct16)
+            for chan in ("declared", "body") + _CR2_CHANNELS:
+                ct8 = self._probe(ep, P8, read_ep, read_param, artifact_name,
+                                  write_ep, write_param, channel=chan)
+                ct16 = self._probe(ep, P16, read_ep, read_param, artifact_name,
+                                   write_ep, write_param, channel=chan)
+                if ct8 is None and ct16 is None:
+                    continue
+                # liveness = the ciphertext LENGTH follows the marker length —
+                # NOT the raw bytes: a fresh-key cipher answers every probe
+                # with different bytes at the SAME length (the constant family
+                # live-caught by the unit fixture — the ladder never moved
+                # past 'declared' and the channels never ran)
+                if ct8 is not None and ct16 is not None \
+                        and len(ct8) != len(ct16):
+                    live = (chan, ct8, ct16)
+                    break
+            if live is None:
                 continue
+            chan, ct8, ct16 = live
+            wloc = _WLOC.get(chan) or self._prim_loc(ep, self._write_param_of(ep))
             weak_reason = None
             if len(ct16) == 24:
                 # GTP-12g: confirm with the OFF-BOUNDARY probe (15B -> must
@@ -516,24 +599,24 @@ class HashCryptoChainPhase:
             if weak_reason is None:
                 # T2: the block-step signature on any input shape —
                 # 8/16/24-byte plaintexts, ciphertexts all ==0 mod 8, +8 steps
-                ct8 = self._probe(ep, P8, read_ep, read_param, artifact_name,
-                                  write_ep, write_param, channel=chan)
-                ct24 = self._probe(ep, P24, read_ep, read_param, artifact_name,
-                                   write_ep, write_param, channel=chan)
-                if ct8 is not None and ct24 is not None and ct8 != ct16 \
-                        and len(ct8) % 8 == 0 and len(ct16) % 8 == 0 and len(ct24) % 8 == 0 \
-                        and len(ct16) - len(ct8) == 8 and len(ct24) - len(ct16) == 8:
-                    ct15 = self._probe(ep, P15, read_ep, read_param, artifact_name,
+                # (CR-2: ct8/ct16 come from the winning channel's screen)
+                if ct8 is not None and ct8 != ct16 and len(ct8) % 8 == 0 \
+                        and len(ct16) % 8 == 0 and len(ct16) - len(ct8) == 8:
+                    ct24 = self._probe(ep, P24, read_ep, read_param, artifact_name,
                                        write_ep, write_param, channel=chan)
-                    if _is_block_cipher([ct15]):
-                        weak_reason = (f"block-step signature: 8/16/24-byte known plaintexts "
-                                       f"encrypt to {len(ct8)}/{len(ct16)}/{len(ct24)}-byte "
-                                       "ciphertexts — all multiples of 8 with exact +8 steps, "
-                                       "and the 15-byte off-boundary probe answers "
-                                       f"{len(ct15 or b'')}B (still a multiple of 8) — an "
-                                       "8-byte BLOCK CIPHER, DES family (AES-GCM/CCM answer "
-                                       "plaintext+tag and leave the grid off-boundary) "
-                                       "(CWE-327)")
+                    if ct24 is not None and len(ct24) % 8 == 0 \
+                            and len(ct24) - len(ct16) == 8:
+                        ct15 = self._probe(ep, P15, read_ep, read_param, artifact_name,
+                                           write_ep, write_param, channel=chan)
+                        if _is_block_cipher([ct15]):
+                            weak_reason = (f"block-step signature: 8/16/24-byte known plaintexts "
+                                           f"encrypt to {len(ct8)}/{len(ct16)}/{len(ct24)}-byte "
+                                           "ciphertexts — all multiples of 8 with exact +8 steps, "
+                                           "and the 15-byte off-boundary probe answers "
+                                           f"{len(ct15 or b'')}B (still a multiple of 8) — an "
+                                           "8-byte BLOCK CIPHER, DES family (AES-GCM/CCM answer "
+                                           "plaintext+tag and leave the grid off-boundary) "
+                                           "(CWE-327)")
             if weak_reason is None:
                 # T3: ECB repeat — 64 uniform plaintext bytes
                 ct64 = self._probe(ep, P64, read_ep, read_param, artifact_name,
@@ -559,18 +642,22 @@ class HashCryptoChainPhase:
                                        "artifact": artifact_name,
                                        "write_param": _wp,
                                        "write_loc": wloc,
-                                       "write_method": ("POST" if chan == "body"
+                                       "write_method": ("POST" if chan != "declared"
                                                          else (ep.method or "POST")),
                                        "truncate_url": (write_ep.url if write_ep else None),
                                        "truncate_param": write_param,
-                                       "truncate_loc": write_loc})
+                                       "truncate_loc": (self._prim_loc(write_ep, write_param)
+                                                        if write_ep else "query"),
+                                       **({"write_channel": chan}
+                                          if chan in _CR2_CHANNELS else {})})
                 out.append(Finding(type="weak_crypto", severity=Severity.HIGH,
                     endpoint_url=ep.url, parameter="", method=ep.method,
                     evidence=[
                         Evidence("block_oracle", weak_reason, None),
                         Evidence("chain_legs",
-                                 f"write leg: {ep.url}; read leg: {read_ep.url}?"
-                                 f"{read_param}={artifact_name} (verified path_traversal)"
+                                 f"write leg: {ep.url} via the {chan} channel; read leg: "
+                                 f"{read_ep.url}?{read_param}={artifact_name} "
+                                 "(verified path_traversal)"
                                  + (f"; truncate leg: {write_ep.url}?{write_param}={artifact_name}"
                                     " (verified write sink)" if write_ep else ""),
                                  None, _recipe)],

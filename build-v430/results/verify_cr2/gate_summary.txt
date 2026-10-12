@@ -1,0 +1,51 @@
+GATE CYCLE — CR-2 crypto channel ladder (crypto/hash recall round 2, 2026-10-12)
+Engine: build-v430 @ main f18f5df + CR-2 (chainphase.py + intel.py).
+
+ROOT CAUSE (live-proven, no guessing): 23 of the 75 crypto FNs take their plaintext
+through input channels the declared/body write legs never reach (manual battery over
+all 246 crypto tests, live on the rebuilt target): the test-id-named HEADER value,
+the first NON-STANDARD header NAME (the app's commonHeaders filter skips user-agent
+etc. — the PT-2 shape), the test-id-named COOKIE value, the RAW query string after
+"<test-id>=", and the value-matching param NAME (whose VALUE equals the test id —
+the PT-3 shape's value side). Static inventory of all 246: the 116 secure twins are
+ALL GCM/CCM/ESAPI-secure — ZERO DES/ECB in the secure set, so a fired block oracle
+cannot be a secure twin; the 68 controllable TN all answer pt+tag curves and die on
+the P15 off-boundary gate (live-measured: 00058 16/24 + 15->23; 01227 24/32/40 +
+15->31).
+
+FIX: chain_channel_mutation() (chainphase.py) — the five channel shapes on PARAM-BARE
+endpoint copies (the PT-2 pollution lesson: the spec's decoy header param otherwise
+steals the first-non-standard slot). The crypto leg becomes a channel LADDER:
+declared -> body -> header -> hdrname -> cookie -> qs -> valmatch; each channel is
+screened with an 8B/16B marker pair; the first channel whose ciphertext LENGTH
+follows the marker runs the unchanged three-tier oracle (T1 24B + P15 / T2 +8-steps
++ P15 / T3 ECB repeat). The finding recipe carries write_channel; VR-28 replays
+through the SAME channel (intel.py _chain_write) — the PT-2 lesson: a value/param
+swap would probe a channel the app never reads.
+
+LIVE-CAUGHT OWN DEFECT (the discriminating test earned its keep): the first
+liveness check compared the raw ciphertext BYTES — a fresh-key cipher answers every
+probe with different bytes at the SAME length, so every constant endpoint looked
+"live" on the first channel and the ladder never moved past 'declared' (unit
+fixture caught it before any live run). Liveness is now the LENGTH comparison.
+
+RED/GREEN:
+  unit_cr2_crypto_channel_ladder (fixture: 5 channel twins + 2 GCM-8tag controls
+  through the NEW channels + read/write primitives):
+    RED (git-stash of the engine diff): 'the BenchmarkTestCH1 channel surface was
+    not caught' — 0 catches.
+    GREEN: all 5 channels fire, both GCM controls SILENT (P15), VR-28 VERIFIED
+    through the winning channel for every catch.
+  LIVE (real benchmark, 28-path minispec, seed 7f3c91aa, primitives seeded):
+    caught 16/16 targets (00035 00521 00210 02290 02292 02293 02294 01978 01980
+    01981 01102 01103 01105 01106 00946 + the CR-1 catch 01018 stays verified);
+    TN guards fired 0 (00058 01227 00255 00121 00350 00775); TP controls lost 0
+    (00005 00019 00020 00354). 3261 requests.
+
+GATES: suite 18/18 chunks ALL PASS (212 registered; 1 documented env-stall exclusion
++ the recurring killed-call orphan-fixture port conflicts, cleaned) + doctor 17/17
+PASS + bench x3 IDENTICAL 38/0/0/37 F1=1.0000.
+
+NEXT: CR-3 the constant-plaintext family (~44 true constants; the (8->16)/(0->8)
+zones are POISONED by GCM-tag8/CCM TN constants — excluded; the pad8 non-full-pad
+zones are clean on the live-measured TN landscape).

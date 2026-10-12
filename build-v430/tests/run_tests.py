@@ -11953,5 +11953,144 @@ def main():
     sys.exit(0 if RESULTS["passed"] else 1)
 
 
+@case
+def unit_cr2_crypto_channel_ladder():
+    """CR-2 (crypto recall round, live-caught on the OWASP Benchmark): 23 of
+    the 75 crypto FNs take their plaintext through input channels the
+    declared/body write legs never reach — the test-id-named HEADER's value,
+    the first NON-STANDARD header's NAME, the test-id-named COOKIE's value,
+    the RAW query string after '<test-id>=', and the value-matching param NAME
+    (whose VALUE equals the test id). The channel LADDER screens every channel
+    with an 8B/16B marker pair; the first channel whose ciphertext LENGTH
+    follows the marker runs the three-tier block oracle. The two GCM controls
+    (header + valmatch channels, ct = pt + 8B tag — the GTP-12g collision
+    shape) must stay SILENT via the P15 off-boundary gate, and VR-28 must
+    replay each catch through the SAME channel (write_channel in the recipe —
+    the PT-2 lesson: a value/param swap probes a channel the app never reads)."""
+    import threading, base64, os as _os
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.chainphase import HashCryptoChainPhase
+    from sentinel.core import (Endpoint, EventBus, Evidence, Finding, FindingStatus,
+                               Severity, Parameter, ParamLocation)
+    from sentinel.http_engine import RequestEngine, ScopeRule
+
+    ART = {"body": ""}
+    COMMON = {"host", "user-agent", "accept", "accept-encoding", "connection",
+              "content-length", "content-type", "origin", "referer", "cookie"}
+
+    def _des_ct(pt: str) -> bytes:
+        # fresh-key DES shape: random bytes, PKCS5-padded to the 8-byte grid
+        pad = 8 - (len(pt) % 8)
+        return _os.urandom(len(pt) + pad)
+
+    def _gcm_ct(pt: str) -> bytes:
+        # AES/GCM-8B-tag shape: fresh random stream + fixed-size tag
+        return _os.urandom(len(pt)) + b"T" * 8
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _ok(self, b):
+            self.send_response(200); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def _route(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            form = {}
+            if n:
+                form = {k: v[0] for k, v in parse_qs(self.rfile.read(n).decode(),
+                                                     keep_blank_values=True).items()}
+            if u.path == "/read":
+                b = ART["body"].encode() if q.get("file") == "passwordFile.txt" else b"no such file"
+                self._ok(b); return
+            if u.path == "/write":
+                ART["body"] = ""; self._ok(b"Now ready to write"); return
+            last = u.path.rstrip("/").split("/")[-1]
+            pt = ""
+            if last == "BenchmarkTestCH1":            # header VALUE channel
+                pt = self.headers.get(last, "")
+            elif last == "BenchmarkTestCH2":          # header NAME channel
+                pt = next((h for h in self.headers.keys() if h.lower() not in COMMON), "")
+            elif last == "BenchmarkTestCH3":          # cookie VALUE channel
+                ck = {}
+                for part in (self.headers.get("Cookie") or "").split(";"):
+                    if "=" in part:
+                        k, v = part.split("=", 1); ck[k.strip()] = v.strip()
+                pt = ck.get(last, "")
+            elif last == "BenchmarkTestCH4":          # raw query-string channel
+                key = last + "="
+                i = u.query.find(key)
+                pt = u.query[i + len(key):] if i >= 0 else ""
+            elif last == "BenchmarkTestCH5":          # value-matching param NAME
+                pt = next((k for k, v in {**q, **form}.items() if v == last), "")
+            elif last == "BenchmarkTestGC1":          # GCM control, header channel
+                pt = self.headers.get(last, "")
+                ART["body"] = ("secret_value=" + base64.b64encode(
+                    _gcm_ct(pt)).decode() + "\n") if pt else ""
+                self._ok(b"encrypted and stored"); return
+            elif last == "BenchmarkTestGC2":          # GCM control, valmatch channel
+                pt = next((k for k, v in {**q, **form}.items() if v == last), "")
+                ART["body"] = ("secret_value=" + base64.b64encode(
+                    _gcm_ct(pt)).decode() + "\n") if pt else ""
+                self._ok(b"encrypted and stored"); return
+            else:
+                self._ok(b"?"); return
+            # the vulnerable twin always writes (even the empty plaintext —
+            # the real servlets encrypt whatever arrived, including "")
+            ART["body"] = "secret_value=" + base64.b64encode(_des_ct(pt)).decode() + "\n"
+            self._ok(b"encrypted and stored")
+        def do_GET(self): self._route()
+        def do_POST(self): self._route()
+
+    port = 8902
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        bus = EventBus("cr2")
+        eng = RequestEngine(scope=ScopeRule(allow_private=True), bus=bus, timeout=5)
+        def _ep(last):
+            e = Endpoint(url=f"http://127.0.0.1:{port}/cr2/{last}", method="POST")
+            e.parameters = [Parameter("decoy", ParamLocation.QUERY, "x")]
+            return e
+        read_ep = Endpoint(url=f"http://127.0.0.1:{port}/read", method="GET")
+        read_ep.parameters = [Parameter("file", ParamLocation.QUERY, "x")]
+        write_ep = Endpoint(url=f"http://127.0.0.1:{port}/write", method="POST")
+        write_ep.parameters = [Parameter("f", ParamLocation.QUERY, "x")]
+        rprim = Finding(type="path_traversal", severity=Severity.HIGH,
+                        endpoint_url=read_ep.url, parameter="file", method="GET",
+                        evidence=[Evidence("file_marker", "content leak", "r", "root:x:0:0:")],
+                        status=FindingStatus.VERIFIED)
+        wprim = Finding(type="path_traversal", severity=Severity.HIGH,
+                        endpoint_url=write_ep.url, parameter="f", method="POST",
+                        evidence=[Evidence("writability_oracle", "write sink", "w", "")],
+                        status=FindingStatus.VERIFIED)
+        ph = HashCryptoChainPhase(eng, bus)
+        eps = [read_ep, write_ep] + [_ep(l) for l in
+                ("BenchmarkTestCH1", "BenchmarkTestCH2", "BenchmarkTestCH3",
+                 "BenchmarkTestCH4", "BenchmarkTestCH5",
+                 "BenchmarkTestGC1", "BenchmarkTestGC2")]
+        out = ph.run(eps, [rprim, wprim])
+        weak = {f.endpoint_url.rstrip("/").split("/")[-1]: f for f in out
+                if f.type == "weak_crypto"}
+        for ch in ("BenchmarkTestCH1", "BenchmarkTestCH2", "BenchmarkTestCH3",
+                   "BenchmarkTestCH4", "BenchmarkTestCH5"):
+            assert ch in weak, ("RED: the %s channel surface was not caught" % ch,
+                                sorted(weak))
+        assert "BenchmarkTestGC1" not in weak and "BenchmarkTestGC2" not in weak, \
+            ("FP: a GCM tag-shape control fired through a new channel", sorted(weak))
+        # VR-28: replay each catch through the SAME channel via the recipe
+        from sentinel.intel import VerificationEngine
+        ve = VerificationEngine(eng, bus)
+        for name, f in weak.items():
+            f2 = ve.verify(f)
+            assert f2.status == FindingStatus.VERIFIED, \
+                ("VR-28 did not replay through the winning channel for " + name,
+                 f2.verification.notes if f2.verification else None)
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+
 if __name__ == "__main__":
     main()
