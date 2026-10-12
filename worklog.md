@@ -1804,3 +1804,154 @@ Stage Summary:
   gate green: 3869/3869, doctor 17/17, bench x3 IDENTICAL).
 - The 4 resolver+callable tests stay FN until SQ-2 lands (nminj call_ctrl);
   the 27 callable-only FNs are SQ-2's scope — diagnosis complete, fix next.
+
+---
+Task ID: 43 (sqli recall-push round — SQ-2: the CallableStatement control family, all channels)
+Agent: Super Z (main agent)
+
+Task: Same supervisor order, fix 2 of the sqli rebuild — the callable-sink
+family (27+4 of 65 FNs); RED -> GREEN -> full gate -> IMMEDIATE individual
+push with ls-remote; full patch code pasted below as text backup.
+
+Work Log:
+- DIAGNOSIS (from the task-42 round, live-proven): every JDBC CallableStatement
+  sink (`{call <param>}`, prepareCall) dies with SQLSyntaxErrorException on
+  BOTH the bare quote (malformed string) AND the doubled-quote pair control
+  (unexpected token — '' is not valid callable syntax) — live on
+  00008 (header), 01302 (form value), 01712 (raw-qs + URLDecoder), 00996
+  (cookie). Both error oracles (db_error pair control, DETECT-04 status pair
+  control) were structurally dead on the whole family; NO callable-sink test
+  was a TP. Live control landscape: `{call 1-1}` and `{call 1;}` answer 200
+  (quote-free value expressions) — the callable-aware valid-SQL control.
+- SQ-2 IMPLEMENTATION (detect.py, 4 changes):
+  * value battery: + call_ctrl probe (base-1) for every mutable param.
+  * nminj family: + nminj_call_ctrl (renamed clone base-1) for the
+    resolver+callable overlap (00590/01460: pair-NAMED 500, base-1-NAMED 200).
+  * _NC_MAP: nminj_call_ctrl -> call_ctrl.
+  * db_error oracle: the pair control becomes an EITHER — '' pair OR call_ctrl
+    clean (both dirty = the OWSP-12 degenerate stays dead); a call_ctrl ABSENT
+    from the map does NOT count as clean (live-caught by the suite: the
+    OWSP-13 control-2 case fired when the map carried no call_ctrl — fixed
+    in-loop with _call_clean presence semantics; suite re-run fresh after).
+- SQ-2b (the overlap sub-family, live-caught in the SQ-2 live round): on a
+  callable resolver the BASE probe is dirty through no fault of the attacker —
+  the resolver interpolates the ORIGINAL param name and `{call whatever}` dies
+  as an unknown-procedure error, so base_pat always matches. Name-channel
+  oracle added: quote-NAMED carries the SQL signature AND the
+  attacker-controlled base-1-NAMED expression stays HTTP-OK clean — the
+  OWSP-12/13 principle with the control the attacker actually steers.
+  SELECT-string resolvers never land there (base is a harmless literal).
+- VERIFICATION LAYER: unchanged for the value channel (PATH B replays the
+  quote and reproduces the JDBC error string — verified live); the name
+  channel rides SQ-1's error fallback whose either-control ('' pair OR
+  base-1) already covers callable contexts.
+- SQ-2 RED/GREEN: unit_sq2_callable_sink_controls RED (no finding pre-fix) ->
+  GREEN post-fix; the degenerate always-erroring negative (SQL text on every
+  payload) stays silent in the same case. Live-caught in-loop regression:
+  OWSP-13 control-2 (absent-call_ctrl semantics) — fixed, re-proven, full
+  suite re-run FRESH on the final code.
+- SQ-2 LIVE PROOF (scripts/owsp/sqli/sq2_live.py, 9-endpoint minispec):
+  00008/01302/01712/00996 (all four channels) + 00590/01460 (overlap) ->
+  VERIFIED 6/6; 00091/00092/00093 (secure twins) silent 3/3. 1061 requests.
+- SQ-2 FULL GATE (fresh on final code, this session):
+  * suite 18/18 chunks ALL PASS — 3870/3870 case-runs (215 registered incl.
+    unit_sq1+unit_sq2, 1 documented env-stall exclusion unchanged).
+  * doctor 17/17 PASS.
+  * bench x3 IDENTICAL: 38/0/0/37 F1=1.0000 x3.
+- SQ-2 PATCH CODE (full text backup, verbatim — detect.py only; the staged
+  unit_sq2 test source is in scripts/owsp/sqli/sq2_test_staged.py + repo):
+```diff
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+@@ -313,6 +313,22 @@ class SQLiDetector(Detector):
+             out.append(("jsor_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' || '1'=='1")))
+             out.append(("jsor_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' && '1'=='2")))
++            # SQ-2 (sqli recall round, live-caught on the OWASP Benchmark): the
++            # callable-sink control. 27+4 of the 65 sqli FNs sink into a JDBC
++            # CallableStatement (`{call <param>}`) where BOTH the quote payload
++            # AND the doubled-quote pair control die as SQLSyntaxErrorExceptions
++            # (live on BenchmarkTest00008/01302/01712/00996: 1' -> 500 'malformed
++            # string', 1'' -> 500 'unexpected token' — '' is NOT valid callable
++            # syntax), so both error oracles were structurally dead on the whole
++            # family. HSQLDB CALL accepts quote-free VALUE EXPRESSIONS (live:
++            # `{call 1-1}` -> 200, `{call 1;}` -> 200), so base-1 is the
++            # callable-aware valid-SQL control; the db_error oracle accepts it
++            # as an alternative to the '' pair (either clean control proves the
++            # surface is not the OWSP-12 always-erroring degenerate). SELECT
++            # string contexts answer 200 to base-1 as well ('1-1' is a harmless
++            # literal), so the control is safe on every sink family.
++            out.append(("call_ctrl", RequestMutation(endpoint=ep, param_name=p.name,
++                                                     param_value=f"{base}-1")))
+@@ -340,7 +356,13 @@ class SQLiDetector(Detector):
+                         ("nminj_pair_quote", _b + "''"),
+                         ("nminj_quote_error", _b + "'"),
+                         ("nminj_or_true",  f"{_b}' OR '1'='1' -- "),
+-                        ("nminj_or_false", f"{_b}' OR '1'='2' -- ")):
++                        ("nminj_or_false", f"{_b}' OR '1'='2' -- "),
++                        # SQ-2: the callable-aware control rides the name channel
++                        # too — 4 of the resolver FNs sink into {call <name>} where
++                        # the '' pair control dies as an unexpected-token error
++                        # (live on BenchmarkTest00590/01460: pair-NAMED 500,
++                        # base-1-NAMED 200).
++                        ("nminj_call_ctrl", _b + "-1")):
+@@ -394,7 +416,7 @@ class SQLiDetector(Detector):
+         _NC_MAP = {
+             "nminj_base": "base", "nminj_pair_quote": "pair_quote",
+             "nminj_quote_error": "quote_error", "nminj_or_true": "or_true",
+-            "nminj_or_false": "or_false",
++            "nminj_or_false": "or_false", "nminj_call_ctrl": "call_ctrl",
+@@ -496,9 +518,48 @@ class SQLiDetector(Detector):
+             base_pat = _sig(rbase.body or "") if (rbase is not None and rbase.status) else None
+             rq2 = resp_map.get("pair_quote")
+             pair_pat = _sig(rq2.body or "") if (rq2 is not None and rq2.status) else None
++            # SQ-2: the callable-aware control — on CallableStatement sinks the
++            # '' pair dies as an unexpected-token SQLSyntaxError just like the
++            # bare quote (live: `{call 1''}` -> 500), so pair_pat alone cannot be
++            # the degenerate-surface guard there. The quote-free value expression
++            # (base-1, live `{call 1-1}` -> 200) is the alternative valid-SQL
++            # control: EITHER clean control proves the SQL-error signature is
++            # quote-SPECIFIC, not an always-erroring surface (both dirty = the
++            # OWSP-12 degenerate stays dead).
++            rq3 = resp_map.get("call_ctrl")
++            call_pat = _sig(rq3.body or "") if (rq3 is not None and rq3.status) else None
++            # a PRESENT, ANSWERED, signature-free call_ctrl counts as the clean
++            # control; an ABSENT one (old harness maps, probe unsent/errored)
++            # must NOT — the OWSP-13 control-2 suite case live-caught this: a
++            # map without call_ctrl and a dirty pair read as "clean control"
++            # and the degenerate surface fired.
++            _call_clean = rq3 is not None and rq3.status and call_pat is None
+             mm = _sig(r.body or "")
+-            if mm and not base_pat and not pair_pat:
++            if mm and not base_pat and (not pair_pat or _call_clean):
+                 ev.append(Evidence("db_error", f"{mm.re.pattern[:40]} matched: {mm.group(0)[:80]}", r.request_id))
++            elif (_nc_channel and mm and call_pat is None
++                    and rq3 is not None and rq3.ok):
++                # SQ-2b (sqli recall round, live-caught on BenchmarkTest00590/
++                # 01460 — the resolver+callable overlap): on a callable sink the
++                # BASE probe is dirty THROUGH NO FAULT OF THE ATTACKER — the
++                # resolver interpolates the ORIGINAL param name ("whatever"),
++                # and `{call whatever}` dies as an unknown-procedure
++                # SQLSyntaxErrorException (live: 500 'unexpected token'), so
++                # base_pat always matches and the family above stays dead. The
++                # honest degenerate guard on the NAME channel is the
++                # ATTACKER-CONTROLLED valid-SQL control: the base-1 value
++                # expression renamed in (live `{call 1-1}` -> 200, the app even
++                # prints the evaluated 0). Quote-NAMED carries the SQL-error
++                # signature while the attacker's clean expression stays
++                # HTTP-OK with no signature = a quote-SPECIFIC error on a
++                # channel the attacker controls — the OWSP-12/13 principle
++                # with the control the attacker actually steers. SELECT-string
++                # resolvers never land here (their base is a harmless literal
++                # -> the main branch fires first).
++                ev.append(Evidence("db_error",
++                    f"{mm.re.pattern[:40]} matched: {mm.group(0)[:80]} "
++                    "(name-channel callable: quote-NAMED SQL error while the "
++                    "attacker-controlled base-1 expression answers clean)", r.request_id))
+```
+
+Stage Summary:
+- SQ-2 PROVEN and pushing individually: expected full-run effect = the 27
+  callable-only FNs + the 4 resolver+callable overlap FNs flip to TP (live
+  6/6 verified incl. all four input channels; unit RED->GREEN; full gate
+  green on final code: 3870/3870, doctor 17/17, bench x3 IDENTICAL).
+- Both fixes' expected full-run ceiling: 34 (SQ-1) + 27+4 (SQ-2) = all 65
+  sqli FNs. Full 12-chunk benchmark re-run + eval next (category close).

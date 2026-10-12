@@ -313,6 +313,22 @@ class SQLiDetector(Detector):
             # silence) and the family cannot fire on SQL sinks.
             out.append(("jsor_true",  RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' || '1'=='1")))
             out.append(("jsor_false", RequestMutation(endpoint=ep, param_name=p.name, param_value=f"{base}' && '1'=='2")))
+            # SQ-2 (sqli recall round, live-caught on the OWASP Benchmark): the
+            # callable-sink control. 27+4 of the 65 sqli FNs sink into a JDBC
+            # CallableStatement (`{call <param>}`) where BOTH the quote payload
+            # AND the doubled-quote pair control die as SQLSyntaxErrorExceptions
+            # (live on BenchmarkTest00008/01302/01712/00996: 1' -> 500 'malformed
+            # string', 1'' -> 500 'unexpected token' — '' is NOT valid callable
+            # syntax), so both error oracles were structurally dead on the whole
+            # family. HSQLDB CALL accepts quote-free VALUE EXPRESSIONS (live:
+            # `{call 1-1}` -> 200, `{call 1;}` -> 200), so base-1 is the
+            # callable-aware valid-SQL control; the db_error oracle accepts it
+            # as an alternative to the '' pair (either clean control proves the
+            # surface is not the OWSP-12 always-erroring degenerate). SELECT
+            # string contexts answer 200 to base-1 as well ('1-1' is a harmless
+            # literal), so the control is safe on every sink family.
+            out.append(("call_ctrl", RequestMutation(endpoint=ep, param_name=p.name,
+                                                     param_value=f"{base}-1")))
             # GTP-01 (ground-truth push, live-caught on the OWASP Benchmark:
             # 38 of 67 sqli FNs are resolver-shaped: getParameterNames() + a
             # sentinel VALUE match — the app interpolates the parameter NAME,
@@ -340,7 +356,13 @@ class SQLiDetector(Detector):
                         ("nminj_pair_quote", _b + "''"),
                         ("nminj_quote_error", _b + "'"),
                         ("nminj_or_true",  f"{_b}' OR '1'='1' -- "),
-                        ("nminj_or_false", f"{_b}' OR '1'='2' -- ")):
+                        ("nminj_or_false", f"{_b}' OR '1'='2' -- "),
+                        # SQ-2: the callable-aware control rides the name channel
+                        # too — 4 of the resolver FNs sink into {call <name>} where
+                        # the '' pair control dies as an unexpected-token error
+                        # (live on BenchmarkTest00590/01460: pair-NAMED 500,
+                        # base-1-NAMED 200).
+                        ("nminj_call_ctrl", _b + "-1")):
                     if payload is None:
                         out.append((tag, RequestMutation(endpoint=ep, param_name=p.name, param_value=_pv,
                                                          note=f"ncgroup:name|{p.name}")))
@@ -394,7 +416,7 @@ class SQLiDetector(Detector):
         _NC_MAP = {
             "nminj_base": "base", "nminj_pair_quote": "pair_quote",
             "nminj_quote_error": "quote_error", "nminj_or_true": "or_true",
-            "nminj_or_false": "or_false",
+            "nminj_or_false": "or_false", "nminj_call_ctrl": "call_ctrl",
             "seg_base": "base", "seg_pair_quote": "pair_quote",
             "seg_quote_error": "quote_error", "seg_or_true": "or_true",
             "seg_or_false": "or_false",
@@ -496,9 +518,48 @@ class SQLiDetector(Detector):
             base_pat = _sig(rbase.body or "") if (rbase is not None and rbase.status) else None
             rq2 = resp_map.get("pair_quote")
             pair_pat = _sig(rq2.body or "") if (rq2 is not None and rq2.status) else None
+            # SQ-2: the callable-aware control — on CallableStatement sinks the
+            # '' pair dies as an unexpected-token SQLSyntaxError just like the
+            # bare quote (live: `{call 1''}` -> 500), so pair_pat alone cannot be
+            # the degenerate-surface guard there. The quote-free value expression
+            # (base-1, live `{call 1-1}` -> 200) is the alternative valid-SQL
+            # control: EITHER clean control proves the SQL-error signature is
+            # quote-SPECIFIC, not an always-erroring surface (both dirty = the
+            # OWSP-12 degenerate stays dead).
+            rq3 = resp_map.get("call_ctrl")
+            call_pat = _sig(rq3.body or "") if (rq3 is not None and rq3.status) else None
+            # a PRESENT, ANSWERED, signature-free call_ctrl counts as the clean
+            # control; an ABSENT one (old harness maps, probe unsent/errored)
+            # must NOT — the OWSP-13 control-2 suite case live-caught this: a
+            # map without call_ctrl and a dirty pair read as "clean control"
+            # and the degenerate surface fired.
+            _call_clean = rq3 is not None and rq3.status and call_pat is None
             mm = _sig(r.body or "")
-            if mm and not base_pat and not pair_pat:
+            if mm and not base_pat and (not pair_pat or _call_clean):
                 ev.append(Evidence("db_error", f"{mm.re.pattern[:40]} matched: {mm.group(0)[:80]}", r.request_id))
+            elif (_nc_channel and mm and call_pat is None
+                    and rq3 is not None and rq3.ok):
+                # SQ-2b (sqli recall round, live-caught on BenchmarkTest00590/
+                # 01460 — the resolver+callable overlap): on a callable sink the
+                # BASE probe is dirty THROUGH NO FAULT OF THE ATTACKER — the
+                # resolver interpolates the ORIGINAL param name ("whatever"),
+                # and `{call whatever}` dies as an unknown-procedure
+                # SQLSyntaxErrorException (live: 500 'unexpected token'), so
+                # base_pat always matches and the family above stays dead. The
+                # honest degenerate guard on the NAME channel is the
+                # ATTACKER-CONTROLLED valid-SQL control: the base-1 value
+                # expression renamed in (live `{call 1-1}` -> 200, the app even
+                # prints the evaluated 0). Quote-NAMED carries the SQL-error
+                # signature while the attacker's clean expression stays
+                # HTTP-OK with no signature = a quote-SPECIFIC error on a
+                # channel the attacker controls — the OWSP-12/13 principle
+                # with the control the attacker actually steers. SELECT-string
+                # resolvers never land here (their base is a harmless literal
+                # -> the main branch fires first).
+                ev.append(Evidence("db_error",
+                    f"{mm.re.pattern[:40]} matched: {mm.group(0)[:80]} "
+                    "(name-channel callable: quote-NAMED SQL error while the "
+                    "attacker-controlled base-1 expression answers clean)", r.request_id))
             # OWSP-30 (NodeGoat round, live-caught on /allocations/1?threshold=):
             # the Mongo signature family — same paired-control discipline
             # (base must not carry the signature; an always-erroring surface
