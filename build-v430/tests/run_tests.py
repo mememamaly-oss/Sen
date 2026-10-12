@@ -11844,6 +11844,103 @@ def unit_pt3_param_name_battery():
         srv.shutdown(); srv.server_close()
 
 
+
+@case
+def unit_pt1b_echo_derivative_guard():
+    """PT-1b (live-caught on the round-7 full-benchmark re-run): PT-1's
+    extended budget reached the crypto/hash servlets' own params and 9 false
+    exists_oracle/writability candidates VERIFIED — those surfaces echo a
+    TRANSFORMED DERIVATIVE of the param (cipher text / digest), so ANY two
+    payloads answer differently and the known-vs-missing differential is pure
+    input echo (live-proven on BenchmarkTest02190: two different
+    KNOWN-MISSING payloads answer differently). Guard: a second independent
+    missing (and writable) control must answer IDENTICALLY — only then is the
+    differential attributable to the existence/writability axis. The REAL
+    oracles (exists-boolean flip, writability) are unaffected — missing-vs-
+    missing answers are identical there."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.core import Endpoint, Parameter, ParamLocation, ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine
+    from sentinel.detect import TraversalDetector
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _body(self, v):
+            import hashlib
+            # ECHO-DERIVATIVE surface: the answer embeds a digest of the input —
+            # any two different inputs answer differently (the crypto/hash shape)
+            return ("Sensitive value: " + hashlib.md5(v.encode()).hexdigest()).encode()
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            raw = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+            q = {k: v[0] for k, v in parse_qs(urlsplit(self.path).query,
+                                              keep_blank_values=True).items()}
+            q.update({k: v[0] for k, v in parse_qs(raw, keep_blank_values=True).items()})
+            v = q.get("BenchmarkTestX", "")
+            b = self._body(v)
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(b)))
+            self.end_headers()
+            self.wfile.write(b)
+
+    class HReal(TraversalDetector.__module__ and None or object): pass
+
+    port = 8895
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+
+    class HOracle(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            raw = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+            q = {k: v[0] for k, v in parse_qs(urlsplit(self.path).query,
+                                              keep_blank_values=True).items()}
+            q.update({k: v[0] for k, v in parse_qs(raw, keep_blank_values=True).items()})
+            v = q.get("BenchmarkTestX", "")
+            exists = "etc/passwd" in v          # known file vs anything else
+            b = ("Access to file: '/base/x' created.\n" +
+                 (" And file already exists." if exists else
+                  " But file doesn't exist yet.")).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(b)))
+            self.end_headers()
+            self.wfile.write(b)
+
+    port2 = 8896
+    srv2 = ThreadingHTTPServer(("127.0.0.1", port2), HOracle)
+    threading.Thread(target=srv2.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(scope=ScopeRule(allow_private=True), bus=EventBus("pt1b"),
+                            timeout=5)
+        det = TraversalDetector(eng, EventBus("pt1b"))
+        ep = Endpoint(url=f"http://127.0.0.1:{port}/crypto-02/BenchmarkTestX",
+                      method="POST")
+        ep.parameters = [Parameter("password", ParamLocation.QUERY, "p"),
+                         Parameter("username", ParamLocation.QUERY, "u"),
+                         Parameter("BenchmarkTestX", ParamLocation.QUERY, "x")]
+        full, reduced = det.eligible_params(ep)
+        for p in (full + reduced):
+            f = det.exists_pair(ep, p, depths=(7,) if p in reduced else (7, 8))
+            assert f is None, (
+                "RED: echo-derivative surface (digest of the input) fired the "
+                "exists_oracle — the Benchmark's crypto/hash FP family "
+                f"(param={p.name})")
+        ep2 = Endpoint(url=f"http://127.0.0.1:{port2}/pathtraver-00/BenchmarkTestX",
+                       method="POST")
+        ep2.parameters = [Parameter("BenchmarkTestX", ParamLocation.QUERY, "x")]
+        f2 = det.exists_pair(ep2, ep2.parameters[0])
+        assert f2 is not None, (
+            "RED: the guard killed the REAL exists oracle — missing-vs-missing "
+            "answers are identical there and the known-vs-missing flip must "
+            "still fire")
+    finally:
+        srv.shutdown(); srv.server_close()
+        srv2.shutdown(); srv2.server_close()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

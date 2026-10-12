@@ -602,6 +602,19 @@ class VerificationEngine:
                     # yet." 27B); after echo neutralization any remaining difference
                     # IS the oracle's answer (49 candidates died at this gate live).
                     if bk43 != bm43:
+                        # PT-1b: echo-derivative guard -- a SECOND independent
+                        # missing payload must answer identically to the first;
+                        # a surface that echoes a transformed derivative of the
+                        # param (cipher/digest) differs on ANY two payloads and
+                        # is not a file-existence signal (live-caught: 9 crypto/
+                        # hash FPs on the round-7 full-benchmark re-run).
+                        miss2v = f"sentinel-miss2-{_r43.randrange(1000, 99999)}"
+                        rm2v = self._replay(ep, f.parameter, up43 + "etc/" + miss2v)
+                        if rm2v is not None and not rm2v.error and rm2v.status:
+                            bm2v = _ez43(rm2v.body or "", up43 + "etc/" + miss2v,
+                                         "etc/" + miss2v, miss2v)
+                            if bm2v != bm43:
+                                continue    # echo-derivative surface
                         hit, used43 = True, f"depth {depth43}: normalized-echo-neutral"
                         break
                 if not hit:
@@ -618,6 +631,14 @@ class VerificationEngine:
                         ba = _ez43(ra.body or "", up43 + "tmp/" + wr2, "tmp/" + wr2, wr2)
                         bb2 = _ez43(rb2.body or "", up43 + "etc/" + wr2, "etc/" + wr2, wr2)
                         if ba != bb2:
+                            # PT-1b: echo-derivative guard on the writability axis
+                            wr2v = f"sentinel-w2-{_r43.randrange(1000, 99999)}"
+                            ra2v = self._replay(ep, f.parameter, up43 + "tmp/" + wr2v)
+                            if ra2v is not None and not ra2v.error and ra2v.status:
+                                ba2v = _ez43(ra2v.body or "", up43 + "tmp/" + wr2v,
+                                             "tmp/" + wr2v, wr2v)
+                                if ba2v != ba:
+                                    continue    # echo-derivative surface
                             hit, used43 = True, f"writability axis depth {depth43}"
                             break
                 v = Verification(method="re-test:fresh-exists-pair", passed=hit,
@@ -647,6 +668,15 @@ class VerificationEngine:
                     ba45 = _ez45(ra45.body or "", up45 + "tmp/" + wr3, "tmp/" + wr3, wr3)
                     bb45 = _ez45(rb45.body or "", up45 + "etc/" + wr3, "etc/" + wr3, wr3)
                     if ba45 != bb45:
+                        # PT-1b: echo-derivative guard -- a second independent
+                        # writable-dir payload must answer identically
+                        wr45b = f"sentinel-w2-{_r45.randrange(1000, 99999)}"
+                        ra45b = self._replay(ep, f.parameter, up45 + "tmp/" + wr45b)
+                        if ra45b is not None and not ra45b.error and ra45b.status:
+                            ba45b = _ez45(ra45b.body or "", up45 + "tmp/" + wr45b,
+                                          "tmp/" + wr45b, wr45b)
+                            if ba45b != ba45:
+                                continue    # echo-derivative surface
                         hit, used45 = True, f"writability depth {depth45}"
                         break
                 v = Verification(method="re-test:fresh-writability-pair", passed=hit,

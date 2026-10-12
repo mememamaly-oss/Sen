@@ -936,6 +936,29 @@ class TraversalDetector(Detector):
             bm2 = echo_neutralize(rm.body or "", base_up + "etc/" + missing, "etc/" + missing)
             bk2 = bk2.replace(missing, "")
             if bk2 != bm2:
+                # PT-1b (live-caught on the round-7 full-benchmark re-run): the
+                # PT-1 extended budget reached the crypto/hash servlets' own
+                # params and 9 false exists_oracle candidates VERIFIED -- those
+                # surfaces echo a TRANSFORMED DERIVATIVE of the param (cipher
+                # text / digest of the payload), so ANY two payloads answer
+                # differently and the known-vs-missing "differential" is pure
+                # input echo, not a file-existence signal (live-proven on
+                # BenchmarkTest02190: two different KNOWN-MISSING payloads
+                # answer differently too). Guard: a second, independent missing
+                # payload must answer IDENTICALLY to the first -- only then is
+                # the differential attributable to the exists axis.
+                miss2b = self.EXISTS_MISSING.format(
+                    d=abs(hash((ep.url, p.name, depth))) % 99991)
+                rm2b = self.engine.send(RequestMutation(
+                    endpoint=ep, param_name=p.name,
+                    param_value=base_up + "etc/" + miss2b,
+                    note="trav-exists-missing2"))
+                if rm2b is not None and not rm2b.error and rm2b.status:
+                    bm2b = echo_neutralize(rm2b.body or "",
+                                           base_up + "etc/" + miss2b,
+                                           "etc/" + miss2b, miss2b)
+                    if bm2b != bm2:
+                        continue    # echo-derivative surface -- honest silence
                 # GTP-03b(w3): the >8 length gate killed REAL differentials — the
                 # exists-oracle answers ('And file already exists.' 23B vs "But
                 # file doesn't exist yet." 27B) are 4B apart; after echo
@@ -967,6 +990,19 @@ class TraversalDetector(Detector):
                 bn = echo_neutralize(rnx.body or "", base_up + "etc/" + wr,
                                      "etc/" + wr, wr)
                 if bw != bn:
+                    # PT-1b: same echo-derivative guard on the writability axis --
+                    # a second INDEPENDENT writable-dir payload must answer
+                    # identically, else the differential is a transformed echo.
+                    import random as _rw3b
+                    wr2 = f"sentinel-w-{_rw3b.randrange(1000, 99999)}"
+                    rw2 = self.engine.send(RequestMutation(
+                        endpoint=ep, param_name=p.name,
+                        param_value=base_up + "tmp/" + wr2, note="trav-writable2"))
+                    if rw2 is not None and not rw2.error and rw2.status:
+                        bw2 = echo_neutralize(rw2.body or "", base_up + "tmp/" + wr2,
+                                              "tmp/" + wr2, wr2)
+                        if bw2 != bw:
+                            continue    # echo-derivative surface -- honest silence
                     return Finding("path_traversal", Severity.HIGH, ep.url, p.name, ep.method,
                         [Evidence("writability_oracle",
                                   f"blind WRITABILITY differential at depth {depth}: writable "

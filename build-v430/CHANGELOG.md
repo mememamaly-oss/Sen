@@ -1,3 +1,22 @@
+# SENTINEL v4.3.7-pt1b — pathtraver recall push 4/5: the echo-derivative guard (9 full-benchmark FPs killed, catches intact)
+
+The round-7 FULL 12-chunk benchmark re-run (first post-PT-1/2/3 measurement)
+exposed 9 false exists_oracle/writability VERIFIED findings on crypto/hash
+safe twins: those surfaces echo a TRANSFORMED DERIVATIVE of the param (cipher
+text / digest), so any two payloads answer differently and the
+known-vs-missing differential is pure input echo (live-proven on
+BenchmarkTest02190: two different known-missing payloads answer differently).
+PT-1b adds missing-vs-missing and writable-vs-writable guards to BOTH the
+detector's exists_pair axes and all three verifier replay axes — a second
+independent control must answer identically before a differential counts.
+Real oracles unaffected (identical control answers there by construction).
+
+Proof: unit_pt1b RED (echo-derivative fixture fired the oracle on the unfixed
+engine) -> GREEN (silent) with the real exists-oracle fixture still firing;
+suite 228/228; doctor 17/17; bench x3 IDENTICAL 38/0/0/37 @5100 (+4 control
+probes); LIVE 29-endpoint check: the 9 FP tests 0 firing (was 9), 20/20
+pathtraver catch-sample intact.
+
 # SENTINEL v4.3.6-pt3 — pathtraver recall push 3/5: the param-NAME traversal battery (6 more FNs closed live, 65/82 cumulative)
 
 13/82 pathtraver FNs read the sink path from the NAME of a request parameter —
