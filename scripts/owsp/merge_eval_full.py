@@ -32,7 +32,7 @@ for c in sorted(OUTD.glob("chunk_*.json")):
     stats["requests"] += s.get("requests") or 0
     stats["endpoints"] += (s.get("endpoints") or 0)
 merged["stats"] = stats
-merged["scanner"] = "sentinel-core/4.3.6-pt3 (12 no-crawl chunks merged, recall-push round)"
+merged["scanner"] = "sentinel-core/4.3.9-cr3 (12 no-crawl chunks merged, crypto recall-push round)"
 OUT = OUTD / "merged_full.json"
 OUT.write_text(json.dumps(merged))
 n_act = [f for f in merged["findings"] if f["type"] not in
@@ -88,7 +88,7 @@ for tcid, info in exp.items():
         else:
             m["tn"] += 1
 
-print("\n=== PER-CATEGORY (fresh full benchmark, engine v4.3.6-pt3) ===")
+print("\n=== PER-CATEGORY (fresh full benchmark, engine v4.3.9-cr3) ===")
 print(f"{'category':<14} {'tp':>4} {'fp':>4} {'fn':>4} {'tn':>4} {'recall':>7} {'precision':>9}")
 cov_tp = cov_fp = cov_fn = cov_tn = 0
 for cat in sorted(per_cat):
@@ -107,10 +107,10 @@ print(f"\nOVERALL (covered): TP={cov_tp} FP={cov_fp} FN={cov_fn} TN={cov_tn} "
       f"precision={prec_all:.4f} recall={rec_all:.4f} F1={f1:.4f}")
 print("cross-class FPs:", len(cross_class), cross_class[:6])
 
-report = {"label": "v436_pt3_full", "scan": str(OUT), "total_tests": len(exp),
+report = {"label": "v439_cr3_full", "scan": str(OUT), "total_tests": len(exp),
           "per_category": {c: {k: v for k, v in m.items()} for c, m in per_cat.items()},
           "overall_covered": {"tp": cov_tp, "fp": cov_fp, "fn": cov_fn, "tn": cov_tn,
                               "precision": prec_all, "recall": rec_all, "f1": f1},
           "cross_class_findings": cross_class}
-(OUTD / "eval_v436_pt3_full.json").write_text(json.dumps(report, indent=1))
-print("\nsaved:", OUTD / "eval_v436_pt3_full.json")
+(OUTD / "eval_v439_cr3_full.json").write_text(json.dumps(report, indent=1))
+print("\nsaved:", OUTD / "eval_v439_cr3_full.json")

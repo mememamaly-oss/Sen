@@ -1,3 +1,15 @@
+# SENTINEL v4.3.9-cr3-CLOSE — crypto CATEGORY CLOSED: recall 42.31% -> 95.38% on the FULL benchmark, precision 1.0
+
+Full 12-chunk re-run (no-crawl campaign mode, seed 7f3c91aa, primitive-seeded
+specs, 323,088 requests): crypto 55/130 -> 124/130 TP, FP 0, precision 1.0;
+the remaining 6 FNs are ALL the "moresafe" (8->16) poisoned-zone family (a
+GCM-tag8/CCM constant is byte-identical to DES's pad8 shape at a full-pad
+constant length — no black-box length/echo oracle separates them; the zone is
+excluded to hold precision at 1.0; 19 constant-shape TN guards live-verified
+silent). Side benefits: hash 100 -> 115 TP (89.15%), overall covered recall
+69.81% -> 76.37% at precision 1.0000 (F1 0.8660), FP 0 across ALL categories.
+Report: results/owasp/crypto_category_close.md.
+
 # SENTINEL v4.3.9-cr3 — crypto recall round 3: the CONSTANT-PLAINTEXT family (42 live catches; the poisoned zones documented as the honest ceiling)
 
 ~44 of the 75 crypto FNs encrypt a FIXED plaintext — the input never arrives
