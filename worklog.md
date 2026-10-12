@@ -1535,3 +1535,79 @@ Stage Summary:
 - crypto recall 42.31% -> 95.38% at precision 1.0 on the FULL benchmark; overall recall 69.81% -> 76.37% at precision 1.0000 (was 68.90% before the recall-push program began).
 - Honest ceiling documented: the moresafe poisoned-zone family (6) — needs a different evidence class (ECB-repeat on the constant at multiple lengths, or cross-endpoint key correlation).
 - Next category per impact order: trustbound (51 FN, 38.55%) or sqli (65 FN, 76.10%) — supervisor's call.
+
+---
+Task ID: 41 (sqli recall-push round — PREFLIGHT: SQ-1/SQ-2 NOT FOUND, round BLOCKED; baseline recovered + full gate re-verified GREEN)
+Agent: Super Z (main agent)
+
+Task: Supervisor order with fresh PAT: (1) restart the session if commands
+fail; (2) fetch the REAL origin/main first — assume nothing after rollback
+#17; (3) apply patches SQ-1 then SQ-2 on top of it IN ORDER; (4) make sure the
+gate is still green; (5) commit and push each patch separately immediately,
+each verified via ls-remote; (6) report immediately so the token can be
+revoked.
+
+Work Log:
+- Commands worked; no session restart needed. ROLLBACK #17 CONFIRMED at
+  session start: local tree back at the 6fcb15c/1e2159f era (Oct-3 IV13
+  state), .gitignore gutted again, worklog stuck at task 13, /home/z/tools
+  benchmark stack WIPED, download/ pods gone, upload/ empty. The previous
+  sqli session's work (if any was produced) is not present locally.
+- FETCH (with the fresh PAT, inline-only protocol, outputs redacted):
+  origin/main = a456942 ("worklog: task 40 — crypto recall-push round",
+  2026-10-12 08:40 UTC) — the authoritative history (v4.2.3..v4.4.0 tags, 4
+  archive branches, tasks 14-40 incl. the pathtraver + crypto category
+  closes). This is the real baseline; the rolled-back local tree is junk-era.
+- PREFLIGHT SEARCH for SQ-1/SQ-2 (before ANY action — the task-8 rule:
+  baseline assumption failed = stop and record): (a) git ls-remote ALL refs:
+  main, release/v4.1.1, 4 archive branches, 11 tags — NO SQ branch/tag;
+  (b) origin/main full tree: no SQ patch files (only unrelated
+  scripts/l3_patch_*.py); (c) local git: reflog ends Oct-3 era, dangling
+  commits all Oct-3-era (e367d52, ddb0b2c, 1df1d7f, 293774f, 2dfd3c4), no
+  stash; (d) /tmp/my-project boot snapshot: frozen at the task-40 state
+  (= origin/main), ZERO files modified after the task-40 push timestamp;
+  (e) upload/ empty; (f) content-level grep for 'SQ-1' across /home/z and
+  /tmp: nothing; (g) GitHub API: releases empty (PRs/issues not listable —
+  token is Contents-RW only). VERDICT: SQ-1 AND SQ-2 DO NOT EXIST in any
+  recoverable location. NO patch content was fabricated; no engine or test
+  file was modified this round.
+- RECOVERY (the executable part of the order): scripts/iv_out backed up
+  (/home/z/iv_out_backup_pre_reset) then local main hard-reset to
+  origin/main a456942 (the documented rollback-recovery pattern; the 6fcb15c
+  auto-commit verified content-free — iv_out temp files only). BYTE-IDENTITY
+  PROVEN: HEAD^{tree} == origin/main^{tree} = 4f7e469c, git diff = 0,
+  status clean (restored .gitignore re-covers runtime junk).
+- GATE RE-VERIFIED GREEN on the restored pristine baseline (fresh, this
+  session; scripts/owsp/sq0_baseline_gate.sh, committed):
+  * DOCTOR 17/17 PASS.
+  * BENCH x3 IDENTICAL: 38/0/0/37 F1=1.0000 x3; run_ids ALL run-3c0652b6be
+    (the exact shipped deterministic fingerprint); 199 findings each; verdict
+    sets byte-identical across the three runs.
+  * SUITE 18/18 chunks ALL PASS: 212/212 cases ran, 0 failed (213 registered
+    minus the 1 documented env-stall exclusion
+    regression_oob_public_channel_end_to_end, per the shipped gate contract).
+    One environment ~595s call-kill absorbed by the resumable runner (cached
+    chunks + re-run of the killed chunk, clean).
+  * Evidence: build-v430/results/owasp/sq0_recovery_gate.md (committed);
+    bench JSONs untracked per the task-34 evidence-size rule.
+- TO UNBLOCK (reported to the supervisor): supply SQ-1/SQ-2 (paste diffs /
+  upload files / push a branch to origin) for ordered per-patch application
+  with RED/GREEN + full gate + individual push + ls-remote; OR re-authorize
+  the sqli round from scratch — the methodology's live-diagnosis
+  precondition requires rebuilding the /home/z/tools benchmark stack
+  (cr_stack recipe committed under scripts/owsp/), wiped by rollback #17.
+- TOKEN: used for fetch + this record's push only; inline per-command, never
+  written to disk/config/commit; supervisor revokes after this push.
+
+Stage Summary:
+- Round BLOCKED at preflight, honestly: the two ordered patches exist in NO
+  recoverable source (every source checked and documented above). Nothing
+  fabricated, nothing applied, main's content unchanged except this record
+  (worklog + recovery-gate evidence + the gate runner script).
+- Baseline RECOVERED and PROVEN ready: local = origin/main a456942
+  byte-identical; the full gate is GREEN fresh this session (212/212 suite,
+  17/17 doctor, bench x3 identical at the shipped fingerprint
+  run-3c0652b6be) — the tree can receive SQ-1/SQ-2 the moment they are
+  supplied.
+- main: a456942 -> (this commit). Engine, tests, and all shipped content
+  untouched.
