@@ -322,7 +322,17 @@ class SQLiDetector(Detector):
             # the nminj_ tag so the orchestrator groups them as ONE family
             # (their param names differ by design — a param_name groupby would
             # split the pair and kill the oracle).
-            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location == ParamLocation.QUERY:
+            # SQ-1 (sqli recall round, live-caught on the OWASP Benchmark
+            # master = v1.2): the family was gated to QUERY params, but the
+            # entire benchmark resolver family (38 of the 65 sqli FNs) reads
+            # the match from a POST FORM body (requestBody ->
+            # application/x-www-form-urlencoded -> ParamLocation.BODY;
+            # live-proven on BenchmarkTest00037/00038: body <payload>=<TCID>
+            # -> quote-NAMED 500 SQLSyntaxErrorException, pair-NAMED 200,
+            # control 200). The gate now admits BODY params with the same
+            # non-token/non-flow-control discipline.
+            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location in (
+                    ParamLocation.QUERY, ParamLocation.BODY):
                 _pv = p.value or "1"
                 _b = _pv if _pv.isdigit() else "1"
                 for tag, payload in (

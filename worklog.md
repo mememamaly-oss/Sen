@@ -1611,3 +1611,196 @@ Stage Summary:
   supplied.
 - main: a456942 -> (this commit). Engine, tests, and all shipped content
   untouched.
+
+---
+Task ID: 42 (sqli recall-push round — SQ-1: resolver POST-form name-channel family, 3-layer fix)
+Agent: Super Z (main agent)
+
+Task: Supervisor order (fresh authorization, PAT held from the start): rebuild
+the sqli category from scratch with the same methodology — live diagnosis
+before ANY code; one fix at a time (RED -> GREEN -> full gate); push each fix
+IMMEDIATELY upon proof (no batching, ls-remote verify each); paste the complete
+patch code in this worklog as a text backup even if a push fails.
+
+Work Log:
+- ROLLBACK #18 confirmed partial: /home/z/tools wiped again (stack, m2 cache,
+  tool-results); repo tree itself AT task-41 state (local main 4ce0dc9 =
+  origin/main, verified via ls-remote with the PAT — remote authoritative and
+  in sync; no new remote work).
+- STACK REBUILT live (all recipes committed under scripts/owsp/): Temurin-21
+  real dir (tarball top-dir merged over the sandbox-converted JRE copy — javac
+  21.0.12.1 present), Maven 3.9.9, BenchmarkJava master clone (CSV byte-
+  identical, 2740 tests), mvn package (50MB war, 4541 classes), cp.txt via
+  dependency:build-classpath, plain-Tomcat9 assembly WITHOUT cargo
+  (scripts/owsp/sqli/sq_stack_tomcat.sh: direct 9.0.85 download + unzip +
+  direct DataSource context.xml + shutdown -1 + jarsToSkip — the GTP-12
+  pattern adapted to the Task-40 /home/z/tools layout). Boot + smoke: tomcat
+  200, LDAP + HSQLDB up, sqli flow 200, crypto servlets writing.
+- LIVE DIAGNOSIS (zero engine code, all 65 FNs root-caused):
+  * Family taxonomy from source + spec + live probes: 34 resolver-only (SQ-1),
+    27 callable-only (SQ-2), 4 resolver+callable (both), 0 unexplained.
+  * SQ-1 root cause is THREE layers deep:
+    (1) the resolver servlets scan getParameterNames() for the param whose
+        VALUE == endpoint basename and interpolate its NAME into SQL (live on
+        00037: body `1'=BenchmarkTest00037` -> 500 SQLSyntaxErrorException,
+        `1''` -> 200, control name -> 200);
+    (2) the GTP-01 nminj family (payload-as-param-NAME) was gated to
+        ParamLocation.QUERY — the whole benchmark resolver family is POST
+        form-body (spec requestBody -> BODY);
+    (3) openapi form-body fields imported with value "" — the schema default
+        ("whatever": default "BenchmarkTest00037") is the resolver sentinel;
+        without it the probe value never matches (minispec proof: 3/3 FNs
+        silent until the default rode the probe).
+    (4) verification layer: the name-channel VR replays ONLY the OR-tautology
+        pair — the benchmark's result pages show NOTHING on either side (USERS
+        table empty / Spring JDBCtemplate no rows; live: TRUE and FALSE both
+        200/19B) -> every real catch lands REJECTED.
+  * SQ-2 root cause (next fix): CallableStatement sinks (`{call <param>}`) —
+    on HSQLDB BOTH `1'` (malformed string) and `1''` (unexpected token) die as
+    SQLSyntaxErrorException 500s (live on 00008/01302/01712/00996, header/
+    value/query/cookie channels alike) -> the db_error pair control AND the
+    DETECT-04 status pair control are structurally dead on the whole callable
+    family (27+4 FNs). Live control landscape: `{call 1-1}` and `{call 1;}`
+    stay 200 (quote-free value expressions) — the callable-aware control.
+- SQ-1 IMPLEMENTATION (3 files + tests):
+  * detect.py: nminj gate extended to (QUERY, BODY).
+  * discovery.py: form-body schema default/example imported as the param value.
+  * intel.py: name-channel VR error-based fallback (PATH-B discipline through
+    the NAME channel: quote-NAMED must reproduce a DB-error string; at least
+    one valid-SQL control name ('' pair or base-1) must stay clean).
+  * tests: unit_sq1_resolver_post_body_name_channel (RED proven: no sqli
+    finding pre-fix; GREEN post-fix) + two pre-GTP-01-era harnesses scoped to
+    the value battery (regression_engine_preserves_redirect_oracle_e2e,
+    unit_v422_sqli_numeric_comment_family — their naive param_name groupby
+    met the nminj payload-named clones with StopIteration; the orchestrator
+    groups by ncgroup note, the harnesses now filter nminj like their scope).
+- SQ-1 LIVE PROOF (minispec on the real stack, scripts/owsp/sqli/sq1_live.py):
+  00037/00038/00039 (FN family) -> VERIFIED 3/3; 00091/00092/00093 (secure
+  twins) -> silent 3/3. Requests 713.
+- SQ-1 FULL GATE (fresh, this session; scripts/owsp/sqli/sq1_gate.sh):
+  * suite 18/18 chunks ALL PASS — 3869/3869 case-runs (214 registered live
+    + 1 documented env-stall exclusion unchanged).
+  * doctor 17/17 PASS.
+  * bench x3 IDENTICAL: 38/0/0/37 F1=1.0000 x3.
+- SQ-1 PATCH CODE (full text backup, verbatim):
+```diff
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+@@ -322,7 +322,17 @@ class SQLiDetector(Detector):
+             # the nminj_ tag so the orchestrator groups them as ONE family
+             # (their param names differ by design — a param_name groupby would
+             # split the pair and kill the oracle).
+-            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location == ParamLocation.QUERY:
++            # SQ-1 (sqli recall round, live-caught on the OWASP Benchmark
++            # master = v1.2): the family was gated to QUERY params, but the
++            # entire benchmark resolver family (38 of the 65 sqli FNs) reads
++            # the match from a POST FORM body (requestBody ->
++            # application/x-www-form-urlencoded -> ParamLocation.BODY;
++            # live-proven on BenchmarkTest00037/00038: body <payload>=<TCID>
++            # -> quote-NAMED 500 SQLSyntaxErrorException, pair-NAMED 200,
++            # control 200). The gate now admits BODY params with the same
++            # non-token/non-flow-control discipline.
++            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location in (
++                    ParamLocation.QUERY, ParamLocation.BODY):
+diff --git a/build-v430/sentinel/discovery.py b/build-v430/sentinel/discovery.py
+@@ -801,10 +801,23 @@ def parse_openapi(spec: dict, base_url: str) -> list[Endpoint]:
+             # lost their declared form fields (the spec declares form params in
+             # requestBody, not in parameters). Form fields import as BODY params
+             # exactly like a parsed HTML form would produce.
++            # SQ-1 (sqli recall round, live-caught on the OWASP Benchmark master
++            # = v1.2): the schema DEFAULT is the value the app's resolver hunts
++            # — the benchmark's resolver servlets scan getParameterNames() for
++            # the param whose VALUE equals the endpoint basename (declared as
++            # `"whatever": {"type": "string", "default": "BenchmarkTest00037"}`)
++            # and interpolate that param's NAME into the SQL. Importing fields
++            # with a blank value dropped the sentinel, so the name-channel
++            # battery (nminj: payload-as-NAME, value verbatim) could never
++            # resolve — live: 3/3 resolver FNs silent in the minispec round
++            # until the default rode the probe. HTML forms already carried
++            # their value= attributes; this mirrors that for specs.
+             if "application/x-www-form-urlencoded" in body:
+-                for fld in ((body["application/x-www-form-urlencoded"].get("schema") or {})
+-                            .get("properties") or {}).keys():
+-                    params.append(Parameter(fld, ParamLocation.BODY, "").classify())
++                for fld, fschema in ((body["application/x-www-form-urlencoded"]
++                                      .get("schema") or {}).get("properties") or {}).items():
++                    _dv = str((fschema or {}).get("default", "")
++                              or (fschema or {}).get("example", "") or "")
++                    params.append(Parameter(fld, ParamLocation.BODY, _dv).classify())
+diff --git a/build-v430/sentinel/intel.py b/build-v430/sentinel/intel.py
+@@ -153,16 +153,61 @@ class VerificationEngine:
+                 else:
+                     rT = rF = None
+                 okNC = False
++                _nc_method = "re-test:name-channel-pair"
++                _nc_notes = ("fresh TRUE/FALSE pair through the same name/segment "
++                             "channel reproduced the differential")
+                 if rT is not None and rF is not None and not rT.error and not rF.error \
+                         and rT.status and rF.status:
+                     bt, bf = len(rT.body or ""), len(rF.body or "")
+                     okNC = ((rT.ok and not rF.ok)
+                             or (rT.ok and rF.ok and rT.status == rF.status
+                                 and abs(bt - bf) > max(200, 0.25 * max(bt, bf, 1))))
+-                v = Verification(method="re-test:name-channel-pair", passed=okNC,
++                if not okNC:
++                    # SQ-1 (sqli recall round, live-caught on the OWASP Benchmark
++                    # master = v1.2): resolver-shaped result pages show NOTHING on
++                    # either side of the tautology (the USERS table is empty and
++                    # the Spring JDBCtemplate surfaces no rows — live-proven on
++                    # BenchmarkTest00037/00038: TRUE and FALSE both answer
++                    # 200/19B), so the pair-only replay rejects every real catch
++                    # on the whole family. The error-based fallback carries the
++                    # PATH-B discipline through the NAME channel: a quote-NAMED
++                    # probe must reproduce a DB-error STRING while at least ONE
++                    # valid-SQL control name stays clean — the '' pair (SELECT
++                    # string contexts) or the base-1 value expression (callable
++                    # contexts, where '' dies as an unexpected-token error:
++                    # live `{call 1''}` -> 500 vs `{call 1-1}` -> 200).
++                    from .detect import SQL_ERR_PATTERNS as _SQ1PATS
++
++                    def _nc_sig(r):
++                        if r is None or not r.status:
++                            return None
++                        for _pat in _SQ1PATS:
++                            _mm = _pat.search(r.body or "")
++                            if _mm:
++                                return _mm
++                        return None
++
++                    _pv2 = _pv or "1"
++                    _epE = _clone_ep_rename_param(ep, _anchor, base + "'")
++                    _epP = _clone_ep_rename_param(ep, _anchor, base + "''")
++                    _epC = _clone_ep_rename_param(ep, _anchor, base + "-1")
++                    rE = self.engine.send(RequestMutation(endpoint=_epE,
++                            param_name=base + "'", param_value=_pv2, note="vr-nc-err"))
++                    rP = self.engine.send(RequestMutation(endpoint=_epP,
++                            param_name=base + "''", param_value=_pv2, note="vr-nc-pair"))
++                    rC = self.engine.send(RequestMutation(endpoint=_epC,
++                            param_name=base + "-1", param_value=_pv2, note="vr-nc-call"))
++                    _err_mm, _pair_mm, _call_mm = _nc_sig(rE), _nc_sig(rP), _nc_sig(rC)
++                    if _err_mm and (_pair_mm is None or _call_mm is None):
++                        okNC = True
++                        _nc_method = "error:name-channel-replay-2variants"
++                        _nc_notes = ("name-channel error replay: quote-NAMED reproduces a "
++                                     f"DB error string [{_err_mm.group(0)[:60]}] while a "
++                                     "valid-SQL control name ('' pair or base-1) stays clean")
++                v = Verification(method=_nc_method if okNC else "re-test:name-channel-pair",
++                                 passed=okNC,
+                                  confidence=0.9 if okNC else 0.15, rounds=2,
+-                                 notes=("fresh TRUE/FALSE pair through the same name/segment "
+-                                        "channel reproduced the differential" if okNC else
++                                 notes=(_nc_notes if okNC else
+                                         "name-channel differential not reproduced"))
+```
+  (tests/run_tests.py additions: unit_sq1_resolver_post_body_name_channel — a
+  POST-form resolver fixture whose quote-NAMED probe answers 500 with a JDBC
+  SQLSyntaxErrorException body while every other name answers 200 EMPTY (the
+  tautology can NEVER separate) — asserts a VERIFIED sql_injection carrying
+  input_channel evidence and a name-channel verification method; plus the two
+  value-battery scoping fixes described above. Full case source in the repo.)
+
+Stage Summary:
+- SQ-1 PROVEN and pushing individually: expected full-run effect = the 34
+  resolver-only FNs flip to TP (live minispec 3/3 + unit RED->GREEN + full
+  gate green: 3869/3869, doctor 17/17, bench x3 IDENTICAL).
+- The 4 resolver+callable tests stay FN until SQ-2 lands (nminj call_ctrl);
+  the 27 callable-only FNs are SQ-2's scope — diagnosis complete, fix next.

@@ -801,10 +801,23 @@ def parse_openapi(spec: dict, base_url: str) -> list[Endpoint]:
             # lost their declared form fields (the spec declares form params in
             # requestBody, not in parameters). Form fields import as BODY params
             # exactly like a parsed HTML form would produce.
+            # SQ-1 (sqli recall round, live-caught on the OWASP Benchmark master
+            # = v1.2): the schema DEFAULT is the value the app's resolver hunts
+            # — the benchmark's resolver servlets scan getParameterNames() for
+            # the param whose VALUE equals the endpoint basename (declared as
+            # `"whatever": {"type": "string", "default": "BenchmarkTest00037"}`)
+            # and interpolate that param's NAME into the SQL. Importing fields
+            # with a blank value dropped the sentinel, so the name-channel
+            # battery (nminj: payload-as-NAME, value verbatim) could never
+            # resolve — live: 3/3 resolver FNs silent in the minispec round
+            # until the default rode the probe. HTML forms already carried
+            # their value= attributes; this mirrors that for specs.
             if "application/x-www-form-urlencoded" in body:
-                for fld in ((body["application/x-www-form-urlencoded"].get("schema") or {})
-                            .get("properties") or {}).keys():
-                    params.append(Parameter(fld, ParamLocation.BODY, "").classify())
+                for fld, fschema in ((body["application/x-www-form-urlencoded"]
+                                      .get("schema") or {}).get("properties") or {}).items():
+                    _dv = str((fschema or {}).get("default", "")
+                              or (fschema or {}).get("example", "") or "")
+                    params.append(Parameter(fld, ParamLocation.BODY, _dv).classify())
             out.append(Endpoint(url=url, method=method.upper(), parameters=params,
                                 source=DiscoverySource.SEED, tags=["openapi"]))
     return out

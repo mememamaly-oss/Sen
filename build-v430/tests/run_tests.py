@@ -261,7 +261,11 @@ def regression_engine_preserves_redirect_oracle_e2e():
                       parameters=[Parameter("uid", ParamLocation.BODY),
                                   Parameter("passw", ParamLocation.BODY)])
         det = SQLiDetector(None, EventBus("eng12"))
-        cands = det.candidates(ep)
+        # SQ-1: the nminj name-channel clones carry the payload AS the param
+        # name and group under their ncgroup note (the orchestrator contract);
+        # this case exercises the VALUE-channel redirect oracle only — scope
+        # the harness to the value battery like the orchestrator scopes groups.
+        cands = [(s, m) for s, m in det.candidates(ep) if not s.startswith("nminj")]
         # per-param analysis (mirrors orchestrator; a flat map would keep only the
         # last param's responses — the exact flaw this suite guards against)
         from itertools import groupby
@@ -341,7 +345,11 @@ def unit_v422_sqli_numeric_comment_family():
                       parameters=[Parameter("uid", ParamLocation.BODY),
                                   Parameter("passw", ParamLocation.BODY)])
         det = SQLiDetector(None, EventBus("v422"))
-        cands = det.candidates(ep)
+        # SQ-1: scope to the value battery (the nminj name-channel clones carry
+        # payloads as param names and group under ncgroup notes — the numeric
+        # OR family under test here is value-channel; see unit_sq1 for the
+        # name-channel family's dedicated coverage)
+        cands = [(s, m) for s, m in det.candidates(ep) if not s.startswith("nminj")]
         cands_by_param = {}
         for pname, grp in groupby(cands, key=lambda t: t[1].param_name):
             grp = list(grp)
@@ -12189,6 +12197,82 @@ def unit_cr3_constant_block_family():
             assert f2.status == FindingStatus.VERIFIED, \
                 ("VR-28 constant replay failed for " + name,
                  f2.verification.notes if f2.verification else None)
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+@case
+def unit_sq1_resolver_post_body_name_channel():
+    """SQ-1 (sqli recall round, live-caught on the OWASP Benchmark master =
+    v1.2): 38 of the 65 sqli FNs are resolver-shaped on POST FORM bodies —
+    the servlet scans request.getParameterNames() for the param whose VALUE
+    equals the endpoint's own basename and interpolates its NAME into the
+    SQL string (live-proven on BenchmarkTest00037/00038: body
+    <payload>=BenchmarkTest00037 -> quote-NAMED 500 SQLSyntaxErrorException,
+    pair-NAMED 200, control 200). The GTP-01 name-channel family carried
+    `p.location == ParamLocation.QUERY`, so every POST-form resolver (the
+    whole benchmark family) never received a name-channel probe. The second
+    half of the defect is verification: the benchmark's result pages show
+    NOTHING on either side of the tautology (USERS table empty / Spring
+    JDBCtemplate returns no rows — live-proven: TRUE and FALSE both answer
+    200/19B), so the name-channel VR (tautology-only) rejects the catch.
+    The VR error-based fallback: quote-NAMED must reproduce a DB error
+    string while at least one valid-SQL control name ('' pair or base-1)
+    stays clean — the PATH-B discipline through the NAME channel."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    TCID = "BenchmarkTest00037"
+    EMPTY = b"<html><body><p>Your results are:<br></p></body></html>"
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            if urlsplit(self.path).path == "/":
+                self._reply(200, (
+                    '<form method="POST" action="/sqli-00/' + TCID + '">'
+                    '<input type="text" name="whatever" value="' + TCID + '">'
+                    '<input type="text" name="answer" value="">'
+                    '<input type="submit" name="go" value="go"></form>').encode())
+                return
+            self._reply(200, EMPTY)
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            body = self.rfile.read(n).decode() if n else ""
+            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
+            # the resolver: the param whose VALUE is the TCID; its NAME is data
+            name = ""
+            for k, v in q.items():
+                if v == TCID:
+                    name = k; break
+            if name == "1'":
+                self._reply(500, b"java.sql.SQLSyntaxErrorException: malformed string: ' "
+                                 b"in statement [ SELECT * from USERS ]")
+            else:
+                # '' pair, base-1, tautologies, controls: all valid SQL, and
+                # the result page shows NOTHING either way (the empty table)
+                self._reply(200, EMPTY)
+
+    port = 8906
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5, seed="sq1",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        sqls = [f for f in rep["findings"]
+                if f["type"] == "sql_injection" and f.get("status") == "verified"]
+        assert sqls, ("RED: the POST-form resolver name-channel family found nothing",
+                      [f["type"] for f in rep["findings"]])
+        assert any(any(e.get("kind") == "input_channel" for e in f.get("evidence", []))
+                   for f in sqls), "the finding must carry input_channel evidence"
+        assert any("name" in (f.get("verification", {}) or {}).get("method", "")
+                   for f in sqls), "the verifier must replay through the name channel"
     finally:
         srv.shutdown(); srv.server_close()
 

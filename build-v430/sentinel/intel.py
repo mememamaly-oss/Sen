@@ -153,16 +153,61 @@ class VerificationEngine:
                 else:
                     rT = rF = None
                 okNC = False
+                _nc_method = "re-test:name-channel-pair"
+                _nc_notes = ("fresh TRUE/FALSE pair through the same name/segment "
+                             "channel reproduced the differential")
                 if rT is not None and rF is not None and not rT.error and not rF.error \
                         and rT.status and rF.status:
                     bt, bf = len(rT.body or ""), len(rF.body or "")
                     okNC = ((rT.ok and not rF.ok)
                             or (rT.ok and rF.ok and rT.status == rF.status
                                 and abs(bt - bf) > max(200, 0.25 * max(bt, bf, 1))))
-                v = Verification(method="re-test:name-channel-pair", passed=okNC,
+                if not okNC:
+                    # SQ-1 (sqli recall round, live-caught on the OWASP Benchmark
+                    # master = v1.2): resolver-shaped result pages show NOTHING on
+                    # either side of the tautology (the USERS table is empty and
+                    # the Spring JDBCtemplate surfaces no rows — live-proven on
+                    # BenchmarkTest00037/00038: TRUE and FALSE both answer
+                    # 200/19B), so the pair-only replay rejects every real catch
+                    # on the whole family. The error-based fallback carries the
+                    # PATH-B discipline through the NAME channel: a quote-NAMED
+                    # probe must reproduce a DB-error STRING while at least ONE
+                    # valid-SQL control name stays clean — the '' pair (SELECT
+                    # string contexts) or the base-1 value expression (callable
+                    # contexts, where '' dies as an unexpected-token error:
+                    # live `{call 1''}` -> 500 vs `{call 1-1}` -> 200).
+                    from .detect import SQL_ERR_PATTERNS as _SQ1PATS
+
+                    def _nc_sig(r):
+                        if r is None or not r.status:
+                            return None
+                        for _pat in _SQ1PATS:
+                            _mm = _pat.search(r.body or "")
+                            if _mm:
+                                return _mm
+                        return None
+
+                    _pv2 = _pv or "1"
+                    _epE = _clone_ep_rename_param(ep, _anchor, base + "'")
+                    _epP = _clone_ep_rename_param(ep, _anchor, base + "''")
+                    _epC = _clone_ep_rename_param(ep, _anchor, base + "-1")
+                    rE = self.engine.send(RequestMutation(endpoint=_epE,
+                            param_name=base + "'", param_value=_pv2, note="vr-nc-err"))
+                    rP = self.engine.send(RequestMutation(endpoint=_epP,
+                            param_name=base + "''", param_value=_pv2, note="vr-nc-pair"))
+                    rC = self.engine.send(RequestMutation(endpoint=_epC,
+                            param_name=base + "-1", param_value=_pv2, note="vr-nc-call"))
+                    _err_mm, _pair_mm, _call_mm = _nc_sig(rE), _nc_sig(rP), _nc_sig(rC)
+                    if _err_mm and (_pair_mm is None or _call_mm is None):
+                        okNC = True
+                        _nc_method = "error:name-channel-replay-2variants"
+                        _nc_notes = ("name-channel error replay: quote-NAMED reproduces a "
+                                     f"DB error string [{_err_mm.group(0)[:60]}] while a "
+                                     "valid-SQL control name ('' pair or base-1) stays clean")
+                v = Verification(method=_nc_method if okNC else "re-test:name-channel-pair",
+                                 passed=okNC,
                                  confidence=0.9 if okNC else 0.15, rounds=2,
-                                 notes=("fresh TRUE/FALSE pair through the same name/segment "
-                                        "channel reproduced the differential" if okNC else
+                                 notes=(_nc_notes if okNC else
                                         "name-channel differential not reproduced"))
                 f.verification, f.confidence = v, v.confidence
                 f.status = FindingStatus.VERIFIED if okNC else FindingStatus.REJECTED
