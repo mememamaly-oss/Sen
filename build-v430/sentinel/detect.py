@@ -818,6 +818,33 @@ class TraversalDetector(Detector):
     #       apps whose file reads never echo content.
     ABS_PAYLOADS = ["/etc/passwd", "/etc/hostname", "C:\\windows\\win.ini"]
     EXISTS_MISSING = "sentinel-missing-{d}"
+    # PT-1 (recall push, live-caught on the OWASP Benchmark round-6 eval): the
+    # 2-param budget spent itself on the first two form fields and never sent a
+    # single traversal payload when the sink param sat THIRD+ in the surface
+    # (the Benchmark's own openapi spec declares ['password','username',
+    # 'BenchmarkTestNNNNN'] — the vuln param is third; 30/82 pathtraver FNs;
+    # live-proven on BenchmarkTest00362: the writability pair on the 3rd param
+    # answers 231B 'Now ready to write to file:' vs 0B while username is
+    # uniformly silent). Budget is now PROPORTIONAL: first 2 eligible params
+    # keep the full battery; params 3-4 get a reduced set (ladder-7 + the two
+    # absolute Unix targets — 3 payloads, the minimum that still covers the
+    # absolute-path family (a) and the depth family (b) of GTP-03).
+    # [PT-1 fix-up, 2026-10-12: commit 791e037 shipped this fix's PROOF
+    # artifacts but not the code itself — a reset --hard between proof and
+    # staging silently reverted the engine files. Re-applied verbatim.]
+    BUDGET_FULL, BUDGET_TOTAL = 2, 4
+    REDUCED_PAYLOADS = ["../" * 7 + "etc/passwd", "/etc/passwd", "/etc/hostname"]
+
+    def eligible_params(self, ep: Endpoint):
+        """PT-1: ordered (full_battery_params, reduced_battery_params).
+        Eligibility unchanged (non-TOKEN, non-flow-control, named); only the
+        SPREAD changed — trailing params get reduced coverage instead of
+        none. Shared by candidates() and the orchestrator's exists_pair loop
+        so both budgets move together."""
+        eligible = [p for p in ep.parameters
+                    if p.kind != ParamKind.TOKEN and not p.flow_control and p.name]
+        return (eligible[:self.BUDGET_FULL],
+                eligible[self.BUDGET_FULL:self.BUDGET_TOTAL])
 
     def candidates(self, ep: Endpoint):
         payloads = []
@@ -825,15 +852,13 @@ class TraversalDetector(Detector):
             payloads.append("../" * depth + "etc/passwd")
         payloads.append("....//....//....//windows/win.ini")
         payloads.extend(self.ABS_PAYLOADS)
-        _seen, _params = 0, []
-        for p in ep.parameters:
-            if p.kind != ParamKind.TOKEN and not p.flow_control:
-                _params.append(p)
-                _seen += 1
-                if _seen >= 2:          # GTP budget: 2 params x 11 payloads max
-                    break
-        return [(pl, RequestMutation(endpoint=ep, param_name=p.name, param_value=pl))
-                for p in _params for pl in payloads]
+        full, reduced = self.eligible_params(ep)
+        out = [(pl, RequestMutation(endpoint=ep, param_name=p.name, param_value=pl))
+               for p in full for pl in payloads]
+        # PT-1: trailing params — reduced set (3 payloads), bounded cost
+        out += [(pl, RequestMutation(endpoint=ep, param_name=p.name, param_value=pl))
+                for p in reduced for pl in self.REDUCED_PAYLOADS]
+        return out
 
     def analyze(self, pair, resp):
         ep, p = pair
@@ -855,15 +880,18 @@ class TraversalDetector(Detector):
         # the detector's exists_pair() entry (called by the orchestrator).
         return None
 
-    def exists_pair(self, ep: Endpoint, p) -> Finding | None:
+    def exists_pair(self, ep: Endpoint, p, depths=(7, 8)):
         """GTP-03(c): blind file-existence oracle — KNOWN-existing file vs
         sentinel-random missing file, payload-echo neutralized. Fires when the
         two responses differ BEYOND the reflected payload (status, or body
         with both payload texts stripped). A canonicalizing app answers both
-        identically (honest silence); a leaky exists() sink flips."""
+        identically (honest silence); a leaky exists() sink flips.
+        PT-1 adds `depths`: trailing-budget params pass a single depth (7) —
+        the benchmark base is 6-7 deep, one depth still reaches it — keeping
+        the added-coverage cost bounded (4 requests, not 8)."""
         import time as _t
         missing = self.EXISTS_MISSING.format(d=abs(hash((ep.url, p.name))) % 99991)
-        for depth in (7, 8):
+        for depth in depths:
             base_up = "../" * depth
             rk = self.engine.send(RequestMutation(endpoint=ep, param_name=p.name,
                                                  param_value=base_up + "etc/passwd",

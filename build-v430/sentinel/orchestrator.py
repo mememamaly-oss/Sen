@@ -656,20 +656,31 @@ class SentinelScanner:
                         # is a self-driven two-request flow per param, only when the
                         # marker battery found nothing on this endpoint (a confirmed
                         # content leak is the stronger finding — the exists pair adds
-                        # nothing). Bounded: first 3 eligible params per endpoint.
+                        # nothing). PT-1 (recall push): the budget moved from the
+                        # first-2-params to the detector's shared eligible_params()
+                        # (2 full + 2 reduced) — the Benchmark's own spec puts the
+                        # sink param third (['password','username','BenchmarkTestNNNNN'];
+                        # 30/82 pathtraver FNs live-caught round-6); trailing params
+                        # probe one depth (7) to keep the cost bounded.
+                        # [PT-1 fix-up: 791e037 shipped proof artifacts without this
+                        # code — reset --hard reverted it between proof and staging;
+                        # re-applied verbatim.]
                         _trav_hit = any(f.type == "path_traversal"
                                        and f.endpoint_url == ep.url
                                        and f.status == FindingStatus.VERIFIED
                                        for f in self.findings)
                         if not _trav_hit:
-                            _n = 0
-                            for _p in ep.parameters:
-                                if _n >= 2:
-                                    break
-                                if _p.kind == ParamKind.TOKEN or _p.flow_control or not _p.name:
-                                    continue
-                                cand = det.exists_pair(ep, _p)
-                                _n += 1
+                            try:
+                                _full, _reduced = det.eligible_params(ep)
+                            except AttributeError:
+                                _full = [p for p in ep.parameters
+                                         if p.kind != ParamKind.TOKEN
+                                         and not p.flow_control and p.name][:2]
+                                _reduced = []
+                            for _p in _full + _reduced:
+                                cand = det.exists_pair(
+                                    ep, _p,
+                                    depths=(7, 8) if _p in _full else (7,))
                                 if cand:
                                     cand.run_id = self.run_id
                                     self.stats["candidates"] += 1

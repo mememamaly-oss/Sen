@@ -11579,6 +11579,93 @@ def unit_gtp12fg_gcm_collision_and_body_channel():
         srv.shutdown(); srv.server_close()
 
 
+
+@case
+def unit_pt1_trailing_param_budget():
+    """PT-1 (recall push, live-caught on the OWASP Benchmark round-6 eval):
+    the traversal battery spent its whole param budget on the FIRST TWO
+    eligible params. The Benchmark's own openapi spec declares
+    ['password','username','BenchmarkTestNNNNN'] — the VULN param is third,
+    so exists_pair and candidates() probed password+username and never sent
+    a single traversal payload at the real sink (30/82 pathtraver FNs).
+    LIVE-PROVEN on BenchmarkTest00362: the writability pair on the 3rd param
+    answers 231B 'Now ready to write to file:' vs 0B, while username is
+    uniformly silent. Fix shape: budget 2 -> 4 params; params 3-4 get the
+    reduced payload set. This test proves the 3rd param is now reached.
+    [PT-1 fix-up: 791e037 shipped the proof artifacts without the code —
+    reset --hard reverted the engine files between proof and staging.]"""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.core import Endpoint, Parameter, ParamLocation, ParamKind, ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    from sentinel.detect import TraversalDetector
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _answer(self, body):
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            raw = self.rfile.read(n).decode("utf-8", "replace") if n else ""
+            q = {k: v[0] for k, v in parse_qs(urlsplit(self.path).query,
+                                              keep_blank_values=True).items()}
+            q.update({k: v[0] for k, v in parse_qs(raw, keep_blank_values=True).items()})
+            v = q.get("BenchmarkTestX", "")
+            if "tmp/sentinel-w-" in v and v.startswith("../"):
+                body = ("Now ready to write to file: /app/testfiles/" + v).encode()
+            else:
+                body = b""
+            self._answer(body)
+
+    port = 8891
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(scope=ScopeRule(allow_private=True), bus=EventBus("pt1"),
+                            timeout=5)
+        det = TraversalDetector(eng, EventBus("pt1"))
+        ep = Endpoint(url=f"http://127.0.0.1:{port}/pathtraver-00/BenchmarkTestX",
+                      method="POST")
+        ep.parameters = [Parameter("password", ParamLocation.QUERY, "p"),
+                         Parameter("username", ParamLocation.QUERY, "u"),
+                         Parameter("BenchmarkTestX", ParamLocation.QUERY, "x")]
+        full, reduced = det.eligible_params(ep)
+        names_full = [p.name for p in full]
+        names_red = [p.name for p in reduced]
+        assert "BenchmarkTestX" in names_full + names_red, (
+            "RED: the 3rd param never enters the traversal budget "
+            f"(full={names_full} reduced={names_red}) — the 30-FN family stays blind")
+        cand = None
+        for p in (full + reduced):
+            f = det.exists_pair(ep, p, depths=(7,) if p in reduced else (7, 8))
+            if f is not None:
+                cand = f
+                break
+        assert cand is not None, (
+            "RED: no traversal candidate on the 3rd param — the battery's "
+            "2-param budget probed password/username and stayed silent on "
+            "the real sink (live-proven on BenchmarkTest00362)")
+        assert any(e.kind in ("writability_oracle", "exists_oracle")
+                   for e in cand.evidence), [e.kind for e in cand.evidence]
+        assert "BenchmarkTestX" == cand.parameter, (
+            "RED: candidate fired on the wrong param", cand.parameter)
+        muts = [m[1] if isinstance(m, tuple) else m for m in det.candidates(ep)]
+        mut_params = {m.param_name for m in muts}
+        assert "BenchmarkTestX" in mut_params, (
+            "RED: candidates() never generates marker payloads for the 3rd param",
+            mut_params)
+        trail = [m for m in muts if m.param_name == "BenchmarkTestX"]
+        lead = [m for m in muts if m.param_name == "password"]
+        assert trail and lead and len(trail) < len(lead), (
+            "RED: reduced-payload budget not applied", len(trail), len(lead))
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

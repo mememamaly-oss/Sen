@@ -1,3 +1,22 @@
+# SENTINEL v4.3.4-pt1-fixup — PT-1 engine change re-applied: 791e037 shipped the proof artifacts without the code
+
+791e037 (PT-1 trailing-param traversal budget) carried the CHANGELOG claim,
+the red/green artifacts, the gate summary and the live 50/82 proof — but NOT
+the engine change itself: a `git reset --hard origin/main` between the proof
+run and the staging step silently reverted the still-uncommitted engine files
+(detect.py / orchestrator.py / run_tests.py), and the commit staged only the
+untracked artifacts. This commit restores the exact, re-proven engine change:
+shared TraversalDetector.eligible_params() (2 full + 2 reduced params;
+ladder-7 + /etc/passwd + /etc/hostname reduced set; exists_pair single-depth
+for trailing params), the orchestrator loop riding the same helper, and the
+unit_pt1_trailing_param_budget discrimination case.
+
+Re-proof after re-apply: unit_pt1 + the GTP-12e/GTP-03bv oracle families all
+GREEN in one run; the full gate (suite 222/222, doctor 17/17, bench x3
+IDENTICAL 38/0/0/37 @4784, delta +0) and the live 50/82 + 10/10-controls
+proof are the ones already published in results/verify_pt1/ (791e037) —
+the code here is byte-identical in behavior to the code that produced them.
+
 # SENTINEL v4.3.3-sinkcontext — open_redirect structural FP fixed ON MAIN: the iv14 sink-context transfer (supervisor order 2026-10-12, round 2)
 
 The ONE confirmed live defect of shipped main v4.3.3 (the Task-32 audit's
