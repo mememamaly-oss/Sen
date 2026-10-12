@@ -11755,6 +11755,95 @@ def unit_pt1_trailing_param_budget():
         srv.shutdown(); srv.server_close()
 
 
+
+@case
+def unit_pt3_param_name_battery():
+    """PT-3 (recall push, live-caught on the OWASP Benchmark round-6 eval):
+    13/82 pathtraver FNs read the sink path from the NAME of a request
+    parameter (first-name loop, or the value-matching shape: the name of the
+    param whose VALUE equals the endpoint basename — live-proven on
+    BenchmarkTest00525). Probes: param NAMED '..' (the sink base's parent —
+    must exist) with the basename as value, vs a sentinel-random control name;
+    three live differential shapes: exists-boolean flip, stream-error text,
+    empty-vs-echo. Echo safety symmetric; probes ride a param-bare endpoint
+    copy (the PT-2 pollution lesson)."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.core import Endpoint, ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    from sentinel.detect import ParamNameTraversalDetector, echo_neutralize
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def do_GET(self):
+            q = {k: v[0] for k, v in parse_qs(urlsplit(self.path).query,
+                                              keep_blank_values=True).items()}
+            # value-matching extraction: find the param whose VALUE is the
+            # endpoint basename; its NAME is the payload
+            name = next((k for k, v in q.items() if v == "BenchmarkTestX"), "")
+            target = "/app/testfiles/" + name
+            import os.path as _osp
+            exists = (name == "..")
+            body = (f"Access to file: '{target}' created.\n" +
+                    (" And file already exists." if exists else
+                     " But file doesn't exist yet.")).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        do_POST = do_GET
+
+    port = 8894
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(scope=ScopeRule(allow_private=True), bus=EventBus("pt3"),
+                            timeout=5)
+        det = ParamNameTraversalDetector(eng, EventBus("pt3"))
+        ep = Endpoint(url=f"http://127.0.0.1:{port}/pathtraver-00/BenchmarkTestX")
+        cand = det.run(ep)
+        assert cand is not None, (
+            "RED: param-NAME channel never probed — 13/82 FNs unreachable "
+            "by any value mutation")
+        assert any(e.kind == "param_name_oracle" for e in cand.evidence), \
+            [e.kind for e in cand.evidence]
+        assert cand.parameter == "param-name:..", cand.parameter
+        # VR replay shape: fresh control must reproduce
+        import random as _r
+        ctrl2 = f"sentinel-pn2-{_r.randrange(1000, 99999)}"
+        ra = eng.send(RequestMutation(endpoint=Endpoint(url=ep.url, method=ep.method),
+                                      param_name="..", param_value="BenchmarkTestX",
+                                      note="vr"))
+        rb = eng.send(RequestMutation(endpoint=Endpoint(url=ep.url, method=ep.method),
+                                      param_name=ctrl2, param_value="BenchmarkTestX",
+                                      note="vr"))
+        ba = echo_neutralize(ra.body or "", "..")
+        bb = echo_neutralize(rb.body or "", ctrl2, "..")
+        assert ra.status == rb.status and ba != bb, (
+            "RED: VR replay of the param-name channel does not reproduce")
+        # safe twin: echo-only page must stay silent
+        class H2(H):
+            def do_GET(self):
+                q = {k: v[0] for k, v in parse_qs(urlsplit(self.path).query,
+                                                  keep_blank_values=True).items()}
+                name = next((k for k, v in q.items() if v == "BenchmarkTestX"), "")
+                body = f"echo: {name}".encode()
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            do_POST = do_GET
+        srv2 = ThreadingHTTPServer(("127.0.0.1", port + 1), H2)
+        threading.Thread(target=srv2.serve_forever, daemon=True).start()
+        ep_safe = Endpoint(url=f"http://127.0.0.1:{port+1}/pathtraver-00/BenchmarkTestX")
+        assert det.run(ep_safe) is None, (
+            "RED: echo-only safe twin fired — name-echo FP")
+        srv2.shutdown(); srv2.server_close()
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 def main():
     suite = sys.argv[1] if len(sys.argv) > 1 else "all"
     RESULTS["suite"] = suite

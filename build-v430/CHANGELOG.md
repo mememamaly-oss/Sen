@@ -1,3 +1,24 @@
+# SENTINEL v4.3.6-pt3 — pathtraver recall push 3/5: the param-NAME traversal battery (6 more FNs closed live, 65/82 cumulative)
+
+13/82 pathtraver FNs read the sink path from the NAME of a request parameter —
+first-name loop, or the value-matching shape (the name of the param whose VALUE
+equals the endpoint basename; live-proven on BenchmarkTest00525). New
+ParamNameTraversalDetector (run-style, 2 req/endpoint): param NAMED '..' (the
+sink base's parent — must exist) carrying the basename as value vs a
+sentinel-random control name; symmetric echo-neutralization; param-bare probe
+endpoint (PT-2 lesson); param_name_oracle VR replays the channel with a fresh
+control. Three live differential shapes proven: exists-boolean flip,
+stream-error text ('(Is a directory)' vs '(No such file or directory)'),
+empty-vs-echo (FileOutputStream on a directory).
+
+Proof: unit_pt3 RED (ImportError) -> GREEN (vuln + echo-only safe twin);
+suite 226/226 fresh; doctor 17/17; bench x3 IDENTICAL 38/0/0/37, requests
+4942 -> 5096 (+154 = 77 endpoints x 2, documented cost, zero verdict changes);
+LIVE 107-endpoint mini-spec: 65/82 caught (+6: 00525/00528/01403/01405/02303/
+01408), TP controls 10/10, SAFE-TWIN FPs 0. Remaining 17 FNs all sit in the
+documented honest-ceiling families (fixed /Test.txt child, stream-swallow,
+create-always) — write->read chain is the follow-up path.
+
 # SENTINEL v4.3.5-pt2 — pathtraver recall push 2/5: the header-NAME traversal battery (9 more FNs closed live)
 
 14/82 pathtraver FNs read the sink path from the NAME of the first non-standard

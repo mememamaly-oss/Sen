@@ -1,0 +1,40 @@
+GATE CYCLE — PT-3 param-NAME traversal battery (recall push round 3, 2026-10-12)
+Engine: build-v430 @ main afcabdb + PT-3. Family: 13/82 pathtraver FNs whose
+sink path is the NAME of a request parameter (first-name loop or the
+value-matching shape — the name of the param whose VALUE equals the endpoint
+basename; live-proven on BenchmarkTest00525).
+
+BATTERY: run-style detector, 2 requests/endpoint — a param NAMED '..' (valid;
+the sink base's parent — must exist) with the endpoint-basename as VALUE, vs a
+sentinel-random control name with the same value. Param-bare endpoint copy
+(the PT-2 pollution lesson). Symmetric echo-neutralization ('..' from BOTH
+bodies, control name from the control body).
+
+LIVE-PROVEN DIFFERENTIAL SHAPES (manual probes, then the scan):
+  exists-boolean flip   00525/00528/01403: 'And file already exists.' vs "But file doesn't exist yet."
+  stream-error text     02303/01405: '(Is a directory)' vs '(No such file or directory)'
+  empty-vs-echo         01408: FileOutputStream on a directory -> 0B vs creatable target 133B
+
+SUITE: 226/226 across fresh prefix chunks (unit_pt1 + unit_pt2 + unit_pt3 all green).
+DOCTOR: 17/17 PASS.
+BENCH x3: 38/0/0/37 IDENTICAL @5096 x3 — verdict-diff vs shipped baseline NONE;
+requests 4942 -> 5096 (+154 = 77 fixture endpoints x 2, the battery's documented
+cost; zero verdict changes, zero FPs).
+
+LIVE (107-endpoint mini-spec: 82 FN + 10 TP controls + 15 SAFE twins): 65/82
+caught (was 59 — the battery added 6: 00525/00528/01403/01405/02303/01408);
+TP controls 10/10; SAFE-TWIN FPs 0; 75 verified path_traversal total.
+
+REMAINING 17 — ALL in the documented honest-ceiling families (live-proven):
+  fixed '/Test.txt' child (File(name, '/Test.txt') — no reachable dir contains
+    Test.txt; black-box unprovable without a write->read precondition chain):
+    00526/00527/00623/02377/02302/01571? + cookie 00061/00950 + header-value 00011
+  stream-swallow (both answers empty): 00529?/02304/01111/01112
+  create-always (identical answers): 01116/01117/00698
+  extraction-shape variants: 01571
+The write->read cross-servlet chain (own-session file creation as a
+precondition, in the spirit of the GTP-10 crypto artifact chains) is the
+documented follow-up path for the Test.txt family.
+
+RED/GREEN ARTIFACTS: red_unfixed.json (ImportError on unfixed engine),
+green_fixed.json, bench_run1.json, live_scan.json + live_result.json.

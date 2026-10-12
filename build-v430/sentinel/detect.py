@@ -1404,6 +1404,73 @@ class HeaderNameTraversalDetector(Detector):
         return None
 
 
+# ------------------------------------------------------------ PT-3 (v4.3.5): param-NAME traversal
+class ParamNameTraversalDetector(Detector):
+    """PT-3 (recall push, live-caught on the OWASP Benchmark round-6 eval):
+    13/82 pathtraver FNs read the sink path from the NAME of a request
+    parameter — either the first parameter NAME (getParameterNames loop) or,
+    in the value-matching shape, the name of the param whose VALUE equals the
+    endpoint's own basename (live-proven on BenchmarkTest00525: the loop hunts
+    a value == 'BenchmarkTest00525' and takes that param's NAME as the path).
+    Probes: a param NAMED '..' (valid, the sink base's parent — must exist)
+    with VALUE = the endpoint basename, vs a sentinel-random control name with
+    the same value. Live-proven differentials across three sink shapes:
+    exists-boolean flip (00525/00528/01403: 'And file already exists.' vs
+    "But file doesn't exist yet."), stream-error text (02303: '(Is a
+    directory)' vs '(No such file or directory)'), and empty-vs-echo (01408:
+    FileOutputStream on a directory swallows to 0B while a creatable target
+    echoes 133B). Echo safety: '..' stripped from BOTH bodies, the control
+    name from the control body (symmetric — the GTP-08b lesson). Probes ride
+    a PARAM-BARE endpoint copy (the PT-2 lesson: declared params render on
+    every mutation and would steal the channel). Cost: 2 requests/endpoint."""
+    name, vuln_type = "trav_pname", "path_traversal"
+    severity = Severity.HIGH
+    PROBE_NAME = ".."
+    MAX_ENDPOINTS = 4096
+
+    def __init__(self, engine, bus, strategy_store=None):
+        super().__init__(engine, bus, strategy_store)
+        self._done = 0
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        if self._done >= self.MAX_ENDPOINTS or command_shaped_endpoint(ep):
+            return None
+        self._done += 1
+        import random as _r
+        from urllib.parse import urlsplit
+        base = urlsplit(ep.url).path.rstrip("/").rsplit("/", 1)[-1]
+        if not base:
+            return None
+        ep_bare = Endpoint(url=ep.url, method=ep.method)
+        ctrl = f"sentinel-pn-{_r.randrange(1000, 99999)}"
+        r1 = self.engine.send(RequestMutation(endpoint=ep_bare, param_name=self.PROBE_NAME,
+                                              param_value=base, note="trav-pname-probe"))
+        r2 = self.engine.send(RequestMutation(endpoint=ep_bare, param_name=ctrl,
+                                              param_value=base, note="trav-pname-control"))
+        if r1 is None or r2 is None or r1.error or r2.error or not r1.status or not r2.status:
+            return None
+        b1 = echo_neutralize(r1.body or "", self.PROBE_NAME)
+        b2 = echo_neutralize(r2.body or "", ctrl, self.PROBE_NAME)
+        if r1.status != r2.status or b1 != b2:
+            return Finding("path_traversal", Severity.HIGH, ep.url,
+                           f"param-name:{self.PROBE_NAME}", ep.method,
+                           [Evidence("param_name_oracle",
+                                     f"param-NAME file oracle differential: a parameter NAMED "
+                                     f"'{self.PROBE_NAME}' (the sink base's parent — must exist) "
+                                     f"vs '{ctrl}' (sentinel-random — must not), both carrying the "
+                                     f"endpoint-basename value, answered differently beyond the "
+                                     f"echoed names (HTTP {r1.status} {len(r1.body or '')}B vs "
+                                     f"HTTP {r2.status} {len(r2.body or '')}B) — the sink builds a "
+                                     f"file path from the parameter NAME (exists-boolean flip, "
+                                     f"stream-error text, or empty-vs-echo) and leaks file state "
+                                     f"one level outside its base", r1.request_id)],
+                           status=FindingStatus.CANDIDATE)
+        return None
+
+
 # ------------------------------------------------------------ DETECT-17 (v4.2.3): traversal in the URL path
 class PathTraversalDetector(Detector):
     """DETECT-17 (v4.2.3, live-caught gap from the IV13 independent round):
@@ -2857,10 +2924,11 @@ ACTIVE_DETECTORS = [SQLiDetector, XSSDetector, TraversalDetector, RedirectDetect
                     SstiDetector, CsrfDetector, NosqlDetector, JwtDetector, HostHeaderDetector,
                     StoredXSSDetector, PathTraversalDetector, UploadDetector,
                     CmdiEchoDetector, XPathDetector, LdapDetector, SecureCookieDetector,
-                    TrustBoundDetector, HeaderNameTraversalDetector]
+                    TrustBoundDetector, HeaderNameTraversalDetector,
+                    ParamNameTraversalDetector]
 
 # Detectors that drive their own multi-request flows per ENDPOINT (no param-bound
 # generic loop) — the orchestrator calls det.run(ep) directly, like CORS.
 RUN_STYLE_DETECTORS = {"cors", "ssti", "csrf", "nosql", "jwt", "hostheader", "upload",
                        "cmdi_echo", "xpath", "ldapi", "securecookie", "trustbound",
-                       "trav_hname"}
+                       "trav_hname", "trav_pname"}

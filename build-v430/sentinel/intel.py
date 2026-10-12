@@ -504,6 +504,40 @@ class VerificationEngine:
             # known-vs-missing pair at a DIFFERENT depth must reproduce the
             # differential (status flip, or entity-normalized bodies differing
             # beyond the echoed payloads).
+            if "param_name_oracle" in kinds:
+                # PT-3 VR: replay the param-NAME channel with a FRESH control
+                # name — '..' (the base's parent, must exist) vs fresh random
+                # (must not), both carrying the endpoint-basename value, on a
+                # param-bare endpoint copy (the PT-2 pollution lesson).
+                import random as _r46
+                from urllib.parse import urlsplit as _us46
+                from .detect import echo_neutralize as _ez46
+                from .core import Endpoint as _E46
+                base46 = _us46(ep.url).path.rstrip("/").rsplit("/", 1)[-1]
+                ctrl46 = f"sentinel-pn2-{_r46.randrange(1000, 99999)}"
+                ep46 = _E46(url=ep.url, method=ep.method)
+                ra = self.engine.send(RequestMutation(endpoint=ep46, param_name="..",
+                                                      param_value=base46, note="vr-pname-known"))
+                rb = self.engine.send(RequestMutation(endpoint=ep46, param_name=ctrl46,
+                                                      param_value=base46, note="vr-pname-missing"))
+                hit46 = False
+                used46 = ""
+                if ra is not None and rb is not None and not ra.error and not rb.error \
+                        and ra.status and rb.status:
+                    ba46 = _ez46(ra.body or "", "..")
+                    bb46 = _ez46(rb.body or "", ctrl46, "..")
+                    if ra.status != rb.status:
+                        hit46, used46 = True, f"HTTP {ra.status} vs {rb.status}"
+                    elif ba46 != bb46:
+                        hit46, used46 = True, "normalized-echo-neutral differential"
+                v = Verification(method="re-test:fresh-param-name-pair", passed=hit46,
+                                 confidence=0.9 if hit46 else 0.15, rounds=2,
+                                 notes=(f"fresh param-name pair reproduced the leak ({used46})"
+                                        if hit46 else
+                                        "fresh param-name pair did not reproduce the leak"))
+                f.verification, f.confidence = v, v.confidence
+                f.status = FindingStatus.VERIFIED if hit46 else FindingStatus.REJECTED
+                return f
             if "header_name_oracle" in kinds:
                 # PT-2 VR: replay the header-NAME channel with a FRESH control
                 # name — the structural constant ('..' — the base's parent,
