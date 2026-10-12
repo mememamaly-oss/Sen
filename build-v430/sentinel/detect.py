@@ -1331,6 +1331,79 @@ class StoredXSSDetector(Detector):
         return findings
 
 
+# ------------------------------------------------------------ PT-2 (v4.3.4): header-NAME traversal
+class HeaderNameTraversalDetector(Detector):
+    """PT-2 (recall push, live-caught on the OWASP Benchmark round-6 eval):
+    14/82 pathtraver FNs read the sink path from the NAME of the first
+    non-standard HTTP header (getHeaderNames() loop — the Benchmark's
+    header-name channel). No param mutation can ever reach that channel.
+    Live-proven oracle: a valid-token header NAME that resolves INSIDE the
+    sink's base ('..' — the base's parent directory, which must exist) vs a
+    sentinel-random control name (which must not) answers the exists-boolean
+    differently ('And file already exists.' vs "But file doesn't exist yet.")
+    — while Tomcat rejects '/' inside header NAMES with a 400 (live-proven),
+    so the honest depth of this battery is the one-level escape and the
+    finding says exactly that. Echo safety (the GTP-08b lesson — 62 FPs from
+    a bare marker differential): BOTH names AND the bare '..' token are
+    neutralized from BOTH bodies before comparison — a name-echoing debug
+    page reduces to identical text and stays silent. Cost: 2 requests per
+    endpoint."""
+    name, vuln_type = "trav_hname", "path_traversal"
+    severity = Severity.HIGH
+    PROBE_NAME = ".."          # valid RFC 7230 token; parent of the sink base
+    PROBE_VALUE = "1"          # constant value both sides (echoes symmetric)
+    MAX_ENDPOINTS = 4096
+
+    def __init__(self, engine, bus, strategy_store=None):
+        super().__init__(engine, bus, strategy_store)
+        self._done = 0
+
+    def candidates(self, ep: Endpoint):          # not used — see run(ep)
+        return []
+
+    def run(self, ep: Endpoint) -> Finding | None:
+        if self._done >= self.MAX_ENDPOINTS or command_shaped_endpoint(ep):
+            return None
+        self._done += 1
+        import random as _r
+        # PT-2 live-caught defect (own bug, caught by instrumented scan on
+        # BenchmarkTest00215): the engine renders the endpoint's HEADER-location
+        # params as request headers on EVERY mutation — the spec's decoy header
+        # param ('whatever') arrived BEFORE our probe header, the servlet's
+        # first-non-standard-name loop took THE DECOY's name, and probe vs
+        # control were byte-identical (155B/155B — silent). The probes must ride
+        # a PARAM-BARE copy of the endpoint: the header-NAME channel is being
+        # tested, so no declared param may ride along.
+        ep_bare = Endpoint(url=ep.url, method=ep.method)
+        ctrl = f"sentinel-hn-{_r.randrange(1000, 99999)}"
+        r1 = self.engine.send(RequestMutation(endpoint=ep_bare, note="trav-hname-probe",
+                                              extra_headers={self.PROBE_NAME: self.PROBE_VALUE}))
+        r2 = self.engine.send(RequestMutation(endpoint=ep_bare, note="trav-hname-control",
+                                              extra_headers={ctrl: self.PROBE_VALUE}))
+        if r1 is None or r2 is None or r1.error or r2.error or not r1.status or not r2.status:
+            return None
+        # symmetric neutralization: strip the echoed control name from the
+        # control body, and the '..' token from BOTH bodies (natural '..'
+        # occurrences then vanish on both sides — no phantom differential)
+        b1 = echo_neutralize(r1.body or "", self.PROBE_NAME)
+        b2 = echo_neutralize(r2.body or "", ctrl, self.PROBE_NAME)
+        if r1.status != r2.status or b1 != b2:
+            return Finding("path_traversal", Severity.HIGH, ep.url,
+                           f"header:{self.PROBE_NAME}", ep.method,
+                           [Evidence("header_name_oracle",
+                                     f"header-NAME file-existence differential: custom header named "
+                                     f"'{self.PROBE_NAME}' (the sink base's parent — must exist) vs "
+                                     f"'{ctrl}' (sentinel-random — must not) answered differently "
+                                     f"beyond the echoed names (HTTP {r1.status} "
+                                     f"{len(r1.body or '')}B vs HTTP {r2.status} "
+                                     f"{len(r2.body or '')}B) — the sink builds a file path from "
+                                     f"the header NAME and leaks file existence one level outside "
+                                     f"its base (header names cannot carry '/', so the provable "
+                                     f"escape depth is one level)", r1.request_id)],
+                           status=FindingStatus.CANDIDATE)
+        return None
+
+
 # ------------------------------------------------------------ DETECT-17 (v4.2.3): traversal in the URL path
 class PathTraversalDetector(Detector):
     """DETECT-17 (v4.2.3, live-caught gap from the IV13 independent round):
@@ -2784,9 +2857,10 @@ ACTIVE_DETECTORS = [SQLiDetector, XSSDetector, TraversalDetector, RedirectDetect
                     SstiDetector, CsrfDetector, NosqlDetector, JwtDetector, HostHeaderDetector,
                     StoredXSSDetector, PathTraversalDetector, UploadDetector,
                     CmdiEchoDetector, XPathDetector, LdapDetector, SecureCookieDetector,
-                    TrustBoundDetector]
+                    TrustBoundDetector, HeaderNameTraversalDetector]
 
 # Detectors that drive their own multi-request flows per ENDPOINT (no param-bound
 # generic loop) — the orchestrator calls det.run(ep) directly, like CORS.
 RUN_STYLE_DETECTORS = {"cors", "ssti", "csrf", "nosql", "jwt", "hostheader", "upload",
-                       "cmdi_echo", "xpath", "ldapi", "securecookie", "trustbound"}
+                       "cmdi_echo", "xpath", "ldapi", "securecookie", "trustbound",
+                       "trav_hname"}

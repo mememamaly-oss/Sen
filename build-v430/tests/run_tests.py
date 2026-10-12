@@ -11581,6 +11581,95 @@ def unit_gtp12fg_gcm_collision_and_body_channel():
 
 
 @case
+def unit_pt2_header_name_battery():
+    """PT-2 (recall push, live-caught on the OWASP Benchmark round-6 eval):
+    14/82 pathtraver FNs read the sink path from the NAME of the first
+    non-standard HTTP header (getHeaderNames() loop) — no param mutation can
+    reach that channel. Live-proven: header named '..' (valid token, the
+    base's parent) answers 'And file already exists.' while a sentinel-random
+    name answers "But file doesn't exist yet."; Tomcat rejects '/' in header
+    NAMES with 400, so the honest provable escape is one level. The battery
+    is a run-style detector (2 requests/endpoint); the oracle neutralizes
+    BOTH names AND the bare '..' token from both bodies (the GTP-08b
+    echo-differential lesson: 62 FPs). VR replay rides the same channel with
+    a fresh control name."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from sentinel.core import Endpoint, ScopeRule, EventBus
+    from sentinel.http_engine import RequestEngine, RequestMutation
+    from sentinel.detect import HeaderNameTraversalDetector, echo_neutralize
+
+    COMMON = {"host", "user-agent", "accept", "accept-encoding", "connection",
+              "content-length", "content-type", "origin", "referer", "cookie"}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _sink(self):
+            # BenchmarkTest00215 shape: first non-standard header NAME -> File(base, name)
+            name = next((n for n in self.headers.keys() if n.lower() not in COMMON), "")
+            import os
+            target = os.path.join("/home/z", "tools", "x-base", name) if False else                      "/nonexistent-base/" + name
+            import os.path as _osp
+            exists = _osp.exists(_osp.normpath(target))
+            body = (f"Access to file: '{target}' created.\n" +
+                    (" And file already exists." if exists else
+                     " But file doesn't exist yet.")).encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        def do_GET(self):
+            if self.path.startswith("/safe"):
+                # safe twin: echoes header names but builds NO file path
+                name = next((n for n in self.headers.keys() if n.lower() not in COMMON), "")
+                body = f"echo: {name}".encode()
+                self.send_response(200)
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return
+            self._sink()
+        do_POST = do_GET
+
+    port = 8892
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eng = RequestEngine(scope=ScopeRule(allow_private=True), bus=EventBus("pt2"),
+                            timeout=5)
+        det = HeaderNameTraversalDetector(eng, EventBus("pt2"))
+        # (a) vuln endpoint: the header-name oracle must fire and SURVIVE VR
+        ep = Endpoint(url=f"http://127.0.0.1:{port}/pathtraver-00/BenchmarkTestX")
+        cand = det.run(ep)
+        assert cand is not None, (
+            "RED: header-name channel never probed — 14/82 FNs unreachable "
+            "by any param mutation")
+        assert any(e.kind == "header_name_oracle" for e in cand.evidence), \
+            [e.kind for e in cand.evidence]
+        # VR replay: same channel, fresh control — must reproduce
+        from sentinel.intel import FindingPipeline
+        from sentinel.core import Finding, FindingStatus
+        # emulate the verifier branch directly (unit-level VR check)
+        v = cand
+        import random as _r
+        ctrl2 = f"sentinel-hn2-{_r.randrange(1000, 99999)}"
+        ra = eng.send(RequestMutation(endpoint=ep, note="vr", extra_headers={"..": "1"}))
+        rb = eng.send(RequestMutation(endpoint=ep, note="vr", extra_headers={ctrl2: "1"}))
+        ba = echo_neutralize(ra.body or "", "..")
+        bb = echo_neutralize(rb.body or "", ctrl2, "..")
+        assert ra.status == rb.status and ba != bb, (
+            "RED: VR replay of the header-name channel does not reproduce", ra.status, rb.status)
+        # (b) SAFE twin (echo-only): must stay SILENT after neutralization
+        ep_safe = Endpoint(url=f"http://127.0.0.1:{port}/safe-twin")
+        assert det.run(ep_safe) is None, (
+            "RED: echo-only safe twin fired — the name-echo FP the GTP-08b "
+            "lesson forbids")
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+
+@case
 def unit_pt1_trailing_param_budget():
     """PT-1 (recall push, live-caught on the OWASP Benchmark round-6 eval):
     the traversal battery spent its whole param budget on the FIRST TWO

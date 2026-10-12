@@ -504,6 +504,42 @@ class VerificationEngine:
             # known-vs-missing pair at a DIFFERENT depth must reproduce the
             # differential (status flip, or entity-normalized bodies differing
             # beyond the echoed payloads).
+            if "header_name_oracle" in kinds:
+                # PT-2 VR: replay the header-NAME channel with a FRESH control
+                # name — the structural constant ('..' — the base's parent,
+                # must exist) vs a fresh sentinel-random name (must not). The
+                # differential must reproduce beyond the echoed names, with
+                # the '..' token neutralized from BOTH bodies (symmetric).
+                import random as _r44
+                from .detect import echo_neutralize as _ez44
+                ctrl44 = f"sentinel-hn2-{_r44.randrange(1000, 99999)}"
+                # PT-2: param-bare endpoint — the channel under test is the header
+                # NAME; declared header params must not ride along (they would
+                # arrive first and steal the first-non-standard-name slot)
+                from .core import Endpoint as _E44
+                ep44 = _E44(url=ep.url, method=ep.method)
+                ra = self.engine.send(RequestMutation(endpoint=ep44, note="vr-hname-known",
+                                                      extra_headers={"..": "1"}))
+                rb = self.engine.send(RequestMutation(endpoint=ep44, note="vr-hname-missing",
+                                                      extra_headers={ctrl44: "1"}))
+                hit44 = False
+                used44 = ""
+                if ra is not None and rb is not None and not ra.error and not rb.error \
+                        and ra.status and rb.status:
+                    ba44 = _ez44(ra.body or "", "..")
+                    bb44 = _ez44(rb.body or "", ctrl44, "..")
+                    if ra.status != rb.status:
+                        hit44, used44 = True, f"HTTP {ra.status} vs {rb.status}"
+                    elif ba44 != bb44:
+                        hit44, used44 = True, "normalized-echo-neutral differential"
+                v = Verification(method="re-test:fresh-header-name-pair", passed=hit44,
+                                 confidence=0.9 if hit44 else 0.15, rounds=2,
+                                 notes=(f"fresh header-name pair reproduced the leak ({used44})"
+                                        if hit44 else
+                                        "fresh header-name pair did not reproduce the leak"))
+                f.verification, f.confidence = v, v.confidence
+                f.status = FindingStatus.VERIFIED if hit44 else FindingStatus.REJECTED
+                return f
             if "exists_oracle" in kinds:
                 import random as _r43
                 from .detect import entity_normalize as _en43

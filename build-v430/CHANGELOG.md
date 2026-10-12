@@ -1,3 +1,26 @@
+# SENTINEL v4.3.5-pt2 — pathtraver recall push 2/5: the header-NAME traversal battery (9 more FNs closed live)
+
+14/82 pathtraver FNs read the sink path from the NAME of the first non-standard
+HTTP header (getHeaderNames() loop). PT-2 adds HeaderNameTraversalDetector
+(run-style, 2 requests/endpoint): header named '..' (the sink base's parent —
+must exist) vs a sentinel-random control name (must not), exists-boolean
+differential with symmetric echo-neutralization of BOTH names and the bare '..'
+token (the GTP-08b echo lesson). VR replays the same channel with a fresh
+control (header_name_oracle evidence kind).
+
+Live-caught own defect during bring-up: the engine renders HEADER-location
+params on every mutation — the spec's decoy ('whatever') stole the
+first-non-standard-name slot and probe == control (155B/155B, silent). Both
+probes and the VR replay now ride a PARAM-BARE endpoint copy.
+
+Proof: unit_pt2_header_name_battery (RED ImportError -> GREEN, vuln + echo-only
+safe twin); suite 224/224 fresh; doctor 17/17; bench x3 IDENTICAL 38/0/0/37,
+requests 4784 -> 4942 (+158 = 79 endpoints x 2, documented cost, zero verdict
+changes); LIVE 107-endpoint mini-spec (82 FN + 10 TP + 15 SAFE twins): 59/82
+caught (+9), TP controls 10/10, SAFE-TWIN FPs 0. Honest ceiling documented for
+the 5 remaining (stream sinks + fixed Test.txt child — see
+results/verify_pt2/gate_summary.txt).
+
 # SENTINEL v4.3.4-pt1-fixup — PT-1 engine change re-applied: 791e037 shipped the proof artifacts without the code
 
 791e037 (PT-1 trailing-param traversal budget) carried the CHANGELOG claim,

@@ -2,7 +2,7 @@
 # PT-1 live verification scan — PROVEN mvn cargo:run stack pattern + engine scan.
 set -u
 OUT=/home/z/my-project/tool-results/pt1_live
-SPEC=$OUT/spec_pt1_live.json
+SPEC=$OUT/spec_pt2_live.json
 ENG=/home/z/my-project/build-v430
 BM=/home/z/tools/benchmark
 
@@ -37,16 +37,17 @@ timeout 330 python3 sentinel/cli.py scan http://localhost:8080/benchmark \
   --allow-private --oast local --no-browser --no-crawl \
   --openapi-spec "$SPEC" \
   --seed 7f3c91aa --max-pages 6000 \
-  --out "$OUT/scan_pt1_live.json" --db "$OUT/scan_pt1_live.db" > "$OUT/scan.log" 2>&1
+  --out "$OUT/scan_pt2_live.json" --db "$OUT/scan_pt2_live.db" > "$OUT/scan.log" 2>&1
 RC=$?
 echo "scan rc=$RC"
 
-python3 - "$OUT/scan_pt1_live.json" "$OUT/test_lists.json" << 'PY'
+python3 - "$OUT/scan_pt2_live.json" "$OUT/test_lists_pt2.json" << 'PY'
 import json, sys, re
 from collections import Counter
 d = json.load(open(sys.argv[1]))
 lists = json.load(open(sys.argv[2]))
 FN, TPC = set(lists["FN"]), set(lists["TP_controls"])
+SAFE = set(lists.get("SAFE", []))
 act = [f for f in d["findings"] if f["type"] not in ("missing_security_headers", "server_banner_disclosure", "tech_banner")]
 print("requests:", d["stats"].get("requests"), "endpoints:", d["stats"].get("endpoints"))
 print("active findings:", len(act), "| verified:", sum(1 for f in act if f.get("status") == "verified"))
@@ -64,8 +65,11 @@ print("   ", fn_caught)
 print(f"TP controls still caught: {len(tp_caught)}/{len(TPC)}", tp_caught)
 still = sorted(FN - caught)
 print(f"still FN: {len(still)}")
+safe_hits = sorted(caught & SAFE)
+print(f"SAFE-TWIN FPs (must be 0): {len(safe_hits)}", safe_hits)
 cls = json.load(open("/home/z/my-project/tool-results/benchmark-src-pathtraver/classification_v2.json"))
 print("still-FN by channel:", dict(Counter(cls[t]["chan"] for t in still)))
-json.dump({"fn_caught": fn_caught, "tp_controls_caught": tp_caught, "still_fn": still},
-          open("/home/z/my-project/tool-results/pt1_live/pt1_result.json", "w"), indent=1)
+json.dump({"fn_caught": fn_caught, "tp_controls_caught": tp_caught, "still_fn": still,
+          "safe_twin_fps": safe_hits},
+          open("/home/z/my-project/tool-results/pt1_live/pt2_result.json", "w"), indent=1)
 PY
