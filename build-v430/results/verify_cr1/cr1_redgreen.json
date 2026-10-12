@@ -1,0 +1,48 @@
+{
+ "red": {
+  "label": "RED (chunk-5/6 reality, no seeds)",
+  "crypto": [],
+  "hash": [],
+  "trav": 17,
+  "tn_fire": [],
+  "reqs": 5679
+ },
+ "green": {
+  "label": "GREEN (same + 2 primitive seeds)",
+  "crypto": [
+   "BenchmarkTest01015",
+   "BenchmarkTest01018",
+   "BenchmarkTest01020",
+   "BenchmarkTest01149",
+   "BenchmarkTest01150",
+   "BenchmarkTest01228",
+   "BenchmarkTest01229",
+   "BenchmarkTest01230",
+   "BenchmarkTest01317",
+   "BenchmarkTest01320",
+   "BenchmarkTest01322",
+   "BenchmarkTest01323"
+  ],
+  "hash": [
+   "BenchmarkTest00961",
+   "BenchmarkTest00963",
+   "BenchmarkTest01038",
+   "BenchmarkTest01041",
+   "BenchmarkTest01043",
+   "BenchmarkTest01044",
+   "BenchmarkTest01123",
+   "BenchmarkTest01124",
+   "BenchmarkTest01165",
+   "BenchmarkTest01167",
+   "BenchmarkTest01168",
+   "BenchmarkTest01244",
+   "BenchmarkTest01246",
+   "BenchmarkTest01333",
+   "BenchmarkTest01334"
+  ],
+  "trav": 19,
+  "tn_fire": [],
+  "reqs": 6538
+ },
+ "cr1_proven": true
+}

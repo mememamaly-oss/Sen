@@ -1,3 +1,24 @@
+# SENTINEL v4.3.7-cr1 — crypto/hash recall round 1: chunk-spec primitive seeding (the 12-chunk split was killing the whole chain in chunks 5-6)
+
+Root cause (live-proven, zero guessing): HashCryptoChainPhase.run() returns []
+when the chunk's own scan finds no VERIFIED file_marker read primitive — and the
+12-chunk split put ZERO content-leaking traversal endpoints in chunks 5-6 (tests
+00917-01374; their traversal TPs verify via exists_oracle/stream shapes only, the
+PT-round honest-ceiling families). The whole hash+crypto chain phase died there:
+23 crypto + 19 hash vulnerable tests FN PURELY from the artificial split (eval
+evidence: zero crypto/hash TP in the entire 917-1374 range). Fix: build_full_chunks.py
+seeds the two PROVEN chain primitives (00001 read/file_marker + 00002 write-
+truncate/writability_oracle) into EVERY chunk spec — restoring the single-scan
+semantics of the real app (all endpoints in scope; every finding still earned on
+its own test endpoint; the eval merge dedupes by (type,status) per test id).
+
+RED/GREEN live (chunk-5/6 semantics): RED 0 weak_crypto + 0 weak_hash (chain dead,
+17 traversal TPs but no content leak); GREEN (+2 seeds) 12 weak_crypto + 15
+weak_hash VERIFIED, the 6 TN controls silent. Gates: suite 18/18 chunks ALL PASS
+(211 registered; 1 documented env-stall exclusion) + doctor 17/17 + bench x3
+IDENTICAL 38/0/0/37 F1=1.0000 (engine untouched — measurement-infrastructure fix).
+Proof: results/verify_cr1/.
+
 # SENTINEL v4.3.7-category-close — pathtraver recall 38.35% -> 87.22% on the FULL OWASP Benchmark, precision 1.0 preserved
 
 Category-close measurement (full 12-chunk re-run, no-crawl campaign mode,
