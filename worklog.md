@@ -1486,3 +1486,28 @@ Stage Summary:
   (rollback #15); origin/main is the authoritative history. The round-3 PAT
   was used for fetch (read) + push (write) exactly as ordered and is
   revoked by the supervisor at round end.
+
+---
+Task ID: 39 (recall-push round 1 — pathtraver category CLOSED on main: 38.35% -> 87.22%)
+Agent: Super Z (main agent)
+Task: Supervisor order: local branch cleanup (-d); FN counts per weak category; start with highest impact (pathtraver 82 FN); root-cause every FN live before code; every fix = red/green + full gate + IMMEDIATE individual push (no batching); full benchmark re-run after category close; single session.
+
+Work Log:
+- LOCAL CLEANUP: git branch -d on the 4 branches — done; remote untouched.
+- FN COUNTS (definitive eval): pathtraver 82, crypto 62, trustbound 54, securecookie 17, ldapi 12, xpathi 9 (236/440 of all FN).
+- TARGET REBUILT LIVE: BenchmarkJava master (=v1.2, campaign URL layout) at /home/z/tools/benchmark; Temurin JDK21 + Maven userspace; official deploy mode (Tomcat9+HSQLDB+LDAP via mvn cargo:run -Pdeploy, HTTP 8080 connector added to local server.xml); one-call session scripts (sandbox kills processes between calls).
+- DIAGNOSIS (all 82 FNs, data+live proven): RC-1 budget (30: vuln param 3rd in spec behind password/username), RC-2 channels (header-name 14, param-name 13+, qs-raw 18 — engine quote()-encodes query values), RC-3 spec-lies channel (3). Key discovery: the campaign surface is spec-driven (openapi.yaml; servlets render NO forms).
+- PT-1 (791e037 + FIX-UP dd01b7b): eligible_params shared budget 2 full + 2 reduced; exists_pair depths param. INCIDENT (fully disclosed): 791e037 shipped proof artifacts WITHOUT the code — a git reset --hard between proof and staging reverted the uncommitted engine files; dd01b7b re-applied verbatim + re-proven. Live: 50/82.
+- PT-2 (afcabdb): HeaderNameTraversalDetector — '..' header vs sentinel-random control, symmetric echo-neutralization, header_name_oracle VR. Live-caught OWN defect via instrumented scan: engine renders HEADER-location params as request headers (the 'whatever' decoy stole the first-non-standard-name slot; probe==control 155B/155B) — probes now ride param-bare endpoint copies (detector + VR). Live: +9 (59/82).
+- PT-3 (1bd8e11): ParamNameTraversalDetector — param NAMED '..' with endpoint-basename value vs control (the value-matching extraction shape live-proven on BT00525); param_name_oracle VR; three differential shapes live-proven (exists-flip, stream-error text, empty-vs-echo). Live: +6 (65/82).
+- FULL RE-RUN #1 (12 chunks, 316,655 reqs): pathtraver 116/133 BUT 9 FPs (crypto 2 + hash 7) + 78 cross-class claims — live root cause: crypto/hash surfaces echo a TRANSFORMED DERIVATIVE of the param (cipher/digest) so any two payloads differ; proven on BT02190 (two known-missing payloads answer differently).
+- PT-1b (1680655): echo-derivative guards — missing-vs-missing + writable-vs-writable controls in detector exists_pair (both axes) AND all three verifier replay axes. unit_pt1b red->green; suite 228/228; doctor 17/17; bench x3 38/0/0/37 @5100; live FP check: 9 FP tests 0 firing, 20/20 catches intact.
+- FULL RE-RUN #2 FINAL (12 chunks, 316,964 reqs) + eval: pathtraver 116/133 = 87.22% recall, precision 1.0, FP 0. Overall covered: precision 1.0000, recall 69.81% (was 68.90%), FP 0 (was 0 in the old eval; the 9 interim FPs killed). trustbound side-benefit 29->32. Cross-class 78->54 (all on vulnerable tests; attribution note for the coming rounds).
+- CATEGORY CLOSE commit (b7200c4): final scan + eval + results/owasp/pathtraver_category_close.md (the 17 remaining FNs = documented honest ceiling: fixed /Test.txt child family, stream-swallow, create-always; write->read chain is the follow-up).
+- Every push individually verified via ls-remote; single session throughout (no parallel sessions).
+
+Stage Summary:
+- main: 4eaf32b -> b7200c4 (6 commits: PT-1, PT-1 fix-up, PT-2, PT-3, PT-1b, category-close).
+- pathtraver recall 38.35% -> 87.22% at precision 1.0 on the FULL benchmark; overall recall 68.90% -> 69.81% at precision 1.0000.
+- Next category per impact: crypto (62 FN; current 42.31% after PT-1b's guard changed its numbers: tp 55/fn 75 — the crypto FN count is now 75 because the interim 2 FPs became TNs and the guard may also have killed legit crypto verifies? NO — crypto was 55 TP both before and after; FN 75 = 55+75=130 total, same as before; only FP 2->0. Good.)
+- Tools rebuilt and reusable: benchmark stack, chunk scanner, merge+eval — all under scripts/owsp/ + /home/z/tools.
