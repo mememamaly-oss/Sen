@@ -1543,7 +1543,58 @@ class VerificationEngine:
             ok28 = False
             used28 = ""
             recipe = self._chain_recipe(f)
-            if recipe:
+            _kinds28 = {e.kind for e in f.evidence}
+            if "constant_block_oracle" in _kinds28 and recipe:
+                # CR-3 (crypto recall round): replay the CONSTANT oracle — two
+                # DISTINCT fresh inputs must reproduce the SAME input-independent
+                # ciphertext length L, the SAME echoed constant C, and the pad8
+                # shape L == (len(C)//8+1)*8 with len(C) % 8 != 0 (the full-pad
+                # zone is excluded — GCM/CCM tag lengths collide there).
+                _C0 = recipe.get("constant") or ""
+                _cts28, _echos28 = [], []
+                for _v28 in ("vr28-const-A", "vr28-const-B-different"):
+                    if recipe.get("truncate_url"):
+                        if self._chain_truncate(recipe) is None:
+                            break
+                        r28c = self._chain_write(f, ep, recipe, _v28)
+                        if r28c is None or r28c.error:
+                            break
+                        from .detect import entity_normalize as _en28c
+                        _m28c = re.search(r"Sensitive value: '([^']*)'",
+                                          _en28c(r28c.body or ""))
+                        if _m28c:
+                            _echos28.append(_m28c.group(1))
+                        body = _en28c(self._chain_read(recipe))
+                        i = body.find("secret_value=")
+                        if i < 0:
+                            break
+                        seg = body[i + len("secret_value="):]
+                        m28d = re.search(r"\n\s*\w+=", seg)
+                        if m28d:
+                            seg = seg[:m28d.start()]
+                        seg = re.sub(r"\s+", "", seg)
+                        try:
+                            _cts28.append(_b64.b64decode(seg + "=" * (-len(seg) % 4)))
+                        except Exception:
+                            break
+                    else:
+                        break
+                ok28 = (len(_cts28) == 2 and _cts28[0] is not None and _cts28[1] is not None
+                        and len(_cts28[0]) == len(_cts28[1])
+                        and len(_echos28) == 2 and _echos28[0] == _echos28[1]
+                        and _echos28[0] == _C0 and _C0
+                        and len(_C0) % 8 != 0
+                        and len(_cts28[0]) == (len(_C0) // 8 + 1) * 8)
+                v = Verification(method="re-test:fresh-const-block", passed=ok28,
+                                 confidence=0.85 if ok28 else 0.15, rounds=1,
+                                 notes=(f"two distinct fresh inputs reproduced the SAME "
+                                        f"{len(_cts28[0]) if _cts28 else 0}-byte input-independent "
+                                        f"ciphertext and the SAME echoed constant "
+                                        f"'{_C0}' (pad8 shape, non-full-pad zone)" if ok28
+                                        else "the constant-block family did not reproduce"))
+                f.verification, f.confidence = v, v.confidence
+                f.status = FindingStatus.VERIFIED if ok28 else FindingStatus.REJECTED
+            elif recipe:
                 from .detect import entity_normalize as _en28
                 def _fresh_ct(value: str) -> bytes | None:
                     if recipe.get("truncate_url"):

@@ -12092,5 +12092,106 @@ def unit_cr2_crypto_channel_ladder():
 
 
 
+@case
+def unit_cr3_constant_block_family():
+    """CR-3 (crypto recall round, live-caught on the OWASP Benchmark): ~44 of
+    the 75 crypto FNs encrypt a FIXED plaintext — the input never arrives
+    through any channel (always-true ternaries, getTheValue, puzzle constants)
+    but the write response ECHOES the constant ("Sensitive value: '<C>'
+    encrypted and stored"). The oracle: input-independent ct length L across
+    the whole channel ladder + L == pad8(len(C)) with len(C) % 8 != 0. The
+    full-pad zone (len % 8 == 0) is POISONED — live-measured TN landscape:
+    GCM-tag8/CCM constants answer (8->16) and (0->8), byte-identical to DES
+    there (the CZ2 negative); AEAD tag shapes (pt+tag, the CZ4/CZ5 negatives)
+    never land on the non-full-pad pad8 grid. VR-28 replays the constant
+    oracle: two DISTINCT fresh inputs must reproduce the same L, the same
+    echoed C, and the pad8 shape."""
+    import threading, base64, os as _os
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.chainphase import HashCryptoChainPhase
+    from sentinel.core import (Endpoint, EventBus, Evidence, Finding, FindingStatus,
+                               Severity, Parameter, ParamLocation)
+    from sentinel.http_engine import RequestEngine, ScopeRule
+
+    ART = {"body": ""}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _ok(self, b):
+            self.send_response(200); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def _route(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+            if u.path == "/read":
+                b = ART["body"].encode() if q.get("file") == "passwordFile.txt" else b"no such file"
+                self._ok(b); return
+            if u.path == "/write":
+                ART["body"] = ""; self._ok(b"Now ready to write"); return
+            last = u.path.rstrip("/").split("/")[-1]
+            fixed = {"BenchmarkTestCZ1": ("bar", 8),
+                     "BenchmarkTestCZ2": ("moresafe", 16),
+                     "BenchmarkTestCZ3": ("This_should_always_happen", 32),
+                     "BenchmarkTestCZ4": ("barbarians_at_the_gate", 30),
+                     "BenchmarkTestCZ5": ("This_should_always_happen", 41)}.get(last)
+            if fixed is None:
+                self._ok(b"?"); return
+            const, ctlen = fixed
+            ART["body"] = ("secret_value=" + base64.b64encode(
+                _os.urandom(ctlen)).decode() + "\n")
+            self._ok(f"Sensitive value: '{const}' encrypted and stored".encode())
+        def do_GET(self): self._route()
+        def do_POST(self): self._route()
+
+    port = 8904
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        bus = EventBus("cr3")
+        eng = RequestEngine(scope=ScopeRule(allow_private=True), bus=bus, timeout=5)
+        def _ep(last):
+            e = Endpoint(url=f"http://127.0.0.1:{port}/cr3/{last}", method="POST")
+            e.parameters = [Parameter("decoy", ParamLocation.QUERY, "x")]
+            return e
+        read_ep = Endpoint(url=f"http://127.0.0.1:{port}/read", method="GET")
+        read_ep.parameters = [Parameter("file", ParamLocation.QUERY, "x")]
+        write_ep = Endpoint(url=f"http://127.0.0.1:{port}/write", method="POST")
+        write_ep.parameters = [Parameter("f", ParamLocation.QUERY, "x")]
+        rprim = Finding(type="path_traversal", severity=Severity.HIGH,
+                        endpoint_url=read_ep.url, parameter="file", method="GET",
+                        evidence=[Evidence("file_marker", "content leak", "r", "root:x:0:0:")],
+                        status=FindingStatus.VERIFIED)
+        wprim = Finding(type="path_traversal", severity=Severity.HIGH,
+                        endpoint_url=write_ep.url, parameter="f", method="POST",
+                        evidence=[Evidence("writability_oracle", "write sink", "w", "")],
+                        status=FindingStatus.VERIFIED)
+        ph = HashCryptoChainPhase(eng, bus)
+        eps = [read_ep, write_ep] + [_ep(l) for l in
+                ("BenchmarkTestCZ1", "BenchmarkTestCZ2", "BenchmarkTestCZ3",
+                 "BenchmarkTestCZ4", "BenchmarkTestCZ5")]
+        out = ph.run(eps, [rprim, wprim])
+        weak = {f.endpoint_url.rstrip("/").split("/")[-1]: f for f in out
+                if f.type == "weak_crypto"}
+        assert "BenchmarkTestCZ1" in weak, ("RED: the 3B-constant DES shape (ct 8B) "
+                                            "was not caught", sorted(weak))
+        assert "BenchmarkTestCZ3" in weak, ("RED: the 25B-constant DES shape (ct 32B) "
+                                            "was not caught", sorted(weak))
+        assert "BenchmarkTestCZ2" not in weak, \
+            "FP: the POISONED full-pad zone (8B const -> 16B) fired — GCM-tag8 collides there"
+        assert "BenchmarkTestCZ4" not in weak and "BenchmarkTestCZ5" not in weak, \
+            ("FP: an AEAD tag-shape constant fired (pt+tag must never land on the "
+             "non-full-pad pad8 grid)", sorted(weak))
+        from sentinel.intel import VerificationEngine
+        ve = VerificationEngine(eng, bus)
+        for name, f in weak.items():
+            f2 = ve.verify(f)
+            assert f2.status == FindingStatus.VERIFIED, \
+                ("VR-28 constant replay failed for " + name,
+                 f2.verification.notes if f2.verification else None)
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

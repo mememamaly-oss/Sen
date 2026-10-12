@@ -348,6 +348,12 @@ class HashCryptoChainPhase:
         for prefix in ("hash_value", "secret_value"):
             v = _extract_value(body, prefix)
             if v is not None:
+                # CR-3: keep the response of the LAST WRITE THAT LANDED — the
+                # constant-family oracle reads the echoed plaintext from it
+                # (probes that never wrote — e.g. the qs servlets' early
+                # return on a missing query param — must not clobber it;
+                # live-caught on BenchmarkTest01634).
+                self._last_write_body = r.body or ""
                 return v
         return None
 
@@ -556,6 +562,8 @@ class HashCryptoChainPhase:
             if write_ep is None:
                 continue      # legacy before/after mode cannot bound the window
             live = None       # (chan, ct8, ct16)
+            const_ct = None   # CR-3: an input-INDEPENDENT ct (the constant family)
+            const_chan = None
             for chan in ("declared", "body") + _CR2_CHANNELS:
                 ct8 = self._probe(ep, P8, read_ep, read_param, artifact_name,
                                   write_ep, write_param, channel=chan)
@@ -572,7 +580,74 @@ class HashCryptoChainPhase:
                         and len(ct8) != len(ct16):
                     live = (chan, ct8, ct16)
                     break
+                # NOTE: a BETWEEN-channel length difference is NOT liveness —
+                # live-caught by the unit fixture: the header channel on a
+                # header-NAME servlet feeds it the test-id as its fixed
+                # plaintext (a DIFFERENT constant, 24B) and would shadow the
+                # real hdrname channel. Liveness is only the WITHIN-channel
+                # marker-length follow.
+                if const_ct is None and ct16 is not None:
+                    const_ct, const_chan = ct16, chan
             if live is None:
+                # CR-3: the CONSTANT-PLAINTEXT family — the input never arrives
+                # through ANY channel but the servlet still writes; the echoed
+                # constant (visible in the write response) plus the input-
+                # independent ct length identify the 8-byte block family on a
+                # FIXED plaintext. The full-pad zone (len%8==0) is POISONED —
+                # live-measured TN landscape: GCM-tag8/CCM constants answer
+                # (8->16) and (0->8), byte-identical to DES there; every
+                # measured TN tag is a standard 8/16 (never 1-7), so the
+                # non-full-pad pad8 shape is clean (theoretical window: a
+                # non-standard short-tag AEAD with a matching constant length
+                # — documented, absent from the benchmark and common stacks).
+                if const_ct is None:
+                    continue
+                from .detect import entity_normalize as _en_cr3
+                _m = re.search(r"Sensitive value: '([^']*)'",
+                               _en_cr3(getattr(self, "_last_write_body", "") or ""))
+                _C = _m.group(1) if _m else ""
+                _L, _lc = len(const_ct), len(_C)
+                if _C and _lc % 8 != 0 and _L == (_lc // 8 + 1) * 8:
+                    chan = const_chan or "declared"
+                    wloc = _WLOC.get(chan) or self._prim_loc(ep, self._write_param_of(ep))
+                    weak_reason = (f"the ciphertext is input-independent across every "
+                                   f"input channel (14 channel probes, all {_L}B) and the "
+                                   f"response echoes its fixed plaintext '" 
+                                   f"{_C}' ({_lc}B) — a {_L}-byte ciphertext is EXACTLY "
+                                   f"the 8-byte-block PKCS5 shape of that constant "
+                                   f"({_lc}B pads to {_L}B) — an 8-byte BLOCK CIPHER "
+                                   "(DES/DESede family) on a hardcoded plaintext "
+                                   "(CWE-327); the full-pad zone (len%8==0) is excluded "
+                                   "where GCM/CCM tag lengths collide")
+                    _wp = self._write_param_of(ep) if chan == "declared" \
+                        else (urllib.parse.urlsplit(ep.url).path or "").rstrip("/").split("/")[-1]
+                    _recipe = _json.dumps({"read_url": read_ep.url, "read_param": read_param,
+                                           "read_loc": read_loc,
+                                           "read_method": read_ep.method or "GET",
+                                           "artifact": artifact_name,
+                                           "write_param": _wp,
+                                           "write_loc": wloc,
+                                           "write_method": ("POST" if chan != "declared"
+                                                             else (ep.method or "POST")),
+                                           "truncate_url": (write_ep.url if write_ep else None),
+                                           "truncate_param": write_param,
+                                           "truncate_loc": (self._prim_loc(write_ep, write_param)
+                                                            if write_ep else "query"),
+                                           "constant": _C,
+                                           **({"write_channel": chan}
+                                              if chan in _CR2_CHANNELS else {})})
+                    out.append(Finding(type="weak_crypto", severity=Severity.HIGH,
+                        endpoint_url=ep.url, parameter="", method=ep.method,
+                        evidence=[
+                            Evidence("constant_block_oracle", weak_reason, None),
+                            Evidence("chain_legs",
+                                     f"write leg: {ep.url} (constant plaintext, channel "
+                                     f"{chan}); read leg: {read_ep.url}?"
+                                     f"{read_param}={artifact_name} (verified path_traversal)"
+                                     + (f"; truncate leg: {write_ep.url}?{write_param}={artifact_name}"
+                                        " (verified write sink)" if write_ep else ""),
+                                     None, _recipe)],
+                        status=FindingStatus.CANDIDATE))
                 continue
             chan, ct8, ct16 = live
             wloc = _WLOC.get(chan) or self._prim_loc(ep, self._write_param_of(ep))

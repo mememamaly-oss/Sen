@@ -1,3 +1,27 @@
+# SENTINEL v4.3.9-cr3 — crypto recall round 3: the CONSTANT-PLAINTEXT family (42 live catches; the poisoned zones documented as the honest ceiling)
+
+~44 of the 75 crypto FNs encrypt a FIXED plaintext — the input never arrives
+through any channel (always-true ternaries, getTheValue "bar", puzzle constants)
+but the write response ECHOES the constant. New oracle: input-independent ct
+length across the whole 14-probe ladder + the echoed constant C + the pad8
+non-full-pad shape L == (len(C)//8+1)*8 with len(C)%8 != 0. The full-pad zone
+is POISONED (live-measured: GCM-tag8/CCM TN constants answer (8->16) and
+(0->8), byte-identical to DES) — 7 tests documented as the honest ceiling.
+VR-28 replays: two distinct fresh inputs must reproduce the same L, the same
+echoed C, the pad8 shape (re-test:fresh-const-block).
+
+Two own defects caught by the discriminating tests: (1) a between-channel
+length difference is NOT liveness — the header channel on a header-NAME
+servlet feeds it the test-id as a different constant and shadows the real
+channel (unit_cr2 regression caught it); (2) the echo must be captured only
+from a write that LANDED — probes that never wrote clobbered it (live-caught
+on the qs family, 01634).
+
+RED/GREEN: unit_cr3 RED on the stashed engine, GREEN after; unit_cr2 re-green
+after each fix. LIVE 42/42 safe-zone targets, poisoned zone silent, TN const
+guards 0, controls lost 0. Gates: suite 18/18 (213 registered), doctor 17/17,
+bench x3 IDENTICAL 38/0/0/37. Proof: results/verify_cr3/.
+
 # SENTINEL v4.3.8-cr2 — crypto recall round 2: the channel LADDER (5 new write channels, 16 live catches at zero TN cost)
 
 23 of the 75 crypto FNs take their plaintext through input channels the
