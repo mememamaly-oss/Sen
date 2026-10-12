@@ -1,3 +1,14 @@
+# SENTINEL v4.3.7-category-close — pathtraver recall 38.35% -> 87.22% on the FULL OWASP Benchmark, precision 1.0 preserved
+
+Category-close measurement (full 12-chunk re-run, no-crawl campaign mode,
+seed 7f3c91aa): pathtraver 51/133 -> 116/133 TP (87.22%), FP 0, precision
+1.0; overall covered recall 68.90% -> 69.81% at precision 1.0000 (the 9
+echo-derivative FPs of the interim measurement killed by PT-1b); requests
+298,576 -> 316,964 (+6.1%). Remaining 17 pathtraver FNs are the documented
+honest ceiling (fixed /Test.txt child, stream-swallow, create-always — each
+live-proven; write->read chain is the follow-up path). Full report:
+results/owasp/pathtraver_category_close.md.
+
 # SENTINEL v4.3.7-pt1b — pathtraver recall push 4/5: the echo-derivative guard (9 full-benchmark FPs killed, catches intact)
 
 The round-7 FULL 12-chunk benchmark re-run (first post-PT-1/2/3 measurement)
