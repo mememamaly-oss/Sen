@@ -12636,5 +12636,125 @@ def unit_xs3_resolver_name_channel_mangle_crossover():
         srv.shutdown(); srv.server_close()
 
 
+# ================================================================ CM-1 (cmdi recall round)
+@case
+def unit_cm1_twin_oob_harvest():
+    """CM-1 (cmdi recall round, live-caught on the OWASP Benchmark 8b67a88):
+    BLIND exec sinks are reachable ONLY by the OOB detector's TWIN forms —
+    envp-array sinks (the tainted string rides the ENVIRONMENT into
+    `eval $FOO`; ';'/'&&' are not shell tokens there) and direct-argv sinks
+    (Runtime.exec(String) is NOT a shell — live on BenchmarkTest00499:
+    "localhost; curl" -> Cannot run program 'localhost;'). The twin probes
+    were sent on every scan but analyze() only ever polled the "detect" iid:
+    twin callbacks landed in the OAST log and NOTHING harvested them — dead
+    machinery (51-FN root cause A1). This case stages the blind shapes with
+    the process output DISCARDED (no response oracle exists at all — the
+    echo battery is structurally silent here), so ONLY a harvested twin
+    callback + a form-aware VR-11 replay can produce a VERIFIED finding.
+    Safe twins (env allow-list / argv allow-list) must stay silent; the
+    classic variant-fired sh -c sink must NOT regress."""
+    import os
+    import subprocess as _sp
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+
+    _SAFE_ENV = __import__("re").compile(r"^[a-z0-9.-]+$")
+    _SAFE_ARGV = ("echo", "true", "id")
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+            if u.path == "/":
+                b = (b'<a href="/blind-env?host=localhost">e</a>'
+                     b'<a href="/blind-direct?cmd=x">d</a>'
+                     b'<a href="/safe-env?host=localhost">s</a>'
+                     b'<a href="/shell?host=localhost">v</a>')
+                self._reply(200, b)
+                return
+            v = q.get("host", "") or q.get("cmd", "")
+            if u.path == "/blind-env":
+                # BLIND envp sink (faithful to the Java Runtime.exec(String[],
+                # String[]) envp semantics): the tainted string is ONE env
+                # ENTRY — only an ASSIGNMENT-shaped entry ("FOO=...") defines
+                # a variable; anything else defines nothing and `eval $FOO`
+                # stays empty. All output discarded (never reflected).
+                _env = dict(os.environ)
+                _env.pop("FOO", None)
+                if "=" in v:
+                    _k, _, _val = v.partition("=")
+                    _env[_k] = _val          # the entry IS the assignment
+                _sp.run(["/bin/sh", "-c", "eval $FOO >/dev/null 2>&1; true"],
+                        env=_env, stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+                self._reply(200, b"<html><body>processed.</body></html>")
+            elif u.path == "/blind-direct":
+                # BLIND direct-argv sink: the value IS argv (no shell);
+                # output discarded — only a callback can prove it
+                try:
+                    _sp.run(v.split(), stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+                except Exception:
+                    pass
+                self._reply(200, b"<html><body>done.</body></html>")
+            elif u.path == "/safe-env":
+                # SAFE twin 1: env value must be a bare hostname — anything
+                # carrying '='/space/';' (all twin+variant forms) is rejected
+                if _SAFE_ENV.match(v or ""):
+                    _env = dict(os.environ); _env["FOO"] = v
+                    _sp.run(["/bin/sh", "-c", "true"], env=_env,
+                            stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+                    self._reply(200, b"<html><body>ok</body></html>")
+                else:
+                    self._reply(200, b"<html><body>rejected</body></html>")
+            elif u.path == "/shell":
+                # classic variant-fired sink: a REAL shell string — the ';'
+                # battery reaches it (existing detect-iid path, regression
+                # guard). Blind on purpose (stdout discarded)
+                _sp.run(["/bin/sh", "-c", f"true {v}"], stdout=_sp.DEVNULL,
+                        stderr=_sp.DEVNULL)
+                self._reply(200, b"<html><body>ok</body></html>")
+            else:
+                self._reply(404, b"no")
+
+    port = 8921
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="cm1",
+                         browser=False, oast=oast)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        cmdi = [f for f in rep["findings"]
+                if f["type"] == "command_injection" and f.get("status") == "verified"]
+        blind_env = [f for f in cmdi if "/blind-env" in f["url"]]
+        blind_dir = [f for f in cmdi if "/blind-direct" in f["url"]]
+        assert blind_env, ("RED: the blind envp sink (twin-env channel) found nothing",
+                           [(f["type"], f.get("status")) for f in rep["findings"]])
+        assert blind_dir, "RED: the blind direct-argv sink (twin-direct channel) found nothing"
+        for f in blind_env + blind_dir:
+            evs = {e.get("kind") for e in f.get("evidence", [])}
+            assert "oob_callback" in evs, f"evidence must be oob_callback, got {evs}"
+            detail = " ".join(str(e.get("detail", "")) for e in f.get("evidence", []))
+            assert "form=twin-env" in detail or "form=twin-direct" in detail, \
+                f"the evidence must record the firing form (got: {detail[:120]})"
+            vm = f.get("verification", {}) or {}
+            assert vm.get("passed") is True
+            assert "wget" in (vm.get("notes") or ""), \
+                "VR-11 must replay the form that fired (curl->wget alternate command)"
+        assert not [f for f in rep["findings"]
+                    if f["type"] == "command_injection" and f.get("status") == "verified"
+                    and "/safe-env" in f["url"]], "FP: the safe env twin fired"
+        assert any("/shell" in f["url"] for f in cmdi), \
+            "REGRESSION: the classic variant-fired sh -c sink lost its finding"
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

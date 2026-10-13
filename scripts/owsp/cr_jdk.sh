@@ -13,7 +13,9 @@ fi
 JDKDIR=$(find "$TOOLS" -maxdepth 1 -type d -name "jdk-21*" ! -name "jdk-21.0.12.1+1" | head -1)
 if [ -z "$JDKDIR" ] && [ ! -f temurin21.tar.gz ]; then
   echo "downloading Temurin 21 JDK..."
-  curl -sSL -o temurin21.tar.gz "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse" || { echo "DOWNLOAD FAILED"; exit 1; }
+  # --speed-time 30: abort if <1KB/s for 30s (stalled-connection guard; the
+  # 2026-10-13 run hung 4+ minutes at 45MB with no timeout and no error)
+  curl -sSL --speed-time 30 --speed-limit 1024 -o temurin21.tar.gz "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse" || { echo "DOWNLOAD FAILED"; rm -f temurin21.tar.gz; exit 1; }
 fi
 if [ -z "$JDKDIR" ]; then
   ls -la temurin21.tar.gz
