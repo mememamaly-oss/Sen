@@ -12454,5 +12454,90 @@ def unit_xs1_resolver_post_body_name_channel():
         srv.shutdown(); srv.server_close()
 
 
+@case
+def unit_xs2_last_char_mangle_reflection():
+    """XS-2 (xss recall round, live-caught on the OWASP Benchmark master =
+    v1.2): the whole remaining 27 of the 60 xss FNs destroy EXACTLY ONE
+    TRAILING CHARACTER of the input before the writer sink reflects it —
+    substring(0, len-1) drops it (live: 02134 reflects the canary minus the
+    closing '>'), StringBuilder.replace(len-1, len, 'Z') rewrites it (live:
+    00392/00146/01666). The verbatim needle check on the plain canary never
+    matched, and the VR's plain variant battery checked every vector
+    verbatim (0/6) — family-wide silent/REJECTED. Two layers: the detector
+    gains sacrificial-tail probes (needle+'zz' — the mangler eats the tail,
+    the UNTAILED needle survives verbatim), and the VR gains the plain+tail
+    tier (plain first — existing VR-02 semantics untouched; the tail tier
+    only when the plain one is structurally dead). Safe twins: mangle AND
+    encode (the ESAPI family) — the tailed needle must NOT survive there."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    TCID = "BenchmarkTest00392"      # drop-last mangle, plain param channel
+    SAFE = "BenchmarkTest00275"      # Z-rewrite mangle + encode (ESAPI twin)
+
+    def _mangle(v, mode):
+        if not v or len(v) < 2:
+            return v
+        return v[:-1] if mode == "drop" else v[:-1] + "Z"
+
+    def _escape(v):
+        return (v.replace("&", "&amp;").replace("<", "&lt;")
+                 .replace(">", "&gt;").replace('"', "&quot;"))
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            if urlsplit(self.path).path == "/":
+                self._reply(200, (
+                    '<form method="POST" action="/xss-01/' + TCID + '">'
+                    '<input type="text" name="foo" value="1">'
+                    '<input type="submit" name="go" value="go"></form>'
+                    '<form method="POST" action="/xss-02/' + SAFE + '">'
+                    '<input type="text" name="foo" value="1">'
+                    '<input type="submit" name="go" value="go"></form>').encode())
+                return
+            self._reply(200, b"<html><body></body></html>")
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            body = self.rfile.read(n).decode() if n else ""
+            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
+            u = urlsplit(self.path)
+            for k, v in parse_qs(u.query, keep_blank_values=True).items():
+                q.setdefault(k, v[0])
+            v = q.get("foo", "")
+            if "xss-02" in self.path:
+                # safe twin: Z-rewrite mangle THEN html-escape the result
+                self._reply(200, ("<html><body>P: " + _escape(_mangle(v, "z")) + "</body></html>").encode())
+            else:
+                # vulnerable: drop-last mangle, reflected RAW
+                self._reply(200, ("<html><body>R: " + _mangle(v, "drop") + "</body></html>").encode())
+
+    port = 8912
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5, seed="xs2",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        xss = [f for f in rep["findings"]
+               if f["type"] == "xss_reflected" and f.get("status") == "verified"
+               and "/xss-01/" in f.get("url", "")]
+        assert xss, ("RED: the last-char-mangle family found nothing",
+                     [f["type"] for f in rep["findings"]])
+        assert any("tail" in (f.get("verification", {}) or {}).get("method", "")
+                   for f in xss), "the verifier must use the plain+tail tier"
+        assert not [f for f in rep["findings"]
+                    if f["type"] == "xss_reflected" and f.get("status") == "verified"
+                    and "/xss-02/" in f.get("url", "")], \
+            "FP: the safe twin (mangle + encode) fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

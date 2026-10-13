@@ -735,6 +735,11 @@ class XSSDetector(Detector):
     # reflections (the payload echoed raw contains no '<a href=data:' shape).
     MD_B64 = __import__("base64").b64encode(b"sentinelxssmarker").decode()
     MD_PAYLOAD = "[sentinelxssmarkermd](data:text/html;base64," + MD_B64 + ")"
+    # XS-2: sacrificial tail for the last-char-mangle family — the mangler
+    # eats/rewrites exactly ONE trailing char; two 'z's leave the untailed
+    # needle intact in the reflection (drop-last -> NEEDLE+'z',
+    # Z-rewrite -> NEEDLE+'zZ').
+    TAIL = "zz"
 
     def _context_probe(self, ep, p) -> tuple[str, bool]:
         """Send '<b>canaryflt</b>'; classify the param's input context."""
@@ -766,6 +771,29 @@ class XSSDetector(Detector):
                         param_value=f"<{self.CANARY}>pro41</{self.CANARY}>")))
                 out.append(("slash_free", RequestMutation(endpoint=ep, param_name=p.name,
                         param_value=f"<{self.CANARY}pro42")))
+                # XS-2 (xss recall round, live-caught on the OWASP Benchmark
+                # master = v1.2 — the whole remaining 27 of the 60 xss FNs):
+                # the last-char-mangle family. Every source in the family
+                # destroys EXACTLY ONE TRAILING CHARACTER of the input before
+                # the writer sink reflects it — substring(0, len-1) DROPS it
+                # (live: 02134 reflects '<sentinelxssmarker>pro41
+                # </sentinelxssmarker' — the closing '>' eaten) or
+                # StringBuilder.replace(len-1, len, "Z") REWRITES it (live:
+                # 00392/00146/01666) — so the verbatim needle check on the
+                # plain canary NEVER matches and the family stayed silent.
+                # The sacrificial tail: append two trailing chars the mangler
+                # is welcome to eat — drop-last leaves NEEDLE+'z', Z-rewrite
+                # leaves NEEDLE+'zZ' — either way the UNTAILED needle (the
+                # existing analyze() checks, unchanged) survives verbatim in
+                # the reflection. Channels vary across the family (plain
+                # param, self-named form param, Referer header, raw
+                # query-string); sinks vary (write/print/println/format/
+                # printf) — the mangle is the family; the tail rides the
+                # param's own channel so every variant is covered.
+                out.append(("tail_full", RequestMutation(endpoint=ep, param_name=p.name,
+                        param_value=f"<{self.CANARY}>pro41</{self.CANARY}>{self.TAIL}")))
+                out.append(("tail_slash", RequestMutation(endpoint=ep, param_name=p.name,
+                        param_value=f"<{self.CANARY}pro42{self.TAIL}")))
             else:
                 # tag-filtered context: attribute injection needs no '<' — the handler
                 # rides into a tag the SERVER itself emitted (live-executed on

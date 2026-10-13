@@ -2269,3 +2269,245 @@ Stage Summary:
   3888/3888, doctor 17/17, bench x3 IDENTICAL 38/0/0/37).
 - Remaining xss FNs after XS-1 (expected): 27 scattered (replace/fmt/b64
   transform families + assorted sinks) — next rounds, one family at a time.
+
+---
+Task ID: 46 (xss recall-push round — XS-2: the last-char-mangle reflection family, tail-sacrifice discipline)
+Agent: Super Z (main agent)
+
+Task: Continuation of the xss category (per the standing order: live diagnosis
+before code; one fix at a time RED->GREEN + full gate; immediate individual
+push + full-patch text backup in this worklog).
+
+Work Log:
+- XS-1 CONFIRMED ON REMOTE pre-work (ls-remote with the PAT): origin/main =
+  1a3a97a = local main byte-identical.
+- REMAINING-FN CENSUS (27 after XS-1): a shape census across all 27 sources
+  found the mangle idiom in 27/27 — substring(0, len-1) drops the last char
+  OR StringBuilder.replace(len-1, len, "Z") rewrites it — BEFORE the writer
+  sink. Channels vary (plain param, self-named form param, Referer header
+  via getHeader/getHeaders, raw getQueryString parse); sinks vary
+  (write/print/println/format/printf; the census's two 'no-direct-sink'
+  entries 01047/02221 turned out to be PrintWriter variants of getWriter).
+  The classifier's earlier transform='none' entries were mis-sourced: the
+  mangle lives in doSomething()/helper methods (live-caught on 02134: the
+  POST self-named param reflects '<sentinelxssmarker>pro41
+  </sentinelxssmarker' — the closing '>' EATEN).
+- ROOT CAUSE (2 layers, live-proven):
+  (1) detector: the needle checks are verbatim — the mangled reflection
+      (needle minus its last char) never matches; the plain canary battery
+      is structurally dead on the whole family.
+  (2) VR: the variant battery checks every vector verbatim — on the mangle
+      family every plain vector dies (0/6) -> REJECTED family-wide even if
+      a candidate existed.
+- SAFE-TWIN LANDSCAPE: 26 real=false xss tests carry the same mangle idiom
+  (mangle AND encode/discard — the ESAPI family); live on 00275: Referer
+  canary -> the literal 'barbarians_at_the_gate' (silent).
+- XS-2 IMPLEMENTATION (2 files + test):
+  * detect.py: XSSDetector.TAIL = 'zz' + two sacrificial-tail probes per
+    param (tail_full = NEEDLE+'zz', tail_slash = slashneedle+'zz'); the
+    mangler eats the tail — drop-last leaves NEEDLE+'z', Z-rewrite leaves
+    NEEDLE+'zZ' — the UNTAILED needle (the existing analyze() checks,
+    unchanged) survives verbatim in the reflection.
+  * intel.py: the VR variant battery gains the plain+tail tier — plain
+    tier first (existing VR-02 semantics untouched on ordinary surfaces);
+    only when the plain tier is 0/6, each vector replays as alt+'zz' and
+    the check is the UNTAILED vector as substring. Method recorded as
+    re-test:variant-battery-6-plain+tail.
+  * tests: unit_xs2_last_char_mangle_reflection (drop-last mangle reflected
+    raw + safe twin mangle-then-escape).
+- XS-2 LIVE PROOF (minispec on the real stack, xs2_live.py):
+  RED (pre-fix): 6/6 family silent (00392 param/write, 00291 Referer/write,
+  01666 raw-QS/println, 02134 self-named/write, 02395 format, 00146
+  Referer/format), safe twins 00275/00885/00894 silent 3/3.
+  GREEN (post-fix): all 6 VERIFIED via plain+tail (5-6/6 vectors; the plain
+  tier 0/6 as diagnosed), safe twins silent 3/3.
+- XS-2 UNIT RED->GREEN: fixes stashed -> 'the last-char-mangle family found
+  nothing'; fixes restored -> pass.
+- XS-2 FULL GATE (fresh; xs2_gate.sh):
+  * suite 18/18 chunks ALL PASS — 3906/3906 (217 registered x 18 chunk
+    runs; 215-case execution list + the 1 documented env-stall exclusion).
+  * doctor 17/17 PASS.
+  * bench x3 IDENTICAL: 38/0/0/37 F1=1.0000 x3.
+- XS-2 PATCH CODE (full text backup, verbatim):
+```diff
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+--- a/build-v430/sentinel/detect.py
++++ b/build-v430/sentinel/detect.py
+@@ XSSDetector class constants
+     MD_B64 = __import__("base64").b64encode(b"sentinelxssmarker").decode()
+     MD_PAYLOAD = "[sentinelxssmarkermd](data:text/html;base64," + MD_B64 + ")"
++    # XS-2: sacrificial tail for the last-char-mangle family — the mangler
++    # eats/rewrites exactly ONE trailing char; two 'z's leave the untailed
++    # needle intact in the reflection (drop-last -> NEEDLE+'z',
++    # Z-rewrite -> NEEDLE+'zZ').
++    TAIL = "zz"
+@@ candidates(), mode != "filtered" branch (after slash_free)
++                # XS-2 (xss recall round, live-caught on the OWASP Benchmark
++                # master = v1.2 — the whole remaining 27 of the 60 xss FNs):
++                # the last-char-mangle family. Every source in the family
++                # destroys EXACTLY ONE TRAILING CHARACTER of the input before
++                # the writer sink reflects it — substring(0, len-1) DROPS it
++                # (live: 02134 reflects '<sentinelxssmarker>pro41
++                # </sentinelxssmarker' — the closing '>' eaten) or
++                # StringBuilder.replace(len-1, len, "Z") REWRITES it (live:
++                # 00392/00146/01666) — so the verbatim needle check on the
++                # plain canary NEVER matches and the family stayed silent.
++                # The sacrificial tail: append two trailing chars the mangler
++                # is welcome to eat — drop-last leaves NEEDLE+'z', Z-rewrite
++                # leaves NEEDLE+'zZ' — either way the UNTAILED needle (the
++                # existing analyze() checks, unchanged) survives verbatim in
++                # the reflection. Channels vary across the family (plain
++                # param, self-named form param, Referer header, raw
++                # query-string); sinks vary (write/print/println/format/
++                # printf) — the mangle is the family; the tail rides the
++                # param's own channel so every variant is covered.
++                out.append(("tail_full", RequestMutation(endpoint=ep, param_name=p.name,
++                        param_value=f"<{self.CANARY}>pro41</{self.CANARY}>{self.TAIL}")))
++                out.append(("tail_slash", RequestMutation(endpoint=ep, param_name=p.name,
++                        param_value=f"<{self.CANARY}pro42{self.TAIL}")))
+diff --git a/build-v430/sentinel/intel.py b/build-v430/sentinel/intel.py
+--- a/build-v430/sentinel/intel.py
++++ b/build-v430/sentinel/intel.py
+@@ xss_reflected verify(), variant battery else-branch
+             else:
+                 variants = [
+                     "<img src=x onerror=sentinel42()>",              # classic img/onerror
+                     "<details open ontoggle=sentinel42()>",          # auto-fires on toggle
+                     "<svg><animate onbegin=sentinel42() attributeName=x>",  # svg onbegin
+                     "<svg\nonload=sentinel42()>",                    # newline separator
+                     "<iframe srcdoc=sentinel42()>",                  # srcdoc context
+                     "<sentinelxssmarker>vr2</sentinelxssmarker>",    # raw-tag canary re-check
+                 ]
+                 passed_vecs = 0
++                tier = "plain"
+                 for alt in variants:
+                     r = self._replay(ep, f.parameter, alt)
+                     if r is not None and alt in (r.body or ""):
+                         passed_vecs += 1
++                # XS-2 (xss recall round, live-caught on the OWASP Benchmark
++                # master = v1.2 — the whole remaining 27 of the 60 xss FNs):
++                # the last-char-mangle family. The source destroys exactly ONE
++                # trailing character of every input before the writer sink
++                # reflects it — substring(0, len-1) drops it, StringBuilder
++                # .replace(len-1, len, "Z") rewrites it — so EVERY plain
++                # vector verbatim check fails (0/6) and the family was
++                # REJECTED family-wide even when the detector caught it. The
++                # tailed tier: when the plain tier got nothing, replay each
++                # vector with a two-char sacrificial tail (alt+'zz') and
++                # check the UNTAILED vector as the substring — drop-last
++                # leaves VECTOR+'z', Z-rewrite leaves VECTOR+'zZ'; either
++                # way the untailed vector survives verbatim in the body.
++                # Plain tier first keeps the existing VR-02 semantics intact
++                # on ordinary surfaces; the tail tier only adds the mangle
++                # discipline where the plain one is structurally dead.
++                if passed_vecs == 0:
++                    tier = "plain+tail"
++                    for alt in variants:
++                        r = self._replay(ep, f.parameter, alt + "zz")
++                        if r is not None and alt in (r.body or ""):
++                            passed_vecs += 1
+                 executed_ctx = passed_vecs >= 1
+                 conf = 0.9 if passed_vecs >= 2 else (0.75 if passed_vecs == 1 else 0.15)
+-                v = Verification(method="re-test:variant-battery-6", passed=executed_ctx,
+-                                 confidence=conf, rounds=len(variants),
+-                                 notes=f"{passed_vecs}/{len(variants)} diverse vectors reflected raw "
+-                                       "(WAF-resistant verification)")
++                v = Verification(method=f"re-test:variant-battery-6-{tier}", passed=executed_ctx,
++                                 confidence=conf, rounds=len(variants) * (2 if tier == "plain+tail" else 1),
++                                 notes=f"{passed_vecs}/{len(variants)} diverse vectors reflected raw "
++                                       f"({tier} tier, WAF-resistant verification)")
+diff --git a/build-v430/tests/run_tests.py b/build-v430/tests/run_tests.py
+--- a/build-v430/tests/run_tests.py
++++ b/build-v430/tests/run_tests.py
+@@ after unit_xs1_resolver_post_body_name_channel
++@case
++def unit_xs2_last_char_mangle_reflection():
++    """XS-2 (xss recall round, live-caught on the OWASP Benchmark master =
++    v1.2): the whole remaining 27 of the 60 xss FNs destroy EXACTLY ONE
++    TRAILING CHARACTER of the input before the writer sink reflects it —
++    substring(0, len-1) drops it (live: 02134 reflects the canary minus the
++    closing '>'), StringBuilder.replace(len-1, len, 'Z') rewrites it (live:
++    00392/00146/01666). The verbatim needle check on the plain canary never
++    matched, and the VR's plain variant battery checked every vector
++    verbatim (0/6) — family-wide silent/REJECTED. Two layers: the detector
++    gains sacrificial-tail probes (needle+'zz' — the mangler eats the tail,
++    the UNTAILED needle survives verbatim), and the VR gains the plain+tail
++    tier (plain first — existing VR-02 semantics untouched; the tail tier
++    only when the plain one is structurally dead). Safe twins: mangle AND
++    encode (the ESAPI family) — the tailed needle must NOT survive there."""
++    import threading
++    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
++    from urllib.parse import parse_qs, urlsplit
++    from sentinel.orchestrator import SentinelScanner, ScanConfig
++
++    TCID = "BenchmarkTest00392"      # drop-last mangle, plain param channel
++    SAFE = "BenchmarkTest00275"      # Z-rewrite mangle + encode (ESAPI twin)
++
++    def _mangle(v, mode):
++        if not v or len(v) < 2:
++            return v
++        return v[:-1] if mode == "drop" else v[:-1] + "Z"
++
++    def _escape(v):
++        return (v.replace("&", "&amp;").replace("<", "&lt;")
++                 .replace(">", "&gt;").replace('"', "&quot;"))
++
++    class H(BaseHTTPRequestHandler):
++        def log_message(self, *a): pass
++        def _reply(self, code, b):
++            self.send_response(code); self.send_header("Content-Length", str(len(b)))
++            self.end_headers(); self.wfile.write(b)
++        def do_GET(self):
++            if urlsplit(self.path).path == "/":
++                self._reply(200, (
++                    '<form method="POST" action="/xss-01/' + TCID + '">'
++                    '<input type="text" name="foo" value="1">'
++                    '<input type="submit" name="go" value="go"></form>'
++                    '<form method="POST" action="/xss-02/' + SAFE + '">'
++                    '<input type="text" name="foo" value="1">'
++                    '<input type="submit" name="go" value="go"></form>').encode())
++                return
++            self._reply(200, b"<html><body></body></html>")
++        def do_POST(self):
++            n = int(self.headers.get("Content-Length", 0) or 0)
++            body = self.rfile.read(n).decode() if n else ""
++            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
++            u = urlsplit(self.path)
++            for k, v in parse_qs(u.query, keep_blank_values=True).items():
++                q.setdefault(k, v[0])
++            v = q.get("foo", "")
++            if "xss-02" in self.path:
++                # safe twin: Z-rewrite mangle THEN html-escape the result
++                self._reply(200, ("<html><body>P: " + _escape(_mangle(v, "z")) + "</body></html>").encode())
++            else:
++                # vulnerable: drop-last mangle, reflected RAW
++                self._reply(200, ("<html><body>R: " + _mangle(v, "drop") + "</body></html>").encode())
++
++    port = 8912
++    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
++    threading.Thread(target=srv.serve_forever, daemon=True).start()
++    try:
++        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5, seed="xs2",
++                         browser=False, oast=None)
++        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
++        xss = [f for f in rep["findings"]
++               if f["type"] == "xss_reflected" and f.get("status") == "verified"
++               and "/xss-01/" in f.get("url", "")]
++        assert xss, ("RED: the last-char-mangle family found nothing",
++                     [f["type"] for f in rep["findings"]])
++        assert any("tail" in (f.get("verification", {}) or {}).get("method", "")
++                   for f in xss), "the verifier must use the plain+tail tier"
++        assert not [f for f in rep["findings"]
++                    if f["type"] == "xss_reflected" and f.get("status") == "verified"
++                    and "/xss-02/" in f.get("url", "")], \
++            "FP: the safe twin (mangle + encode) fired"
++    finally:
++        srv.shutdown(); srv.server_close()
+```
+
+Stage Summary:
+- XS-2 PROVEN and pushing individually: expected full-run effect = the
+  remaining 27 FNs flip to TP (minispec covered 6/6 across every channel +
+  sink; the family is 27/27 mangle-idiom by source census). With XS-1's 33,
+  the xss category ceiling is 60/60.
+- Category close next: full 12-chunk benchmark re-run + eval + report.

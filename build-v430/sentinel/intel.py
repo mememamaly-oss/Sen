@@ -476,16 +476,39 @@ class VerificationEngine:
                     "<sentinelxssmarker>vr2</sentinelxssmarker>",    # raw-tag canary re-check
                 ]
                 passed_vecs = 0
+                tier = "plain"
                 for alt in variants:
                     r = self._replay(ep, f.parameter, alt)
                     if r is not None and alt in (r.body or ""):
                         passed_vecs += 1
+                # XS-2 (xss recall round, live-caught on the OWASP Benchmark
+                # master = v1.2 — the whole remaining 27 of the 60 xss FNs):
+                # the last-char-mangle family. The source destroys exactly ONE
+                # trailing character of every input before the writer sink
+                # reflects it — substring(0, len-1) drops it, StringBuilder
+                # .replace(len-1, len, "Z") rewrites it — so EVERY plain
+                # vector verbatim check fails (0/6) and the family was
+                # REJECTED family-wide even when the detector caught it. The
+                # tailed tier: when the plain tier got nothing, replay each
+                # vector with a two-char sacrificial tail (alt+'zz') and
+                # check the UNTAILED vector as the substring — drop-last
+                # leaves VECTOR+'z', Z-rewrite leaves VECTOR+'zZ'; either
+                # way the untailed vector survives verbatim in the body.
+                # Plain tier first keeps the existing VR-02 semantics intact
+                # on ordinary surfaces; the tail tier only adds the mangle
+                # discipline where the plain one is structurally dead.
+                if passed_vecs == 0:
+                    tier = "plain+tail"
+                    for alt in variants:
+                        r = self._replay(ep, f.parameter, alt + "zz")
+                        if r is not None and alt in (r.body or ""):
+                            passed_vecs += 1
                 executed_ctx = passed_vecs >= 1
                 conf = 0.9 if passed_vecs >= 2 else (0.75 if passed_vecs == 1 else 0.15)
-                v = Verification(method="re-test:variant-battery-6", passed=executed_ctx,
-                                 confidence=conf, rounds=len(variants),
+                v = Verification(method=f"re-test:variant-battery-6-{tier}", passed=executed_ctx,
+                                 confidence=conf, rounds=len(variants) * (2 if tier == "plain+tail" else 1),
                                  notes=f"{passed_vecs}/{len(variants)} diverse vectors reflected raw "
-                                       "(WAF-resistant verification)")
+                                       f"({tier} tier, WAF-resistant verification)")
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if executed_ctx else FindingStatus.REJECTED
 
