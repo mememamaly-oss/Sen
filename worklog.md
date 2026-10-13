@@ -3148,3 +3148,31 @@ Stage Summary:
 - Expected category effect: the ~36 value-channel FNs (envp + direct +
   single-string-exec shapes at any chunk position); CM-2 (the 15 name-channel
   FNs) follows as its own commit; then the full 12-chunk category re-run.
+
+---
+Task ID: 49.1b (CM-1 push — BLOCKED, honest record)
+Agent: Super Z (main agent)
+
+Task: Directive 0.2(5): push efdf314 (CM-1) + ls-remote verification.
+
+Work Log:
+- PUSH ATTEMPTED 4x (plain, user:token, extraheader, retry) — ALL rejected
+  with "Repository not found" from GitHub's git smart-HTTP endpoint.
+- Timeline evidence: the SAME token+URL form AUTHENTICATED at 20:39Z (the
+  session-start fetch pulled the new tags v4.2.3/v4.2.5/v4.3.0/v4.4.0 —
+  private-repo enumeration impossible without access) and had LOST git
+  access by push time (~21:5xZ): fetch now also "Repository not found",
+  while the REST API still answers 200 for the same token. Then the git
+  endpoint stopped answering entirely (curl probes hang; api.github.com
+  still responds). Signature = token lost Contents permission (edited on
+  the owner side) OR github.com git-endpoint egress degradation; cannot
+  distinguish from inside. Not retried blindly (2+ consecutive failures
+  rule); user notified with a request for a fresh PAT (Contents: Read and
+  write, single repo, shortest expiration) or a session restart.
+- efdf314 is LOCAL and durable (tracked content survives rollbacks; the
+  full diff text backup is in the Task-49.1 worklog entry above).
+
+Stage Summary:
+- CM-1 complete except the push+verify step; blocked on credentials/egress,
+  reported honestly. No further fixes started (the per-fix cycle requires
+  the push before the next fix per the standing methodology).
