@@ -2511,3 +2511,221 @@ Stage Summary:
   sink; the family is 27/27 mangle-idiom by source census). With XS-1's 33,
   the xss category ceiling is 60/60.
 - Category close next: full 12-chunk benchmark re-run + eval + report.
+
+---
+Task ID: 47 (xss recall-push round — XS-3: the resolver x mangle crossover, 1 fix)
+Agent: Super Z (main agent)
+
+Task: Continuation — the xss category close re-run (this task's first half)
+revealed 245/246 with ONE FN left; per the methodology it was diagnosed
+live BEFORE any code and fixed as its own individually-pushed change.
+
+Work Log:
+- CATEGORY CLOSE RE-RUN (fresh, this session): 12 chunks x primitive-seeded
+  specs, 367,781 requests, 4104 findings, 1330 active ALL VERIFIED.
+- EVAL: xss 245/246 TP (+59), 1 FN (BenchmarkTest02324). ZERO regressions —
+  every other category TP/FP byte-identical (cmdi 75, crypto 124, hash 115,
+  pathtraver 116, sqli 272, weakrand 202, trustbound 32, ldapi 13, xpathi 6,
+  securecookie 22), FP 0 across ALL. Overall covered: recall 81.67% -> 86.27%,
+  F1 0.8991 -> 0.9263, precision 1.0000.
+- LAST-FN LIVE DIAGNOSIS (zero code): BenchmarkTest02324 is the CROSSOVER —
+  a resolver (payload rides the param NAME via value==basename sentinel, the
+  XS-1 family) whose sink ALSO rewrites the final char (the XS-2 family).
+  Live curl: form field <canary>zz=BenchmarkTest02324 -> the app reflects
+  'Formatted like: <sentinelxssmarker>pro41</sentinelxssmarker>zZ and b.' —
+  the mangler ate the tail, the UNTAILED needle survives verbatim.
+- ROOT CAUSE (2 layers): the plain xname probe dies (the canary's own last
+  char is eaten before reflection); the plain fresh-name-canary VR replay
+  dies the same way.
+- XS-3 IMPLEMENTATION (2 files + test):
+  * detect.py: the xname battery gains TAILED variants (xname_tail_full /
+    xname_tail_slash — canary+TAIL rides the NAME on the renamed clone,
+    sentinel value preserved); the existing analyze() checks (untailed
+    needles, channel-agnostic) catch the reflection.
+  * intel.py: the vr-xss-nc branch gains the tail fallback — plain
+    fresh-canary first (existing semantics intact); when dead, replay
+    fresh+'zz' as the name and check the UNTAILED fresh as substring.
+    Method recorded as re-test:fresh-name-canary-plain+tail.
+  * tests: unit_xs3_resolver_name_channel_mangle_crossover (crossover app:
+    resolver+Z-rewrite reflect raw; safe twins: resolver-discard and
+    mangle-encode).
+- XS-3 LIVE PROOF (xs3_live.py minispec): 02324 VERIFIED, safe twins
+  00544 (resolver discard) + 00275 (mangle+encode) silent 2/2.
+- XS-3 UNIT RED->GREEN: fixes stashed -> 'the resolver-mangle crossover
+  found nothing'; restored -> pass.
+- XS-3 FULL GATE (fresh; xs3_gate.sh): suite 19/19 chunks ALL PASS 4142/
+  4142 (218 registered x 19 chunk runs; 216-case execution list + the 1
+  documented exclusion); doctor 17/17; bench x3 IDENTICAL 38/0/0/37.
+- XS-3 PATCH CODE (full text backup, verbatim):
+```diff
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+@@ xname battery (XS-1 gate block)
+             if p.kind != ParamKind.TOKEN and not p.flow_control and p.location in (
+                     ParamLocation.QUERY, ParamLocation.BODY):
++                # XS-3 (xss recall round, live-caught on the crossover test
++                # BenchmarkTest02324 — the last of the 60 xss FNs): the
++                # resolver family (payload rides the NAME, value==basename
++                # sentinel) crossed with the last-char-mangle family (the
++                # sink rewrites ONE trailing char, live: the tailed name
++                # reflects as needle+'zZ'). The plain xname probe dies there
++                # (the canary's own final char is eaten), so the name battery
++                # gains the TAILED variants — the canary+TAIL rides the NAME
++                # (renamed clone, sentinel value preserved); the mangler eats
++                # the tail and the UNTAILED needle (the existing analyze()
++                # checks, unchanged) survives verbatim in the reflection.
+-                for tag, payload in (("xname_full", f"<{self.CANARY}>pro41</{self.CANARY}>"),
+-                                     ("xname_slash", f"<{self.CANARY}pro42")):
++                for tag, payload in (("xname_full", f"<{self.CANARY}>pro41</{self.CANARY}>"),
++                                     ("xname_slash", f"<{self.CANARY}pro42"),
++                                     ("xname_tail_full",
++                                      f"<{self.CANARY}>pro41</{self.CANARY}>{self.TAIL}"),
++                                     ("xname_tail_slash",
++                                      f"<{self.CANARY}pro42{self.TAIL}")):
+                     epc = _clone_ep_rename_param(ep, p.name, payload)
+                     out.append((tag, RequestMutation(endpoint=epc, param_name=payload,
+                                                      param_value=p.value or "1")))
+diff --git a/build-v430/sentinel/intel.py b/build-v430/sentinel/intel.py
+@@ vr-xss-nc branch (input_channel replay)
+-                oknc = bool(rnc is not None and not rnc.error and fresh in (rnc.body or ""))
+-                v = Verification(method="re-test:fresh-name-canary", passed=oknc,
+-                                 confidence=0.85 if oknc else 0.15, rounds=1,
+-                                 notes=f"fresh canary through the name channel reflected raw: {oknc}")
++                oknc = bool(rnc is not None and not rnc.error and fresh in (rnc.body or ""))
++                # XS-3 (xss recall round, live-caught on the crossover test
++                # BenchmarkTest02324 — the last of the 60 xss FNs): the
++                # resolver name-channel family crossed with the last-char
++                # mangle family — the plain fresh-canary name gets its final
++                # char eaten/rewritten by the sink, so `fresh in body` is
++                # structurally dead there. The tail fallback (the XS-2
++                # discipline applied to the NAME channel): replay the fresh
++                # canary with the sacrificial tail as the param NAME and
++                # check the UNTAILED fresh as the substring (live: the
++                # tailed name reflects as fresh+'zZ'). Plain first — the
++                # existing name-channel semantics stay intact everywhere
++                # else; the tail only fires when the plain check is dead.
++                nc_tier = "plain"
++                if not oknc:
++                    if _qp is not None:
++                        epc = _clone_ep_rename_param(ep, _qp.name, fresh + "zz")
++                        rnc2 = self.engine.send(RequestMutation(endpoint=epc,
++                                                                param_name=fresh + "zz",
++                                                                param_value=_qp.value or "1",
++                                                                note="vr-xss-nc-tail"))
++                    else:
++                        seg2 = last_path_segment(ep.url)
++                        rnc2 = self.engine.send(RequestMutation(endpoint=ep, param_name=fresh + "zz",
++                                                                param_value=seg2,
++                                                                note="vr-xss-nc-tail")) if seg2 else None
++                    oknc = bool(rnc2 is not None and not rnc2.error and fresh in (rnc2.body or ""))
++                    if oknc:
++                        nc_tier = "plain+tail"
++                v = Verification(method=f"re-test:fresh-name-canary-{nc_tier}", passed=oknc,
++                                 confidence=0.85 if oknc else 0.15, rounds=2 if nc_tier == "plain+tail" else 1,
++                                 notes=f"fresh canary through the name channel reflected raw "
++                                       f"({nc_tier} tier): {oknc}")
+diff --git a/build-v430/tests/run_tests.py b/build-v430/tests/run_tests.py
+@@ after unit_xs2_last_char_mangle_reflection
++@case
++def unit_xs3_resolver_name_channel_mangle_crossover():
++    """XS-3 (xss recall round, live-caught on the OWASP Benchmark master =
++    v1.2): the crossover test BenchmarkTest02324 — the LAST of the 60 xss
++    FNs — is a resolver (the payload rides the param NAME, value==basename
++    sentinel, the XS-1 family) whose sink ALSO rewrites the final char
++    (StringBuilder.replace(len-1,len,'Z'), the XS-2 family). The plain xname
++    probe dies there (the canary's own last char is eaten) and the plain
++    fresh-name-canary VR replay dies the same way. Fix: TAILED name-channel
++    probes (canary+TAIL as the param NAME on the renamed clone, sentinel
++    value preserved) + the tailed VR fallback (fresh+TAIL as the name,
++    check the UNTAILED fresh as substring). Safe twins: the resolver-discard
++    (XS-1 family) and mangle-encode (XS-2 family) must stay silent."""
++    import threading
++    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
++    from urllib.parse import parse_qs, urlsplit
++    from sentinel.orchestrator import SentinelScanner, ScanConfig
++
++    TCID = "BenchmarkTest02324"      # the crossover: resolver name-channel + Z-rewrite
++    SAFE1 = "BenchmarkTest00544"     # resolver, structural discard
++    SAFE2 = "BenchmarkTest00275"     # value channel, Z-rewrite + encode
++
++    def _mangle(v):
++        return v[:-1] + "Z" if v and len(v) > 1 else (v or "")
++
++    class H(BaseHTTPRequestHandler):
++        def log_message(self, *a): pass
++        def _reply(self, code, b):
++            self.send_response(code); self.send_header("Content-Length", str(len(b)))
++            self.end_headers(); self.wfile.write(b)
++        def do_GET(self):
++            if urlsplit(self.path).path == "/":
++                self._reply(200, (
++                    '<form method="POST" action="/xss-04/' + TCID + '">'
++                    '<input type="text" name="whatever" value="' + TCID + '">'
++                    '<input type="text" name="answer" value="">'
++                    '<input type="submit" name="go" value="go"></form>'
++                    '<form method="POST" action="/xss-01/' + SAFE1 + '">'
++                    '<input type="text" name="whatever" value="' + SAFE1 + '">'
++                    '<input type="submit" name="go" value="go"></form>'
++                    '<form method="POST" action="/xss-02/' + SAFE2 + '">'
++                    '<input type="text" name="foo" value="1">'
++                    '<input type="submit" name="go" value="go"></form>').encode())
++                return
++            self._reply(200, b"<html><body></body></html>")
++        def do_POST(self):
++            n = int(self.headers.get("Content-Length", 0) or 0)
++            body = self.rfile.read(n).decode() if n else ""
++            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
++            u = urlsplit(self.path)
++            for k, v in parse_qs(u.query, keep_blank_values=True).items():
++                q.setdefault(k, v[0])
++            path = self.path
++            if "xss-01" in path:
++                # safe twin 1: resolver captures, structural discard (literal)
++                self._reply(200, b"<html><body>moresafe</body></html>")
++            elif "xss-02" in path:
++                # safe twin 2: value channel, Z-rewrite THEN escape
++                v = _mangle(q.get("foo", ""))
++                esc = (v.replace("&", "&amp;").replace("<", "&lt;")
++                        .replace(">", "&gt;").replace('"', "&quot;"))
++                self._reply(200, ("<html><body>P: " + esc + "</body></html>").encode())
++            else:
++                # the crossover: resolver (value==TCID) captures the NAME,
++                # Z-rewrites its last char, reflects the mangled name RAW
++                name = ""
++                for k, v in q.items():
++                    if v == TCID:
++                        name = k; break
++                out = _mangle(name)
++                self._reply(200, ("<html><body>X: " + out + "</body></html>").encode())
++
++    port = 8913
++    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
++    threading.Thread(target=srv.serve_forever, daemon=True).start()
++    try:
++        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="xs3",
++                         browser=False, oast=None)
++        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
++        xss = [f for f in rep["findings"]
++               if f["type"] == "xss_reflected" and f.get("status") == "verified"
++               and "/xss-04/" in f.get("url", "")]
++        assert xss, ("RED: the resolver-mangle crossover found nothing",
++                     [f["type"] for f in rep["findings"]])
++        assert any(any(e.get("kind") == "input_channel" for e in f.get("evidence", []))
++                   for f in xss), "the finding must carry input_channel evidence"
++        vm = [f.get("verification", {}) or {} for f in xss]
++        assert any("name" in (x or {}).get("method", "") for x in vm), \
++            "the verifier must replay through the name channel"
++        assert not [f for f in rep["findings"]
++                    if f["type"] == "xss_reflected" and f.get("status") == "verified"
++                    and ("/xss-01/" in f.get("url", "") or "/xss-02/" in f.get("url", ""))], \
++            "FP: a safe twin fired"
++    finally:
++        srv.shutdown(); srv.server_close()
+```
+
+Stage Summary:
+- XS-3 PROVEN and pushing individually: the expected full-run effect is the
+  1 remaining FN flips to TP -> xss 246/246 at precision 1.0 (60/60 of the
+  round's FNs: 33 resolver + 27 mangle + 1 crossover... the crossover was
+  counted inside the 33-family at classification time).
+- The category-close re-run with the final engine follows next (the earlier
+  245/246 artifacts belong to the pre-XS-3 engine and get superseded).

@@ -829,8 +829,23 @@ class XSSDetector(Detector):
             # the exact mirror of the SQ-1 nminj fix on the sqli side.
             if p.kind != ParamKind.TOKEN and not p.flow_control and p.location in (
                     ParamLocation.QUERY, ParamLocation.BODY):
+                # XS-3 (xss recall round, live-caught on the crossover test
+                # BenchmarkTest02324 — the last of the 60 xss FNs): the
+                # resolver family (payload rides the NAME, value==basename
+                # sentinel) crossed with the last-char-mangle family (the
+                # sink rewrites ONE trailing char, live: the tailed name
+                # reflects as needle+'zZ'). The plain xname probe dies there
+                # (the canary's own final char is eaten), so the name battery
+                # gains the TAILED variants — the canary+TAIL rides the NAME
+                # (renamed clone, sentinel value preserved); the mangler eats
+                # the tail and the UNTAILED needle (the existing analyze()
+                # checks, unchanged) survives verbatim in the reflection.
                 for tag, payload in (("xname_full", f"<{self.CANARY}>pro41</{self.CANARY}>"),
-                                     ("xname_slash", f"<{self.CANARY}pro42")):
+                                     ("xname_slash", f"<{self.CANARY}pro42"),
+                                     ("xname_tail_full",
+                                      f"<{self.CANARY}>pro41</{self.CANARY}>{self.TAIL}"),
+                                     ("xname_tail_slash",
+                                      f"<{self.CANARY}pro42{self.TAIL}")):
                     epc = _clone_ep_rename_param(ep, p.name, payload)
                     out.append((tag, RequestMutation(endpoint=epc, param_name=payload,
                                                      param_value=p.value or "1")))

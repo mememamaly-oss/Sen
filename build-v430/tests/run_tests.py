@@ -12539,5 +12539,102 @@ def unit_xs2_last_char_mangle_reflection():
         srv.shutdown(); srv.server_close()
 
 
+@case
+def unit_xs3_resolver_name_channel_mangle_crossover():
+    """XS-3 (xss recall round, live-caught on the OWASP Benchmark master =
+    v1.2): the crossover test BenchmarkTest02324 — the LAST of the 60 xss
+    FNs — is a resolver (the payload rides the param NAME, value==basename
+    sentinel, the XS-1 family) whose sink ALSO rewrites the final char
+    (StringBuilder.replace(len-1,len,'Z'), the XS-2 family). The plain xname
+    probe dies there (the canary's own last char is eaten) and the plain
+    fresh-name-canary VR replay dies the same way. Fix: TAILED name-channel
+    probes (canary+TAIL as the param NAME on the renamed clone, sentinel
+    value preserved) + the tailed VR fallback (fresh+TAIL as the name,
+    check the UNTAILED fresh as substring). Safe twins: the resolver-discard
+    (XS-1 family) and mangle-encode (XS-2 family) must stay silent."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    TCID = "BenchmarkTest02324"      # the crossover: resolver name-channel + Z-rewrite
+    SAFE1 = "BenchmarkTest00544"     # resolver, structural discard
+    SAFE2 = "BenchmarkTest00275"     # value channel, Z-rewrite + encode
+
+    def _mangle(v):
+        return v[:-1] + "Z" if v and len(v) > 1 else (v or "")
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            if urlsplit(self.path).path == "/":
+                self._reply(200, (
+                    '<form method="POST" action="/xss-04/' + TCID + '">'
+                    '<input type="text" name="whatever" value="' + TCID + '">'
+                    '<input type="text" name="answer" value="">'
+                    '<input type="submit" name="go" value="go"></form>'
+                    '<form method="POST" action="/xss-01/' + SAFE1 + '">'
+                    '<input type="text" name="whatever" value="' + SAFE1 + '">'
+                    '<input type="submit" name="go" value="go"></form>'
+                    '<form method="POST" action="/xss-02/' + SAFE2 + '">'
+                    '<input type="text" name="foo" value="1">'
+                    '<input type="submit" name="go" value="go"></form>').encode())
+                return
+            self._reply(200, b"<html><body></body></html>")
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            body = self.rfile.read(n).decode() if n else ""
+            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
+            u = urlsplit(self.path)
+            for k, v in parse_qs(u.query, keep_blank_values=True).items():
+                q.setdefault(k, v[0])
+            path = self.path
+            if "xss-01" in path:
+                # safe twin 1: resolver captures, structural discard (literal)
+                self._reply(200, b"<html><body>moresafe</body></html>")
+            elif "xss-02" in path:
+                # safe twin 2: value channel, Z-rewrite THEN escape
+                v = _mangle(q.get("foo", ""))
+                esc = (v.replace("&", "&amp;").replace("<", "&lt;")
+                        .replace(">", "&gt;").replace('"', "&quot;"))
+                self._reply(200, ("<html><body>P: " + esc + "</body></html>").encode())
+            else:
+                # the crossover: resolver (value==TCID) captures the NAME,
+                # Z-rewrites its last char, reflects the mangled name RAW
+                name = ""
+                for k, v in q.items():
+                    if v == TCID:
+                        name = k; break
+                out = _mangle(name)
+                self._reply(200, ("<html><body>X: " + out + "</body></html>").encode())
+
+    port = 8913
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="xs3",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        xss = [f for f in rep["findings"]
+               if f["type"] == "xss_reflected" and f.get("status") == "verified"
+               and "/xss-04/" in f.get("url", "")]
+        assert xss, ("RED: the resolver-mangle crossover found nothing",
+                     [f["type"] for f in rep["findings"]])
+        assert any(any(e.get("kind") == "input_channel" for e in f.get("evidence", []))
+                   for f in xss), "the finding must carry input_channel evidence"
+        vm = [f.get("verification", {}) or {} for f in xss]
+        assert any("name" in (x or {}).get("method", "") for x in vm), \
+            "the verifier must replay through the name channel"
+        assert not [f for f in rep["findings"]
+                    if f["type"] == "xss_reflected" and f.get("status") == "verified"
+                    and ("/xss-01/" in f.get("url", "") or "/xss-02/" in f.get("url", ""))], \
+            "FP: a safe twin fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

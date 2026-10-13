@@ -404,9 +404,38 @@ class VerificationEngine:
                     rnc = self.engine.send(RequestMutation(endpoint=ep, param_name=fresh,
                                                            param_value=seg, note="vr-xss-nc")) if seg else None
                 oknc = bool(rnc is not None and not rnc.error and fresh in (rnc.body or ""))
-                v = Verification(method="re-test:fresh-name-canary", passed=oknc,
-                                 confidence=0.85 if oknc else 0.15, rounds=1,
-                                 notes=f"fresh canary through the name channel reflected raw: {oknc}")
+                # XS-3 (xss recall round, live-caught on the crossover test
+                # BenchmarkTest02324 — the last of the 60 xss FNs): the
+                # resolver name-channel family crossed with the last-char
+                # mangle family — the plain fresh-canary name gets its final
+                # char eaten/rewritten by the sink, so `fresh in body` is
+                # structurally dead there. The tail fallback (the XS-2
+                # discipline applied to the NAME channel): replay the fresh
+                # canary with the sacrificial tail as the param NAME and
+                # check the UNTAILED fresh as the substring (live: the
+                # tailed name reflects as fresh+'zZ'). Plain first — the
+                # existing name-channel semantics stay intact everywhere
+                # else; the tail only fires when the plain check is dead.
+                nc_tier = "plain"
+                if not oknc:
+                    if _qp is not None:
+                        epc = _clone_ep_rename_param(ep, _qp.name, fresh + "zz")
+                        rnc2 = self.engine.send(RequestMutation(endpoint=epc,
+                                                                param_name=fresh + "zz",
+                                                                param_value=_qp.value or "1",
+                                                                note="vr-xss-nc-tail"))
+                    else:
+                        seg2 = last_path_segment(ep.url)
+                        rnc2 = self.engine.send(RequestMutation(endpoint=ep, param_name=fresh + "zz",
+                                                                param_value=seg2,
+                                                                note="vr-xss-nc-tail")) if seg2 else None
+                    oknc = bool(rnc2 is not None and not rnc2.error and fresh in (rnc2.body or ""))
+                    if oknc:
+                        nc_tier = "plain+tail"
+                v = Verification(method=f"re-test:fresh-name-canary-{nc_tier}", passed=oknc,
+                                 confidence=0.85 if oknc else 0.15, rounds=2 if nc_tier == "plain+tail" else 1,
+                                 notes=f"fresh canary through the name channel reflected raw "
+                                       f"({nc_tier} tier): {oknc}")
                 f.verification, f.confidence = v, v.confidence
                 f.status = FindingStatus.VERIFIED if oknc else FindingStatus.REJECTED
                 return f
