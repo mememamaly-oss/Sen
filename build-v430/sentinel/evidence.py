@@ -483,7 +483,8 @@ def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
     from .http_engine import RequestEngine
     from .intel import VerificationEngine
     from . import detect as _dm
-    from .core import Endpoint, Parameter, ParamLocation
+    from .core import Endpoint, Parameter, ParamLocation, ParamKind
+    from .detect import _pseudo_param
 
     out = {"finding_id": proof.get("finding_id", ""),
            "type": proof.get("type", ""),
@@ -536,8 +537,15 @@ def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
                 r = engine.send(m)
                 if r.error:
                     continue
-                pobj = next((p for p in ep.parameters if p.name == m.param_name),
-                            ep.parameters[0] if ep.parameters else None)
+                # XS-1 (xss recall round, live-caught on the OWASP Benchmark
+                # master = v1.2): keep the probe's OWN name when it matches no
+                # endpoint param — it is a name-channel probe (payload IS the
+                # name); attributing it to ep.parameters[0] mislabels the
+                # finding and the replay then probes a channel the app never
+                # reads (live: xss resolver candidates carried parameter=answer
+                # -> VALUE-channel replay -> REPRODUCTION_FAILED family-wide).
+                pobj = next((p for p in ep.parameters if p.name == m.param_name), None) \
+                    or _pseudo_param(m.param_name, m.param_value or "1", ParamKind.GENERIC)
                 cand = det.analyze((ep, pobj), r)
                 if cand:
                     break

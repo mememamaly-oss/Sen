@@ -745,8 +745,23 @@ class SentinelScanner:
                                 fid = self.failures.record(det.name, r.error, {"url": ep.url})
                                 self.bus.emit("ScannerFailed", scanner=det.name, failure=fid, error=r.error)
                                 continue
-                            pair = (ep, next((p for p in ep.parameters if p.name == m.param_name),
-                                             ep.parameters[0] if ep.parameters else None)
+                            # XS-1 (xss recall round, live-caught on the OWASP
+                            # Benchmark master = v1.2): a probe whose param name
+                            # matches NO endpoint param is a name-channel probe
+                            # (a renamed-clone/synthetic-name battery — the
+                            # payload IS the name). The old ep.parameters[0]
+                            # default attributed those probes to an unrelated
+                            # param (live: the xss resolver candidates carried
+                            # parameter=answer, so the detector never attached
+                            # the input_channel evidence and the VR replayed
+                            # the answer VALUE channel -> 0/6 -> the whole
+                            # 33-test family REJECTED). The pseudo-param keeps
+                            # the probe's OWN name: analyze() then sees the
+                            # canary in p.name, attaches the name-channel
+                            # evidence, and the VR replays the channel the app
+                            # actually reads — the exact ncgroup discipline the
+                            # sqli round enforced for nminj.
+                            pair = (ep, next((p for p in ep.parameters if p.name == m.param_name), None)
                                     or _pseudo_param(m.param_name, m.param_value or "1", ParamKind.GENERIC))
                             cand = det.analyze(pair, r)
                             if cand:

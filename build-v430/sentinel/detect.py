@@ -786,7 +786,21 @@ class XSSDetector(Detector):
             # field name). The canary rides the NAME via a renamed clone;
             # analyze()'s needle check is channel-agnostic (it looks for the
             # needle in the body — a name reflection contains it verbatim).
-            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location == ParamLocation.QUERY:
+            # XS-1 (xss recall round, live-caught on the OWASP Benchmark master
+            # = v1.2): the battery was gated to QUERY params, but the entire
+            # benchmark xss resolver family (33 of the 60 xss FNs) reads the
+            # match from a POST FORM body (openapi requestBody ->
+            # x-www-form-urlencoded -> ParamLocation.BODY; live-proven on
+            # BenchmarkTest00036/00549: form field <canary>=<TCID> (the
+            # schema-default sentinel riding the renamed clone) -> the
+            # resolver writes the field NAME into the response raw, control
+            # benign-name echoes the benign name only, the safe twins
+            # 00544/00545/00546 structurally discard the name (live: the
+            # response is the literal 'moresafe')). The gate now admits BODY
+            # params with the same non-token/non-flow-control discipline —
+            # the exact mirror of the SQ-1 nminj fix on the sqli side.
+            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location in (
+                    ParamLocation.QUERY, ParamLocation.BODY):
                 for tag, payload in (("xname_full", f"<{self.CANARY}>pro41</{self.CANARY}>"),
                                      ("xname_slash", f"<{self.CANARY}pro42")):
                     epc = _clone_ep_rename_param(ep, p.name, payload)

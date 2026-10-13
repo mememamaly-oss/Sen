@@ -12355,5 +12355,104 @@ def unit_sq2_callable_sink_controls():
         srv.shutdown(); srv.server_close()
 
 
+@case
+def unit_xs1_resolver_post_body_name_channel():
+    """XS-1 (xss recall round, live-caught on the OWASP Benchmark master =
+    v1.2): 33 of the 60 xss FNs are resolver-shaped on POST FORM bodies —
+    the servlet scans request.getParameterNames() for the param whose VALUE
+    equals the endpoint's own basename and writes its NAME into the response
+    RAW (live-proven on BenchmarkTest00036/00549: form field
+    <canary>=BenchmarkTest00036 -> the canary name reflected verbatim;
+    the safe twins 00544/00545/00546 structurally DISCARD the captured name
+    (live: the response is the literal 'moresafe')). Two defects were
+    root-caused: (1) the xss name-channel battery (xname) was gated to
+    ParamLocation.QUERY — the whole benchmark family is POST form-body;
+    (2) the generic orchestrator loop attributed unmatched-name probes to
+    ep.parameters[0] (live: candidates carried parameter=answer), so the
+    input_channel evidence never attached and the VR replayed the answer
+    VALUE channel -> 0/6 -> family-wide REJECTED. The fix mirrors the SQ-1
+    nminj discipline: the battery admits BODY, and a name-channel probe
+    keeps its OWN name (pseudo-param) so the VR replays the channel the
+    app actually reads."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    TCID = "BenchmarkTest00036"
+    SAFE = "BenchmarkTest00544"
+    LIT = b"moresafe"  # what the safe twin prints after the structural discard
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            if urlsplit(self.path).path == "/":
+                self._reply(200, (
+                    '<form method="POST" action="/xss-00/' + TCID + '">'
+                    '<input type="text" name="whatever" value="' + TCID + '">'
+                    '<input type="text" name="answer" value="">'
+                    '<input type="submit" name="go" value="go"></form>'
+                    '<form method="POST" action="/xss-01/' + SAFE + '">'
+                    '<input type="text" name="whatever" value="' + SAFE + '">'
+                    '<input type="text" name="answer" value="">'
+                    '<input type="submit" name="go" value="go"></form>').encode())
+                return
+            self._reply(200, b"<html><body></body></html>")
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", 0) or 0)
+            body = self.rfile.read(n).decode() if n else ""
+            # Servlet semantics (javax.servlet.getParameterMap): the query
+            # string and the form body are ONE merged parameter map — the
+            # real container (live-proven on Tomcat via the vr-xss-nc replay)
+            # sees the VR's name-channel replay through the query string; a
+            # body-only parse would hide it (the unit-vs-live discrepancy).
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
+            for k, v in parse_qs(u.query, keep_blank_values=True).items():
+                q.setdefault(k, v[0])
+            # the resolver: the param whose VALUE is the TCID; its NAME is data
+            sentinel = SAFE if SAFE in self.path else TCID
+            name = ""
+            for k, v in q.items():
+                if v == sentinel:
+                    name = k; break
+            if "xss-01" in self.path:
+                # the safe twin: list-shuffle structural discard (00544 live)
+                vals = ["safe", name, "moresafe"]; vals.remove("safe")
+                out = vals[1] if vals[1] != name else LIT.decode()
+                self._reply(200, ("<html><body>" + out + "</body></html>").encode())
+            elif name:
+                # the vulnerable resolver: writes the captured NAME raw
+                self._reply(200, ("<html><body>" + name + "</body></html>").encode())
+            else:
+                self._reply(200, b"<html><body></body></html>")
+
+    port = 8908
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5, seed="xs1",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        xss = [f for f in rep["findings"]
+               if f["type"] == "xss_reflected" and f.get("status") == "verified"
+               and "/xss-00/" in f.get("url", "")]
+        assert xss, ("RED: the POST-form resolver name-channel family found nothing",
+                     [f["type"] for f in rep["findings"]])
+        assert any(any(e.get("kind") == "input_channel" for e in f.get("evidence", []))
+                   for f in xss), "the finding must carry input_channel evidence"
+        assert any("name" in (f.get("verification", {}) or {}).get("method", "")
+                   for f in xss), "the verifier must replay through the name channel"
+        assert not [f for f in rep["findings"]
+                    if f["type"] == "xss_reflected" and f.get("status") == "verified"
+                    and "/xss-01/" in f.get("url", "")], \
+            "FP: the safe twin (structural name discard) fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

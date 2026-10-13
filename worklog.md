@@ -1990,3 +1990,282 @@ Stage Summary:
 - Overall program: recall 68.90% (start) -> 69.81% (pathtraver) -> 76.37%
   (crypto) -> 81.67% (sqli) at precision 1.0000 / FP 0 throughout.
 - Next categories per impact: xss (60 FN), cmdi (51 FN), trustbound (51 FN).
+
+---
+Task ID: 45 (xss recall-push round — XS-1: the resolver POST-form name-channel family, 2-layer fix)
+Agent: Super Z (main agent)
+
+Task: Supervisor order: continue the same methodology on the xss category
+(60 FNs — highest impact now). Live diagnosis per case before any code; one
+fix at a time (RED -> GREEN + full gate); immediate push with the same token
++ full-patch text backup in this worklog — exactly like the sqli category.
+
+Work Log:
+- BASELINE VERIFIED FIRST: fetched real origin/main with the PAT (local
+  origin/main ref was stale from before the sqli pushes); origin/main =
+  e5beb7a = local main byte-identical — every sqli push confirmed on GitHub.
+  Working tree clean.
+- STACK CONFIRMED LIVE (Task-42 build intact): Tomcat 9.0.85 on 8080, the
+  Benchmark war, HSQLDB + LDAP processes up; /benchmark answers 200.
+- FN LIST EXTRACTED (60 xss FNs from eval_sq_close_full.json, saved to
+  scripts/xss_fn_list.txt).
+- LIVE DIAGNOSIS PHASE 1 — source taxonomy (xs_classify.py, zero engine
+  code): 246 xss tests classified by input/sink/transform. Families:
+  resolver_value_match 33/60 FNs (55%) at 100% FN share (ZERO TPs);
+  27 scattered singles/pairs (replace/fmt/b64 transforms, assorted sinks).
+- LIVE DIAGNOSIS PHASE 2 — the resolver family root-caused (3 probes):
+  * Live curl on the REAL stack: POST form field
+    `<sentinelxssmarker>pro41</sentinelxssmarker>=BenchmarkTest00036` ->
+    the app writes the field NAME into the response RAW (write/println/
+    format/printf/b64 variants all verified live: 00036/00549/00542/00547/
+    00541/01438/00555 — 7/7 reflect verbatim). Safe twins 00544/00545/00546
+    (same resolver shape): structural list-shuffle DISCARDS the captured
+    name; live response is the literal 'moresafe' (3/3 silent).
+  * Engine defect layer 1 (detect.py): the xss name-channel battery (xname)
+    was gated `p.location == ParamLocation.QUERY` — the whole benchmark
+    family is POST form-body (ParamLocation.BODY). The exact mirror of the
+    SQ-1 nminj defect.
+  * Engine defect layer 2 (orchestrator.py + evidence.py): the generic
+    loop's pair construction defaulted unmatched-name probes to
+    ep.parameters[0] — the canary-named probe was attributed to `answer`,
+    so the input_channel evidence never attached (CANARY not in p.name) and
+    the VR fell to the value-channel variant battery on answer -> 0/6
+    reflected -> family-wide REJECTED. Live-caught in the minispec scan:
+    12 xss_reflected candidates in rejected_candidates, every one
+    parameter=answer, method=re-test:variant-battery-6.
+  * Unit-vs-live discrepancy root-caused (xs1_debug.py + engine.send trace):
+    the VR's fresh-canary replay rides the QUERY string (vr-xss-nc,
+    param_value=seg); the real servlet container merges query+form in
+    getParameterMap (live GREEN 6/6 on Tomcat), my unit handler parsed the
+    body only — the unit's servlet model was fixed (query merge), not the
+    engine.
+- XS-1 IMPLEMENTATION (3 engine files + 1 test):
+  * detect.py: xname gate extended to (QUERY, BODY) — the SQ-1 mirror.
+  * orchestrator.py (generic loop) + evidence.py (replay_finding): a probe
+    whose name matches no endpoint param keeps its OWN name via
+    _pseudo_param — the input_channel evidence attaches and the VR replays
+    the name channel (fresh canary). The ncgroup discipline from the sqli
+    round, applied at the pairing layer.
+  * tests: unit_xs1_resolver_post_body_name_channel (local servlet-faithful
+    app: vulnerable resolver + safe twin).
+- XS-1 LIVE PROOF (minispec on the real stack, xs1_live.py):
+  RED (pre-fix): 6/6 FN family silent, 3/3 safe twins silent.
+  GREEN (post-fix): 00036/00549/00542/00547/00541/01438 all VERIFIED
+  xss_reflected via re-test:fresh-name-canary ("fresh canary through the
+  name channel reflected raw: True"), safe twins 00544/00545/00546 silent.
+- XS-1 UNIT RED->GREEN: fixes stashed -> unit fails ("family found nothing",
+  passive findings only); fixes restored -> unit passes. 943ms.
+- XS-1 FULL GATE (fresh, this session; xs1_gate.sh):
+  * suite 18/18 chunks ALL PASS — 3888/3888 (3870 + 18 with unit_xs1
+    registered; 1 documented env-stall exclusion unchanged).
+  * doctor 17/17 PASS.
+  * bench x3 IDENTICAL: 38/0/0/37 F1=1.0000 x3.
+- XS-1 PATCH CODE (full text backup, verbatim):
+```diff
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+index 3a3a85e..7feb414 100644
+--- a/build-v430/sentinel/detect.py
++++ b/build-v430/sentinel/detect.py
+@@ -786,7 +786,21 @@ class XSSDetector(Detector):
+             # field name). The canary rides the NAME via a renamed clone;
+             # analyze()'s needle check is channel-agnostic (it looks for the
+             # needle in the body — a name reflection contains it verbatim).
+-            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location == ParamLocation.QUERY:
++            # XS-1 (xss recall round, live-caught on the OWASP Benchmark master
++            # = v1.2): the battery was gated to QUERY params, but the entire
++            # benchmark xss resolver family (33 of the 60 xss FNs) reads the
++            # match from a POST FORM body (openapi requestBody ->
++            # x-www-form-urlencoded -> ParamLocation.BODY; live-proven on
++            # BenchmarkTest00036/00549: form field <canary>=<TCID> (the
++            # schema-default sentinel riding the renamed clone) -> the
++            # resolver writes the field NAME into the response raw, control
++            # benign-name echoes the benign name only, the safe twins
++            # 00544/00545/00546 structurally discard the name (live: the
++            # response is the literal 'moresafe')). The gate now admits BODY
++            # params with the same non-token/non-flow-control discipline —
++            # the exact mirror of the SQ-1 nminj fix on the sqli side.
++            if p.kind != ParamKind.TOKEN and not p.flow_control and p.location in (
++                    ParamLocation.QUERY, ParamLocation.BODY):
+                 for tag, payload in (("xname_full", f"<{self.CANARY}>pro41</{self.CANARY}>"),
+                                      ("xname_slash", f"<{self.CANARY}pro42")):
+                     epc = _clone_ep_rename_param(ep, p.name, payload)
+diff --git a/build-v430/sentinel/evidence.py b/build-v430/sentinel/evidence.py
+index d485b9c..ed4c246 100644
+--- a/build-v430/sentinel/evidence.py
++++ b/build-v430/sentinel/evidence.py
+@@ -483,7 +483,8 @@ def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
+     from .http_engine import RequestEngine
+     from .intel import VerificationEngine
+     from . import detect as _dm
+-    from .core import Endpoint, Parameter, ParamLocation
++    from .core import Endpoint, Parameter, ParamLocation, ParamKind
++    from .detect import _pseudo_param
+ 
+     out = {"finding_id": proof.get("finding_id", ""),
+            "type": proof.get("type", ""),
+@@ -536,8 +537,15 @@ def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
+                 r = engine.send(m)
+                 if r.error:
+                     continue
+-                pobj = next((p for p in ep.parameters if p.name == m.param_name),
+-                            ep.parameters[0] if ep.parameters else None)
++                # XS-1 (xss recall round, live-caught on the OWASP Benchmark
++                # master = v1.2): keep the probe's OWN name when it matches no
++                # endpoint param — it is a name-channel probe (payload IS the
++                # name); attributing it to ep.parameters[0] mislabels the
++                # finding and the replay then probes a channel the app never
++                # reads (live: xss resolver candidates carried parameter=answer
++                # -> VALUE-channel replay -> REPRODUCTION_FAILED family-wide).
++                pobj = next((p for p in ep.parameters if p.name == m.param_name), None) \
++                    or _pseudo_param(m.param_name, m.param_value or "1", ParamKind.GENERIC)
+                 cand = det.analyze((ep, pobj), r)
+                 if cand:
+                     break
+diff --git a/build-v430/sentinel/orchestrator.py b/build-v430/sentinel/orchestrator.py
+index 1a2b888..3935fd7 100644
+--- a/build-v430/sentinel/orchestrator.py
++++ b/build-v430/sentinel/orchestrator.py
+@@ -745,8 +745,23 @@ class SentinelScanner:
+                                 fid = self.failures.record(det.name, r.error, {"url": ep.url})
+                                 self.bus.emit("ScannerFailed", scanner=det.name, failure=fid, error=str(e)[:200])
+                                 continue
+-                            pair = (ep, next((p for p in ep.parameters if p.name == m.param_name),
+-                                             ep.parameters[0] if ep.parameters else None)
++                            # XS-1 (xss recall round, live-caught on the OWASP
++                            # Benchmark master = v1.2): a probe whose param name
++                            # matches NO endpoint param is a name-channel probe
++                            # (a renamed-clone/synthetic-name battery — the
++                            # payload IS the name). The old ep.parameters[0]
++                            # default attributed those probes to an unrelated
++                            # param (live: the xss resolver candidates carried
++                            # parameter=answer, so the detector never attached
++                            # the input_channel evidence and the VR replayed
++                            # the answer VALUE channel -> 0/6 -> the whole
++                            # 33-test family REJECTED). The pseudo-param keeps
++                            # the probe's OWN name: analyze() then sees the
++                            # canary in p.name, attaches the name-channel
++                            # evidence, and the VR replays the channel the app
++                            # actually reads — the exact ncgroup discipline the
++                            # sqli round enforced for nminj.
++                            pair = (ep, next((p for p in ep.parameters if p.name == m.param_name), None)
+                                     or _pseudo_param(m.param_name, m.param_value or "1", ParamKind.GENERIC))
+                             cand = det.analyze(pair, r)
+                             if cand:
+diff --git a/build-v430/tests/run_tests.py b/build-v430/tests/run_tests.py
+index 50b68b0..bdcbfcd 100644
+--- a/build-v430/tests/run_tests.py
++++ b/build-v430/tests/run_tests.py
+@@ -12355,5 +12355,104 @@ def unit_sq2_callable_sink_controls():
+         srv.shutdown(); srv.server_close()
+ 
+ 
++@case
++def unit_xs1_resolver_post_body_name_channel():
++    """XS-1 (xss recall round, live-caught on the OWASP Benchmark master =
++    v1.2): 33 of the 60 xss FNs are resolver-shaped on POST FORM bodies —
++    the servlet scans request.getParameterNames() for the param whose VALUE
++    equals the endpoint's own basename and writes its NAME into the response
++    RAW (live-proven on BenchmarkTest00036/00549: form field
++    <canary>=BenchmarkTest00036 -> the canary name reflected verbatim;
++    the safe twins 00544/00545/00546 structurally DISCARD the captured name
++    (live: the response is the literal 'moresafe')). Two defects were
++    root-caused: (1) the xss name-channel battery (xname) was gated to
++    ParamLocation.QUERY — the whole benchmark family is POST form-body;
++    (2) the generic orchestrator loop attributed unmatched-name probes to
++    ep.parameters[0] (live: candidates carried parameter=answer), so the
++    input_channel evidence never attached and the VR replayed the answer
++    VALUE channel -> 0/6 -> family-wide REJECTED. The fix mirrors the SQ-1
++    nminj discipline: the battery admits BODY, and a name-channel probe
++    keeps its OWN name (pseudo-param) so the VR replays the channel the
++    app actually reads."""
++    import threading
++    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
++    from urllib.parse import parse_qs, urlsplit
++    from sentinel.orchestrator import SentinelScanner, ScanConfig
++
++    TCID = "BenchmarkTest00036"
++    SAFE = "BenchmarkTest00544"
++    LIT = b"moresafe"  # what the safe twin prints after the structural discard
++
++    class H(BaseHTTPRequestHandler):
++        def log_message(self, *a): pass
++        def _reply(self, code, b):
++            self.send_response(code); self.send_header("Content-Length", str(len(b)))
++            self.end_headers(); self.wfile.write(b)
++        def do_GET(self):
++            if urlsplit(self.path).path == "/":
++                self._reply(200, (
++                    '<form method="POST" action="/xss-00/' + TCID + '">'
++                    '<input type="text" name="whatever" value="' + TCID + '">'
++                    '<input type="text" name="answer" value="">'
++                    '<input type="submit" name="go" value="go"></form>'
++                    '<form method="POST" action="/xss-01/' + SAFE + '">'
++                    '<input type="text" name="whatever" value="' + SAFE + '">'
++                    '<input type="text" name="answer" value="">'
++                    '<input type="submit" name="go" value="go"></form>').encode())
++                return
++            self._reply(200, b"<html><body></body></html>")
++        def do_POST(self):
++            n = int(self.headers.get("Content-Length", 0) or 0)
++            body = self.rfile.read(n).decode() if n else ""
++            # Servlet semantics (javax.servlet.getParameterMap): the query
++            # string and the form body are ONE merged parameter map — the
++            # real container (live-proven on Tomcat via the vr-xss-nc replay)
++            # sees the VR's name-channel replay through the query string; a
++            # body-only parse would hide it (the unit-vs-live discrepancy).
++            u = urlsplit(self.path)
++            q = {k: v[0] for k, v in parse_qs(body, keep_blank_values=True).items()}
++            for k, v in parse_qs(u.query, keep_blank_values=True).items():
++                q.setdefault(k, v[0])
++            # the resolver: the param whose VALUE is the TCID; its NAME is data
++            sentinel = SAFE if SAFE in self.path else TCID
++            name = ""
++            for k, v in q.items():
++                if v == sentinel:
++                    name = k; break
++            if "xss-01" in self.path:
++                # the safe twin: list-shuffle structural discard (00544 live)
++                vals = ["safe", name, "moresafe"]; vals.remove("safe")
++                out = vals[1] if vals[1] != name else LIT.decode()
++                self._reply(200, ("<html><body>" + out + "</body></html>").encode())
++            elif name:
++                # the vulnerable resolver: writes the captured NAME raw
++                self._reply(200, ("<html><body>" + name + "</body></html>").encode())
++            else:
++                self._reply(200, b"<html><body></body></html>")
++
++    port = 8908
++    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
++    threading.Thread(target=srv.serve_forever, daemon=True).start()
++    try:
++        cfg = ScanConfig(allow_private=True, max_pages=5, timeout=5, seed="xs1",
++                         browser=False, oast=None)
++        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
++        xss = [f for f in rep["findings"]
++               if f["type"] == "xss_reflected" and f.get("status") == "verified"
++               and "/xss-00/" in f.get("url", "")]
++        assert xss, ("RED: the POST-form resolver name-channel family found nothing",
++                     [f["type"] for f in rep["findings"]])
++        assert any(any(e.get("kind") == "input_channel" for e in f.get("evidence", []))
++                   for f in xss), "the finding must carry input_channel evidence"
++        assert any("name" in (f.get("verification", {}) or {}).get("method", "")
+                   for f in xss), "the verifier must replay through the name channel"
++        assert not [f for f in rep["findings"]
++                    if f["type"] == "xss_reflected" and f.get("status") == "verified"
++                    and "/xss-01/" in f.get("url", "")], \
++            "FP: the safe twin (structural name discard) fired"
++    finally:
++        srv.shutdown(); srv.server_close()
++
++
+ if __name__ == "__main__":
+     main()
+```
+
+Stage Summary:
+- XS-1 PROVEN and pushing individually: expected full-run effect = the 33
+  resolver FNs flip to TP (the minispec covered 6/6 across every sink
+  variant + path group; unit RED->GREEN; full gate green on final code:
+  3888/3888, doctor 17/17, bench x3 IDENTICAL 38/0/0/37).
+- Remaining xss FNs after XS-1 (expected): 27 scattered (replace/fmt/b64
+  transform families + assorted sinks) — next rounds, one family at a time.
