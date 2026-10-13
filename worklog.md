@@ -2729,3 +2729,68 @@ Stage Summary:
   counted inside the 33-family at classification time).
 - The category-close re-run with the final engine follows next (the earlier
   245/246 artifacts belong to the pre-XS-3 engine and get superseded).
+---
+Task ID: 48 (xss recall-push round — CATEGORY CLOSE: 75.61% -> 100.00% at precision 1.0)
+Agent: Super Z (main agent)
+
+Task: The closing push of the xss round per the standing methodology — full
+12-chunk benchmark re-run on the FINAL XS-3 engine, eval, machine-checked
+regression diff, report, single close commit + push with the same PAT.
+
+Work Log:
+- ROLLBACK #19 confirmed full at session start: /home/z/tools wiped (stack,
+  m2, specs), local worklog stale at task-13 era, local HEAD an orphan Oct-3
+  evidence commit (6fcb15c — scripts/iv_out/* blobs byte-identical to files
+  already on origin; proven redundant, discarded). Local main reset to
+  origin/main 8b10ec6 (XS-3) byte-identical (tree hash match).
+- STACK REBUILT live from the committed recipes: Temurin JDK 21.0.12.1 real
+  dir (system JVM is JRE-only — no javac; Adoptium tarball), Maven 3.9.9,
+  BenchmarkJava master clone (8b67a88 — the exact commit of the campaign
+  record; expectedresults-1.2.csv BYTE-IDENTICAL, 2740 tests), mvn package
+  (50MB war, 4541 classes), cp.txt via dependency:build-classpath,
+  plain-Tomcat9 assembly (scripts/owsp/sqli/sq_stack_tomcat.sh: direct
+  9.0.85 download + unzip + direct DataSource + shutdown -1 + jarsToSkip).
+  Boot + smoke GREEN: tomcat 200, LDAP + HSQLDB up, sqli flow 200, crypto
+  servlets writing (passwordFile secret_value appends confirmed).
+- 12 CHUNK SPECS regenerated (scripts/owsp/build_full_chunks.py: 229-test
+  chunks + the 2 chain primitives seeded into every chunk — GTP-12d rule).
+- FULL RE-RUN (fresh, this session, XS-3 engine 8b10ec6): 12 chunks,
+  376,878 requests, 4170 findings, 1396 active ALL VERIFIED, zero rejected.
+- EVAL (scripts/owsp/xss/xs_close_eval.py — merge_eval_full.py honesty rules
+  verbatim, explicit chunk list so the *.db.memory.json snapshots cannot
+  contaminate the merge): xss 246/246 TP, 0 FN, 0 FP -> recall 100.00%,
+  precision 1.0000 (was 186/60/0 = 75.61% at the sqli close). The +60 is
+  EXACTLY the three diagnosed families: XS-1's 33 resolver POST-form
+  name-channel + XS-2's 27 last-char-mangle + the 02324 crossover (counted
+  inside the 33 at classification, surfaced as the last FN at 245/246 on the
+  pre-XS-3 close re-run and closed by XS-3). The xss TP set equals the
+  sqli-close TP+FN union EXACTLY — no surprise TPs, no near-misses.
+- REGRESSION CHECK (machine-checked in the eval script): every other
+  category byte-identical to the sqli-close baseline in TP/FP/FN AND the
+  test lists (cmdi 75, crypto 124, hash 115, ldapi 13, pathtraver 116,
+  securecookie 22, sqli 272, trustbound 32, weakrand 202, xpathi 6), FP 0
+  across ALL categories, cross-class findings 54 -> 54 identical set.
+- OVERALL (covered): recall 81.67% -> 86.35%, F1 0.8991 -> 0.9267,
+  precision 1.0000.
+- GATES fresh this session on the final code: suite 19/19 chunks ALL PASS
+  4142/4142 (218 registered x 19 chunk runs; the 1 documented env-stall
+  exclusion; resumable runner, one outer-timeout resume), doctor 17/17,
+  bench x3 IDENTICAL 38/0/0/37 F1=1.0000.
+- Artifacts committed: results/owasp/xss_category_close.md (the report),
+  results/owsp/benchmark/benchmark_scan_xs_close.json (merged 12-chunk
+  scan), results/owsp/benchmark/eval_xs_close_full.json (labeled eval),
+  scripts/owsp/xss/xs_close_eval.py (the close procedure, reproducible).
+  Full bench chunk JSONs left untracked per the task-34 evidence-size rule.
+- No new engine code in this commit — the three patches were already
+  individually proven, pushed, and text-backed-up verbatim in tasks 45/46/47.
+
+Stage Summary:
+- xss category CLOSED AT 100.00% recall / 1.0000 precision on the FULL
+  OWASP Benchmark v1.2 (master). main: e5beb7a (sqli close) -> 1a3a97a
+  (XS-1) -> d8faa3e (XS-2) -> 8b10ec6 (XS-3) -> (this close commit), each
+  pushed individually the moment it was proven and verified via ls-remote.
+- Overall program: recall 68.90% (start) -> 69.81% (pathtraver) -> 76.37%
+  (crypto) -> 81.67% (sqli) -> 86.35% (xss) at precision 1.0000 / FP 0
+  throughout. xss is the second category closed at 100% (after sqli).
+- Next categories per impact: cmdi (51 FN), trustbound (51 FN).
+- THE XSS ROUND IS COMPLETE — supervisor notified to revoke the PAT.
