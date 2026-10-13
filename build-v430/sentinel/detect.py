@@ -2136,6 +2136,32 @@ class CommandInjectionDetector(Detector):
                 out.append(RequestMutation(endpoint=ep, param_name=p.name,
                                            param_value=tv.format(u=self.oast.url(iid_t)),
                                            note=f"cmdi:{iid_t}"))
+            # CM-2 (cmdi recall round, root cause A4 — the 15 name-channel FNs,
+            # live-caught on the OWASP Benchmark 8b67a88): the resolver family
+            # reads the parameter NAME (a getParameterNames scan + value==basename
+            # match; live: value-channel probes are provably DEAD there — the
+            # 00573 value-control probe returned NO callback while the
+            # name-channel form fired on the same surface). The three OOB forms
+            # now ride the NAME via a renamed clone (value = the param's declared
+            # value = the resolver sentinel). Each form is live-proven per family
+            # on the running stack: nc-twin-env (00573/00574/01442/02344 envp:
+            # the name is the ONE env entry, an assignment), nc-twin-direct
+            # (00567/00575/00576/01446/02342/02343 direct-exec, unix cmd="":
+            # the name IS argv), nc-variant (00568/01430/01441/02333/02334
+            # sh -c concat). The iid is embedded in the payload-NAME (the
+            # self-identifying oob-<12hex> marker) so analyze() can poll the
+            # channel that fired; the QUERY/BODY gate mirrors the SQ-1/XS-1
+            # nminj discipline.
+            if p.location in (ParamLocation.QUERY, ParamLocation.BODY):
+                _pv = p.value or "1"
+                for tag, tpl in (("nc-variant", base + "; curl -s {u} ;"),
+                                 ("nc-twin-env", "FOO=curl -s {u} ;"),
+                                 ("nc-twin-direct", "curl -s {u}")):
+                    iid_nc = self._iid(ep, p.name, tag)
+                    payload_nc = tpl.format(u=self.oast.url(iid_nc))
+                    epc = _clone_ep_rename_param(ep, p.name, payload_nc)
+                    out.append(RequestMutation(endpoint=epc, param_name=payload_nc,
+                                               param_value=_pv, note=f"cmdi-nc:{iid_nc}"))
             self._probes += 1
             ep_params += 1
             if ep_params >= self.MAX_PARAMS or self._probes >= self.SCAN_WIDE_CAP:
@@ -2145,6 +2171,52 @@ class CommandInjectionDetector(Detector):
     def analyze(self, pair, resp):
         ep, p = pair
         if p is None or self.oast is None:
+            return None
+        # CM-2: a name-channel probe — the payload IS the param NAME and the
+        # OAST URL embedded in the name carries the self-identifying iid
+        # (oob-<12hex>). Poll THAT channel directly; the form is attributed
+        # from the payload shape (the emission templates are distinct by
+        # prefix — a marker in a name is impossible for the value channel,
+        # whose param names are the app's own field names).
+        _name_nc = p.name or ""
+        _m_nc = re.search(r"(oob-[0-9a-f]{12})", _name_nc)
+        if _m_nc is not None:
+            iid = _m_nc.group(1)
+            if _name_nc.startswith("FOO="):
+                form, _form_txt = "nc-twin-env", (
+                    "env-array twin through the NAME channel (the resolver-resolved "
+                    "param name rode the envp array into a shell eval)")
+            elif _name_nc.startswith("curl -s"):
+                form, _form_txt = "nc-twin-direct", (
+                    "direct-argv twin through the NAME channel (the resolver-resolved "
+                    "param name IS argv, no shell)")
+            elif "; curl" in _name_nc or "&& curl" in _name_nc:
+                form, _form_txt = "nc-variant", (
+                    "separator battery through the NAME channel (the resolver-resolved "
+                    "param name reached a shell string)")
+            else:
+                form, _form_txt = "nc-?", "unknown name-channel form"
+            budget_nc = 3.0 if getattr(self.oast, "channel", "") == "public-webhook" \
+                else self.POLL_LOCAL
+            hit = self.oast.poll(iid, timeout=budget_nc)
+            if hit:
+                if is_self_callback(hit, resp, self.oast.url(iid)):
+                    return None              # ENG-08: the scanner fetched it itself
+                h = hit[0]
+                src = h.get("ip") or "unknown"
+                return Finding("command_injection", Severity.CRITICAL, ep.url, p.name, ep.method,
+                    [Evidence("oob_callback",
+                              f"server executed a blind fetch out-of-band from {src} "
+                              f"(interaction {iid}) — blind command injection: form={form} — "
+                              f"{_form_txt} triggered an outbound curl. "
+                              f"recipe: param={p.name} iid={iid}",
+                              resp.request_id),
+                     Evidence("input_channel",
+                              f"channel=name_channel anchor={_name_nc[:64]} — the payload rode "
+                              "the parameter NAME (renamed-clone probe, value = the declared "
+                              "value); the verifier must replay the name channel, not a "
+                              "value mutation", None)],
+                    status=FindingStatus.CANDIDATE)
             return None
         # CM-1: ONE combined poll window covers ALL channels for this
         # (endpoint, param): the variant channel ("detect") AND both twin

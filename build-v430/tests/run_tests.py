@@ -12756,5 +12756,146 @@ def unit_cm1_twin_oob_harvest():
         oast.stop(); srv.shutdown(); srv.server_close()
 
 
+# ================================================================ CM-2 (cmdi recall round)
+@case
+def unit_cm2_nc_harvest():
+    """CM-2 (cmdi recall round, root cause A4 — the 15 name-channel FNs,
+    live-caught on the OWASP Benchmark 8b67a88): the resolver family reads
+    the parameter NAME (a getParameterNames scan + value==basename match;
+    live: value-channel probes are provably dead there — the 00573
+    value-control probe returned NO callback while the name-channel form
+    fired). The three OOB forms now ride the NAME via a renamed clone
+    (value = the param's declared value = the resolver sentinel; the iid
+    is embedded in the payload-name, a self-identifying oob-<12hex>
+    marker). This case stages the three live-proven families BLIND (the
+    process output discarded — only a harvested callback + a form-aware
+    VR-11 name-channel replay can verify): nc-twin-env (envp), nc-twin-
+    direct (argv), nc-variant (sh -c concat). A safe resolver (name
+    allow-list) must stay silent; the classic value-channel shell sink
+    must NOT regress."""
+    import os
+    import subprocess as _sp
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from sentinel.oast import OastServer
+
+    _SAFE_NAME = __import__("re").compile(r"^[a-z0-9.-]+$")
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+            if u.path == "/":
+                b = (b'<a href="/nc-env?host=localhost">e</a>'
+                     b'<a href="/nc-direct?host=localhost">d</a>'
+                     b'<a href="/nc-shell?host=localhost">s</a>'
+                     b'<a href="/nc-safe?host=localhost">f</a>'
+                     b'<a href="/shell?host=localhost">v</a>')
+                self._reply(200, b)
+                return
+            # The RESOLVER (faithful to the Benchmark shape): scan every
+            # param; the one whose VALUE equals the sentinel "localhost"
+            # contributes its NAME as the tainted string. The engine's
+            # discovered param is host=localhost, so the renamed clone
+            # (payload as name, value preserved) is the one the resolver
+            # resolves — exactly the benchmark's value==basename rule.
+            bar = ""
+            for k, v in q.items():
+                if v == "localhost":
+                    bar = k
+                    break
+            if u.path == "/nc-env":
+                # envp sink: the tainted string is ONE env ENTRY; only an
+                # ASSIGNMENT-shaped entry defines a variable (nc-twin-env
+                # fires; the other two shapes define nothing) -> eval $FOO.
+                _env = dict(os.environ)
+                _env.pop("FOO", None)
+                if "=" in bar:
+                    _k, _, _val = bar.partition("=")
+                    _env[_k] = _val
+                _sp.run(["/bin/sh", "-c", "eval $FOO >/dev/null 2>&1; true"],
+                        env=_env, stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+                self._reply(200, b"<html><body>processed.</body></html>")
+            elif u.path == "/nc-direct":
+                # direct-argv sink: the value IS argv (no shell) — the
+                # whole name must be the command (nc-twin-direct fires;
+                # the separator/env shapes become ENOENT program names).
+                try:
+                    _sp.run(bar.split(), stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+                except Exception:
+                    pass
+                self._reply(200, b"<html><body>done.</body></html>")
+            elif u.path == "/nc-shell":
+                # shell-concat sink: sh -c "ls " + name — the separator
+                # battery rides the NAME (nc-variant fires; the whole-value
+                # shapes never become a second command).
+                _sp.run(["/bin/sh", "-c", f"ls {bar}"], stdout=_sp.DEVNULL,
+                        stderr=_sp.DEVNULL)
+                self._reply(200, b"<html><body>ok</body></html>")
+            elif u.path == "/nc-safe":
+                # SAFE resolver: the name must be a bare hostname — every
+                # payload shape (spaces / '=' / ';') is rejected BEFORE the
+                # sink; no channel can fire.
+                if _SAFE_NAME.match(bar or ""):
+                    _sp.run(["/bin/sh", "-c", "true"], stdout=_sp.DEVNULL,
+                            stderr=_sp.DEVNULL)
+                    self._reply(200, b"<html><body>ok</body></html>")
+                else:
+                    self._reply(200, b"<html><body>rejected</body></html>")
+            elif u.path == "/shell":
+                # classic variant-fired VALUE-channel sink (regression
+                # guard for the CM-1 machinery; blind on purpose).
+                _sp.run(["/bin/sh", "-c", f"true {q.get('host', '')}"],
+                        stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
+                self._reply(200, b"<html><body>ok</body></html>")
+            else:
+                self._reply(404, b"no")
+
+    port = 8922
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    oast = OastServer()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="cm2",
+                         browser=False, oast=oast)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        cmdi = [f for f in rep["findings"]
+                if f["type"] == "command_injection" and f.get("status") == "verified"]
+        nc_env = [f for f in cmdi if "/nc-env" in f["url"]]
+        nc_dir = [f for f in cmdi if "/nc-direct" in f["url"]]
+        nc_sh = [f for f in cmdi if "/nc-shell" in f["url"]]
+        assert nc_env, ("RED: the envp resolver sink (nc-twin-env name channel) "
+                        "found nothing",
+                        [(f["type"], f.get("status")) for f in rep["findings"]])
+        assert nc_dir, "RED: the direct-argv resolver sink (nc-twin-direct name channel) found nothing"
+        assert nc_sh, "RED: the shell-concat resolver sink (nc-variant name channel) found nothing"
+        for f in nc_env + nc_dir + nc_sh:
+            evs = {e.get("kind") for e in f.get("evidence", [])}
+            assert "oob_callback" in evs, f"evidence must be oob_callback, got {evs}"
+            detail = " ".join(str(e.get("detail", "")) for e in f.get("evidence", []))
+            assert "form=nc-twin-env" in detail or "form=nc-twin-direct" in detail \
+                or "form=nc-variant" in detail, \
+                f"the evidence must record the firing nc form (got: {detail[:120]})"
+            assert "name_channel" in detail, \
+                f"the evidence must record the name channel (got: {detail[:120]})"
+            vm = f.get("verification", {}) or {}
+            assert vm.get("passed") is True
+            assert "wget" in (vm.get("notes") or ""), \
+                "VR-11 must replay the nc form that fired (curl->wget alternate command)"
+        assert not [f for f in rep["findings"]
+                    if f["type"] == "command_injection" and f.get("status") == "verified"
+                    and "/nc-safe" in f["url"]], "FP: the safe name-channel resolver fired"
+        assert any("/shell" in f["url"] for f in cmdi), \
+            "REGRESSION: the classic value-channel sh -c sink lost its finding"
+    finally:
+        oast.stop(); srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

