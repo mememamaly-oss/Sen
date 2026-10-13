@@ -1955,3 +1955,38 @@ Stage Summary:
   green on final code: 3870/3870, doctor 17/17, bench x3 IDENTICAL).
 - Both fixes' expected full-run ceiling: 34 (SQ-1) + 27+4 (SQ-2) = all 65
   sqli FNs. Full 12-chunk benchmark re-run + eval next (category close).
+
+---
+Task ID: 44 (sqli recall-push round — CATEGORY CLOSE: 76.10% -> 100.00% at precision 1.0)
+Agent: Super Z (main agent)
+
+Task: Category close per the standing methodology — full 12-chunk benchmark
+re-run on the SQ-1+SQ-2 engine, eval, report, single close commit + push.
+
+Work Log:
+- FULL RE-RUN (fresh, this session): 12 chunks x primitive-seeded specs,
+  348,193 requests, 4013 findings, 1239 active ALL VERIFIED, zero rejected.
+- EVAL: sqli 272/272 TP, 0 FN, 0 FP -> recall 100.00%, precision 1.0000
+  (was 207/65/0 = 76.10%). The +65 is EXACTLY the two diagnosed families:
+  SQ-1's 34 resolvers + SQ-2's 27 callable + the 4 overlap (no surprise FNs,
+  no near-misses).
+- REGRESSION CHECK vs the crypto-close baseline (a456942 eval): every other
+  category TP/FP byte-identical (crypto 124, hash 115, pathtraver 116, cmdi
+  75, xss 186, weakrand 202, trustbound 32, ldapi 13, xpathi 6) EXCEPT
+  securecookie 19 -> 22 (+3 TP side-benefit: the openapi form-body default
+  import feeds its battery too). FP 0 across ALL categories.
+- OVERALL (covered): recall 76.37% -> 81.67%, F1 0.8660 -> 0.8991,
+  precision 1.0000.
+- Artifacts committed: results/owasp/sqli_category_close.md (the report),
+  results/owsp/benchmark/benchmark_scan_sq_close.json (merged 12-chunk scan),
+  results/owsp/benchmark/eval_sq_close_full.json (labeled eval). Full bench
+  chunk JSONs left untracked per the task-34 evidence-size rule.
+
+Stage Summary:
+- sqli category CLOSED AT 100.00% recall / 1.0000 precision on the FULL
+  OWASP Benchmark v1.2 (master). main: 4ce0dc9 -> bcf0163 (SQ-1) -> febb619
+  (SQ-2) -> (this close commit), each pushed individually the moment it was
+  proven and verified via ls-remote.
+- Overall program: recall 68.90% (start) -> 69.81% (pathtraver) -> 76.37%
+  (crypto) -> 81.67% (sqli) at precision 1.0000 / FP 0 throughout.
+- Next categories per impact: xss (60 FN), cmdi (51 FN), trustbound (51 FN).
