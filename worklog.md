@@ -4270,3 +4270,75 @@ Stage Summary:
   revokes it on round acceptance per protocol.
 - Next per the supervisor's standing order: audit item 3.1 ONLY (the
   intel.py oracle passed-field inventory), then stop and wait.
+
+---
+Task ID: 53 (base verification + fresh full re-gate on the true origin/main)
+Agent: Super Z (main agent)
+
+Task: Supervisor order (2026-10-15): before any push — fetch origin, print the
+REAL origin/main hash explicitly (f0ae716 or newer?); are the three local
+commits (evidence/hardening/STATE) built on the correct base or the old one —
+explicit yes/no + graph proof; if wrong: NO merge, NO force-push, extract each
+commit as a diff and re-apply by hand on the correct base, same messages; then
+re-run the FULL gate fresh (the previous gate ran on a questionable base and
+does not count); only on success push + ls-remote + print the final hash.
+
+Work Log:
+- FETCH + REAL HASH: origin/main = f0ae716836376e18dd65839986a099850cb0ae13
+  — EXACTLY f0ae716, the tip (nothing newer). Matches the expected hash.
+- TOPOLOGY AUDIT (the three-commits premise vs reality): the local repo was a
+  STALE Oct-3 restore. git log origin/main..main = exactly ONE local-only
+  commit (f2d41e8, UUID-message snapshot: 33 scripts/iv_out/ evidence files +
+  a tracked .env + a 25-lines-stripped .gitignore). merge-base = 1e2159f;
+  origin/main is 72 commits AHEAD (the whole recall-push campaign ending in
+  the TB close). NO "three local commits" ever existed in this environment
+  (reflog + stash + all branches checked — nothing after the Oct-14 restore
+  amend).
+- CONTENT AUDIT of the one local-only commit f2d41e8 vs origin/main:
+  scripts/iv_out/ — all 33 files BYTE-IDENTICAL to origin/main (the remote
+  additionally has iv14_claims.json + iv14_claims_gj.json); the tracked .env
+  — the remote deliberately does NOT track it (gitignored); the stripped
+  .gitignore — the remote's full 33-line version is the correct state.
+  VERDICT: ZERO content to re-apply. The expected "evidence" and "STATE"
+  commits are ALREADY PUSHED (f0ae716 itself: the close evidence + STATE
+  round-19 + worklog task 52). The expected "hardening" commit exists
+  NOWHERE — never implemented (the session died at the supervisor's
+  acceptance gate; build-v430/sentinel/intel.py still carries the 9
+  passed=True literal sites: lines 233/247/271/296/316/335/1178/1265/1920).
+- RE-BASE (no merge, no force-push, no history rewrite of pushed history):
+  f2d41e8 (never pushed) preserved in local branch
+  backup/stale-f2d41e8-20261015; local main reset --hard onto the fetched
+  remote tip f0ae716 (858 files updated); the one-line .env restored as
+  UNTRACKED (the remote's intended state); tracked tree clean.
+- FRESH FULL RE-GATE on f0ae716 (foreground, this session, this
+  environment — /tmp/tb_gates was absent, so ALL 19 chunks ran fresh
+  including c00; the standing c00-preserve order could not apply to a cache
+  that no longer exists, and the supervisor's new order voids the previous
+  gate entirely): suite 19/19 chunks = 4313/4313 PASS (c00..c18, every
+  chunk 227/227, zero retries needed); doctor 17/17 PASS; bench x3 =
+  38/0/0/37 F1=1.0000 each, cm2_bench_structural.py STRUCTURAL EQUALITY x3:
+  True @7161 requests, 199 findings tuples — IDENTICAL to the f0ae716
+  record. Gate script: scripts/regate_f0ae716_c01_c03.sh (the tb_gate.sh
+  suite contract + a range argument for foreground chunk batches; left
+  untracked pending the cleanup round's decision).
+- PUSH + LS-REMOTE: push = "Everything up-to-date" (nothing to push — no
+  new commits existed, exactly as the content audit predicted); ls-remote
+  main = f0ae716836376e18dd65839986a099850cb0ae13. This worklog entry is
+  then committed as the round's only commit and pushed; final hash below.
+
+Stage Summary:
+- The base question, answered explicitly: origin/main = f0ae716 (exact).
+  The pushed history was NEVER built on the stale local tree — the fear
+  behind the order (commits stacked on a wrong base) is disproven; the
+  remote is the authoritative, correctly-based state.
+- Nothing was re-applied because nothing needed re-applying: the only
+  local-only commit's content is 100% redundant (byte-identical evidence)
+  or deliberately rejected by the remote (tracked .env / stripped
+  .gitignore). f2d41e8 preserved in backup/stale-f2d41e8-20261015.
+- The hardening (passed=True -> observed variables) remains NOT DONE
+  anywhere — it is the only piece of the three-part plan that never
+  executed; awaiting the supervisor's item-3.1 + hardening go-order.
+- Full gate RE-PROVEN FRESH on f0ae716 in this environment: suite
+  4313/4313, doctor 17/17, bench x3 structurally identical @7161.
+- Cleanup inventory delivered separately per the supervisor's order
+  (inventory only — nothing deleted without item-by-item confirmation).
