@@ -3523,3 +3523,78 @@ Stage Summary:
 - cmdi CLOSED: 126/126 TP, 0 FN, 0 FP. Three of the covered categories now
   at 100.00% (sqli, xss, cmdi). Next per the supervisor's Section-2 order:
   trustbound (51 FNs) — the largest remaining covered-set FN block.
+---
+Task ID: 51 (trustbound recall round — DIAGNOSIS: the 51 FNs clustered by read channel + mangle, hand-proven)
+Agent: Super Z (main agent)
+
+Task: Supervisor directive Section 2 (close trustbound, 51 FNs). Step 1.1
+executed in full before any code: the exact ID list pulled from
+eval_cmdi_close_full.json, clustered by READ CHANNEL from the 8b67a88
+sources, the channel designs hand-proven on the running stack.
+
+Work Log:
+- The 51 FN IDs: 00031, 00251, 00424, 00427, 00508, 00587, 00588, 00670,
+  00671, 00754, 00756, 00759, 00833, 00834, 00836, 01082, 01143, 01206,
+  01299, 01374, 01375, 01455, 01456, 01457, 01458, 01546, 01547, 01548,
+  01551, 01615, 01616, 01617, 01618, 01708, 01709, 01710, 01711, 01876,
+  01958, 01960, 02015, 02016, 02165, 02263, 02352, 02448, 02524, 02527,
+  02622, 02623, 02624 (all chunks 00/01).
+- READ CHANNEL taxonomy (source-derived, first pass): tcid-value 20
+  (getParameter/getTheParameter/getParameterValues("<TCID>")) — note the
+  openapi declares the TCID-named param only SOMETIMES (01617: 3 declared
+  fields with the TCID one THIRD; 00031/00251/02622: NO declared fields at
+  all — the engine's no-param fallback sends the marker as a param NAME
+  which is BACKWARDS for this family); raw-query-string 10 (the substring
+  after "<TCID>=" in getQueryString, URL-decoded); resolver-name 7
+  (value==TCID -> the param NAME is the tainted string — the SQ-1/XS-1/CM-2
+  resolver shape); header-name 4 (the FIRST NON-STANDARD header's NAME);
+  OTHER 10 (00031 is a map-read of the TCID param = the tcid-value shape;
+  00508/01082/01206/01374/01375/01876/01958/01960/02263 to be classified —
+  first session act of the fix round). MANGLE: 17 of 51 carry a last-char
+  eat/replace (substring(0,len-1) / StringBuilder.replace(len-1,len,"Z"))
+  — the exact-marker check `M1 in body` is structurally dead there.
+- HAND PROBES (tb_probe.py, stdlib-only, on the running stack — the channel
+  designs proven BEFORE any code):
+  * 00031 (map-read, no declared fields): `?<TCID>=<marker>` (self-named
+    VALUE in the query string) -> CHANNEL LIVE (M1+M2 reflect + the
+    "saved in session" context window).
+  * 01617 (3 declared fields, reads the TCID-named THIRD param, last-char
+    DROP mangle, tainted session-attribute NAME slot): the engine's CURRENT
+    behavior (marker as the FIRST param's value) -> DEAD live-proven
+    (response echoes 'ori' — the TCID param's original value; the
+    wrong-param-pick root cause). `?<TCID>=<marker+zz>` (sacrificial tail;
+    the mangle eats the tail, the UNTAILED marker survives as a substring)
+    -> CHANNEL LIVE.
+  * 00251 (header-name read): a request header NAMED <marker> -> CHANNEL
+    LIVE.
+  * 02622 (raw-query-string read): `?<TCID>=<marker>` -> CHANNEL LIVE (the
+    QS substring + URLDecoder path).
+  * 00427 (tcid-value + last-char-replace mangle): both the plain and the
+    tailed self-named shapes reflect.
+- ENGINE SIDE (current state, read for the fix plan): TrustBoundDetector.run
+  probes ONLY the FIRST mutable param's VALUE (M1/M2) with a no-param
+  fallback that sends the marker as a param NAME (tb-m1n) — backwards for
+  the self-named family; the GTP-08b context-window guard and VR-25 stay.
+  MAX_ENDPOINTS already 4096 (no starvation).
+- FIX PLAN (smallest root-cause set; every new probe shape justified by its
+  hand-proven cluster; one commit per root cause):
+  * TB-1 (channels): the battery gains (1) the self-named VALUE probe
+    `?<last-segment>=<marker>` on the query string — covers tcid-value 20 +
+    raw-query-string 10 + the map-read OTHERs; (2) probing EVERY mutable
+    param, not just the first (the 01617 wrong-pick; also covered by (1)
+    when the TCID param is declared); (3) a header NAMED <marker> — covers
+    header-name 4; (4) the resolver name-channel (renamed clone, value =
+    the declared sentinel) — covers resolver-name 7 (hand-probe first at
+    the next session start).
+  * TB-2 (mangle): the sacrificial-tail marker variant (marker+'zz'; the
+    mangle eats the tail; check the UNTAILED marker as the substring — the
+    XS-2 discipline) — covers the 17 mangle tests.
+  * Then the full 12-chunk category re-run + the close eval vs the cmdi
+    close baseline.
+
+Stage Summary:
+- All 51 FNs diagnosed to family level; the channel designs for 4 of the 5
+  families hand-proven LIVE on the running stack; the engine's two root
+  causes identified (single-first-param value probe + no tail variant).
+  The fix round (TB-1/TB-2) follows the CM-1/CM-2 discipline: RED->GREEN
+  differential units, full gates, live minispec, one commit per root cause.
