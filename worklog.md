@@ -3436,3 +3436,56 @@ Stage Summary:
   path (36 value-channel via CM-1 + 15 name-channel via CM-2). The full
   12-chunk category re-run follows as its own commit (the category-close
   measurement + STATE.md refresh).
+---
+Task ID: 49.2b (CM-2 follow-up — the nc poll wall-time fix, live-caught on the chunk re-run)
+Agent: Super Z (main agent)
+
+Task: The first full-12-chunk category re-run attempt exposed a wall-time
+regression: chunk 00458_00686 blew the 470s scan budget twice (empty log, no
+result JSON — first suspected a stall; the bisector (cm2_bisect.py) showed
+BOTH halves slow, i.e. not a hang but a systematic per-endpoint cost).
+
+Work Log:
+- Root cause: the nc analyze poll used POLL_LOCAL=0.15s per nc mutation.
+  6-9 nc mutations/endpoint x 0.15s ~= +1s/endpoint — pushing the marginal
+  chunks over budget. The 0.15s grace was pure waste on the LOCAL channel:
+  the OAST handler records the interaction on arrival (BEFORE replying to
+  the curl), the target's curl round-trip completes inside its handler, and
+  only then is the HTTP response written — so by analyze() time the callback
+  is ALREADY recorded. Live-proven on: the unit mini-apps, the live stack
+  minispec (15/15), and chunks 1-2 of the re-run.
+- Fix (one line + comment): the nc branch's local budget 0.15 -> 0.0
+  (immediate check); the PUBLIC-WEBHOOK channel (async remote) keeps 3.0s.
+- The async-local residual risk stated honestly: a local target that
+  backgrounds the command and replies first would now be missed on the nc
+  channel (the value channel keeps its 0.15s window). No such target exists
+  in the current corpus; revisit with evidence if one appears.
+- Gates re-run fresh on the fixed engine (cache cleared): suite 19/19
+  4180/4180; doctor 17/17; bench x3 STRUCTURALLY IDENTICAL 38/0/0/37
+  F1=1.0000 requests=5595 — the SAME count as pre-fix (the poll budget
+  changes wall time, not requests/verdicts); unit_cm1 2.6s + unit_cm2 3.8s
+  both GREEN (the synchronous landing preserved).
+- cr_full_chunk.sh scan budget 470 -> 540 (margin; the nc battery's real
+  request cost remains, ~+0.2-0.7s/endpoint).
+
+FULL DIFF TEXT BACKUP:
+diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
+@@ -2196,9 +2196,17 @@ (inside CommandInjectionDetector.analyze, nc branch)
+-            budget_nc = 3.0 if getattr(self.oast, "channel", "") == "public-webhook" \\
+-                else self.POLL_LOCAL
++            # CM-2 poll budget: the LOCAL channel records the interaction
++            # BEFORE the target's process replies (the OAST handler records
++            # on arrival, the target's curl round-trip completes inside its
++            # handler, and only then is the HTTP response written) — so an
++            # IMMEDIATE check is sufficient and the per-mutation 0.15s grace
++            # window was pure wall-time waste (live-caught: chunk 00458_00686
++            # blew the 470s scan budget; 6-9 nc mutations/endpoint x 0.15s
++            # ~= +1s/endpoint). The PUBLIC-WEBHOOK channel is async remote
++            # (the callback may land after the response) and keeps 3.0s.
++            budget_nc = 3.0 if getattr(self.oast, "channel", "") == "public-webhook" \\
++                else 0.0
+(scripts: cm2_bisect.py new; cr_full_chunk.sh timeout 470->540.)
+
+Stage Summary:
+- The nc battery's wall-time cost now ~0 on the local channel; the 12-chunk
+  category re-run can proceed on this engine (7248c4d + this fix).

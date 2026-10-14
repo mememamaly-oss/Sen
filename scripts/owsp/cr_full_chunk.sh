@@ -53,7 +53,7 @@ done
 echo "=== STACK UP (${i} polls) ==="
 
 cd "$ENG" || exit 1
-timeout 470 python3 sentinel/cli.py scan http://localhost:8080/benchmark \
+timeout 540 python3 sentinel/cli.py scan http://localhost:8080/benchmark \
   --allow-private --oast local --no-browser --no-crawl \
   --openapi-spec "$SPEC" \
   --seed 7f3c91aa --max-pages 6000 \

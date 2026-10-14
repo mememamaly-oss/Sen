@@ -2196,8 +2196,17 @@ class CommandInjectionDetector(Detector):
                     "param name reached a shell string)")
             else:
                 form, _form_txt = "nc-?", "unknown name-channel form"
+            # CM-2 poll budget: the LOCAL channel records the interaction
+            # BEFORE the target's process replies (the OAST handler records
+            # on arrival, the target's curl round-trip completes inside its
+            # handler, and only then is the HTTP response written) — so an
+            # IMMEDIATE check is sufficient and the per-mutation 0.15s grace
+            # window was pure wall-time waste (live-caught: chunk 00458_00686
+            # blew the 470s scan budget; 6-9 nc mutations/endpoint x 0.15s
+            # ~= +1s/endpoint). The PUBLIC-WEBHOOK channel is async remote
+            # (the callback may land after the response) and keeps 3.0s.
             budget_nc = 3.0 if getattr(self.oast, "channel", "") == "public-webhook" \
-                else self.POLL_LOCAL
+                else 0.0
             hit = self.oast.poll(iid, timeout=budget_nc)
             if hit:
                 if is_self_callback(hit, resp, self.oast.url(iid)):
