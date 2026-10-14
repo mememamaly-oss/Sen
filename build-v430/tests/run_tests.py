@@ -13494,5 +13494,106 @@ def unit_tb3b_header_tcid_value_channel():
         srv.shutdown(); srv.server_close()
 
 
+# ================================================================ TB-3c (trustbound recall round)
+@case
+def unit_tb3c_cookie_value_channel():
+    """TB-3c (trustbound recall round, hand-proven LIVE on the running
+    Benchmark before any code — 01876, the last of the 51 FNs): the servlet
+    scans request.getCookies() for the cookie NAMED AFTER THE ENDPOINT'S OWN
+    BASENAME, URL-decodes its VALUE, and crosses it into the trusted store —
+    no probe ever put the marker in a cookie. Root cause in one sentence:
+    the battery had no cookie channel. Hand-probe: 01876 plain cookie DEAD
+    (the drop-last mangle reflects 'sentineltb1marke'), cookie-tail LIVE.
+    This unit stages the faithful shape (the basename-named cookie read +
+    the drop-last mangle) with a no-mangle regression guard and a
+    whitelist-gated safe twin. VR-25 must replay a fresh tailed marker
+    through the same cookie."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def _cookie(self, name):
+            raw = self.headers.get("Cookie") or ""
+            for part in raw.split(";"):
+                k, _, v = part.strip().partition("=")
+                if k == name:
+                    return v
+            return ""
+        def do_GET(self):
+            u = urlsplit(self.path)
+            if u.path == "/":
+                b = (b'<a href="/tbck">v</a><a href="/tbckplain">p</a>'
+                     b'<a href="/tbcksafe">s</a>')
+                self._reply(200, b)
+                return
+            self._do_endpoint(u)
+        def do_POST(self):
+            self._do_endpoint(urlsplit(self.path))
+        def _do_endpoint(self, u):
+            if u.path == "/tbck":
+                # the COOKIE-VALUE read + the drop-last mangle (faithful to
+                # BenchmarkTest01876)
+                import html as _h
+                v = self._cookie("tbck")
+                bar = v[:-1] if len(v) > 1 else v
+                b = (f"<html><body>Item: 'userid' with value: '{_h.escape(bar)}' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbckplain":
+                # REGRESSION guard: the same cookie read with NO mangle
+                import html as _h2
+                v = self._cookie("tbckplain")
+                b = (f"<html><body>Item: 'userid' with value: '{_h2.escape(v)}' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbcksafe":
+                v = self._cookie("tbcksafe")
+                if v.isalnum() and len(v) < 10:
+                    import html as _h3
+                    b = (f"<html><body>Item: 'userid' with value: '{_h3.escape(v)}' "
+                         f"saved in session.</body></html>").encode()
+                else:
+                    b = b"<html><body>rejected.</body></html>"
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+
+    port = 8939
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="tb3c",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        tb = [f for f in rep["findings"]
+              if f["type"] == "trust_bound" and f.get("status") == "verified"]
+        ck = [f for f in tb if "/tbck" in f["url"]
+              and "tbckplain" not in f["url"] and "tbcksafe" not in f["url"]]
+        assert ck, ("RED: the cookie-value channel (the servlet reads the "
+                    "cookie named after its own basename) found nothing",
+                    [(f["type"], f.get("status")) for f in rep["findings"]])
+        detail = " ".join(str(e.get("detail", "")) for e in ck[0].get("evidence", []))
+        assert "channel=cookie" in detail, \
+            f"the evidence must record the cookie channel (got: {detail[:140]})"
+        assert "variant=tail" in detail, "the mangle twin must fire via the tail"
+        vm = ck[0].get("verification", {}) or {}
+        assert vm.get("passed") is True, \
+            f"VR-25 must replay through the cookie channel (got: {vm})"
+        assert any("/tbckplain" in f["url"] for f in tb), \
+            "the no-mangle cookie shape must also fire (plain variant)"
+        assert not [f for f in tb if "/tbcksafe" in f["url"]], \
+            "FP: the whitelist-gated safe cookie twin fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

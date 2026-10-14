@@ -1605,6 +1605,16 @@ class VerificationEngine:
                         endpoint=ep, param_name=_anchor25, param_value=m3 + _tail25,
                         param_location=_PL25.HEADER,
                         note="vr25-ht")) if _anchor25 else None
+                elif _chan25.startswith("channel=cookie"):
+                    # TB-3c: the fresh marker rides the cookie named after
+                    # the endpoint's own basename
+                    from .core import ParamLocation as _PL25c
+                    _anchor25 = (_chan25.split("anchor=")[1].split(" ")[0]
+                                 if "anchor=" in _chan25 else "")
+                    r25 = self.engine.send(RequestMutation(
+                        endpoint=ep, param_name=_anchor25, param_value=m3 + _tail25,
+                        param_location=_PL25c.COOKIE,
+                        note="vr25-ck")) if _anchor25 else None
                 elif _chan25.startswith("channel=headername"):
                     # TB-1b: the fresh marker rides a request header NAME — on
                     # the same header-params-dropped clone the detector used

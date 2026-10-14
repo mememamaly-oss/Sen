@@ -3297,6 +3297,22 @@ class TrustBoundDetector(Detector):
                                endpoint=ep, param_name=seg, param_value=m,
                                param_location=ParamLocation.HEADER, note=note)),
                            f"channel=header_tcid anchor={seg[:64]}"))
+        # TB-3c (trustbound recall round, hand-proven LIVE on the running
+        # Benchmark before any code — 01876, the last of the 51 FNs): the
+        # servlet scans request.getCookies() for the cookie NAMED AFTER THE
+        # ENDPOINT'S OWN BASENAME, URL-decodes its VALUE, and crosses it into
+        # the trusted store — the battery had no cookie channel (hand-probe:
+        # 01876 plain cookie DEAD — the drop-last mangle reflects
+        # 'sentineltb1marke' — cookie-tail LIVE). The probe: a cookie named
+        # <basename> carrying the marker as its VALUE (the OWSP-07 COOKIE
+        # dispatch; the session jar rides along path-scoped, the mutation's
+        # cookie always wins its name).
+        if seg_ok:
+            probes.append((seg, "cookie-value", "tb-ck",
+                           lambda m, note: self.engine.send(RequestMutation(
+                               endpoint=ep, param_name=seg, param_value=m,
+                               param_location=ParamLocation.COOKIE, note=note)),
+                           f"channel=cookie anchor={seg[:64]}"))
         # TB-1b (trustbound recall round, live-caught on the OWASP Benchmark
         # 8b67a88 — the header-name family: 00251/01143/02015/02016): the
         # servlet scans request.getHeaderNames(), SKIPS the standard headers,
