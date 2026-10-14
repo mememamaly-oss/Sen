@@ -13179,5 +13179,106 @@ def unit_tb1c_sacrificial_tail_mangle():
         srv.shutdown(); srv.server_close()
 
 
+# ================================================================ TB-2 (trustbound recall round)
+@case
+def unit_tb2_wrong_param_pick():
+    """TB-2 (trustbound recall round — the WRONG-PARAM-PICK root cause,
+    live-proven on BenchmarkTest01617 in the diagnosis round): the engine
+    probed ONLY the FIRST declared mutable param's VALUE, but the family
+    servlet reads the trust-boundary param that is NEITHER first NOR named
+    after the URL segment (01617: the spec declares [password, email,
+    BenchmarkTest01617] and the servlet reads the TCID-named THIRD param —
+    live: the engine's first-param probe echoed the TCID param's ORIGINAL
+    value 'ori' while ?<TCID>=<marker> was LIVE). Root cause in one sentence:
+    the battery had no all-params pass — the first-param pick is a guess that
+    fails whenever the real boundary param sits later in the declaration
+    order. This unit stages the DISTINCT shape (not covered by TB-1a's
+    self-named channel): the servlet reads the THIRD declared param whose
+    name is NOT the URL segment. VR-25 must replay through the FIRED param
+    (a first-param replay would probe a dead channel). The whitelist-gated
+    safe twin stays silent, and the first-param channel must NOT regress."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+            if u.path == "/":
+                b = (b'<a href="/tbwp?password=foo123&email=bar@x.y&secret_thing=orig">v</a>'
+                     b'<a href="/tbwpsafe?password=foo123&email=bar@x.y&secret_thing=orig">s</a>'
+                     b'<a href="/tbfirst?password=orig">f</a>')
+                self._reply(200, b)
+                return
+            if u.path == "/tbwp":
+                # the WRONG-PARAM-PICK shape: the servlet reads the THIRD
+                # declared param — neither first nor segment-named. The
+                # reflection is HTML-ESCAPED (faithful to the Benchmark's
+                # encodeForHTML — a raw echo would hand the endpoint to the
+                # xss battery and the GTP-08 suppression would eat the
+                # trust_bound claim)
+                import html as _h
+                v = _h.escape(q.get("secret_thing", ""))
+                b = (f"<html><body>Item: '{v}' with value: '10340' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbwpsafe":
+                import html as _h2
+                v = q.get("secret_thing", "")
+                if v.isalnum() and len(v) < 10:
+                    b = (f"<html><body>Item: '{_h2.escape(v)}' with value: '10340' "
+                         f"saved in session.</body></html>").encode()
+                else:
+                    b = b"<html><body>rejected.</body></html>"
+                self._reply(200, b)
+                return
+            if u.path == "/tbfirst":
+                # REGRESSION guard: the FIRST-param channel (the pre-TB pick)
+                # must keep firing (escaped like the vuln twin)
+                import html as _h3
+                v = _h3.escape(q.get("password", ""))
+                b = (f"<html><body>Item: '{v}' with value: '10340' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+
+    port = 8936
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="tb2",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        tb = [f for f in rep["findings"]
+              if f["type"] == "trust_bound" and f.get("status") == "verified"]
+        wp = [f for f in tb if "/tbwp" in f["url"]]
+        assert wp, ("RED: the wrong-param-pick shape (the servlet reads the "
+                    "THIRD declared param, neither first nor segment-named) "
+                    "found nothing",
+                    [(f["type"], f.get("status")) for f in rep["findings"]])
+        assert wp[0].get("parameter") == "secret_thing", \
+            f"the finding must name the FIRED param (got: {wp[0].get('parameter')!r})"
+        detail = " ".join(str(e.get("detail", "")) for e in wp[0].get("evidence", []))
+        assert "channel=param anchor=secret_thing" in detail, \
+            f"the evidence must record the fired param channel (got: {detail[:140]})"
+        vm = wp[0].get("verification", {}) or {}
+        assert vm.get("passed") is True, \
+            f"VR-25 must replay through the fired param (got: {vm})"
+        assert not [f for f in tb if "/tbwpsafe" in f["url"]], \
+            "FP: the whitelist-gated safe wrong-param-pick twin fired"
+        assert any("/tbfirst" in f["url"] for f in tb), \
+            "REGRESSION: the first-param channel lost its finding"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

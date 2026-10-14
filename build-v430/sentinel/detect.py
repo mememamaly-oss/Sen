@@ -3217,6 +3217,30 @@ class TrustBoundDetector(Detector):
                            lambda m, note: self.engine.send(RequestMutation(
                                endpoint=ep, param_name=m, param_value=seg, note=note)),
                            f"channel=segment_name anchor={seg[:64]}"))
+        # TB-2 (trustbound recall round — the WRONG-PARAM-PICK root cause,
+        # live-proven on BenchmarkTest01617 in the diagnosis round): the
+        # engine probed ONLY the FIRST declared mutable param's VALUE, but
+        # the family servlet reads the trust-boundary param that is NEITHER
+        # first NOR segment-named (01617: the spec declares [password, email,
+        # BenchmarkTest01617], the servlet reads the TCID-named THIRD param;
+        # live: the first-param probe echoed the TCID param's ORIGINAL value
+        # while ?<TCID>=<marker> was LIVE). The first-param pick is a guess
+        # that fails whenever the real boundary param sits later in the
+        # declaration order — EVERY other mutable param's VALUE now joins the
+        # battery (after the first, before the self-named channel; a param
+        # named exactly like the URL segment is left to the self-named
+        # channel, which mutates it in place — the identical request).
+        if p is not None:
+            for q in ep.parameters:
+                if q is p or q.kind == ParamKind.TOKEN or q.flow_control or not q.name:
+                    continue
+                if seg_ok and q.name == seg:
+                    continue
+                probes.append((q.name, f"param:{q.name}", "tb-p",
+                               lambda m, note, _n=q.name: self.engine.send(
+                                   RequestMutation(endpoint=ep, param_name=_n,
+                                                   param_value=m, note=note)),
+                               f"channel=param anchor={q.name[:64]}"))
         # TB-1a (trustbound recall round, live-caught on the OWASP Benchmark
         # 8b67a88 — 35 of the 51 FNs: tcid-value 20 + raw-query-string 10 +
         # map-read 5): the benchmark trust-boundary servlets read the request
