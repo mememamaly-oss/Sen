@@ -3489,3 +3489,37 @@ diff --git a/build-v430/sentinel/detect.py b/build-v430/sentinel/detect.py
 Stage Summary:
 - The nc battery's wall-time cost now ~0 on the local channel; the 12-chunk
   category re-run can proceed on this engine (7248c4d + this fix).
+---
+Task ID: 49.3 (cmdi CATEGORY CLOSE — the full 12-chunk re-run, machine-checked)
+Agent: Super Z (main agent)
+
+Task: The category-close measurement for cmdi per the fix plan (CM-1 then
+CM-2 then the re-run), on the final engine c3753bf (7248c4d + the CM-2b
+poll fix).
+
+Work Log:
+- All 12 chunks re-run FRESH on the final engine (per-chunk stack hygiene:
+  fresh HSQLDB, LDAP, tomcat boot, passwordFile zeroed): 390,703 requests
+  total, 4,221 findings, 1,447 active ALL VERIFIED, zero rejected.
+- The close eval (cm_close_eval.py, the xs_close_eval.py logic): cmdi
+  75 -> 126 TP = EXACTLY the xss-close TP+FN union; FN 0; FP 0;
+  recall 59.52% -> 100.00% at precision 1.0000.
+- ZERO regressions, machine-checked: every other category's TP/FP counts AND
+  test lists byte-identical to the xss-close baseline (sqli 272/272, xss
+  246/246 unchanged; crypto/hash/ldapi/pathtraver/securecookie/trustbound/
+  weakrand/xpathi all IDENTICAL); cross-class 54=54 identical.
+- Overall covered: recall 86.35% -> 90.33%, F1 0.9267 -> 0.9492, precision
+  1.0000, FP 0 across ALL.
+- Artifacts: benchmark_scan_cmdi_close.json + eval_cmdi_close_full.json
+  (committed under build-v430/results/owsp/benchmark/) + the per-close
+  report build-v430/results/owasp/cmdi_category_close.md (the full 51-FN
+  taxonomy table + the honest-ceiling statement).
+- STATE.md refreshed per the update protocol (header round 18 + section 1 +
+  section 6): the recall-push campaign now on record end-to-end (the sqli
+  and xss closes from the lost-continuation sessions had never been recorded
+  in STATE — caught up honestly).
+
+Stage Summary:
+- cmdi CLOSED: 126/126 TP, 0 FN, 0 FP. Three of the covered categories now
+  at 100.00% (sqli, xss, cmdi). Next per the supervisor's Section-2 order:
+  trustbound (51 FNs) — the largest remaining covered-set FN block.

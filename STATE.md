@@ -3,7 +3,32 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-08 (UTC) — round 17: **v4.3.3 GraphQL STORED-XSS +
+- Last updated: 2026-10-14 (UTC) — round 18: **THE RECALL-PUSH CAMPAIGN — sqli,
+  xss, and cmdi ALL CLOSED at 100.00% recall on the full OWASP Benchmark
+  ground truth (2,740 labeled tests), precision 1.0000 across ALL categories
+  (zero FP), covered-set recall 86.35% -> 90.33% at F1 0.9492.** The closes,
+  each with its own RED->GREEN differential test, full gates, live minispec
+  proof, and immediate individual commit+push+ls-remote: sqli 76.10% ->
+  100.00% (272/272; SQ-1 resolver POST-form name-channel + SQ-2 callable-sink
+  control), xss 75.61% -> 100.00% (246/246; XS-1 resolver name-channel, XS-2
+  last-char-mangle sacrificial-tail, XS-3 the crossover), cmdi 59.52% ->
+  100.00% (126/126; CM-1 the dead twin-callback harvest — form-tagged twin
+  iids + one combined poll window + form-aware VR-11 replay; CM-2 the absent
+  name-channel battery — three nc OOB forms riding the param NAME on renamed
+  clones, self-identifying oob-<12hex> iids embedded in the payload-name,
+  nc-replay VR; CM-2b the wall-time fix — the LOCAL-channel poll budget
+  0.15s -> 0.0, live-caught when chunk 00458_00686 blew the scan budget).
+  Every close re-ran the FULL 12-chunk benchmark (390,703 requests on the
+  cmdi close) with machine-checked ZERO regressions: every other category's
+  TP/FP and test lists byte-identical, cross-class 54=54 identical, FP 0
+  across ALL. Full taxonomy tables + per-close reports:
+  build-v430/results/owsp/{sqli,xss,cmdi}_category_close.md; evals under
+  build-v430/results/owsp/benchmark/eval_*_close_full.json. Session-baseline
+  repair on record: the previous session's "token lost git-protocol access"
+  diagnosis was WRONG — the origin URL had been environment-rewritten to
+  mememaly-oss/Sen (owner typo); fixed to mememamaly-oss/Sen. Remaining
+  covered-set FNs (124): trustbound 51, weakrand 16, hash 14, pathtraver 17,
+  securecookie 14, ldapi 14, crypto 6, xpathi 9. Round 17 before it (2026-10-08): v4.3.3 GraphQL STORED-XSS +
   FIELD-SUGGESTIONS batteries — DVGA leg complete, THE OWASP CAMPAIGN CLOSES
   AT 6/6** (WrongSecrets, OWASP Benchmark, DVWA, Mutillidae, NodeGoat,
   DVWS+DVGA). Against DVGA's own 22 official solutions the GraphQL layer had
@@ -52,6 +77,20 @@ backed by a number or a committed artifact, it does not belong here.**
 ---
 
 ## 1. What is built and PROVEN (with numbers)
+
+**Round 18 (2026-10-13/14) — the recall-push campaign, PROVEN at 100% on three
+categories.** Per-category recall at precision 1.0000 (fresh full 12-chunk
+runs, campaign honesty rules, machine-checked zero-regression vs the prior
+close): sqli 100.00% (272/272), xss 100.00% (246/246), cmdi 100.00% (126/126);
+covered-set recall 90.33%, F1 0.9492, FP 0 across ALL categories. The cmdi
+close merged 390,703 requests across 12 chunks; 1,447 active findings ALL
+VERIFIED, zero rejected. The remaining FN inventory (124, by category):
+trustbound 51, pathtraver 17, weakrand 16, hash 14, securecookie 14, ldapi 14,
+crypto 6, xpathi 9. Every fix shipped with a staged differential test
+(RED on the unpatched engine recorded, GREEN after), full gates (suite
+19/19, doctor 17/17, bench x3 structurally identical 38/0/0/37), a live
+minispec on the running BenchmarkJava 8b67a88 stack, and the complete diff
+pasted into worklog.md as the text backup.
 
 **Round 9 — maximum internal test (أقصى اختبار داخلي، not external verification).**
 Supervisor order trace 1a10860055030c15. All artifacts under
@@ -513,6 +552,18 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 ---
 
 ## 6. Save status (updated every round)
+
+- **Round 18 (2026-10-13/14, the recall-push campaign):** ALL content pushed
+  with ls-remote confirm after EVERY commit (the standing one-fix-one-push
+  discipline): sqli closes (SQ-1/SQ-2 + the sqli category close), xss closes
+  (XS-1/XS-2/XS-3 + the xss category close d3ab1bf), cmdi closes (CM-1
+  efdf314 + the blocked-push honesty record 0af0fc6 + CM-2 7248c4d + CM-2b
+  c3753bf + this cmdi category close). One environment event on record: the
+  origin remote URL was rewritten to mememaly-oss/Sen during the rollback
+  chaos (the owner name missing "ma") — every git operation failed with
+  "Repository not found" and the previous session misdiagnosed it as a token
+  failure; repaired at session start, the blocked CM-1 pushed, verified by
+  ls-remote. The session PATs are inline-only (never on disk/config/commits).
 
 - Round-12 (2026-10-06, app 4/6 Mutillidae): ALL content committed locally (6b5662d -> 33238e4). PUSH BLOCKED — the session PAT is revoked (401 on all four auth channels, the rounds-3/4 pattern). A fresh PAT from the supervisor completes: push + ls-remote confirm.
 
