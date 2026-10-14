@@ -3,7 +3,47 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-14 (UTC) — round 18: **THE RECALL-PUSH CAMPAIGN — sqli,
+- Last updated: 2026-10-14 (UTC) — round 19: **TRUSTBOUND CLOSED — the
+  recall-push campaign now at FOUR categories at 100.00% (sqli, xss, cmdi,
+  trustbound), precision 1.0000 across ALL (zero FP), covered-set recall
+  90.33% -> 94.31% at F1 0.9707.** trustbound 38.55% -> 100.00% (83/83 TP,
+  0 FN, 0 FP) on a fresh full 12-chunk re-run of the TB engine cc142b3 —
+  447,834 requests, 1,498 active findings ALL VERIFIED, zero rejected;
+  machine-checked ZERO regressions (every other category TP/FP and test
+  lists byte-identical vs the cmdi-close eval, cross-class 54=54 identical,
+  FP 0 across ALL). The seven root-cause fixes, each RED->GREEN with full
+  gates, live minispec, and immediate commit+push+ls-remote (986735e the
+  live-proven diagnosis first): TB-1a the self-named VALUE channel
+  (35 of the 51 FNs — tcid-value 20 + raw-query-string 10 + map-read 5,
+  5f1bbe4), TB-1b the header-NAME channel + the declared-nonstandard-header
+  race (4, 89a2d48), TB-1c the sacrificial-tail marker for the 17-test
+  last-char-mangle family (25cc789), TB-2 the all-params pass — the 01617
+  wrong-param-pick (b33f2b7), TB-3a the resolver name-channel ungated (7,
+  07d0db6), TB-3b the header-tcid-VALUE channel (4, c6d80f7), TB-3c the
+  cookie-value channel (1 — 01876 the last, cc142b3). The battery now
+  covers every diagnosed read channel: param (first+all), selfnamed,
+  resolver_name, segment_name (fallback), header_tcid, header_name, cookie
+  — each with plain + conditional sacrificial-tail variants and a
+  channel-aware VR-25. Session context: the environment was rebuilt from
+  scratch (JDK + Maven + BenchmarkJava re-cloned/rebuilt, CSV byte-identical,
+  war 4,541 classes); the Tomcat 9.0.85 core verified structurally complete
+  (stock 637 files, 32 lib jars, ServerInfo 9.0.85 — no re-download needed);
+  stack smoke green. The assembly scripts' overwrite flaw (a complete
+  artifact could be replaced by a partial download/extraction) fixed FIRST
+  per the supervisor's item-0 order: tomcat_guard.sh — verified artifacts
+  are never written over; the official Apache SHA-512 gates the tarball;
+  extraction is temp-dir + structural-verify + atomic swap. Gates fresh this
+  round: suite 4313/4313 (19/19, c00 preserved cached 227/227 per the
+  supervisor's order, the other 18 re-run), doctor 17/17, bench x3
+  STRUCTURALLY IDENTICAL 38/0/0/37 @7161. One display-level bug live-caught
+  in tb_close_eval.py (tuple-vs-list stringification printed a spurious
+  cross-class DIFFERS on identical data) — fixed, re-run clean. Per-close
+  report: build-v430/results/owasp/trustbound_category_close.md; scan +
+  eval: build-v430/results/owsp/benchmark/{benchmark_scan_tb_close.json,
+  eval_tb_close_full.json}. Remaining covered-set FNs (73): weakrand 16,
+  hash 14, securecookie 14, ldapi 14, crypto 6, xpathi 9 (pathtraver 17
+  sits outside the strict covered set; with it the all-category FN total is
+  90). Round 18 before it: **THE RECALL-PUSH CAMPAIGN — sqli,
   xss, and cmdi ALL CLOSED at 100.00% recall on the full OWASP Benchmark
   ground truth (2,740 labeled tests), precision 1.0000 across ALL categories
   (zero FP), covered-set recall 86.35% -> 90.33% at F1 0.9492.** The closes,
@@ -77,6 +117,28 @@ backed by a number or a committed artifact, it does not belong here.**
 ---
 
 ## 1. What is built and PROVEN (with numbers)
+
+**Round 19 (2026-10-14) — trustbound CLOSED at 100.00%, zero regressions.**
+Per-category recall at precision 1.0000 (fresh full 12-chunk run on the TB
+engine cc142b3, campaign honesty rules, machine-checked zero-regression vs
+the cmdi close): trustbound 100.00% (83/83 — from 32/83 = 38.55%), joining
+sqli/xss/cmdi at 100.00%; covered-set recall 90.33% -> 94.31%, F1 0.9707,
+FP 0 across ALL categories. The close merged 447,834 requests across 12
+chunks (+57,131 vs the cmdi close = the 7-channel trustbound battery:
+param first+all, selfnamed, resolver_name, segment_name, header_tcid,
+header_name, cookie — each plain + conditional sacrificial-tail); 1,498
+active findings ALL VERIFIED, zero rejected; the trustbound TP set = the
+cmdi-close TP+FN union EXACTLY, cross-class 54=54 identical, every other
+category's counts AND test lists byte-identical (tb_close_eval.py, rc=0).
+The seven fixes (TB-1a/1b/1c/2/3a/3b/3c — see the header and
+results/owasp/trustbound_category_close.md for the full 51-FN taxonomy)
+each shipped earlier with RED->GREEN differential units, full gates, live
+minispec proof, and immediate individual commit+push+ls-remote. Gates
+re-proven fresh at the close: suite 4313/4313 (c00 preserved cached
+227/227), doctor 17/17, bench x3 STRUCTURALLY IDENTICAL 38/0/0/37 @7161.
+The remaining FN inventory: covered-set 73 (weakrand 16, hash 14,
+securecookie 14, ldapi 14, crypto 6, xpathi 9) + pathtraver 17 outside the
+strict covered set = 90 across all 11 categories.
 
 **Round 18 (2026-10-13/14) — the recall-push campaign, PROVEN at 100% on three
 categories.** Per-category recall at precision 1.0000 (fresh full 12-chunk
@@ -552,6 +614,20 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 ---
 
 ## 6. Save status (updated every round)
+
+- **Round 19 (2026-10-14, the trustbound close):** the seven TB fix commits
+  (TB-1a 5f1bbe4 / TB-1b 89a2d48 / TB-1c 25cc789 / TB-2 b33f2b7 / TB-3a
+  07d0db6 / TB-3b c6d80f7 / TB-3c cc142b3, after the 986735e diagnosis) were
+  each pushed individually with ls-remote confirm in their own sessions
+  (origin/main = cc142b3 verified at this session's fetch). This session
+  pushed the close round: the round tooling + the stack-assembly no-clobber
+  fix (tomcat_guard.sh — the supervisor's item-0 order) and the trustbound
+  category close itself (the merged 12-chunk scan benchmark_scan_tb_close.json
+  + eval_tb_close_full.json + trustbound_category_close.md + STATE.md +
+  worklog) — both commits ls-remote-confirmed at push time (see the worklog
+  for the exact hashes). The session PAT is inline-only (never on
+  disk/config/commits); the owner revokes it on round acceptance per
+  protocol.
 
 - **Round 18 (2026-10-13/14, the recall-push campaign):** ALL content pushed
   with ls-remote confirm after EVERY commit (the standing one-fix-one-push

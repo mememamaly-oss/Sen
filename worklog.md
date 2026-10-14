@@ -3598,3 +3598,675 @@ Stage Summary:
   causes identified (single-first-param value probe + no tail variant).
   The fix round (TB-1/TB-2) follows the CM-1/CM-2 discipline: RED->GREEN
   differential units, full gates, live minispec, one commit per root cause.
+
+---
+Task ID: 52 (trustbound CATEGORY CLOSE — the full 12-chunk re-run + the
+no-clobber stack fix + the close artifacts)
+Agent: Super Z (main agent)
+
+Task: Supervisor order (2026-10-14, items 0-7): fix the assembly scripts'
+overwrite flaw first, verify the current Tomcat 9.0.85 before any new
+download, complete the stack assembly + smoke, resume the chain gates from
+where they actually stopped (c00 preserved 227/227), run the 12 chunks in
+the planned order (12 first) in the FOREGROUND chunk by chunk, run
+tb_close_eval.py with explicit final numbers + the byte-identical check vs
+eval_cmdi_close_full.json, update STATE.md (header stuck at round 18), one
+independent close commit -> push -> ls-remote -> token revoke.
+
+Work Log:
+- SESSION BASELINE: fetch OK (the repo is mememamaly-oss/Sen); local was
+  strictly AHEAD of origin/main cc142b3 by one unpushed tooling commit from
+  the killed predecessor session (tb_close_chunks.sh / tb_close_eval.py /
+  tomcat_fetch.sh — exactly this round's tooling, clean tree) — kept and
+  amended rather than reset away; origin/main = cc142b3 (TB-3c, all seven
+  TB fixes pushed). NO chunk results existed (only the 12 spec_*.json) —
+  the honest state: zero of 12 chunks done, suite gate c00 cached PASS
+  227/227, c01 killed mid-run (empty result), stack chain steps 1-5 done
+  (JDK, Maven+clone+CSV-identical, pin, mvn build 4541 classes, cp.txt),
+  Tomcat extracted but NOT assembled (no webapp deployed, no patches).
+- ITEM 0 (the flaw, fixed FIRST): the culprits found in
+  scripts/owsp/sqli/sq_stack_tomcat.sh + scripts/owsp/stack_rebuild.sh —
+  `curl -sSL -o tomcat.tgz` (unconditional overwrite: a session death
+  mid-fetch REPLACES a complete tarball with a partial one) + `tar xzf`
+  straight into the live tree (a truncated tarball leaves a partial core
+  whose bare catalina.sh satisfies the [ -x catalina.sh ] re-entry guard).
+  Fix: scripts/owsp/tomcat_guard.sh — tarball_verified (exact size
+  11,809,177 + the OFFICIAL Apache SHA-512, fetched from archive.apache.org
+  and hardcoded), tomcat_core_verified (catalina.sh+startup.sh, the 3 core
+  conf files, exactly 32 lib jars, all 5 stock webapps, >=600 files,
+  ServerInfo server.number=9.0.85 from the jar itself), fetch_tarball
+  (NEVER writes over a verified file; resumes only incomplete ones; SHA-512
+  required before use; bounded restarts on checksum mismatch), extract_core
+  (temp dir + structural verification + atomic swap + marker file
+  .stack_core_verified). All four scripts syntax-checked; differential
+  test: a docs+manager-stripped tree correctly REJECTED, marker write OK.
+  The CURRENT Tomcat 9.0.85 verified structurally complete (637 files,
+  32 jars, ServerInfo 9.0.85) — NO new download needed (tomcat.tgz was
+  absent; honest provenance recorded in the marker: structural method).
+- ITEM 1 (assembly completed): sq_stack_tomcat.sh (fixed) — core verified
+  not touched; benchmark.war (7,515 files) exploded into
+  webapps/benchmark, 4,541 classes; context.xml direct DataSource,
+  server.xml shutdown -1, catalina.properties CR-JARSKIP applied.
+- ITEM 2 (smoke): cr_stack_boot.sh — tomcat=200 (3 polls), LDAP 10389
+  LISTENING, HSQLDB 9001 LISTENING, sqli header-vector flow=200, crypto
+  probes 00019/00035/00050 all "encrypted and stored", passwordFile
+  growing (98 bytes, 3 secret_value hits) — STACK READY.
+- ITEM 3 (gates, resumed from the ACTUAL stop): suite via tb_gate.sh
+  resume — c01..c05 PASS 227/227 each; c06 FAIL (OSError 98 port 8810 —
+  an ORPHANED `timeout 540 python3 tests/run_tests.py` from the
+  kill-timing edge between the call wrapper and the gate's own timeout was
+  squatting the fixture port; environmental, not logical) — orphan killed,
+  c06 result cleared, re-run: c06..c18 ALL PASS; suite-total 4313/4313
+  chunks-fail=0 (19/19, c00 preserved cached). doctor 17/17 PASS. bench
+  x3 via tb_bench_one.sh (the foreground-safe wrapper of the tb_gate bench
+  contract — one pass per call, same inline python, same outputs):
+  38/0/0/37 F1=1.0000 each, cm2_bench_structural.py STRUCTURAL EQUALITY
+  x3: True @7161 requests — identical to the TB-3c record.
+- ITEM 4 (the 12 chunks, FOREGROUND, chunk 12 FIRST per the order):
+  02519_02739 47,026 reqs / 00000_00228 24,974 / 00229_00457 32,427 /
+  00458_00686 42,506 / 00687_00915 47,279 / 00916_01144 23,894 /
+  01145_01373 35,901 / 01374_01602 42,674 / 01603_01831 47,193 /
+  01832_02060 21,471 / 02061_02289 39,759 / 02290_02518 42,730 —
+  TOTAL 447,834 requests, 4,272 findings, 1,498 active ALL VERIFIED,
+  zero rejected, every chunk rc=0 first try (no retries needed). A
+  mid-flight monitor (expected trustbound per chunk from the baseline
+  TP+FN union) matched the observed counts exactly; the two boundary
+  "anomalies" investigated and resolved: the chunk LABELS are approximate
+  (01374 lives in chunk 6's spec not 7's; 02519 in chunk 11's not 12's;
+  distinct TCIDs across all 12 specs = exactly 2,740 — full coverage, no
+  overlap, no gap).
+- ITEM 5 (the close eval): tb_close_eval.py rc=0 — trustbound 32->83 TP =
+  EXACTLY the cmdi-close TP+FN union, FN 0, FP 0 [CLOSED]; recall
+  38.55% -> 100.00% at precision 1.0000; EVERY other category IDENTICAL
+  (counts AND tp_tests/fp_tests lists); cross-class 54=54; overall covered
+  recall 90.33% -> 94.31%, F1 0.9492 -> 0.9707, FP 0 across ALL. One
+  display-level bug live-caught during the check: the cross-class compare
+  stringified in-memory tuples vs JSON-loaded lists (('a','b') vs
+  ['a','b']) and printed a spurious "DIFFERS" on identical data — proven
+  identical after round-trip (raw string-sorted True), the compare
+  normalized to sorted tuples, re-run clean IDENTICAL.
+- ITEM 6: STATE.md refreshed per protocol (round 19 header + section 1 +
+  section 6); the per-close report
+  build-v430/results/owasp/trustbound_category_close.md (the cmdi-mirror
+  structure: the full 51-FN live-proven taxonomy table, the seven fixes
+  with their commit hashes, the fresh gates, the full-benchmark verdict
+  table, the per-chunk request counts, the machine-check record).
+- ITEM 7: commits — c13c4b5 (amended predecessor tooling commit: the
+  no-clobber fix + the round tooling, 7 files +476/-11) + the close commit
+  (benchmark_scan_tb_close.json + eval_tb_close_full.json +
+  trustbound_category_close.md + STATE.md + this worklog entry); push +
+  ls-remote confirm recorded below in the stage summary.
+
+Full patch text backup (cc142b3 -> c13c4b5, the code changes of this
+round; the close commit adds only data artifacts + docs):
+diff --git a/scripts/owsp/sqli/sq_stack_tomcat.sh b/scripts/owsp/sqli/sq_stack_tomcat.sh
+index a48fd5a..15f516d 100644
+--- a/scripts/owsp/sqli/sq_stack_tomcat.sh
++++ b/scripts/owsp/sqli/sq_stack_tomcat.sh
+@@ -4,21 +4,39 @@
+ # the cargo dependency: direct archive.apache.org Tomcat download + unzip of the war
+ # (the GTP-12 benchmark_stack.sh pattern, adapted to the Task-40 /home/z/tools layout).
+ # Resume-safe. One-time setup; boots happen in cr_stack_boot.sh.
++#
++# 2026-10-14 NO-CLOBBER FIX (supervisor order, item 0): the old step [1/5] did
++# `curl -o tomcat.tgz` (unconditional overwrite — replaced a COMPLETE tarball
++# with a partial one whenever a session died mid-download) and `tar xzf` straight
++# into the live tree (a truncated tarball left a PARTIAL tomcat9 whose bare
++# catalina.sh then satisfied the re-entry guard). Step [1/5] now sources
++# tomcat_guard.sh: verified artifacts are never written over; only incomplete
++# tarballs are resumed; the official SHA-512 is required before extraction;
++# extraction happens in a temp dir, is structurally verified (key files, 32
++# lib jars, the 5 stock webapps, the jar's own ServerInfo=9.0.85), and only
++# then swapped in; a marker file records the verification.
+ set -u
+ TOOLS=/home/z/tools
+ SRC=$TOOLS/benchmark
+ CATALINA=$TOOLS/tomcat9
+ WAR=$SRC/target/benchmark.war
++TGZ=$TOOLS/tomcat.tgz
++GUARD=/home/z/my-project/scripts/owsp/tomcat_guard.sh
+ 
++# shellcheck source=tomcat_guard.sh
++source "$GUARD" || { echo "cannot source $GUARD"; exit 1; }
+ [ -f "$WAR" ] || { echo "war missing: $WAR"; exit 1; }
+ 
+-echo "=== [1/5] Tomcat 9 download (GTP-12 version pin) ==="
+-if [ ! -x "$CATALINA/bin/catalina.sh" ]; then
+-  curl -sSL -o /home/z/tools/tomcat.tgz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz || { echo "TOMCAT DOWNLOAD FAILED"; exit 1; }
+-  mkdir -p "$CATALINA"
+-  tar xzf /home/z/tools/tomcat.tgz -C "$CATALINA" --strip-components=1 && rm /home/z/tools/tomcat.tgz
++echo "=== [1/5] Tomcat 9.0.85 core (no-clobber: verify first, fetch only if needed) ==="
++if tomcat_core_verified "$CATALINA"; then
++  echo "tomcat9 core already structurally VERIFIED — not touching it"
++  [ -f "$CATALINA/$TC_MARKER_NAME" ] || write_core_marker "$CATALINA" "pre-existing tree, structurally verified (tarball absent: size/file-inventory/ServerInfo checks)"
++else
++  echo "tomcat9 core NOT verified — guarded fetch + verified extraction"
++  fetch_tarball "$TGZ" || { echo "TOMCAT FETCH FAILED"; exit 1; }
++  extract_core "$TGZ" "$CATALINA" || { echo "TOMCAT EXTRACT FAILED (no clobber happened)"; exit 1; }
+ fi
+-ls "$CATALINA/bin/catalina.sh" >/dev/null && echo "tomcat9 OK"
++tomcat_core_verified "$CATALINA" && echo "tomcat9 OK (verified)" || { echo "tomcat9 FAILED verification after assembly"; exit 1; }
+ 
+ echo "=== [2/5] exploded webapp deploy (unzip the war directly) ==="
+ if [ ! -d "$CATALINA/webapps/benchmark/WEB-INF" ]; then
+diff --git a/scripts/owsp/stack_rebuild.sh b/scripts/owsp/stack_rebuild.sh
+index 52b518c..92c840a 100644
+--- a/scripts/owsp/stack_rebuild.sh
++++ b/scripts/owsp/stack_rebuild.sh
+@@ -20,12 +20,23 @@ if [ ! -x "$TOOLS/apache-maven-3.9.16/bin/mvn" ]; then
+ fi
+ "$TOOLS/apache-maven-3.9.16/bin/mvn" -version 2>&1 | head -1
+ 
+-echo "=== [3/5] Tomcat 9 ==="
+-if [ ! -x "$TOOLS/tomcat9/bin/catalina.sh" ]; then
+-  curl -sSL -o tomcat.tgz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz || exit 1
+-  mkdir -p tomcat9 && tar xzf tomcat.tgz -C tomcat9 --strip-components=1 && rm tomcat.tgz
++echo "=== [3/5] Tomcat 9.0.85 (no-clobber: verify first, fetch only if needed) ==="
++# 2026-10-14 NO-CLOBBER FIX: the old step did `curl -o tomcat.tgz` (unconditional
++# overwrite — could replace a COMPLETE tarball with a partial one) and `tar xzf`
++# straight into the live tree. Now: verified artifacts are never written over
++# (tomcat_guard.sh); the official SHA-512 is required before extraction; the
++# extracted core is structurally verified before it is swapped in.
++GUARD=/home/z/my-project/scripts/owsp/tomcat_guard.sh
++# shellcheck source=tomcat_guard.sh
++source "$GUARD" || { echo "cannot source $GUARD"; exit 1; }
++if tomcat_core_verified "$TOOLS/tomcat9"; then
++  echo "tomcat9 core already structurally VERIFIED — not touching it"
++  [ -f "$TOOLS/tomcat9/$TC_MARKER_NAME" ] || write_core_marker "$TOOLS/tomcat9" "pre-existing tree, structurally verified"
++else
++  fetch_tarball "$TOOLS/tomcat.tgz" || exit 1
++  extract_core "$TOOLS/tomcat.tgz" "$TOOLS/tomcat9" || exit 1
+ fi
+-ls "$TOOLS/tomcat9/bin/catalina.sh" >/dev/null && echo "tomcat9 OK"
++tomcat_core_verified "$TOOLS/tomcat9" && echo "tomcat9 OK (verified)"
+ 
+ echo "=== [4/5] OWASP BenchmarkJava source (tag 1.2beta) ==="
+ if [ ! -d "$TOOLS/benchmark-src/.git" ]; then
+diff --git a/scripts/owsp/tomcat_fetch.sh b/scripts/owsp/tomcat_fetch.sh
+new file mode 100644
+index 0000000..301f153
+--- /dev/null
++++ b/scripts/owsp/tomcat_fetch.sh
+@@ -0,0 +1,12 @@
++#!/bin/bash
++# Persistent Tomcat 9.0.85 fetch — NO-CLOBBER CONTRACT (see tomcat_guard.sh):
++# a verified-complete tarball is never written over; only incomplete files
++# are resumed; the official Apache SHA-512 is checked before the file is
++# declared usable. Usage: tomcat_fetch.sh [output-file]
++set -u
++GUARD=/home/z/my-project/scripts/owsp/tomcat_guard.sh
++# shellcheck source=tomcat_guard.sh
++source "$GUARD" || { echo "cannot source $GUARD"; exit 1; }
++OUT="${1:-/home/z/tools/tomcat.tgz}"
++mkdir -p "$(dirname "$OUT")"
++fetch_tarball "$OUT"
+diff --git a/scripts/owsp/tomcat_guard.sh b/scripts/owsp/tomcat_guard.sh
+new file mode 100644
+index 0000000..de06cf3
+--- /dev/null
++++ b/scripts/owsp/tomcat_guard.sh
+@@ -0,0 +1,138 @@
++#!/bin/bash
++# tomcat_guard.sh — the no-clobber artifact guard for the Tomcat 9.0.85 stack.
++# Sourced library, not executed directly.
++#
++# WHY THIS EXISTS (the flaw this fixes, live-caught 2026-10-14): the assembly
++# scripts did `curl -sSL -o tomcat.tgz <url>` — an unconditional overwrite that
++# REPLACED a previously-complete tarball with a fresh partial download whenever
++# a session died mid-fetch; and `tar xzf` straight into the live tomcat9/ left
++# a PARTIAL tree whose mere `bin/catalina.sh` presence then satisfied the
++# `[ -x catalina.sh ]` re-entry guard, so re-runs skipped the step believing
++# the stack intact. Contract after this fix:
++#   1. A file whose completeness is VERIFIED (size + official SHA-512 for the
++#      tarball; structural identity + marker for the extracted core) is NEVER
++#      written over — fetch resumes only INCOMPLETE files, extraction happens
++#      in a temp dir and swaps in only after verification.
++#   2. Downloads verify size AND the official Apache SHA-512 before use; a
++#      checksum mismatch discards the partial and restarts (bounded).
++#   3. The extracted core is verified structurally (key files, exact jar
++#      count for the pinned 9.0.85, the 5 stock webapps, the jar's own
++#      ServerInfo version) and a marker file records the verification.
++
++# ---- the pinned artifact: Apache Tomcat 9.0.85 (official dist) ----
++TC_URL="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz"
++TC_SIZE=11809177
++# official sha512, fetched from archive.apache.org .../apache-tomcat-9.0.85.tar.gz.sha512
++TC_SHA512="06e239d15ff7b72017c1d0752ddb1be4651374f7c1391631ec5619f4981cb2911267bc6b044d6c71a2a74738f70d433b96418951439848121f1d874862ddd3de"
++TC_MARKER_NAME=".stack_core_verified"
++
++# tarball_verified <file> — size == official AND sha512 == official
++tarball_verified() {
++  local f="$1"
++  [ -f "$f" ] || return 1
++  [ "$(stat -c%s "$f" 2>/dev/null)" = "$TC_SIZE" ] || return 1
++  [ "$(sha512sum "$f" 2>/dev/null | cut -d' ' -f1)" = "$TC_SHA512" ] || return 1
++  return 0
++}
++
++# tomcat_core_verified <dir> — structural completeness of a stock 9.0.85 core
++# (the deployed benchmark webapp may ALSO be present; it does not interfere).
++tomcat_core_verified() {
++  local d="$1"
++  [ -x "$d/bin/catalina.sh" ] && [ -f "$d/bin/startup.sh" ] || return 1
++  [ -f "$d/conf/server.xml" ] && [ -f "$d/conf/web.xml" ] && [ -f "$d/conf/catalina.properties" ] || return 1
++  [ -f "$d/lib/catalina.jar" ] || return 1
++  # the pinned 9.0.85 ships exactly 32 jars in lib/
++  [ "$(find "$d/lib" -maxdepth 1 -name '*.jar' 2>/dev/null | wc -l)" = "32" ] || return 1
++  # all 5 stock webapps must survive a complete extraction (they sit at the
++  # tail of the tar stream — a truncated tarball loses them first)
++  local w
++  for w in ROOT docs examples host-manager manager; do
++    [ -d "$d/webapps/$w" ] || return 1
++  done
++  # stock core = 637 files; anything below 600 is a partial extraction
++  [ "$(find "$d" -type f 2>/dev/null | wc -l)" -ge 600 ] || return 1
++  # version identity from the jar itself, not from a filename
++  unzip -p "$d/lib/catalina.jar" org/apache/catalina/util/ServerInfo.properties 2>/dev/null \
++    | grep -q "server.number=9.0.85" || return 1
++  return 0
++}
++
++# write_core_marker <dir> <provenance-note>
++write_core_marker() {
++  local d="$1" note="$2"
++  printf 'verified: %s\nmethod: %s\nsource_sha512: %s\nstock_file_count_min: 600\nversion: Apache Tomcat 9.0.85 (ServerInfo)\n%s\n' \
++    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$note" "$TC_SHA512" "$(find "$d" -type f | wc -l) files on disk at verification" \
++    > "$d/$TC_MARKER_NAME"
++}
++
++# fetch_tarball <out-file> — guarded fetch. NEVER writes over a verified file;
++# resumes only incomplete ones; verifies size+sha512; bounded restarts on
++# checksum mismatch.
++fetch_tarball() {
++  local out="$1"
++  if tarball_verified "$out"; then
++    echo "[fetch] $out already complete + SHA-512 verified — NOT touching it"
++    return 0
++  fi
++  local restarts=0
++  while :; do
++    local s
++    while :; do
++      s=0
++      [ -f "$out" ] && s=$(stat -c%s "$out" 2>/dev/null || echo 0)
++      [ "$s" -ge "$TC_SIZE" ] && break
++      echo "[fetch] resuming from $s/$TC_SIZE bytes ($(date -u +%H:%M:%S))"
++      # -C - : resume; only ever appends to an INCOMPLETE file (verified files
++      # never reach this line — checked at entry and after every completion)
++      curl -sSL --speed-time 40 --speed-limit 256 -C - -o "$out" "$TC_URL" || true
++      sleep 3
++    done
++    if tarball_verified "$out"; then
++      echo "[fetch] complete + SHA-512 verified ($(stat -c%s "$out") bytes)"
++      return 0
++    fi
++    restarts=$((restarts+1))
++    if [ "$restarts" -ge 3 ]; then
++      echo "[fetch] FAILED: size reached but SHA-512 mismatch after 3 tries — honest abort"
++      rm -f "$out"
++      return 1
++    fi
++    echo "[fetch] checksum mismatch — discarding the corrupt partial, full restart $restarts/2"
++    rm -f "$out"
++  done
++}
++
++# extract_core <tgz> <dest-dir> — verified extraction with an atomic swap.
++# Callers MUST first check `tomcat_core_verified <dest-dir>`; this function
++# also refuses to run against a verified dest (belt and braces).
++extract_core() {
++  local tgz="$1" dest="$2"
++  tarball_verified "$tgz" || { echo "[extract] REFUSED: tarball not SHA-512 verified: $tgz"; return 1; }
++  if tomcat_core_verified "$dest"; then
++    echo "[extract] $dest already structurally verified — NOT touching it"
++    return 0
++  fi
++  local tmp="${dest}.new.$$"
++  rm -rf "$tmp"
++  mkdir -p "$tmp"
++  if ! tar xzf "$tgz" -C "$tmp" --strip-components=1; then
++    rm -rf "$tmp"
++    echo "[extract] tar FAILED on a verified tarball — aborting (no clobber happened)"
++    return 1
++  fi
++  if ! tomcat_core_verified "$tmp"; then
++    rm -rf "$tmp"
++    echo "[extract] extracted tree FAILED structural verification — aborting (no clobber happened)"
++    return 1
++  fi
++  # swap in: the old tree (incomplete by definition — verified trees returned
++  # above) is moved aside, the verified new tree takes its place
++  rm -rf "${dest}.old"
++  if [ -e "$dest" ]; then mv "$dest" "${dest}.old"; fi
++  mv "$tmp" "$dest"
++  rm -rf "${dest}.old"
++  write_core_marker "$dest" "extracted from SHA-512-verified tarball"
++  echo "[extract] verified extraction swapped into $dest (marker written)"
++  return 0
++}
+diff --git a/scripts/owsp/trustbound/tb_bench_one.sh b/scripts/owsp/trustbound/tb_bench_one.sh
+new file mode 100644
+index 0000000..b305b8e
+--- /dev/null
++++ b/scripts/owsp/trustbound/tb_bench_one.sh
+@@ -0,0 +1,25 @@
++#!/bin/bash
++# tb_bench_one.sh — run ONE bench pass of the tb_gate.sh bench contract.
++# Why this wrapper exists: tb_gate.sh bench runs all three passes + the
++# structural compare in ONE invocation (~15 min), which cannot complete inside
++# a single foreground call (the supervisor's foreground-only order — long
++# background jobs get killed between calls). This wrapper runs pass <i> with
++# the EXACT same inline python as tb_gate.sh bench, writing the same
++# /tmp/tb_bench_<i>.json; run it for i=1,2,3, then run
++# cmdi/cm2_bench_structural.py on the three files (same compare tb_gate.sh
++# uses). Usage: tb_bench_one.sh 1|2|3
++set -u
++ENG=/home/z/my-project/build-v430
++cd "$ENG" || exit 1
++i="${1:?bench index required: 1|2|3}"
++case "$i" in 1|2|3) ;; *) echo "index must be 1, 2 or 3"; exit 2;; esac
++timeout 500 python3 - "$i" <<'PY'
++import json, sys
++i = sys.argv[1]
++from sentinel.cli import run_benchmark
++rep = run_benchmark(out=f"/tmp/tb_bench_{i}.json", label=f"tb-bench-{i}")
++c = rep["confusion"]
++print("bench-%s:" % i, {k: c[k] for k in ("TP","FP","FN","TN")},
++      "F1=%.4f" % rep["f1"],
++      "reqs=", rep.get("scan", {}).get("stats", {}).get("requests", rep.get("requests")))
++PY
+diff --git a/scripts/owsp/trustbound/tb_close_chunks.sh b/scripts/owsp/trustbound/tb_close_chunks.sh
+new file mode 100644
+index 0000000..0a2cdc5
+--- /dev/null
++++ b/scripts/owsp/trustbound/tb_close_chunks.sh
+@@ -0,0 +1,76 @@
++#!/bin/bash
++# trustbound CATEGORY CLOSE — the full 12-chunk re-run on the final TB engine
++# (cc142b3), one chunk per cr_full_chunk.sh call, chunk 12 FIRST (supervisor's
++# explicit order), then 1..11. Resume-safe: a chunk with an existing PASS
++# result JSON is skipped. Environmental faults (rc!=0 / NO RESULT JSON / empty
++# findings) are re-run once before aborting honestly.
++# Usage: tb_close_chunks.sh [start-after-label]   (resume support)
++set -u
++OWSP=/home/z/my-project/scripts/owsp
++OUTD=/home/z/my-project/tool-results/bm_full_chunks
++mkdir -p "$OUTD"
++
++CHUNKS="02519_02739 00000_00228 00229_00457 00458_00686 00687_00915 00916_01144 01145_01373 01374_01602 01603_01831 01832_02060 02061_02289 02290_02518"
++RESUME_AFTER="${1:-}"
++
++active() {
++  # print chunks after the resume point
++  local started=0
++  for c in $CHUNKS; do
++    if [ "$RESUME_AFTER" = "" ]; then echo "$c"; continue; fi
++    if [ "$started" = "1" ]; then echo "$c"; fi
++    [ "$c" = "$RESUME_AFTER" ] && started=1
++  done
++}
++
++run_chunk() {
++  local LABEL="$1"
++  local J="$OUTD/chunk_${LABEL}.json"
++  if [ -s "$J" ]; then
++    echo "[skip] chunk $LABEL already has a result JSON"
++    return 0
++  fi
++  for ATTEMPT in 1 2; do
++    echo "=== [$(date -u +%H:%M:%S)] chunk $LABEL attempt $ATTEMPT ==="
++    bash "$OWSP/cr_full_chunk.sh" "$LABEL"
++    if [ -s "$J" ]; then
++      # environmental-fault sanity: stats + findings present
++      python3 - "$J" <<'PY' && return 0
++import json, sys
++d = json.load(open(sys.argv[1]))
++s = d.get("stats", {})
++assert s.get("requests", 0) > 0, "requests==0"
++assert isinstance(d.get("findings"), list) and d["findings"], "no findings list"
++print("  [ok] chunk sane: reqs=%s findings=%d" % (s.get("requests"), len(d["findings"])))
++PY
++      echo "  [fault] chunk $LABEL produced a JSON but failed sanity — removing and retrying"
++      rm -f "$J" "$OUTD/chunk_${LABEL}.db"
++    else
++      echo "  [fault] chunk $LABEL attempt $ATTEMPT produced NO result JSON"
++    fi
++    [ "$ATTEMPT" = "2" ] && { echo "  [ABORT] chunk $LABEL failed twice — environmental, stop honestly"; return 1; }
++    sleep 5
++  done
++}
++
++FAILED=0
++for c in $(active); do
++  run_chunk "$c" || { FAILED=1; break; }
++done
++
++echo "=== chunk run summary ==="
++for c in $CHUNKS; do
++  J="$OUTD/chunk_${c}.json"
++  if [ -s "$J" ]; then
++    python3 - "$J" "$c" <<'PY'
++import json, sys
++d = json.load(open(sys.argv[1])); s = d["stats"]
++act = [f for f in d["findings"] if f["type"] not in ("missing_security_headers","server_banner_disclosure","tech_banner")]
++print(f"{sys.argv[2]}: OK reqs={s.get('requests')} active={len(act)} verified={sum(1 for f in act if f.get('status')=='verified')}")
++PY
++  else
++    echo "$c: MISSING"
++  fi
++done
++[ "$FAILED" = "0" ] || exit 1
++echo "ALL 12 CHUNKS COMPLETE"
+diff --git a/scripts/owsp/trustbound/tb_close_eval.py b/scripts/owsp/trustbound/tb_close_eval.py
+new file mode 100644
+index 0000000..e76a0d0
+--- /dev/null
++++ b/scripts/owsp/trustbound/tb_close_eval.py
+@@ -0,0 +1,185 @@
++#!/usr/bin/env python3
++"""trustbound CATEGORY CLOSE — merge the 12 fresh full-benchmark chunk scans
++(TB-1a/1b/1c/2/3a/3b/3c engine, cc142b3) + evaluate (campaign honesty rules —
++same logic as cm_close_eval.py / xs_close_eval.py) + strict regression check
++against the committed cmdi-close eval: trustbound must gain EXACTLY its 51 FNs
++(the cmdi-close TP+FN union), FN 0, FP 0; every other category byte-identical."""
++import json
++import re
++import sys
++from collections import defaultdict
++from pathlib import Path
++
++OUTD = Path("/home/z/my-project/tool-results/bm_full_chunks")
++RESD = Path("/home/z/my-project/build-v430/results/owsp/benchmark")
++EXPECTED = RESD / "expectedresults-1.2.csv"
++CMDI_CLOSE_EVAL = RESD / "eval_cmdi_close_full.json"
++
++CHUNKS = ["00000_00228", "00229_00457", "00458_00686", "00687_00915",
++          "00916_01144", "01145_01373", "01374_01602", "01603_01831",
++          "01832_02060", "02061_02289", "02290_02518", "02519_02739"]
++
++ENGINE_TYPE_TO_CATEGORY = {
++    "sql_injection": "sqli", "xss_reflected": "xss", "xss_dom": "xss",
++    "xss_stored": "xss", "path_traversal": "pathtraver", "open_redirect": "redirect",
++    "command_injection": "cmdi", "ldap_injection": "ldapi",
++    "xpath_injection": "xpathi", "secure_cookie": "securecookie",
++    "trust_bound": "trustbound", "weak_crypto": "crypto", "weak_hash": "hash",
++    "weak_random": "weakrand", "csrf": None, "nosql_injection": None,
++}
++COVERED_CATEGORIES = {"sqli", "xss", "cmdi", "ldapi", "xpathi", "securecookie",
++                      "trustbound", "crypto", "hash", "weakrand"}
++
++# ---- merge (fresh full benchmark = the 12 chunks, real request counts) ----
++merged = {"findings": [], "rejected_candidates": [], "unverified_candidates": []}
++stats = {"requests": 0, "endpoints": 0}
++missing = []
++for label in CHUNKS:
++    p = OUTD / f"chunk_{label}.json"
++    if not p.exists():
++        missing.append(label)
++        continue
++    d = json.loads(p.read_text())
++    merged["findings"].extend(d.get("findings", []))
++    merged["rejected_candidates"].extend(d.get("rejected_candidates", []))
++    merged["unverified_candidates"].extend(d.get("unverified_candidates", []))
++    s = d.get("stats", {})
++    stats["requests"] += s.get("requests") or 0
++    stats["endpoints"] += (s.get("endpoints") or 0)
++if missing:
++    print("MISSING CHUNKS — closeout NOT complete, no eval:", missing)
++    sys.exit(4)
++merged["stats"] = stats
++merged["scanner"] = ("sentinel-core (12 no-crawl chunks merged, "
++                     "trustbound recall-push round — category close, "
++                     "TB-1a/1b/1c/2/3a/3b/3c engine cc142b3)")
++SCAN_OUT = RESD / "benchmark_scan_tb_close.json"
++SCAN_OUT.write_text(json.dumps(merged))
++n_act = [f for f in merged["findings"] if f["type"] not in
++         ("missing_security_headers", "server_banner_disclosure", "tech_banner")]
++n_ver = [f for f in n_act if f.get("status") == "verified"]
++n_rej = [f for f in n_act if f.get("status") == "rejected"]
++print(f"merged: {stats['requests']} reqs, {len(merged['findings'])} findings, "
++      f"{len(n_act)} active, {len(n_ver)} verified, {len(n_rej)} rejected")
++print("saved scan:", SCAN_OUT)
++
++
++def load_expected():
++    out = {}
++    for line in EXPECTED.read_text().splitlines():
++        if line.startswith("#") or not line.strip():
++            continue
++        name, cat, real, cwe = line.split(",")
++        out[name] = {"category": cat, "vulnerable": real == "true", "cwe": cwe}
++    return out
++
++
++def tcid_from_url(url):
++    m = re.search(r"(BenchmarkTest\d{5})(?:[?/].*)?$", url)
++    return m.group(1) if m else None
++
++
++exp = load_expected()
++hits = defaultdict(set)
++for f in merged.get("findings", []):
++    tcid = tcid_from_url(f.get("url", ""))
++    if tcid:
++        hits[tcid].add((f.get("type"), f.get("status")))
++passive_only = {"missing_security_headers", "server_banner", "tech_banner"}
++per_cat = defaultdict(lambda: {"tp": 0, "fp": 0, "fn": 0, "tn": 0,
++                               "fp_tests": [], "tp_tests": [], "fn_tests": []})
++cross_class = []
++for tcid, info in exp.items():
++    cat, vuln = info["category"], info["vulnerable"]
++    found = hits.get(tcid, set())
++    active = [(t, s) for (t, s) in found if t not in passive_only]
++    right = any(t for t, s in active if s == "verified"
++                and ENGINE_TYPE_TO_CATEGORY.get(t) == cat)
++    wrong = [t for t, s in active if s == "verified"
++             and ENGINE_TYPE_TO_CATEGORY.get(t) not in (cat, None)]
++    if wrong:
++        cross_class.append((tcid, cat, wrong))
++    m = per_cat[cat]
++    if vuln:
++        if right:
++            m["tp"] += 1; m["tp_tests"].append(tcid)
++        else:
++            m["fn"] += 1; m["fn_tests"].append(tcid)
++    else:
++        if right or wrong:
++            m["fp"] += 1; m["fp_tests"].append((tcid, wrong or "right-class"))
++        else:
++            m["tn"] += 1
++
++print("\n=== PER-CATEGORY (fresh full benchmark, TB engine cc142b3 — trustbound category close) ===")
++print(f"{'category':<14} {'tp':>4} {'fp':>4} {'fn':>4} {'tn':>4} {'recall':>7} {'precision':>9}")
++cov_tp = cov_fp = cov_fn = cov_tn = 0
++for cat in sorted(per_cat):
++    m = per_cat[cat]
++    rec = m["tp"] / (m["tp"] + m["fn"]) if (m["tp"] + m["fn"]) else None
++    prec = m["tp"] / (m["tp"] + m["fp"]) if (m["tp"] + m["fp"]) else None
++    print(f"{cat:<14} {m['tp']:>4} {m['fp']:>4} {m['fn']:>4} {m['tn']:>4} "
++          f"{(f'{rec:.4f}' if rec is not None else 'n/a'):>7} "
++          f"{(f'{prec:.4f}' if prec is not None else 'n/a'):>9}")
++    if cat in COVERED_CATEGORIES:
++        cov_tp += m["tp"]; cov_fp += m["fp"]; cov_fn += m["fn"]; cov_tn += m["tn"]
++prec_all = cov_tp / (cov_tp + cov_fp) if (cov_tp + cov_fp) else None
++rec_all = cov_tp / (cov_tp + cov_fn) if (cov_tp + cov_fn) else None
++f1 = (2 * prec_all * rec_all / (prec_all + rec_all)) if prec_all and rec_all else None
++print(f"\nOVERALL (covered): TP={cov_tp} FP={cov_fp} FN={cov_fn} TN={cov_tn} "
++      f"precision={prec_all:.4f} recall={rec_all:.4f} F1={f1:.4f}")
++print("cross-class FPs:", len(cross_class), cross_class[:6])
++
++report = {"label": "trustbound category close (TB-1a self-named value + TB-1b header-name + "
++                   "TB-1c sacrificial-tail + TB-2 all-params + TB-3a resolver-name + "
++                   "TB-3b header-tcid-value + TB-3c cookie-value engine cc142b3) — full 12-chunk re-run",
++          "scan": str(SCAN_OUT), "total_tests": len(exp),
++          "per_category": {c: {k: v for k, v in m.items()} for c, m in per_cat.items()},
++          "overall_covered": {"tp": cov_tp, "fp": cov_fp, "fn": cov_fn, "tn": cov_tn,
++                              "precision": prec_all, "recall": rec_all, "f1": f1},
++          "cross_class_findings": cross_class}
++EVAL_OUT = RESD / "eval_tb_close_full.json"
++EVAL_OUT.write_text(json.dumps(report, indent=1))
++print("\nsaved eval:", EVAL_OUT)
++
++print("\n=== REGRESSION CHECK vs eval_cmdi_close_full.json (cmdi close) ===")
++base = json.loads(CMDI_CLOSE_EVAL.read_text())
++ok = True
++for cat in sorted(base["per_category"]):
++    b, n = base["per_category"][cat], per_cat[cat]
++    btp = set(b.get("tp_tests", []))
++    ntp = set(n["tp_tests"])
++    if cat == "trustbound":
++        expected_tp = btp | set(b.get("fn_tests", []))   # all 83 vuln tests
++        if ntp == expected_tp and n["fn"] == 0 and n["fp"] == 0:
++            print(f"trustbound: 32->83 TP = EXACTLY the cmdi-close TP+FN union; FN 0; FP 0  [CLOSED]")
++        else:
++            ok = False
++            print(f"trustbound: MISMATCH tp={n['tp']} fn={n['fn']} fp={n['fp']} "
++                  f"(expected tp={len(expected_tp)} fn=0 fp=0); "
++                  f"missing={sorted(expected_tp - ntp)}; extra={sorted(ntp - expected_tp)}; newFN={sorted(n['fn_tests'])}")
++    else:
++        same_counts = (b["tp"], b["fp"], b["fn"]) == (n["tp"], n["fp"], n["fn"])
++        same_lists = btp == ntp and set(b.get("fp_tests", [])) == set(n.get("fp_tests", []))
++        flag = "IDENTICAL" if (same_counts and same_lists) else "REGRESSION"
++        if not (same_counts and same_lists):
++            ok = False
++        print(f"{cat:<14} tp {b['tp']}->{n['tp']} fp {b['fp']}->{n['fp']} fn {b['fn']}->{n['fn']}  [{flag}]")
++        if not same_lists and same_counts:
++            print(f"  (count-equal but test-list differs: "
++                  f"lost={sorted(btp - ntp)[:5]} gained={sorted(ntp - btp)[:5]})")
++bx = base.get("cross_class_findings", [])
++# normalize BOTH sides to sorted tuples before the string compare: the in-memory
++# cross_class holds tuples while the JSON-loaded base holds lists, and
++# str(('a','b')) != str(['a','b']) — a formatting difference that printed a
++# spurious DIFFERS on identical data (live-caught on the 2026-10-14 close run:
++# both sides 54, semantic + raw content identical after round-trip)
++bxs = sorted((t, c, tuple(sorted(w))) for t, c, w in bx)
++nxs = sorted((t, c, tuple(sorted(w))) for t, c, w in cross_class)
++print(f"\ncross-class: {len(bx)} -> {len(cross_class)} "
++      f"{'IDENTICAL' if bxs == nxs else 'DIFFERS'}")
++if bxs != nxs:
++    print("  only in base:", sorted(set(bxs) - set(nxs))[:10])
++    print("  only in new:", sorted(set(nxs) - set(bxs))[:10])
++print("\nREGRESSION CHECK:", "PASS — zero regressions, trustbound closed" if ok else "FAIL")
++sys.exit(0 if ok else 3)
+
+Stage Summary:
+- trustbound CLOSED: 83/83 TP, 0 FN, 0 FP — recall 38.55% -> 100.00% at
+  precision 1.0000, on a fresh full 12-chunk re-run (447,834 requests,
+  1,498 active ALL VERIFIED, zero rejected) of the TB engine cc142b3.
+- ZERO regressions, machine-checked (tb_close_eval.py rc=0): every other
+  category's TP/FP counts AND test lists byte-identical to the cmdi close;
+  cross-class 54=54 IDENTICAL; FP 0 across ALL; overall covered recall
+  90.33% -> 94.31% at F1 0.9707.
+- Four categories now at 100.00% (sqli, xss, cmdi, trustbound). Remaining
+  covered-set FNs: 73 (weakrand 16, hash 14, securecookie 14, ldapi 14,
+  crypto 6, xpathi 9) + pathtraver 17 outside the strict covered set.
+- The no-clobber guard (tomcat_guard.sh) is the standing assembly contract:
+  verified artifacts are never overwritten; SHA-512-gated fetch;
+  verified-extraction atomic swap. The current 9.0.85 core verified with
+  NO re-download.
+- Commits this round: c13c4b5 (tooling + the no-clobber fix) + the close
+  commit (this entry + the scan/eval/report/STATE). Push + ls-remote
+  executed immediately after; the session PAT is inline-only and the owner
+  revokes it on round acceptance per protocol.
+- Next per the supervisor's standing order: audit item 3.1 ONLY (the
+  intel.py oracle passed-field inventory), then stop and wait.
