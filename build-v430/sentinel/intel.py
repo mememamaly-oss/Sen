@@ -1564,12 +1564,25 @@ class VerificationEngine:
 
         elif f.type == "trust_bound":
             # VR-25 (GTP-08): a FRESH marker must reflect through the same
-            # channel on replay.
+            # channel on replay. TB-1a (trustbound recall round): the battery
+            # records the firing channel in an input_channel evidence entry —
+            # a value-mutation replay probes a channel the app never reads
+            # (the exact 51-FN root cause on the OWASP Benchmark), so the
+            # replay must ride the SAME channel the finding rode.
             from .detect import TrustBoundDetector, last_path_segment
             ok25 = False
             if ep is not None:
                 m3 = "sentineltb3verify"
-                if ep.parameters:
+                _nc25 = next((e for e in (f.evidence or [])
+                              if e.kind == "input_channel"), None)
+                _chan25 = ((_nc25.detail or "") if _nc25 is not None else "")
+                if _chan25.startswith("channel=selfnamed"):
+                    _anchor25 = (_chan25.split("anchor=")[1].split(" ")[0]
+                                 if "anchor=" in _chan25 else "")
+                    r25 = self.engine.send(RequestMutation(
+                        endpoint=ep, param_name=_anchor25, param_value=m3,
+                        note="vr25-sn")) if _anchor25 else None
+                elif ep.parameters:
                     _p25 = next((p.name for p in ep.parameters
                                  if p.kind != ParamKind.TOKEN and not p.flow_control), None)
                     r25 = self.engine.send(RequestMutation(endpoint=ep, param_name=_p25,

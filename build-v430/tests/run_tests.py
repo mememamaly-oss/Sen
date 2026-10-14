@@ -12897,5 +12897,86 @@ def unit_cm2_nc_harvest():
         oast.stop(); srv.shutdown(); srv.server_close()
 
 
+# ================================================================ TB-1a (trustbound recall round)
+@case
+def unit_tb1a_selfnamed_value_channel():
+    """TB-1a (trustbound recall round, live-caught on the OWASP Benchmark
+    8b67a88 — 35 of the 51 FNs: the tcid-value 20 + raw-query-string 10 +
+    map-read 5 families): the servlet reads the request parameter NAMED AFTER
+    ITS OWN URL SEGMENT (request.getParameter("<TCID>") / getQueryString
+    substring / a getParameterMap scan for the TCID key), while the engine
+    probed ONLY the FIRST declared param's VALUE — the marker never rode the
+    channel the app actually reads (live-proven on BenchmarkTest00031/02622:
+    ?BenchmarkTest00031=<marker> reflects with the session phrase; the
+    first-param probe answers a constant). Root cause in one sentence: no
+    self-named VALUE probe ?<last-segment>=<marker> existed in the battery.
+    This unit stages that exact shape: the servlet reads the UNDECLARED param
+    named after its own last path segment; the declared first param is a dead
+    channel. VR-25 must replay through the SAME channel (a fresh marker on
+    ?<seg>=). The safe twin (same shape, whitelist-gated) must stay silent."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+            if u.path == "/":
+                b = (b'<a href="/tbsn?password=foo123&email=bar@x.y">v</a>'
+                     b'<a href="/tbsafe?password=foo123&email=bar@x.y">s</a>')
+                self._reply(200, b)
+                return
+            if u.path == "/tbsn":
+                # the SELF-NAMED read: the param named after the endpoint's own
+                # last segment — NOT one of the declared params the engine saw
+                v = q.get("tbsn", "")
+                b = (f"<html><body>Item: '{v}' with value: '10340' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbsafe":
+                # SAFE twin: same self-named read, but a whitelist gate the
+                # marker can never pass (17+ alnum chars)
+                v = q.get("tbsafe", "")
+                if v.isalnum() and len(v) < 10:
+                    b = (f"<html><body>Item: '{v}' with value: '10340' "
+                         f"saved in session.</body></html>").encode()
+                else:
+                    b = b"<html><body>rejected.</body></html>"
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+
+    port = 8931
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="tb1a",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        tb = [f for f in rep["findings"]
+              if f["type"] == "trust_bound" and f.get("status") == "verified"]
+        sn = [f for f in tb if "/tbsn" in f["url"]]
+        assert sn, ("RED: the self-named VALUE channel (the servlet reads the "
+                    "param named after its own path segment) found nothing",
+                    [(f["type"], f.get("status")) for f in rep["findings"]])
+        detail = " ".join(str(e.get("detail", "")) for e in sn[0].get("evidence", []))
+        assert "channel=selfnamed" in detail, \
+            f"the evidence must record the selfnamed channel (got: {detail[:140]})"
+        vm = sn[0].get("verification", {}) or {}
+        assert vm.get("passed") is True, \
+            f"VR-25 must replay through the self-named channel (got: {vm})"
+        assert not [f for f in tb if "/tbsafe" in f["url"]], \
+            "FP: the whitelist-gated safe self-named twin fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()
