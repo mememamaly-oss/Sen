@@ -1582,6 +1582,14 @@ class VerificationEngine:
                     r25 = self.engine.send(RequestMutation(
                         endpoint=ep, param_name=_anchor25, param_value=m3,
                         note="vr25-sn")) if _anchor25 else None
+                elif _chan25.startswith("channel=headername"):
+                    # TB-1b: the fresh marker rides a request header NAME — on
+                    # the same header-params-dropped clone the detector used
+                    # (a declared non-standard header param would win the
+                    # first-non-standard race and kill the replay)
+                    from .detect import _clone_ep_drop_header_params as _dp25
+                    r25 = self.engine.send(RequestMutation(
+                        endpoint=_dp25(ep), extra_headers={m3: "1"}, note="vr25-hn"))
                 elif ep.parameters:
                     _p25 = next((p.name for p in ep.parameters
                                  if p.kind != ParamKind.TOKEN and not p.flow_control), None)

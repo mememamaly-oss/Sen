@@ -12978,5 +12978,109 @@ def unit_tb1a_selfnamed_value_channel():
         srv.shutdown(); srv.server_close()
 
 
+# ================================================================ TB-1b (trustbound recall round)
+@case
+def unit_tb1b_header_name_channel():
+    """TB-1b (trustbound recall round, live-caught on the OWASP Benchmark
+    8b67a88 — the header-name family: 00251/01143/01206/02015/02016): the
+    servlet scans request.getHeaderNames(), SKIPS the standard headers, and
+    takes the NAME of the FIRST non-standard header as the tainted string
+    (saved into the session and echoed) — no engine probe ever put the marker
+    in a HEADER NAME. Root cause in one sentence: no header-NAME channel
+    existed in the battery. The live-caught subtlety this unit stages FAITH-
+    FULLY via the spec: the openapi declares a NON-STANDARD header param on
+    the very same endpoint (00251: in:header name=whatever) — a probe that
+    lets it ride wins the first-non-standard-header race ahead of the marker
+    (live: the engine's first attempt stayed silent on 00251 while the
+    marker-only hand probe was LIVE), so the probe must be the ONLY
+    non-standard header on the wire. VR-25 must replay a FRESH marker through
+    the same header-name channel. The whitelist-gated safe twin stays silent."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    _COMMON = {"host", "user-agent", "accept", "accept-encoding", "accept-language",
+               "content-type", "content-length", "connection", "cookie",
+               "cache-control", "origin", "referer", "pragma", "x-requested-with",
+               "sec-ch-ua", "sec-ch-ua-mobile", "sec-ch-ua-platform",
+               "sec-fetch-dest", "sec-fetch-mode", "sec-fetch-site",
+               "upgrade-insecure-requests"}
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def _first_nonstd_name(self):
+            for k in self.headers.keys():
+                if k.lower() not in _COMMON:
+                    return k
+            return ""
+        def do_GET(self):
+            u = urlsplit(self.path)
+            if u.path == "/":
+                b = b"<html><body>index</body></html>"
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+        def do_POST(self):
+            u = urlsplit(self.path)
+            if u.path == "/tbhn":
+                # the HEADER-NAME read: the first non-standard header's NAME is
+                # the tainted string (faithful to BenchmarkTest00251)
+                name = self._first_nonstd_name()
+                b = (f"<html><body>Item: 'userid' with value: '{name}' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbhnsafe":
+                # SAFE twin: same read, whitelist gate the marker can never pass
+                name = self._first_nonstd_name()
+                if name.isalnum() and len(name) < 10:
+                    b = (f"<html><body>Item: 'userid' with value: '{name}' "
+                         f"saved in session.</body></html>").encode()
+                else:
+                    b = b"<html><body>rejected.</body></html>"
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+
+    # the spec mirrors the 00251 openapi shape EXACTLY: a POST endpoint with a
+    # declared NON-STANDARD header param riding along on every request
+    def _path(name):
+        return {"post": {"operationId": f"do_{name}",
+                "parameters": [{"in": "header", "name": "whatever", "required": True,
+                                "schema": {"type": "string", "default": name}}],
+                "responses": {"default": {"description": "ok"}}}}
+    SPEC = {"openapi": "3.0.0", "info": {"title": "tb1b", "version": "1"},
+            "paths": {"/tbhn": _path("tbhn"), "/tbhnsafe": _path("tbhnsafe")}}
+
+    port = 8932
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="tb1b",
+                         browser=False, oast=None, crawl=False, openapi_spec=SPEC)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        tb = [f for f in rep["findings"]
+              if f["type"] == "trust_bound" and f.get("status") == "verified"]
+        hn = [f for f in tb if "/tbhn" in f["url"]]
+        assert hn, ("RED: the header-NAME channel (the servlet reads the first "
+                    "non-standard header's NAME; the declared non-standard "
+                    "header param must not win the race) found nothing",
+                    [(f["type"], f.get("status")) for f in rep["findings"]])
+        detail = " ".join(str(e.get("detail", "")) for e in hn[0].get("evidence", []))
+        assert "channel=headername" in detail, \
+            f"the evidence must record the headername channel (got: {detail[:140]})"
+        vm = hn[0].get("verification", {}) or {}
+        assert vm.get("passed") is True, \
+            f"VR-25 must replay through the header-name channel (got: {vm})"
+        assert not [f for f in tb if "/tbhnsafe" in f["url"]], \
+            "FP: the whitelist-gated safe header-name twin fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

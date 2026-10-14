@@ -71,6 +71,26 @@ def _clone_ep_rename_param(ep: Endpoint, old_name: str, new_name: str) -> Endpoi
     return ep2
 
 
+def _clone_ep_drop_header_params(ep: Endpoint) -> Endpoint:
+    """Shallow clone with HEADER-located parameters (and any endpoint-level
+    ep.headers) removed — TB-1b (trustbound recall round, live-caught on the
+    OWASP Benchmark BenchmarkTest00251): the header-NAME probe's marker must
+    be the ONLY non-standard header on the wire, because the family servlet
+    takes the NAME of the FIRST header not in its common list. The 00251
+    openapi declares a NON-STANDARD header param (in:header name=whatever)
+    that renders on every request — riding along, it won the first-non-
+    standard race ahead of the marker on every probe (live: the marker-only
+    hand probe was LIVE while the engine stayed silent). Auth/session headers
+    live on the ENGINE's default_headers (AUTH-05), not on the endpoint, so
+    reachability is unaffected."""
+    import copy as _copy
+    ep2 = _copy.copy(ep)
+    ep2.parameters = [p for p in ep.parameters
+                      if getattr(p, "location", None) != ParamLocation.HEADER]
+    ep2.headers = {}
+    return ep2
+
+
 def _pseudo_param(name: str, value: str, kind) -> Parameter:
     """A synthetic Parameter for name-channel/paramless probes so analyze()
     sees the same object shape value-channel probes do."""
@@ -3198,6 +3218,30 @@ class TrustBoundDetector(Detector):
                                     "the parameter named after the endpoint's own last path "
                                     "segment (self-named VALUE channel); the verifier must "
                                     "replay the same channel")))
+        # TB-1b (trustbound recall round, live-caught on the OWASP Benchmark
+        # 8b67a88 — the header-name family: 00251/01143/01206/02015/02016):
+        # the servlet scans request.getHeaderNames(), SKIPS the standard
+        # headers, and takes the NAME of the first non-standard header as the
+        # tainted string (saved into the session and echoed) — no engine
+        # probe ever put the marker in a HEADER NAME (live-proven on
+        # BenchmarkTest00251 in the diagnosis round: a header NAMED <marker>
+        # reflects with the session phrase). The probe rides the mutation's
+        # extra_headers on a clone with header params dropped — the family's
+        # own openapi declares a NON-STANDARD header param (whatever) that
+        # wins the first-non-standard race when it rides along (live-caught:
+        # the first engine attempt stayed silent on 00251 while the marker-
+        # only hand probe was LIVE).
+        ep_hn = _clone_ep_drop_header_params(ep)
+        r1 = self.engine.send(RequestMutation(endpoint=ep_hn, extra_headers={self.M1: "1"},
+                                              note="tb-hn1"))
+        r2 = self.engine.send(RequestMutation(endpoint=ep_hn, extra_headers={self.M2: "1"},
+                                              note="tb-hn2"))
+        probes.append(("<header-name>", "header-name", r1, r2,
+                       Evidence("input_channel",
+                                "channel=headername — the marker rode a request header NAME "
+                                "(a header named after the marker, the first non-standard "
+                                "header the target reads); the verifier must replay a fresh "
+                                "marker the same way")))
         for param_label, channel, r1, r2, nc_ev in probes:
             if r1 is None or r2 is None or r1.error or r2.error or not r1.status or not r2.status:
                 continue

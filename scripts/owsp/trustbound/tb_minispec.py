@@ -42,5 +42,12 @@ if __name__ == "__main__":
         build("tb1a", ["BenchmarkTest00031", "BenchmarkTest02622",
                        "BenchmarkTest00424", "BenchmarkTest00427",
                        "BenchmarkTest00250"])
+    elif which == "tb1b":
+        # header-NAME family: 00251 (the live-proven rep), 01143, 01206,
+        # 02015, 02016 (02015 carries a last-char mangle on the NAME —
+        # expected STILL FN until TB-1c's tail variant), TN 00250
+        build("tb1b", ["BenchmarkTest00251", "BenchmarkTest01143",
+                       "BenchmarkTest01206", "BenchmarkTest02015",
+                       "BenchmarkTest02016", "BenchmarkTest00250"])
     elif which == "list":
         build(sys.argv[2], sys.argv[3].split(","))
