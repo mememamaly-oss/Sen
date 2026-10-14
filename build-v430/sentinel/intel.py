@@ -1595,6 +1595,16 @@ class VerificationEngine:
                     r25 = self.engine.send(RequestMutation(
                         endpoint=ep, param_name=m3 + _tail25, param_value=_anchor25,
                         note="vr25-mn")) if _anchor25 else None
+                elif _chan25.startswith("channel=header_tcid"):
+                    # TB-3b: the fresh marker rides the header named after
+                    # the endpoint's own basename (VALUE channel)
+                    from .core import ParamLocation as _PL25
+                    _anchor25 = (_chan25.split("anchor=")[1].split(" ")[0]
+                                 if "anchor=" in _chan25 else "")
+                    r25 = self.engine.send(RequestMutation(
+                        endpoint=ep, param_name=_anchor25, param_value=m3 + _tail25,
+                        param_location=_PL25.HEADER,
+                        note="vr25-ht")) if _anchor25 else None
                 elif _chan25.startswith("channel=headername"):
                     # TB-1b: the fresh marker rides a request header NAME — on
                     # the same header-params-dropped clone the detector used

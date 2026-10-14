@@ -13398,5 +13398,101 @@ def unit_tb3a_resolver_name_channel():
         srv.shutdown(); srv.server_close()
 
 
+# ================================================================ TB-3b (trustbound recall round)
+@case
+def unit_tb3b_header_tcid_value_channel():
+    """TB-3b (trustbound recall round, hand-proven LIVE on the running
+    Benchmark before any code — 01082/01206/01958/01960): the family servlet
+    reads the VALUE of the request header NAMED AFTER THE ENDPOINT'S OWN
+    BASENAME (request.getHeader("<TCID>") — URL-decoded) and crosses it into
+    the trusted store, so the marker must ride a header named <TCID> as its
+    VALUE. Root cause in one sentence: no probe ever put the marker in a
+    header named after the endpoint itself. Hand-probes: 01082 plain
+    headertcid DEAD (drop-last mangle — reflects 'sentineltb1marke'),
+    tailed LIVE; 01206 plain DEAD (rewrite — 'sentineltb1markeZ'), tailed
+    LIVE. This unit stages the faithful shape (a header-name read by the
+    endpoint's own basename + the drop-last mangle; the benchmark family is
+    all-mangle) with a no-mangle regression guard and a whitelist-gated safe
+    twin. VR-25 must replay a fresh tailed marker through the same header."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            if u.path == "/":
+                b = (b'<a href="/tbht">v</a><a href="/tbhtplain">p</a>'
+                     b'<a href="/tbhtsafe">s</a>')
+                self._reply(200, b)
+                return
+            self._do_endpoint(u)
+        def do_POST(self):
+            self._do_endpoint(urlsplit(self.path))
+        def _do_endpoint(self, u):
+            if u.path == "/tbht":
+                # the HEADER-TCID-VALUE read + the drop-last mangle (faithful
+                # to BenchmarkTest01082)
+                import html as _h
+                v = self.headers.get("tbht", "")
+                bar = v[:-1] if len(v) > 1 else v
+                b = (f"<html><body>Item: 'userid' with value: '{_h.escape(bar)}' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbhtplain":
+                # REGRESSION guard: the same header read with NO mangle
+                import html as _h2
+                v = self.headers.get("tbhtplain", "")
+                b = (f"<html><body>Item: 'userid' with value: '{_h2.escape(v)}' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbhtsafe":
+                v = self.headers.get("tbhtsafe", "")
+                if v.isalnum() and len(v) < 10:
+                    import html as _h3
+                    b = (f"<html><body>Item: 'userid' with value: '{_h3.escape(v)}' "
+                         f"saved in session.</body></html>").encode()
+                else:
+                    b = b"<html><body>rejected.</body></html>"
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+
+    port = 8938
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="tb3b",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        tb = [f for f in rep["findings"]
+              if f["type"] == "trust_bound" and f.get("status") == "verified"]
+        ht = [f for f in tb if "/tbht" in f["url"]
+              and "tbhtplain" not in f["url"] and "tbhtsafe" not in f["url"]]
+        assert ht, ("RED: the header-tcid-value channel (the servlet reads the "
+                    "header named after its own basename) found nothing",
+                    [(f["type"], f.get("status")) for f in rep["findings"]])
+        detail = " ".join(str(e.get("detail", "")) for e in ht[0].get("evidence", []))
+        assert "channel=header_tcid" in detail, \
+            f"the evidence must record the header_tcid channel (got: {detail[:140]})"
+        assert "variant=tail" in detail, "the mangle twin must fire via the tail"
+        vm = ht[0].get("verification", {}) or {}
+        assert vm.get("passed") is True, \
+            f"VR-25 must replay through the header-tcid channel (got: {vm})"
+        assert any("/tbhtplain" in f["url"] for f in tb), \
+            "the no-mangle header-tcid shape must also fire (plain variant)"
+        assert not [f for f in tb if "/tbhtsafe" in f["url"]], \
+            "FP: the whitelist-gated safe header-tcid twin fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

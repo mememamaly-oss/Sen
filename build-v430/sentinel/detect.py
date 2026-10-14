@@ -3281,6 +3281,22 @@ class TrustBoundDetector(Detector):
                            lambda m, note: self.engine.send(RequestMutation(
                                endpoint=ep, param_name=m, param_value=seg, note=note)),
                            f"channel=resolver_name anchor={seg[:64]}"))
+        # TB-3b (trustbound recall round, hand-proven LIVE on the running
+        # Benchmark before any code — 01082/01206/01958/01960): the family
+        # servlet reads the VALUE of the request header NAMED AFTER THE
+        # ENDPOINT'S OWN BASENAME (request.getHeader("<TCID>"), URL-decoded)
+        # and crosses it into the trusted store — no probe ever put the
+        # marker in a header named after the endpoint itself (hand-probes:
+        # 01082 plain DEAD — the drop-last mangle reflects
+        # 'sentineltb1marke' — tailed LIVE; 01206 plain DEAD — rewrite to
+        # '...markeZ' — tailed LIVE). The probe: a header named <basename>
+        # carrying the marker as its VALUE (the OWSP-07 HEADER dispatch).
+        if seg_ok:
+            probes.append((seg, "header-tcid-value", "tb-ht",
+                           lambda m, note: self.engine.send(RequestMutation(
+                               endpoint=ep, param_name=seg, param_value=m,
+                               param_location=ParamLocation.HEADER, note=note)),
+                           f"channel=header_tcid anchor={seg[:64]}"))
         # TB-1b (trustbound recall round, live-caught on the OWASP Benchmark
         # 8b67a88 — the header-name family: 00251/01143/02015/02016): the
         # servlet scans request.getHeaderNames(), SKIPS the standard headers,
