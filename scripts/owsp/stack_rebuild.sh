@@ -20,12 +20,23 @@ if [ ! -x "$TOOLS/apache-maven-3.9.16/bin/mvn" ]; then
 fi
 "$TOOLS/apache-maven-3.9.16/bin/mvn" -version 2>&1 | head -1
 
-echo "=== [3/5] Tomcat 9 ==="
-if [ ! -x "$TOOLS/tomcat9/bin/catalina.sh" ]; then
-  curl -sSL -o tomcat.tgz https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.85/bin/apache-tomcat-9.0.85.tar.gz || exit 1
-  mkdir -p tomcat9 && tar xzf tomcat.tgz -C tomcat9 --strip-components=1 && rm tomcat.tgz
+echo "=== [3/5] Tomcat 9.0.85 (no-clobber: verify first, fetch only if needed) ==="
+# 2026-10-14 NO-CLOBBER FIX: the old step did `curl -o tomcat.tgz` (unconditional
+# overwrite — could replace a COMPLETE tarball with a partial one) and `tar xzf`
+# straight into the live tree. Now: verified artifacts are never written over
+# (tomcat_guard.sh); the official SHA-512 is required before extraction; the
+# extracted core is structurally verified before it is swapped in.
+GUARD=/home/z/my-project/scripts/owsp/tomcat_guard.sh
+# shellcheck source=tomcat_guard.sh
+source "$GUARD" || { echo "cannot source $GUARD"; exit 1; }
+if tomcat_core_verified "$TOOLS/tomcat9"; then
+  echo "tomcat9 core already structurally VERIFIED — not touching it"
+  [ -f "$TOOLS/tomcat9/$TC_MARKER_NAME" ] || write_core_marker "$TOOLS/tomcat9" "pre-existing tree, structurally verified"
+else
+  fetch_tarball "$TOOLS/tomcat.tgz" || exit 1
+  extract_core "$TOOLS/tomcat.tgz" "$TOOLS/tomcat9" || exit 1
 fi
-ls "$TOOLS/tomcat9/bin/catalina.sh" >/dev/null && echo "tomcat9 OK"
+tomcat_core_verified "$TOOLS/tomcat9" && echo "tomcat9 OK (verified)"
 
 echo "=== [4/5] OWASP BenchmarkJava source (tag 1.2beta) ==="
 if [ ! -d "$TOOLS/benchmark-src/.git" ]; then
