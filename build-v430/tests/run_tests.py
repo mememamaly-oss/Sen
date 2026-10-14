@@ -13082,5 +13082,102 @@ def unit_tb1b_header_name_channel():
         srv.shutdown(); srv.server_close()
 
 
+# ================================================================ TB-1c (trustbound recall round)
+@case
+def unit_tb1c_sacrificial_tail_mangle():
+    """TB-1c (trustbound recall round, live-caught on the OWASP Benchmark
+    8b67a88 — the last-char MANGLE family): the trust-boundary sink destroys
+    EXACTLY ONE TRAILING CHARACTER of the submitted marker before the save
+    (substring(0, len-1) DROPS it — live on BenchmarkTest01617: the plain
+    self-named probe reflects 'sentineltb1marke' — or StringBuilder.replace
+    (len-1, len, 'Z') REWRITES it), so the exact-marker differential is
+    structurally dead on every plain probe. Root cause in one sentence: no
+    sacrificial-tail variant existed in the trustbound battery (the XS-2
+    discipline from the xss close, applied to the trust-bound channels). The
+    tail: submit marker+'zz' — the mangler eats the tail, the UNTAILED marker
+    survives verbatim in the reflection and the EXISTING needle checks pass
+    unchanged. This unit stages the faithful 01617 shape: the servlet reads
+    the self-named param, drops the last char, saves + reflects. VR-25 must
+    replay a FRESH tailed marker through the same channel. The whitelist-
+    gated safe twin stays silent, and the plain (no-mangle) self-named shape
+    must NOT regress."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def do_GET(self):
+            u = urlsplit(self.path)
+            q = {k: v[0] for k, v in parse_qs(u.query, keep_blank_values=True).items()}
+            if u.path == "/":
+                b = (b'<a href="/tbmg?password=foo123&email=bar@x.y">v</a>'
+                     b'<a href="/tbmgsafe?password=foo123&email=bar@x.y">s</a>'
+                     b'<a href="/tbmgplain?password=foo123&email=bar@x.y">p</a>')
+                self._reply(200, b)
+                return
+            if u.path == "/tbmg":
+                # the 01617-faithful shape: the SELF-NAMED read + a DROP-LAST
+                # mangle before the trusted-store save
+                v = q.get("tbmg", "")
+                bar = v[:-1] if len(v) > 1 else v
+                b = (f"<html><body>Item: '{bar}' with value: '10340' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbmgsafe":
+                # SAFE twin: same shape, whitelist gate the marker can never pass
+                v = q.get("tbmgsafe", "")
+                if v.isalnum() and len(v) < 10:
+                    bar = v[:-1] if len(v) > 1 else v
+                    b = (f"<html><body>Item: '{bar}' with value: '10340' "
+                         f"saved in session.</body></html>").encode()
+                else:
+                    b = b"<html><body>rejected.</body></html>"
+                self._reply(200, b)
+                return
+            if u.path == "/tbmgplain":
+                # REGRESSION guard: the same self-named read with NO mangle —
+                # the plain variant must keep firing (the tail must not
+                # displace it)
+                v = q.get("tbmgplain", "")
+                b = (f"<html><body>Item: '{v}' with value: '10340' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+
+    port = 8933
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="tb1c",
+                         browser=False, oast=None)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        tb = [f for f in rep["findings"]
+              if f["type"] == "trust_bound" and f.get("status") == "verified"]
+        mg = [f for f in tb if "/tbmg?" in (f["url"] + "?") or "/tbmg" in f["url"]]
+        mg = [f for f in mg if "tbmgsafe" not in f["url"] and "tbmgplain" not in f["url"]]
+        assert mg, ("RED: the last-char-mangle self-named sink (the 01617 shape: "
+                    "the plain marker never survives verbatim) found nothing",
+                    [(f["type"], f.get("status")) for f in rep["findings"]])
+        detail = " ".join(str(e.get("detail", "")) for e in mg[0].get("evidence", []))
+        assert "variant=tail" in detail, \
+            f"the evidence must record the tail variant (got: {detail[:140]})"
+        vm = mg[0].get("verification", {}) or {}
+        assert vm.get("passed") is True, \
+            f"VR-25 must replay the tailed marker through the same channel (got: {vm})"
+        assert not [f for f in tb if "/tbmgsafe" in f["url"]], \
+            "FP: the whitelist-gated safe mangle twin fired"
+        assert any("/tbmgplain" in f["url"] for f in tb), \
+            "REGRESSION: the plain (no-mangle) self-named shape lost its finding"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

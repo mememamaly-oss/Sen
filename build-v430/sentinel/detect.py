@@ -3166,32 +3166,57 @@ class TrustBoundDetector(Detector):
     def candidates(self, ep: Endpoint):          # not used — see run(ep)
         return []
 
+    # TB-1c (trustbound recall round, live-caught on the OWASP Benchmark
+    # 8b67a88): the last-char MANGLE family — the trust-boundary sink destroys
+    # EXACTLY ONE TRAILING CHARACTER of the submitted marker before the save
+    # (substring(0, len-1) DROPS it — live on BenchmarkTest01617: the plain
+    # self-named probe reflects 'sentineltb1marke' — or
+    # StringBuilder.replace(len-1, len, "Z") REWRITES it), so the exact-marker
+    # differential is structurally dead on every plain probe. The XS-2
+    # discipline (from the xss close) applied to the trust-bound channels:
+    # submit marker+'zz' — the mangler eats the tail, the UNTAILED marker
+    # survives verbatim in the reflection, and the EXISTING needle checks
+    # pass unchanged. The tail fires ONLY on channels whose plain pass missed
+    # (request economy; the plain request sequence stays byte-identical).
+    TAIL = "zz"
+
+    def _pair_hit(self, r1, r2) -> tuple[str, str] | None:
+        """The CONTROL differential on one channel: each response echoes
+        exactly its own submitted marker (the UNTAILED needle — a tailed
+        reflection carries marker+'z'/'zZ' and still matches)."""
+        if r1 is None or r2 is None or r1.error or r2.error or not r1.status or not r2.status:
+            return None
+        b1, b2 = r1.body or "", r2.body or ""
+        if self.M1 in b1 and self.M2 in b2 and self.M1 not in b2 and self.M2 not in b1:
+            return b1, b2
+        return None
+
     def run(self, ep: Endpoint) -> Finding | None:
         if self._done >= self.MAX_ENDPOINTS or command_shaped_endpoint(ep):
             return None
         self._done += 1
         seg = last_path_segment(ep.url)
         seg_ok = bool(seg) and len(seg) <= 64
-        # ---- the channel battery (ordered; a channel's hit keeps its evidence
-        # tag so VR-25 can replay through the SAME channel) ----
-        probes = []   # (param_label, channel_tag, r1, r2, nc_evidence)
-        # (pre-TB, kept verbatim) prefer the first mutable param's VALUE
+        # ---- the channel battery (ordered; the first channel's plain pair
+        # keeps the pre-TB request shape for the existing TP set). Each entry:
+        # (param_label, channel_tag, note_prefix, mk, nc_detail) where
+        # mk(marker, note) -> RequestMutation ----
+        probes = []
+        # (pre-TB, kept verbatim) the first mutable param's VALUE
         p = next((x for x in ep.parameters
                   if x.kind != ParamKind.TOKEN and not x.flow_control and x.name), None)
         if p is not None:
-            r1 = self.engine.send(RequestMutation(endpoint=ep, param_name=p.name,
-                                                  param_value=self.M1, note="tb-m1"))
-            r2 = self.engine.send(RequestMutation(endpoint=ep, param_name=p.name,
-                                                  param_value=self.M2, note="tb-m2"))
-            probes.append((p.name, f"param:{p.name}", r1, r2, None))
+            probes.append((p.name, f"param:{p.name}", "tb-m",
+                           lambda m, note: self.engine.send(RequestMutation(
+                               endpoint=ep, param_name=p.name, param_value=m, note=note)),
+                           f"channel=param anchor={p.name[:64]}"))
         elif seg_ok:
             # (pre-TB, kept verbatim) the no-param fallback: the marker as a
             # param NAME, the segment as the value (the resolver shape)
-            r1 = self.engine.send(RequestMutation(endpoint=ep, param_name=self.M1,
-                                                  param_value=seg, note="tb-m1n"))
-            r2 = self.engine.send(RequestMutation(endpoint=ep, param_name=self.M2,
-                                                  param_value=seg, note="tb-m2n"))
-            probes.append(("<name-channel>", "segment-name", r1, r2, None))
+            probes.append(("<name-channel>", "segment-name", "tb-mn",
+                           lambda m, note: self.engine.send(RequestMutation(
+                               endpoint=ep, param_name=m, param_value=seg, note=note)),
+                           f"channel=segment_name anchor={seg[:64]}"))
         # TB-1a (trustbound recall round, live-caught on the OWASP Benchmark
         # 8b67a88 — 35 of the 51 FNs: tcid-value 20 + raw-query-string 10 +
         # map-read 5): the benchmark trust-boundary servlets read the request
@@ -3208,69 +3233,77 @@ class TrustBoundDetector(Detector):
         # servlet reads the merged parameter map by NAME; appended to the
         # query string when it did not).
         if seg_ok and not (p is not None and p.name == seg):
-            r1 = self.engine.send(RequestMutation(endpoint=ep, param_name=seg,
-                                                  param_value=self.M1, note="tb-sn1"))
-            r2 = self.engine.send(RequestMutation(endpoint=ep, param_name=seg,
-                                                  param_value=self.M2, note="tb-sn2"))
-            probes.append((seg, f"selfnamed:{seg}", r1, r2,
-                           Evidence("input_channel",
-                                    f"channel=selfnamed anchor={seg[:64]} — the marker rode "
-                                    "the parameter named after the endpoint's own last path "
-                                    "segment (self-named VALUE channel); the verifier must "
-                                    "replay the same channel")))
+            probes.append((seg, f"selfnamed:{seg}", "tb-sn",
+                           lambda m, note: self.engine.send(RequestMutation(
+                               endpoint=ep, param_name=seg, param_value=m, note=note)),
+                           f"channel=selfnamed anchor={seg[:64]}"))
         # TB-1b (trustbound recall round, live-caught on the OWASP Benchmark
-        # 8b67a88 — the header-name family: 00251/01143/01206/02015/02016):
-        # the servlet scans request.getHeaderNames(), SKIPS the standard
-        # headers, and takes the NAME of the first non-standard header as the
-        # tainted string (saved into the session and echoed) — no engine
-        # probe ever put the marker in a HEADER NAME (live-proven on
-        # BenchmarkTest00251 in the diagnosis round: a header NAMED <marker>
-        # reflects with the session phrase). The probe rides the mutation's
+        # 8b67a88 — the header-name family: 00251/01143/02015/02016): the
+        # servlet scans request.getHeaderNames(), SKIPS the standard headers,
+        # and takes the NAME of the first non-standard header as the tainted
+        # string (saved into the session and echoed) — no engine probe ever
+        # put the marker in a HEADER NAME. The probe rides the mutation's
         # extra_headers on a clone with header params dropped — the family's
         # own openapi declares a NON-STANDARD header param (whatever) that
         # wins the first-non-standard race when it rides along (live-caught:
         # the first engine attempt stayed silent on 00251 while the marker-
         # only hand probe was LIVE).
         ep_hn = _clone_ep_drop_header_params(ep)
-        r1 = self.engine.send(RequestMutation(endpoint=ep_hn, extra_headers={self.M1: "1"},
-                                              note="tb-hn1"))
-        r2 = self.engine.send(RequestMutation(endpoint=ep_hn, extra_headers={self.M2: "1"},
-                                              note="tb-hn2"))
-        probes.append(("<header-name>", "header-name", r1, r2,
-                       Evidence("input_channel",
-                                "channel=headername — the marker rode a request header NAME "
-                                "(a header named after the marker, the first non-standard "
-                                "header the target reads); the verifier must replay a fresh "
-                                "marker the same way")))
-        for param_label, channel, r1, r2, nc_ev in probes:
-            if r1 is None or r2 is None or r1.error or r2.error or not r1.status or not r2.status:
+        probes.append(("<header-name>", "header-name", "tb-hn",
+                       lambda m, note: self.engine.send(RequestMutation(
+                           endpoint=ep_hn, extra_headers={m: "1"}, note=note)),
+                       "channel=headername"))
+        # ---- pass 1: the PLAIN variants (the pre-TB-1c sequence, unchanged
+        # for every channel) ----
+        results = []
+        for label, channel, pfx, mk, nc in probes:
+            r1 = mk(self.M1, pfx + "1")
+            r2 = mk(self.M2, pfx + "2")
+            results.append([label, channel, nc, r1, r2, "plain"])
+        # ---- pass 2 (TB-1c): the SACRIFICIAL-TAIL variants, only on channels
+        # whose plain pass missed ----
+        for i, (label, channel, nc, r1, r2, variant) in enumerate(results):
+            if self._pair_hit(r1, r2) is None:
+                _, _, pfx, mk, _ = probes[i]
+                rt1 = mk(self.M1 + self.TAIL, pfx + "1t")
+                rt2 = mk(self.M2 + self.TAIL, pfx + "2t")
+                results[i] = [label, channel, nc, rt1, rt2, "tail"]
+        # ---- verdict loop (the differential + GTP-08b context guard) ----
+        for label, channel, nc, r1, r2, variant in results:
+            hit = self._pair_hit(r1, r2)
+            if hit is None:
                 continue
-            b1, b2 = r1.body or "", r2.body or ""
-            if self.M1 in b1 and self.M2 in b2 and self.M1 not in b2 and self.M2 not in b1:
-                # GTP-08b: the marker must sit within a bounded window of a
-                # session/storage CONTEXT phrase — the CWE-501 shape is the value
-                # being SAVED into a server-trusted context and the response saying
-                # so; a bare reflection (xss/sqli/redirect echo) carries no such
-                # phrase and is that other class's evidence, not a boundary claim.
-                i = b1.find(self.M1)
-                ctx_win = self.CONTEXT.search(b1, max(0, i - 100), min(len(b1), i + len(self.M1) + 120))
-                i2 = b2.find(self.M2)
-                ctx_win2 = self.CONTEXT.search(b2, max(0, i2 - 100), min(len(b2), i2 + len(self.M2) + 120))
-                if not ctx_win and not ctx_win2:
-                    continue      # reflect-only — belongs to another class, stay silent
-                ev = [Evidence("marker_reflection",
-                          f"input-controlled reflection into a server-trusted context via "
-                          f"{channel}: marker A reflected on request 1 and marker B on request 2 "
-                          f"(each response echoes exactly the submitted marker within a "
-                          f"session/storage context — "
-                          f"{(ctx_win.group(0) if ctx_win else (ctx_win2.group(0) if ctx_win2 else ''))!r} "
-                          f"— unvalidated client data crosses into a trusted store)",
-                          r1.request_id)]
-                if nc_ev is not None:
-                    ev.append(nc_ev)
-                return Finding("trust_bound", Severity.HIGH, ep.url,
-                               param_label, ep.method, ev,
-                               status=FindingStatus.CANDIDATE)
+            b1, b2 = hit
+            # GTP-08b: the marker must sit within a bounded window of a
+            # session/storage CONTEXT phrase — the CWE-501 shape is the value
+            # being SAVED into a server-trusted context and the response saying
+            # so; a bare reflection (xss/sqli/redirect echo) carries no such
+            # phrase and is that other class's evidence, not a boundary claim.
+            i = b1.find(self.M1)
+            ctx_win = self.CONTEXT.search(b1, max(0, i - 100), min(len(b1), i + len(self.M1) + 120))
+            i2 = b2.find(self.M2)
+            ctx_win2 = self.CONTEXT.search(b2, max(0, i2 - 100), min(len(b2), i2 + len(self.M2) + 120))
+            if not ctx_win and not ctx_win2:
+                continue      # reflect-only — belongs to another class, stay silent
+            sub = ("the plain marker" if variant == "plain"
+                   else "the sacrificial-tail marker (marker+'zz' — the sink's "
+                        "last-char mangle ate the tail; the UNTAILED marker "
+                        "survived verbatim)")
+            return Finding("trust_bound", Severity.HIGH, ep.url,
+                           label, ep.method,
+                           [Evidence("marker_reflection",
+                                     f"input-controlled reflection into a server-trusted "
+                                     f"context via {channel} ({sub}): marker A reflected on "
+                                     f"request 1 and marker B on request 2 (each response "
+                                     f"echoes exactly the submitted marker within a "
+                                     f"session/storage context — "
+                                     f"{(ctx_win.group(0) if ctx_win else (ctx_win2.group(0) if ctx_win2 else ''))!r} "
+                                     f"— unvalidated client data crosses into a trusted store)",
+                                     r1.request_id),
+                            Evidence("input_channel",
+                                     nc + f" variant={variant} — the verifier must replay "
+                                     "the same channel and variant")],
+                           status=FindingStatus.CANDIDATE)
         return None
 
 
