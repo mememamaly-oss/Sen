@@ -13280,5 +13280,123 @@ def unit_tb2_wrong_param_pick():
         srv.shutdown(); srv.server_close()
 
 
+# ================================================================ TB-3a (trustbound recall round)
+@case
+def unit_tb3a_resolver_name_channel():
+    """TB-3a (trustbound recall round, hand-proven LIVE on the running
+    Benchmark before any code — 00587/00588/01455/01456/01457/01458/02352):
+    the RESOLVER family scans getParameterNames(), takes the NAME of the
+    param whose VALUE equals the endpoint's own basename sentinel, and uses
+    that NAME as the tainted string (saved into the session and echoed) —
+    the SQ-1/XS-1/CM-2 resolver shape, which the trustbound battery only
+    ever probed as a NO-PARAM fallback (?<marker>=<seg> fires solely when
+    the spec declares NOTHING). Root cause in one sentence: the name-channel
+    probe was gated on paramlessness, so every resolver endpoint with
+    declared params (the whole family declares [answer, whatever] or
+    [password, email, TCID]) never saw the marker ride a NAME. Live on
+    BenchmarkTest00587: ?<marker>=<TCID> reflects with the session phrase;
+    the first-param and self-named value probes answer constants. The mangle
+    members (00588 etc.) need the tail riding the NAME (live: plain
+    resolvername reflects 'sentineltb1marke' — eaten; tailed is LIVE).
+    VR-25 must replay a fresh marker through the same name channel. The
+    whitelist-gated safe twin stays silent."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from urllib.parse import parse_qs, urlsplit
+    from sentinel.orchestrator import SentinelScanner, ScanConfig
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a): pass
+        def _reply(self, code, b):
+            self.send_response(code); self.send_header("Content-Length", str(len(b)))
+            self.end_headers(); self.wfile.write(b)
+        def _all_params(self):
+            u = urlsplit(self.path)
+            out = {}
+            for k, v in parse_qs(u.query, keep_blank_values=True).items():
+                out[k] = v[0]
+            ln = int(self.headers.get("Content-Length") or 0)
+            if ln:
+                try:
+                    for k, v in parse_qs(self.rfile.read(ln).decode(),
+                                         keep_blank_values=True).items():
+                        out[k] = v[0]
+                except Exception:
+                    pass
+            return out
+        def do_GET(self):
+            self._reply(200, b"<html><body>index</body></html>")
+        def do_POST(self):
+            u = urlsplit(self.path)
+            allp = self._all_params()
+            if u.path == "/tbrn":
+                # the RESOLVER read (faithful to BenchmarkTest00587): the NAME
+                # of the first param whose VALUE equals the endpoint basename
+                param = ""
+                for k, v in allp.items():
+                    if v == "tbrn":
+                        param = k
+                        break
+                import html as _h
+                b = (f"<html><body>Item: '{_h.escape(param)}' with value: '10340' "
+                     f"saved in session.</body></html>").encode()
+                self._reply(200, b)
+                return
+            if u.path == "/tbrnsafe":
+                param = ""
+                for k, v in allp.items():
+                    if v == "tbrnsafe":
+                        param = k
+                        break
+                if param.isalnum() and len(param) < 10:
+                    import html as _h2
+                    b = (f"<html><body>Item: '{_h2.escape(param)}' with value: '10340' "
+                         f"saved in session.</body></html>").encode()
+                else:
+                    b = b"<html><body>rejected.</body></html>"
+                self._reply(200, b)
+                return
+            self._reply(404, b"no")
+
+    # the spec mirrors the family's openapi: declared BODY params (the
+    # resolver family declares [answer, whatever] — the name-channel probe
+    # must fire DESPITE declared params)
+    def _path(name):
+        return {"post": {"operationId": f"do_{name}",
+                "requestBody": {"required": True, "content": {
+                    "application/x-www-form-urlencoded": {"schema": {
+                        "type": "object", "properties": {
+                            "answer": {"type": "string", "default": "foo"},
+                            "whatever": {"type": "string", "default": "bar"}}}}}},
+                "responses": {"default": {"description": "ok"}}}}
+    SPEC = {"openapi": "3.0.0", "info": {"title": "tb3a", "version": "1"},
+            "paths": {"/tbrn": _path("tbrn"), "/tbrnsafe": _path("tbrnsafe")}}
+
+    port = 8937
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=6, timeout=5, seed="tb3a",
+                         browser=False, oast=None, crawl=False, openapi_spec=SPEC)
+        rep = SentinelScanner(f"http://127.0.0.1:{port}", cfg).run()
+        tb = [f for f in rep["findings"]
+              if f["type"] == "trust_bound" and f.get("status") == "verified"]
+        rn = [f for f in tb if "/tbrn" in f["url"]]
+        assert rn, ("RED: the resolver name-channel (the servlet takes the NAME "
+                    "of the param whose VALUE equals the basename sentinel — "
+                    "declared params must not gate the name probe) found nothing",
+                    [(f["type"], f.get("status")) for f in rep["findings"]])
+        detail = " ".join(str(e.get("detail", "")) for e in rn[0].get("evidence", []))
+        assert "channel=resolver_name" in detail, \
+            f"the evidence must record the resolver_name channel (got: {detail[:140]})"
+        vm = rn[0].get("verification", {}) or {}
+        assert vm.get("passed") is True, \
+            f"VR-25 must replay through the name channel (got: {vm})"
+        assert not [f for f in tb if "/tbrnsafe" in f["url"]], \
+            "FP: the whitelist-gated safe resolver twin fired"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
 if __name__ == "__main__":
     main()

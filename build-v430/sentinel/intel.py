@@ -1586,7 +1586,10 @@ class VerificationEngine:
                     r25 = self.engine.send(RequestMutation(
                         endpoint=ep, param_name=_anchor25, param_value=m3 + _tail25,
                         note="vr25-sn")) if _anchor25 else None
-                elif _chan25.startswith("channel=segment_name"):
+                elif _chan25.startswith("channel=segment_name") \
+                        or _chan25.startswith("channel=resolver_name"):
+                    # TB-3a: the fresh marker rides the param NAME with the
+                    # basename sentinel as the value (the resolver shape)
                     _anchor25 = (_chan25.split("anchor=")[1].split(" ")[0]
                                  if "anchor=" in _chan25 else "")
                     r25 = self.engine.send(RequestMutation(

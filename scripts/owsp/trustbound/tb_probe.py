@@ -24,6 +24,24 @@ def post(url, marker, shape, tcid):
     elif shape == "selfnamed-tail": # ?TCID=<marker+zz> — the mangle eats the tail
         qs = urllib.parse.urlencode({tcid: marker + TAIL})
         req = urllib.request.Request(f"{url}?{qs}", data=b"", method="POST")
+    elif shape == "resolvername":   # ?<marker>=<TCID> — the resolver takes the NAME
+        qs = urllib.parse.urlencode({marker: tcid})
+        req = urllib.request.Request(f"{url}?{qs}", data=b"", method="POST")
+    elif shape == "resolvername-tail":  # ?<marker+zz>=<TCID>
+        qs = urllib.parse.urlencode({marker + TAIL: tcid})
+        req = urllib.request.Request(f"{url}?{qs}", data=b"", method="POST")
+    elif shape == "headertcid":     # a header NAMED <TCID> carrying the marker
+        req = urllib.request.Request(url, data=b"", method="POST")
+        req.add_header(tcid, marker)
+    elif shape == "headertcid-tail":
+        req = urllib.request.Request(url, data=b"", method="POST")
+        req.add_header(tcid, marker + TAIL)
+    elif shape == "cookie":         # a cookie NAMED <TCID> carrying the marker
+        req = urllib.request.Request(url, data=b"", method="POST")
+        req.add_header("Cookie", f"{tcid}={urllib.parse.quote(marker)}")
+    elif shape == "cookie-tail":
+        req = urllib.request.Request(url, data=b"", method="POST")
+        req.add_header("Cookie", f"{tcid}={urllib.parse.quote(marker + TAIL)}")
     try:
         r = urllib.request.urlopen(req, timeout=10)
         return r.status, r.read().decode("utf-8", "replace")
@@ -36,6 +54,12 @@ CASES = [
     ("00251 headername", "trustbound-00/BenchmarkTest00251", "BenchmarkTest00251", ["headername"]),
     ("02622 raw-qs    ", "trustbound-01/BenchmarkTest02622", "BenchmarkTest02622", ["selfnamed"]),
     ("00427 tcid+mangle", "trustbound-00/BenchmarkTest00427", "BenchmarkTest00427", ["selfnamed", "selfnamed-tail"]),
+    # the fix-round hand-probes (the worklog's planned session-start act):
+    ("00587 resolver  ", "trustbound-00/BenchmarkTest00587", "BenchmarkTest00587", ["resolvername"]),
+    ("00588 resol+mang", "trustbound-00/BenchmarkTest00588", "BenchmarkTest00588", ["resolvername", "resolvername-tail"]),
+    ("01082 hdr-tcid  ", "trustbound-00/BenchmarkTest01082", "BenchmarkTest01082", ["headertcid", "headertcid-tail"]),
+    ("01206 hdrtcid+m ", "trustbound-00/BenchmarkTest01206", "BenchmarkTest01206", ["headertcid", "headertcid-tail"]),
+    ("01876 cookie+m  ", "trustbound-01/BenchmarkTest01876", "BenchmarkTest01876", ["cookie", "cookie-tail"]),
 ]
 CTX = re.compile(r"saved in session|stored in session|put in session|session attribute", re.I)
 print(f"{'case':<18} {'shape':<15} {'M1?':<5} {'M2?':<5} {'ctx?':<5} verdict")

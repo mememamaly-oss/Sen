@@ -3261,6 +3261,26 @@ class TrustBoundDetector(Detector):
                            lambda m, note: self.engine.send(RequestMutation(
                                endpoint=ep, param_name=seg, param_value=m, note=note)),
                            f"channel=selfnamed anchor={seg[:64]}"))
+        # TB-3a (trustbound recall round, hand-proven LIVE on the running
+        # Benchmark before any code — 00587/00588/01455/01456/01457/01458/
+        # 02352): the RESOLVER family scans getParameterNames(), takes the
+        # NAME of the param whose VALUE equals the endpoint's own basename
+        # sentinel, and uses that NAME as the tainted string — the
+        # SQ-1/XS-1/CM-2 resolver shape. The name-channel probe existed only
+        # as the NO-PARAM fallback (?<marker>=<seg> fired solely when the
+        # spec declared NOTHING), so every resolver endpoint WITH declared
+        # params (the whole family declares [answer, whatever] or [password,
+        # email, TCID]) never saw the marker ride a NAME (live on 00587:
+        # ?<marker>=<TCID> reflects with the session phrase while every value
+        # probe answers a constant; the mangle members need the tail riding
+        # the NAME — live on 00588: plain reflects 'sentineltb1marke').
+        # The channel now fires whenever a basename exists and params are
+        # declared (the paramless case is the pre-TB fallback above).
+        if seg_ok and p is not None:
+            probes.append(("<resolver-name>", "resolver-name", "tb-rn",
+                           lambda m, note: self.engine.send(RequestMutation(
+                               endpoint=ep, param_name=m, param_value=seg, note=note)),
+                           f"channel=resolver_name anchor={seg[:64]}"))
         # TB-1b (trustbound recall round, live-caught on the OWASP Benchmark
         # 8b67a88 — the header-name family: 00251/01143/02015/02016): the
         # servlet scans request.getHeaderNames(), SKIPS the standard headers,
