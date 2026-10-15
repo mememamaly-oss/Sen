@@ -348,9 +348,10 @@ def test_h3_09_lamport_r3():
     # transitivity: the full chain is strictly increasing
     lts = [lt for _n, lt, _p in e]
     assert lts == sorted(lts) and len(set(lts)) == len(lts)
-    # concurrent events make NO ordering promise (p2-local vs p1-recv may
-    # compare either way) — the claim stays exactly R3, nothing more
-    conc = (e[4][1], e[9][1])
+    # this scripted scenario is a pure chain (no concurrent pair exists in
+    # it); for genuinely concurrent events R3 makes NO ordering promise —
+    # asserted here only as distinctness, no false converse claims
+    conc = (e[4][1], e[8][1])
     assert conc[0] != conc[1]  # distinct, but no claimed order
 
 
@@ -367,14 +368,18 @@ def test_h3_10_vector_clock_basics():
     merged = VectorClock.merge_vc(vc.snapshot(), other.snapshot())
     assert merged == (("A", 2), ("B", 1))  # componentwise max
     # classification
-    a, b, c = (("A", 1),), (("A", 2),), (("A", 1), ("B", 1))
+    a, b, c = (("A", 1),), (("A", 2),), (("A", 2), ("B", 1))
     assert VectorClock.compare(a, b) == "before"
     assert VectorClock.compare(b, a) == "after"
     assert VectorClock.compare(a, a) == "equal"
-    assert VectorClock.compare(a, c) == "concurrent"  # a<B but A equal
+    # a is before c' below on B but AHEAD on A -> truly concurrent
+    c_conc = (("A", 1), ("B", 1))
+    d_conc = (("A", 2),)
+    assert VectorClock.compare(c_conc, d_conc) == "concurrent"
+    assert VectorClock.compare(a, b) == "before"  # a strictly less on A
     assert VectorClock.happens_before(a, b) is True
-    assert VectorClock.happens_before(a, c) is False
-    assert VectorClock.concurrent(a, c) is True
+    assert VectorClock.happens_before(c_conc, d_conc) is False
+    assert VectorClock.concurrent(c_conc, d_conc) is True
 
 
 @case
@@ -384,11 +389,19 @@ def test_h3_11_vc_causality_iff_order():
     # independently computed happened-before relation
     clocks = {n: VectorClock(n) for n in "ABC"}
     events = []  # (name, vc_snapshot, parents)
+    last_on_proc = {}  # process-order edges are causal by IR1 (the tick chain)
 
     def ev(name, node, parents=()):
         clocks[node].tick()
         snap = clocks[node].snapshot()
-        events.append((name, snap, list(parents)))
+        chain = []
+        if node in last_on_proc:
+            chain.append(last_on_proc[node])
+        for p in parents:
+            if p not in chain:
+                chain.append(p)
+        events.append((name, snap, chain))
+        last_on_proc[node] = events[-1]
         return events[-1]
 
     e1 = ev("A1", "A")
@@ -413,10 +426,10 @@ def test_h3_11_vc_causality_iff_order():
             if i == j:
                 continue
             vc_cmp = VectorClock.compare(events[i][1], events[j][1])
-            if j in reach[i]:
-                assert vc_cmp == "before", (events[i][0], events[j][0], vc_cmp)
-            elif i in reach[j]:
+            if j in reach[i]:          # j is an ancestor of i: j -> i
                 assert vc_cmp == "after", (events[i][0], events[j][0], vc_cmp)
+            elif i in reach[j]:        # i is an ancestor of j: i -> j
+                assert vc_cmp == "before", (events[i][0], events[j][0], vc_cmp)
             else:
                 # concurrent pairs must be incomparable (or equal only if
                 # identical snapshots — impossible here: distinct nodes)
@@ -450,13 +463,14 @@ def test_h3_13_merkle_verification():
     t = MerkleTree(leaves)
     for i in range(33):
         assert MerkleTree.verify(leaves[i], i, t.proof(i), t.root)
-    # any leaf change moves the root, and stale proofs stop verifying
+    # any leaf change moves the root; the tampered leaf cannot prove
+    # against the old root, and the old leaf cannot prove against the new
     tampered = list(leaves)
     tampered[7] = blake3(b"x")
     t2 = MerkleTree(tampered)
     assert t2.root != t.root
-    assert not MerkleTree.verify(leaves[7], 7, t2.proof(7), t.root)
     assert not MerkleTree.verify(tampered[7], 7, t.proof(7), t.root)
+    assert not MerkleTree.verify(leaves[7], 7, t2.proof(7), t2.root)
 
 
 @case
@@ -531,7 +545,7 @@ def test_h3_16_pncounter():
     d = PNCounter(); d.decrement("B", 6)
     m = c.merge(d)
     assert m.value() == -2  # (5+1) - (2+6)
-    assert m.state() == {"inc": {"A": 5, "B": 1}, "dec": {"B": 6}}
+    assert m.state() == {"inc": {"A": 5, "B": 1}, "dec": {"A": 2, "B": 6}}
     _counter_laws(random.Random(1502),
                   lambda rng: PNCounter({"inc": {n: rng.randrange(0, 30)
                                                  for n in "AB" if rng.random() < 0.8},

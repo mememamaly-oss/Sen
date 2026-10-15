@@ -32,6 +32,25 @@ station).
   ModuleNotFoundError('sentinel.blake3') — evidence
   results/axis3/axis3_RED.json, suite digest 9190527d4eb85234…, pushed
   immediately.
+- M2 (GREEN): sentinel/blake3.py (pure-Python BLAKE3-256, arbitrary
+  lengths, zero deps) + sentinel/pcs.py (canonical MessagePack, Lamport
+  R1–R3, vector clocks, Merkle O(log n) proofs, G/PN-Counter, OR-Set
+  observed-remove, MVCC bisect reads, the 9-op PCS with ACID
+  transactions + BASE merges + verify_integrity) implemented — **28/28,
+  suite digest ec1626c7e0cd1809** (results/axis3/axis3_GREEN.json),
+  pushed immediately. Honest journey: first green attempt 22/28 — the
+  merge-laws battery caught ONE REAL module defect (VectorClock
+  merge_vc/merge_snap DROPPED zero-valued components arriving in the
+  second argument, breaking commutativity for G-Counter states carrying
+  explicit 0 entries — fixed by preserving zero components from either
+  side); the other five failures were TEST-side bugs, each fixed and
+  documented (inverted reachability direction in H3_11; missing
+  process-order causal edges in H3_11's scenario model — the module was
+  right, the independent model was incomplete; index-out-of-range e[9]
+  in H3_09; a wrong expected PNCounter state in H3_16 that forgot the
+  dec A:2 component; a non-concurrent clock pair in H3_10; and a
+  meaningless old-leaf/new-proof/old-root assertion in H3_13 replaced
+  by the meaningful old-leaf-vs-new-root check).
 
 # SENTINEL Axis-2 — Formal State Machine M=(S,Σ,δ,s₀,F,Λ,Γ,Θ) (spec §2.1–§2.8)
 
