@@ -615,6 +615,22 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 22 (2026-10-15, the branches cleanup — the supervisor's
+  item-by-item call on the task-54 KEPT "branches" class):** 5 local
+  branches deleted, each machine-proven redundant FIRST —
+  release/v4.2.0/v4.2.1/v4.2.2 (0 commits ahead of main, preserving tags
+  at tips), phase/02-l1-twin (0 ahead; recovery/l1-candidate-2026-10-02
+  inside its history; tip reachable via main), and
+  backup/stale-f2d41e8-20261015 (the last surviving realignment backup:
+  its one unique commit = the stale UUID snapshot — .env byte-identical
+  to the live untracked copy, 31 iv_out files byte-identical to main,
+  923-line worklog a byte-exact prefix of main's — 100% redundant).
+  Local release/v4.1.1 not in the order's scope — left standing, flagged.
+  Remote origin/release/v4.1.1 + push + ls-remote staged pending the
+  round-4 PAT (round-3 owner-revoked on acceptance per protocol).
+  Zero history rewrites; one isolated record commit; full gate re-run
+  fresh per directive (engine tree untouched — records only).
+
 - **Round 21 (2026-10-15, post-hardening closure — cleanup + Q1/Q2 + the
   4th rollback):** supervisor item-2 executed — the repo cleanup as the
   DETERMINISTIC subset of the task-54 inventory (148 files, one isolated
