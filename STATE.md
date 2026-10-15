@@ -615,6 +615,27 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 23 (2026-10-15, round-23 close — task-58 remote half on the
+  round-4 PAT + fresh gate verification):** the staged remote half
+  executed: origin/release/v4.1.1 (2d5ce2f, machine-proven main-ancestor
+  + 0-ahead + tag v4.1.1 at tip — deletion orphans nothing) deleted from
+  the remote; main pushed 5373107..29ae5e7; both ls-remote confirmed
+  (remote main = 29ae5e7 = local, release/v4.1.1 gone from refs/heads).
+  The full gate had run fresh in-container on the task-58 tree
+  (08:58–09:24, artifacts intact in /tmp): suite 19/19 = 4313/4313
+  (every chunk 227/227, failed=0), doctor 17/17 (overall=PASS), bench ×3
+  = 38/0/0/37 F1=1.0000 @7161 requests / 199 findings — three runs
+  structurally identical tuple-by-tuple (run-3c0652b6be, ground_truth
+  sha identical). One more environment UUID auto-commit (984a934 — six
+  one-line build-v430/oob-* "ok" markers = the fixture's XXE-OOB
+  endpoint runtime output; main tracks zero such files; 7614ee5
+  precedent) discarded by reset --hard after the proof, SHA recorded
+  for audit. Branch state: local = main + release/v4.1.1 (the local
+  copy kept per the order's exact scope — flagged); remote = main + 4
+  archive/* (out of scope, kept, flagged). Zero history rewrites; this
+  record commit is the only tree change; the PAT is inline-only, owner
+  revokes on acceptance.
+
 - **Round 22 (2026-10-15, the branches cleanup — the supervisor's
   item-by-item call on the task-54 KEPT "branches" class):** 5 local
   branches deleted, each machine-proven redundant FIRST —

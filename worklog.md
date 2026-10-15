@@ -4549,3 +4549,23 @@ Stage Summary:
 - 5 local refs deleted (the 4 ordered branches + the audited backup), each machine-proven redundant BEFORE the delete; local release/v4.1.1 deliberately left standing per the order's exact scope (flagged).
 - The remote half (origin/release/v4.1.1 deletion + push + ls-remote) is staged and blocked ONLY on the round-4 PAT (round-3 revoked-on-acceptance per protocol, verified dead).
 - Gate results are reported in-session at completion and carried to the next round's record if the container rolls back before the push (the standing durability caveat).
+
+---
+Task ID: 59
+Agent: Super Z (main agent)
+Task: Round-23 close on the round-4 PAT — execute the staged task-58 remote half (origin/release/v4.1.1 deletion + push + ls-remote), verify the fresh full-gate evidence in-container, dispose of the post-gate UUID environment commit, and record the round.
+
+Work Log:
+- ROUND-4 PAT: arrived as the session's only message; inline-URL injection only (the origin remote URL stays token-free; the value is never written to any file or record, per protocol).
+- CONTAINER STATE ON ARRIVAL: local main carried 29ae5e7 (task-58) plus ONE extra environment UUID auto-commit 984a934 (2026-10-15 09:25:16, message 042399d7-cde2-4656-8d74-717a875a655c) adding exactly six one-line files build-v430/oob-{282a084b161d, 4e590684f0f8, 5603f892a5e0, aa6fdb6864e9, aa6fdb6864e9.1, b3ef6358bc60}, each containing the single line "ok".
+- NOISE PROOF (machine, before discarding): (a) content = one line "ok" per file; (b) git ls-tree -r 29ae5e7 -- build-v430/oob-* count = 0 — main never tracked any such file; (c) writer identified = the fixture itself: build-v430/fixtures/vulnapp.py serves /vuln/oob-stock + /safe/oob-stock (the XXE blind-OOB endpoints) whose entity-fetch callbacks write the oob-* markers; (d) timeline: tb_bench_3.json completed 09:24, the auto-commit fired 09:25:16 — the markers are gate-run runtime output. VERDICT: pure runtime noise. Disposed via reset --hard 29ae5e7 (7614ee5 precedent; commit SHA 984a9341b0408f95957b3ad44a413ae09bfaa05e recorded here for auditability; no backup branch — any fixture run regenerates such markers). Worktree clean after; .env remains untracked per protocol.
+- FRESH FULL-GATE EVIDENCE VERIFIED (the run the task-58 entry scheduled executed in THIS container 08:58–09:24 before the session died; artifacts intact): suite 19 chunks (result_c00..c18.chunk.json) — every chunk passed=True, failed=0, total=227 → 4313/4313; doctor (/tmp/doctor_task58.json) — overall=PASS, 17/17 checks PASS; bench ×3 (/tmp/tb_bench_{1,2,3}.json) — confusion TP=38/FP=0/FN=0/TN=37, precision=recall=F1=1.0000, requests=7161, findings=199 each, run_id=run-3c0652b6be (deterministic), ground_truth_sha256 identical across runs, STRUCTURAL EQUALITY tuple-by-tuple across all three (199=199=199). The task-58 commit touched records only (engine tree untouched) — gate validity for 29ae5e7 direct.
+- REMOTE TRUTH (ls-remote on the round-4 PAT): remote main = 5373107 — the task-57 push claims confirmed real; origin/release/v4.1.1 = 2d5ce2f = the local tip, remote tag v4.1.1 peeling to the same SHA; all 11 tags present remotely; FOUR archive/* remote branches discovered (out of the order's scope — kept and flagged: archive/iv14/session-round-v423-gap-closure, archive/parallel/iv14-independent-gap-closure, archive/recovery/iv14-independent-v423-rebuild, archive/v423-parallel-eng15-20).
+- REMOTE-TIP MACHINE-PROOF (same discipline as the local set, fresh this session): 2d5ce2f ancestor of main(29ae5e7) = YES; commits ahead of main = 0; tag v4.1.1 at the tip — the deletion orphans nothing.
+- EXECUTED: (1) git push <inline-PAT-URL> --delete release/v4.1.1 → "- [deleted] release/v4.1.1"; (2) git push <inline-PAT-URL> main → "5373107..29ae5e7 main -> main"; (3) intermediate ls-remote: refs/heads/main = 29ae5e7940432d9519ab6c07ed850d0414929397 (= local), release/v4.1.1 absent from refs/heads.
+- This record commit (this entry + STATE.md round-23) → push → closing ls-remote.
+
+Stage Summary:
+- Task-58 closed END-TO-END: 5 local refs (prior session) + 1 remote ref (this session) deleted, every deletion machine-proven BEFORE the act; full gate GREEN fresh (suite 4313/4313, doctor 17/17, bench ×3 structurally identical 38/0/0/37 @7161/199); main pushed and ls-remote-confirmed at every step.
+- Standing flags awaiting one-word supervisor calls: LOCAL release/v4.1.1 (kept — the order named only the remote copy), the FOUR remote archive/* branches, and the remaining task-54 KEPT classes (owsp beyond the protected chain, evidence generators, non-class files).
+- Zero history rewrites all round (ref removals only + one noise-commit discard with proof on record); PAT inline-only, owner revokes on acceptance.
