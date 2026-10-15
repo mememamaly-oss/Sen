@@ -4666,3 +4666,19 @@ Work Log:
 
 Stage Summary:
 - M4 CLOSED: the determinism claim is backed by the triple run — identical digests, no statistical hand-waving. Next: M5 the full core gate (suite 4313/4313 + doctor 17/17 + bench x3 structurally identical) with the mandated .log deposits + sha256sums, then closure.
+
+---
+Task ID: 62-M5
+Agent: Super Z (main agent)
+Task: Axis 2 station M5 (CLOSURE) — the full core gate fresh on the axis-2 tree (suite 4313/4313 + doctor 17/17 + bench x3 structurally identical) with the mandated .log deposits + sha256sums, isolated commit "axis2: gate" + immediate push + final ls-remote.
+
+Work Log:
+- PRE-GATE STATE: HEAD = 3ccc802 (M4), tracked tree clean, no UUID noise commit this time (the six oob markers stayed untracked).
+- SUITE FRESH (caches wiped first: /tmp/tb_gates + /tmp/tb_all_cases.txt): 6 foreground ranges via scripts/hardening_gate_range.sh — 681/681 + 454/454 + 908/908 + 908/908 + 908/908 + 454/454; machine aggregate over the 19 per-chunk JSONs: SUITE TOTAL 4313/4313, every chunk 227/227 failed=0. The axis-2 suite (standalone, not @case-registered) and sentinel/statemachine.py (sentinel/__init__.py empty — hot path never imports it) provably did not perturb the core contract.
+- DOCTOR: 17/17 overall=PASS (rc=0).
+- BENCH x3 (console redirected to files — the round-26 PTY-dump timeout lesson): all three rc=0, run_id=run-3c0652b6be, confusion 38/0/0/37, P/R/F1=1.0, @7161 requests / 199 findings, gt 0373baf92a92dce2. Structural comparison via the round-26 deposited tooling (download/bench_structural_compare.py, compare_rc=0): fresh x3 fully identical internally (tuples + requests) AND vs the accepted record + its 4 stored copies — (type,path,param,risk) 199/199 tuple-by-tuple, port-normalized urls EQ, run_id/confusion/gt_sha EQ. ZERO core drift, machine-proven live (not just by construction).
+- MANDATED DEPOSITS (the round-26 lesson — .log evidence committed, force-added past the repo's *.log ignore): results/gate_axis2_3c0652b6be.log (six range logs + machine aggregate + full doctor JSON), results/bench_axis2_3c0652b6be.log (three run summaries + the structural comparison), results/axis2/SHA256SUMS (all seven evidence files). Mirrored to download/. Notable: axis2_RUN2.json and axis2_RUN3.json are BYTE-IDENTICAL files (sha bffe2a1f...) — the suite JSON carries only logical fields, an even stronger determinism artifact than the digest triple-match alone.
+- STATION CLOSE-OUT: CHANGELOG station ledger M5 line (AXIS 2 CLOSED), this worklog entry, STATE.md round-26 closed out with the full station chain. Isolated commit "axis2: gate" carries: the two .log deposits (git add -f) + SHA256SUMS + the three record files. Immediate push + final ls-remote follow. Standing note: the ROUND-26 axis-1 closure .log deposits (gate_3c0652b6be.log / bench_3c0652b6be.log / axis1_digest.log) remain disk + download/ only (created under the round-26 no-commit UNFREEZE; not axis-2 station files, so NOT banked here per the isolation rule) — flagged for a one-line banking order if the supervisor wants them on GitHub.
+
+Stage Summary:
+- M5 CLOSED = AXIS 2 CLOSED END-TO-END: red 0/24 -> green 24/24 (digest 9634780aa1712d12) -> atoms 431/431 (9217f3b19e1d7e79) -> R3 identical digests -> full gate 4313/4313 + 17/17 + bench x3 structurally identical (run-3c0652b6be) with committed .log evidence. Station chain: e2655fa (M1) -> 3bc547c (M2) -> 85e760b (M3) -> 3ccc802 (M4) -> M5 this commit. Axis 3 (PCS) queued per the phase-1 roadmap pending the supervisor's reply. PAT inline-only; owner revokes on acceptance.

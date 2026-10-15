@@ -626,9 +626,26 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
   replay/verify_invariants/interface/Γ, 14-category boundary log, digest
   stability) + the --atoms M3 battery — executed BEFORE implementation:
   **0/24, digest 10bd2caf36e107be** (results/axis2/axis2_RED.json),
-  committed "axis2: red" and pushed immediately. M2 (green), M3 (atoms
-  3a/3b/3c), M4 (R3 determinism), M5 (full gate + .log deposits + closure)
-  follow station by station.
+  committed "axis2: red" and pushed immediately. M2 (GREEN):
+  sentinel/statemachine.py implemented §2.1–§2.8 — 24/24 first-shot,
+  digest 9634780aa1712d12 (one test-side keyword-arg bug caught in
+  pre-run review; no implementation defects). M3 (atoms): the exhaustive
+  3a/3b/3c battery **431/431 checks** (3a 126 state atoms, 3b 182
+  transition atoms incl. all 48 illegal pairs, 3c 123 value atoms),
+  digest 9217f3b19e1d7e79 — two bugs caught were in the battery's own
+  tooling, module innocent, suite digest regression-checked unchanged.
+  M4 (determinism): R3 triple-run identical digests 9634780aa1712d12
+  (RUN2/RUN3 byte-identical files). M5 (gate, CLOSURE): full gate fresh
+  on the axis-2 tree — suite 4313/4313 (19/19 chunks 227/227), doctor
+  17/17, bench ×3 38/0/0/37 F1=1.0 @7161/199 run-3c0652b6be
+  structurally identical tuple-by-tuple vs the accepted record — zero
+  core drift; mandated .log deposits + SHA256SUMS committed
+  (gate_axis2_3c0652b6be.log, bench_axis2_3c0652b6be.log). Every station
+  committed isolated + pushed immediately + ls-remote-verified:
+  e2655fa (M1) → 3bc547c (M2) → 85e760b (M3) → 3ccc802 (M4) → M5.
+  AXIS 2 CLOSED end-to-end. Axis 3 (PCS: BLAKE3/MessagePack/Lamport/
+  Merkle/CRDT/MVCC per the phase-1 roadmap) queued pending the
+  supervisor's reply.
 
 - **Round 25 (2026-10-15, Axis-1 mounted — the 12-axis spec program
   begins):** supervisor order: mount the axes one by one, red/green tests

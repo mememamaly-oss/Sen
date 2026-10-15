@@ -47,6 +47,18 @@ commit + immediate push at every station).
   results/axis2/axis2_GREEN.json, axis2_RUN2.json, axis2_RUN3.json),
   pushed immediately. No determinism claim without the triple run —
   delivered.
+- M5 (gate, CLOSURE): full gate FRESH on the axis-2 tree — suite
+  **4313/4313** (19/19 chunks, every chunk 227/227, failed=0; caches
+  wiped first), doctor **17/17** overall=PASS, bench ×3 =
+  38/0/0/37 F1=1.0 @7161 requests / 199 tuples, run-3c0652b6be, gt
+  0373baf92a92 — fresh ×3 fully identical internally AND structurally
+  identical to the accepted record tuple-by-tuple (port-normalized
+  urls + (type,path,param,risk) 199/199 + run_id/confusion/gt) —
+  ZERO core drift from the axis-2 mounting, machine-proven.
+  Mandated .log deposits + SHA256SUMS committed past the *.log ignore
+  (git add -f): results/gate_axis2_3c0652b6be.log,
+  results/bench_axis2_3c0652b6be.log, results/axis2/SHA256SUMS.
+  AXIS 2 CLOSED.
 
 # SENTINEL Axis-1 — Execution-Graph Engine mounted (DAG orchestration core, spec §1.1–§1.8)
 
