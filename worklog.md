@@ -4713,3 +4713,16 @@ Work Log:
 
 Stage Summary:
 - M2 CLOSED: the PCS is spec-implemented and green 28/28 (digest ec1626c7e0cd1809) with one real defect caught by the laws and fixed honestly. Next: M3 atoms (3a/3b/3c/3d/3e).
+
+---
+Task ID: 63-M3
+Agent: Super Z (main agent)
+Task: Axis 3 station M3 — the atoms battery (3a/3b/3c/3d/3e at the supervisor's non-negotiable sizes), isolated commit "axis3: atoms" + immediate push + ls-remote.
+
+Work Log:
+- ATOMS EXECUTED (52.6s, seeded deterministically per battery: 30301-30305): 3a = 12,000 events / 7 processes, random local+message mix, each event carrying a BLAKE3 digest over its canonical causal record; every DIRECT causal edge checked (16,574 edges: process-order + send->recv) plus 1,999 sampled TRANSITIVE ancestor pairs (depth 1-8 walks) — ZERO violations of e1->e2 => LT(e1)<LT(e2). 3b = 1,000 datasets of 1-64 random-digest leaves: all 32,248 leaf proofs verify against their roots; every leaf one-bit-flipped (random bit) is detected (32,248/32,248); 990 proof-element bit flips detected; full 256-bit-per-leaf sweeps on 25 datasets = zero escapes. 3c = 500 schedules: 2-4 PCS replicas with random counter/set op streams (10-40 ops each), merged over all pairs in random order for two passes — 500/500 converge to identical state snapshots AND identical roots AND all replicas verify_integrity-pass; plus 100 random-triple merge-law checks (commutativity/associativity/idempotence on ORSets). 3d = 80 adversarial stores (16 per class): value-bit-flip / lamport-forgery / tx-manifest-pop / root-cache-bit-flip -> verify_integrity fails 16/16 each; forged Merkle proofs (sibling or leaf tamper) -> verify_proof False 16/16 — TOTAL 80/80 caught, 100%, ZERO escapes. 3e = 500 random multi-key write histories (3-12 writes, ~20% tombstones): read_at(t) checked at EVERY t in 0..t_max+3 (25,930 checks) against brute-force expectation — 0 wrong.
+- DEPOSIT: results/axis3/axis3_ATOMS.json — 17 summary checks (4+4+2+6+1 across the batteries), all ok, chain digest 0ce206c1ad60cabaf8f8... (the chain folds EVERY individual check outcome; per-check violation samples would be listed if any).
+- STATION CLOSE-OUT: CHANGELOG station ledger M3 line with the raw counts, this worklog entry. Isolated commit "axis3: atoms" carries: results/axis3/axis3_ATOMS.json + the two record files. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M3 CLOSED: every battery at or above the ordered size, all green with zero violations/escapes. Next: M4 R3 determinism (suite x3 identical digests).
