@@ -4499,3 +4499,26 @@ Stage Summary:
   4313/4313 fresh, doctor 17/17.
 - Base discipline held: no merge, no force-push, remote history untouched;
   the stale snapshot preserved again in backup/stale-f2d41e8-20261015.
+
+---
+Task ID: 56 (carry-over re-append — written in a lost container on the stale base; the commit carrying it (9cc8650) and the environment's UUID junk commit (7614ee5, ~70MB of .next/ build memory) BOTH died unrecoverable in the 4th container rollback; this re-append is from the agent's conversation record, the only surviving copy)
+Agent: Super Z (main agent)
+Task: 2026-10-15 post-push verification round (continuation after context loss) — verify the end state of Task 55 (8-site hardening + push); diagnose a container found stale again; document the recovery path.
+
+Work Log:
+- Read-only diagnosis (no mutation before the picture was certain): the container had been restored to the stale Oct-14 snapshot (HEAD = f2d41e8, UUID auto-commit 2026-10-14 18:07:45 +0000; parent 1e2159f = Oct-3 IV13 finalization) — with ZERO local artifacts of Tasks 53/54/55: no backup branch, no origin refs, worklog.md (923 lines) ending at Task 13 addendum, STATE.md 258 lines (v4.2.2 era), tree = v4.2.2 era (1367 files, no build-v430), .env tracked inside the stale commit, .gitignore gutted to a stub. Untracked scaffold noise left untouched — deletions gated on the Task-54 confirmation.
+- Golden state verified SAFE on GitHub (established by Task 55 before its context loss): push 941559a..0d7fa13 fast-forward CONFIRMED, ls-remote = 0d7fa132d862c086c7a1fe0f68745351ef9a97ec; chain f0ae716 (Task 53) -> 941559a (Task 54) -> 0d7fa13 (Task 55: 8-site hardening in build-v430/sentinel/intel.py, STATE.md round-20, worklog). Hardened-engine gates: suite 4313/4313, doctor 17/17, bench x3 structurally identical @7161 requests / 199 tuples, F1 1.0000 — zero behavioral deviation; the 9th site (_PRESENCE_VERIFIED_TYPES, VF-01 design exemption) untouched per the supervisor's ruling.
+
+Stage Summary:
+- Task 55 stood CLOSED on GitHub: main = 0d7fa13; nothing lost — the push was the durability step and it succeeded. Recovery blocked only on a fresh PAT; no merge, no force-push ever.
+
+---
+Task ID: 57 (open — recorded progressively; pushed early at each step per the new durability protocol forced by the container's rollback rate)
+Agent: Super Z (main agent)
+Task: Supervisor order (2026-10-15, PAT round 3): (1) alignment first — fetch -> verify stale-local redundancy -> backup -> reset, no merge/force-push; (2) answer the two carried questions — Q1 differential red-before?, Q2 suite 4313 vs 4332; (3) execute Task-54 cleanup item 2 with the supervisor's approvals as sent; full gate after; push; ls-remote.
+
+Work Log:
+- 4TH ROLLBACK diagnosed at turn start: the previous turn's entire local work (the fetch refs, backup branches, the Task-56 commit 9cc8650, the alignment itself) was wiped wholesale — the snapshot restored .git to the Oct-14 state (reflog pre-existing only). Golden copy still safe on GitHub (main = 0d7fa13, ls-remote exact).
+- ALIGNMENT REDONE: PAT (this round's, inline-only) tested + fetch OK; local-only chain = exactly f2d41e8 (task 53 already proved its content 100% redundant: iv_out byte-identical, .env/.gitignore deliberately rejected by the remote — the 858-file diff = origin's own newer trees, nothing local-only beyond .env); preserved in backup/stale-f2d41e8-20261015 (recreated); main reset onto 0d7fa13; .env restored UNTRACKED; .gitignore = full 33 lines; tree clean. No merge, no force-push.
+- Q1 CLOSED (supervisor accepted the implicit answer): all gates this round ran on the hardened tree (post-edit) = green; a red-before run is impossible for this change BY CONSTRUCTION (provenance-only refactor — the applicable differential is the pre/post bench structural identity, which IS machine-proven: task-53 pre-hardening @7161/199 vs task-55 post-hardening @7161/199, identical). The red-before discipline belongs to behavior-changing fixes (e.g. CM-2 RED->GREEN), where it was proven in its own round.
+- Q2 CLOSED BY ORDER (one line, no further digging): 4332 كانت خطأ سردي بجلسة مفقودة — لا أثر لها بأي سجل؛ 4313 هو الرقم الثابت بكل القيود التاريخية (آلية العدّ: 19 chunk × 227 @case مسجّلة = 4313؛ 4332 تتطلب 19×228 ولا وجود لـ 228 بأي سجل — تحقق شامل: صفر مطابقات لـ 4332 في worklog/STATE/النتائج).
