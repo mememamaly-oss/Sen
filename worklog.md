@@ -4654,3 +4654,15 @@ Work Log:
 
 Stage Summary:
 - M3 CLOSED: every state, every transition, every rejection path, every Lambda atom machine-verified — 431/431 (3a 126, 3b 182, 3c 123), digest 9217f3b19e1d7e79. Next: M4 R3 determinism (suite x3 identical digests).
+
+---
+Task ID: 62-M4
+Agent: Super Z (main agent)
+Task: Axis 2 station M4 — R3 determinism: three suite runs with fully identical digests, isolated commit "axis2: determinism" + immediate push + ls-remote.
+
+Work Log:
+- R3 EXECUTED: axis2_GREEN.json (run 1, from M2) + axis2_RUN2.json + axis2_RUN3.json — all three 24/24 failed=0 with the IDENTICAL suite digest 9634780aa1712d12b0078165d6fb7f90da98e89a733a7133eba0975e9dedeb81 (the digest covers the [{name, ok}] logical outcome stream only — same discipline as axis-1). Machine comparison of the three JSONs: same total, same failed, same digest.
+- STATION CLOSE-OUT: CHANGELOG station ledger M4 line, this worklog entry, STATE.md round-26 updated. Isolated commit "axis2: determinism" carries: results/axis2/axis2_RUN2.json + results/axis2/axis2_RUN3.json + the three record files. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M4 CLOSED: the determinism claim is backed by the triple run — identical digests, no statistical hand-waving. Next: M5 the full core gate (suite 4313/4313 + doctor 17/17 + bench x3 structurally identical) with the mandated .log deposits + sha256sums, then closure.

@@ -42,6 +42,11 @@ commit + immediate push at every station).
   state as unreachable) — both fixed, suite digest unchanged
   (9634780aa1712d12, regression-checked); the module itself: zero
   defects.
+- M4 (determinism): R3 executed — suite runs GREEN/RUN2/RUN3 all 24/24
+  with the IDENTICAL digest **9634780aa1712d12** (evidence
+  results/axis2/axis2_GREEN.json, axis2_RUN2.json, axis2_RUN3.json),
+  pushed immediately. No determinism claim without the triple run —
+  delivered.
 
 # SENTINEL Axis-1 — Execution-Graph Engine mounted (DAG orchestration core, spec §1.1–§1.8)
 
