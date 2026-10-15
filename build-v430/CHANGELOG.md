@@ -77,6 +77,18 @@ station).
   timing fields differ; the digest covers the logical [{name, ok}]
   outcome stream only — same discipline as axes 1–2). No determinism
   claim without the triple run — delivered.
+- M5 (gate, CLOSURE): full gate FRESH on the axis-3 tree — suite
+  **4313/4313** (19/19 chunks, every chunk 227/227, failed=0; caches
+  wiped first), doctor **17/17** overall=PASS, bench ×3 =
+  38/0/0/37 F1=1.0 @7161 requests / 199 tuples, run-3c0652b6be, gt
+  0373baf92a92 — fresh ×3 fully identical internally AND structurally
+  identical to the accepted record tuple-by-tuple (port-normalized
+  urls + (type,path,param,risk) 199/199 + run_id/confusion/gt) —
+  ZERO core drift from the axis-3 mounting, machine-proven live (the
+  hot path never imports pcs/blake3). Mandated .log deposits committed
+  past the *.log ignore (git add -f): results/gate_axis3_3c0652b6be.log,
+  results/bench_axis3_3c0652b6be.log, results/axis3/SHA256SUMS.
+  AXIS 3 CLOSED.
 
 # SENTINEL Axis-2 — Formal State Machine M=(S,Σ,δ,s₀,F,Λ,Γ,Θ) (spec §2.1–§2.8)
 

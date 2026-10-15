@@ -4739,3 +4739,19 @@ Work Log:
 
 Stage Summary:
 - M4 CLOSED: the determinism claim is triple-run-backed (ec1626c7e0cd1809 x3). Next: M5 the full core gate fresh on the axis-3 tree + mandated .log deposits (git add -f) + sha256sums -> axis-3 closure.
+
+---
+Task ID: 63-M5
+Agent: Super Z (main agent)
+Task: Axis 3 station M5 (CLOSURE) — the full core gate fresh on the axis-3 tree (suite 4313/4313 + doctor 17/17 + bench x3 structurally identical) with the mandated .log deposits (git add -f) + sha256sums, isolated commit "axis3: gate" + immediate push + final ls-remote.
+
+Work Log:
+- PRE-GATE STATE: HEAD = ff65a85 (M4), tracked tree clean, NO UUID noise commit this round (the six oob markers + the two dev scripts stayed untracked).
+- SUITE FRESH (caches wiped: /tmp/tb_gates + /tmp/tb_all_cases.txt + tb_bench_*): 6 foreground ranges via scripts/hardening_gate_range.sh — 681/681 + 454/454 + 908/908 + 908/908 + 908/908 + 454/454; machine aggregate over the 19 per-chunk JSONs: SUITE TOTAL 4313/4313, every chunk 227/227 failed=0. Isolation argument: the axis-3 suite is standalone (not @case-registered) and sentinel/__init__.py is empty — the core hot path never imports pcs/blake3; zero drift by construction AND proven live.
+- DOCTOR: 17/17 overall=PASS (rc=0).
+- BENCH x3 (console redirected to files): all three rc=0, run_id=run-3c0652b6be, confusion 38/0/0/37, P/R/F1=1.0, @7161 requests / 199 findings, gt 0373baf92a92dce2. Structural comparison via scripts/bench_structural_compare.py (RECREATED after the 8th rollback destroyed the round-26 download/ copy — identical logic, now persisted in scripts/): fresh x3 fully identical internally AND vs the accepted record + its 4 stored copies — (type,path,param,risk) 199/199 tuple-by-tuple, port-normalized urls EQ, run_id/confusion/gt_sha EQ. compare_rc=0. ZERO core drift.
+- MANDATED DEPOSITS (git add -f past the repo *.log ignore): results/gate_axis3_3c0652b6be.log (six range logs + machine aggregate + full doctor JSON + the isolation note), results/bench_axis3_3c0652b6be.log (three run summaries + the structural comparison), results/axis3/SHA256SUMS (all seven evidence files). Mirrored to download/ (recreated after the rollback). SHA256SUMS: RED b8afbac9…, GREEN ff75a6ab…, ATOMS f4e52c2c…, RUN2 d7aa3440…, RUN3 fb82455e…, gate f556415c…, bench 809ce537….
+- STATION CLOSE-OUT: CHANGELOG station ledger M5 line (AXIS 3 CLOSED), this worklog entry, STATE.md round-27 closed out with the full station chain. Isolated commit "axis3: gate" carries: the two .log deposits + SHA256SUMS + the three record files. Immediate push + final ls-remote follow.
+
+Stage Summary:
+- M5 CLOSED = AXIS 3 CLOSED END-TO-END: red 0/28 (9190527d) -> green 28/28 (ec1626c7) with one real defect caught+fixed -> atoms 17/17 summaries at the ordered sizes (0ce206c1) -> R3 identical digests -> full gate 4313/4313 + 17/17 + bench x3 structurally identical (run-3c0652b6be) with committed .log evidence. Station chain: 604f56c -> 025d368 -> 363c6a0 -> ff65a85 -> M5 this commit. Standing: Part A (round-26 banking) still BLOCKED pending the supervisor's ruling (files destroyed by the 8th rollback before the order arrived; options on record in round-27 STATE). Axis 4 (channel synthesis) queued per the phase-2 roadmap pending the reply. PAT inline-only; owner revokes on acceptance.

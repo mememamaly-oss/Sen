@@ -640,7 +640,28 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
   events / 3b 1,000 datasets / 3c 500 schedules / 3d 80 adversarial
   stores / 3e 500 histories) — executed BEFORE implementation: **0/28,
   digest 9190527d4eb85234** (results/axis3/axis3_RED.json), committed
-  "axis3: red" and pushed immediately. M2–M5 follow station by station.
+  "axis3: red" and pushed immediately. M2 (GREEN): sentinel/blake3.py +
+  sentinel/pcs.py implemented — 28/28, digest ec1626c7e0cd1809; the
+  merge-laws battery caught ONE REAL module defect (VectorClock merge
+  dropped zero-valued components from the second argument, breaking
+  commutativity — fixed); five test-side bugs also fixed and documented.
+  M3 (atoms): 3a 12,000 events/16,574 direct edges/1,999 transitive
+  samples ZERO violations; 3b 1,000 datasets/32,248 leaves every proof
+  verifies + every bit flip detected + 25 full 256-bit sweeps zero
+  escapes; 3c 500/500 schedules converge + 100 law triples; 3d 80/80
+  forgeries caught (100%, zero escapes, five classes); 3e 500 histories/
+  25,930 read_at checks 0 wrong — chain digest 0ce206c1ad60caba. M4
+  (determinism): R3 triple-run identical digests ec1626c7e0cd1809 (the
+  M3 CHANGELOG ledger line was missed by a failed text anchor and banked
+  honestly at the M4 commit). M5 (gate, CLOSURE): full gate fresh on
+  the axis-3 tree — suite 4313/4313 (19/19 chunks 227/227), doctor
+  17/17, bench ×3 38/0/0/37 F1=1.0 @7161/199 run-3c0652b6be structurally
+  identical tuple-by-tuple — zero core drift; mandated .log deposits +
+  SHA256SUMS committed (gate_axis3_3c0652b6be.log, bench_axis3_3c0652b6be.log).
+  Station chain: 604f56c (M1) -> 025d368 (M2) -> 363c6a0 (M3) ->
+  ff65a85 (M4) -> M5. AXIS 3 CLOSED end-to-end. Axis 4 (channel
+  synthesis per the phase-2 roadmap) queued pending the supervisor's
+  reply.
 
 
 - **Round 26 (2026-10-15, Axis-2 mounted — station protocol M1–M5):**
