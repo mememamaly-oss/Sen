@@ -615,6 +615,26 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 24 (2026-10-15, cleanup file CLOSED — supervisor closure
+  order + the 5th rollback):** local release/v4.1.1 (2d5ce2f) deleted
+  after fresh proof (main-ancestor, 0-ahead, tag v4.1.1 at tip); the 4
+  phantom refs a mid-turn 5th container rollback resurrected
+  (phase/02-l1-twin, release/v4.2.0/v4.2.1/v4.2.2 — tips identical to
+  the task-58 ratified deletions) re-proven and re-deleted, completing
+  the sanctioned state. Realignment per protocol: fetch → 6-part
+  redundancy proof fresh on the same stale commit f2d41e8 (1 unique
+  commit; parent in main; iv_out byte-identical; worklog byte-exact
+  prefix; .env identical — 100% redundant, matching the ratified
+  task-58 audit) → reset --hard 5fd9301, .env restored untracked,
+  NO backup branch re-created (would resurrect a ref the ratified
+  order removed). Tags restored 11/11. FLAGS CLOSED BY RULING: the 4
+  remote archive/* branches = KEEP (final); the remaining task-54
+  classes (owsp, evidence generators, tags, report outputs) = KEEP
+  (final). END STATE: local branches = main only; remote = main + 4
+  kept archive/*; zero history rewrites. Records-only commit; full
+  gate fresh on the engine-identical tree per protocol; PAT
+  inline-only, owner revokes on acceptance.
+
 - **Round 23 (2026-10-15, round-23 close — task-58 remote half on the
   round-4 PAT + fresh gate verification):** the staged remote half
   executed: origin/release/v4.1.1 (2d5ce2f, machine-proven main-ancestor
