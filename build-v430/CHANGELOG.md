@@ -1,3 +1,29 @@
+# SENTINEL Axis-1 — Execution-Graph Engine mounted (DAG orchestration core, spec §1.1–§1.8)
+
+New module sentinel/xgraph.py + standalone suite tests/test_axis1_xgraph.py
+(22 cases): the extended 5-tuple G=(V,E,phi,psi,Omega,Sigma,Pi,Delta) with
+W1–W6 well-formedness validation; Kahn topological sort Theta(V+E) with
+cycle detection; longest-path layered decomposition; BSP parallel executor
+(superstep-per-layer, deterministic post-barrier merge, observed T_serial/
+T_parallel/E_p accounting); O(1) copy-on-write context forks (structural
+sharing, merge-at-barrier); speculative branching with argmax V(s) merge;
+adaptive pruning k_adaptive = ceil(ceil(log2|V|)*(1+eps)) writing the
+Axis-12-shaped boundary log (14 categories mounted); snapshot/restore with
+semantic digests. Trace digests cover the LOGICAL stream only (run-local
+event order + context + psi + boundary), never wall timings — determinism
+is exact, not statistical (Axis-11 discipline).
+
+Red/green discipline executed honestly: RED 0/22 (module absent), then two
+REAL defects in validate() were caught by the W-condition tests themselves
+(Kahn mutating the shared indeg array corrupted the W3 source count; the
+reachability BFS walked predecessors instead of successors — unreachable-
+from-v0 false positives). Both fixed; GREEN 22/22; R3 triple-run digests
+identical (cc84a91a…). Core contract untouched by construction: the axis
+suite is standalone (not @case-registered), so suite 19/19 = 4313/4313,
+doctor 17/17, and bench x3 = 38/0/0/37 F1=1.0 @7161 reqs/199 tuples
+STRUCTURALLY IDENTICAL to the accepted record (run-3c0652b6be) — zero
+behavioral drift, machine-proven. Axis 2+ await the supervisor's call.
+
 # SENTINEL v4.3.9-cr3-CLOSE — crypto CATEGORY CLOSED: recall 42.31% -> 95.38% on the FULL benchmark, precision 1.0
 
 Full 12-chunk re-run (no-crawl campaign mode, seed 7f3c91aa, primitive-seeded

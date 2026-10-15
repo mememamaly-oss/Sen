@@ -615,6 +615,28 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 25 (2026-10-15, Axis-1 mounted — the 12-axis spec program
+  begins):** supervisor order: mount the axes one by one, red/green tests
+  first, full gate, immediate push, wait for the reply between axes.
+  Axis 1 (execution-graph engine) landed: sentinel/xgraph.py (spec §1.1–§1.8
+  complete — W1–W6 validation, Kahn Θ(V+E), layered decomposition, BSP
+  parallel executor with barrier-proven supersteps, O(1) COW forks,
+  speculative branching with argmax-V merge, adaptive pruning
+  k_adaptive=⌈⌈log₂|V|⌉·(1+ε)⌉ into the 14-category boundary log,
+  snapshot/restore with semantic digests) + a STANDALONE 22-case suite
+  (not @case-registered — the 4313 contract untouched by construction).
+  RED 0/22 executed first; the W-condition tests then caught two REAL
+  validate() defects (Kahn mutating the shared indeg array corrupting the
+  W3 source count; reachability BFS walking predecessors) — fixed; GREEN
+  22/22; R3 triple-run digests identical (cc84a91a…). Full gate fresh on
+  the mounted tree: suite 19/19 = 4313/4313, doctor 17/17, bench ×3
+  38/0/0/37 F1=1.0 @7161/199 STRUCTURALLY IDENTICAL (run-3c0652b6be) —
+  zero drift, machine-proven. A 4th environment UUID noise commit
+  (443a3a1) was proof-checked and discarded pre-work (7614ee5 precedent).
+  Hot-path rewiring deferred to phase-1 close (axes 1+2+3+12). Axis 2
+  queued pending the supervisor's reply. PAT inline-only, owner revokes
+  on acceptance.
+
 - **Round 24 (2026-10-15, cleanup file CLOSED — supervisor closure
   order + the 5th rollback):** local release/v4.1.1 (2d5ce2f) deleted
   after fresh proof (main-ancestor, 0-ahead, tag v4.1.1 at tip); the 4
