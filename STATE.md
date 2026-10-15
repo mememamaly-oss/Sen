@@ -615,6 +615,30 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 21 (2026-10-15, post-hardening closure — cleanup + Q1/Q2 + the
+  4th rollback):** supervisor item-2 executed — the repo cleanup as the
+  DETERMINISTIC subset of the task-54 inventory (148 files, one isolated
+  commit): old gate generations + old suite runners + v4.1-era
+  juice/determinism + one-off debug/probe/gj/phase/save generators, the
+  v1-v3 old results EXCEPT the AR report deliverables (kept), snapshot-0419
+  and pkg-v301 whole. Everything whose per-item approval died with the lost
+  session was KEPT and listed pending in the worklog (owsp beyond the
+  protected chain, branches, tags, evidence generators) — zero history
+  rewrites, deletions are git-rm only. Full gate re-run GREEN on the
+  cleaned tree, fresh: suite 19/19 = 4313/4313, doctor 17/17, bench x3
+  STRUCTURALLY IDENTICAL 38/0/0/37 @7161/199 — the cleanup provably touched
+  zero gate dependencies. Q1 closed (all gates ran post-edit; red-before is
+  impossible by construction for a provenance-only refactor — the applicable
+  differential, pre/post bench structural identity, is machine-proven);
+  Q2 closed by order: 4332 was a narrative error of a lost session (zero
+  record trace), 4313 is the fixed number everywhere (19 chunks x 227
+  registered @case). A 4th mid-turn container rollback wiped the previous
+  turn's local work — everything was redone and every step pushed at
+  completion (f16dd73 worklog carry-over, 4d9c61e cleanup, then this entry);
+  alignment discipline held (no merge, no force-push; stale preserved in
+  backup/stale-f2d41e8-20261015). The session PAT is inline-only, owner
+  revokes on acceptance.
+
 - **Round 20 (2026-10-15, the hardening round — supervisor item-1):** the
   `passed=True -> observed variable` hardening of `build-v430/sentinel/intel.py`
   implemented FROM SCRATCH on the verified base (task 53 proved it never
