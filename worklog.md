@@ -4342,3 +4342,60 @@ Stage Summary:
   4313/4313, doctor 17/17, bench x3 structurally identical @7161.
 - Cleanup inventory delivered separately per the supervisor's order
   (inventory only — nothing deleted without item-by-item confirmation).
+
+---
+Task ID: 54 (repo cleanup INVENTORY — presented, zero deletions)
+Agent: Super Z (main agent)
+
+Task: Supervisor order (2026-10-15, block 2, gated on the completed push +
+ls-remote of block 1): full INVENTORY of the current tree — no deletions.
+Classify: superseded duplicate/old scripts, dead experimental/temp files,
+old results replaced by newer of the same type, inactive non-main branches.
+Per item: exactly why it is redundant (its replacement, or last-use date).
+Protected by order: all category-closure evidence, STATE.md, this worklog,
+every script the gates still call. History-rewrite forbidden. Branch/tag
+deletions must be listed here first. STOP after presenting; nothing is
+deleted without item-by-item confirmation.
+
+Work Log:
+- Verified the current gate's live dependencies by grepping the gate chain
+  (tb_gate.sh + tb_close_* + tb_bench_one.sh + stack scripts + doctor):
+  build-v430 self-contained + scripts/owsp/cmdi/cm2_bench_structural.py +
+  scripts/owsp/tomcat_guard.sh; the trustbound round tooling
+  (scripts/owsp/trustbound/) and the stack assembly/boot contract
+  (sq_stack_tomcat.sh, stack_rebuild.sh, tomcat_fetch.sh, cr_stack_boot.sh,
+  cr_stack_rebuild.sh) are the standing evidence-chain tooling — PROTECTED.
+- Mapped all 11 local branches (6 merged into main, incl. release/v4.1.1
+  which also exists on the remote; release/v4.2.0-4.2.2 remote copies were
+  already deleted by earlier rounds) + 6 remote branches (4 archive/* NOT
+  merged, holding 2-3 unique commits each, not referenced as evidence in
+  STATE/worklog/docs) + 11 tags (v4.2.6 exists ONLY as backup/ tag).
+- Classified the 148 top-level scripts/ files + scripts/owsp (144) +
+  scripts/maxtest (10): old gate generations superseded by tb_gate.sh
+  (gates_v422/423/425.py + l0/l1/l1r/l2/l3 round gates + old suite
+  runners), one-off debug/probe generators (debug_* 13, probe_* 10,
+  iv13_* 17, iv14_* 2, gj_* 4, phase55/58 8, v2.x-era phase scripts,
+  save_v2xx_to_download 6), v4.1-era juice/determinism tooling, and pure
+  residue (diag_out.json.txt). Evidence generators whose outputs are
+  committed (iv13/iv14/vf-mechanism probes) flagged KEEP-provenance vs
+  delete — supervisor's call.
+- Old-results audit: sentinel/results/ v1-v3 era (8 superseded benchmark
+  iterations + repro_a/b + 3 scan outputs + the era's AR report
+  deliverables), snapshot-0419/ (31 files), pkg-v301/ (28 files) — all
+  superseded by the frozen build-v4xx trees + release-archives + git
+  history, EXCEPT the delivered AR report (recommend keep).
+- Frozen release trees build-v400..v430 = the release record per STATE.md
+  freeze policy — NOT candidates; their internal old results are part of
+  the frozen snapshots. Total candidates are small (~10 MB); the cleanup's
+  value is organizational, not disk space (.git = 579M, no gc proposed).
+- Runtime residue: build-v430/oob-* canaries (7 x 2 bytes, this session's
+  bench), scripts/regate_f0ae716_c01_c03.sh (this session's gate driver,
+  untracked), gitignored runtime (db/, .next/, dev.log, next-env.d.ts).
+
+Stage Summary:
+- Inventory DELIVERED to the supervisor in full (branches, tags, scripts,
+  old results, residue) with per-item reasons and KEEP/CANDIDATE verdicts.
+- ZERO deletions performed. Zero history rewrites. No branch/tag touched.
+- Awaiting the supervisor's item-by-item confirmation; the confirmed
+  deletions will then run as ONE isolated "repo cleanup" commit followed
+  by the full gate (suite+doctor+bench x3) re-run, push, ls-remote.
