@@ -22,6 +22,13 @@ commit + immediate push at every station).
 - M1 (RED): 0/24 executed pre-implementation, every case failing on
   ModuleNotFoundError — evidence results/axis2/axis2_RED.json, suite digest
   10bd2caf36e107be…, pushed immediately.
+- M2 (GREEN): sentinel/statemachine.py implemented (§2.1–§2.8 complete)
+  — 24/24 first-shot, suite digest 9634780aa1712d12… (evidence
+  results/axis2/axis2_GREEN.json), pushed immediately. Honest note: one
+  test-side calling bug (keyword heuristic= vs the module's heuristic_fn=
+  parameter) was caught in pre-run review and fixed before the green run;
+  the suite itself surfaced no implementation defects this time (unlike
+  axis-1's two validate() catches).
 
 # SENTINEL Axis-1 — Execution-Graph Engine mounted (DAG orchestration core, spec §1.1–§1.8)
 

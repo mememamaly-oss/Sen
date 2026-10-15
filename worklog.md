@@ -4627,3 +4627,17 @@ Work Log:
 
 Stage Summary:
 - M1 CLOSED: the axis-2 coverage contract exists as executable code, its RED state is machine-documented (0/24, digest 10bd2caf36e107be), and the station is committed/pushed per the amended protocol. Next: implement sentinel/statemachine.py (§2.1–§2.8) for M2 green.
+
+---
+Task ID: 62-M2
+Agent: Super Z (main agent)
+Task: Axis 2 station M2 — implement sentinel/statemachine.py per spec §2.1–§2.8, run the suite green (24/24), isolated commit "axis2: green" + immediate push + ls-remote.
+
+Work Log:
+- IMPLEMENTED build-v430/sentinel/statemachine.py (~390 lines): §2.1 the 8-tuple components (S=7 chain states, s0=s_init, F={exfiltration}, Σ=frozenset over exactly the δ alphabet, Λ=DEFAULT_LAMBDA (0.40,0.30,0.15,0.15) ∈ ℝ⁴, Γ=per-state tactical profiles, Θ=per-transition costs); §2.2 the literal 8-transition table (6 chain edges + 2 shortcut edges s_init->foothold@19 / recon->elevation@21 making the golden path 19+4x10=59 uniquely optimal vs 60 full chain and 61 exploit-first) with TOTAL rejection semantics; §2.3 C1–C6 documented + enforced via the primitives; §2.4 value() with _validate_lambda (dim-4 enforcement, non-negativity, sum>0, fsum normalization to Σw=1) over f(s)∈[0,1]^4 (access/persistence/stealth/efficiency — the Axis-9 reward axes as state achievements); §2.5 heuristic() = c_min·(r_goal−r_s)/2 (admissible AND consistent by construction — an edge of rank-span d drops h by c_min·d/2 ≤ c_min ≤ c(edge)) + astar() with event-sorted successor expansion and insertion-counter tie-break (deterministic), defaulting to the module heuristic for the accepting goal and Dijkstra-zero otherwise, raising StateMachineError on unreachable goals; §2.6 StateMachine (total step: legal→advance, illegal→atomic rejection with exactly one boundary record; run; gamma() with phase/coverage/stealth/guards/events); §2.7 _invariant_violations (current∈S, history a legal δ-walk from s0, event_log length+walk alignment, Λ normalized, C3 at current state, boundary shape contiguous-seq + taxonomy categories) surfaced as verify_invariants()/assert_invariants() + snapshot/restore (deep-logical copies) + digest() over the LOGICAL stream only; §2.8 the 14-category boundary taxonomy mirroring xgraph with DEFAULT_ILLEGAL_CATEGORY=PRECONDITION_FAILED. sentinel/__init__.py untouched (empty) — the core hot path cannot import the module.
+- HONEST JOURNEY: pre-run review caught a TEST-SIDE calling bug — three call sites passed the Dijkstra heuristic as keyword heuristic=_zero_h while the module parameter is heuristic_fn (named so to avoid shadowing the module-level heuristic() inside astar). Fixed to positional args (sed, syntax-checked). The module itself passed the suite FIRST-SHOT: the 24 cases surfaced no implementation defects (contrast: axis-1's two validate() defects) — reported as-is, no embellishment.
+- GREEN EXECUTED: results/axis2/axis2_GREEN.json — 24/24, failed=0, suite digest 9634780aa1712d12..., exit 0.
+- STATION CLOSE-OUT: CHANGELOG station ledger M2 line (with the honest note), this worklog entry, STATE.md round-26 updated. Isolated commit "axis2: green" carries: sentinel/statemachine.py + results/axis2/axis2_GREEN.json + the three record files. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M2 CLOSED: the formal state machine is spec-implemented and green 24/24 (digest 9634780aa1712d12). Next: M3 atoms (3a/3b/3c exhaustive battery) via --atoms.
