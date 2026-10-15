@@ -467,7 +467,7 @@ def test_h2_16_astar_golden_path():
     path, cost = astar("s_init", "exfiltration")
     assert path == GOLDEN_PATH and cost == GOLDEN_PATH_COST, (path, cost)
     # Dijkstra cross-check (h == 0) agrees
-    path0, cost0 = astar("s_init", "exfiltration", heuristic=_zero_h)
+    path0, cost0 = astar("s_init", "exfiltration", _zero_h)
     assert path0 == GOLDEN_PATH and cost0 == GOLDEN_PATH_COST
     # a mid-chain start: from recon the via-foothold route (50) beats 51
     path_r, cost_r = astar("recon", "exfiltration")
@@ -486,7 +486,7 @@ def test_h2_16_astar_golden_path():
 def test_h2_17_admissible_heuristic():
     _guard_red()
     for s in STATES:
-        true_cost = astar(s, "exfiltration", heuristic=_zero_h)[1]
+        true_cost = astar(s, "exfiltration", _zero_h)[1]
         h = heuristic(s)
         assert h <= true_cost + 1e-9, (s, h, true_cost)
     # tight anchor points of the rank-scaled bound
@@ -701,12 +701,14 @@ def _atoms_3a_state_atoms():
         _atom("3a", f"{s}: C3 tradeoff",
               g["stealth"] + g["coverage"] <= 1.0 + 1e-9,
               g["stealth"] + g["coverage"])
-        _atom("3a", f"{s}: reachable from s0", bool(_walk_events(s)))
+        walk = _walk_events(s)
+        _atom("3a", f"{s}: reachable from s0 (walk length {len(walk)})",
+              s == "s_init" or len(walk) > 0, len(walk))
         m = _machine_at(s)
         _atom("3a", f"{s}: parked machine verifies invariants",
               m.verify_invariants(), m.state)
         _atom("3a", f"{s}: h admissible vs Dijkstra",
-              heuristic(s) <= astar(s, "exfiltration", heuristic=_zero_h)[1] + 1e-9)
+              heuristic(s) <= astar(s, "exfiltration", _zero_h)[1] + 1e-9)
         for lam in LAMBDA_GRID:
             v = value(s, lam)
             _atom("3a", f"{s}: V in [0,1] under {lam}", 0.0 <= v <= 1.0, v)
@@ -788,14 +790,15 @@ def _atoms_3c_value_atoms():
     except StateMachineError:
         _atom("3c", "unknown state rejected", True)
     # A* atoms: golden path reproduced identically three times
-    results = {astar("s_init", "exfiltration") for _ in range(3)}
+    results = [astar("s_init", "exfiltration") for _ in range(3)]
     _atom("3c", "golden path stable x3 (path, cost)",
-          len(results) == 1 and results == {(GOLDEN_PATH, GOLDEN_PATH_COST)})
+          all(r == (GOLDEN_PATH, GOLDEN_PATH_COST) for r in results),
+          results)
     _atom("3c", "Dijkstra cross-check equals A* golden",
-          astar("s_init", "exfiltration", heuristic=_zero_h)
+          astar("s_init", "exfiltration", _zero_h)
           == (GOLDEN_PATH, GOLDEN_PATH_COST))
     for s in STATES:
-        true_cost = astar(s, "exfiltration", heuristic=_zero_h)[1]
+        true_cost = astar(s, "exfiltration", _zero_h)[1]
         _atom("3c", f"h({s}) admissible", heuristic(s) <= true_cost + 1e-9)
     for (s, sigma), t in sorted(TRANSITIONS.items()):
         _atom("3c", f"h consistent on edge {s}->{t}",

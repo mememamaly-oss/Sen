@@ -4641,3 +4641,16 @@ Work Log:
 
 Stage Summary:
 - M2 CLOSED: the formal state machine is spec-implemented and green 24/24 (digest 9634780aa1712d12). Next: M3 atoms (3a/3b/3c exhaustive battery) via --atoms.
+
+---
+Task ID: 62-M3
+Agent: Super Z (main agent)
+Task: Axis 2 station M3 — the atoms verification (3a/3b/3c), isolated commit "axis2: atom-verified" + immediate push + ls-remote.
+
+Work Log:
+- ATOMS EXECUTED via --atoms: an exhaustive battery where the 24 cases sample, the atoms enumerate — 3a STATE atoms (126 checks: every state x membership/features-in-[0,1]^4/Gamma well-formedness/C3 tradeoff/reachability-with-walk-length/parked-machine invariants/h admissibility vs Dijkstra/V in [0,1] under the full 11-Lambda grid); 3b TRANSITION atoms (182 checks: every legal edge x endpoints-in-S/cost>0-finite/3x deterministic digest stability/clean apply (history+event_log advance, zero boundary writes)/C2 progress/h consistency + EVERY one of the 48 illegal (s,sigma) pairs in SxSigma-delta x atomic rejection (state/history/event_log byte-stable + exactly one taxonomy entry) + 14 fabricated-event rejections); 3c VALUE atoms (123 checks: 11-Lambda grid x 7 states range, normalization invariance at k in {0.5,2,7}, 7 malformed-Lambda rejections, unknown-state rejection, golden path (path,cost) stable x3, Dijkstra cross-check, per-state admissibility, per-edge consistency).
+- HONEST JOURNEY: the battery caught TWO bugs IN ITS OWN TOOLING before passing — (1) {astar(...) for _ in range(3)} raised TypeError: unhashable type 'list' (astar returns (path-list, cost)); (2) the s_init reachability atom used bool(_walk_events(s)) and the s_init walk is the EMPTY list by definition (it IS the start state) -> false failure "s_init unreachable". Both are test-code bugs, module innocent (3b/3c were already 100% green on the first run). Fixed (list-comprehension comparison; s == s_init or len(walk) > 0 with the walk length recorded in the atom detail). Re-run: 431/431, digest 9217f3b19e1d7e79. Suite regression check after the fixes: 24/24 with the UNCHANGED digest 9634780aa1712d12 (no case outcome altered).
+- STATION CLOSE-OUT: CHANGELOG station ledger M3 line (with the honest tooling-catch note), this worklog entry, STATE.md round-26 updated. Isolated commit "axis2: atom-verified" carries: the two atoms-tooling fixes in tests/test_axis2_statemachine.py + results/axis2/axis2_ATOMS.json + the three record files. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M3 CLOSED: every state, every transition, every rejection path, every Lambda atom machine-verified — 431/431 (3a 126, 3b 182, 3c 123), digest 9217f3b19e1d7e79. Next: M4 R3 determinism (suite x3 identical digests).

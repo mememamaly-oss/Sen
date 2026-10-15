@@ -29,6 +29,19 @@ commit + immediate push at every station).
   parameter) was caught in pre-run review and fixed before the green run;
   the suite itself surfaced no implementation defects this time (unlike
   axis-1's two validate() catches).
+- M3 (atom-verified): the exhaustive battery — 3a state atoms (126),
+  3b transition atoms (182: every legal edge x cost/determinism/clean
+  apply/no-boundary-write/consistency + every one of the 48 illegal
+  (s,σ) pairs x atomic rejection + fabricated events), 3c value atoms
+  (123: 11-Λ grid, normalization invariance, malformed rejection,
+  admissibility, consistency, golden x3) — **431/431 checks, digest
+  9217f3b19e1d7e79** (results/axis2/axis2_ATOMS.json), pushed
+  immediately. Honest note: the battery caught TWO bugs in its own
+  tooling before passing (an unhashable (list, cost) result set; the
+  s_init walk list is empty-by-definition so bool([]) misread the start
+  state as unreachable) — both fixed, suite digest unchanged
+  (9634780aa1712d12, regression-checked); the module itself: zero
+  defects.
 
 # SENTINEL Axis-1 — Execution-Graph Engine mounted (DAG orchestration core, spec §1.1–§1.8)
 

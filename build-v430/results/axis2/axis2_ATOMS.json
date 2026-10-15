@@ -1,0 +1,2612 @@
+{
+ "suite": "axis2-atoms",
+ "total": 431,
+ "failed": 0,
+ "passed": true,
+ "atoms": [
+  {
+   "id": "3a",
+   "checks": 126,
+   "failed": 0
+  },
+  {
+   "id": "3b",
+   "checks": 182,
+   "failed": 0
+  },
+  {
+   "id": "3c",
+   "checks": 123,
+   "failed": 0
+  }
+ ],
+ "checks": [
+  {
+   "atom": "3a",
+   "what": "s_init: in S",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: features R^4 in [0,1]",
+   "ok": true,
+   "detail": "(0.0, 0.0, 1.0, 1.0)"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: Gamma well-formed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: C3 tradeoff",
+   "ok": true,
+   "detail": "1.0"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: reachable from s0 (walk length 0)",
+   "ok": true,
+   "detail": "0"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: parked machine verifies invariants",
+   "ok": true,
+   "detail": "s_init"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: h admissible vs Dijkstra",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": "0.3"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.0"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.0"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": "1.0"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": "1.0"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": "0.5"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.2"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.2"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": "0.7999999999999999"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": "0.7999999999999999"
+  },
+  {
+   "atom": "3a",
+   "what": "s_init: V in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.2"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: in S",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "recon: features R^4 in [0,1]",
+   "ok": true,
+   "detail": "(0.15, 0.0, 0.9, 0.8)"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: Gamma well-formed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "recon: C3 tradeoff",
+   "ok": true,
+   "detail": "1.0"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: reachable from s0 (walk length 1)",
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: parked machine verifies invariants",
+   "ok": true,
+   "detail": "recon"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: h admissible vs Dijkstra",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": "0.315"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.15"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.0"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": "0.9"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": "0.8"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": "0.4625"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.275"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.18500000000000003"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": "0.725"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": "0.6649999999999999"
+  },
+  {
+   "atom": "3a",
+   "what": "recon: V in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.25250000000000006"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: in S",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: features R^4 in [0,1]",
+   "ok": true,
+   "detail": "(0.35, 0.2, 0.8, 0.65)"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: Gamma well-formed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: C3 tradeoff",
+   "ok": true,
+   "detail": "0.9500000000000001"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: reachable from s0 (walk length 1)",
+   "ok": true,
+   "detail": "1"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: parked machine verifies invariants",
+   "ok": true,
+   "detail": "foothold"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: h admissible vs Dijkstra",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": "0.4175"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.35"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.2"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": "0.8"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": "0.65"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": "0.5"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.41"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.32"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": "0.6799999999999999"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": "0.59"
+  },
+  {
+   "atom": "3a",
+   "what": "foothold: V in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.3875"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: in S",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: features R^4 in [0,1]",
+   "ok": true,
+   "detail": "(0.55, 0.4, 0.7, 0.55)"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: Gamma well-formed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: C3 tradeoff",
+   "ok": true,
+   "detail": "0.95"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: reachable from s0 (walk length 2)",
+   "ok": true,
+   "detail": "2"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: parked machine verifies invariants",
+   "ok": true,
+   "detail": "elevation"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: h admissible vs Dijkstra",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": "0.5275000000000001"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.55"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.4"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": "0.7"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": "0.55"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": "0.55"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.55"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.45999999999999996"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": "0.6399999999999999"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": "0.55"
+  },
+  {
+   "atom": "3a",
+   "what": "elevation: V in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.5275000000000001"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: in S",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: features R^4 in [0,1]",
+   "ok": true,
+   "detail": "(0.7, 0.6, 0.55, 0.45)"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: Gamma well-formed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: C3 tradeoff",
+   "ok": true,
+   "detail": "0.9"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: reachable from s0 (walk length 3)",
+   "ok": true,
+   "detail": "3"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: parked machine verifies invariants",
+   "ok": true,
+   "detail": "traversal"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: h admissible vs Dijkstra",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": "0.61"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.7"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.6"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": "0.55"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": "0.45"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": "0.575"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.6499999999999999"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.59"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": "0.56"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": "0.5"
+  },
+  {
+   "atom": "3a",
+   "what": "traversal: V in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.635"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: in S",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "objective: features R^4 in [0,1]",
+   "ok": true,
+   "detail": "(0.9, 0.8, 0.4, 0.35)"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: Gamma well-formed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "objective: C3 tradeoff",
+   "ok": true,
+   "detail": "0.9"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: reachable from s0 (walk length 4)",
+   "ok": true,
+   "detail": "4"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: parked machine verifies invariants",
+   "ok": true,
+   "detail": "objective"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: h admissible vs Dijkstra",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": "0.7125"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.9"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "0.8"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": "0.4"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": "0.35"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": "0.6125"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.785"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.725"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": "0.485"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": "0.455"
+  },
+  {
+   "atom": "3a",
+   "what": "objective: V in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.77"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: in S",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: features R^4 in [0,1]",
+   "ok": true,
+   "detail": "(1.0, 1.0, 0.25, 0.25)"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: Gamma well-formed",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: C3 tradeoff",
+   "ok": true,
+   "detail": "0.9"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: reachable from s0 (walk length 5)",
+   "ok": true,
+   "detail": "5"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: parked machine verifies invariants",
+   "ok": true,
+   "detail": "exfiltration"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: h admissible vs Dijkstra",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": "0.775"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "1.0"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": "1.0"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": "0.25"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": "0.25"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": "0.625"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.85"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.85"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": "0.4"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": "0.4"
+  },
+  {
+   "atom": "3a",
+   "what": "exfiltration: V in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": "0.8500000000000001"
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "10.0"
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "elevation -network_traversed-> traversal: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "10.0"
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "foothold -privilege_escalated-> elevation: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "10.0"
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "objective -data_exfiltrated-> exfiltration: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "10.0"
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -foothold_gained-> foothold: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "21.0"
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "recon -initial_access_exploit-> elevation: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "10.0"
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -recon_complete-> recon: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "19.0"
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "s_init -valid_creds_acquired-> foothold: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: endpoints in S, sigma in Sigma",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: Theta cost > 0 finite",
+   "ok": true,
+   "detail": "10.0"
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: applies cleanly",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: deterministic x3",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: C2 progress features",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: no boundary write on legal step",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "traversal -objective_captured-> objective: h consistent over edge",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, data_exfiltrated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, data_exfiltrated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, foothold_gained): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, foothold_gained): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, initial_access_exploit): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, initial_access_exploit): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, network_traversed): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, network_traversed): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, objective_captured): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, objective_captured): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, privilege_escalated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (s_init, privilege_escalated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, data_exfiltrated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, data_exfiltrated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, network_traversed): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, network_traversed): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, objective_captured): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, objective_captured): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, privilege_escalated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, privilege_escalated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, recon_complete): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, recon_complete): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, valid_creds_acquired): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (recon, valid_creds_acquired): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, data_exfiltrated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, data_exfiltrated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, foothold_gained): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, foothold_gained): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, initial_access_exploit): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, initial_access_exploit): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, network_traversed): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, network_traversed): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, objective_captured): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, objective_captured): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, recon_complete): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, recon_complete): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, valid_creds_acquired): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (foothold, valid_creds_acquired): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, data_exfiltrated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, data_exfiltrated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, foothold_gained): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, foothold_gained): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, initial_access_exploit): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, initial_access_exploit): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, objective_captured): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, objective_captured): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, privilege_escalated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, privilege_escalated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, recon_complete): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, recon_complete): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, valid_creds_acquired): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (elevation, valid_creds_acquired): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, data_exfiltrated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, data_exfiltrated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, foothold_gained): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, foothold_gained): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, initial_access_exploit): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, initial_access_exploit): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, network_traversed): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, network_traversed): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, privilege_escalated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, privilege_escalated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, recon_complete): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, recon_complete): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, valid_creds_acquired): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (traversal, valid_creds_acquired): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, foothold_gained): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, foothold_gained): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, initial_access_exploit): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, initial_access_exploit): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, network_traversed): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, network_traversed): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, objective_captured): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, objective_captured): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, privilege_escalated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, privilege_escalated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, recon_complete): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, recon_complete): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, valid_creds_acquired): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (objective, valid_creds_acquired): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, data_exfiltrated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, data_exfiltrated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, foothold_gained): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, foothold_gained): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, initial_access_exploit): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, initial_access_exploit): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, network_traversed): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, network_traversed): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, objective_captured): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, objective_captured): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, privilege_escalated): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, privilege_escalated): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, recon_complete): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, recon_complete): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, valid_creds_acquired): rejected atomically",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "reject (exfiltration, valid_creds_acquired): exactly one boundary entry",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (s_init, '__nope__'): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (s_init, ''): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (recon, '__nope__'): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (recon, ''): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (foothold, '__nope__'): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (foothold, ''): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (elevation, '__nope__'): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (elevation, ''): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (traversal, '__nope__'): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (traversal, ''): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (objective, '__nope__'): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (objective, ''): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (exfiltration, '__nope__'): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3b",
+   "what": "fabricated (exfiltration, ''): rejected + logged",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.4, 0.3, 0.15, 0.15)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (1.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.0, 1.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.0, 0.0, 1.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.0, 0.0, 0.0, 1.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.25, 0.25, 0.25, 0.25)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.7, 0.1, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.1, 0.7, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.1, 0.1, 0.7, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.1, 0.1, 0.1, 0.7)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(s_init) in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(recon) in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(foothold) in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(elevation) in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(traversal) in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(objective) in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "V(exfiltration) in [0,1] under (0.55, 0.25, 0.1, 0.1)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=0.5 at s_init",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=0.5 at recon",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=0.5 at foothold",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=0.5 at elevation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=0.5 at traversal",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=0.5 at objective",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=0.5 at exfiltration",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=2.0 at s_init",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=2.0 at recon",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=2.0 at foothold",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=2.0 at elevation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=2.0 at traversal",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=2.0 at objective",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=2.0 at exfiltration",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=7.0 at s_init",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=7.0 at recon",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=7.0 at foothold",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=7.0 at elevation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=7.0 at traversal",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=7.0 at objective",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "normalization invariance k=7.0 at exfiltration",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "malformed lambda rejected ()",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "malformed lambda rejected (1.0,)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "malformed lambda rejected (1.0, 2.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "malformed lambda rejected (1.0, 2.0, 3.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "malformed lambda rejected (1.0, 2.0, 3.0, 4.0, 5.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "malformed lambda rejected (0.0, 0.0, 0.0, 0.0)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "malformed lambda rejected (-0.1, 0.5, 0.3, 0.3)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "unknown state rejected",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "golden path stable x3 (path, cost)",
+   "ok": true,
+   "detail": "[(['s_init', 'foothold', 'elevation', 'traversal', 'objective', 'exfiltration'], 59.0), (['s_init', 'foothold', 'elevation', 'traversal', 'objective', 'exfiltration'], 59.0), (['s_init', 'foothold', '"
+  },
+  {
+   "atom": "3c",
+   "what": "Dijkstra cross-check equals A* golden",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h(s_init) admissible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h(recon) admissible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h(foothold) admissible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h(elevation) admissible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h(traversal) admissible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h(objective) admissible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h(exfiltration) admissible",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge elevation->traversal",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge foothold->elevation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge objective->exfiltration",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge recon->foothold",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge recon->elevation",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge s_init->recon",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge s_init->foothold",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "atom": "3c",
+   "what": "h consistent on edge traversal->objective",
+   "ok": true,
+   "detail": ""
+  }
+ ],
+ "digest": "9217f3b19e1d7e79ffffac7594e74969987c6a97d9b1c53015564bb1b3154193"
+}
