@@ -1,3 +1,28 @@
+# SENTINEL Axis-2 — Formal State Machine M=(S,Σ,δ,s₀,F,Λ,Γ,Θ) (spec §2.1–§2.8)
+
+Standalone suite tests/test_axis2_statemachine.py (24 cases H2_01..H2_24,
+NOT @case-registered — the 4313 contract untouched by construction) mounting
+the supervisor's coverage table literally: S = the 7 attack-phase states
+(s_init→recon→foothold→elevation→traversal→objective→exfiltration), s₀ =
+s_init, F = {exfiltration}; Σ = exactly the 8-event delta alphabet; δ = the
+literal 8-transition table (6 chain edges + 2 shortcut edges) with Θ costs;
+constraints C1–C6 (inverse V↑/h↓ and stealth↓/coverage↑, monotone progress
+features, Stealth+Coverage≤1 tradeoff, deterministic δ, full reachability +
+co-reachability, safety: exfiltration enterable only via objective +
+atomic rejection); Λ∈ℝ⁴ (access, persistence, stealth, efficiency) with
+Σw=1 normalization and V∈[0,1]; A* with the rank-scaled admissible AND
+consistent heuristic h(s)=c_min·(r_goal−r_s)/2 (golden optimal path proven
+unique by full path enumeration: 59 < 60 < 61); replay/verify_invariants/
+snapshot/restore; per-state Γ tactical profiles; illegal (s,σ) pairs
+rejected atomically into the Axis-12 14-category boundary log; semantic
+digests over the logical stream only. Station protocol M1–M5 (isolated
+commit + immediate push at every station).
+
+## Axis-2 stations
+- M1 (RED): 0/24 executed pre-implementation, every case failing on
+  ModuleNotFoundError — evidence results/axis2/axis2_RED.json, suite digest
+  10bd2caf36e107be…, pushed immediately.
+
 # SENTINEL Axis-1 — Execution-Graph Engine mounted (DAG orchestration core, spec §1.1–§1.8)
 
 New module sentinel/xgraph.py + standalone suite tests/test_axis1_xgraph.py

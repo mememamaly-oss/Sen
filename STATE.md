@@ -615,6 +615,21 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 26 (2026-10-15, Axis-2 mounted — station protocol M1–M5):**
+  supervisor amendment: every clean station commits isolated and pushes
+  immediately (no waiting for the axis end); any push failure = stop and
+  report. Pre-work: 7th UUID noise commit (41036fd) proof-checked (six
+  oob-* markers only, parent = 1bc184b) and discarded per precedent.
+  Station M1 (RED): tests/test_axis2_statemachine.py — the 24-case table
+  H2_01..H2_24 literally (S/s0/Σ, δ literal-8 + atomic rejection, C1–C6,
+  Λ∈ℝ⁴ + Σw=1 + V∈[0,1] + weight effects, A* golden/admissible/consistent,
+  replay/verify_invariants/interface/Γ, 14-category boundary log, digest
+  stability) + the --atoms M3 battery — executed BEFORE implementation:
+  **0/24, digest 10bd2caf36e107be** (results/axis2/axis2_RED.json),
+  committed "axis2: red" and pushed immediately. M2 (green), M3 (atoms
+  3a/3b/3c), M4 (R3 determinism), M5 (full gate + .log deposits + closure)
+  follow station by station.
+
 - **Round 25 (2026-10-15, Axis-1 mounted — the 12-axis spec program
   begins):** supervisor order: mount the axes one by one, red/green tests
   first, full gate, immediate push, wait for the reply between axes.
