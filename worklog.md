@@ -4726,3 +4726,16 @@ Work Log:
 
 Stage Summary:
 - M3 CLOSED: every battery at or above the ordered size, all green with zero violations/escapes. Next: M4 R3 determinism (suite x3 identical digests).
+
+---
+Task ID: 63-M4
+Agent: Super Z (main agent)
+Task: Axis 3 station M4 — R3 determinism (three suite runs, identical digests), isolated commit "axis3: determinism" + immediate push + ls-remote.
+
+Work Log:
+- HONEST LEDGER FIX: the M3 station's CHANGELOG line was MISSED at the M3 commit — the records script's text anchor ("  meaningful old-leaf-vs-new-root check).") did not match the actual M2 tail line ("  by the meaningful old-leaf-vs-new-root check)."), the script raised AssertionError AFTER the worklog append but the commit proceeded with the evidence + worklog only. No history rewrite (push already confirmed at 363c6a0): the M3 ledger line is banked in THIS station's CHANGELOG edit with an explicit honest note pointing at the original commit.
+- R3 EXECUTED: axis3_GREEN.json (run 1, from M2) + axis3_RUN2.json + axis3_RUN3.json — all three 28/28 failed=0 with the IDENTICAL suite digest ec1626c7e0cd1809... (covers the [{name, ok}] logical outcome stream only). RUN2/RUN3 differ in per-case dur_s fields (wall timings are metadata, never digest inputs — Axis-11 discipline; axis-2's RUN2/RUN3 happened to be byte-identical because its cases ran in ~0.0001s rounds; axis-3's blake3 cases take measurable time).
+- STATION CLOSE-OUT: CHANGELOG station ledger M3-fix + M4 lines, this worklog entry. Isolated commit "axis3: determinism" carries: results/axis3/axis3_RUN2.json + axis3_RUN3.json + CHANGELOG.md + worklog.md. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M4 CLOSED: the determinism claim is triple-run-backed (ec1626c7e0cd1809 x3). Next: M5 the full core gate fresh on the axis-3 tree + mandated .log deposits (git add -f) + sha256sums -> axis-3 closure.

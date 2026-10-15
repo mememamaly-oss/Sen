@@ -51,6 +51,32 @@ station).
   dec A:2 component; a non-concurrent clock pair in H3_10; and a
   meaningless old-leaf/new-proof/old-root assertion in H3_13 replaced
   by the meaningful old-leaf-vs-new-root check).
+- M3 (atom-verified, the non-negotiable battery): 3a causality —
+  **12,000 events** across 7 processes with random causal links
+  (16,574 direct edges + 1,999 sampled transitive pairs, every event
+  BLAKE3-digested): e1->e2 implies LT(e1)<LT(e2) with ZERO violations;
+  3b Merkle — **1,000 random datasets** (32,248 leaves): every leaf
+  proof verifies, every single-bit leaf flip detected (32,248), 990
+  proof-element flips detected, full 256-bit sweeps on 25 datasets with
+  zero escapes; 3c CRDT — **500 random merge schedules** (2–4 replicas,
+  random op streams, all-pairs random-order merges ×2): 500/500 converge
+  to the identical state, 100 random-triple law checks; 3d adversarial
+  — **80/80 forgeries caught (100%, zero escapes)** across all five
+  classes (value / stamp / tx manifest / root cache / proof); 3e MVCC —
+  **500 random write histories**: read_at(t) correct at EVERY t (25,930
+  dense-sweep checks incl. tombstones, 0 wrong). Evidence
+  results/axis3/axis3_ATOMS.json, chain digest 0ce206c1ad60caba….
+  (Ledger note, honest: this M3 line was missed in the M3 commit by a
+  failed text anchor in the records script and is banked here with the
+  M4 station — the evidence file itself was committed at 363c6a0.)
+- M4 (determinism): R3 delivered — suite runs GREEN/RUN2/RUN3 all 28/28
+  with the IDENTICAL digest **ec1626c7e0cd1809** (evidence
+  results/axis3/axis2_GREEN.json's siblings: axis3_GREEN.json,
+  axis3_RUN2.json, axis3_RUN3.json), pushed immediately. RUN2/RUN3 are
+  digest-identical but not byte-identical files (the per-case dur_s
+  timing fields differ; the digest covers the logical [{name, ok}]
+  outcome stream only — same discipline as axes 1–2). No determinism
+  claim without the triple run — delivered.
 
 # SENTINEL Axis-2 — Formal State Machine M=(S,Σ,δ,s₀,F,Λ,Γ,Θ) (spec §2.1–§2.8)
 
