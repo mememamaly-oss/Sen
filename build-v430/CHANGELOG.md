@@ -1,3 +1,38 @@
+# SENTINEL Axis-3 — PCS: Persistent Causal Store (spec §3.1–§3.8)
+
+New modules sentinel/blake3.py (pure-Python BLAKE3-256, zero dependencies,
+validated against the official blake3 package at dev time: 0 mismatches
+over 30 official-pattern vectors incl. multi-chunk lengths + 200 random
+cross-checks; the 30 vectors are embedded env-independent literals in the
+suite) + sentinel/pcs.py (the store itself). Standalone suite
+tests/test_axis3_pcs.py (28 cases H3_01..H3_28, NOT @case-registered —
+the 4313 contract untouched by construction): §3.1 BLAKE3 keys / canonical
+MessagePack values (sorted-key determinism, smallest encodings, strict
+rejection) / Lamport stamps / Merkle root over record digests + full
+serialize round-trip; §3.2 ACID/BASE partition (ledger=ACID atomic
+transactions with rollback, state=BASE available + convergent merges);
+§3.3 Lamport R1 (tick +1) / R2 (receive max+1) / R3 (causal implies
+strictly increasing, no false converse claims); §3.4 vector clocks
+(componentwise max, causality iff order, concurrency incomparability —
+checked against an independently computed happened-before relation);
+§3.5 Merkle proofs O(log n) (exact depth, every-leaf verification,
+single-bit tamper detection in leaf AND proof elements); §3.6 CRDTs
+(G-Counter, PN-Counter, OR-Set with observed-remove tombstones, add-wins,
+single-use tags, merge laws commutative/associative/idempotent);
+§3.7 MVCC (strictly increasing per-key stamps, explicit-t validation,
+read_at(t) = latest version <= t, tombstones, dense sweeps); §3.8 the
+9-operation interface (put/get/delete/transaction/merkle_proof/
+verify_proof/merge/read_at/verify_integrity) with inspect-enforced
+arities and the 5-class integrity story. Station protocol M1–M5 per the
+supervisor's amendment (isolated commit + immediate push at every
+station).
+
+## Axis-3 stations
+- M1 (RED): 0/28 executed pre-implementation, every case failing on
+  ModuleNotFoundError('sentinel.blake3') — evidence
+  results/axis3/axis3_RED.json, suite digest 9190527d4eb85234…, pushed
+  immediately.
+
 # SENTINEL Axis-2 — Formal State Machine M=(S,Σ,δ,s₀,F,Λ,Γ,Θ) (spec §2.1–§2.8)
 
 Standalone suite tests/test_axis2_statemachine.py (24 cases H2_01..H2_24,

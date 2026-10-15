@@ -615,6 +615,34 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 27 (2026-10-16, Axis-3 mounted — PCS):** supervisor order:
+  Part A bank the round-26 axis-1 .log deposits + Part B axis-3 under the
+  M1–M5 station protocol. 8TH CONTAINER ROLLBACK on arrival (full-snapshot
+  to the IV13 era: worklog 923, build-v430 absent, download/ absent,
+  /tmp wiped) — standard realignment executed (fetch on the session PAT,
+  six-fold redundancy proof of the stale f2d41e8 chain, reset --hard
+  e42d4bb, .env restored untracked, 11/11 tags). PART A BLOCKED, AWAITING
+  RULING: the three round-26 files (gate/bench_3c0652b6be.log,
+  axis1_digest.log — created under the round-26 no-commit freeze, never
+  committed anywhere) were DESTROYED by the 8th rollback before the
+  banking order arrived; byte-identical banking is impossible. Their
+  sha256sums are on record (2dd59286…/1f08a73e…/85f39fe9…). Options
+  presented: (a) accept the already-banked axis-2 M5 deposits (committed
+  e42d4bb, same gate contract on the superset tree) as the durable
+  closure evidence, (b) regenerate axis1_digest.log from the committed
+  axis-1 JSONs (content reproducible, marked regenerated), (c) fresh
+  axis-1-shaped gate re-run with new .log deposits. Dev-time reference
+  work (declared): pip install blake3 (the official package) used ONLY as
+  a validation oracle — the pure-Python implementation validated 0
+  mismatches over 30 vectors + 200 random; committed code has zero new
+  dependencies. Station M1 (RED): tests/test_axis3_pcs.py — 28 cases
+  H3_01..H3_28 covering §3.1–§3.8 + the --atoms battery (3a 12,000
+  events / 3b 1,000 datasets / 3c 500 schedules / 3d 80 adversarial
+  stores / 3e 500 histories) — executed BEFORE implementation: **0/28,
+  digest 9190527d4eb85234** (results/axis3/axis3_RED.json), committed
+  "axis3: red" and pushed immediately. M2–M5 follow station by station.
+
+
 - **Round 26 (2026-10-15, Axis-2 mounted — station protocol M1–M5):**
   supervisor amendment: every clean station commits isolated and pushes
   immediately (no waiting for the axis end); any push failure = stop and
