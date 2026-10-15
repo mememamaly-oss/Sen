@@ -229,8 +229,16 @@ class VerificationEngine:
                       or (r1.ok and r2.ok and r1.status == r2.status
                           and abs(len(body_a) - len(body_b))
                               > max(200, 0.25 * max(len(body_a), len(body_b), 1))))
+            # HARDENING (2026-10-15, supervisor item-1, from-scratch redo): every
+            # success Verification below stamps passed=<the OBSERVED boolean that
+            # gated the branch> — never a literal True. 8 sites: PATH A=stable,
+            # PATH D=okD, PATH C=okC, PATH C'=bool(num_redirect or num_body),
+            # PATH D2=okD2, PATH E=okE, csrf=okVR13, nosql-js=js_flip. The ONE
+            # deliberate exemption (supervisor ruling): the _PRESENCE_VERIFIED_TYPES
+            # allowlist branch — single-response presence IS the whole evidence
+            # class there (VF-01 design; no replay oracle exists by nature).
             if stable:
-                v = Verification(method="oracle:replay-2round", passed=True, confidence=0.95, rounds=2,
+                v = Verification(method="oracle:replay-2round", passed=stable, confidence=0.95, rounds=2,
                                  notes=f"replay TRUE={r1.status} FALSE={r2.status}")
                 f.verification, f.confidence = v, v.confidence
                 f.status = FindingStatus.VERIFIED
@@ -242,9 +250,10 @@ class VerificationEngine:
                 # keep this an INDEPENDENT replay: '2'>'1' is TRUE, '1'>'2' is FALSE.
                 rd1 = self._replay(ep, p, f"{base}' OR '2'>'1' -- ")
                 rd2 = self._replay(ep, p, f"{base}' OR '1'>'2' -- ")
-                if (rd1.status and rd1.status == rd2.status and rd1.ok and
-                        abs(len(rd1.body or "") - len(rd2.body or "")) > max(200, 0.25 * max(len(rd1.body or "x"), 1))):
-                    v = Verification(method="oracle:or-bodydiff-2round", passed=True, confidence=0.95, rounds=2,
+                okD = bool(rd1.status and rd1.status == rd2.status and rd1.ok and
+                           abs(len(rd1.body or "") - len(rd2.body or "")) > max(200, 0.25 * max(len(rd1.body or "x"), 1)))
+                if okD:
+                    v = Verification(method="oracle:or-bodydiff-2round", passed=okD, confidence=0.95, rounds=2,
                                      notes=f"fresh OR-pair body differential: TRUE {len(rd1.body)}B vs FALSE {len(rd2.body)}B")
                     f.verification, f.confidence = v, v.confidence
                     f.status = FindingStatus.VERIFIED
@@ -267,8 +276,10 @@ class VerificationEngine:
                         try: return payload in _uq27(str(loc or ""))
                         except Exception: return False
                     _p5, _p6 = f"{base}' OR '1'='1' -- ", f"{base}' OR '1'='2' -- "
-                    if l5 and l6 and l5 != l6 and not (_echo27(l5, _p5) and _echo27(l6, _p6)):
-                        v = Verification(method="oracle:or-redirect-2round", passed=True, confidence=0.95, rounds=2,
+                    okC = bool(l5 and l6 and l5 != l6
+                               and not (_echo27(l5, _p5) and _echo27(l6, _p6)))
+                    if okC:
+                        v = Verification(method="oracle:or-redirect-2round", passed=okC, confidence=0.95, rounds=2,
                                          notes=f"replay OR TRUE -> {l5}, FALSE -> {l6}")
                         f.verification, f.confidence = v, v.confidence
                         f.status = FindingStatus.VERIFIED
@@ -293,7 +304,7 @@ class VerificationEngine:
                         if num_redirect or num_body:
                             note = (f"replay numeric-OR TRUE -> {l7}, FALSE -> {l8}" if num_redirect else
                                     f"fresh numeric-OR body differential: TRUE {len(b7)}B vs FALSE {len(b8)}B")
-                            v = Verification(method="oracle:ornum-2round", passed=True, confidence=0.95, rounds=2,
+                            v = Verification(method="oracle:ornum-2round", passed=bool(num_redirect or num_body), confidence=0.95, rounds=2,
                                              notes=note)
                             f.verification, f.confidence = v, v.confidence
                             f.status = FindingStatus.VERIFIED
@@ -308,12 +319,13 @@ class VerificationEngine:
                             # status, diff > max(200, 25%)).
                             r9 = self._replay(ep, p, f"{base}')) OR '2'>'1' -- ")
                             r10 = self._replay(ep, p, f"{base}')) OR '1'>'2' -- ")
-                            if (r9 is not None and r10 is not None and r9.ok and r10.ok
-                                    and r9.status == r10.status
-                                    and abs(len(r9.body or "") - len(r10.body or ""))
-                                    > max(200, 0.25 * max(len(r9.body or "x"), len(r10.body or "x"), 1))):
+                            okD2 = bool(r9 is not None and r10 is not None and r9.ok and r10.ok
+                                        and r9.status == r10.status
+                                        and abs(len(r9.body or "") - len(r10.body or ""))
+                                        > max(200, 0.25 * max(len(r9.body or "x"), len(r10.body or "x"), 1)))
+                            if okD2:
                                 v = Verification(method="oracle:paren-or-bodydiff-2round",
-                                                 passed=True, confidence=0.95, rounds=2,
+                                                 passed=okD2, confidence=0.95, rounds=2,
                                                  notes=(f"fresh paren-closing OR body differential: "
                                                         f"TRUE {len(r9.body)}B vs FALSE {len(r10.body)}B"))
                                 f.verification, f.confidence = v, v.confidence
@@ -329,10 +341,11 @@ class VerificationEngine:
                                 rbE = self._replay(ep, p, base)
                                 re1 = self._replay(ep, p, "' OR '2'>'1' -- ")
                                 re2 = self._replay(ep, p, "' OR '1'>'2' -- ")
-                                if (rbE is not None and re1 is not None and re2 is not None
-                                        and rbE.ok and re1.ok and not re2.ok):
+                                okE = bool(rbE is not None and re1 is not None and re2 is not None
+                                           and rbE.ok and re1.ok and not re2.ok)
+                                if okE:
                                     v = Verification(method="oracle:existence-flip-2round",
-                                                     passed=True, confidence=0.9, rounds=3,
+                                                     passed=okE, confidence=0.9, rounds=3,
                                                      notes=(f"no-base OR existence flip: base {rbE.status}, "
                                                             f"TRUE {re1.status} ({len(re1.body or '')}B), "
                                                             f"FALSE {re2.status} ({len(re2.body or '')}B)"))
@@ -1174,8 +1187,9 @@ class VerificationEngine:
                     <= max(150, 0.25 * max(len(r_base.body or "x"), 1))
             discriminating = (r_ctrl is None) or \
                 (not r_ctrl.ok or r_ctrl.status != (r_base.status if r_base is not None else 0))
-            if ok13 and similar13 and discriminating and mut_p:
-                v = Verification(method="re-test:fresh-hostile-origin", passed=True,
+            okVR13 = bool(ok13 and similar13 and discriminating and mut_p)
+            if okVR13:
+                v = Verification(method="re-test:fresh-hostile-origin", passed=okVR13,
                                  confidence=0.85, rounds=3,
                                  notes=f"cross-origin replay from {fresh13} accepted "
                                        f"(baseline {r_base.status}, replay {r13.status}); malformed "
@@ -1262,7 +1276,7 @@ class VerificationEngine:
                            f"({len(getattr(rj1, 'body', '') or '')}B), FALSE -> "
                            f"{getattr(rj2, 'status', 0)} — the JS-evaluation flip reproduces")
                 if js_flip:
-                    v = Verification(method="oracle:js-or-2round", passed=True,
+                    v = Verification(method="oracle:js-or-2round", passed=js_flip,
                                      confidence=0.9, rounds=2, notes=js_note)
                     f.verification, f.confidence = v, v.confidence
                     f.status = FindingStatus.VERIFIED

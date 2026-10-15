@@ -4399,3 +4399,103 @@ Stage Summary:
 - Awaiting the supervisor's item-by-item confirmation; the confirmed
   deletions will then run as ONE isolated "repo cleanup" commit followed
   by the full gate (suite+doctor+bench x3) re-run, push, ls-remote.
+
+---
+Task ID: 55
+Agent: Super Z (main agent)
+
+Task: Supervisor order (Arabic, trace 1a13ce421961d331) + fresh PAT: item-1
+hardening REDONE FROM SCRATCH (من الصفر فعليًا) — the passed=True -> observed
+variables hardening that task 53 proved never existed. Scope correction
+honored: of the 9 inventoried literal sites, line 1920 (_PRESENCE_VERIFIED_TYPES,
+the VF-01 single-response allowlist) is a DESIGN EXEMPTION per the earlier
+ruling — absolutely untouchable; only the 8 oracle sites are targets. Precise
+mapping ordered: sql PATH A->stable, D->okD, C->okC (C' and the rest of the
+mapping arrived truncated in transit — implemented per the same discipline,
+documented below). Then the full gate fresh, push with the PAT, ls-remote.
+
+Work Log:
+- SESSION START STATE (honest): the container restored the STALE Oct-14
+  snapshot AGAIN — local HEAD f2d41e8 (the UUID auto-commit; reflog shows
+  nothing after the 2026-10-14 18:07 amend, the same topology task 53
+  found), download/ wiped (the rollback pattern), .gitignore gutted inside
+  the snapshot commit. The task-53/54 session state (backup branch, gate
+  cache /tmp/tb_gates) all gone with its container.
+- BASE RE-VERIFIED FOR THIS SESSION (fetch with the fresh PAT, inline-only):
+  origin/main = 941559a = task-54 worklog on top of c42979b (task-53 worklog)
+  on top of f0ae716. The two new commits touch worklog.md ONLY (+129 lines)
+  — the engine tree is byte-identical to the f0ae716 the task-53 full gate
+  ran on. f2d41e8 re-audited: all 31 scripts/iv_out/ files byte-identical to
+  origin/main (the task-53 finding re-confirmed); the snapshot's .env (one
+  DATABASE_URL line) restored as UNTRACKED per the remote's intended state;
+  .gitignore = the remote's full 33-line version. f2d41e8 preserved in
+  backup/stale-f2d41e8-20261015 (recreated — the task-53 backup branch lived
+  only in the lost container). Local main reset onto 941559a. NO merge, NO
+  force-push, nothing pushed rewritten — the same re-base operation task 53
+  performed, repeated because the container rolled back.
+- HARDENING IMPLEMENTED (build-v430/sentinel/intel.py, 8 sites, from
+  scratch — verified against HEAD before editing: exactly 9 executable
+  passed=True literals, all in intel.py; the graphql/websocket/workflow
+  hits are VF-04 error-message strings):
+    L241 PATH A  oracle:replay-2round          passed=stable
+    L256 PATH D  oracle:or-bodydiff-2round     okD extracted -> passed=okD
+    L282 PATH C  oracle:or-redirect-2round     okC extracted -> passed=okC
+    L307 PATH C' oracle:ornum-2round           passed=bool(num_redirect or num_body)
+    L327 PATH D2 oracle:paren-or-bodydiff-2round okD2 extracted -> passed=okD2
+    L347 PATH E  oracle:existence-flip-2round  okE extracted -> passed=okE
+    L1192 CSRF   re-test:fresh-hostile-origin  okVR13 = bool(ok13 and similar13
+                 and discriminating and mut_p) -> passed=okVR13
+    L1279 NoSQL  oracle:js-or-2round           passed=js_flip
+  LINE 1934 (was 1920 pre-edit) _PRESENCE_VERIFIED_TYPES single-response
+  allowlist: UNTOUCHED — the one deliberate exemption (VF-01 design:
+  single-response presence IS the whole evidence class; no replay oracle
+  exists by nature).
+- MAPPING NOTES (transit-truncated items, implemented per the same
+  discipline and flagged for the supervisor): A->stable exactly as ordered
+  (the observation variable already existed); D->okD and C->okC exactly as
+  ordered (extracted from the inline branch guards); C' implemented as
+  bool(num_redirect or num_body) — the EXISTING observed disjunction that
+  gates the branch (mirroring how A reuses the existing `stable`); D2/E
+  followed the ok-extraction pattern (okD2, okE); csrf as okVR13 (the
+  bool()-wrapped conjunction of the three observed controls + mut_p);
+  nosql-js as js_flip (the existing observation). Every extracted condition
+  is byte-identical to the original branch guard, bool()-normalized so the
+  serialized field is a real boolean (Verification is a plain dataclass —
+  no runtime typing; without the wrap, `l5 and ... ` could serialize ""
+  as passed). All .passed consumers audited: truthiness only, no `is True`
+  identity checks anywhere in the engine or suite -> behavioral equivalence
+  by construction, machine-proven by the gate below.
+- GATES (ALL FRESH this session — /tmp/tb_gates and /tmp/tb_bench_*.json
+  cleared first; the hardened tree only; driver scripts/hardening_gate_range.sh,
+  the tb_gate.sh suite contract + a chunk-range argument for foreground
+  batches, COMMITTED this round so it survives rollbacks — the task-53
+  regate driver died untracked with its container):
+    * 12-case verification-path smoke (the sqli oracle paths, csrf VR-13,
+      nosql, fail-closed defaults): 227/227 total, 12 executed 0 failed.
+    * suite 19/19 chunks = 4313/4313 PASS, zero retries (chunk runtimes
+      0-285s; c00's 12 pure-unit cases in 1s; every chunk's result JSON
+      re-parsed: 12 executed / 215 skipped / 1 excluded per chunk — no
+      vacuous passes).
+    * doctor 17/17 PASS.
+    * bench x3: 38/0/0/37 F1=1.0000 each; cm2_bench_structural.py
+      STRUCTURAL EQUALITY x3: True @ 7161 requests, 199 findings tuples —
+      IDENTICAL to the task-53 f0ae716 record: ZERO behavioral drift,
+      the hardening changed passed-field PROVENANCE only.
+- STATE.md: round-20 entry added to section 6 (the Arabic summary lags at
+  round 15 — pre-existing, noted honestly, not rewritten this round).
+- Push + ls-remote executed immediately after this commit (final hash in
+  the stage summary); the session PAT is inline-only (never on
+  disk/config/commits) and the owner revokes it on round acceptance per
+  protocol.
+
+Stage Summary:
+- The التحصين that "never existed" (task 53) now EXISTS, from scratch, on
+  the verified base: 8 of the 9 oracle sites stamp the observed boolean;
+  the 9th (the presence allowlist) untouched per the supervisor's own
+  exemption ruling. One comment block in the code documents the full
+  mapping + the exemption for every future reader.
+- Zero behavioral drift is not claimed — it is machine-proven: bench x3
+  structurally identical @7161/199 to the pre-hardening record, suite
+  4313/4313 fresh, doctor 17/17.
+- Base discipline held: no merge, no force-push, remote history untouched;
+  the stale snapshot preserved again in backup/stale-f2d41e8-20261015.

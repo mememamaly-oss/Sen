@@ -615,6 +615,25 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 6. Save status (updated every round)
 
+- **Round 20 (2026-10-15, the hardening round — supervisor item-1):** the
+  `passed=True -> observed variable` hardening of `build-v430/sentinel/intel.py`
+  implemented FROM SCRATCH on the verified base (task 53 proved it never
+  existed before): 8 oracle sites now stamp the observed boolean
+  (PATH A=stable, D=okD, C=okC, C'=bool(num_redirect or num_body),
+  D2=okD2, E=okE, csrf=okVR13, nosql-js=js_flip); the
+  `_PRESENCE_VERIFIED_TYPES` single-response allowlist is the ONE
+  deliberate exemption (VF-01 design) and was NOT touched, per the
+  supervisor's own ruling. Zero behavioral drift machine-proven, not
+  claimed: suite 19/19 chunks = 4313/4313 fresh, doctor 17/17, bench x3
+  STRUCTURALLY IDENTICAL 38/0/0/37 @7161 requests / 199 findings tuples —
+  the exact task-53 f0ae716 record. Base re-verified this session:
+  origin/main = 941559a (worklog-only commits on top of f0ae716); the
+  stale f2d41e8 snapshot re-preserved in backup/stale-f2d41e8-20261015;
+  no merge, no force-push. The Arabic summary below lags at round 15
+  (pre-existing — its numbers are the v4.3.1-era snapshot, kept for the
+  record). Push + ls-remote at round close; the session PAT is
+  inline-only, owner revokes on acceptance.
+
 - **Round 19 (2026-10-14, the trustbound close):** the seven TB fix commits
   (TB-1a 5f1bbe4 / TB-1b 89a2d48 / TB-1c 25cc789 / TB-2 b33f2b7 / TB-3a
   07d0db6 / TB-3b c6d80f7 / TB-3c cc142b3, after the 986735e diagnosis) were
