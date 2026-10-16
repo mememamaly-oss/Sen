@@ -4769,3 +4769,18 @@ Work Log:
 
 Stage Summary:
 - Alignment + Phase 0.5 COMPLETE: HEAD = 867dbf5, zero diffs, tools restored and validated against committed evidence. Next: Part A commit (axis1_digest.log regenerated, labeled), then Phase R charter — NO external contact before the charter is committed and pushed.
+
+---
+Task ID: 64-B (external round — closure)
+Agent: Super Z (main agent)
+Task: External references round execution: R (charter) -> T1 (WAVSEP local fresh gate) -> T2 (testphp.vulnweb.com) -> T3 (Juice Shop conditional) -> closure raw report + the Axis 2/3 precise summary for supervisor review.
+
+Work Log:
+- R (89652d6): results/external/CHARTER.md — binding pre-registration (3 literal targets closed list, detection-only, <=2 req/s via local token-bucket proxy, stop conditions, expected outcomes). Pushed BEFORE any external contact.
+- T1 (ef5f0c3): fresh full gate, caches wiped: 6 foreground ranges 681/681 + 454/454 + 908/908 + 908/908 + 908/908 + 454/454; machine aggregate 4313/4313 (19/19 chunks, every chunk 227/227, failed=0); doctor 17/17 rc=0; bench x3 = run-3c0652b6be 38/0/0/37 F1=1.0 @7161/199 gt 0373baf92a92dce2 — internally identical x3 AND structurally identical to the accepted record (verify_pt1/1b/2/3) via the restored compare tool (compare_rc=0). Deposits: gate_ext_T1 + bench_ext_T1 logs (git add -f) + SHA256SUMS.
+- T2 (937d615): BLOCKED honestly — verify GET (the single authorized one) timed out with no response; TCP 80/443 timeout x2 rounds 45s apart; DNS resolves 44.228.249.3; egress controls green (github.com:443 OK, example.com:80 OK) -> block is path/target-side, not container egress. No scan, zero findings recorded as-is, no substitutes, no retry hammering. T2_report.json + raw summary deposited.
+- T3 (937d615): "تعذر T3 — لا Docker" one honest line, documented; no unsafe download alternatives.
+- Closure: STATE.md round entry + this worklog entry + the raw closure report and Axis 2/3 summary delivered to the supervisor. Axis 4 NOT started — awaiting the supervisor's review reply (standing order).
+
+Stage Summary:
+- Round chain 89652d6 -> ef5f0c3 -> 937d615 -> closure, every push ls-remote-verified. Zero contact with any host outside the closed list (requests to other hosts: 0). Two honest blockers (T2 unreachable, T3 no Docker), zero silent deviations. The Axis 2/3 summary sent for review is derived from the committed code itself (statemachine.py 439 lines / pcs.py 1018 + blake3.py 138 / the 24+28 test cases).
