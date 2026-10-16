@@ -20,6 +20,14 @@ Station ledger:
   assertion in H4_13 (truncate IS live: only tail characters are eaten);
   module innocent, test fixed with the honest note in place. GREEN:
   26/26, digest 7448f95ebd58be25.
+- M3 (atoms): the exhaustive battery 5/5, digest cf2676e2c1e14b81 —
+  4a completeness matrix (7 shape classes, closed-form counts, all 12
+  types reachable); 4b 200 markers x 10 mangle cases = 2,000
+  classifications 100% correct (incl. the false-containment trap);
+  4c 500-shape two-pass determinism + dedup; 4d 11 hostile adversarial
+  shapes (collisions/unicode/huge/reserved/pathless/query-only/fragment/
+  casing/duplicates/empty names) — zero crashes; 4e 300 attribution
+  streams law-verified.
 
 # SENTINEL Axis-3 — PCS: Persistent Causal Store (spec §3.1–§3.8)
 

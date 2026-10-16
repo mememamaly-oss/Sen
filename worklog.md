@@ -4868,3 +4868,16 @@ Work Log:
 
 Stage Summary:
 - M2 CLOSED: the channel-synthesis engine is implemented and green 26/26 (digest 7448f95ebd58be25), one test-side inversion caught and fixed honestly. Next: M3 atoms (4a..4e).
+
+---
+Task ID: 67-M3
+Agent: Super Z (main agent)
+Task: Axis 4 station M3 — the exhaustive atoms battery (4a..4e), isolated commit "axis4: atoms" + immediate push + ls-remote.
+
+Work Log:
+- ATOMS EXECUTED: results/axis4/axis4_ATOMS.json — 5/5, failed=0, digest cf2676e2c1e14b81, exit 0. Contents: 4a completeness matrix (7 shape classes; only-alphabet output verified; every identity unique; all 12 types reachable somewhere; exact closed-form carrier counts asserted for the clean classes: declared-get 2k+6=8, paramless 5+2=7, no-basename 0, with-discovered 5+2+3=10); 4b the variant x mangle cross (200 seeded markers x 10 reflection cases each = 2000 classifications: none/drop_last/rewrite_suffix/3 truncate depths/carrier_dead x3 modes/intact-with-junk — 100% correct, including the false-containment trap guarded by TAIL's uppercase first char); 4c large-scale determinism (500 seeded random shapes incl. deliberate duplicates: two independent synthesis passes -> identical ordered identity lists + identical digests; dedup invariant held on every battery); 4d the adversarial RED battery (11 hostile shapes: param-named-basename, header-named-basename, unicode, 10k-char name, reserved header, pathless, query-only, fragment, method casing, duplicate params, empty param name — everything synthesized or rejected atomically, zero crashes, identity uniqueness held, the empty name produced its PRECONDITION_FAILED boundary record); 4e attribution accounting (300 seeded evidence streams: chosen is None or exactly the earliest-priority live carrier, ambiguity always a subset of the live set minus the chosen, reason always in the declared reason set).
+- Suite digest regression-check: the 26-case suite itself untouched this station (GREEN file from M2 remains the reference; atoms are a separate report file).
+- STATION CLOSE-OUT: CHANGELOG station ledger M3 line, this worklog entry. Isolated commit "axis4: atoms" carries: results/axis4/axis4_ATOMS.json + the record files. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M3 CLOSED: the exhaustive battery green 5/5 (digest cf2676e2c1e14b81) — 2,000 mangle classifications + 500-shape determinism + 11 adversarial shapes + 300 attribution streams, all first-shot. Next: M4 R3 determinism (three suite runs, identical digests).

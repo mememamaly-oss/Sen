@@ -1,0 +1,34 @@
+{
+ "suite": "axis4-csynth-atoms",
+ "total": 5,
+ "failed": 0,
+ "passed": true,
+ "cases": [
+  {
+   "name": "atoms_4a_completeness",
+   "ok": true,
+   "dur_s": 0.0002
+  },
+  {
+   "name": "atoms_4b_mangle_cross",
+   "ok": true,
+   "dur_s": 0.0022
+  },
+  {
+   "name": "atoms_4c_determinism",
+   "ok": true,
+   "dur_s": 0.0274
+  },
+  {
+   "name": "atoms_4d_adversarial",
+   "ok": true,
+   "dur_s": 0.0002
+  },
+  {
+   "name": "atoms_4e_attribution",
+   "ok": true,
+   "dur_s": 0.0026
+  }
+ ],
+ "digest": "cf2676e2c1e14b8188d0de72be01b91e6236dc9545926cec01a9d9fb193195a1"
+}
