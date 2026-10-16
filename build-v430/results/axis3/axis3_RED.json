@@ -1,0 +1,177 @@
+{
+ "suite": "axis3-pcs",
+ "total": 28,
+ "failed": 28,
+ "passed": false,
+ "cases": [
+  {
+   "name": "test_h3_01_blake3_keys",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_02_canonical_msgpack",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_03_record_assembly_and_root",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_04_serialize_roundtrip",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_05_partition_policy_and_base_availability",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_06_acid_transaction_atomicity",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_07_lamport_r1",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_08_lamport_r2",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_09_lamport_r3",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_10_vector_clock_basics",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_11_vc_causality_iff_order",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_12_merkle_proof_shape",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_13_merkle_verification",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_14_merkle_single_bit_flips",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_15_gcounter",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_16_pncounter",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_17_orset_observed_remove",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_18_orset_convergence_and_laws",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_19_mvcc_stamps",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_20_read_at_semantics",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_21_read_at_dense_sweep",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_22_interface_nine_ops",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_23_put_get_delete",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_24_transaction_semantics",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_25_proof_ops",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_26_merge_op_convergence",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_27_read_at_op_timeline",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_28_verify_integrity",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.pcs/sentinel.blake3 unavailable: ModuleNotFoundError: No module named 'sentinel.blake3'",
+   "dur_s": 0.0
+  }
+ ],
+ "digest": "9190527d4eb85234e5ac1bc888b30e3fef350dc118fd80be85ea89efdd2ffd76"
+}

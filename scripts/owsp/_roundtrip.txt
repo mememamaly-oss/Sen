@@ -1,0 +1,1 @@
+A[host]B allowed_domains=[host] C[h]D

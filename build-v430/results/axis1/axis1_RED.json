@@ -1,0 +1,141 @@
+{
+ "suite": "axis1-xgraph",
+ "total": 22,
+ "failed": 22,
+ "passed": false,
+ "cases": [
+  {
+   "name": "test_w1_psi_binary_domain",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_w2_omega_monotone",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_w3_single_source_reachability",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_w4_acyclicity",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_w5_positive_cost",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_w6_projection_dimension",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_topological_sort_kahn_correctness",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_layer_decompose_exact",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_bsp_parallel_execution",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_bsp_efficiency_bounds",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_event_alphabet",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_cow_fork_isolation",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_speculative_branching_argmax",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_adaptive_pruning_threshold_formula",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_adaptive_pruning_fires",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_snapshot_restore_roundtrip",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_determinism_triple_run",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_value_function",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_scaling_20k_nodes",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_max_nodes_limit",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_interface_contract_surface",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_mini_pipeline_integration",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.xgraph unavailable: ModuleNotFoundError: No module named 'sentinel.xgraph'",
+   "dur_s": 0.0
+  }
+ ],
+ "digest": "cf2b6a574e03e30065e786d10a961d50052a0818cbe672692a5948c433110607"
+}

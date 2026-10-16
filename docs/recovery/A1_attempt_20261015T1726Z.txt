@@ -1,0 +1,52 @@
+### A1 acceptance command — verbatim run 2026-10-15T17:26:33Z on local HEAD f2d41e8
+
+$ git ls-remote origin main | tee /tmp/accept_lsremote.txt
+fatal: could not read Username for 'https://github.com': No such device or address
+rc=128
+
+$ test -f results/axis1/axis1_RED.json && sha256sum results/axis1/axis1_RED.json
+rc=1 (results/axis1/axis1_RED.json: No such file or directory)
+
+$ grep -c "cc84a91a" results/axis1/*.log 2>/dev/null || ls results/axis1/
+ls: cannot access 'results/axis1/': No such file or directory
+
+$ grep -n "4313/4313" results/gate_*.log | tail -3
+grep: results/gate_*.log: No such file or directory
+
+$ grep -n "3c0652b6be" results/bench_*.log | tail -3
+grep: results/bench_*.log: No such file or directory
+
+$ git show --stat 1bc184b | head -20
+fatal: ambiguous argument '1bc184b': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]'
+
+### Rollback diagnostics (same file)
+$ git rev-parse HEAD
+f2d41e8aa9d966885903d9526e9b4a639003163f
+
+$ git log --oneline -3
+f2d41e8 d3b371b9-a881-43ba-8756-be3ce8632f2b
+1e2159f state: IV13 finalization — push blocked by revoked round-2 PAT (fresh token needed), gitignore restored after another environment gutting
+b367fdb IV13: independent verifier round — doLogin calibration (only -- families bypass; string-quote-no-comment fails by precedence), 10-finding independent list, ginandjuice cart CSRF adjudicated REAL (no token on cart ops, no origin validation, SameSite=None), gruyere traversal+2x XSS, testaspnet stored XSS, first real comparison run 6/3/17, raw evidence + honest negatives
+
+$ wc -l worklog.md STATE.md
+   923 worklog.md
+   258 STATE.md
+  1181 total
+
+$ git cat-file -t a99856a / 1bc184b
+fatal: Not a valid object name a99856a
+fatal: Not a valid object name 1bc184b
+
+$ test -d build-v430 / scripts/hardening_gate_range.sh / results
+build-v430 MISSING
+gate script MISSING
+results/ MISSING
+
+$ auth avenues: credential-helper / ~/.git-credentials / gh / env-token
+0
+all: MISSING
+
+$ git check-ignore download
+download/ NOT ignored

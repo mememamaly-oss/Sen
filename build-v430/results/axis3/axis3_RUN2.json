@@ -1,0 +1,177 @@
+{
+ "suite": "axis3-pcs",
+ "total": 28,
+ "failed": 0,
+ "passed": true,
+ "cases": [
+  {
+   "name": "test_h3_01_blake3_keys",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.3437
+  },
+  {
+   "name": "test_h3_02_canonical_msgpack",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0028
+  },
+  {
+   "name": "test_h3_03_record_assembly_and_root",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0016
+  },
+  {
+   "name": "test_h3_04_serialize_roundtrip",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.012
+  },
+  {
+   "name": "test_h3_05_partition_policy_and_base_availability",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0007
+  },
+  {
+   "name": "test_h3_06_acid_transaction_atomicity",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0057
+  },
+  {
+   "name": "test_h3_07_lamport_r1",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_08_lamport_r2",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_09_lamport_r3",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_10_vector_clock_basics",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_11_vc_causality_iff_order",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0001
+  },
+  {
+   "name": "test_h3_12_merkle_proof_shape",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0469
+  },
+  {
+   "name": "test_h3_13_merkle_verification",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0299
+  },
+  {
+   "name": "test_h3_14_merkle_single_bit_flips",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0229
+  },
+  {
+   "name": "test_h3_15_gcounter",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0003
+  },
+  {
+   "name": "test_h3_16_pncounter",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0006
+  },
+  {
+   "name": "test_h3_17_orset_observed_remove",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0
+  },
+  {
+   "name": "test_h3_18_orset_convergence_and_laws",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.001
+  },
+  {
+   "name": "test_h3_19_mvcc_stamps",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0035
+  },
+  {
+   "name": "test_h3_20_read_at_semantics",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0021
+  },
+  {
+   "name": "test_h3_21_read_at_dense_sweep",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.2435
+  },
+  {
+   "name": "test_h3_22_interface_nine_ops",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0002
+  },
+  {
+   "name": "test_h3_23_put_get_delete",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.004
+  },
+  {
+   "name": "test_h3_24_transaction_semantics",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0061
+  },
+  {
+   "name": "test_h3_25_proof_ops",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0038
+  },
+  {
+   "name": "test_h3_26_merge_op_convergence",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0106
+  },
+  {
+   "name": "test_h3_27_read_at_op_timeline",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0027
+  },
+  {
+   "name": "test_h3_28_verify_integrity",
+   "ok": true,
+   "error": "",
+   "dur_s": 0.0408
+  }
+ ],
+ "digest": "ec1626c7e0cd18092a8c4591a8ea066eebc8f6ac98aa7288b5875406b5f82e70"
+}
