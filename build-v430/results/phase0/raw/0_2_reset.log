@@ -1,0 +1,44 @@
+===== [proof] clobber check: do origin/main-tracked paths collide with untracked disk? (expect empty) =====
+===== [0.2] git reset --hard origin/main =====
+Updating files:  53% (549/1028)Updating files:  54% (556/1028)Updating files:  55% (566/1028)Updating files:  56% (576/1028)Updating files:  57% (586/1028)Updating files:  58% (597/1028)Updating files:  59% (607/1028)Updating files:  60% (617/1028)Updating files:  61% (628/1028)Updating files:  62% (638/1028)Updating files:  63% (648/1028)Updating files:  64% (658/1028)Updating files:  65% (669/1028)Updating files:  66% (679/1028)Updating files:  67% (689/1028)Updating files:  68% (700/1028)Updating files:  69% (710/1028)Updating files:  70% (720/1028)Updating files:  71% (730/1028)Updating files:  72% (741/1028)Updating files:  72% (750/1028)Updating files:  73% (751/1028)Updating files:  74% (761/1028)Updating files:  75% (771/1028)Updating files:  76% (782/1028)Updating files:  77% (792/1028)Updating files:  78% (802/1028)Updating files:  79% (813/1028)Updating files:  80% (823/1028)Updating files:  81% (833/1028)Updating files:  82% (843/1028)Updating files:  83% (854/1028)Updating files:  84% (864/1028)Updating files:  85% (874/1028)Updating files:  86% (885/1028)Updating files:  87% (895/1028)Updating files:  88% (905/1028)Updating files:  89% (915/1028)Updating files:  90% (926/1028)Updating files:  91% (936/1028)Updating files:  92% (946/1028)Updating files:  93% (957/1028)Updating files:  94% (967/1028)Updating files:  95% (977/1028)Updating files:  96% (987/1028)Updating files:  97% (998/1028)Updating files:  98% (1008/1028)Updating files:  99% (1018/1028)Updating files: 100% (1028/1028)Updating files: 100% (1028/1028), done.
+HEAD is now at 630a319 axis4: gate (CLOSURE) — full core gate fresh on the axis-4 tree: suite 4313/4313 (19/19 chunks, every chunk 227/227 failed=0, caches wiped), doctor 17/17 overall=PASS, bench x3 = 38/0/0/37 F1=1.0 @7161 requests/199 findings run-3c0652b6be gt 0373baf92a92dce2 — internally identical AND structurally identical to the accepted record + its 4 stored copies (COMPARE_RC=0): ZERO core drift. Axis-4 suite 26/26 digest 7448f95ebd58be25 + atoms 5/5 digest cf2676e2c1e14b81 + the standing scope-edge battery 6/6 all green on the final gate tree. Mandated .log deposits committed (git add -f) + SHA256SUMS over the 8 evidence files. STATION CHAIN: 4ff33c7 (red) -> 380c5fc (green, one test-side inversion caught+fixed honestly) -> 71ad58c (atoms) -> dfe4cfe (R3) -> M5. AXIS 4 CLOSED end-to-end. The contract remains DERIVED from committed live-proven evidence (D1..D5, declared in the suite docstring); the original S4 table, if held by the supervisor, supersedes at any station boundary.
+===== [0.2] HEAD after reset =====
+630a31915daf72ffc3727373e77b08d50d4b286e
+630a319 axis4: gate (CLOSURE) — full core gate fresh on the axis-4 tree: suite 4313/4313 (19/19 chunks, every chunk 227/227 failed=0, caches wiped), doctor 17/17 overall=PASS, bench x3 = 38/0/0/37 F1=1.0 @7161 requests/199 findings run-3c0652b6be gt 0373baf92a92dce2 — internally identical AND structurally identical to the accepted record + its 4 stored copies (COMPARE_RC=0): ZERO core drift. Axis-4 suite 26/26 digest 7448f95ebd58be25 + atoms 5/5 digest cf2676e2c1e14b81 + the standing scope-edge battery 6/6 all green on the final gate tree. Mandated .log deposits committed (git add -f) + SHA256SUMS over the 8 evidence files. STATION CHAIN: 4ff33c7 (red) -> 380c5fc (green, one test-side inversion caught+fixed honestly) -> 71ad58c (atoms) -> dfe4cfe (R3) -> M5. AXIS 4 CLOSED end-to-end. The contract remains DERIVED from committed live-proven evidence (D1..D5, declared in the suite docstring); the original S4 table, if held by the supervisor, supersedes at any station boundary.
+dfe4cfe axis4: determinism — R3 triple-run: axis4_GREEN/RUN2/RUN3 all 26/26 failed=0 with the identical suite digest 7448f95ebd58be25 (the digest covers the logical outcome stream only; wall timings are metadata — Axis-11 discipline).
+71ad58c axis4: atoms — the exhaustive battery 5/5 digest cf2676e2c1e14b81: 4a completeness matrix (7 shape classes, closed-form counts 2k+6/5+2/0/5+2+3, all 12 carrier kinds reachable, only-alphabet output); 4b the variant x mangle cross — 200 seeded markers x 10 reflection cases = 2,000 classifications 100% correct incl. the false-containment trap guarded by TAIL's uppercase first char; 4c 500-shape two-pass determinism + dedup invariants; 4d the adversarial RED battery — 11 hostile shapes (name collisions, unicode, 10k names, reserved headers, pathless/query-only/fragment URLs, method casing, duplicates, empty names) zero crashes, atomic rejections with boundary records; 4e 300 attribution streams (earliest-priority-live law + ambiguity subset + reason set). All first-shot.
+380c5fc axis4: green — sentinel/csynth.py implemented (the D1..D5 derived contract, ~300 lines): the 12-kind carrier algebra with priority total order + atomic boundary discipline, sacrificial-tail variants + the five mangle classes incl. the two live-diagnosed end-eaters, synthesis with dedup/first-wins + paramless segment family + basename self family + resolver_name, the GTP twins-win attribution, logical-stream-only digests. First run 25/26: the single failure was a TEST-side inverted assertion in H4_13 (truncate IS live — only tail chars eaten, marker intact); module innocent, test fixed with the honest note in place. GREEN 26/26 digest 7448f95ebd58be25. Standalone library: sentinel/__init__.py untouched — the 4313 core contract untouched by construction.
+4ff33c7 axis4: red — the channel-synthesis coverage contract written FIRST: tests/test_axis4_csynth.py 26 cases H4_01..H4_26 + atoms 4a..4e. RED executed: 0/26 digest 9b06520d30523df3 + 0/5 atoms digest 1d9f838081ce39b3 (single failure mode: ModuleNotFoundError sentinel.csynth — module confirmed absent). PROVENANCE DECLARED: the original spec S4 table is not recoverable from any committed record; the H4 contract is DERIVED from committed live-proven evidence with reasoning on record (D1 alphabet = the trustbound 12-kind carrier taxonomy in detect.py's battery; D2 TB-1c sacrificial-tail variants vs the live end-eating manglers; D3 declared-param-first battery order; D4 the GTP twins-win attribution rule; D5 Axis-12/Axis-11 discipline) — supersedable at any station boundary. Pre-work: flip-12 stray 8a0e153 noise-proven (6 oob markers, 4th precedent) and discarded via reset --hard 0793b79. Standalone suite, NOT @case-registered: the 227x19=4313 core contract untouched by construction.
+===== [0.2] git status after reset =====
+On branch main
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.env.phase0bak
+
+nothing added to commit but untracked files present (use "git add" to track)
+===== [proof] .env restored as ignored-untracked (never tracked) =====
+be8e1a92feff8f6cb699a9a70cc7d76a183538ab8c68a45e7d40f0d32bf20b94  .env
+.gitignore:15:.env	.env
+===== [proof] noise gone: iv_out removed, perf absent, snapshot-0419 handled by origin =====
+iv_out STILL PRESENT
+perf/ absent (correct — loss already proven above)
+===== [proof] recovered axes on disk (user 0.1 find re-run) =====
+./build-v430/tests/test_axis4_csynth.py
+./build-v430/tests/test_axis2_statemachine.py
+./build-v430/tests/test_axis1_xgraph.py
+./build-v430/tests/test_axis3_pcs.py
+./build-v430/sentinel/statemachine.py
+./build-v430/sentinel/pcs.py
+./build-v430/sentinel/xgraph.py
+./build-v430/sentinel/csynth.py
+===== [proof] worklog numbering on recovered tree =====
+4873:Task ID: 67-M3
+4886:Task ID: 67-M4
+4898:Task ID: 67-M5
+===== [proof] reflog (f2d41e8 recoverable pointer) =====
+630a319 HEAD@{0}: reset: moving to origin/main
+f2d41e8 HEAD@{1}: commit (amend): d3b371b9-a881-43ba-8756-be3ce8632f2b
+6fcb15c HEAD@{2}: commit: d3b371b9-a881-43ba-8756-be3ce8632f2b
+1e2159f HEAD@{3}: commit: state: IV13 finalization — push blocked by revoked round-2 PAT (fresh token needed), gitignore restored after another environment gutting
+b367fdb HEAD@{4}: commit: IV13: independent verifier round — doLogin calibration (only -- families bypass; string-quote-no-comment fails by precedence), 10-finding independent list, ginandjuice cart CSRF adjudicated REAL (no token on cart ops, no origin validation, SameSite=None), gruyere traversal+2x XSS, testaspnet stored XSS, first real comparison run 6/3/17, raw evidence + honest negatives
+a3f2ae4 HEAD@{5}: commit: state: save-status round 2 — GitHub verified at 9bc4e95 (main = release/v4.2.2 = tag v4.2.2), 6 branches + 5 tags

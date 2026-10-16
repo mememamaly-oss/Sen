@@ -1,0 +1,247 @@
+===== [gate-verbatim] prior gate log (axis4) — full =====
+=== SENTINEL Axis-4 CLOSURE GATE deposit (M5) ===
+date(utc): 2026-10-16T14:48:26Z | tree HEAD at gate: dfe4cfe63b253d30f67ad282cad326dc0ab03e8c
+axis: 4 — channel synthesis (csynth; contract DERIVED from committed
+      live-proven evidence D1..D5, declared in the suite docstring).
+Isolation argument: the axis-4 suite is standalone (not @case-registered)
+and sentinel/__init__.py is empty — the core hot path never imports
+csynth; zero drift by construction AND proven live below.
+
+----- GATE ITEM 1: suite (caches wiped; 6 foreground ranges, then aggregate) -----
+  bash scripts/hardening_gate_range.sh 0 2  ->  range-total: 681/681 chunks-fail=0
+  bash scripts/hardening_gate_range.sh 3 4  ->  range-total: 454/454 chunks-fail=0
+  bash scripts/hardening_gate_range.sh 5 8  ->  range-total: 908/908 chunks-fail=0
+  bash scripts/hardening_gate_range.sh 9 12  ->  range-total: 908/908 chunks-fail=0
+  bash scripts/hardening_gate_range.sh 13 16  ->  range-total: 908/908 chunks-fail=0
+  bash scripts/hardening_gate_range.sh 17 18  ->  range-total: 454/454 chunks-fail=0
+machine aggregate over the 19 per-chunk result JSONs:
+chunks: 19 | per-chunk: 227/227 failed=0 (all)
+SUITE TOTAL: 4313/4313
+
+----- GATE ITEM 2: doctor -----
+{
+ "overall": "PASS",
+ "passed": 17,
+ "total": 17,
+ "checks": [
+  {
+   "check": "runtime",
+   "status": "PASS",
+   "detail": "Python 3.12.15 on Linux",
+   "auto_fix": ""
+  },
+  {
+   "check": "dns_resolution",
+   "status": "PASS",
+   "detail": "resolved scanme.nmap.org",
+   "auto_fix": ""
+  },
+  {
+   "check": "network_egress",
+   "status": "PASS",
+   "detail": "TCP connect scanme.nmap.org:80 OK",
+   "auto_fix": ""
+  },
+  {
+   "check": "tls_stack",
+   "status": "PASS",
+   "detail": "OpenSSL 3.5.9 29 Sep 2026",
+   "auto_fix": ""
+  },
+  {
+   "check": "scope_policy",
+   "status": "PASS",
+   "detail": "private ranges blocked, public allowed",
+   "auto_fix": ""
+  },
+  {
+   "check": "detector_registry",
+   "status": "PASS",
+   "detail": "24 active detectors registered",
+   "auto_fix": ""
+  },
+  {
+   "check": "strategy_store",
+   "status": "PASS",
+   "detail": "verified-outcome Wilson ordering enabled",
+   "auto_fix": ""
+  },
+  {
+   "check": "persistence_layer",
+   "status": "PASS",
+   "detail": "SQLite store OK (schema + write + query round-trip) at 3.53.1",
+   "auto_fix": ""
+  },
+  {
+   "check": "repair_registry",
+   "status": "PASS",
+   "detail": "3 repair rules loaded",
+   "auto_fix": ""
+  },
+  {
+   "check": "attack_path_layer",
+   "status": "PASS",
+   "detail": "L2 active: 2 fixture paths (1 verified / 1 inferred) \u2014 weakest-link classification live",
+   "auto_fix": ""
+  },
+  {
+   "check": "impact_layer",
+   "status": "PASS",
+   "detail": "L3 active: 2 planned / 0 refused / 1 not-safe-to-probe; empty probe journal -> 0 verified (honest register live)",
+   "auto_fix": ""
+  },
+  {
+   "check": "browser_engine",
+   "status": "PASS",
+   "detail": "Playwright Chromium launch OK \u2014 DOM engine active",
+   "auto_fix": ""
+  },
+  {
+   "check": "auth_engine",
+   "status": "PASS",
+   "detail": "login flow engine OK (form body serialized: True; watchdog proxy + budget-capped re-auth available)",
+   "auto_fix": ""
+  },
+  {
+   "check": "oast_providers",
+   "status": "PASS",
+   "detail": "local listener + public webhook channel both OK",
+   "auto_fix": ""
+  },
+  {
+   "check": "intelligence_engines",
+   "status": "PASS",
+   "detail": "coverage / param-intel / secrets (masked) / evidence-impact / appmap / authz OK",
+   "auto_fix": ""
+  },
+  {
+   "check": "credential_vault",
+   "status": "PASS",
+   "detail": "ChaCha20+HMAC encrypt-then-MAC OK; audit + purge leave no plaintext",
+   "auto_fix": ""
+  },
+  {
+   "check": "workflow_engine",
+   "status": "PASS",
+   "detail": "flow parser (select/options + privilege labels) + cluster rules + guided-walk synthesis OK",
+   "auto_fix": ""
+  }
+ ]
+}
+doctor rc=0
+
+----- GATE ITEM 4: the axis-4 suite + atoms, fresh on the final gate tree -----
+PASS h04_01_alphabet_closed
+PASS h04_02_carrier_identity
+PASS h04_03_get_declared_params
+PASS h04_04_post_body_params
+PASS h04_05_mixed_locations
+PASS h04_06_paramless_fallback_family
+PASS h04_07_basename_derivation
+PASS h04_08_resolver_name_semantics
+PASS h04_09_self_header_self_cookie
+PASS h04_10_variant_composition
+PASS h04_11_drop_last
+PASS h04_12_rewrite_suffix
+PASS h04_13_truncate_and_carrier_dead
+PASS h04_14_mangle_none
+PASS h04_15_battery_priority_order
+PASS h04_16_dedup_first_origin_wins
+PASS h04_17_attribution_twins_win
+PASS h04_18_attribution_past_dead_carrier
+PASS h04_19_ambiguity_record
+PASS h04_20_empty_shape_rejection
+PASS h04_21_unknown_kind_boundary
+PASS h04_22_malformed_carrier_skip
+PASS h04_23_digest_stability
+PASS h04_24_synthesis_determinism
+PASS h04_25_interface_contract
+PASS h04_26_mounting_demonstration
+axis4-csynth: 26/26 passed (failed=0) digest=7448f95ebd58be25 -> results/axis4/axis4_GREEN.json
+axis4 suite rc=0
+PASS atoms_4a_completeness
+PASS atoms_4b_mangle_cross
+PASS atoms_4c_determinism
+PASS atoms_4d_adversarial
+PASS atoms_4e_attribution
+axis4-csynth-atoms: 5/5 passed (failed=0) digest=cf2676e2c1e14b81 -> results/axis4/axis4_ATOMS.json
+atoms rc=0
+----- the standing scope-edge battery (permanent since the scope-edge round) -----
+PASS c01_probe1_nottestfire
+PASS c02_probe2_eviltestfire
+PASS c03_probe3_suffix_embedded_attacker
+PASS c04_legitimate_subdomains_stay_accepted
+PASS c05_typosquat_family
+PASS c06_allowed_hosts_exact_membership
+scope-edge-battery: 6/6 passed (failed=0) digest=c2916ba3b060f40b -> results/scope_edge/battery_GREEN.json
+scope-edge rc=0 (its --red-proof differential also re-verified rc=0)
+
+===== [gate-verbatim] prior bench log (axis4) — full =====
+=== SENTINEL Axis-4 CLOSURE BENCH x3 deposit ===
+date(utc): 2026-10-16T14:48:26Z | tree HEAD at gate: dfe4cfe63b253d30f67ad282cad326dc0ab03e8c
+
+----- the three run summaries -----
+run 1: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 2: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 3: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+
+----- GATE ITEM 3: structural comparison vs the accepted record + 4 copies -----
+/tmp/tb_bench_1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+/tmp/tb_bench_2.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/tb_bench_2.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 7161) -> IDENTICAL
+/tmp/tb_bench_3.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/tb_bench_3.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 7161) -> IDENTICAL
+build-v430/results/verify_pt1/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=4784 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt1/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 4784) -> IDENTICAL
+build-v430/results/verify_pt1b/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=5100 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt1b/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 5100) -> IDENTICAL
+build-v430/results/verify_pt2/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=4942 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt2/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 4942) -> IDENTICAL
+build-v430/results/verify_pt3/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=5096 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt3/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 5096) -> IDENTICAL
+VERDICT: ALL IDENTICAL
+COMPARE_RC=0
+
+===== [gate-verbatim] verify_pt1 dir =====
+bench_run1.json
+gate_summary.txt
+green_fixed.json
+live_result.json
+live_scan.json
+red_unfixed.json
+===== [gate-verbatim] CLI argparse =====
+286:def main():
+289:    s = sub.add_parser("scan"); s.add_argument("target"); s.add_argument("--allow-private", action="store_true")
+290:    s.add_argument("--max-pages", type=int, default=25); s.add_argument("--timeout", type=float, default=12.0)
+291:    s.add_argument("--no-crawl", action="store_true"); s.add_argument("--seed")
+292:    s.add_argument("--out", default="results/scan.json"); s.add_argument("--strategy-path")
+293:    s.add_argument("--db", default="", help="persist run+findings to this SQLite store")
+294:    s.add_argument("--no-oast", action="store_true",
+296:    s.add_argument("--oast", choices=["auto", "local", "public"], default="auto",
+300:    s.add_argument("--no-browser", action="store_true",
+302:    s.add_argument("--auth-user", default="", help="Phase 51: enable authenticated scanning — username")
+303:    s.add_argument("--auth-pass", default="", help="Phase 51: password")
+304:    s.add_argument("--auth-url", default="", help="login page carrying the form (default: <target>/login.jsp)")
+305:    s.add_argument("--auth-user-field", default="uid")
+306:    s.add_argument("--auth-pass-field", default="passw")
+307:    s.add_argument("--auth-success-marker", default="",
+310:    s.add_argument("--auth-token", default="",
+312:    s.add_argument("--auth-header", default="Authorization",
+314:    s.add_argument("--auth-scheme", default="Bearer",
+316:    s.add_argument("--auth-validate-url", default="",
+319:    s.add_argument("--no-openapi", action="store_true",
+321:    s.add_argument("--openapi-spec", default="",
+324:    s.add_argument("--authz-accounts", default="",
+329:    s.add_argument("--no-secrets", action="store_true",
+331:    s.add_argument("--exclude-url", action="append", default=[],
+339:    s.add_argument("--secrets-report", default="",
+344:    s.add_argument("--vault", default="",
+347:    s.add_argument("--vault-key-file", default="",
+352:    s.add_argument("--workflow", action="store_true",
+356:    s.add_argument("--logic-active", action="store_true",
+362:    b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
+363:    b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
+364:    sub.add_parser("doctor")
+365:    sub.add_parser("repair-demo")
+367:    fnd = sub.add_parser("findings", help="query persisted findings across runs")
+368:    fnd.add_argument("--db", default="results/sentinel.db")
