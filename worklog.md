@@ -4893,3 +4893,22 @@ Work Log:
 
 Stage Summary:
 - M4 CLOSED: the determinism claim is triple-run-backed (7448f95ebd58be25 x3). Next: M5 the full core gate fresh on the axis-4 tree + mandated .log deposits + sha256sums -> axis-4 closure.
+
+---
+Task ID: 67-M5
+Agent: Super Z (main agent)
+Task: Axis 4 station M5 (CLOSURE) — the full core gate fresh on the axis-4 tree (suite 4313/4313 + doctor 17/17 + bench x3 structurally identical + the axis-4 suite/atoms + the standing scope-edge battery) with the mandated .log deposits (git add -f) + sha256sums, isolated commit "axis4: gate" + immediate push + final ls-remote.
+
+Work Log:
+- PRE-GATE STATE: HEAD = dfe4cfe (M4), tracked tree clean.
+- SUITE FRESH (caches wiped): 6 foreground ranges via scripts/hardening_gate_range.sh — 681/681 + 454/454 + 908/908 + 908/908 + 908/908 + 454/454; machine aggregate over the 19 per-chunk JSONs: SUITE TOTAL 4313/4313, every chunk 227/227 failed=0. Isolation argument: the axis-4 suite is standalone (not @case-registered) and sentinel/__init__.py is empty — the core hot path never imports csynth; zero drift by construction AND proven live.
+- DOCTOR: 17/17 overall=PASS (rc=0). Disclosure as always: the doctor's own built-in health checks perform 1 DNS resolve + 1 TCP connect to scanme.nmap.org (checks dns_resolution/network_egress — the gate's own health checks, not scan traffic).
+- BENCH x3: all three rc=0, run_id=run-3c0652b6be, confusion 38/0/0/37, P/R/F1=1.0, @7161 requests / 199 findings, gt 0373baf92a92dce2. Structural comparison vs the accepted record + its 4 stored copies (verify_pt1/1b/2/3): path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ -> ALL IDENTICAL, COMPARE_RC=0. ZERO core drift.
+- AXIS-4 SUITE + ATOMS FRESH on the final gate tree: 26/26 digest 7448f95ebd58be25 + 5/5 atoms digest cf2676e2c1e14b81. The standing scope-edge battery (permanent since the scope-edge round): 6/6 digest c2916ba3b060f40b + its --red-proof differential rc=0.
+- MANDATED DEPOSITS (git add -f past the *.log ignore): results/gate_axis4_7448f95e.log + results/bench_axis4_7448f95e.log + results/axis4/SHA256SUMS (8 evidence files: RED 31db7d4b..., RED_atoms a990789f..., GREEN 7424f1cf..., ATOMS 3e7373b9..., RUN2 1d87b306..., RUN3 b294f2ec..., gate 8d02f70e..., bench be6f9cd0...).
+- STATION CLOSE-OUT: CHANGELOG station ledger M5 line (AXIS 4 CLOSED), this worklog entry, STATE.md round entry. Isolated commit "axis4: gate" carries: the two .log deposits + SHA256SUMS + scripts/assemble_axis4_deposits.py (the standing tools clause: no bare tools on disk) + the record files. Immediate push + final ls-remote follow.
+
+Stage Summary:
+- M5 CLOSED = AXIS 4 CLOSED END-TO-END: red 0/26 + 0/5 atoms (4ff33c7) -> green 26/26 with one test-side inversion caught+fixed honestly (380c5fc) -> atoms 5/5 (71ad58c) -> R3 identical digests 7448f95ebd58be25 (dfe4cfe) -> full gate 4313/4313 + 17/17 + bench x3 structurally identical (run-3c0652b6be) + scope-edge battery standing green, with committed .log evidence. Station chain: 4ff33c7 -> 380c5fc -> 71ad58c -> dfe4cfe -> M5 this commit.
+- The axis-4 contract remains DERIVED (provenance declared in the suite docstring + every commit message): if the supervisor holds the original S4 table it supersedes at any station boundary.
+- PAT inline-only; owner revokes on acceptance.

@@ -30,6 +30,14 @@ Station ledger:
   streams law-verified.
 - M4 (determinism): R3 triple-run — GREEN/RUN2/RUN3 all 26/26 with the
   identical digest 7448f95ebd58be25 (logical stream only, Axis-11).
+- M5 (gate, CLOSURE): full core gate fresh on the axis-4 tree — suite
+  4313/4313 (19/19 chunks 227/227), doctor 17/17, bench x3
+  run-3c0652b6be 38/0/0/37 F1=1.0 @7161/199 structurally identical
+  tuple-by-tuple vs the accepted record (COMPARE_RC=0) — zero core drift;
+  axis-4 suite 26/26 + atoms 5/5 + the standing scope-edge battery 6/6
+  all green on the final tree; .log deposits + SHA256SUMS committed.
+  AXIS 4 CLOSED end-to-end. Station chain: 4ff33c7 -> 380c5fc ->
+  71ad58c -> dfe4cfe -> M5.
 
 # SENTINEL Axis-3 — PCS: Persistent Causal Store (spec §3.1–§3.8)
 
