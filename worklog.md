@@ -4854,3 +4854,17 @@ Work Log:
 
 Stage Summary:
 - M1 CLOSED: the axis-4 coverage contract exists as executable code, RED machine-documented (0/26 digest 9b06520d30523df3 + 0/5 atoms digest 1d9f838081ce39b3), with the derivation provenance declared up front. Next: M2 implement sentinel/csynth.py for green.
+
+---
+Task ID: 67-M2
+Agent: Super Z (main agent)
+Task: Axis 4 station M2 — implement sentinel/csynth.py per the derived contract, run the suite GREEN, isolated commit "axis4: green" + immediate push + ls-remote.
+
+Work Log:
+- IMPLEMENTED build-v430/sentinel/csynth.py (~300 lines): D1 the 12-kind carrier algebra (PRIORITY total order + CHANNEL_TYPES frozenset; Carrier frozen dataclass with __post_init__ validation -> CSynthError + Axis-12 boundary record; identity = type|name|location, origin = provenance only); D2 variants (BatteryEntry plain/tail with integrity fields; TAIL="Zk91" whose first char sits OUTSIDE the lowercase marker alphabet so a damaged marker can never falsely contain the intact one — the false-containment trap, guarded by atoms 4b) + classify_reflection (none / drop_last / rewrite_suffix / truncate / carrier_dead — the two live-diagnosed classes encoded) + channel_live; D3 synthesize (atomic empty-shape rejection; empty-name members skipped with boundary records, battery survives; dedup first-wins with priority guaranteeing declared-beats-discovered; paramless segment family; basename-anchored self family; resolver_name iff params+basename) + assemble (carrier x plain/tail); D4 attribute (earliest-priority live carrier wins = the GTP twins-win rule; ambiguity set = the other live carriers; honest none when all dead); D5 digest over the logical stream only (identity keys + variant kinds; markers/timings/boundary never enter). sentinel/__init__.py untouched (empty) — the core hot path cannot import the module.
+- HONEST JOURNEY: first GREEN run 25/26 — the single failure was a TEST-SIDE bug in h04_13: the final assertion was inverted (asserted truncate is not live) contradicting both its own comment and the D2 design (truncate eats only tail characters, the marker stays intact -> the channel IS live). The module was consistent with the contract; the test line was wrong. Fixed the assertion with the honest note in place (same pattern as axis-1's two validate() defects and axis-3's battery-tooling bugs: the defect class is recorded, not hidden).
+- GREEN EXECUTED: results/axis4/axis4_GREEN.json — 26/26, failed=0, suite digest 7448f95ebd58be25, exit 0.
+- STATION CLOSE-OUT: CHANGELOG station ledger M2 line, this worklog entry. Isolated commit "axis4: green" carries: sentinel/csynth.py + results/axis4/axis4_GREEN.json + tests fix + the record files. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M2 CLOSED: the channel-synthesis engine is implemented and green 26/26 (digest 7448f95ebd58be25), one test-side inversion caught and fixed honestly. Next: M3 atoms (4a..4e).

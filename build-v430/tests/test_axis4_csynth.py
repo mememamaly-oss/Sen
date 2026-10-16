@@ -385,7 +385,11 @@ def h04_13_truncate_and_carrier_dead():
     assert classify_reflection(MARKER, "") == "carrier_dead"
     assert classify_reflection(MARKER, "unrelated reflection") == "carrier_dead"
     assert not channel_live("carrier_dead")
-    assert not channel_live("truncate")   # marker intact -> channel live
+    # FIXED (honest, caught by the first GREEN run): truncate keeps the
+    # marker intact (only tail characters eaten) -> the channel IS live —
+    # the v1 assertion was inverted, contradicting both its own comment and
+    # the D2 design. The module was right; the test line was wrong.
+    assert channel_live("truncate")
 
 
 @case

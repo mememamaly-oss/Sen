@@ -15,6 +15,11 @@ Station ledger:
   the live end-eating manglers (drop_last, rewrite_suffix); D3
   declared-param-first battery priority; D4 the GTP twins-win attribution
   rule; D5 Axis-12 boundary taxonomy + Axis-11 logical-only digests.
+- M2 (GREEN): sentinel/csynth.py implemented (~300 lines, the D1..D5
+  contract). First run 25/26 — the single failure was a TEST-side inverted
+  assertion in H4_13 (truncate IS live: only tail characters are eaten);
+  module innocent, test fixed with the honest note in place. GREEN:
+  26/26, digest 7448f95ebd58be25.
 
 # SENTINEL Axis-3 — PCS: Persistent Causal Store (spec §3.1–§3.8)
 
