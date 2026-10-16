@@ -4881,3 +4881,15 @@ Work Log:
 
 Stage Summary:
 - M3 CLOSED: the exhaustive battery green 5/5 (digest cf2676e2c1e14b81) — 2,000 mangle classifications + 500-shape determinism + 11 adversarial shapes + 300 attribution streams, all first-shot. Next: M4 R3 determinism (three suite runs, identical digests).
+
+---
+Task ID: 67-M4
+Agent: Super Z (main agent)
+Task: Axis 4 station M4 — R3 determinism (three suite runs, identical digests), isolated commit "axis4: determinism" + immediate push + ls-remote.
+
+Work Log:
+- R3 EXECUTED: axis4_GREEN.json (run 1, from M2) + axis4_RUN2.json + axis4_RUN3.json — all three 26/26 failed=0 with the IDENTICAL suite digest 7448f95ebd58be25 (the digest covers the [{name, ok}] logical outcome stream only — Axis-11 discipline; per-case wall timings are metadata and never digest inputs).
+- STATION CLOSE-OUT: CHANGELOG station ledger M4 line, this worklog entry. Isolated commit "axis4: determinism" carries: results/axis4/axis4_RUN2.json + axis4_RUN3.json + the record files. Immediate push + ls-remote follow.
+
+Stage Summary:
+- M4 CLOSED: the determinism claim is triple-run-backed (7448f95ebd58be25 x3). Next: M5 the full core gate fresh on the axis-4 tree + mandated .log deposits + sha256sums -> axis-4 closure.

@@ -28,6 +28,8 @@ Station ledger:
   shapes (collisions/unicode/huge/reserved/pathless/query-only/fragment/
   casing/duplicates/empty names) — zero crashes; 4e 300 attribution
   streams law-verified.
+- M4 (determinism): R3 triple-run — GREEN/RUN2/RUN3 all 26/26 with the
+  identical digest 7448f95ebd58be25 (logical stream only, Axis-11).
 
 # SENTINEL Axis-3 — PCS: Persistent Causal Store (spec §3.1–§3.8)
 
