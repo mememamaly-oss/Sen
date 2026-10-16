@@ -1,2 +1,4 @@
 [00:00:01.067] Server  LOG     ✓ Ready in 715ms
 [00:00:04.079] Server  LOG     ○ Compiling / ...
+[00:18:38.339] Server  WARN    [next-auth][warn][NEXTAUTH_URL] "\nhttps://next-auth.js.org/warnings#nextauth_url"
+[00:18:38.339] Server  WARN    [next-auth][warn][NO_SECRET] "\nhttps://next-auth.js.org/warnings#no_secret"

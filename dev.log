@@ -20,3 +20,16 @@ https://nextjs.org/telemetry
  GET / 200 in 27ms (compile: 3ms, render: 24ms)
  GET / 200 in 28ms (compile: 2ms, render: 26ms)
  GET / 200 in 27ms (compile: 2ms, render: 25ms)
+ GET / 200 in 56ms (compile: 3ms, render: 53ms)
+ GET / 200 in 29ms (compile: 1827µs, render: 27ms)
+ GET / 200 in 26ms (compile: 4ms, render: 22ms)
+ GET / 200 in 24ms (compile: 2ms, render: 22ms)
+[next-auth][warn][NEXTAUTH_URL] 
+https://next-auth.js.org/warnings#nextauth_url
+[next-auth][warn][NO_SECRET] 
+https://next-auth.js.org/warnings#no_secret
+ GET /api/me 401 in 1149ms (compile: 1129ms, render: 20ms)
+ GET /login 200 in 525ms (compile: 508ms, render: 18ms)
+ GET /api/bootstrap 200 in 217ms (compile: 207ms, render: 10ms)
+ GET / 200 in 31ms (compile: 3ms, render: 28ms)
+ GET / 200 in 27ms (compile: 2ms, render: 25ms)
