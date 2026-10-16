@@ -1,3 +1,21 @@
+# SENTINEL Axis-4 — Channel Synthesis (csynth; contract DERIVED, see below)
+
+Station ledger:
+- M1 (RED): tests/test_axis4_csynth.py written FIRST — 26 cases H4_01..H4_26
+  + the --atoms 4a..4e battery. RED executed: 0/26 (digest 9b06520d30523df3)
+  + 0/5 atoms (digest 1d9f838081ce39b3), single failure mode
+  (ModuleNotFoundError: sentinel.csynth). PROVENANCE: the original 12-axis
+  spec's S4 table is not recoverable from any committed record — the H4
+  contract is DERIVED from committed live-proven evidence (declared in the
+  suite docstring, supersedable at any station boundary): D1 the 12-kind
+  carrier alphabet = the trustbound campaign's taxonomy committed in
+  detect.py (param / param_name / resolver_name / self_param / self_header /
+  self_cookie / header_name / cookie_name / segment_value / segment_name /
+  header_value / cookie_value); D2 TB-1c sacrificial-tail variants against
+  the live end-eating manglers (drop_last, rewrite_suffix); D3
+  declared-param-first battery priority; D4 the GTP twins-win attribution
+  rule; D5 Axis-12 boundary taxonomy + Axis-11 logical-only digests.
+
 # SENTINEL Axis-3 — PCS: Persistent Causal Store (spec §3.1–§3.8)
 
 New modules sentinel/blake3.py (pure-Python BLAKE3-256, zero dependencies,

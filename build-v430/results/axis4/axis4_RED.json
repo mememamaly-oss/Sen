@@ -1,0 +1,165 @@
+{
+ "suite": "axis4-csynth",
+ "total": 26,
+ "failed": 26,
+ "passed": false,
+ "cases": [
+  {
+   "name": "h04_01_alphabet_closed",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_02_carrier_identity",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_03_get_declared_params",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_04_post_body_params",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_05_mixed_locations",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_06_paramless_fallback_family",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_07_basename_derivation",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_08_resolver_name_semantics",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_09_self_header_self_cookie",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_10_variant_composition",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_11_drop_last",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_12_rewrite_suffix",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_13_truncate_and_carrier_dead",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_14_mangle_none",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_15_battery_priority_order",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_16_dedup_first_origin_wins",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_17_attribution_twins_win",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_18_attribution_past_dead_carrier",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_19_ambiguity_record",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_20_empty_shape_rejection",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_21_unknown_kind_boundary",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_22_malformed_carrier_skip",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_23_digest_stability",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_24_synthesis_determinism",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_25_interface_contract",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  },
+  {
+   "name": "h04_26_mounting_demonstration",
+   "ok": false,
+   "error": "AssertionError: RED \u2014 sentinel.csynth unavailable: ModuleNotFoundError: No module named 'sentinel.csynth'",
+   "dur_s": 0.0
+  }
+ ],
+ "digest": "9b06520d30523df37806f5fdf3caab56b1f3d3daaaa586801e077d93be5cd3a3"
+}
