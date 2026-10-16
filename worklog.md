@@ -4805,3 +4805,35 @@ Work Log:
 Stage Summary:
 - The scope gate is PROVEN by differential test BEFORE any external contact — the Mutillidae/PayPal lesson (OWSP-22) is enforced as ordered: RED/GREEN/edge/typosquat all PASS with raw outputs, defense-in-depth evidenced at discovery, form-action, transport and redirect layers.
 - Candidate list with liveness evidence delivered; 6 of 9 alive (200), 2 unreachable (testphp/testhtml5 — matching the charter record), 1 alive over http (TLS expired on https). No commit, no push, no scanning. PAT treated as exposed/revoked at round end (never written to disk or config).
+
+---
+Task ID: 66
+Agent: Super Z (main agent)
+Task: Supervisor strict order 2026-10-16 (session round 3) — prove-or-disprove the _scope_ok domain-matching EDGE case with live code BEFORE any assumption; fix ONLY if proven broken; permanent battery in tests/; full 4-item regression gate; isolated commit; push + ls-remote hash match; explicit token-revocation declaration. All-internal round: code + tests + git only.
+
+Work Log:
+- ENVIRONMENT: no flip this time (proved: HEAD = aa9c803 the flip-11 stray, /tmp gate artifacts + battery file all intact). The previous session was cut mid bench-run-3; the run had completed and written a clean fully-parseable JSON (12:43) — validated by full json.load, not assumed.
+- STEP 1 LIVE DIAGNOSTIC (scripts/step1_scope_edge_diagnostic.py; zero-network; engine file sha256 printed = 53b36c404cfeb3cfe4adb73c1f2ea48a2e1db3f000cfcdc1c3c9c34b042dd74e): the three ordered probes ALL False under BOTH real scope shapes (A: allowed_domains=['demo.testfire.net'] the orchestrator.py:117 default; B: allowed_domains=['testfire.net'] the registered-domain form — the shape a bare endswith would betray):
+  * _scope_ok('https://nottestfire.net/x') -> False, 'host nottestfire.net outside allowed set'
+  * _scope_ok('https://eviltestfire.net/x') -> False, 'host eviltestfire.net outside allowed set'
+  * _scope_ok('https://demo.testfire.net.attacker.com/x') -> False, 'host demo.testfire.net.attacker.com outside allowed set'
+  * controls all True '': demo.testfire.net + sub.demo.testfire.net (shape A); testfire.net + www.testfire.net (shape B)
+  => DECLARED WITH RAW EVIDENCE: NO VULNERABILITY. The on-disk gate already enforces host == d or host.endswith("." + d) (http_engine.py:362-365 — the post-OWSP-22 independent-gate form).
+- STEP 2 SKIPPED AS ORDERED — do not fix what is not broken: ZERO production-code changes this round.
+- STEP 3 PERMANENT BATTERY (build-v430/tests/test_scope_edge_battery.py; standalone, the axis-suite discipline — NOT @case-registered, so the 227 x 19 chunks = 4313 suite contract stays byte-identical): 6 cases C01-C06 = the three ordered probes under both shapes; the ordered counter-case (legitimate subdomains stay ACCEPTED, incl. a.b.demo.testfire.net); the typosquat family (o->0, i->1, truncated TLD, dot->hyphen, substring host, prefix-embedded); allowed_hosts exact-membership semantics (never suffix). Plus --red-proof: two in-process saboteurs (bare host.endswith(d); substring d-in-host) — the battery catches BOTH (3 and 5 probes wrongly accepted respectively), production file untouched.
+  * HONEST SELF-CORRECTION ON RECORD: the battery's own first run caught MY v1 expectation being wrong — evildemo.testfire.net under shape B (allowed=testfire.net) is a GENUINE subdomain of the allowed registered zone and MUST be accepted; v1 expected rejection. Fixed the expectation + locked the semantic boundary as must_accept; the gate was right, the v1 test was not. No gate behavior was bent to fit the expectation.
+- STEP 4 FULL REGRESSION GATE (caches wiped; all four items GREEN; ZERO baseline deviation):
+  1. suite: 6 foreground ranges 681/681 + 454/454 + 908/908 + 908/908 + 908/908 + 454/454; machine aggregate over the 19 chunk JSONs: 4313/4313, every chunk 227/227 failed=0.
+  2. doctor: 17/17 overall=PASS rc=0, full JSON on record (twice: gate run + fresh re-run on the final tree for the deposit; disclosed therein: the doctor's own built-in checks do 1 DNS resolve + 1 TCP connect to scanme.nmap.org — the ordered gate's own health checks, not scan traffic).
+  3. bench x3: run-3c0652b6be / confusion 38,0,0,37 / P=R=F1=1.0 / @7161 requests / 199 findings / gt 0373baf92a92dce2 — internally identical AND structurally identical to the accepted record + its 4 stored copies (verify_pt1/1b/2/3 bench_run1.json): path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ -> ALL IDENTICAL, COMPARE_RC=0.
+  4. the permanent battery run WITHIN the gate sequence (after bench, per the supervisor's explicit demand): 6/6 GREEN digest=c2916ba3b060f40b + red-proof both saboteurs caught — re-verified fresh on the final tree for the deposit.
+- aa9c803 ISOLATION (mechanism stated to the supervisor BEFORE any commit, as demanded): git reset --hard 93b7150 (the flip-11 UUID commit dropped from branch history — it was never pushed and never enters origin) + verbatim re-application of its two files in a SEPARATE labeled recovery commit 044d2b6, with mathematical blob-identity proof: scripts/phase0_scope_gate_proof.py e72f93149084282ae4d5cc87a3f7f32a8bf410cc and worklog.md 42f61f49ba3b0ea07899f269f24d726c5e8bfa02 — both == aa9c803's blobs exactly (byte-identical, nothing altered in transit).
+- GATE DEPOSITS (git add -f past the *.log ignore): results/gate_scope_edge_3c0652b6be.log (step-1 raw + isolation proof + suite aggregate + fresh doctor + fresh battery in-sequence), results/bench_scope_edge_3c0652b6be.log (x3 summaries + structural compare, COMPARE_RC=0), results/scope_edge/SHA256SUMS (6 evidence files).
+- STEP 6: push (inline session PAT — never on disk, never in config) + immediate ls-remote; origin/main and local HEAD hashes pasted side by side for manual match.
+- STEP 7: token revocation declared explicitly in the closing report (ordered: part of the report, not a side note).
+
+Stage Summary:
+- The ordered edge case is PROVEN ABSENT with raw evidence (both scope shapes + positive controls); nothing broken was "fixed"; the state is LOCKED by a permanent 6-case battery whose red-proof proves it catches both hypothesized bug forms.
+- Full gate zero-drift: 4313/4313 + 17/17 + bench x3 run-3c0652b6be COMPARE_RC=0 + battery 6/6 in-sequence.
+- History hygiene: flip-11 stray isolated (never enters origin); task-65 material preserved verbatim (blob-proven) in recovery commit 044d2b6; this round isolated in its own commit.
+- ZERO external contact this round beyond the doctor's own 2x(1 DNS + 1 TCP) built-in health checks (disclosed) — no scan, no phase-2, no candidate-list host touched. Token treated as exposed; revocation declared at round end. Stopped after step 7 awaiting the next order.
