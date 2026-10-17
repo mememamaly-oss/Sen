@@ -79,7 +79,8 @@ SYNONYMS = {
 # The campaign's strong classes (active-evidence findings). Passive classes
 # (missing headers / banners) are excluded by default — see --include-passive.
 STRONG_CLASSES = {
-    "sql_injection", "xxe", "xss_reflected", "xss_dom", "path_traversal",
+    "sql_injection", "xxe", "xss_reflected", "xss_dom", "xss_stored",
+    "path_traversal",
     "http_response_header_injection", "csrf", "open_redirect", "ssti",
     "ssrf", "command_injection", "nosql_injection", "idor",
     "deserialization", "jwt_flaw", "race_condition", "logic_flaw",
@@ -100,6 +101,13 @@ def canon_host(raw):
     return s[4:] if s.startswith("www.") else s
 
 
+# Gruyere (and similar sandboxes) provision an EPHEMERAL per-session instance
+# ID as the first path segment — "/<39 digits>/login". Two scans of the same
+# flaw get different IDs, so the segment is sandbox state, not vulnerability
+# identity. Normalize it away (all-digit first segment, >= 15 digits).
+_INSTANCE_ID = re.compile(r"^/\d{15,}(?=/|$)")
+
+
 def canon_path(raw):
     s = (raw or "").strip()
     if "://" in s:
@@ -107,6 +115,7 @@ def canon_path(raw):
     s = s.split("?")[0]
     if not s.startswith("/"):
         s = "/" + s
+    s = _INSTANCE_ID.sub("", s) or "/"
     return s.rstrip("/") or "/"
 
 
@@ -164,11 +173,34 @@ def load_sentinel(paths, include_passive=False):
 
 
 # ---------------------------------------------------------------- matching
+# XSS stored-vs-reflected bridge: external lists often type a stored XSS as a
+# generic "Cross-Site Scripting" (canon: xss_reflected) while SENTINEL reports
+# the same page+param flaw as xss_stored. When host+path+param all agree and
+# only the reflected/stored subclass differs, the two rows describe the same
+# flaw surface — match at STRONG with an explicit bridge marker (transparent
+# in the report; never silently).
+_XSS_PAIR = {"xss_reflected", "xss_stored"}
+
+
 def match_level(ext, sen):
-    """(host, class) must agree. Returns best level: EXACT > STRONG > CLASS."""
-    if ext["host"] != sen["host"] or ext["type"] != sen["type"]:
+    """(host, class) must agree. Returns best level: EXACT > STRONG > CLASS.
+
+    Two documented normalizations (v4.2.3 re-gate round):
+      * ephemeral sandbox instance-ID path segments are stripped (canon_path)
+      * xss_reflected/xss_stored subclass disagreement bridges at STRONG when
+        host+path+param agree (level reported as "STRONG (xss-bridge)")
+    """
+    if ext["host"] != sen["host"]:
+        return None
+    type_mismatch = ext["type"] != sen["type"]
+    if type_mismatch and not ({ext["type"], sen["type"]} <= _XSS_PAIR):
         return None
     if ext["path"] == sen["path"]:
+        if type_mismatch:
+            # bridge only when the param identity is explicit on both sides
+            if ext["param"] and sen["param"] and ext["param"] == sen["param"]:
+                return "STRONG (xss-bridge)"
+            return None
         if ext["param"] and sen["param"] and ext["param"] == sen["param"]:
             return "EXACT"
         if not ext["param"] or not sen["param"]:

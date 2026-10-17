@@ -1,0 +1,3 @@
+[diag] running test body; main thread stack dumps follow...
+[diag] TEST BODY COMPLETED
+[standalone body run: COMPLETED within 180s — runner-only stall documented]

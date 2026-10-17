@@ -1,0 +1,1472 @@
+{
+ "layer": "sentinel-apath/4.3.0",
+ "paths": [
+  {
+   "id": "AP-0d7bb61295",
+   "title": "sql_injection at /WebGoat/SqlInjection/assignment5a — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-23bc1b65",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-edced51dcb",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/assignment5a — parameter injection",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-edced51dcb",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/assignment5a?account=1+AND+1%3D1&injection=&operator="
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-edced51dcb",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/assignment5a?account=1+AND+1%3D1&injection=&operator="
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle) (twin entity typing: Account)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-edced51dcb",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      },
+      {
+       "kind": "twin",
+       "ref": "stats.digital_twin.entity_inventory",
+       "excerpt": "{\"carried_by_params\": 8, \"consumed_by_steps\": [], \"entity\": \"Account\", \"minted_by_steps\": [], \"surfaces\": [\"POST /WebGoa"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-edced51dcb",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-edced51dcb",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-edced51dcb",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/assignment5a"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-edced51dcb"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-2dcb6794c6",
+   "title": "sql_injection at /WebGoat/SqlInjection/attack9 — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-2db0886e",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-d162ad4dc4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/attack9 — parameter name",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-d162ad4dc4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-16b18c4f",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack9?name=1%27%29%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-d162ad4dc4",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-16b18c4f",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack9?name=1%27%29%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-d162ad4dc4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-16b18c4f",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-d162ad4dc4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-d162ad4dc4",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-d162ad4dc4",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/attack9"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-d162ad4dc4"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-2ee321e720",
+   "title": "sql_injection at /WebGoat/SqlInjection/assignment5a — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-23bc1b65",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-1e459972d7",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/assignment5a — parameter account",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1e459972d7",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/assignment5a?account=1+AND+1%3D1&injection=&operator="
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1e459972d7",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/assignment5a?account=1+AND+1%3D1&injection=&operator="
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle) (twin entity typing: Account)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1e459972d7",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      },
+      {
+       "kind": "twin",
+       "ref": "stats.digital_twin.entity_inventory",
+       "excerpt": "{\"carried_by_params\": 8, \"consumed_by_steps\": [], \"entity\": \"Account\", \"minted_by_steps\": [], \"surfaces\": [\"POST /WebGoa"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-1e459972d7",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1e459972d7",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1e459972d7",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/assignment5a"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-1e459972d7"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-4222b05045",
+   "title": "sql_injection at /WebGoat/SqlInjection/attack8 — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-50ad61fd",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-588447c7c0",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/attack8 — parameter name",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-588447c7c0",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-022f1073",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack8?name=1%27%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-588447c7c0",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-022f1073",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack8?name=1%27%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-588447c7c0",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-022f1073",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-588447c7c0",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-588447c7c0",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-588447c7c0",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/attack8"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-588447c7c0"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-47531852b3",
+   "title": "host_header_injection at /WebGoat/welcome.mvc — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-8fadbca1",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-96b5711140",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "GET http://localhost:8080/WebGoat/welcome.mvc — parameter Host",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-96b5711140",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0c6fe953",
+       "excerpt": "http://localhost:8080/WebGoat/welcome.mvc"
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "an attacker-controlled Host header value is reflected into the response",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-96b5711140",
+       "excerpt": "verification: re-test:fresh-canary-host (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0c6fe953",
+       "excerpt": "http://localhost:8080/WebGoat/welcome.mvc"
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the response headers derived from the Host header",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-96b5711140",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-0c6fe953",
+       "excerpt": "JSESSIONID=n1ZkXyigtO_hl25uCwuSIAiMB_A-0jJpimtv60t5"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-96b5711140",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-96b5711140",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) — password-reset poisoning and cache-poisoning preconditions.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-96b5711140",
+       "excerpt": "impact grade=proven; chain: re-test:fresh-canary-host on GET http://localhost:8080/WebGoat/welcome.mvc"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-96b5711140"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-5fb4edf505",
+   "title": "host_header_injection at /WebGoat — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-cb01ca9b",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-e0395e5e34",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "GET http://localhost:8080/WebGoat — parameter Host",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-e0395e5e34",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-043b3626",
+       "excerpt": "http://localhost:8080/WebGoat"
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "an attacker-controlled Host header value is reflected into the response",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-e0395e5e34",
+       "excerpt": "verification: re-test:fresh-canary-host (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-043b3626",
+       "excerpt": "http://localhost:8080/WebGoat"
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the response headers derived from the Host header",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-e0395e5e34",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-043b3626",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-e0395e5e34",
+       "excerpt": "canary Host reflected in location header: the application builds output from the attacker-controlled Host header (link-m"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-e0395e5e34",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "An attacker-controlled Host header value is reflected into application output (fresh canary host) — password-reset poisoning and cache-poisoning preconditions.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-e0395e5e34",
+       "excerpt": "impact grade=proven; chain: re-test:fresh-canary-host on GET http://localhost:8080/WebGoat"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-e0395e5e34"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-7c5c5520b0",
+   "title": "sql_injection at /WebGoat/SqlInjection/attack9 — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-2db0886e",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-1d69a680fe",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/attack9 — parameter auth_tan",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1d69a680fe",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-16b18c4f",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack9?name=1%27%29%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1d69a680fe",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-16b18c4f",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack9?name=1%27%29%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1d69a680fe",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-16b18c4f",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-1d69a680fe",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 908B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1d69a680fe",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-1d69a680fe",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/attack9"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-1d69a680fe"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-9731593286",
+   "title": "sql_injection at /WebGoat/SqlInjectionAdvanced/attack6a — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-a78e6e98",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-667a840563",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1167B vs FALSE 243B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjectionAdvanced/attack6a — parameter userid_6a",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-667a840563",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1167B vs FALSE 243B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-197c7b52",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjectionAdvanced/attack6a?userid_6a=1+AND+1%3D2"
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-667a840563",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-197c7b52",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjectionAdvanced/attack6a?userid_6a=1+AND+1%3D2"
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-667a840563",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1167B vs FALSE 243B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-197c7b52",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-667a840563",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1167B vs FALSE 243B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-667a840563",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-667a840563",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjectionAdvanced/attack6"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-667a840563"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-c51b7d1324",
+   "title": "sql_injection at /WebGoat/SqlInjection/attack8 — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-50ad61fd",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-af97429a5e",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/attack8 — parameter auth_tan",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-af97429a5e",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-022f1073",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack8?name=1%27%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-af97429a5e",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-022f1073",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack8?name=1%27%29+OR+1%3D1--&auth_tan="
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-af97429a5e",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-022f1073",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-af97429a5e",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1003B vs FALSE 225B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-af97429a5e",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-af97429a5e",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/attack8"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-af97429a5e"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-cfb14d5b6a",
+   "title": "sql_injection at /WebGoat/SqlInjection/assignment5a — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-23bc1b65",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-75eab261f8",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/assignment5a — parameter operator",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-75eab261f8",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/assignment5a?account=1+AND+1%3D1&injection=&operator="
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-75eab261f8",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/assignment5a?account=1+AND+1%3D1&injection=&operator="
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle) (twin entity typing: Account)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-75eab261f8",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      },
+      {
+       "kind": "twin",
+       "ref": "stats.digital_twin.entity_inventory",
+       "excerpt": "{\"carried_by_params\": 8, \"consumed_by_steps\": [], \"entity\": \"Account\", \"minted_by_steps\": [], \"surfaces\": [\"POST /WebGoa"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-0095e82c",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-75eab261f8",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 1625B vs FALSE 268B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-75eab261f8",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-75eab261f8",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/assignment5a"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-75eab261f8"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  },
+  {
+   "id": "AP-e41b037b73",
+   "title": "sql_injection at /WebGoat/SqlInjection/attack10 — single-finding path",
+   "classification": "VERIFIED",
+   "weak_links": [],
+   "links": [
+    {
+     "slot": "identity",
+     "status": "verified",
+     "statement": "anonymous web session — cookie JSESSIONID carried by the raw proving requests; provenance not retained in the journal; no Authorization/credential material in any proving request",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-ae34ecb5",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-bb5e937cd4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 15699B vs FALSE 286B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "entry",
+     "status": "verified",
+     "statement": "POST http://localhost:8080/WebGoat/SqlInjection/attack10 — parameter action_string",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-bb5e937cd4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 15699B vs FALSE 286B (string-context boolean oracle)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-1b0c0d59",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack10?action_string=1+AND+1%3D2"
+      }
+     ]
+    },
+    {
+     "slot": "action",
+     "status": "verified",
+     "statement": "boolean condition injection — the attacker flips the query condition (AND 1=1 vs AND 1=2) and the application's behavior changes",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-bb5e937cd4",
+       "excerpt": "verification: oracle:or-bodydiff-2round (passed=True)"
+      },
+      {
+       "kind": "journal",
+       "ref": "req-1b0c0d59",
+       "excerpt": "http://localhost:8080/WebGoat/SqlInjection/attack10?action_string=1+AND+1%3D2"
+      }
+     ]
+    },
+    {
+     "slot": "object",
+     "status": "verified",
+     "statement": "the SQL query evaluation (a read-capable oracle)",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-bb5e937cd4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 15699B vs FALSE 286B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "authorization",
+     "status": "verified",
+     "statement": "the surface is reachable without authentication: raw proving requests carried no Authorization header and were accepted; the submitted form carries no anti-CSRF token field",
+     "evidence": [
+      {
+       "kind": "journal",
+       "ref": "req-1b0c0d59",
+       "excerpt": "JSESSIONID=vjUdK24XiRHjl_GB8Nhi8EeeJj9XZBC3SaeEkr7m"
+      },
+      {
+       "kind": "finding",
+       "ref": "F-bb5e937cd4",
+       "excerpt": "OR-pair body-size differential on condition flip: TRUE 15699B vs FALSE 286B (string-context boolean oracle)"
+      }
+     ]
+    },
+    {
+     "slot": "state",
+     "status": "verified",
+     "statement": "no application state change was involved in the proof (per-request class; verification protocol: non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload) — whether the class can cause state changes was not tested",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-bb5e937cd4",
+       "excerpt": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state chan"
+      }
+     ]
+    },
+    {
+     "slot": "impact",
+     "status": "verified",
+     "statement": "Attacker influence over query evaluation proven by a non-destructive boolean differential (AND 1=1 vs AND 1=2 yield different application behavior) — a read-capable oracle. Data was never extracted; the capability was demonstrated, not exercised.",
+     "evidence": [
+      {
+       "kind": "finding",
+       "ref": "F-bb5e937cd4",
+       "excerpt": "impact grade=proven; chain: oracle:or-bodydiff-2round on POST http://localhost:8080/WebGoat/SqlInjection/attack10"
+      }
+     ]
+    }
+   ],
+   "findings": [
+    "F-bb5e937cd4"
+   ],
+   "hops": [],
+   "chain_rule": "",
+   "mitigations_absent": []
+  }
+ ],
+ "summary": {
+  "target": "http://localhost:8080/WebGoat",
+  "run_id": "run-d6983ec7cb",
+  "paths_total": 11,
+  "paths_verified": 11,
+  "paths_inferred": 0,
+  "singles": 11,
+  "chains": 0,
+  "weak_link_histogram": {},
+  "seed_findings": [
+   "F-1d69a680fe",
+   "F-1e459972d7",
+   "F-588447c7c0",
+   "F-667a840563",
+   "F-75eab261f8",
+   "F-96b5711140",
+   "F-af97429a5e",
+   "F-bb5e937cd4",
+   "F-d162ad4dc4",
+   "F-e0395e5e34",
+   "F-edced51dcb"
+  ],
+  "non_seed_findings": {
+   "F-0122e5a4f2": "missing_security_headers",
+   "F-04abb4ac23": "missing_security_headers",
+   "F-050a16b7de": "missing_security_headers",
+   "F-05b43e6718": "missing_security_headers",
+   "F-07d84279d8": "missing_security_headers",
+   "F-08b03a98e2": "missing_security_headers",
+   "F-09cf818c7c": "missing_security_headers",
+   "F-0a0a0b5570": "missing_security_headers",
+   "F-0c203049a7": "missing_security_headers",
+   "F-0ebf4c1236": "missing_security_headers",
+   "F-15112a44e6": "missing_security_headers",
+   "F-16ec5747bc": "missing_security_headers",
+   "F-1871cd4535": "missing_security_headers",
+   "F-1a9a83ea61": "missing_security_headers",
+   "F-1edcc01682": "missing_security_headers",
+   "F-24395edefe": "missing_security_headers",
+   "F-258c0dc2bb": "missing_security_headers",
+   "F-27a603847e": "missing_security_headers",
+   "F-29560406fa": "missing_security_headers",
+   "F-295db9a6a2": "missing_security_headers",
+   "F-295f9a0e57": "missing_security_headers",
+   "F-2977b15415": "missing_security_headers",
+   "F-2a3875944c": "missing_security_headers",
+   "F-2b7769770f": "missing_security_headers",
+   "F-310a62cb8f": "missing_security_headers",
+   "F-3436886d30": "missing_security_headers",
+   "F-35378584bd": "missing_security_headers",
+   "F-36bf168df4": "missing_security_headers",
+   "F-39037ff66e": "missing_security_headers",
+   "F-392efe687b": "missing_security_headers",
+   "F-3eee5ef854": "missing_security_headers",
+   "F-40b97a6bf2": "missing_security_headers",
+   "F-4124b274be": "missing_security_headers",
+   "F-43041556a7": "missing_security_headers",
+   "F-46032ebd8a": "missing_security_headers",
+   "F-460786d1b3": "missing_security_headers",
+   "F-47cc6aa26c": "missing_security_headers",
+   "F-47f2a209d1": "missing_security_headers",
+   "F-4840c9022d": "missing_security_headers",
+   "F-487e6a5e79": "missing_security_headers",
+   "F-4c3153602f": "missing_security_headers",
+   "F-4dacc45d27": "missing_security_headers",
+   "F-506638c868": "missing_security_headers",
+   "F-50769c7c89": "missing_security_headers",
+   "F-50a906dfbc": "missing_security_headers",
+   "F-54f8f2581b": "missing_security_headers",
+   "F-5a3be35a34": "missing_security_headers",
+   "F-5ce8897733": "missing_security_headers",
+   "F-5dcfd2225a": "missing_security_headers",
+   "F-5dde6e56c2": "missing_security_headers",
+   "F-60361c8c6f": "missing_security_headers",
+   "F-66b7ae4925": "missing_security_headers",
+   "F-66ca445c91": "missing_security_headers",
+   "F-6bf4e3b662": "missing_security_headers",
+   "F-6ee85af3a5": "missing_security_headers",
+   "F-6fe844efee": "missing_security_headers",
+   "F-70648fbcf6": "missing_security_headers",
+   "F-772c54217c": "missing_security_headers",
+   "F-77daa58773": "missing_security_headers",
+   "F-79494d9a78": "missing_security_headers",
+   "F-7bf63c5e9c": "missing_security_headers",
+   "F-7d1e68c92c": "missing_security_headers",
+   "F-7d2beedda9": "missing_security_headers",
+   "F-84ee208534": "missing_security_headers",
+   "F-8736fc9599": "missing_security_headers",
+   "F-88be2d40ea": "missing_security_headers",
+   "F-8960118a48": "missing_security_headers",
+   "F-89c201f4ce": "missing_security_headers",
+   "F-8e9ada548d": "missing_security_headers",
+   "F-92f1b46b0a": "missing_security_headers",
+   "F-961946f8ea": "missing_security_headers",
+   "F-96b5754d3a": "missing_security_headers",
+   "F-979a950e68": "missing_security_headers",
+   "F-9a3fd73bf1": "missing_security_headers",
+   "F-9bcf760cd4": "missing_security_headers",
+   "F-9c6d6e2225": "missing_security_headers",
+   "F-9ca292e883": "missing_security_headers",
+   "F-9d0b55682e": "missing_security_headers",
+   "F-9d55a43e9d": "missing_security_headers",
+   "F-9e2ff7c31f": "missing_security_headers",
+   "F-9e457b3cb3": "missing_security_headers",
+   "F-9ff6dbfeba": "missing_security_headers",
+   "F-a04575bc83": "missing_security_headers",
+   "F-a37d8f18f5": "missing_security_headers",
+   "F-a5e012f6e3": "missing_security_headers",
+   "F-ab2336b958": "missing_security_headers",
+   "F-ad84f22256": "missing_security_headers",
+   "F-ae8324015a": "missing_security_headers",
+   "F-affc923452": "missing_security_headers",
+   "F-b1788df943": "missing_security_headers",
+   "F-b237560fe5": "missing_security_headers",
+   "F-b96360b7c1": "missing_security_headers",
+   "F-bba200489c": "missing_security_headers",
+   "F-bbf1d8fad8": "missing_security_headers",
+   "F-bdc2c45748": "missing_security_headers",
+   "F-c353fd27c6": "missing_security_headers",
+   "F-c611ef16b9": "missing_security_headers",
+   "F-c6ea777268": "missing_security_headers",
+   "F-c85a0480a9": "missing_security_headers",
+   "F-cffa89ac65": "missing_security_headers",
+   "F-d001419a41": "missing_security_headers",
+   "F-d2331cc77d": "missing_security_headers",
+   "F-d735baa2c3": "missing_security_headers",
+   "F-da26a2a960": "missing_security_headers",
+   "F-dab0527ece": "missing_security_headers",
+   "F-dbcd56896f": "missing_security_headers",
+   "F-dcce9ddddb": "missing_security_headers",
+   "F-dd87dfad4c": "missing_security_headers",
+   "F-e0ca9a20f3": "missing_security_headers",
+   "F-e102d8a706": "missing_security_headers",
+   "F-e1b727f941": "missing_security_headers",
+   "F-e26c62adfb": "missing_security_headers",
+   "F-e35f8b74f3": "missing_security_headers",
+   "F-e922ef04ca": "missing_security_headers",
+   "F-ecea57cb08": "missing_security_headers",
+   "F-edbb34e9b3": "missing_security_headers",
+   "F-edd1044d87": "missing_security_headers",
+   "F-eea1c658a2": "missing_security_headers",
+   "F-f77ee8047a": "missing_security_headers",
+   "F-f77f4a07a9": "missing_security_headers",
+   "F-f84891f745": "missing_security_headers",
+   "F-f8abc6a437": "missing_security_headers",
+   "F-f9dde342c2": "missing_security_headers",
+   "F-facfa0d7d5": "missing_security_headers",
+   "F-fb2746aa8e": "missing_security_headers",
+   "F-fca7386bcc": "missing_security_headers",
+   "F-fce1f60323": "missing_security_headers",
+   "F-fef39b3e54": "missing_security_headers"
+  },
+  "honesty": "A path equals its weakest link: 11/11 paths carry EVERY link verified; the rest are INFERRED and name their weak links. No link is ever marked verified without an evidence reference traceable to a verified finding, a raw journal entry, or a scan artifact. Chained paths additionally require every hop evidenced; an inferred bridge (e.g. script execution not demonstrated) makes the whole chain INFERRED."
+ }
+}

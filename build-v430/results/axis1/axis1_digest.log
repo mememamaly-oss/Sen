@@ -1,0 +1,22 @@
+=== SENTINEL Axis-1 evidence digest — REGENERATED from committed evidence ===
+regenerated(utc): 2026-10-16T03:24:57Z | label: regenerated from committed evidence
+provenance: git HEAD 867dbf5 (origin/main) — inputs are ONLY the four
+committed axis-1 evidence JSONs (results/axis1/). File sha256 recomputed
+here; suite digest/total/failed/passed read verbatim from the JSONs.
+history: the round-26 original deposit was destroyed by the container
+rollbacks before banking (standing note, commit 867dbf5); this file is
+the authorized regeneration (supervisor Part A, option b).
+
+----- per-file evidence (sha256 | digest | total/failed/passed) -----
+9c4356d08225ebd4a2557925636f206aab984b31f84bea3b7884622aa34e6f87  results/axis1/axis1_RED.json | digest=cf2b6a574e03e30065e786d10a961d50052a0818cbe672692a5948c433110607 | 0/22 passed=False
+3d617dd7cf338b20fdc9dbfc6bdcb0babe77f62be49d690efd9833564b6e7c68  results/axis1/axis1_GREEN.json | digest=cc84a91a3c4ae1e5b0078165d6fb7f90da98e89a733a7133eba0975e9dedeb81 | 22/22 passed=True
+fa1a402f873bf7d50955498754af5768fa475566d05d6bd5e972335cd5e7e636  results/axis1/axis1_RUN2.json | digest=cc84a91a3c4ae1e5b0078165d6fb7f90da98e89a733a7133eba0975e9dedeb81 | 22/22 passed=True
+d6a9d3fdee6728fb8c26e39b55eb4b35b4ff80985b0660966cd4149dc3e9cb0e  results/axis1/axis1_RUN3.json | digest=cc84a91a3c4ae1e5b0078165d6fb7f90da98e89a733a7133eba0975e9dedeb81 | 22/22 passed=True
+
+----- determinism check -----
+GREEN/RUN2/RUN3 suite digest identical x3: cc84a91a3c4ae1e5b0078165d6fb7f90da98e89a733a7133eba0975e9dedeb81 (22/22 x3)
+RED pre-implementation: 0/22, digest cf2b6a574e03e30065e786d10a961d50052a0818cbe672692a5948c433110607 (ModuleNotFoundError era)
+
+VERDICT: AXIS-1 EVIDENCE 4/4 files recorded (sha256 above); suite digest
+cc84a91a3c4ae1e5b0078165d6fb7f90da98e89a733a7133eba0975e9dedeb81 x3 identical (GREEN=RUN2=RUN3); RED 0/22 cf2b6a574e03e30065e786d10a961d50052a0818cbe672692a5948c433110607. Regenerated from committed
+evidence only — no memory sources, no substitutes.

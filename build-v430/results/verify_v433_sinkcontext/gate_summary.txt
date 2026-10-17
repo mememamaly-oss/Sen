@@ -1,0 +1,10 @@
+GATE CYCLE — v4.3.3 + iv14 sink-context transfer on main (branch fix/openredirect-sinkcontext-433 from 412d64f, 2026-10-12)
+SUITE: cases total=207 covered=206 excluded=1 missing=0 dup=61 failed=0
+PASS
+DOCTOR: 17/17 overall=PASS
+BENCH: runs: [{'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37}, {'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37}, {'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37}] requests: [4784, 4784, 4784] run_id: run-3c0652b6be
+IDENTICAL=True 38/0/0/37=True
+verdict-diff vs shipped-v4.3.3 audit baseline: NONE (baseline requests 4784, this round 4784, delta +0)
+open_redirect evidence level: identical
+
+RED/GREEN: results/verify_v433_sinkcontext/openredirect_fp_red.json (structural FP live on unfixed v4.3.3, this round's fresh run) -> openredirect_fp_green.json (all three parts hold after the transfer)

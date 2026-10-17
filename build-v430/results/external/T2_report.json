@@ -1,0 +1,48 @@
+{
+ "phase": "T2",
+ "target": "testphp.vulnweb.com",
+ "charter": "results/external/CHARTER.md (target 2, closed list, http:// — TLS endpoint documented dead in prior rounds)",
+ "status": "BLOCKED_UNREACHABLE",
+ "verdict_ar": "تعذر T2 — الهدف غير قابل للوصول من هذه الشبكة الآن؛ الهدف وحده في القائمة المغلقة، لا بدائل، لا إعادة محاولات قصف",
+ "tree_head_at_phase": "ef5f0c33cf9a652ce1496a0069ce37640419b500 (external: T1 wavsep)",
+ "attempts": {
+  "verify_get": {
+   "url": "http://testphp.vulnweb.com/",
+   "budget": "ONE GET ONLY (charter step T2-4)",
+   "result": "curl(28) connection timed out after 20002ms — status 000, 0 bytes, no response received",
+   "note": "the single authorized verify request; never completed a TCP handshake — the target never saw an HTTP request"
+  },
+  "tcp_diagnostics": {
+   "rounds": 2,
+   "spacing": "45s apart",
+   "port_80": "timeout x2",
+   "port_443": "timeout x2",
+   "note": "TCP connectivity checks only — no HTTP requests, no other hosts contacted"
+  }
+ },
+ "dns": "system resolver: testphp.vulnweb.com -> 44.228.249.3 (resolves fine)",
+ "egress_controls": {
+  "github.com:443": "OK",
+  "example.com:80": "OK",
+  "conclusion": "general egress healthy — the block is target-side/path-side, NOT a container restriction"
+ },
+ "scan": "NOT RUN — cannot scan an unreachable target; the closed list forbids any substitute host",
+ "findings": { "verified": 0, "candidates": 0, "rejected": 0, "note": "zero because no scan happened — honestly recorded as-is, not fabricated" },
+ "raw_summary": {
+  "requests_per_second": 0.0,
+  "requests_total_to_target": 1,
+  "requests_to_other_hosts": 0,
+  "closed_list_violations": 0,
+  "errors": "1 HTTP timeout (the verify GET) + 4 TCP timeouts (2 rounds x 2 ports)"
+ },
+ "charter_stop_conditions": "not triggered in-scan (no scan ran); the pre-scan connectivity failure is the blocking event",
+ "evidence_index": [
+  "/tmp/t2/verify_headers.txt (empty — no response ever arrived)",
+  "this file (deposited and committed)"
+ ],
+ "honesty": [
+  "The site was reachable in prior eras (iv13/live-v420 rounds contacted it over http) — unreachability is the current network path's state, recorded as measured, no speculation about cause",
+  "No retry hammering: the GET budget was one, and it was spent; TCP checks are connectivity diagnostics, not scan requests",
+  "Axes 4-12 unbuilt: nothing external was measured; the official quantitative reference remains the WAVSEP local benchmark (T1, green)"
+ ]
+}

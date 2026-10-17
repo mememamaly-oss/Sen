@@ -1,0 +1,331 @@
+{
+ "version": 1,
+ "apps": {
+  "127.0.0.1:8888": {
+   "runs": 1,
+   "fingerprints": [
+    {
+     "run": "run-87f4f3a8bd",
+     "endpoints": 30,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "sql_injection|ws://127.0.0.1:8080/authenticate-user|auth_pass",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "sql_injection|ws://127.0.0.1:8080/authenticate-user-blind|auth_pass",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "command_injection|ws://127.0.0.1:8080/command-execution|(message)",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "code_injection|ws://127.0.0.1:8080/php-code-injection|(message)",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "ssti|ws://127.0.0.1:8080/ssti|(message)",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "path_traversal|ws://127.0.0.1:8080/file-inclusion|(message)",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "xss_reflected|ws://127.0.0.1:8080/post-comments|name",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "xss_reflected|ws://127.0.0.1:8080/reflected-xss|(message)",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "xss_reflected|ws://127.0.0.1:8080/ssti|(message)",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/index.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/brute-force.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/command-execution.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/csrf.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/file-inclusion.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/error-sql-injection.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/blind-sql-injection.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/reflected-xss.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/stored-xss.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/ssti.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/php-code-injection.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:8888/phpinfo.php|Host",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/css/bootstrap.min.css|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/css/style.css|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/js/jquery.min.js|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/js/bootstrap.min.js|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/js/scripts.js|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/index.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/brute-force.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/command-execution.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/csrf.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/file-inclusion.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/error-sql-injection.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/blind-sql-injection.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/reflected-xss.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/stored-xss.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/ssti.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/php-code-injection.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:8888/phpinfo.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/index.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/brute-force.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/command-execution.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/csrf.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/file-inclusion.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/error-sql-injection.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/blind-sql-injection.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/reflected-xss.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/stored-xss.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/ssti.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/php-code-injection.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:8888/phpinfo.php|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "weak_random|http://127.0.0.1:8888/js/jquery.min.js|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "weak_random|http://127.0.0.1:8888/js/bootstrap.min.js|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/authenticate-user|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/authenticate-user-blind|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/authenticate-user-prepared|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/change-password|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/file-inclusion|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/php-code-injection|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_message_reflection|ws://127.0.0.1:8080/post-comments|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/post-comments|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_message_reflection|ws://127.0.0.1:8080/reflected-xss|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/reflected-xss|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/show-comments|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_message_reflection|ws://127.0.0.1:8080/ssti|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "websocket_origin_not_enforced|ws://127.0.0.1:8080/ssti|",
+     "first_seen": "run-87f4f3a8bd"
+    },
+    {
+     "key": "xss_stored|ws://127.0.0.1:8080/post-comments|comment",
+     "first_seen": "run-87f4f3a8bd"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "active/command-endpoint|BLOCKED_BY_SAFETY",
+     "reason": "endpoint parameters carry a command-shaped value (do=logout / do=toggle-... style) — the base request of any battery aga"
+    },
+    {
+     "key": "crawl/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — a plain GET is state-changing on this surface (state-changing-GET anti"
+    },
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "passive/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — even a passive baseline GET is state-changing on this surface (state-c"
+    },
+    {
+     "key": "passive/logout|BLOCKED_BY_SAFETY",
+     "reason": "logout path — fetching it (even as a passive baseline) destroys the scan's own authenticated session; the endpoint stays"
+    },
+    {
+     "key": "websocket/cross-user|UNTESTABLE",
+     "reason": "no configured identity markers to listen for"
+    },
+    {
+     "key": "websocket/message-probes|BLOCKED_BY_SAFETY",
+     "reason": "channel path carries destructive vocabulary — no message-active probe (elicitation/reflection/replay/battery) is ever se"
+    },
+    {
+     "key": "websocket/protocol|UNTESTABLE",
+     "reason": "channel is silent to passive listening and elicitation did not produce a readable reply (not authorized, or the channel "
+    }
+   ]
+  }
+ }
+}

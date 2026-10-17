@@ -1,0 +1,42 @@
+{
+  "fp_negative": {
+    "candidates_probed": 2,
+    "detector_fired": true,
+    "fired_findings": [
+      {
+        "type": "open_redirect",
+        "evidence_kinds": [
+          "body_redirect"
+        ],
+        "evidence0": "off-site URL injected into a client redirect sink within 200 chars of the URL [ctx: \u2026<html><body><div class='refl'>https://sentinel-redirect-check.example.org/probe</div><script>function goHome(){ window.location = '/hom"
+      },
+      {
+        "type": "open_redirect",
+        "evidence_kinds": [
+          "body_redirect"
+        ],
+        "evidence0": "off-site URL injected into a client redirect sink within 200 chars of the URL [ctx: \u2026<html><body><div class='refl'>//sentinel-redirect-check.example.org/probe</div><script>function goHome(){ window.location = '/home'; }<"
+      }
+    ],
+    "PASS": false
+  },
+  "true_positive": {
+    "candidate_found": true,
+    "candidates_probed": 2,
+    "finding_type": "open_redirect",
+    "verified": true,
+    "verifier_method": "re-test:second-host",
+    "final_status": "FindingStatus.VERIFIED",
+    "PASS": true
+  },
+  "fp_verify_reject": {
+    "final_status": "FindingStatus.VERIFIED",
+    "verifier_method": "re-test:second-host",
+    "PASS": false
+  },
+  "VERDICT": {
+    "structural_FP_live": true,
+    "branch_fix_CLIENT_REDIRECT_SINK_RE_present": false,
+    "note": "detector fires on reflection+unrelated-sink (part 1) and/or the verifier upholds the FP (part 3) => the structural FP is live; all three parts hold => the sink-context fix is present and green"
+  }
+}

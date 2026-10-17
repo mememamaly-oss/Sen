@@ -1,0 +1,762 @@
+{
+ "version": 1,
+ "apps": {
+  "127.0.0.1:4290": {
+   "runs": 1,
+   "fingerprints": [
+    {
+     "run": "run-92ad757e85",
+     "endpoints": 8883,
+     "tech": [],
+     "waf": {
+      "name": "cloudflare,f5-bigip,fastly",
+      "evidence": [
+       "header server: cloudflare",
+       "header cf-ray: a46615f56e84dda3-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661604e87ee2fe-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661610fa3a9a44-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46616210dcb3201-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466164cea064ba3-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466164e180be2df-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466164ff8df03f2-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466165eeb05ddc3-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661661dfcc74bd-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466166b6ed2dd55-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466167ce8d8e2fb-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46616ac9d3c28ee-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46616db784edd39-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46616dcdc361f05-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46616ef0db47d6c-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46616f138388484-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46617114f457aa1-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661718fb5fdd8d-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661722ce2b269e-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46617350f85e2ee-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466175abf6b2f3c-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661766ed8c04f2-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a466179e9e4d2673-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46617a09f25af12-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46617b4cc2903ad-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661868dcb40b53-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a46618853c750901-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661890c82f7eb7-HKG",
+       "header server: cloudflare",
+       "header cf-ray: a4661896a9d204c0-HKG",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "cookie prefix ts",
+       "header x-served-by: cache-sin-wsat1880079-SIN, cache-sin-wsat1880029-SIN",
+       "header x-served-by: cache-nrt-rjtf7700097-NRT, cache-nrt-rjtf7700065-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700083-NRT, cache-nrt-rjtf7700035-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700093-NRT, cache-nrt-rjtf7700093-NRT",
+       "header x-served-by: cache-sin-wsat1880080-SIN, cache-sin-wsat1880080-SIN",
+       "header x-served-by: cache-nrt-rjtf7700020-NRT, cache-nrt-rjtf7700020-NRT",
+       "header x-served-by: cache-sin-wsat1880021-SIN, cache-sin-wsat1880021-SIN",
+       "header x-served-by: cache-sin-wsat1880080-SIN, cache-sin-wsat1880080-SIN",
+       "header x-served-by: cache-sin-wsat1880043-SIN, cache-sin-wsat1880043-SIN",
+       "header x-served-by: cache-nrt-rjtf7700020-NRT, cache-nrt-rjtf7700020-NRT",
+       "header x-served-by: cache-sin-wsat1880056-SIN, cache-sin-wsat1880056-SIN",
+       "header x-served-by: cache-sin-wsat1880037-SIN, cache-sin-wsat1880037-SIN",
+       "header x-served-by: cache-nrt-rjtf7700103-NRT, cache-nrt-rjtf7700103-NRT",
+       "header x-served-by: cache-sin-wsat1880082-SIN, cache-sin-wsat1880082-SIN",
+       "header x-served-by: cache-nrt-rjtf7700104-NRT, cache-nrt-rjtf7700104-NRT",
+       "header x-served-by: cache-sin-wsat1880020-SIN, cache-sin-wsat1880054-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880035-SIN, cache-sin-wsat1880035-SIN",
+       "header x-served-by: cache-sin-wsat1880075-SIN, cache-sin-wsat1880075-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880083-SIN, cache-sin-wsat1880083-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880035-SIN, cache-sin-wsat1880035-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700033-NRT, cache-nrt-rjtf7700033-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700072-NRT, cache-nrt-rjtf7700072-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880067-SIN, cache-sin-wsat1880067-SIN",
+       "header x-served-by: cache-sin-wsat1880092-SIN, cache-sin-wsat1880092-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880074-SIN, cache-sin-wsat1880074-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880074-SIN, cache-sin-wsat1880074-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880073-SIN, cache-sin-wsat1880073-SIN",
+       "header x-served-by: cache-nrt-rjtf7700044-NRT, cache-nrt-rjtf7700044-NRT",
+       "header x-served-by: cache-sin-wsat1880083-SIN, cache-sin-wsat1880083-SIN",
+       "header x-served-by: cache-nrt-rjtf7700053-NRT, cache-nrt-rjtf7700053-NRT",
+       "header x-served-by: cache-nrt-rjtf7700105-NRT, cache-nrt-rjtf7700105-NRT",
+       "header x-served-by: cache-nrt-rjtf7700072-NRT, cache-nrt-rjtf7700072-NRT",
+       "header x-served-by: cache-nrt-rjtf7700042-NRT, cache-nrt-rjtf7700042-NRT",
+       "header x-served-by: cache-nrt-rjtf7700097-NRT, cache-nrt-rjtf7700097-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880045-SIN, cache-sin-wsat1880045-SIN",
+       "header x-served-by: cache-nrt-rjtf7700044-NRT, cache-nrt-rjtf7700044-NRT",
+       "header x-served-by: cache-sin-wsat1880082-SIN, cache-sin-wsat1880082-SIN",
+       "header x-served-by: cache-nrt-rjtf7700105-NRT, cache-nrt-rjtf7700105-NRT",
+       "header x-served-by: cache-sin-wsat1880098-SIN, cache-sin-wsat1880098-SIN",
+       "header x-served-by: cache-sin-wsat1880041-SIN, cache-sin-wsat1880041-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700073-NRT, cache-nrt-rjtf7700073-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880066-SIN, cache-hkg17929-HKG",
+       "header x-served-by: cache-nrt-rjtf7700048-NRT, cache-nrt-rjtf7700048-NRT",
+       "header x-served-by: cache-nrt-rjtf7700075-NRT, cache-nrt-rjtf7700075-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700048-NRT, cache-nrt-rjtf7700048-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880045-SIN, cache-sin-wsat1880045-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880046-SIN, cache-sin-wsat1880046-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700039-NRT, cache-nrt-rjtf7700039-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880074-SIN, cache-sin-wsat1880074-SIN",
+       "header x-served-by: cache-sin-wsat1880023-SIN, cache-sin-wsat1880023-SIN",
+       "header x-served-by: cache-sin-wsat1880063-SIN, cache-sin-wsat1880063-SIN",
+       "header x-served-by: cache-nrt-rjtf7700070-NRT, cache-nrt-rjtf7700070-NRT",
+       "header x-served-by: cache-sin-wsat1880096-SIN, cache-sin-wsat1880096-SIN",
+       "header x-served-by: cache-nrt-rjtf7700038-NRT, cache-nrt-rjtf7700038-NRT",
+       "header x-served-by: cache-sin-wsat1880023-SIN, cache-sin-wsat1880023-SIN",
+       "header x-served-by: cache-nrt-rjtf7700074-NRT, cache-nrt-rjtf7700074-NRT",
+       "header x-served-by: cache-nrt-rjtf7700074-NRT, cache-nrt-rjtf7700074-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700022-NRT, cache-nrt-rjtf7700022-NRT",
+       "header x-served-by: cache-nrt-rjtf7700085-NRT, cache-nrt-rjtf7700085-NRT",
+       "header x-served-by: cache-nrt-rjtf7700083-NRT, cache-nrt-rjtf7700083-NRT",
+       "header x-served-by: cache-sin-wsat1880066-SIN, cache-sin-wsat1880066-SIN",
+       "header x-served-by: cache-nrt-rjtf7700055-NRT, cache-nrt-rjtf7700055-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700060-NRT, cache-nrt-rjtf7700060-NRT",
+       "header x-served-by: cache-sin-wsat1880042-SIN, cache-sin-wsat1880042-SIN",
+       "header x-served-by: cache-sin-wsat1880053-SIN, cache-sin-wsat1880053-SIN",
+       "header x-served-by: cache-nrt-rjtf7700036-NRT, cache-nrt-rjtf7700036-NRT",
+       "header x-served-by: cache-nrt-rjtf7700096-NRT, cache-nrt-rjtf7700096-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700100-NRT, cache-nrt-rjtf7700100-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700054-NRT, cache-nrt-rjtf7700054-NRT",
+       "header x-served-by: cache-nrt-rjtf7700060-NRT, cache-nrt-rjtf7700060-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700038-NRT, cache-nrt-rjtf7700038-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700062-NRT, cache-nrt-rjtf7700062-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700107-NRT, cache-nrt-rjtf7700107-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880039-SIN, cache-sin-wsat1880039-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700104-NRT, cache-nrt-rjtf7700104-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880022-SIN, cache-sin-wsat1880022-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700030-NRT, cache-nrt-rjtf7700030-NRT",
+       "header x-served-by: cache-nrt-rjtf7700104-NRT, cache-hkg17927-HKG",
+       "header x-served-by: cache-nrt-rjtf7700103-NRT, cache-nrt-rjtf7700103-NRT",
+       "header x-served-by: cache-sin-wsat1880049-SIN, cache-sin-wsat1880049-SIN",
+       "header x-served-by: cache-sin-wsat1880029-SIN, cache-sin-wsat1880029-SIN",
+       "header x-served-by: cache-nrt-rjtf7700021-NRT, cache-nrt-rjtf7700021-NRT",
+       "header x-served-by: cache-nrt-rjtf7700054-NRT, cache-nrt-rjtf7700054-NRT",
+       "header x-served-by: cache-nrt-rjtf7700039-NRT, cache-nrt-rjtf7700039-NRT",
+       "header x-served-by: cache-nrt-rjtf7700035-NRT, cache-nrt-rjtf7700035-NRT",
+       "header x-served-by: cache-nrt-rjtf7700088-NRT, cache-nrt-rjtf7700088-NRT",
+       "header x-served-by: cache-nrt-rjtf7700023-NRT, cache-nrt-rjtf7700023-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700032-NRT, cache-nrt-rjtf7700032-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880062-SIN, cache-sin-wsat1880062-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700088-NRT, cache-nrt-rjtf7700088-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700035-NRT, cache-nrt-rjtf7700035-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880093-SIN, cache-sin-wsat1880091-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700035-NRT, cache-nrt-rjtf7700035-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880030-SIN, cache-sin-wsat1880030-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880068-SIN, cache-sin-wsat1880068-SIN",
+       "header x-served-by: cache-sin-wsat1880098-SIN, cache-sin-wsat1880098-SIN",
+       "header x-served-by: cache-sin-wsat1880072-SIN, cache-sin-wsat1880072-SIN",
+       "header x-served-by: cache-nrt-rjaa8190075-NRT, cache-nrt-rjaa8190075-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880090-SIN, cache-sin-wsat1880090-SIN",
+       "header x-served-by: cache-nrt-rjtf7700024-NRT, cache-nrt-rjtf7700024-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880076-SIN, cache-sin-wsat1880022-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700066-NRT, cache-nrt-rjtf7700041-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880035-SIN, cache-sin-wsat1880021-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700053-NRT, cache-nrt-rjtf7700086-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700094-NRT, cache-nrt-rjtf7700094-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880039-SIN, cache-sin-wsat1880039-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700022-NRT, cache-nrt-rjtf7700022-NRT, cache-",
+       "header x-served-by: cache-sin-wsat1880097-SIN, cache-sin-wsat1880097-SIN, cache-",
+       "header x-served-by: cache-sin-wsat1880046-SIN, cache-sin-wsat1880046-SIN, cache-",
+       "header x-served-by: cache-nrt-rjtf7700097-NRT, cache-nrt-rjtf7700097-NRT, cache-",
+       "header x-served-by: cache-nrt-rjtf7700085-NRT, cache-nrt-rjtf7700076-NRT, cache-"
+      ]
+     }
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "sql_injection|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "sql_injection|http://127.0.0.1:4290/hints-page-wrapper.php|level1HintIncludeFile",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "sql_injection|http://127.0.0.1:4290/includes/pop-up-help-context-generator.php|pagename",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "sql_injection|https://www.paypal.com/cgi-bin/webscr|submit",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "credential_exposure|http://127.0.0.1:4290/javascript/jQuery/jquery.js|generic_secret_assignment",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "credential_exposure|http://127.0.0.1:4290/webservices/rest/docs/rest-services.html|generic_secret_assignment",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "path_traversal|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "ssrf|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/index.php|PathToDocument",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/index.php|iv",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/index.php|page-to-frame",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/hints-page-wrapper.php|level1HintIncludeFile",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/includes/pop-up-help-context-generator.php|pagename",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/configuration/openldap/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "path_traversal|http://127.0.0.1:4290/configuration/openldap/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290|Host",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/index.php|Host",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/set-up-database.php|Host",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/webservices/soap/ws-user-account.php|Host",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/webservices/rest/ws-user-account.php|Host",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/webservices/soap/ws-dns-lookup.php|Host",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/framer.html|Host",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "csrf|https://www.paypal.com/cgi-bin/webscr|cmd, hosted_button_id, submit",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "open_redirect|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "open_redirect|http://127.0.0.1:4290/index.php|PathToDocument",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "open_redirect|http://127.0.0.1:4290/index.php|iv",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "open_redirect|http://127.0.0.1:4290/index.php|page-to-frame",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "open_redirect|http://127.0.0.1:4290/configuration/openldap/index.php|page",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/index.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/images/favicon.ico|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/styles/global-styles.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/jQuery/jquery.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/hints/hints-menu.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/set-up-database.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/framer.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/docs/rest-services.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/ws-login.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/docs/soap-services.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/ws-login.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/ws-echo.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/hints-page-wrapper.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/documentation/mutillidae-test-scripts.txt|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|https://www.paypal.com/cgi-bin/webscr|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/a|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/docs/ws-echo.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/docs/ws-dns-lookup.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/docs/ws-test-connectivity.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/docs/ws-user-account.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/rest/docs/ws-login.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/docs/ws-dns-lookup.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/docs/ws-echo.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/docs/ws-test-connectivity.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/docs/ws-user-account.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/webservices/soap/docs/ws-login.html|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/documentation/\\'http:/192.168.56.103/beef/hook/beefmagic.js.php\\'|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/documentation/index.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/images/favicon.ico|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/styles/global-styles.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/jquery.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/javascript/hints/hints-menu.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/configuration/openldap/index.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/data/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/passwords/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/classes/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/documentation/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/includes/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/index.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/set-up-database.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-user-account.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-user-account.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-dns-lookup.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-login.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-test-connectivity.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/rest/ws-dns-lookup.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-login.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-test-connectivity.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/webservices/soap/ws-echo.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/hints-page-wrapper.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/includes/pop-up-help-context-generator.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/mutillidae.ldif|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/a|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4290/index.php|firstname",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "xss_stored|http://127.0.0.1:4290/index.php|lastname",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/documentation/\\'http:/192.168.56.103/beef/hook/beefmagic.js.php\\'|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/documentation/index.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/images/favicon.ico|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/styles/global-styles.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/jquery.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/javascript/hints/hints-menu.js|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/configuration/openldap/index.php|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/data/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/passwords/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/classes/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/javascript/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/documentation/|",
+     "first_seen": "run-92ad757e85"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/includes/|",
+     "first_seen": "run-92ad757e85"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [
+    "R-TOKENLESS-WRITE"
+   ],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "crawl/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — a plain GET is state-changing on this surface (state-changing-GET anti"
+    },
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "passive/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — even a passive baseline GET is state-changing on this surface (state-c"
+    }
+   ]
+  }
+ }
+}

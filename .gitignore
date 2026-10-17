@@ -25,3 +25,9 @@ l1-validation/
 saas-data/reports/
 __pycache__/
 *.pyc
+results/l3run*.json
+tool-results/
+tools/
+dvwa-src/
+mutillidae-src/
+targets/

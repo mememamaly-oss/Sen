@@ -1,0 +1,15 @@
+{
+ "suite": "unit_pt1b",
+ "total": 1,
+ "failed": 1,
+ "cases": [
+  {
+   "name": "unit_pt1b_echo_derivative_guard",
+   "ok": false,
+   "ms": 1003,
+   "error": "AssertionError: RED: echo-derivative surface (digest of the input) fired the exists_oracle \u2014 the Benchmark's crypto/hash FP family (param=BenchmarkTestX)",
+   "trace": "ll last):\n  File \"/home/z/my-project/build-v430/tests/run_tests.py\", line 25, in case\n    fn()\n  File \"/home/z/my-project/build-v430/tests/run_tests.py\", line 11925, in unit_pt1b_echo_derivative_guard\n    assert f is None, (\n           ^^^^^^^^^\nAssertionError: RED: echo-derivative surface (digest of the input) fired the exists_oracle \u2014 the Benchmark's crypto/hash FP family (param=BenchmarkTestX)\n"
+  }
+ ],
+ "passed": false
+}

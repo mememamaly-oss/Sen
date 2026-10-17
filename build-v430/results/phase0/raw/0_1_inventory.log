@@ -1,0 +1,23 @@
+===== [0.1] git remote -v =====
+origin	https://github.com/mememamaly-oss/Sen.git (fetch)
+origin	https://github.com/mememamaly-oss/Sen.git (push)
+===== [0.1] git ls-remote origin =====
+fatal: could not read Username for 'https://github.com': terminal prompts disabled
+===== [0.1] git log --oneline -5 =====
+f2d41e8 d3b371b9-a881-43ba-8756-be3ce8632f2b
+1e2159f state: IV13 finalization — push blocked by revoked round-2 PAT (fresh token needed), gitignore restored after another environment gutting
+b367fdb IV13: independent verifier round — doLogin calibration (only -- families bypass; string-quote-no-comment fails by precedence), 10-finding independent list, ginandjuice cart CSRF adjudicated REAL (no token on cart ops, no origin validation, SameSite=None), gruyere traversal+2x XSS, testaspnet stored XSS, first real comparison run 6/3/17, raw evidence + honest negatives
+a3f2ae4 state: save-status round 2 — GitHub verified at 9bc4e95 (main = release/v4.2.2 = tag v4.2.2), 6 branches + 5 tags
+9bc4e95 v4.2.2: DETECT-06 SQLi numeric-comment family — doLogin gap fixed and live-VERIFIED (104/104, doctor 15/15, bench x3 = 38/0/0/37, addendum package, comparison frame)
+===== [0.1] git status =====
+On branch main
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.next/
+	db/
+	dev.log
+	next-env.d.ts
+	scripts/phase0_out/
+
+nothing added to commit but untracked files present (use "git add" to track)
+===== [0.1] find . -name "*.py" | grep -E "(perf|xgraph|statemachine|pcs|csynth)" | head -30 =====

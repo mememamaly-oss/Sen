@@ -1,0 +1,15 @@
+{
+ "suite": "unit_pt3",
+ "total": 1,
+ "failed": 1,
+ "cases": [
+  {
+   "name": "unit_pt3_param_name_battery",
+   "ok": false,
+   "ms": 0,
+   "error": "ImportError: cannot import name 'ParamNameTraversalDetector' from 'sentinel.detect' (/home/z/my-project/build-v430/sentinel/detect.py)",
+   "trace": ":\n  File \"/home/z/my-project/build-v430/tests/run_tests.py\", line 25, in case\n    fn()\n  File \"/home/z/my-project/build-v430/tests/run_tests.py\", line 11775, in unit_pt3_param_name_battery\n    from sentinel.detect import ParamNameTraversalDetector, echo_neutralize\nImportError: cannot import name 'ParamNameTraversalDetector' from 'sentinel.detect' (/home/z/my-project/build-v430/sentinel/detect.py)\n"
+  }
+ ],
+ "passed": false
+}

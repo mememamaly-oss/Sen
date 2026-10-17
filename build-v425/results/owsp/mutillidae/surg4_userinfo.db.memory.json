@@ -1,0 +1,119 @@
+{
+ "version": 1,
+ "apps": {
+  "127.0.0.1:4290": {
+   "runs": 1,
+   "fingerprints": [
+    {
+     "run": "run-ca4ccb2e0d",
+     "endpoints": 169,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "credential_exposure|http://127.0.0.1:4290/javascript/jQuery/jquery.js|generic_secret_assignment",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "xss_reflected|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "path_traversal|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "ssrf|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/index.php|Host",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "open_redirect|http://127.0.0.1:4290/index.php|page",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/index.php|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/images/favicon.ico|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/styles/global-styles.css|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/styles/ddsmoothmenu/ddsmoothmenu.css|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/jQuery/colorbox/colorbox.css|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/styles/gritter/jquery.gritter.css|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/jQuery/jquery.js|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/jQuery/colorbox/jquery.colorbox-min.js|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/ddsmoothmenu/ddsmoothmenu.js|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/gritter/jquery.gritter.min.js|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/javascript/hints/hints-menu.js|",
+     "first_seen": "run-ca4ccb2e0d"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/index.php|",
+     "first_seen": "run-ca4ccb2e0d"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "active/command-endpoint|BLOCKED_BY_SAFETY",
+     "reason": "endpoint parameters carry a command-shaped value (do=logout / do=toggle-... style) — the base request of any battery aga"
+    },
+    {
+     "key": "crawl/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — a plain GET is state-changing on this surface (state-changing-GET anti"
+    },
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "passive/destructive-get|BLOCKED_BY_SAFETY",
+     "reason": "path names a destructive/global-reset operation — even a passive baseline GET is state-changing on this surface (state-c"
+    },
+    {
+     "key": "passive/logout|BLOCKED_BY_SAFETY",
+     "reason": "logout path — fetching it (even as a passive baseline) destroys the scan's own authenticated session; the endpoint stays"
+    },
+    {
+     "key": "websocket|NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,43 @@
+{
+ "version": 1,
+ "apps": {
+  "127.0.0.1:4290": {
+   "runs": 1,
+   "fingerprints": [
+    {
+     "run": "run-90340989ca",
+     "endpoints": 1,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "host_header_injection|http://127.0.0.1:4290/index.php|Host",
+     "first_seen": "run-90340989ca"
+    },
+    {
+     "key": "missing_security_headers|http://127.0.0.1:4290/index.php|",
+     "first_seen": "run-90340989ca"
+    },
+    {
+     "key": "tech_banner_disclosure|http://127.0.0.1:4290/index.php|",
+     "first_seen": "run-90340989ca"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "websocket|NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)"
+    }
+   ]
+  }
+ }
+}

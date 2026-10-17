@@ -1,0 +1,121 @@
+===== [0.1b] git ls-remote origin (token, read) =====
+630a31915daf72ffc3727373e77b08d50d4b286e	HEAD
+e0e39429cc2f62be8f00649b81755055d42f081e	refs/heads/archive/iv14/session-round-v423-gap-closure
+b8052bc18eab706024da00a071f7cb0ed0c25161	refs/heads/archive/parallel/iv14-independent-gap-closure
+451639a7ad33fe4f5cf2e7f42791c97cd0c9e14e	refs/heads/archive/recovery/iv14-independent-v423-rebuild
+a659bc46a5cefbf8dfc3468fff4c17afe961ce52	refs/heads/archive/v423-parallel-eng15-20
+630a31915daf72ffc3727373e77b08d50d4b286e	refs/heads/main
+c8577ef67a8bebea9d5c76bb50652805757ddb12	refs/tags/backup/release-v4.2.5
+bdaf0d2ec33152c16414b472ab28f2e64248b20c	refs/tags/backup/release-v4.2.5^{}
+e8ca423687e718a9c4160fd806f54c01684952e7	refs/tags/backup/release-v4.2.6
+d458804adfda615bdf68376e8372df15515a2479	refs/tags/backup/release-v4.2.6^{}
+9a0eff32b2003efa94780dc884d026e341838694	refs/tags/recovery/l1-candidate-2026-10-02
+b99fd766978d1afeea4a17f2133c81c277d38e6c	refs/tags/recovery/l1-candidate-2026-10-02^{}
+9b90bbf6570733f72cdd189acc3d86ff5bbc6951	refs/tags/v4.1.1
+2d5ce2f613faafc2683b30316a2f44c2dddf785e	refs/tags/v4.1.1^{}
+4285233275360599625d8b56af31466a5de8c387	refs/tags/v4.2.0
+d861264628622883045c0c379eab078bcb686a64	refs/tags/v4.2.0^{}
+672d9ad5b9b6ba33160e06cde9e2b2342a93e0f5	refs/tags/v4.2.1
+7fb7f0bf0499a7cee59d645252beffb83dc10e15	refs/tags/v4.2.1^{}
+bcb30760e3a15e6468dcc0dd2f5677c52bc4de1f	refs/tags/v4.2.2
+9bc4e95a11a454b1b76bd6c25b15528f21830b14	refs/tags/v4.2.2^{}
+6b724cd6f11e2bf9f1c41e79d3f7a73e44c37632	refs/tags/v4.2.3
+174ab6e52bd1b2c988ce4157eb36a339b457981d	refs/tags/v4.2.3^{}
+4520f62fba03f96090506766b7d45fe530d43acf	refs/tags/v4.2.5
+f35fc2aadfdc4f154abd97e0e7132be0b3a7daa0	refs/tags/v4.3.0
+8e7062599dfd63564ea2263894506f04f60efe32	refs/tags/v4.3.0^{}
+1232ca71f4f9d316d3a2227e2358620b60399d42	refs/tags/v4.4.0
+3ff7b46c0596a68510416a549093d9b350b37e73	refs/tags/v4.4.0^{}
+===== [proof] f2d41e8 (noise at HEAD) — show --stat =====
+commit f2d41e8aa9d966885903d9526e9b4a639003163f
+Author: Z User <z@container>
+Date:   Sat Oct 3 13:56:08 2026 +0000
+
+    d3b371b9-a881-43ba-8756-be3ce8632f2b
+
+ .env                                               |   1 +
+ .gitignore                                         |  25 -
+ scripts/iv_out/aspnet2.json                        |  22 +
+ scripts/iv_out/final_probes.json                   |  99 ++++
+ scripts/iv_out/gj_csrf_battery.json                | 110 ++++
+ scripts/iv_out/gj_final_proofs.json                | 129 +++++
+ scripts/iv_out/gj_flow.json                        | 249 ++++++++
+ scripts/iv_out/gj_jar.txt                          |   7 +
+ scripts/iv_out/gj_login1.html                      | 134 +++++
+ scripts/iv_out/gj_login_resp.html                  | 139 +++++
+ scripts/iv_out/gj_myaccount.html                   |   0
+ scripts/iv_out/gj_product1.html                    | 191 +++++++
+ scripts/iv_out/gj_sqli.json                        |  67 +++
+ scripts/iv_out/gj_xxe.json                         |  40 ++
+ scripts/iv_out/gj_xxe2.json                        |  47 ++
+ scripts/iv_out/gruyere_probes.json                 | 103 ++++
+ scripts/iv_out/recon.json                          | 625 +++++++++++++++++++++
+ .../iv_out/recon/ginandjuice.shop__catalog.html    | 288 ++++++++++
+ .../recon/ginandjuice.shop__catalog_cart.html      | 100 ++++
+ scripts/iv_out/recon/ginandjuice.shop__login.html  | 134 +++++
+ scripts/iv_out/recon/ginandjuice.shop__root.html   | 174 ++++++
+ .../google-gruyere.appspot.com__robots.txt.html    |  13 +
+ .../recon/google-gruyere.appspot.com__root.html    | 246 ++++++++
+ scripts/iv_out/recon/gruyere_app_root.html         | 194 +++++++
+ scripts/iv_out/recon/gruyere_base.txt              |   1 +
+ scripts/iv_out/recon/gruyere_part1.html            | 318 +++++++++++
+ scripts/iv_out/recon/gruyere_start.html            |  23 +
+ scripts/iv_out/recon/testasp_root.html             |  45 ++
+ scripts/iv_out/recon/testaspnet_root.html          |  64 +++
+ scripts/iv_out/testfire_dologin.json               | 221 ++++++++
+ scripts/iv_out/vulnweb_probes.json                 |  79 +++
+ scripts/iv_out/vulnweb_probes2.json                | 241 ++++++++
+ scripts/iv_out/vulnweb_probes3.json                | 105 ++++
+ 33 files changed, 4209 insertions(+), 25 deletions(-)
+===== [proof] any commit ever touching perf/ (expect empty) =====
+===== [proof] perf/ or .env tracked in f2d41e8 tree (expect empty) =====
+.env
+===== [proof] stashes (expect empty) =====
+===== [proof] unreachable objects (expect empty) =====
+unreachable tag b605c4f3da89a75ab9f8edc859fbe0d6a31c2581
+unreachable tree 0c97762c202e80e856672635e3bb30f7fc18cabd
+unreachable commit 5c5d55f406bb19c16d9d835e6e109feb7f3db3d1
+unreachable tree b8dd24e00bb1bc28e650a34ee8d8b4b47c4fa941
+unreachable commit 293774fb9b8213b2b5680bc7ae2db0245a2c8e3e
+unreachable blob 89fa8c82b2552d72dd9714584db21530c8120d78
+===== [proof] tracked tree at HEAD (first 40) =====
+.env
+.gitignore
+Caddyfile
+INDEPENDENT_VERIFICATION_ADDENDUM_v422.md
+INDEPENDENT_VERIFICATION_PACKAGES.md
+INDEPENDENT_VERIFIER_REPORT_IV13.md
+PHASE_02_L1_COMPLETION/BUILD_RESULTS/build_record.md
+PHASE_02_L1_COMPLETION/CHANGELOG.md
+PHASE_02_L1_COMPLETION/ENGINEERING_RULES.md
+PHASE_02_L1_COMPLETION/KNOWN_LIMITATIONS.md
+PHASE_02_L1_COMPLETION/PHASE02_L1_RECOVERY_GATE.md
+PHASE_02_L1_COMPLETION/PROJECT_RECOVERY_LEDGER.md
+PHASE_02_L1_COMPLETION/README.md
+PHASE_02_L1_COMPLETION/RECOVERY_MANIFEST.json
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/bench_restore_1.json
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/bench_restore_2.json
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/bench_restore_3.json
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/comparison_vs_frozen.md
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/doctor_restore.json
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/e2e_results_restore.json
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/engine_suite_ledger.jsonl
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/l0_isolation_results_restore.json
+PHASE_02_L1_COMPLETION/REGRESSION_RESULTS/l0_prod_verify_restore.json
+PHASE_02_L1_COMPLETION/RESTORE_INSTRUCTIONS.md
+PHASE_02_L1_COMPLETION/SHA256SUMS
+PHASE_02_L1_COMPLETION/SOURCE_ARCHIVE.tar.gz
+PHASE_02_L1_COMPLETION/STATE_ARCHIVE.tar.gz
+PHASE_02_L1_COMPLETION/TEST_RESULTS/bench_twin_compare.txt
+PHASE_02_L1_COMPLETION/TEST_RESULTS/l1_twin_api_results.json
+PHASE_02_L1_COMPLETION/TEST_RESULTS/l1_twin_unit_results.json
+PHASE_02_L1_COMPLETION/TEST_RESULTS/twin_identity_results.json
+PHASE_02_L1_COMPLETION/TEST_RESULTS/verify-twin-01.png
+PHASE_02_L1_COMPLETION/TEST_RESULTS/verify-twin-02-why.png
+PHASE_02_L1_COMPLETION/TEST_RESULTS/verify-twin-03-full.png
+STATE.md
+build-v400/CHANGELOG.md
+build-v400/benchmarks/authz_accounts.json
+build-v400/benchmarks/ground_truth.json
+build-v400/docs/ARCHITECTURE_IP.md
+build-v400/docs/BENCHMARK_AUDIT.md

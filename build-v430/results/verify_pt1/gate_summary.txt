@@ -1,0 +1,40 @@
+GATE CYCLE — PT-1 trailing-param traversal budget (recall push round 1, 2026-10-12)
+Engine: build-v430 @ main 4eaf32b + PT-1. Category: pathtraver (82 FN — the benchmark's
+largest recall gap; crypto 62 and trustbound 54 follow).
+
+ROOT CAUSE (live-proven, no guessing): TraversalDetector.candidates() (_seen>=2 break)
+and the orchestrator's exists_pair loop (_n>=2) spent the entire param budget on the
+FIRST TWO eligible params. The OWASP Benchmark's own data/openapi.yaml declares
+['password','username','BenchmarkTestNNNNN'] — the sink param is THIRD, so the engine
+probed two credential decoys and never sent a traversal payload at the real sink.
+Control evidence: 33/51 TPs have their vuln param at position 0 — caught; live probe on
+BenchmarkTest00362: writability pair on the 3rd param answers 231B "Now ready to write
+to file:" vs 0B, while username is uniformly silent (122B/122B).
+
+FIX: shared TraversalDetector.eligible_params() — first 2 eligible params keep the full
+battery; params 3-4 get a reduced payload set (ladder-7 + /etc/passwd + /etc/hostname;
+3 payloads) and exists_pair runs them at a single depth (7). Budget bounded: worst case
+28 marker payloads + 24 oracle requests per endpoint (was 22 + 16).
+
+SUITE: 222 cases ran across prefix chunks (gtp/max/owsp/l/eng/auth/disc/rest_a/rest_b
+/rest_c + pt) — 0 failed. Includes the new unit_pt1_trailing_param_budget
+discrimination case (RED on unfixed engine: AttributeError eligible_params + no
+candidate on 3rd param; GREEN after fix).
+DOCTOR: 17/17 PASS overall=PASS.
+BENCH x3: 38/0/0/37 IDENTICAL, requests 4784/4784/4784 — verdict-diff vs the shipped
+v4.3.3 audit baseline (4eaf32b): NONE, delta +0 (fixture forms have <=2 eligible params,
+so the trailing budget never materializes locally — zero cost, zero drift).
+
+LIVE PROOF (the real target, mini-spec 82 FN + 10 TP controls, no-crawl campaign mode):
+requests 12772 / 93 endpoints — 60 verified path_traversal, ZERO findings on
+non-vulnerable tests (no FPs):
+  * FN tests now CAUGHT: 50/82 (the budget family + qs-raw + part of the
+    parameterless family riding the extended oracle coverage)
+  * TP controls still caught: 10/10 (zero live regression)
+  * still FN: 32 = header-name 14 + param-name(param-generic) 13 + cookie 2 +
+    header-value 1 + UNKNOWN 2 — exactly the PT-2/PT-3/PT-4/PT-5 families
+    (payload-as-header-name, payload-as-param-name, raw-QS remainder, and the
+    spec-lies-about-channel trio), each to be fixed and pushed separately.
+
+RED/GREEN ARTIFACTS: red_unfixed.json / green_fixed.json (discrimination case),
+bench_run1.json (bench x3 member), live_scan.json + live_result.json (target proof).

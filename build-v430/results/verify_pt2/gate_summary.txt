@@ -1,0 +1,44 @@
+GATE CYCLE — PT-2 header-NAME traversal battery (recall push round 2, 2026-10-12)
+Engine: build-v430 @ main dd01b7b + PT-2. Family: 14/82 pathtraver FNs whose
+sink path is the NAME of the first non-standard HTTP header.
+
+ROOT CAUSE (live-proven): no param mutation can reach the header-NAME channel.
+Live oracle: header named '..' (valid RFC 7230 token; the sink base's parent —
+must exist) vs sentinel-random name (must not) answers the exists-boolean
+differently; '/' is impossible in header names (Tomcat 400), so the honest
+provable depth is one level.
+
+LIVE-CAUGHT OWN DEFECT during bring-up (instrumented scan, spy_scan_diag.py):
+the engine renders the endpoint's HEADER-location params as request headers on
+EVERY mutation — the spec's decoy header param ('whatever') arrived before the
+probe header, the servlet's first-non-standard-name loop took the DECOY, and
+probe == control byte-for-byte (155B/155B). Fix: the two probes ride a
+PARAM-BARE copy of the endpoint (the header-NAME channel is under test; no
+declared param may ride along). Same for the VR replay.
+
+FP SAFETY (the GTP-08b lesson — 62 FPs from a bare marker differential): BOTH
+names AND the bare '..' token are echo-neutralized from BOTH bodies
+(symmetric); an echo-only safe twin reduces to identical text and stays silent.
+
+SUITE: 224/224 across fresh prefix chunks (includes unit_pt1 + unit_pt2).
+DOCTOR: 17/17 PASS.
+BENCH x3: 38/0/0/37 IDENTICAL @4942 requests x3 — verdict-diff vs shipped
+baseline: NONE; requests 4784 -> 4942 (+158 = 79 fixture endpoints x 2 — the
+battery's documented cost; zero verdict changes, zero FPs).
+
+LIVE (107-endpoint mini-spec: 82 FN + 10 TP controls + 15 pathtraver SAFE
+twins, campaign no-crawl mode): 59/82 FNs caught (was 50 after PT-1 — the
+battery added 9: 00215/00216/00218/00219/00222/01983/01987/01988/01989);
+TP controls 10/10; SAFE-TWIN FPs: 0. 69 verified path_traversal total.
+
+HONEST CEILING (live-proven, documented): 5 header-name FNs stay out of reach
+black-box — FileInputStream family (01111/01112: both answers swallowed to
+empty; a content echo needs a known-existing file NAME in the base, not
+discoverable through this channel), FileOutputStream family (01116/01117:
+create-always -> identical answers), File-2arg with fixed '/Test.txt' child
+(01985: no reachable dir contains Test.txt). A write->read cross-servlet chain
+(own-session file creation as precondition) is the documented follow-up path.
+
+RED/GREEN ARTIFACTS: red_unfixed.json (ImportError on unfixed engine),
+green_fixed.json, bench_run1.json, live_scan.json + live_result.json,
+spy_scan_diag.py (the instrumented scan that caught the param-pollution defect).

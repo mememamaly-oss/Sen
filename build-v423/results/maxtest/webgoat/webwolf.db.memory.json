@@ -1,0 +1,157 @@
+{
+ "version": 1,
+ "apps": {
+  "localhost:9090": {
+   "runs": 4,
+   "fingerprints": [
+    {
+     "run": "run-555365267e",
+     "endpoints": 24,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "host_header_injection|http://localhost:9090/WebWolf|Host",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "host_header_injection|http://localhost:9090/WebWolf/home|Host",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "host_header_injection|http://localhost:9090/WebWolf/files|Host",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "host_header_injection|http://localhost:9090/WebWolf/mail|Host",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "host_header_injection|http://localhost:9090/WebWolf/requests|Host",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "host_header_injection|http://localhost:9090/WebWolf/jwt|Host",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "host_header_injection|http://localhost:9090/logout|Host",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/webjars/bootstrap/3.3.7/css/bootstrap.min.css|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/css/main.css|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/webjars/jquery/3.5.1/jquery.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/home|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/files|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/mail|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/requests|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/jwt|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/logout|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/login|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:9090/WebWolf/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/webjars/bootstrap/3.3.7/js/bootstrap.min.js|",
+     "first_seen": "run-555365267e"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [
+    "R-TOKENLESS-WRITE"
+   ],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "websocket|NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)"
+    }
+   ]
+  }
+ }
+}

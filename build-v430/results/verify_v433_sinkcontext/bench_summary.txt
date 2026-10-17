@@ -1,0 +1,4 @@
+runs: [{'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37}, {'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37}, {'TP': 38, 'FP': 0, 'FN': 0, 'TN': 37}] requests: [4784, 4784, 4784] run_id: run-3c0652b6be
+IDENTICAL=True 38/0/0/37=True
+verdict-diff vs shipped-v4.3.3 audit baseline: NONE (baseline requests 4784, this round 4784, delta +0)
+open_redirect evidence level: identical

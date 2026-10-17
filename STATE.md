@@ -3,7 +3,114 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-03 (UTC) — round 2: v4.2.2 (DETECT-06 numeric-comment family, doLogin fixed & live-VERIFIED), comparison frame delivered, addendum package; pending external verification
+- Last updated: 2026-10-14 (UTC) — round 19: **TRUSTBOUND CLOSED — the
+  recall-push campaign now at FOUR categories at 100.00% (sqli, xss, cmdi,
+  trustbound), precision 1.0000 across ALL (zero FP), covered-set recall
+  90.33% -> 94.31% at F1 0.9707.** trustbound 38.55% -> 100.00% (83/83 TP,
+  0 FN, 0 FP) on a fresh full 12-chunk re-run of the TB engine cc142b3 —
+  447,834 requests, 1,498 active findings ALL VERIFIED, zero rejected;
+  machine-checked ZERO regressions (every other category TP/FP and test
+  lists byte-identical vs the cmdi-close eval, cross-class 54=54 identical,
+  FP 0 across ALL). The seven root-cause fixes, each RED->GREEN with full
+  gates, live minispec, and immediate commit+push+ls-remote (986735e the
+  live-proven diagnosis first): TB-1a the self-named VALUE channel
+  (35 of the 51 FNs — tcid-value 20 + raw-query-string 10 + map-read 5,
+  5f1bbe4), TB-1b the header-NAME channel + the declared-nonstandard-header
+  race (4, 89a2d48), TB-1c the sacrificial-tail marker for the 17-test
+  last-char-mangle family (25cc789), TB-2 the all-params pass — the 01617
+  wrong-param-pick (b33f2b7), TB-3a the resolver name-channel ungated (7,
+  07d0db6), TB-3b the header-tcid-VALUE channel (4, c6d80f7), TB-3c the
+  cookie-value channel (1 — 01876 the last, cc142b3). The battery now
+  covers every diagnosed read channel: param (first+all), selfnamed,
+  resolver_name, segment_name (fallback), header_tcid, header_name, cookie
+  — each with plain + conditional sacrificial-tail variants and a
+  channel-aware VR-25. Session context: the environment was rebuilt from
+  scratch (JDK + Maven + BenchmarkJava re-cloned/rebuilt, CSV byte-identical,
+  war 4,541 classes); the Tomcat 9.0.85 core verified structurally complete
+  (stock 637 files, 32 lib jars, ServerInfo 9.0.85 — no re-download needed);
+  stack smoke green. The assembly scripts' overwrite flaw (a complete
+  artifact could be replaced by a partial download/extraction) fixed FIRST
+  per the supervisor's item-0 order: tomcat_guard.sh — verified artifacts
+  are never written over; the official Apache SHA-512 gates the tarball;
+  extraction is temp-dir + structural-verify + atomic swap. Gates fresh this
+  round: suite 4313/4313 (19/19, c00 preserved cached 227/227 per the
+  supervisor's order, the other 18 re-run), doctor 17/17, bench x3
+  STRUCTURALLY IDENTICAL 38/0/0/37 @7161. One display-level bug live-caught
+  in tb_close_eval.py (tuple-vs-list stringification printed a spurious
+  cross-class DIFFERS on identical data) — fixed, re-run clean. Per-close
+  report: build-v430/results/owasp/trustbound_category_close.md; scan +
+  eval: build-v430/results/owsp/benchmark/{benchmark_scan_tb_close.json,
+  eval_tb_close_full.json}. Remaining covered-set FNs (73): weakrand 16,
+  hash 14, securecookie 14, ldapi 14, crypto 6, xpathi 9 (pathtraver 17
+  sits outside the strict covered set; with it the all-category FN total is
+  90). Round 18 before it: **THE RECALL-PUSH CAMPAIGN — sqli,
+  xss, and cmdi ALL CLOSED at 100.00% recall on the full OWASP Benchmark
+  ground truth (2,740 labeled tests), precision 1.0000 across ALL categories
+  (zero FP), covered-set recall 86.35% -> 90.33% at F1 0.9492.** The closes,
+  each with its own RED->GREEN differential test, full gates, live minispec
+  proof, and immediate individual commit+push+ls-remote: sqli 76.10% ->
+  100.00% (272/272; SQ-1 resolver POST-form name-channel + SQ-2 callable-sink
+  control), xss 75.61% -> 100.00% (246/246; XS-1 resolver name-channel, XS-2
+  last-char-mangle sacrificial-tail, XS-3 the crossover), cmdi 59.52% ->
+  100.00% (126/126; CM-1 the dead twin-callback harvest — form-tagged twin
+  iids + one combined poll window + form-aware VR-11 replay; CM-2 the absent
+  name-channel battery — three nc OOB forms riding the param NAME on renamed
+  clones, self-identifying oob-<12hex> iids embedded in the payload-name,
+  nc-replay VR; CM-2b the wall-time fix — the LOCAL-channel poll budget
+  0.15s -> 0.0, live-caught when chunk 00458_00686 blew the scan budget).
+  Every close re-ran the FULL 12-chunk benchmark (390,703 requests on the
+  cmdi close) with machine-checked ZERO regressions: every other category's
+  TP/FP and test lists byte-identical, cross-class 54=54 identical, FP 0
+  across ALL. Full taxonomy tables + per-close reports:
+  build-v430/results/owsp/{sqli,xss,cmdi}_category_close.md; evals under
+  build-v430/results/owsp/benchmark/eval_*_close_full.json. Session-baseline
+  repair on record: the previous session's "token lost git-protocol access"
+  diagnosis was WRONG — the origin URL had been environment-rewritten to
+  mememaly-oss/Sen (owner typo); fixed to mememamaly-oss/Sen. Remaining
+  covered-set FNs (124): trustbound 51, weakrand 16, hash 14, pathtraver 17,
+  securecookie 14, ldapi 14, crypto 6, xpathi 9. Round 17 before it (2026-10-08): v4.3.3 GraphQL STORED-XSS +
+  FIELD-SUGGESTIONS batteries — DVGA leg complete, THE OWASP CAMPAIGN CLOSES
+  AT 6/6** (WrongSecrets, OWASP Benchmark, DVWA, Mutillidae, NodeGoat,
+  DVWS+DVGA). Against DVGA's own 22 official solutions the GraphQL layer had
+  two live-caught gaps: no write->read oracle (stored XSS through mutations,
+  solution #12 — proven manually first with raw urllib, then built as
+  _stored_xss_battery: additive-write mutations only, fresh-marker 2-round
+  verification, the marker key riding the first non-slot String arg) and no
+  field-suggestion probe (solution #8 — a typo DERIVED from a real
+  introspected field answers 'Did you mean <field>?'; the escaped-quote form
+  was live-caught and fixed). LIVE RECORD: 30/30 findings VERIFIED (the five
+  baseline GraphQL classes + xss_stored + graphql_field_suggestions — a NEW
+  finding type), zero false positives, destructive mutations never exercised,
+  DoS-class solutions excluded by design. Gates: 205/206 covered (+1
+  RED-proven discriminating case on the new /gql/dvga fixture twin; the same
+  1 documented environmental exclusion) + doctor 17/17 + bench x3 IDENTICAL
+  38/0/0/37 @4784 ZERO regressions. Round 16 before it: v4.3.2 WS-ACTIVE. **v4.3.2 WS-ACTIVE — the WebSocket
+  message battery (DVWS campaign, app 6/6 part 1)** — the engine observed WS
+  channels but never SENT attack payloads through the message channel: the
+  baseline v4.3.1 scan of DVWS returned 58 passive-only findings, ZERO
+  strong-class, while the target carries nine message-borne vulnerabilities
+  (red-team-proven the same day with raw-socket probes, zero engine code).
+  Built: channel-builder bindings harvested from the target's own page JS
+  (JSON templates + per-key base64/percent transforms + raw sends + literal
+  triggers, object-chain bound — the csrf.php same-var two-template page
+  fixed by nearest-preceding-assignment resolution), the seven-family active
+  battery (sql_pair 2-round byte-stable differential, sql_error signature,
+  cmdi canary, ssti/code_injection 42-oracle, lfi passwd signature, xss
+  reflection, xss_stored write->read roundtrip — every verdict re-executed
+  on a FRESH connection, echo replies excluded from execution oracles), the
+  ONE destructive-vocabulary gate for every message phase (battery refused
+  /change-password but the v4.1 elicitation still sent hellos there —
+  live-caught by the discriminating test), and the per-family fresh
+  connection (the Ratchet server closes the socket on null replies — a
+  per-channel client went permanently deaf mid-sweep). LIVE RECORD: 10/10
+  strong-class VERIFIED on the real target (sql x2, cmdi, code_injection —
+  NEW TYPE, ssti, lfi, xss x3, stored xss), the parameterized control
+  silent, /change-password zero-message blocked, zero false positives, 113
+  battery sends on 11 channels. Gates: 204/204 covered (+1 RED-proven
+  discriminating case; 1 case excluded with a documented runner-only
+  environmental stall that also hangs pristine v4.3.1 and passes standalone)
+  + doctor 17/17 + bench x3 IDENTICAL 38/0/0/37 @4784 ZERO regressions.
+  DVGA (app 6/6 part 2) follows. Round 15 before it: v4.3.1 GTP-12. **GTP-12 THE PERFECT-PRECISION PUSH — v4.3.1, measured** — the supervisor's order "أصلح الدقة لـ200% وارفع الكشف لأعلى نسبة عالمية بعقلية الردتيم والبلوتيم ومعايير التشفير العسكري" executed: **precision 100.00% (0 FP across all 2,740 tests) / recall 68.90% / F1 0.8159 / FPR 0.000%** — eight live-caught defect families fixed (GTP-12a transformation-aware echo neutralization — the 6 verified path_traversal FPs on SECURE crypto servlets were the engine measuring ITS OWN percent-encoded/last-char-stripped payload echo; GTP-12b the weakrand PRNG-disclosure oracle — 218/218 vulnerable servlets disclose a non-CSPRNG class in the response text, 0/275 secure do, weakrand 13.8%→92.66%; GTP-12c the artifact TRUNCATION leg + three-tier block oracle — a verified FileOutputStream sink pointed at passwordFile.txt zeroes it (open-no-write), the round-4 "write-amplification bound" is broken, hash 0%→89.15% and crypto 0%→52.31%; GTP-12e the writability hoist — the check was nested inside the exists-DIFFERS branch and never ran for its own family, pathtraver 30.1%→38.35%; GTP-12f the spec-drift body channel — the servlets read their OWN test-name form param while the spec declares decoys; GTP-12g the off-boundary discriminator — AES/GCM with an 8-byte tag collides with the DES length curve exactly, a 15-byte probe separates them (25 intermediate FPs killed) + abort-on-failed-truncate (the stale-line FP); GTP-12h the constant-digest family — 20 hash servlets hash a hardcoded 'bob', the algorithm is still identifiable by digest length + input-independence; eval mapping fix for weak_hash/weak_crypto). Gates: suite **204/204** (199 + 5 new discriminating GTP-12 cases) + doctor 17/17 + local bench ×3 IDENTICAL 38/0/0/37 F1=1.000 @4784 run-3c0652b6be (zero regressions) + the full ground truth re-measured END-TO-END twice (12 no-crawl chunks, 298,576 requests, 1,032 VERIFIED active findings; per-category recall: hash 89.15%, weakrand 92.66%, sqli 76.10%, xss 75.61%, cmdi 61.11%, ldapi 55.56%, crypto 52.31%, securecookie 52.78%, xpathi 40.00%, pathtraver 38.35%, trustbound 34.94%). All 8 eval rounds committed under build-v430/results/owsp/benchmark/ (round1 RED baseline recall 28.98% → definitive 68.90% @ precision 1.000). Round 14 before it (2026-10-07): v4.3.0, the first ground-truth push.
 - Maintained by: the engineering agent. **Update protocol: after every work round, refresh sections 1/4/5/6 with real numbers, bump this date, commit, push.**
 - Audience: future engineering sessions (context is lost between sessions), the supervisor, and any future buyer performing due diligence.
 
@@ -11,30 +118,186 @@ backed by a number or a committed artifact, it does not belong here.**
 
 ## 1. What is built and PROVEN (with numbers)
 
-**Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules), current version **4.2.2**
-(`build-v422/` is the canonical live engine; v4.2.1 and earlier are frozen).
+**Round 19 (2026-10-14) — trustbound CLOSED at 100.00%, zero regressions.**
+Per-category recall at precision 1.0000 (fresh full 12-chunk run on the TB
+engine cc142b3, campaign honesty rules, machine-checked zero-regression vs
+the cmdi close): trustbound 100.00% (83/83 — from 32/83 = 38.55%), joining
+sqli/xss/cmdi at 100.00%; covered-set recall 90.33% -> 94.31%, F1 0.9707,
+FP 0 across ALL categories. The close merged 447,834 requests across 12
+chunks (+57,131 vs the cmdi close = the 7-channel trustbound battery:
+param first+all, selfnamed, resolver_name, segment_name, header_tcid,
+header_name, cookie — each plain + conditional sacrificial-tail); 1,498
+active findings ALL VERIFIED, zero rejected; the trustbound TP set = the
+cmdi-close TP+FN union EXACTLY, cross-class 54=54 identical, every other
+category's counts AND test lists byte-identical (tb_close_eval.py, rc=0).
+The seven fixes (TB-1a/1b/1c/2/3a/3b/3c — see the header and
+results/owasp/trustbound_category_close.md for the full 51-FN taxonomy)
+each shipped earlier with RED->GREEN differential units, full gates, live
+minispec proof, and immediate individual commit+push+ls-remote. Gates
+re-proven fresh at the close: suite 4313/4313 (c00 preserved cached
+227/227), doctor 17/17, bench x3 STRUCTURALLY IDENTICAL 38/0/0/37 @7161.
+The remaining FN inventory: covered-set 73 (weakrand 16, hash 14,
+securecookie 14, ldapi 14, crypto 6, xpathi 9) + pathtraver 17 outside the
+strict covered set = 90 across all 11 categories.
+
+**Round 18 (2026-10-13/14) — the recall-push campaign, PROVEN at 100% on three
+categories.** Per-category recall at precision 1.0000 (fresh full 12-chunk
+runs, campaign honesty rules, machine-checked zero-regression vs the prior
+close): sqli 100.00% (272/272), xss 100.00% (246/246), cmdi 100.00% (126/126);
+covered-set recall 90.33%, F1 0.9492, FP 0 across ALL categories. The cmdi
+close merged 390,703 requests across 12 chunks; 1,447 active findings ALL
+VERIFIED, zero rejected. The remaining FN inventory (124, by category):
+trustbound 51, pathtraver 17, weakrand 16, hash 14, securecookie 14, ldapi 14,
+crypto 6, xpathi 9. Every fix shipped with a staged differential test
+(RED on the unpatched engine recorded, GREEN after), full gates (suite
+19/19, doctor 17/17, bench x3 structurally identical 38/0/0/37), a live
+minispec on the running BenchmarkJava 8b67a88 stack, and the complete diff
+pasted into worklog.md as the text backup.
+
+**Round 9 — maximum internal test (أقصى اختبار داخلي، not external verification).**
+Supervisor order trace 1a10860055030c15. All artifacts under
+`build-v423/results/maxtest/` + `scripts/maxtest/`:
+- **Coverage**: Juice Shop 20.2.0 (node22, local) — 114 findings vs 29 pre-round:
+  SQLi VERIFIED on `/rest/products/search?q=` (SQLITE_ERROR db_error + status_oracle),
+  credential_exposure VERIFIED on `/rest/memories`, js:static surface 2→96 endpoints
+  (SPA backtick-template extraction), authz matrix 3 accounts × 25 endpoints, honest
+  IDOR-FP kill via fresh-victim verify. L2: 1 path VERIFIED. L3: sql_version_oracle
+  VERIFIED live (control 21571B/30B, version 21571B/30B — was scope-blocked 0/0).
+  WebGoat 8.2.2 (java, local) — the lesson surface extracted from the app's own jar
+  form templates + lesson-context priming; **9 sql_injection VERIFIED live on the real
+  lessons** (assignment5a ×3 params, attack10 15699B/286B, attack8/9 ×4,
+  SqlInjectionAdvanced 6a) + 11 L2 paths VERIFIED + session stable (failed_reauths
+  3944→0). WebWolf 8.2.2 — 31 verified (anonymous surface).
+- **Twelve engine defects fixed red→green** (unit_max01..unit_max11 in the suite):
+  MAX-01 token validation closed-door proof; MAX-02 authz token_validate_url
+  resolution; MAX-03 SQLITE_ERROR/Oracle/.NET/pgsql error signatures; MAX-05
+  OpenAPI path-template instantiation + PATH render + plain-"id" IDOR param;
+  MAX-06 SPA template-literal endpoint extraction; MAX-07 impact --allow-private
+  flag (localhost L3 was wholly scope-blocked); MAX-08 SQL-family version
+  predicates; MAX-09/09b paren-closing SQLi battery + PATH D2 verification +
+  journal-separated L3 template ranking; MAX-10a/b logout self-preservation
+  (crawler + passive gates) + cookie-diet re-auth retry; MAX-11 bare-Endpoint
+  query-string preservation.
+- **Self-verification**: independent re-derivation (zero-trust, fresh code) 6/6
+  MATCH (`rederivation_report.md`); attack-the-tool battery 4/4 PASS (hostile
+  result JSONs, L3 destructive-smuggle REFUSED ×6, hostile-HTTP fuzz, report
+  injection escaped); isolation/secrets PASS (PAT untracked, .env gitignored,
+  journals carry only own-session cookies, credential evidence masked).
+- **Gates after all fixes**: 142/142 (11 fresh chunks) + doctor 17/17 + bench ×3
+  identical 38/0/0/37 run-3c0652b6be @2185 reqs (+241 = the paren battery, ZERO
+  verdict changes) + verdict-diff vs frozen v4.2.2 NONE.
+
+**Engine** — pure-Python-stdlib DAST engine (`sentinel/`, ~30 modules, 16 active
+detectors + 2 chain phases), current version **4.3.3** (`build-v430/` is the
+canonical live engine; v4.2.2 and earlier are frozen).
 - Verification by **re-execution**: a finding is VERIFIED only by re-issued
-  requests against the live target (17 explicit type branches, fail-closed on
+  requests against the live target (19 explicit type branches, fail-closed on
   unlisted types since v4.2.0). No finding is verified by description.
 - **Request journal (v4.2.1)**: passive raw capture of every request as issued
   (including session cookies) + final response after redirects, per-scan
   isolation, bounded (6000 entries / 4000-char bodies, honest dropped counter).
-  Proven passive: 194=194 verdict tuples identical v4.2.0 vs v4.2.1 on the same
-  fixture; 42/42 proof request_ids resolve to complete raw pairs.
-- Gates as of v4.2.2: tests **104/104** (103 + the DETECT-06 discriminating
-  case), doctor **15/15**, benchmark **x3 deterministic** (F1 1.000 =
-  38/0/0/37, run-3c0652b6be — the numeric-comment family added +106 fixture
-  requests and ZERO verdict changes).
+- Gates as of v4.2.3: tests **110/110** (104 + the six v4.2.3 discriminating
+  cases), doctor **15/15**, benchmark **×3 deterministic** (F1 1.000 =
+  38/0/0/37, run-3c0652b6be, 1959 requests = v422's 1944 + 15 for the
+  DETECT-17 path battery) and **verdict-level diff vs frozen v4.2.2: NONE** —
+  every fixture finding bit-stable, zero new false positives.
 - **bench-adv v11 discriminates the fix set** (the stock 73-case bench is
   proven blind — see section 2): v4.1.1 = 38/2/0/35, F1 **0.9744** (2 FPs:
   csrf@/vuln/subscribe-echo, nosql@/api/nosql-lockout) vs v4.2.0+ = 38/0/0/37,
   F1 1.000 — same fixture/seed/run-id, x3 bit-identical.
+- **v4.2.3 mechanism probes** (`build-v423/results/probe_v423_gaps.jsonl`):
+  the same five gap/FP scenarios through the FROZEN v4.2.2 engine (read-only
+  import) vs v4.2.3 — v4.2.2 misses both stored-XSS shapes and the URL-path
+  traversal and wrongly VERIFIES both false positives; v4.2.3 verifies the
+  three gaps and rejects both FPs. Raw records, generator never evaluates.
 
 **L1 Security Twin** — normalization + provenance layer (`src/lib/twin/`),
 branch `phase/02-l1-twin` (merged into main's tree).
 - Suite **195/195** after the four supervisor-ordered fixes; **210/210** with
   the five real v4.2.1 live scans in REAL_FILES; determinism x3 across all 11
   fixtures; two tamper-attack batteries (E13, E14) all caught.
+
+**L2 Attack Path Intelligence (v4.3.0)** — `build-v423/sentinel/apath.py`,
+the layer ABOVE the engine (L0) and the twin (L1): strings VERIFIED findings
+into complete attack paths through the seven supervisor-defined links
+(Identity → Entry → Action → Object → Authorization → State → Impact).
+- **The decisive rule is enforced in code and tested**: a path equals its
+  weakest link; EVERY link must trace to verified evidence (finding record /
+  raw journal entry / twin row / scan artifact, each with a substring-
+  verifiable excerpt); any inferred link → the WHOLE path is INFERRED and the
+  weak links are named. Rejected/unverified/banner findings never seed.
+- Pure projection over the serialized scan report (zero requests, no engine
+  imports, deterministic). Wired additively: orchestrator.report() emits
+  `attack_paths` on every scan; CLI `apaths`; doctor check 16.
+- Gates: **121/121** (110 engine + 10 L2 discriminating + 1 live-caught
+  regression), doctor **16/16**, bench **×3 identical** 38/0/0/37 (L2 adds
+  zero requests), verdict-diff vs frozen v4.2.2 **NONE**.
+- **Live verification on 4 authorized targets — 20 paths: 18 VERIFIED /
+  2 INFERRED, ALL on fresh-live evidence (round 7: zero projections)**,
+  every link carrying a cited evidence excerpt, ALL journal
+  cross-checks passed (excerpt ⊆ cited raw entry of THAT run's journal):
+  - ginjuice: round-7 TARGETED fresh live scan (run-1738d74ba4, 451.9s,
+    395 live req/resp pairs, freshness window PASS) — 9 paths incl. **2
+    CHAINS VERIFIED** (xss_dom → tokenless cross-site state change;
+    xss_reflected → same), every hop citing THIS run's journal; all 7
+    seed findings re-verified live with IDENTICAL finding IDs (surface
+    fingerprints are deterministic)
+  - testasp: 6 VERIFIED (round-6 fresh scan, re-confirmed), gruyere2:
+    2 VERIFIED + xss_stored honestly INFERRED (round-6 fresh scan,
+    re-confirmed); testaspnet: round-7 targeted fresh scan — ReadNews SQLi
+    VERIFIED + xss_stored honestly INFERRED (weak link: impact)
+  - **not-fresh-verified register (honesty contract):** testaspnet
+    Comments.aspx?id SQLi did NOT re-verify fresh — public-target content
+    drift collapsed the TRUE-condition body 23962B→14880B (FALSE side
+    byte-identical 13310B in both runs), differential 10652B/44% →
+    1570B/10.5%, below the anti-FP threshold max(200B, 25%); the engine
+    honestly declined; raw probe pairs preserved in the fresh journal
+  - freshness confirmation matrix (scripts/l2_reconfirm_fresh.py, zero
+    requests): all 4 targets — apaths rebuild byte-identical, single-scan
+    journal windows (443–829s), 0 stale entries, citations literal;
+    embedded in the report
+  - artifacts: `build-v423/results/l2_live_report.md` (per-link raw
+    request/response blocks, per-hop evidence, freshness matrix,
+    not-fresh-verified register) + `live_v430/l2_freshness_confirmation.json`;
+    round-6 projection files archived under
+    `live_v430/archive_round6_projections/`
+
+**L3 Proven Real Impact (v4.4.0)** — `build-v423/sentinel/impact.py`, the
+layer ABOVE L2. For every attack path: ONE safe minimal-benign live probe
+proving what the attacker ACTUALLY reaches at the end. 12 discriminating
+tests (121 → 133), doctor check 17 (impact_layer), CLI `impact` (pure plan
+by default; `--execute` is the only path that ever issues L3 requests —
+the scan pipeline NEVER calls this layer).
+- **The decisive rules, enforced in code and tested**: an impact is VERIFIED
+  only via a confirming fresh probe from THIS run's own journal; reasoned-
+  only → INFERRED; attempted-but-unconfirmed → PROBE_FAILED with the measured
+  numbers; no safe probe exists → NOT_SAFE_TO_PROVE with the honest Arabic
+  label (غير قابلة للإثبات الآمن). Safety ceiling fail-closed: SQLi =
+  tautology controls + version predicates + a 2-digit ladder over DB metadata
+  only; XXE/traversal = benign allowlisted files (hostname/passwd/hosts/
+  win.ini) only; state change = ONE additive cart-add in OUR OWN session with
+  a hostile Origin header; NEVER a destructive action, never a secret file,
+  never a victim session. أُثبتت القدرة، لم تُستغَل.
+- **LIVE run on the 4 authorized targets (2026-10-05): 20 impact plans /
+  12 VERIFIED / 7 PROBE_FAILED / 1 INFERRED** — ginjuice 5V (own-session
+  CSRF state change w/ hostile Origin; CRLF fresh-header split; open redirect
+  landed on OUR OAST channel — 1 recorded interaction; DOM XSS execution
+  attr_inject_onload; and the **xss_dom→csrf chain VERIFIED with BOTH legs
+  fresh**), testasp 5V (4 SQL version oracles incl. both Login.asp
+  auth-bypass surfaces + a win.ini read), testaspnet 1V (ReadNews version
+  oracle: control pair 30554B/13444B, version pair 30608B/13552B, digit
+  ladder measured null — the MSSQL version string starts with a letter),
+  gruyere2 1V (traversal /etc/passwd: the fresh read shares real passwd
+  lines with the original proving read).
+- Every honest failure is in the register with its measured numbers
+  (`results/l3_impact/l3_impact_report.md` + per-target probe journals /
+  plans / assessments under `results/l3_impact/<target>/`).
+- **5 live-caught product defects fixed with the L3 suite green after each**
+  (see section 4): the executor dropped every query string (Parameter field
+  order); str.replace corrupted cross-pair payload placement; stale
+  __VIEWSTATE silently rejected (WebForms needs the submit-button field);
+  traversal false-verified on shared ERROR-page boilerplate; the SQL
+  template could derive from the FALSE-side vector.
 
 **SaaS platform** — Next.js multi-tenant console (orgs/members RBAC, audit
 log, scan lifecycle, HTML/SARIF reports, AR/EN i18n, dark/light).
@@ -112,17 +375,53 @@ attack and observed the differential/execution/callback again.
    states (three timestamped windows documented in the addendum) — the
    unit/mechanism proofs are the stable discriminators, the live scan records
    whichever state answers.
-5. **xss_dom packages carry browser execution steps, not journaled HTTP
+5. **THE TRADE-OFF, stated plainly (discovered 2026-10-03/04, IV13+IV14):**
+   the engine is tuned for PRECISION and this costs RECALL, in both directions:
+   - **False negatives (missed real vulns):** the IV13 independent round found
+     THREE real vulnerabilities the engine missed live — testaspnet stored
+     XSS (tbComment; the reflected battery ships the endpoint's STALE
+     __VIEWSTATE and 500s), gruyere stored XSS via signup uid (renders only on
+     LATER requests — a reflected-only design is structurally blind), gruyere
+     URL-path traversal (the battery was param-bound only). All three FIXED
+     in v4.2.3 with discriminating tests — but they were missed for the whole
+     campaign, and more like them may exist.
+   - **False positives (over-claimed verdicts):** two engine-VERIFIED claims
+     were wrong — ginandjuice /catalog?searchTerm "Angular XSS" (the canary
+     landed inside a <script> string, which Angular never interpolates —
+     verified anyway by v4.2.2) and testasp tfSearch/tfUName/tfUPass "SQLi"
+     (a generic IIS 500 with NO DB error string verified as CRITICAL via
+     PATH B's bare-5xx acceptance). Both mechanisms FIXED in v4.2.3
+     (DETECT-15/VR-14 + VF-04); the tfSearch endpoint itself is REAL SQLi
+     (reconfirmed live 2026-10-03 20:43 UTC with a boolean body-differential).
+     The v4.2.3 live re-scan then demonstrated the VF-04 cost exactly as
+     predicted (section 2.9): tfSearch landed REJECTED — PATH B correctly
+     refused (no DB string) and PATH A did not reproduce inside the scan
+     window — i.e. a live FALSE NEGATIVE accepted in exchange for killing the
+     over-claim. tfUPass on the same page VERIFIED through a REAL oracle
+     (oracle:or-bodydiff-2round) — real SQLi the whole time, now honestly
+     channeled.
+   - Net reading: F1 1.000 on the fixture means the engine agrees with the
+     fixture — NOT that it agrees with reality. The only admissible recall
+     evidence is independent verification (which found 3 gaps + 2 FPs in one
+     round). Treat unverified-coverage claims accordingly.
+6. **xss_dom packages carry browser execution steps, not journaled HTTP
    pairs**; XXE verdicts rest on OOB interaction records (public webhook
    channel), not response bytes. Both are marked as such in the file.
-6. **Replay caveat:** raw pairs carry the scan session's cookies (demo/test
+7. **Replay caveat:** raw pairs carry the scan session's cookies (demo/test
    accounts on authorized test sites). A reviewer replaying them may need a
    fresh authorized session of their own.
-7. **VF-03 honest limitation:** not bench-discriminable through the current
+8. **VF-03 honest limitation:** not bench-discriminable through the current
    detector (detect.py already enforced the ≥max(200B, 25%) body-diff guard in
    BOTH builds); proven at mechanism level + on live targets only.
-8. **No external benchmark has been run** (no OWASP/PortSwigger official suite,
-   no third-party pentest report, no CVE-mapped corpus).
+9. **VF-04 honest cost — MATERIALIZED LIVE:** PATH B now requires a DB error
+    STRING. The v4.2.3 re-scan of testasp proved the trade: tfSearch (a REAL
+    endpoint per IV14 raw evidence) landed REJECTED because its 500 carries
+    no DB text and the boolean oracle did not reproduce in that window —
+    candidate signal remains visible (rejected_candidates, conf 0.15).
+    Deliberate precision-first trade per supervisor order 3, now with a live
+    instance on record.
+10. **No external benchmark has been run** (no OWASP/PortSwigger official suite,
+    no third-party pentest report, no CVE-mapped corpus).
 
 ---
 
@@ -162,6 +461,14 @@ v4.2.1 scan data.
 gate caught fixture-state contamination and was fixed to
 fresh-instance-per-engine (the gate discriminates, by design).
 
+**v4.2.3 (2026-10-04, supervisor orders 2+3)** — the three IV13 gaps + the two
+adjudicated false-positive mechanisms. Evidence: six discriminating unit tests
+(110/110 suite), mechanism probe `results/probe_v423_gaps.jsonl` (frozen v4.2.2
+vs v4.2.3 on identical input: 3 misses -> VERIFIED, 2 over-claims -> REJECTED),
+gates ×3 deterministic with verdict-level diff vs frozen v4.2.2 = NONE, and the
+live re-scan (see section 5). Raw IV14 adjudication evidence:
+`build-v423/results/iv14_evidence/` (stdlib-only probes, zero SENTINEL code).
+
 ---
 
 ## 4. Gaps discovered live (not papered over)
@@ -170,44 +477,378 @@ fresh-instance-per-engine (the gate discriminates, by design).
   supervisor-ordered): detector + verifier + discriminating test + gates +
   live doLogin VERIFIED. See CHANGELOG v4.2.2 and
   INDEPENDENT_VERIFICATION_ADDENDUM_v422.md.
+- ~~Stored XSS structurally invisible~~ **FIXED in v4.2.3**: DETECT-16
+  two-step flow (fresh form round-trip with rotating __VIEWSTATE/CSRF →
+  canary submit → render-surface re-fetch with persistence control).
+  Live-proven on BOTH surfaces: gruyere /saveprofile uid (VERIFIED,
+  run-228ffb67c9) AND testaspnet /Comments.aspx tbComment (VERIFIED,
+  run-3d6cf53f93 — re-test:fresh-canary-resubmit, marker survived the
+  independent second fetch). Getting there took a SECOND live iteration,
+  recorded honestly: the first v4.2.3 re-scan (2026-10-03 22:32) still
+  missed testaspnet because ASP.NET WebForms routes the postback through the
+  clicked submit button's name=value pair — POST answered 200 and silently
+  discarded the comment. Fix: _StoredFormParser captures submit buttons as
+  ride-along fields; full gate cycle re-run after (110/110, doctor 15/15,
+  bench x3 identical, verdict-diff vs frozen v4.2.2 = NONE), then the
+  re-scan verified.
+- ~~URL-path traversal unprobed~~ **FIXED in v4.2.3**: DETECT-17 path battery
+  from the target root + crawled directory prefixes. Live-proven on gruyere
+  (VERIFIED: /<inst>/..%2f×4 etc%2fpasswd).
 - **testphp.vulnweb.com + testhtml5.vulnweb.com unreachable** (shared host
   44.228.249.3 TCP timeouts; the other five targets answered from the same
   egress in the same window). Retry pending host recovery.
+- **demo.testfire.net unreachable in the round-4 re-gate window** (DNS
+  resolves to 65.61.137.117 but HTTP+HTTPS both socket-timeout, checked
+  2026-10-03 23:0x UTC; v4.2.2's scan a day earlier succeeded — 37 verified).
+  The stop-line re-gate therefore covers 4/5 targets live; testfire's engine
+  path is asserted unchanged by the gate (verdict-level diff vs frozen
+  v4.2.2 = NONE on the full fixture suite, which contains the testfire-class
+  ASP/JSP shapes). A re-scan lands the moment the host answers again.
 - **Container fragility:** rollbacks #1–#13 have repeatedly wiped `download/`
   and untracked state (6 escape-pod bundles died undownloaded) and gutted
   `.gitignore` 3+ times. Mitigated since 2026-10-03: GitHub is the primary
   durable copy; tracked content + git anchors have survived every event.
-- **VF-03 not bench-discriminable** (see section 2.7) — mechanism + live only.
+- **VF-03 not bench-discriminable** (see section 2.8) — mechanism + live only.
+- ~~L2 rotating-cookie citation bug~~ **FIXED in v4.3.0 (round 6)**: the live
+  cross-checks caught the identity builder excerpting the cookie header of
+  the LAST proving request while citing the FIRST — on ginandjuice the AWS
+  load-balancer cookie (AWSALB) ROTATES between requests, so 13 excerpts
+  were not literal slices of their cited journal entries (evidence-integrity
+  violation; a second, harness-side false-negative from json.dumps escaping
+  was also found and fixed). Fix: the cookie value is kept PAIRED with the
+  request id it was seen in — excerpt and citation always come from the same
+  entry. Discriminating regression test `unit_l2_identity_citation_rotating_cookie`
+  (reproduces the live shape synthetically; RED on the old code, GREEN on the
+  fix); all four targets' paths regenerated; ALL cross-checks now pass. The
+  live-check discipline caught a real defect the 10 unit tests missed —
+  which is exactly what live verification is for.
+- **L3 round 8 (2026-10-05): FIVE live-caught product defects, all fixed with
+  the discriminating suite (133/133) green after each, then the full gate
+  cycle re-run green at the end:**
+  1. **Executor dropped every query string** — `Parameter(name, value,
+     location)` was passed with the wrong field order (location is the
+     SECOND dataclass field); every GET probe went out URL-less (the
+     testaspnet oracle answered 200/0B pages). Caught by comparing the
+     engine's rendered URL against a direct request.
+  2. **str.replace corrupted cross-pair payload placement** — replacing a
+     param value by global substring hit the FIRST same-value pair (the
+     tbComment payload landed under `__EVENTTARGET=sentinel`). Fix: exact
+     pair-swap helpers (`_swap_query_value`/`_swap_body_value`) that touch
+     only the target pair, preserving every other byte.
+  3. **Stale `__VIEWSTATE` silently rejected + missing submit-button field**
+     — a WebForms postback replays the scan-journal body only when the
+     button field (`btnSend`) rides along AND the hidden fields are FRESH.
+     Fix: the planner prefers real-form entries (submit-button heuristic),
+     drops `__*` pairs from the planned bytes, and the executor harvests a
+     live GET before every stored_resubmit. (The app filtering the
+     `<img onerror>` comment TODAY was measured honestly: PROBE_FAILED.)
+  4. **Traversal false-VERIFIED on error pages** — the shared-marker rule
+     matched the DOCTYPE of two identical 500 pages. Fix: the fresh read
+     must be 2xx, and the planner/assessor both anchor to 2xx proving
+     entries. (This was a caught FALSE verification — the class of bug the
+     whole discipline exists to prevent.)
+  5. **SQL template could derive from the FALSE-side vector** (control_true
+     == control_false → guaranteed failure), and an arbitrary same-shape
+     entry could land the oracle on a different page. Fix: TRUE-form
+     normalization + a pick ranked by 2xx-first, then anchored to the
+     finding's own TRUE-side size, then quoted-shape.
+  Also fixed live: the CRLF split value may carry the merged next-header
+  tail (`; Secure; HttpOnly`) — confirmation now accepts the expected value
+  as a prefix; the redirect probe builds from the L0 verification entry
+  (ginjuice's linkback UI only renders while a search is active) and
+  exercises the page's own location-assigning anchor once.
 
 ---
 
 ## 5. What has NOT happened yet (as of this file's date)
 
-1. **External independent verification of the 171 packages.** Status
-   2026-10-03 round 3: the FIRST real external-list comparison ran
-   (`build-v422/results/external_comparison/iv13_report.{md,json}`) —
-   6 confirmed / 3 real gaps / 17 unconfirmed (3 of them
-   probed-and-not-reproduced). Caveat: that "external" list was produced by
-   the same agent using an independent stdlib toolchain (`scripts/iv13_*.py`,
-   zero SENTINEL code, blind target selection) — **independent-toolchain,
-   NOT third-party human verification.** A genuinely external judge (human
-   pentester or third-party scanner) has still not ruled on any finding;
-   see INDEPENDENT_VERIFIER_REPORT_IV13.md.
-2. **L2 Attack Paths** — not started. The differentiating layer of the
-   architecture remains unbuilt (blocked per supervisor ruling until the fix
-   set landed; the fixes have landed, L2 remains untouched).
-3. ~~SQLi numeric-comment battery~~ — implemented and proven in v4.2.2
-   (2026-10-03). The comparison frame for external verifiers
-   (scripts/compare_external_findings.py + worked example) is also delivered;
-   it awaits a REAL external list to compare against.
-4. **testphp/testhtml5 scans** — not run (outage).
-5. **Any customer, buyer, pilot, or market contact. Zero revenue.** Any
+0. **Round-9 honest open gaps (internal test, not external verification):**
+   Juice Shop login-form params invisible (Angular-rendered form — the login-SQLi
+   challenge stays unproven); basket BOLA probed but not claimed (victim-marker
+   oracle needs identity markers; basket JSON carries UserId only); WebGoat XSS
+   lessons produced no findings (attack1 params are quiz answers; DOM lessons need
+   the browser chain); DVGA original repo deleted from GitHub (Node re-engine fork
+   retained; needs PostgreSQL — not yet run); NodeGoat needs MongoDB; DVWS and
+   Mutillidae need portable PHP; crAPI needs Docker (no root/docker in this env).
+   These are recorded as coverage gaps, not claims.
+
+1. **Genuinely external verification of any finding.** Rounds 3–4 ran an
+   INDEPENDENT-TOOLCHAIN verification (stdlib-only, zero SENTINEL code, blind
+   target selection) that confirmed 10 findings, exposed 3 real gaps + 2
+   engine over-claims — all now fixed and re-proven — but it was executed by
+   the same agent. **No third party (human pentester or external scanner) has
+   ruled on any finding yet.** The comparison frame
+   (scripts/compare_external_findings.py) is ready; runs against the agent's
+   own independent list: IV13 round 6 confirmed / 3 real gaps / 17
+   unconfirmed, then the round-4 re-run against the v4.2.3 re-gate scans:
+   **10 confirmed / 0 gaps / 13 unconfirmed** (the three fixed gaps now match
+   — two via the documented xss-bridge, one via instance-ID path
+   normalization; both normalizations are transparent in the report and in
+   the matcher source).
+2. ~~L2 fresh re-scans of testaspnet + ginjuice~~ **DONE IN ROUND 7 (targeted
+   mode)**: full-site re-scans still do not fit the 600s window (936s/620s),
+   but the supervisor-ordered solution ran: TARGETED fresh live scans of
+   exactly the attack-path surfaces through the shipped pipeline (discovery
+   seeded to those surfaces; `stats.crawl.targeted_mode` records seeds and
+   keep-rules inside each result file). ginjuice: all 7 seeds re-verified
+   live. testaspnet: 2/3 seeds re-verified; the Comments.aspx?id SQLi is
+   honestly NOT fresh-verified (content drift — see the register in section
+   1); it stays out of the fresh L2 until the target's comment volume (and
+   therefore the boolean differential) recovers above the anti-FP
+   threshold. A full-site fresh scan of each remains desirable when a
+   >600s window exists; the round-6 projections are archived, not deleted.
+3. **testfire L2 paths** — blocked by the same target network outage recorded
+   in section 4 (HTTP+HTTPS socket timeout, re-checked in round 6); re-scan
+   when the host answers.
+4. **The unconfirmed residue.** After the IV14 adjudication (searchTerm =
+   engine FP — now dropped from the verified list; tfSearch = real endpoint,
+   engine now records it as an honest rejected candidate; Templatize = real,
+   re-VERIFIED live) and the round-4 re-gate, the comparison frame counts 13
+   unconfirmed SENTINEL-only strong claims. A genuinely external list still
+   needs to rule on them.
+5. **testphp/testhtml5 scans** — not run (host outage persists, see section 4).
+6. **Any customer, buyer, pilot, or market contact. Zero revenue.** Any
    valuation (including the 1–4M range discussed) is a hypothesis conditional
    on external verification + a real buyer — neither exists.
 
 ---
 
 ## 6. Save status (updated every round)
+
+- **Round 27 (2026-10-16, Axis-3 mounted — PCS):** supervisor order:
+  Part A bank the round-26 axis-1 .log deposits + Part B axis-3 under the
+  M1–M5 station protocol. 8TH CONTAINER ROLLBACK on arrival (full-snapshot
+  to the IV13 era: worklog 923, build-v430 absent, download/ absent,
+  /tmp wiped) — standard realignment executed (fetch on the session PAT,
+  six-fold redundancy proof of the stale f2d41e8 chain, reset --hard
+  e42d4bb, .env restored untracked, 11/11 tags). PART A BLOCKED, AWAITING
+  RULING: the three round-26 files (gate/bench_3c0652b6be.log,
+  axis1_digest.log — created under the round-26 no-commit freeze, never
+  committed anywhere) were DESTROYED by the 8th rollback before the
+  banking order arrived; byte-identical banking is impossible. Their
+  sha256sums are on record (2dd59286…/1f08a73e…/85f39fe9…). Options
+  presented: (a) accept the already-banked axis-2 M5 deposits (committed
+  e42d4bb, same gate contract on the superset tree) as the durable
+  closure evidence, (b) regenerate axis1_digest.log from the committed
+  axis-1 JSONs (content reproducible, marked regenerated), (c) fresh
+  axis-1-shaped gate re-run with new .log deposits. Dev-time reference
+  work (declared): pip install blake3 (the official package) used ONLY as
+  a validation oracle — the pure-Python implementation validated 0
+  mismatches over 30 vectors + 200 random; committed code has zero new
+  dependencies. Station M1 (RED): tests/test_axis3_pcs.py — 28 cases
+  H3_01..H3_28 covering §3.1–§3.8 + the --atoms battery (3a 12,000
+  events / 3b 1,000 datasets / 3c 500 schedules / 3d 80 adversarial
+  stores / 3e 500 histories) — executed BEFORE implementation: **0/28,
+  digest 9190527d4eb85234** (results/axis3/axis3_RED.json), committed
+  "axis3: red" and pushed immediately. M2 (GREEN): sentinel/blake3.py +
+  sentinel/pcs.py implemented — 28/28, digest ec1626c7e0cd1809; the
+  merge-laws battery caught ONE REAL module defect (VectorClock merge
+  dropped zero-valued components from the second argument, breaking
+  commutativity — fixed); five test-side bugs also fixed and documented.
+  M3 (atoms): 3a 12,000 events/16,574 direct edges/1,999 transitive
+  samples ZERO violations; 3b 1,000 datasets/32,248 leaves every proof
+  verifies + every bit flip detected + 25 full 256-bit sweeps zero
+  escapes; 3c 500/500 schedules converge + 100 law triples; 3d 80/80
+  forgeries caught (100%, zero escapes, five classes); 3e 500 histories/
+  25,930 read_at checks 0 wrong — chain digest 0ce206c1ad60caba. M4
+  (determinism): R3 triple-run identical digests ec1626c7e0cd1809 (the
+  M3 CHANGELOG ledger line was missed by a failed text anchor and banked
+  honestly at the M4 commit). M5 (gate, CLOSURE): full gate fresh on
+  the axis-3 tree — suite 4313/4313 (19/19 chunks 227/227), doctor
+  17/17, bench ×3 38/0/0/37 F1=1.0 @7161/199 run-3c0652b6be structurally
+  identical tuple-by-tuple — zero core drift; mandated .log deposits +
+  SHA256SUMS committed (gate_axis3_3c0652b6be.log, bench_axis3_3c0652b6be.log).
+  Station chain: 604f56c (M1) -> 025d368 (M2) -> 363c6a0 (M3) ->
+  ff65a85 (M4) -> M5. AXIS 3 CLOSED end-to-end. Axis 4 (channel
+  synthesis per the phase-2 roadmap) queued pending the supervisor's
+  reply.
+
+
+- **Round 26 (2026-10-15, Axis-2 mounted — station protocol M1–M5):**
+  supervisor amendment: every clean station commits isolated and pushes
+  immediately (no waiting for the axis end); any push failure = stop and
+  report. Pre-work: 7th UUID noise commit (41036fd) proof-checked (six
+  oob-* markers only, parent = 1bc184b) and discarded per precedent.
+  Station M1 (RED): tests/test_axis2_statemachine.py — the 24-case table
+  H2_01..H2_24 literally (S/s0/Σ, δ literal-8 + atomic rejection, C1–C6,
+  Λ∈ℝ⁴ + Σw=1 + V∈[0,1] + weight effects, A* golden/admissible/consistent,
+  replay/verify_invariants/interface/Γ, 14-category boundary log, digest
+  stability) + the --atoms M3 battery — executed BEFORE implementation:
+  **0/24, digest 10bd2caf36e107be** (results/axis2/axis2_RED.json),
+  committed "axis2: red" and pushed immediately. M2 (GREEN):
+  sentinel/statemachine.py implemented §2.1–§2.8 — 24/24 first-shot,
+  digest 9634780aa1712d12 (one test-side keyword-arg bug caught in
+  pre-run review; no implementation defects). M3 (atoms): the exhaustive
+  3a/3b/3c battery **431/431 checks** (3a 126 state atoms, 3b 182
+  transition atoms incl. all 48 illegal pairs, 3c 123 value atoms),
+  digest 9217f3b19e1d7e79 — two bugs caught were in the battery's own
+  tooling, module innocent, suite digest regression-checked unchanged.
+  M4 (determinism): R3 triple-run identical digests 9634780aa1712d12
+  (RUN2/RUN3 byte-identical files). M5 (gate, CLOSURE): full gate fresh
+  on the axis-2 tree — suite 4313/4313 (19/19 chunks 227/227), doctor
+  17/17, bench ×3 38/0/0/37 F1=1.0 @7161/199 run-3c0652b6be
+  structurally identical tuple-by-tuple vs the accepted record — zero
+  core drift; mandated .log deposits + SHA256SUMS committed
+  (gate_axis2_3c0652b6be.log, bench_axis2_3c0652b6be.log). Every station
+  committed isolated + pushed immediately + ls-remote-verified:
+  e2655fa (M1) → 3bc547c (M2) → 85e760b (M3) → 3ccc802 (M4) → M5.
+  AXIS 2 CLOSED end-to-end. Axis 3 (PCS: BLAKE3/MessagePack/Lamport/
+  Merkle/CRDT/MVCC per the phase-1 roadmap) queued pending the
+  supervisor's reply.
+
+- **Round 25 (2026-10-15, Axis-1 mounted — the 12-axis spec program
+  begins):** supervisor order: mount the axes one by one, red/green tests
+  first, full gate, immediate push, wait for the reply between axes.
+  Axis 1 (execution-graph engine) landed: sentinel/xgraph.py (spec §1.1–§1.8
+  complete — W1–W6 validation, Kahn Θ(V+E), layered decomposition, BSP
+  parallel executor with barrier-proven supersteps, O(1) COW forks,
+  speculative branching with argmax-V merge, adaptive pruning
+  k_adaptive=⌈⌈log₂|V|⌉·(1+ε)⌉ into the 14-category boundary log,
+  snapshot/restore with semantic digests) + a STANDALONE 22-case suite
+  (not @case-registered — the 4313 contract untouched by construction).
+  RED 0/22 executed first; the W-condition tests then caught two REAL
+  validate() defects (Kahn mutating the shared indeg array corrupting the
+  W3 source count; reachability BFS walking predecessors) — fixed; GREEN
+  22/22; R3 triple-run digests identical (cc84a91a…). Full gate fresh on
+  the mounted tree: suite 19/19 = 4313/4313, doctor 17/17, bench ×3
+  38/0/0/37 F1=1.0 @7161/199 STRUCTURALLY IDENTICAL (run-3c0652b6be) —
+  zero drift, machine-proven. A 4th environment UUID noise commit
+  (443a3a1) was proof-checked and discarded pre-work (7614ee5 precedent).
+  Hot-path rewiring deferred to phase-1 close (axes 1+2+3+12). Axis 2
+  queued pending the supervisor's reply. PAT inline-only, owner revokes
+  on acceptance.
+
+- **Round 24 (2026-10-15, cleanup file CLOSED — supervisor closure
+  order + the 5th rollback):** local release/v4.1.1 (2d5ce2f) deleted
+  after fresh proof (main-ancestor, 0-ahead, tag v4.1.1 at tip); the 4
+  phantom refs a mid-turn 5th container rollback resurrected
+  (phase/02-l1-twin, release/v4.2.0/v4.2.1/v4.2.2 — tips identical to
+  the task-58 ratified deletions) re-proven and re-deleted, completing
+  the sanctioned state. Realignment per protocol: fetch → 6-part
+  redundancy proof fresh on the same stale commit f2d41e8 (1 unique
+  commit; parent in main; iv_out byte-identical; worklog byte-exact
+  prefix; .env identical — 100% redundant, matching the ratified
+  task-58 audit) → reset --hard 5fd9301, .env restored untracked,
+  NO backup branch re-created (would resurrect a ref the ratified
+  order removed). Tags restored 11/11. FLAGS CLOSED BY RULING: the 4
+  remote archive/* branches = KEEP (final); the remaining task-54
+  classes (owsp, evidence generators, tags, report outputs) = KEEP
+  (final). END STATE: local branches = main only; remote = main + 4
+  kept archive/*; zero history rewrites. Records-only commit; full
+  gate fresh on the engine-identical tree per protocol; PAT
+  inline-only, owner revokes on acceptance.
+
+- **Round 23 (2026-10-15, round-23 close — task-58 remote half on the
+  round-4 PAT + fresh gate verification):** the staged remote half
+  executed: origin/release/v4.1.1 (2d5ce2f, machine-proven main-ancestor
+  + 0-ahead + tag v4.1.1 at tip — deletion orphans nothing) deleted from
+  the remote; main pushed 5373107..29ae5e7; both ls-remote confirmed
+  (remote main = 29ae5e7 = local, release/v4.1.1 gone from refs/heads).
+  The full gate had run fresh in-container on the task-58 tree
+  (08:58–09:24, artifacts intact in /tmp): suite 19/19 = 4313/4313
+  (every chunk 227/227, failed=0), doctor 17/17 (overall=PASS), bench ×3
+  = 38/0/0/37 F1=1.0000 @7161 requests / 199 findings — three runs
+  structurally identical tuple-by-tuple (run-3c0652b6be, ground_truth
+  sha identical). One more environment UUID auto-commit (984a934 — six
+  one-line build-v430/oob-* "ok" markers = the fixture's XXE-OOB
+  endpoint runtime output; main tracks zero such files; 7614ee5
+  precedent) discarded by reset --hard after the proof, SHA recorded
+  for audit. Branch state: local = main + release/v4.1.1 (the local
+  copy kept per the order's exact scope — flagged); remote = main + 4
+  archive/* (out of scope, kept, flagged). Zero history rewrites; this
+  record commit is the only tree change; the PAT is inline-only, owner
+  revokes on acceptance.
+
+- **Round 22 (2026-10-15, the branches cleanup — the supervisor's
+  item-by-item call on the task-54 KEPT "branches" class):** 5 local
+  branches deleted, each machine-proven redundant FIRST —
+  release/v4.2.0/v4.2.1/v4.2.2 (0 commits ahead of main, preserving tags
+  at tips), phase/02-l1-twin (0 ahead; recovery/l1-candidate-2026-10-02
+  inside its history; tip reachable via main), and
+  backup/stale-f2d41e8-20261015 (the last surviving realignment backup:
+  its one unique commit = the stale UUID snapshot — .env byte-identical
+  to the live untracked copy, 31 iv_out files byte-identical to main,
+  923-line worklog a byte-exact prefix of main's — 100% redundant).
+  Local release/v4.1.1 not in the order's scope — left standing, flagged.
+  Remote origin/release/v4.1.1 + push + ls-remote staged pending the
+  round-4 PAT (round-3 owner-revoked on acceptance per protocol).
+  Zero history rewrites; one isolated record commit; full gate re-run
+  fresh per directive (engine tree untouched — records only).
+
+- **Round 21 (2026-10-15, post-hardening closure — cleanup + Q1/Q2 + the
+  4th rollback):** supervisor item-2 executed — the repo cleanup as the
+  DETERMINISTIC subset of the task-54 inventory (148 files, one isolated
+  commit): old gate generations + old suite runners + v4.1-era
+  juice/determinism + one-off debug/probe/gj/phase/save generators, the
+  v1-v3 old results EXCEPT the AR report deliverables (kept), snapshot-0419
+  and pkg-v301 whole. Everything whose per-item approval died with the lost
+  session was KEPT and listed pending in the worklog (owsp beyond the
+  protected chain, branches, tags, evidence generators) — zero history
+  rewrites, deletions are git-rm only. Full gate re-run GREEN on the
+  cleaned tree, fresh: suite 19/19 = 4313/4313, doctor 17/17, bench x3
+  STRUCTURALLY IDENTICAL 38/0/0/37 @7161/199 — the cleanup provably touched
+  zero gate dependencies. Q1 closed (all gates ran post-edit; red-before is
+  impossible by construction for a provenance-only refactor — the applicable
+  differential, pre/post bench structural identity, is machine-proven);
+  Q2 closed by order: 4332 was a narrative error of a lost session (zero
+  record trace), 4313 is the fixed number everywhere (19 chunks x 227
+  registered @case). A 4th mid-turn container rollback wiped the previous
+  turn's local work — everything was redone and every step pushed at
+  completion (f16dd73 worklog carry-over, 4d9c61e cleanup, then this entry);
+  alignment discipline held (no merge, no force-push; stale preserved in
+  backup/stale-f2d41e8-20261015). The session PAT is inline-only, owner
+  revokes on acceptance.
+
+- **Round 20 (2026-10-15, the hardening round — supervisor item-1):** the
+  `passed=True -> observed variable` hardening of `build-v430/sentinel/intel.py`
+  implemented FROM SCRATCH on the verified base (task 53 proved it never
+  existed before): 8 oracle sites now stamp the observed boolean
+  (PATH A=stable, D=okD, C=okC, C'=bool(num_redirect or num_body),
+  D2=okD2, E=okE, csrf=okVR13, nosql-js=js_flip); the
+  `_PRESENCE_VERIFIED_TYPES` single-response allowlist is the ONE
+  deliberate exemption (VF-01 design) and was NOT touched, per the
+  supervisor's own ruling. Zero behavioral drift machine-proven, not
+  claimed: suite 19/19 chunks = 4313/4313 fresh, doctor 17/17, bench x3
+  STRUCTURALLY IDENTICAL 38/0/0/37 @7161 requests / 199 findings tuples —
+  the exact task-53 f0ae716 record. Base re-verified this session:
+  origin/main = 941559a (worklog-only commits on top of f0ae716); the
+  stale f2d41e8 snapshot re-preserved in backup/stale-f2d41e8-20261015;
+  no merge, no force-push. The Arabic summary below lags at round 15
+  (pre-existing — its numbers are the v4.3.1-era snapshot, kept for the
+  record). Push + ls-remote at round close; the session PAT is
+  inline-only, owner revokes on acceptance.
+
+- **Round 19 (2026-10-14, the trustbound close):** the seven TB fix commits
+  (TB-1a 5f1bbe4 / TB-1b 89a2d48 / TB-1c 25cc789 / TB-2 b33f2b7 / TB-3a
+  07d0db6 / TB-3b c6d80f7 / TB-3c cc142b3, after the 986735e diagnosis) were
+  each pushed individually with ls-remote confirm in their own sessions
+  (origin/main = cc142b3 verified at this session's fetch). This session
+  pushed the close round: the round tooling + the stack-assembly no-clobber
+  fix (tomcat_guard.sh — the supervisor's item-0 order) and the trustbound
+  category close itself (the merged 12-chunk scan benchmark_scan_tb_close.json
+  + eval_tb_close_full.json + trustbound_category_close.md + STATE.md +
+  worklog) — both commits ls-remote-confirmed at push time (see the worklog
+  for the exact hashes). The session PAT is inline-only (never on
+  disk/config/commits); the owner revokes it on round acceptance per
+  protocol.
+
+- **Round 18 (2026-10-13/14, the recall-push campaign):** ALL content pushed
+  with ls-remote confirm after EVERY commit (the standing one-fix-one-push
+  discipline): sqli closes (SQ-1/SQ-2 + the sqli category close), xss closes
+  (XS-1/XS-2/XS-3 + the xss category close d3ab1bf), cmdi closes (CM-1
+  efdf314 + the blocked-push honesty record 0af0fc6 + CM-2 7248c4d + CM-2b
+  c3753bf + this cmdi category close). One environment event on record: the
+  origin remote URL was rewritten to mememaly-oss/Sen during the rollback
+  chaos (the owner name missing "ma") — every git operation failed with
+  "Repository not found" and the previous session misdiagnosed it as a token
+  failure; repaired at session start, the blocked CM-1 pushed, verified by
+  ls-remote. The session PATs are inline-only (never on disk/config/commits).
+
+- Round-12 (2026-10-06, app 4/6 Mutillidae): ALL content committed locally (6b5662d -> 33238e4). PUSH BLOCKED — the session PAT is revoked (401 on all four auth channels, the rounds-3/4 pattern). A fresh PAT from the supervisor completes: push + ls-remote confirm.
+
+- **Round 10 (2026-10-05, OWASP campaign app 1/6):** WrongSecrets round committed
+  (5 defects OWSP-01..05 + 5 tests + gates + artifacts); push + ls-remote confirm
+  executed at round close (see git log for the exact sha).
 
 - **PRIMARY (durable): GitHub — `github.com/mememamaly-oss/Sen` (private).**
   Last verified push (ls-remote, 2026-10-03 round 2): main = release/v4.2.2 =
@@ -224,35 +865,217 @@ fresh-instance-per-engine (the gate discriminates, by design).
   written to disk, config, or any commit; the owner was instructed to revoke
   it. Future pushes use the same inline-only protocol.
 - **Round 3 (2026-10-03, IV13 independent verification):** report + 12
-  evidence JSONs + comparison outputs committed locally (b367fdb). Push
-  attempted with the round-2 PAT: REJECTED (token revoked as instructed) —
-  **a fresh PAT is required**; .gitignore restored from HEAD after another
+  evidence JSONs + comparison outputs committed locally (b367fdb, then 1e2159f
+  and the relabeled bac2013). Push attempted with the round-2 PAT: REJECTED
+  (token revoked as instructed); .gitignore restored from HEAD after another
   environment gutting (rollback-#13 pattern).
+- **Round 4 (2026-10-04):** v4.2.3 engine + six discriminating tests + gates
+   (110/110, doctor 15/15, bench x3 identical, verdict-diff vs frozen v4.2.2
+   = NONE) + IV14 adjudication evidence + the live re-gate (4/5 targets green,
+   testfire env-down; raw scans in build-v423/results/live_v423/ + regate
+   diff JSON + comparison re-run) committed locally, tag v4.2.3 + release
+   branch ready. Push was blocked only by the PAT value (session continuation
+   lost the inline token, never written to disk per protocol).
+- **Round 5 (2026-10-04, PUSH EXECUTED):** two supervisor PATs arrived inline.
+   The first (len-93, format-valid, ...50pN) was REJECTED by GitHub itself:
+   401 Bad credentials on all four auth schemes (git oauth2-URL, Bearer,
+   token, basic) — the token value was dead at GitHub's end (revoked/expired);
+   recorded in worklog task 16, commit 3b618be. The second PAT (fresh) worked:
+   push landed main a3f2ae4..3b618be (5 commits: b367fdb IV13 round, 1e2159f
+   state, bac2013 evidence relabel, 174ab6e v4.2.3, 3b618be worklog-16) +
+   release/v4.2.3 (174ab6e) + tag v4.2.3 (annotated 6b724cd -> 174ab6e).
+   **ls-remote CONFIRMED**: remote main = 3b618be = local, release/v4.2.3 =
+   174ab6e, v4.2.3 peeled = 174ab6e, all prior refs intact (7 branches, 6
+   tags). This STATE.md update is the post-push round-5 commit on top.
+- **Round 6 (2026-10-04, L2 BUILT — freeze lifted by supervisor order):**
+  commit 5b2eede (built in the pre-collapse continuation, recovered intact
+  from GitHub after rollback #14, pushed) + commit f933549 (live verification
+  + citation-integrity hotfix + regenerated paths + evidence report), both
+  verified on GitHub by ls-remote. Tag v4.3.0 (f35fc2a → 8e70625) + release
+  branch release/v4.3.0 landed; main closed the round at 8e70625 (ls-remote
+  confirmed; rollback #15 then gutted the local tree — recovered again from
+  GitHub at the start of round 7, zero files lost). The round-6 PAT is
+  inline-only (never on disk); owner revokes at round acceptance.
+- **Round 7 (2026-10-04, L2 EVIDENCE MADE 100% FRESH-LIVE):** incremental
+  pushes, each ls-remote-confirmed: 053c6aa (ginjuice targeted fresh scan —
+  9/9 paths re-proven live incl. both chains), cf7277a (testaspnet targeted
+  fresh scan — honest 2/3 + the measured drift record), 52029ed (evidence
+  report regenerated from fresh journals + freshness matrix + register),
+  77c8e39 (full gate cycle green after the replacement), then this STATE.md
+  + worklog-20 commit. Engine code UNCHANGED all round (the scans ran the
+  shipped v4.3.0 pipeline; only discovery scoping was applied in-process
+  and recorded inside the result files). The round-7 PAT is inline-only
+  (never on disk); owner revokes at round acceptance.
+- **Round 8 (2026-10-05, L3 PROVEN REAL IMPACT — supervisor order
+  trace 1a107bbe20c548bd):** the L3 tests had been drafted in the pre-
+  collapse continuation (uncommitted 609-line insertion); this round built
+  `sentinel/impact.py` (~760 lines) to their spec, wired CLI `impact` +
+  doctor check 17, then LIVE-executed on the 4 authorized targets with
+  5 live-caught defects fixed (section 4) and the L3 suite green after
+  each. Final register: 20 impact plans / 12 VERIFIED / 7 PROBE_FAILED /
+  1 INFERRED. Full gate cycle re-run green (133/133, doctor 17/17, bench
+  ×3 identical 38/0/0/37 @ 1959 reqs, verdict-diff vs frozen v4.2.2 NONE).
+  Artifacts: results/l3_impact/ (per-target journals/plans/assessments +
+  combined report) + scripts/l3_live_probe.py, l3_build_report.py.
+  Push + ls-remote confirmation recorded in the worklog at round close.
+  The round-8 PAT is inline-only (never on disk); owner revokes at
+  round acceptance.
 
 ---
 
-## ملخص عربي صادق (Arabic honest summary)
+## ملخص عربي صادق (Arabic honest summary) — الجولة 15
 
-ما هو مبني ومُثبت بالأرقام: محرك فحص DAST بإعادة تنفيذ حقيقية (v4.2.1،
-اختبارات 103/103، مرجعِية bench-adv v11 تُميّز الإصلاحات: v4.1.1 = F1
-0.9744 بخطأين إيجابيين مقابل v4.2.0+ = 1.000)، طبقة Twin أمنية مع إصلاحات
-المشرف الأربعة (195/195 و210/210 على بيانات حقيقية)، منصة SaaS كاملة
-باختبارات عزل، وحملة حية على 5 أهداف مُصرّح بها أنتجت 171 حزمة أدلة خام
-(577KB) — كل حزمة تحمل الطلب والاستجابة كما أُرسلا حرفيًا.
+ما هو مبني ومُثبت بالأرقام الآن: محرك فحص DAST بإعادة تنفيذ حقيقية (v4.3.1)
+حقق على مرجعية OWASP Benchmark الكاملة (2,740 اختبارًا مُوسومًا) **دقة 100.00%
+(صفر إنذار زائف عبر كل الاختبارات) مع استدعاء 68.90% وF1 = 0.816** — من 43.04%
+بدقة 99.02% في الجولة السابقة. الفئات: weakrand 92.66% (أوراكل الإفصاح —
+الاستجابة نفسها تُسمّي المولّد العشوائي الضعيف)، hash 89.15% (سلسلة الاقتطاع:
+بالوعة كتابة مُصدَّقة تُصفّر ملف الأثر قبل كل مسبار، ثم مطابقة MD5/SHA-1
+المحسوبة محليًا ضد السطر المقروء عبر بديلة قراءة ملفات مُصدَّقة)، crypto
+52.31% (أوراكل ثلاثي الطبقات لحجم الكتلة + مسبار الحدّ غير المتضاعف الذي يفصل
+DES عن AES/GCM تصادمًا تامًا في منحنى الأطوال)، sqli 76.10%، xss 75.61%،
+pathtraver 38.35% (رفع فحص قابلية الكتابة من التداخل الخاطئ).
 
-حدود البرهان بصراحة: 149 من الـ171 سباقًا سلبيًا (ترويسات/لافتات) — الجوهر
-الحقيقي 22 حالة قوية فقط؛ درجة F1=1.000 في المرجع القديم عمياء ومُثبت
-عماؤها ولا تُستشهد أبدًا؛ جميع أحكام الأهداف الحية أصدرها المحرك نفسه ولم
-يحكم عليها أي طرف خارجي بعد؛ فجوة حية موثقة سابقًا (عائلة SQLi numeric-comment غائبة) أُصلحت في v4.2.2
-بإثبات حي: doLogin أصبحت VERIFIED بدليل خام مع توثيق صادق لتذبذب حالة الهدف؛
-هدفان (testphp/testhtml5) ما زالا معطلين. إطار مقارنة نتائج المحقق الخارجي
-جاهز لكن لم يُقارن به إلا المثال الاصطناعي بعد.
+حدود البرهان بصراحة: 440 فائتًا متبقيًا (sqli 65، xss 60، cmdi 49، trustbound
+54، pathtraver 82، crypto 62 — منها عائلة الثابت التشفيري غير القابلة للفك
+صندوقيًا، hash 14، weakrand 16 — أشكال بلا نص إفصاح)؛ عائلة الثابت في crypto
+مُوثّقة كمُقيدة وليست مغطاة؛ البيئة (لا docker → crAPI معلّق؛ حاويات تُمحى
+باستمرار → GitHub هو الأصل الدائم).
 
-ما لم يحدث بعد: التحقق الخارجي المستقل (لا قاضي حكم)، L2 Attack Paths
-(لم تبدأ)، إصلاح فجوة SQLi، إعادة فحص الهدفين المعطّلين، وأي عميل أو مشترٍ
-أو إيراد — لا شيء. أي تقييم مالي (بما فيه نطاق 1–4 مليون) فرضية مشروطة
-بتحقق خارجي ومشترٍ حقيقي، وكلاهما غير موجود.
+حالة الحفظ: محليًا ملتزم ومدفوع إلى GitHub (github.com/mememamaly-oss/Sen) بعد
+كل جولة مع تحقق ls-remote. هذا الملف نفسه يُحدَّث بعد كل جولة.
 
-حالة الحفظ: الأصل الدائم على GitHub (github.com/mememaly-oss/Sen، آخر دفعة
-مُتحقَّق منها 73fb547). هذا الملف نفسه والتزامات ما بعده تنتظر PAT جديدًا
-للدفع. تُحدَّث هذه الوثيقة بعد كل جولة وتُدفع معها.
+---
+
+## ملخص عربي صادق (Arabic honest summary) — الجولة الخارجية 1 (2026-10-16)
+
+ما جرى بالضبط (القرار الحدودي للمشرف مُلزم): اختبار "المراجع المشروعة" يقيس
+الماسح الحالي = المحرك الأساسي + المحاور 1–3؛ المحاور 4–12 غير مبنية؛ المرجع
+الكمي الرسمي WAVSEP. القائمة المغلقة: 3 أهداف حرفيًا فقط.
+
+- الاستعادة (المرحلة 0.5): انقلاب عاشر مؤكد وموثق؛ reset --hard إلى
+  origin/main=867dbf5 بصفر فروق بعد برهان زائدية الالتزام الغريب. أداتان
+  أعيد بناؤهما والتُزمتا ودُفعتا فورًا (bench_structural_compare نسخة ثالثة
+  + مولد digest المحور الأول) — قاعدة "لا أداة عارية على القرص".
+- الجزء أ: axis1_digest.log مُعاد توليده من JSONs المحور الأول الملتزمة
+  حصرًا، موسومًا "regenerated from committed evidence" — cc84a91a ×3 متطابق،
+  RED cf2b6a57 0/22.
+- الميثاق (R): التزام + دفع قبل أي اتصال خارجي إطلاقًا.
+- T1 (WAVSEP محليًا، إلزامي): بوابة طازجة كاملة — suite 4313/4313 (19/19
+  مقطعًا، كل مقطع 227/227، صفر فشل) + doctor 17/17 + bench ×3 =
+  run-3c0652b6be (38/0/0/37، F1=1.0، @7161 طلبًا / 199 tuple، gt
+  0373baf92a92dce2) متطابق بنيويًا tuple-by-tuple مع السجل المقبول — صفر
+  انحراف. الإيداعات .log ملتزمة (git add -f) + SHA256SUMS.
+- T2 (testphp.vulnweb.com): محجوبة بصدق — الهدف غير قابل للوصول من هذه
+  الشبكة الآن: طلب GET التحقق الوحيد المصرح به انتهى بمهلة بلا استجابة؛
+  TCP 80/443 مهلة ×2 جولتين بفاصل 45 ثانية؛ DNS يحل 44.228.249.3؛ مسار
+  الخروج سليم (github:443 وexample.com:80 يعملان) — الخلل من جهة
+  المسار/الهدف وليس حاوية. صفر مسح، صفر نتائج (مسجلة كما هي، لا تلفيق)،
+  لا بدائل (القائمة مغلقة)، لا قصف.
+- T3 (OWASP Juice Shop محليًا): تعذر T3 — لا Docker (لا docker binary على
+  الجهاز؛ لا بدائل تنزيل غير مأمونة) — موثق. متسق مع سجل الحالة التاريخي
+  (لا docker → crAPI معلّق).
+- سلسلة الجولة: 89652d6 (charter) → ef5f0c3 (T1) → 937d615 (T2 محجوبة + T3)
+  → هذا الإغلاق. كل دفعة متبوعة بتحقق ls-remote.
+- صدق الانحرافات: انحرافان فقط — (1) تعذر T2 لبعيد المنال (خارج إرادتنا،
+  موثق بالتشخيص)؛ (2) تعذر T3 لغياب Docker. لا انحراف عن أي أمر آخر؛ صفر
+  اتصال بأي مضيف خارج القائمة (طلبات إلى مضيفين آخرين: 0).
+- المحور الرابع: لن يبدأ قبل مراجعة المشرف لملخص المحورين 2 و3 المرسل مع
+  تقرير الإغلاق.
+
+حالة الحفظ: ملتزم ومدفوع إلى GitHub بعد كل مرحلة من هذه الجولة مع تحقق
+ls-remote. هذا الملف نفسه يُحدَّث بعد كل جولة.
+
+---
+
+## ملخص عربي صادق (Arabic honest summary) — جولة بوابة حافة النطاق (2026-10-16)
+
+ما جرى بالضبط (الأمر الصارم: أثبت حالة ثغرة الحافة في مطابقة النطاق بالكود
+الحي قبل أي افتراض — إصلاح فقط إن ثبت العطل): التشخيص الحي أولًا على
+`_scope_ok` كما هي على القرص — الاستدعاءات الثلاثة المأمورة
+(nottestfire.net / eviltestfire.net / demo.testfire.net.attacker.com) رُفضت
+كلها `False` على شكلَي النطاق الفعليين (allowed=['demo.testfire.net']
+الافتراضي في orchestrator.py:117، وallowed=['testfire.net'] النطاق المسجل)
+مع بقاء الضوابط الشرعية مقبولة (النطاق نفسه والنطاقات الفرعية الحقيقية).
+**النتيجة المعلنة بالدليل الخام: لا ثغرة** — البوابة تطبّق أصلًا الصيغة
+السليمة `host == d or host.endswith("." + d)` في http_engine.py:362-365.
+لذلك **صفر تعديل على كود الإنتاج** وتخطّيت خطوة الإصلاح حرفيًا.
+
+ما أُضيف: بطارية دائمة `tests/test_scope_edge_battery.py` (6 حالات C01-C06،
+خارج تسجيل @case فيبقى عقد السsuite 227×19=4313 سليمًا بايتًا ببايت):
+الاستدعاءات الثلاثة على الشكلين + نقيضها المأمور (النطاقات الفرعية
+الشرعية تبقى مقبولة) + عائلة typosquat + دلالات allowed_hosts كعضوية
+حرفية لا لاحقة. ومعها وضع --red-proof تفاضلي يخرب البوابة داخل العملية
+فقط (لاحقة عارية endswith / مطابقة جزئية in) ويثبت أن البطارية تلتقط
+كلا العطلين (3 و5 مجسات تُقبل خطأً على التوالي). بصدق موثق: أول تشغيل
+للبطارية التقط خطأً في توقعي أنا — ظننت evildemo.testfire.net يجب رفضه
+تحت النطاق المسجل المسموح testfire.net، وهو نطاق فرعي شرعي داخل المنطقة
+المسموحة — فصحّحت التوقع ووثّقت الحد الدلالي، ولم أغيّر سلوك البوابة
+لتوافق توقعي.
+
+بوابة الانحدار الكاملة (صفر انحراف عن خط الأساس في البنود الأربعة):
+suite 4313/4313 (19/19 مقطعًا، كل مقطع 227/227) + doctor 17/17 + bench ×3
+= run-3c0652b6be (38/0/0/37، F1=1.0، @7161 طلبًا / 199 نتيجة، gt
+0373baf92a92dce2) متطابق بنيويًا مع السجل المقبول ونسخه الأربع
+(COMPARE_RC=0) + البطارية 6/6 ضمن تسلسل البوابة نفسه بعد الـbench
+(digest=c2916ba3b060f40b) + red-proof ملتقط للعطلين. إيداعات .log ملتزمة
+(git add -f) + SHA256SUMS لستة ملفات أدلة.
+
+عزل التزام الانقلاب 11 (`aa9c803` غير المدفوع): reset --hard إلى
+origin/main=93b7150 — التزام UUID لن يدخل تاريخ origin أبدًا — مع إعادة
+تطبيق حرفية لمادته (أداة phase-0 + مدخل worklog المهمة-65) في التزام
+استعادة منفصل وموسوم (044d2b6) بإثبات تطابق blobs رياضيًا
+(e72f9314… و42f61f49… == blobs aa9c803 بالضبط).
+
+حالة الحفظ: التزامان معزولان (الاستعادة + هذه الجولة) دُفعا إلى GitHub
+مع تحقق ls-remote حرفي (origin/main == HEAD المحلي). لا اتصال خارجيًا
+هذه الجولة سوى فحوصا doctor المدمجان (تحليل DNS + اتصال TCP لـ
+scanme.nmap.org — فحصا البوابة المأمورة ذاتها، مفصح عنهما في الإيداع).
+هذا الملف نفسه يُحدَّث بعد كل جولة.
+
+---
+
+## ملخص عربي صادق (Arabic honest summary) — جولة المحور الرابع: تركيب القنوات (2026-10-16)
+
+ما جرى بالضبط (أمر المشرف: المحور الرابع بنفس الصرامة وعقلية الفريق
+الأحمر/الأزرق، لا شيء بدون اختبارات حقيقية أو تعليل الأسباب):
+
+- **الاستصلاح قبل العمل**: انقلاب #12 (التزام UUID 8a0e153 فوق 0793b79)
+  أثبتَ أنه ضوضاء oob-marker للسابقة الرابعة (6 ملفات سطر واحد، صفر تتبع
+  في main، الكاتب = مخرجات XXE-OOB للتطبيق المصحوب، الزمن بعد التزام
+  الجولة بـ50 ثانية) — أُقصّ بـ reset --hard وفق البروتوكول المصادق.
+- **إفصاح الأصل (تعليل السبب الأول)**: جدول §4 الأصلي للمواصفة غير قابل
+  للاستعادة من أي سجل ملتزم (فُتش worklog كاملًا وSTATE.md وكل كائنات
+  git وأشجار البناء) — الناجي الوحيد هو اسم المحور. لذلك **اشتُقّ عقد
+  H4 من الأدلة الملتزمة القابلة للمراجعة**، والتعليل معلن في صدر الـsuite
+  وفي كل رسالة التزام: D1 أبجدية الحاملات الـ12 = علم القنوات المُثبت
+  حيًّا في حملة trustbound (detect.py: param/param_name/resolver_name/
+  self_param/self_header/self_cookie/header_name/cookie_name/segment_value/
+  segment_name/header_value/cookie_value)؛ D2 متغير الذيل الضحوي ضد
+  أكّالات النهايات الحية (drop_last وrewrite)؛ D3 أولوية المعامل المصرح
+  (السبب الموثق من الجسم)؛ D4 قاعدة الإسناد twins-win؛ D5 فئات الحدود
+  14 وdigest منطقي فقط. **الجدول الأصلي — إن وُجد لدى المشرف — يعلو على
+  الاشتقاق عند أي حد محطة.**
+- **السلسلة (بروتوكول المحطات: كل محطة نظيفة تُلتزم وتُدفع فورًا)**:
+  M1 RED: الـsuite كُتبت أولًا — 26 حالة H4_01..H4_26 + بطارية atoms
+  4a..4e؛ التنفيذ الأحمر 0/26 (digest 9b06520d30523df3) + 0/5 atoms
+  (1d9f838081ce39b3) بنمط فشل واحد نقي → 4ff33c7. M2 GREEN:
+  sentinel/csynth.py (~300 سطر) — أول تشغيل 25/26 والفشل الوحيد خطأ
+  اختبار أنا (توكيد معكوس في H4_13: truncate يُبقي الوسم سليمًا فالقناة
+  حية) صُحح بملاحظة صادقة في موضعه؛ أخضر 26/26 (7448f95ebd58be25) →
+  380c5fc. M3 ATOMS: 5/5 (cf2676e2c1e14b81) — مصفوفة اكتمال 7 أصناف
+  بعديات مغلقة، 2,000 تصنيف تشويه 100%، حتمية 500 شكل بمرورين
+  مستقلين، 11 شكلًا عدائيًا (فريق أحمر) بلا أي انهيار، 300 تيار إسناد →
+  71ad58c. M4 R3: ثلاثة تشغيلات digests متطابقة → dfe4cfe. M5 GATE:
+  البوابة الكاملة طازجة — suite 4313/4313 + doctor 17/17 + bench ×3 =
+  run-3c0652b6be (38/0/0/37، @7161/199) متطابق بنيويًا مع السجل المقبول
+  ونسخه الأربع (COMPARE_RC=0) + بطارية المحور-4 والبطارية الدائمة
+  للحدود-النطاق خضراوان على الشجرة النهائية + إيداعات .log وSHA256SUMS.
+- **عزلة النواة**: الـsuite مستقلة (خارج تسجيل @case) وsentinel/__init__.py
+  فارغ — المسار الساخن لا يستورد csynth أصلًا؛ صفر انحراف مثبت حيًّا لا
+  بنيويًا فقط.
+- كل دفعة تليها ls-remote مطابقة حرفية. لا اتصال خارجي في هذه الجولة
+  سوى git (الدفع/التحقق) وفحوصا doctor المدمجة المفصح عنها.
+
+حالة الحفظ: المحور الرابع مغلق من طرف إلى طرف وسلسلته (4ff33c7 → 380c5fc
+→ 71ad58c → dfe4cfe → M5) على GitHub. هذا الملف نفسه يُحدَّث بعد كل جولة.

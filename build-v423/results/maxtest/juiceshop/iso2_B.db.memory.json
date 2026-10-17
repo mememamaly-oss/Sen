@@ -1,0 +1,39 @@
+{
+ "version": 1,
+ "apps": {
+  "localhost:3100": {
+   "runs": 1,
+   "fingerprints": [
+    {
+     "run": "run-35d779b873",
+     "endpoints": 2,
+     "tech": [],
+     "waf": ""
+    }
+   ],
+   "verified_findings": [
+    {
+     "key": "missing_security_headers|http://localhost:3100|",
+     "first_seen": "run-35d779b873"
+    },
+    {
+     "key": "missing_security_headers|http://localhost:3100/rest/products/search|",
+     "first_seen": "run-35d779b873"
+    }
+   ],
+   "flows_learned": [],
+   "rejected_hypotheses": [],
+   "failed_attacks": [],
+   "boundaries": [
+    {
+     "key": "graphql|NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)"
+    },
+    {
+     "key": "websocket|NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)"
+    }
+   ]
+  }
+ }
+}
