@@ -4990,3 +4990,22 @@ Stage Summary:
 - NOT PROVEN this round: any performance target (nothing measured); any new security claim (zero new claims made).
 - NOT BUILT this round: axes 5&6 detection layer (Rule-1 tables await the supervisor's verdict on docs/H5_H6_DERIVATION_TABLES.md + its 3 scope questions); any axis-10 rebuild (content exists — validation pending the supervisor's H-table ruling).
 - Next: (a) supervisor verdict on the H5/H6 tables + scope questions, (b) axis-10 validation ruling (existing content vs rebuild), (c) then the hardening roadmap per the charter.
+
+---
+Task ID: 70
+Agent: Super Z (main agent)
+Task: Supervisor comprehensive build order 2026-10-17 (final, non-negotiable) — Phase-Zero state proof, then Axis-10 five-station closure, station M1 RED ONLY (explicit stop line: no M2 before supervisor reviews the raw output).
+
+Work Log:
+- PHASE ZERO (raw outputs pasted to supervisor): local HEAD was f2d41e8 (container snapshot on IV13 state; build-v430 absent locally — environment gutted back past the axes campaign). Token-security protocol held: inline-only credential-helper fetch (FETCH_HEAD carries the clean URL; grep over .git/ for the PAT = zero hits), nothing written to disk/config/commits.
+- Gap settlement per the ratified protocol: fetch origin -> all refs (main + 4 archive branches + 11 tags up to v4.4.0); f2d41e8 proven junk-only (33 files, all on origin except .env which is deliberately untracked; .env restored untracked from local/backup-f2d41e8 branch); reset --hard origin/main 7f7e713. Post-reset proof: HEAD == origin/main == 7f7e713, status clean, build-v430 py count 61, doctor fresh PASS 17/17 rc=0 (via `python3 -m sentinel.cli doctor` — the v430 CLI emits JSON without a --json flag; the flag form in the order maps to this invocation, matching every committed gate log).
+- RULE-1 CONDITION DISCHARGED: the supervisor's H10 table (H10_01..H10_20, verbatim, every case with rationale) arrived inside the build order — this is the H-table the standing note at 5975d38/7ea2de4 was waiting for. No derivation performed, none needed.
+- M1 SUITE WRITTEN: build-v430/tests/test_axis10_infra.py — 20 cases, the supervisor's table transcribed verbatim in the docstring; PROVENANCE declared up front (supervisor table, not derived; target = the recovered perf/ content wired through a sentinel.infra facade; SHA256 digest chain per the literal H10_07 wording — not the recovered blake2b-16); standalone suite, NOT @case-registered, the 227x19=4313 core untouched by construction; digest discipline = logical outcome stream only (Axis-11). Every case imports sentinel.infra INSIDE its body so RED is per-case, not a collection error.
+- RED EXECUTED (fresh, on the current tree): pytest `python3 -m pytest tests/test_axis10_infra.py --tb=short -q` -> 20 failed / 0 passed in 0.53s, SINGLE failure pattern verified by count: exactly 20 occurrences of `ModuleNotFoundError: No module named 'sentinel.infra'`, zero other error types. Script-mode evidence: 0/20, digest 30bf6ce5c59aaf11... (full: results/axis10/axis10_RED.json). No green = the suite is not broken; pure RED per the order.
+- DEPOSITS: build-v430/results/axis10/{axis10_RED.json, axis10_RED_pytest.txt, SHA256SUMS} — none gitignored (check-ignore clean), no add -f needed this round.
+- STOP LINES HONORED: M2 not started; no sentinel/infra.py written; no perf/ changes; no core files touched; the 4313 suite not re-run this round (its last fresh proof = the unification gate 7ea2de4; M5 will re-run it on the final axis-10 tree per the order).
+
+Stage Summary:
+- Phase Zero closed with proof: local == origin/main == 7f7e713, doctor 17/17, tree clean.
+- Axis-10 M1 RED closed: 0/20 pure, single failure mode (sentinel.infra absent), evidence deposited + hashed.
+- Awaiting supervisor review of the raw RED output before M2 GREEN (the smallest modification wiring the recovered perf/ content through sentinel.infra, with honest notes on any real defects found).
