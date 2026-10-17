@@ -1,0 +1,212 @@
+=== SENTINEL UNIFICATION GATE deposit ===
+date(utc): 2026-10-17T00:42:05Z | tree HEAD at gate: 9540f7dc6d8f506249f73b436eca2d50b4a6523d
+context: pod-B x origin/main(5975d38) unification merge — full core gate FRESH on the unified tree
+provenance: suite cache wiped pre-round; 6 foreground ranges (681+454+908x3+454); doctor fresh;
+bench x3 fresh vs the accepted record; axis-10 recovered perf suite fresh (40/40 — NOT a five-station closure).
+
+----- GATE ITEM 1: suite (fresh, cache wiped; per-chunk from this round's result JSONs) -----
+chunk c00.chunk: PASS 227/227
+chunk c01.chunk: PASS 227/227
+chunk c02.chunk: PASS 227/227
+chunk c03.chunk: PASS 227/227
+chunk c04.chunk: PASS 227/227
+chunk c05.chunk: PASS 227/227
+chunk c06.chunk: PASS 227/227
+chunk c07.chunk: PASS 227/227
+chunk c08.chunk: PASS 227/227
+chunk c09.chunk: PASS 227/227
+chunk c10.chunk: PASS 227/227
+chunk c11.chunk: PASS 227/227
+chunk c12.chunk: PASS 227/227
+chunk c13.chunk: PASS 227/227
+chunk c14.chunk: PASS 227/227
+chunk c15.chunk: PASS 227/227
+chunk c16.chunk: PASS 227/227
+chunk c17.chunk: PASS 227/227
+chunk c18.chunk: PASS 227/227
+range rollup: 681/681 + 454/454 + 908/908 + 908/908 + 908/908 + 454/454
+live total from chunk JSONs: 4313/4313
+machine aggregate over the 19 per-chunk result JSONs:
+chunks: 19 | per-chunk: 227/227 failed=0 (all)
+SUITE TOTAL: 4313/4313
+AGG_RC=0
+
+----- GATE ITEM 2: doctor (fresh) -----
+{
+ "checks": [
+  {
+   "auto_fix": "",
+   "check": "runtime",
+   "detail": "Python 3.12.15 on Linux",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "dns_resolution",
+   "detail": "resolved scanme.nmap.org",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "network_egress",
+   "detail": "TCP connect scanme.nmap.org:80 OK",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "tls_stack",
+   "detail": "OpenSSL 3.5.9 29 Sep 2026",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "scope_policy",
+   "detail": "private ranges blocked, public allowed",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "detector_registry",
+   "detail": "24 active detectors registered",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "strategy_store",
+   "detail": "verified-outcome Wilson ordering enabled",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "persistence_layer",
+   "detail": "SQLite store OK (schema + write + query round-trip) at 3.53.1",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "repair_registry",
+   "detail": "3 repair rules loaded",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "attack_path_layer",
+   "detail": "L2 active: 2 fixture paths (1 verified / 1 inferred) \u2014 weakest-link classification live",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "impact_layer",
+   "detail": "L3 active: 2 planned / 0 refused / 1 not-safe-to-probe; empty probe journal -> 0 verified (honest register live)",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "browser_engine",
+   "detail": "Playwright Chromium launch OK \u2014 DOM engine active",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "auth_engine",
+   "detail": "login flow engine OK (form body serialized: True; watchdog proxy + budget-capped re-auth available)",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "oast_providers",
+   "detail": "local listener + public webhook channel both OK",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "intelligence_engines",
+   "detail": "coverage / param-intel / secrets (masked) / evidence-impact / appmap / authz OK",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "credential_vault",
+   "detail": "ChaCha20+HMAC encrypt-then-MAC OK; audit + purge leave no plaintext",
+   "status": "PASS"
+  },
+  {
+   "auto_fix": "",
+   "check": "workflow_engine",
+   "detail": "flow parser (select/options + privilege labels) + cluster rules + guided-walk synthesis OK",
+   "status": "PASS"
+  }
+ ],
+ "overall": "PASS",
+ "passed": 17,
+ "total": 17
+}
+DOCTOR_RC=0
+
+----- GATE ITEM 3: bench x3 (fresh) + structural compare vs the accepted record -----
+----- the three run summaries -----
+run 1: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={"TP":38,"FP":0,"FN":0,"TN":37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 2: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={"TP":38,"FP":0,"FN":0,"TN":37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 3: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion={"TP":38,"FP":0,"FN":0,"TN":37} | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+
+----- structural compare (reference: the accepted record verify_pt1; informational requests vary by design) -----
+/home/z/my-project/build-v430/results/verify_pt1/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=4784 findings=199 gt=0373baf92a92dce2
+/tmp/bench_unify_1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/bench_unify_1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7161) -> IDENTICAL
+/tmp/bench_unify_2.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/bench_unify_2.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7161) -> IDENTICAL
+/tmp/bench_unify_3.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/bench_unify_3.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7161) -> IDENTICAL
+VERDICT: ALL IDENTICAL
+GATE_COMPARE_RC=0
+
+----- GATE ITEM 4: axis-10 recovered perf suite (fresh; recovered content, NOT five-station-closed) -----
+========================================================================
+اختبارات المحور-10 — البنية التحتية للأداء (actors / aio / columnar)
+========================================================================
+  PASS  mailbox_fifo  (0.00s)
+  PASS  mailbox_backpressure  (0.00s)
+  PASS  mailbox_close_semantics  (0.00s)
+  PASS  mailbox_capacity_validation  (0.00s)
+  PASS  ask_roundtrip  (0.00s)
+  PASS  ask_timeout_is_real  (0.05s)
+  PASS  tell_fifo_chain  (0.00s)
+  PASS  ask_surfaces_actor_exception  (0.00s)
+  PASS  ordered_stop  (0.01s)
+  PASS  dead_actors_refuse  (0.00s)
+  PASS  supervision_resume_keeps_state  (0.00s)
+  PASS  supervision_restart_zeroes_state_keeps_mailbox  (0.00s)
+  PASS  restart_limit_then_escalate  (0.01s)
+  PASS  failure_window_is_real  (0.01s)
+  PASS  pre_start_failure_escalates  (0.00s)
+  PASS  stats_queued_is_observable  (0.00s)
+  PASS  pool_routes_and_processes_exactly_once  (0.01s)
+  PASS  pool_routing_pure_and_balanced  (0.00s)
+  PASS  pool_resize_stability  (0.01s)
+  PASS  pool_shrink_stops_workers_orderly  (0.01s)
+  PASS  writer_exactly_once_and_batch_cap  (0.02s)
+  PASS  writer_interval_flush  (0.06s)
+  PASS  writer_digest_chain_recomputable  (0.02s)
+  PASS  writer_backpressure_blocks  (0.01s)
+  PASS  writer_close_flushes_and_rejects  (0.00s)
+  PASS  writer_survives_sink_failure  (0.01s)
+  PASS  token_bucket_deterministic  (0.00s)
+  PASS  writer_admission_rejects  (0.00s)
+  PASS  pipeline_transforms_in_order  (0.00s)
+  PASS  pipeline_backpressure  (0.00s)
+  PASS  pipeline_close_drains_all  (0.00s)
+  PASS  pipeline_real_concurrency  (0.32s)
+  PASS  pipeline_drop_and_errors  (0.00s)
+  PASS  encoding_roundtrips  (0.00s)
+  PASS  block_encoding_choice_and_size  (0.00s)
+  PASS  scan_pruning_effective_and_correct  (0.00s)
+  PASS  scan_impossible_prunes_all  (0.00s)
+  PASS  scan_ne_refinement_sound  (0.00s)
+  PASS  scan_fuzz_soundness_45_trials  (0.09s)
+  PASS  table_digest_determinism  (0.00s)
+------------------------------------------------------------------------
+النتيجة: 40/40 نجح، 0 فشل
+========================================================================
+PERF_SUITE_RC=0 (40/40 expected; last line above is authoritative)
+
+VERDICT: ALL GATE ITEMS GREEN
