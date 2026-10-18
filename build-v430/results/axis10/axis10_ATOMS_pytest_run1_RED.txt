@@ -1,0 +1,10 @@
+...F.                                                                    [100%]
+=================================== FAILURES ===================================
+_____________________________ test_3d_adversarial ______________________________
+tests/test_axis10_atoms.py:1766: in test_3d_adversarial
+    assert ok, f"3d فشل في {len(failed)} هجوم: {failed!r}"
+E   AssertionError: 3d فشل في 4 هجوم: [('T3', 'EXCEPTION dt=3.046s TimeoutError()'), ('O6', 'EXCEPTION dt=0.000s AttributeError("module \'sentinel.infra\' has no attribute \'TokenBucket\'")'), ('O7', 'EXCEPTION dt=20.001s TimeoutError()'), ('صفر هجوم فلت أو انهيار (80/80 سليمة)', "failed=['T3', 'O6', 'O7']")]
+E   assert False
+=========================== short test summary info ============================
+FAILED tests/test_axis10_atoms.py::test_3d_adversarial - AssertionError: 3d ف...
+1 failed, 4 passed in 192.77s (0:03:12)

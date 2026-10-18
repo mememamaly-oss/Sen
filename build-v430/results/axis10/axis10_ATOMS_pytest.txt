@@ -1,0 +1,10 @@
+...F.                                                                    [100%]
+=================================== FAILURES ===================================
+_____________________________ test_3d_adversarial ______________________________
+tests/test_axis10_atoms.py:1794: in test_3d_adversarial
+    assert ok, f"3d فشل في {len(failed)} هجوم: {failed!r}"
+E   AssertionError: 3d فشل في 2 هجوم: [('T3', 'verdict=CHAIN-POISONED-DEFECT dt=2.014s fate2=cancelled-cascade delivered=-1 — إن لم يتعافَ: إلغاء إيداع واحد يسمّم سلسل'), ('صفر هجوم فلت أو انهيار (80/80 سليمة)', "failed=['T3']")]
+E   assert False
+=========================== short test summary info ============================
+FAILED tests/test_axis10_atoms.py::test_3d_adversarial - AssertionError: 3d ف...
+1 failed, 4 passed in 168.72s (0:02:48)
