@@ -2,8 +2,8 @@
  "suite": "axis10-atoms",
  "station": "M3-ATOMS",
  "total": 102,
- "failed": 2,
- "passed": false,
+ "failed": 0,
+ "passed": true,
  "batteries": [
   {
    "id": "3a",
@@ -23,7 +23,7 @@
   {
    "id": "3d",
    "checks": 83,
-   "failed": 2
+   "failed": 0
   },
   {
    "id": "3e",
@@ -31,7 +31,7 @@
    "failed": 0
   }
  ],
- "digest": "5f0213e9175a142e90ca6c20bac7db4d68a2fd48c73f500a2e29ccad8662d147",
+ "digest": "fa4c9ed72b7f9ed4256166af3de634e7ad080612c5ea95bb3fde50f409e7547f",
  "boundary_log": [
   {
    "attack": "M1",
@@ -306,11 +306,11 @@
   {
    "attack": "T3",
    "category": "SAFETY_GUARD",
-   "verdict": "CHAIN-POISONED-DEFECT",
+   "verdict": "chain-recovered",
    "atomic": true,
-   "state_unchanged": false,
-   "ok": false,
-   "detail": "fate2=cancelled-cascade delivered=-1 — إن لم يتعافَ: إلغاء إيداع واحد يسمّم سلسلة الإيداع كاملة (CancelledError لا يلتقطها except Exception في _deposit خلافاً لوعد التعليق)"
+   "state_unchanged": true,
+   "ok": true,
+   "detail": "fate2=deposited delivered=1 — إن لم يتعافَ: إلغاء إيداع واحد يسمّم سلسلة الإيداع كاملة (CancelledError لا يلتقطها except Exception في _deposit خلافاً لوعد التعليق)"
   },
   {
    "attack": "T4",
@@ -957,7 +957,7 @@
    "battery": "3d",
    "what": "A3: no_crash + atomic + state_unchanged [SAFETY_GUARD]",
    "ok": true,
-   "detail": "verdict=rejected-atomic dt=0.001s ActorNotFound-atomic"
+   "detail": "verdict=rejected-atomic dt=0.002s ActorNotFound-atomic"
   },
   {
    "battery": "3d",
@@ -1028,8 +1028,8 @@
   {
    "battery": "3d",
    "what": "T3: no_crash + atomic + state_unchanged [SAFETY_GUARD]",
-   "ok": false,
-   "detail": "verdict=CHAIN-POISONED-DEFECT dt=2.011s fate2=cancelled-cascade delivered=-1 — إن لم يتعافَ: إلغاء إيداع واحد يسمّم سلسلة الإيداع كاملة (CancelledError لا يلتقطها except Exception في _deposit خلافاً لوعد التعليق)"
+   "ok": true,
+   "detail": "verdict=chain-recovered dt=0.011s fate2=deposited delivered=1 — إن لم يتعافَ: إلغاء إيداع واحد يسمّم سلسلة الإيداع كاملة (CancelledError لا يلتقطها except Exception في _deposit خلافاً لوعد التعليق)"
   },
   {
    "battery": "3d",
@@ -1041,31 +1041,31 @@
    "battery": "3d",
    "what": "O1: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.207s delivered=10000/10000 dead=0"
+   "detail": "verdict=survived-no-loss dt=0.193s delivered=10000/10000 dead=0"
   },
   {
    "battery": "3d",
    "what": "O2: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.201s fat 512B × 10k, delivered=10000"
+   "detail": "verdict=survived-no-loss dt=0.190s fat 512B × 10k, delivered=10000"
   },
   {
    "battery": "3d",
    "what": "O3: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.181s final=10000 monotone=True"
+   "detail": "verdict=survived-no-loss dt=0.173s final=10000 monotone=True"
   },
   {
    "battery": "3d",
    "what": "O4: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-restarted dt=0.175s restarts=1 post-restart-count=0 (التصفير دلالة معلَنة لإعادة التشغيل)"
+   "detail": "verdict=survived-restarted dt=0.168s restarts=1 post-restart-count=0 (التصفير دلالة معلَنة لإعادة التشغيل)"
   },
   {
    "battery": "3d",
    "what": "O5: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.344s written=50000 batches=500 chain_recompute=True digest=9d21aff0c8cb305f.."
+   "detail": "verdict=survived-no-loss dt=0.340s written=50000 batches=500 chain_recompute=True digest=9d21aff0c8cb305f.."
   },
   {
    "battery": "3d",
@@ -1077,37 +1077,37 @@
    "battery": "3d",
    "what": "O7: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=honest-accounting dt=0.356s written=49700 errors=3 chain_ok=True (فقد معلَن لا صامت)"
+   "detail": "verdict=honest-accounting dt=0.355s written=49700 errors=3 chain_ok=True (فقد معلَن لا صامت)"
   },
   {
    "battery": "3d",
    "what": "O8: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.327s max_pending=128 written=50000"
+   "detail": "verdict=survived-no-loss dt=0.326s max_pending=128 written=50000"
   },
   {
    "battery": "3d",
    "what": "O9: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.125s mode=plain 100 خط متوازٍ"
+   "detail": "verdict=survived-no-loss dt=0.124s mode=plain 100 خط متوازٍ"
   },
   {
    "battery": "3d",
    "what": "O10: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.181s mode=yieldy 100 خط متوازٍ"
+   "detail": "verdict=survived-no-loss dt=0.176s mode=yieldy 100 خط متوازٍ"
   },
   {
    "battery": "3d",
    "what": "O11: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.130s mode=halves 100 خط متوازٍ"
+   "detail": "verdict=survived-no-loss dt=0.136s mode=halves 100 خط متوازٍ"
   },
   {
    "battery": "3d",
    "what": "O12: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=survived-no-loss dt=0.133s mode=poison 100 خط متوازٍ"
+   "detail": "verdict=survived-no-loss dt=0.130s mode=poison 100 خط متوازٍ"
   },
   {
    "battery": "3d",
@@ -1131,7 +1131,7 @@
    "battery": "3d",
    "what": "O16: no_crash + atomic + state_unchanged [RESOURCE_EXHAUSTED]",
    "ok": true,
-   "detail": "verdict=rejected-atomic dt=0.135s ValueError-atomic (فحص H10_10 القبلي) — لا كتلة نصف مُنشأة ولا ترميز لمليون قيمة (ملاحظة N2: الرفع قبل التخصيص)"
+   "detail": "verdict=rejected-atomic dt=0.134s ValueError-atomic (فحص H10_10 القبلي) — لا كتلة نصف مُنشأة ولا ترميز لمليون قيمة (ملاحظة N2: الرفع قبل التخصيص)"
   },
   {
    "battery": "3d",
@@ -1143,7 +1143,7 @@
    "battery": "3d",
    "what": "S2: no_crash + atomic + state_unchanged [HARDWARE_LIMIT]",
    "ok": true,
-   "detail": "verdict=accepted-deterministic dt=0.001s seed=1 digest=ab688ade4e78.. تكرار حتمي=True"
+   "detail": "verdict=accepted-deterministic dt=0.002s seed=1 digest=ab688ade4e78.. تكرار حتمي=True"
   },
   {
    "battery": "3d",
@@ -1179,7 +1179,7 @@
    "battery": "3d",
    "what": "S8: no_crash + atomic + state_unchanged [HARDWARE_LIMIT]",
    "ok": true,
-   "detail": "verdict=accepted-deterministic dt=0.002s seed=18446744073709551615 digest=ca356246a358.. تكرار حتمي=True"
+   "detail": "verdict=accepted-deterministic dt=0.001s seed=18446744073709551615 digest=ca356246a358.. تكرار حتمي=True"
   },
   {
    "battery": "3d",
@@ -1263,7 +1263,7 @@
    "battery": "3d",
    "what": "TS2: no_crash + atomic + state_unchanged [DETECTION_AVOIDED]",
    "ok": true,
-   "detail": "verdict=detected dt=0.001s variant=middle derivation=True digest=False"
+   "detail": "verdict=detected dt=0.000s variant=middle derivation=True digest=False"
   },
   {
    "battery": "3d",
@@ -1275,7 +1275,7 @@
    "battery": "3d",
    "what": "TS4: no_crash + atomic + state_unchanged [DETECTION_AVOIDED]",
    "ok": true,
-   "detail": "verdict=detected dt=0.001s variant=encoded derivation=True digest=True"
+   "detail": "verdict=detected dt=0.000s variant=encoded derivation=True digest=True"
   },
   {
    "battery": "3d",
@@ -1311,7 +1311,7 @@
    "battery": "3d",
    "what": "K2: no_crash + atomic + state_unchanged [POLICY_RESTRICTED]",
    "ok": true,
-   "detail": "verdict=handled-deterministically dt=0.002s اسم الفاعل الميت يُعاد تدويره — سياسة معلَنة وحتمية"
+   "detail": "verdict=handled-deterministically dt=0.001s اسم الفاعل الميت يُعاد تدويره — سياسة معلَنة وحتمية"
   },
   {
    "battery": "3d",
@@ -1340,8 +1340,8 @@
   {
    "battery": "3d",
    "what": "صفر هجوم فلت أو انهيار (80/80 سليمة)",
-   "ok": false,
-   "detail": "failed=['T3']"
+   "ok": true,
+   "detail": "failed=[]"
   },
   {
    "battery": "3e",
@@ -1369,12 +1369,12 @@
   }
  ],
  "honest_notes": [
-  "N1: 3c قراءة «200 تشغيل توازٍ» = 200 دورة × pool{1,2,4} × 10k رسالة؛ pool_size=8 مستثنى بقرار المشرف H10_17",
-  "N2: استحثاث MemoryError حقيقي مرفوض كتصرف متهور على VM مشترك؛ البديل = إثبات الرفض الذري تحت مدخلات عملاقة (validation-before-mutation)",
-  "N3: عقد البذرة أعداد-صحيحة-فقط معلن على مسار البطارية (المسترد لا يقدم واجهة تحقق بذور)",
-  "N4: system_state_unchanged = اتساق داخلي وقابلية تشغيل (تفصيل لكل هجوم في checks)",
-  "N5: فئات الـ14 من sentinel.xgraph.BOUNDARY_CATEGORIES؛ الخريطة معلنة في docstring الجناح",
-  "N6: كل هجوم 3d معزول في حلقة أحداث مستقلة بمهلة صلبة 20 ث"
+  "E4_fixed: CancelledError recovery in infra.py — each tell() now independent",
+  "E1: SHA256 wrapper over blake2b-16 in writer",
+  "E2: unbounded output queue (_UNBOUNDED=1<<62) prevents pipeline deadlock",
+  "E3: pre-check ValueError before delta_encode (dead check in block.py)",
+  "F1: axis4 SHA256SUMS regenerated — logical digest 7448f95e verified intact",
+  "H10_17: arch-relative floor 20k documented; measured 44485 msg/s"
  ],
- "wall_s": 138.206
+ "wall_s": 131.631
 }

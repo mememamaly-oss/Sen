@@ -47,7 +47,8 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from perf.actors import (  # noqa: E402
-    Actor, ActorRef, ActorDied, ActorNotFound, ActorSystem, Directive,
+    Actor, ActorRef, ActorDied, ActorNotFound, ActorSystem as _ActorSystem,
+    Directive,
     FailureContext, Mailbox, MailboxClosed, OneForOne, WorkerPool,
 )
 from perf.aio import DROP  # noqa: E402
@@ -154,6 +155,23 @@ class ColumnBlock(_ColumnBlock):
                 for v in values):
             raise ValueError("ترميز delta يتطلب أعدادًا صحيحة فقط")
         super().__init__(name, values, encoding)
+
+
+# ============================================================ E4 (M3/T3)
+class ActorSystem(_ActorSystem):
+    """نظام perf المسترد بتعافي سلسلة الإيداع (عقد E4 — M3/T3).
+
+    العيب المسترد: إلغاء مهمة إيداع واحدة يسمّم السلسلة كلها —
+    CancelledError (وارث BaseException منذ 3.8) لا يلتقطها except
+    Exception عند await prev خلافاً لوعد تعليق _deposit نفسه.
+    التعافي: فحص حالة السلف عند إنشاء الإيداع — المُلغى يُستبعد
+    وتبدأ سلسلة مستقلة؛ المسار غير العدائي بلا أي تغيير."""
+
+    def _deposit(self, cell: Any, env: Any) -> asyncio.Task:
+        prev = cell.put_chain
+        if prev is not None and (prev.cancelled() or prev.cancelling()):
+            cell.put_chain = None  # سلسلة مسمومة: الإيداع الحالي مستقل
+        return super()._deposit(cell, env)
 
 
 # ============================================================ H10_17/H10_18
