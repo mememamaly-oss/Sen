@@ -5028,3 +5028,41 @@ Stage Summary:
 - Axis-10 M2 GREEN closed: 20/20 first-run, 4 honest notes, arch-relative floor applied by declared supervisor decision, digest 484b081615c1cf48.
 - NOT PROVEN: five-station closure (M3 ATOMS / M4 R3 / M5 GATE all pending — stop line honored); cross-hardware performance (single 2-core VM, one measurement session); core-suite interaction (the 4313 re-run belongs to M5 per the order).
 - STOPPED at the order's stop line: M3 ATOMS not started — awaiting supervisor confirmation of M2.
+
+---
+Task ID: 72
+Agent: Super Z (main agent)
+Task: Session resumed post-cut (user: "أكمل") — verify Axis-10 M2 GREEN integrity, determine push status, honor stop line.
+
+Work Log:
+- STATE AUDIT (G1, fresh): HEAD=5e39740 (local auto-snapshot of the two M2 helper scripts, on top of the M2 GREEN commit; zero build-v430 content changes — diff vs 5773ad9 = scripts/ only). M2 GREEN commit = 5773ad9 "axis10: M2 GREEN 20/20 — 4 honest notes; arch-relative perf floor; digest 484b081615c1cf48" (00:51:19Z). git status clean. Reflog confirms: reset→716f647 (recovery) → commit 5773ad9 → auto-snapshot 5e39740. No further commits.
+- EVIDENCE INTEGRITY: build-v430/results/axis10/SHA256SUMS — all 5 files verify OK (RED x2, GREEN x3). infra.py = build-v430/sentinel/infra.py (247 lines, in-commit). H10_17 amendment present in the committed test file (arch-relative floor 20k, 60k msgs, 4 workers).
+- FRESH SUITE RE-RUN: python3 -m pytest tests/test_axis10_infra.py --tb=short -q -> 20 passed in 4.15s. Reproducibility of M2 GREEN confirmed on the current tree.
+- PUSH STATUS DETERMINED: NEVER EXECUTED (by this clone). Zero remote-tracking refs (git for-each-ref refs/remotes/ empty); ls-remote failed (no credentials in this session). Session was cut between the 00:51 commit and the G5 push. Per the standing token-security protocol the prior PAT was exposed in-chat and is treated as CONSUMED/REVOKED — not used, not usable.
+- G5 REMAINS OPEN: origin/main last proven state = 716f647e (M1 RED). Local main is 2 commits ahead (5773ad9 + 5e39740). Push + ls-remote match BLOCKED pending a fresh PAT from the supervisor.
+
+Stage Summary:
+- Axis-10 M2 GREEN re-verified fresh: 20/20 in 4.15s, evidence hashes intact, tree clean.
+- Single open item: G5 push of 5773ad9 (+ snapshot 5e39740) — needs a NEW PAT; the exposed one must be revoked on GitHub.
+- M3 ATOMS NOT started — stop line honored; awaiting supervisor confirmation of M2 + fresh token.
+
+[Re-appended verbatim after gutting #7 destroyed commit 45800e0 which carried this entry; the original in-chat report to the supervisor was delivered before the gutting. See task 73.]
+
+---
+Task ID: 73
+Agent: Super Z (main agent)
+Task: Supervisor order 2026-10-18 (push + M3→M5): step 0.1 raw check detected gutting #7; pre-approved recovery protocol executed; G5 push closed.
+
+Work Log:
+- STEP 0.1 RAW CHECK (fresh supervisor PAT, inline-only, zero disk writes): git log -3 -> f2d41e8 IV13-era = GUTTING #7 struck between sessions (local 5773ad9/5e39740/45800e0 all gone); git status -> untracked .next/, db/, dev.log, next-env.d.ts (scaffold junk, not UUID content); ls-remote -> origin/main = 5773ad96c0a3fbfcd33b943773e9e8d75629351d.
+- M2 ALREADY ON GITHUB, GENUINE: 5773ad96 short-hash matches the M2 GREEN commit; after fetch, full verification = commit message ("axis10: M2 GREEN 20/20 — 4 honest notes; arch-relative perf floor; digest 484b081615c1cf48"), author-date (Z User, 2026-10-18 00:51:19 +0000 — byte-identical to the task-72-era reflog), 7-file diffstat (SHA256SUMS +7, GREEN.json +30, GREEN_pytest.txt +2, GREEN_scriptmode.json +131, infra.py +247, test_axis10_infra.py ±30, worklog.md +19) — all exact. Push executed by an EXTERNAL ACTOR (this clone had zero remote-tracking refs and no push in reflog; most plausibly the supervisor rescuing M2 ahead of the gutting).
+- GUTTING #7 EXTENT: worklog.md on disk = 185,029 bytes (IV13-era; tasks 70-72 entries gone); build-v430/ absent from disk; scripts/axis10_patch_h10_17.py + scripts/axis10_green_evidence.py absent (they lived only in unpushed 5e39740).
+- RECOVERY (task-71 pre-approved protocol, verbatim path): fetch <token-url> main -> FETCH_HEAD=5773ad96; git reset --hard FETCH_HEAD -> 1226 files restored; HEAD=5773ad9; status clean (the restored .gitignore covers the scaffold junk); worklog.md=598,271 bytes (task 71 present); sentinel/infra.py=247 lines; tests/test_axis10_infra.py=862 lines; all 5 axis10 evidence files present.
+- G1 FRESH ON RECOVERED TREE: sha256sum -c SHA256SUMS -> 5/5 OK; doctor -> overall=PASS, 17/17 checks PASS, rc=0; fresh suite -> 20 passed in 4.09s. Zero-loss recovery CONFIRMED for all milestone content.
+- HONEST LOSS INVENTORY (unpushed-only): (1) 5e39740 (UUID auto-snapshot) — contained ONLY the two evidence-helper scripts; every artifact they generated is committed inside 5773ad9 and hash-verified, so NO proof lost; sources reconstructible on demand. (2) 45800e0 (task-72 state commit) — worklog text re-appended verbatim above. Nothing else.
+- G5 CLOSED: state/recovery commit pushed on top of 5773ad9; local HEAD = origin/main, ls-remote MATCH verified in the run log; token consumed per protocol (declaration issued in-chat).
+
+Stage Summary:
+- Gutting #7 survived via the pre-approved protocol: M1 RED + M2 GREEN + all evidence + task-71 worklog restored from origin; fresh G1 green across the board (hashes 5/5, doctor 17/17, suite 20/20 in 4.09s).
+- M2's presence on origin verified genuine at byte level before any reset (no blind trust of the remote).
+- Proceeding to M3 ATOMS per the same supervisor order; station stop line before M4 remains in force.
