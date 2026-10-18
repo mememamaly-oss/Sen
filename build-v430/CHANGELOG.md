@@ -1,3 +1,65 @@
+# SENTINEL Axis-10 — Actors / AIO / Columnar (recovered perf/, bridge-wired)
+
+Station ledger:
+- M1 (RED): tests/test_axis10_infra.py written FIRST — 20 cases
+  H10_01..H10_20, the supervisor's H-table registered verbatim (the
+  Rule-1 standing condition discharged). RED executed fresh: 0/20,
+  single failure pattern = ModuleNotFoundError('sentinel.infra') x20
+  (count-verified, zero other error types); script-mode digest
+  30bf6ce5c59aaf11; deposits results/axis10/{axis10_RED.json,
+  axis10_RED_pytest.txt, SHA256SUMS}. Contract notes: SHA-256 digest
+  chain per the literal H10_07 wording (the recovered perf/ chain is
+  blake2b-16 — difference declared, not hidden); suite standalone, NOT
+  @case-registered (the 4313 core untouched by construction).
+- M2 (GREEN): sentinel/infra.py — the bridge re-exporting the recovered
+  perf/ content (untouchable) with the E1/E2/E3/E5 defects remediated
+  at the bridge layer ONLY: E1 writer digest chain blake2b-16 ->
+  SHA-256; E2 bounded output queue -> unbounded Mailbox; E3 dead
+  ValueError check -> live pre-check with the same condition and
+  message; E5 the false "consistently" comment removed. GREEN 20/20,
+  digest 484b081615c1cf48; arch-relative 20k perf floor declared per
+  the supervisor's explicit amendment (measured pool_4 = 44485 msg/s,
+  60000 messages, 0 lost).
+- M3 (atoms): the 5-battery suite (3a 1000 random messages / 3b 500
+  restart-escalate cycles / 3c 200 parallel-consistency rounds x pool
+  {1,2,4} x 10k seeded messages / 3d 80 adversarial attacks in 5
+  categories / 3e 100 pruning-equivalence cycles). First run RED on
+  ONE genuine finding: T3 deposit-chain poisoning — cancelling ONE
+  tell() deposit poisons the actor's entire deposit chain
+  (CancelledError inherits BaseException since 3.8; `except Exception`
+  misses it, contradicting the code's own comment). Per the
+  supervisor's fix order: live RED proof (adapted script, 4 declared
+  adaptations), then the E4 fix in the bridge ONLY — exact 20-line
+  diff: ActorSystem._deposit guards a cancelled/cancelling predecessor
+  by resetting put_chain; perf/ untouched. GREEN: T3 chain-recovered,
+  atomic=true, state_unchanged=true. Closed 102/102 checks (3a:6,
+  3b:5, 3c:4, 3d:83, 3e:4), digest fa4c9ed72b7f9ed4, the six
+  supervisor-mandated honest notes embedded. F1 (axis4 GREEN/ATOMS
+  byte-anchor drift) resolved the same round: logical digest verified
+  intact, SUMS regenerated with the supervisor's f1_note verbatim.
+- M4 (determinism): R3 proven twice, both forms — script-mode x3
+  (GREEN+RUN2+RUN3 identical logical digest 484b081615c1cf48, result
+  stream equal element-by-element) AND pytest x3 (25/25 x3; hashes
+  differ on wall-times as expected, outputs byte-identical after
+  stripping the timing line).
+- M5 (gate, CLOSURE): full core gate fresh on the final axis-10 tree
+  (incl. the E4 bridge fix) — suite 4313/4313 (19/19 chunks 227/227,
+  AGG_RC=0, cache wiped pre-round), doctor 17/17 PASS rc=0, bench x3
+  run-3c0652b6be 38/0/0/37 P=R=F1=1.0 @7161/199 gt 0373baf92a92dce2
+  structurally identical vs the accepted record verify_pt1
+  (COMPARE_RC=0) — zero core drift; axis-10 suite+atoms fresh on the
+  final tree: pytest 25/25 + script-mode 102/102 digest
+  fa4c9ed7... DIGEST_MATCH=True vs the closed M3 record; standing
+  scope-edge battery 6/6 digest c2916ba3b060f40b (byte-identical
+  rewrite) + --red-proof all saboteurs caught. Deposits committed:
+  results/gate_axis10_484b0816.log + results/bench_axis10_484b0816.log
+  + SHA256SUMS (16 evidence files). AXIS 10 CLOSED end-to-end.
+  Station chain: 716f647 -> 5773ad9 -> cf69ade -> 0e55f59 ->
+  851c351 + ed619e4 -> M5. Standing boundaries (declared, non-defect):
+  at-most-once deposit semantics; the E4 recovery is bridge-only —
+  direct importers of perf.actors still see the original behavior;
+  T3-external (Docker) remains disabled.
+
 # SENTINEL Axis-4 — Channel Synthesis (csynth; contract DERIVED, see below)
 
 Station ledger:
