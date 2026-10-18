@@ -5087,3 +5087,24 @@ Stage Summary:
 - 79/80 adversarial attacks passed; the single failure (T3) is a genuine red-team FINDING: deposit-chain poisoning under task cancellation — latent defect in the recovered content, declared not hidden.
 - PROPOSED MINIMAL FIX (awaiting permission): in the M2 bridge (sentinel/infra.py — NOT perf/), guard the deposit chain by checking prev.cancelled() before awaiting (state-check, no behavior change for the non-adversarial path), OR fix perf/actors/system.py line ~91 `except Exception` → explicit cancelled-predecessor state check. RED/GREEN differential proof ready: RED = this run's T3, GREEN = re-run after authorization.
 - M3 NOT closed; M4/M5 NOT started. Awaiting supervisor decision on T3.
+
+---
+Task ID: 75
+Agent: Super Z (main agent)
+Task: أمر المشرف 2026-10-18 «المراجعة الشاملة والإصلاح الكامل للأداة» — الخطوة 0: جرد الحقيقة الكاملة + جدول العيوب الشامل. لا إصلاح قبل موافقة المشرف على الجدول.
+
+Work Log:
+- قراءة worklog.md كاملاً (5089 سطراً، المهام 1-74) + جرد الأدلة: 116 ملف JSON في results/ مُسحت بالكامل، honest_notes = 10 فقط (4 في axis10_GREEN تغطي E1/E2/E3/E5 حرفياً، 6 في axis10_ATOMS = قراءات منهجية معلنة). SHA256SUMS: axis10 8/8 OK، axis2/axis3/external/phase0/scope_edge/unification كلها OK.
+- تحقق git الخام: HEAD=ac406ae (لقطة UUID بريئة: أدوات تأليف ATOMS في scripts/ — atoms_part_a/b/c.py + atoms_probe.py، 2257 سطراً، إضافات فقط، غير مدفوعة)؛ origin/main=cf69ade (التزام حالة M3 ATOMS مدفوع فعلاً)؛ sentinel/ بلا تغيير حرف منذ M2 (diff مقابل 5773ad9 فارغ)؛ الشجرة نظيفة قبل كل التشغيلات وبعدها.
+- إثباتات العيوب الخمسة (grep خام): E1 = perf/aio/writer.py:110 (blake2b digest_size=16) مُعالج في infra.py:81-118 (سلسلة SHA256، EMPTY_DIGEST="0"×64)؛ E2 = perf/aio/pipeline.py:27 (طابور المخرج _qs[-1] محدود) مُعالج في infra.py:121-139 (_UNBOUNDED=1<<62) — ملاحظة: grep الحرفي "unbounded|maxsize|Queue()" لا يلتقط الإصلاح (المعرف _UNBOUNDED بالأحرف الكبيرة والبنية Mailbox لا Queue)؛ E3 = perf/columnar/block.py:41-47 (فحص ValueError ميت بعد delta_encode الذي يرفع TypeError أولاً) مُعالج في infra.py:143-156 (فحص قبلي بنفس الشرط والرسالة حرفياً)؛ E4 = perf/actors/system.py:91 (except Exception لا يلتقط CancelledError الوارث BaseException منذ 3.8 عند await prev — خلاف وعد تعليق السطر 92) — **غير مُصلح** (grep CancelledError|cancelled() في infra.py = صفر مطابقات) والبرهان الحي T3؛ E5 = التعليق الكاذب أُزيل (grep consistently في الجناح = صفر؛ الأرضية المعمارية-النسبي 20k معلنة مع إعلان تعديل المشرف الصريح في test_axis10_infra.py:47-51 و688-694).
+- الخطوة 0.3 طازجة (الأمر الحرفي): 74 passed in 1.86s — axis1_xgraph + axis2_statemachine + axis3_pcs + scope_edge كلها خضراء.
+- الخطوة 0.4 طازجة: 1 failed, 24 passed in 172.96s — infra 20/20 + 3a/3b/3c/3e خضراء + T3 أحمر وحيد (CHAIN-POISONED-DEFECT، نفس بصمة الدليل المودع: dt=2.014s، fate2=cancelled-cascade، delivered=-1).
+- بطارية المحور 4 (csynth — نمط سكربت؛ خارج الأمر الحرفي لكنها ضمن نطاق «المحاور 1-4»): تشغيل طازج بمخرجات محيدة في /tmp — تحذير مهم: النمط الأعزل للسكربت يكتب افتراضياً فوق أدلة results/axis4/ (سطرا 882 و869) فلم يُسمح له بذلك: 26/26 passed digest=7448f95ebd58be25 + atoms 5/5 passed digest=cf2676e2c1e14b81، rc=0، أدلة الشجرة لم تُمَس (status نظيف).
+- doctor: PASS 17/17 rc=0.
+- عيب إضافي مكتشف (F1 — سلامة أدلة، غير معلن سابقاً): axis4_GREEN.json وaxis4_ATOMS.json لا يطابقان مراسيهما في results/axis4/SHA256SUMS (الملفات الثلاثة كلها وُلدت في الالتزام الوحيد 91267c5 لاسترداد phase-0). التشخيص: الهضم المنطقي داخل GREEN.json (7448f95e) يطابق اسم بوابة المحور 4 (gate_axis4_7448f95e.log) والتشغيل الطازج اليوم — الانحراف على مستوى بايتات الملف كاملة (أزمنة حائط خارج الهضم المنطقي)، أي أن المراسي وُلدت ضد تشغيل مختلف البايتات. الأثر: تعذر الإثبات الكرافي لمنشأ بايتات الملفين؛ المنطق سليم ومُعاد التحقق طازجاً. غير مُصلح — يتطلب قرار المشرف (إعادة توليد SUMS مع إعلان الفارق، أو قبول موثق).
+- بنود جرد إضافية: (أ) T3-external معلن معطوب — لا Docker (results/external/T3_STATUS.md)؛ (ب) دين intel.py القديم (9 مواضع passed=True حقبة f0ae716، worklog:4306) لم يعد قائماً — موضعان فقط حالياً (1934 حكم Verification مفسر بثقة معلنة + 1953 تعليق توثيقي)؛ (ج) سطر عنوان في SUMS المحاور 2/3/external يسبب تحذير تنسيق حميداً (كل الإدخالات الفعلية OK)؛ (د) axis1 له 5 ملفات أدلة بلا SHA256SUMS أصلاً (تخطيط حقبة أقدم)؛ (هـ) الالتزام ac406ae غير المدفوع يُدفع مع هذا السجل.
+
+Stage Summary:
+- الخطوة 0 مكتملة بالكامل: جدول العيوب (E1-E5 + F1) وبنود الجرد أمام المشرف خاماً في تقرير الجلسة. لا إصلاح نُفِّذ — خط الإيقاف مُحترم حرفياً (E4/T3 بانتظار إذن الخطوة 1).
+- الدفع الوحيد في هذه الجلسة: ac406ae (لقطة أدوات ATOMS) + التزام هذا السجل → مزامنة origin/main. التوكن مستهلك وفق البروتوكول — يجب إلغاؤه من GitHub فوراً.
+- كل البوابات خضراء على الشجرة الحالية عدا: T3 (أحمر متوقع محفوظ عمداً لخطوة الإصلاح) وانحراف مراسي axis4 (F1 — دفتري لا وظيفي).
