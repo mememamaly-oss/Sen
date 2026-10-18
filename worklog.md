@@ -5009,3 +5009,22 @@ Stage Summary:
 - Phase Zero closed with proof: local == origin/main == 7f7e713, doctor 17/17, tree clean.
 - Axis-10 M1 RED closed: 0/20 pure, single failure mode (sentinel.infra absent), evidence deposited + hashed.
 - Awaiting supervisor review of the raw RED output before M2 GREEN (the smallest modification wiring the recovered perf/ content through sentinel.infra, with honest notes on any real defects found).
+
+---
+Task ID: 71
+Agent: Super Z (main agent)
+Task: Supervisor comprehensive self-repair order 2026-10-18 — Axis-10 M2 GREEN ONLY (explicit stop line before M3 ATOMS).
+
+Work Log:
+- ENVIRONMENT ROLLBACK SURVIVED (5th/6th gutting): session resumed to find the local tree reset to the IV13-era snapshot f2d41e8 — build-v430 absent, perf/ absent, zero axis-10 trace in worklog, and the interrupted M2 attempt's uncommitted sentinel/infra.py destroyed (never pushed). Token-security protocol held: PAT inline-only in command lines, never written to disk/config/commits.
+- RECOVERY: ls-remote with the fresh supervisor PAT proved origin/main = 716f647e (the M1 RED commit, alive on GitHub); f2d41e8 proven a junk-only auto-snapshot AND a git ancestor of 716f647e → zero-loss path; fetch + reset --hard FETCH_HEAD restored the full v4.3.0 tree (1222 files) including recovered perf/ (actors/aio/columnar, 40/40-proven at 7ea2de4), build-v430, and the M1 RED evidence. Post-recovery G1: HEAD=716f647e, status clean, doctor PASS 17/17 rc=0.
+- M2 TARGET REBUILT AS A BRIDGE (per the M1 contract + task-70 spec — no rewrite of recovered content): sentinel/infra.py re-exports perf.actors/perf.columnar untouched; exactly four declared adaptations: (1) H10_07 SHA256 chain wrapper over the recovered blake2b-16 (same structural formula prev|len|records\x1e, EMPTY_DIGEST "0"×64) + recompute_chain_digest; (2) H10_09 Pipeline output queue unbounded — the recovered bounded output deadlocks sequential drain (close waits on stages while the last stage blocks on a full output queue); inter-stage capacity kept; (3) H10_10 delta pre-check in a ColumnBlock subclass — the restored block.py's ValueError check is dead (delta_encode raises TypeError on non-ints before the check line); (4) H10_17 bench_actor_throughput/bench_writer_throughput — real perf_counter measurements over WorkerPool/BatchedWriter.
+- H10_17 AMENDED PER SUPERVISOR ORDER 2026-10-18 (verbatim logic): n_messages=60_000, n_workers=4, arch-relative floor ≥20k msgs/s ("a fixed threshold on variable hardware = hallucination"); amendment declared in BOTH the H-table docstring entry and the test docstring — no silent threshold reduction; the measured number is recorded in evidence for cross-hardware comparison.
+- GREEN: first pytest run 20/20 in 4.06s — ZERO self-repair cycles needed (the bridge sits on content whose own recovered suite already passed 40/40).
+- EVIDENCE (all fresh runs, nothing reused): axis10_GREEN_pytest.txt (20 passed in 3.98s); axis10_GREEN_scriptmode.json (20/20, logical-stream digest 484b081615c1cf48f550d9937ee6069feefad5fc417d726d390bc7bcd8c9e61e — wall times excluded per Axis-11 discipline); axis10_GREEN.json in the supervisor's verbatim structure (perf_benchmark: pool_4_msgs_per_s=44485 fresh evidence-run measurement, delivered=60000, lost=0, arch=2-core, measurement=perf_counter, per_worker=[14775,14155,14538,16532]); SHA256SUMS regenerated over all five evidence files (RED + GREEN).
+- Honesty note on the perf number: 44,485 msgs/s is THIS evidence run's fresh measurement on the 2-core VM (previous interrupted-session measurement was 54,853 — run-to-run variance on shared hardware; both far above the 20k arch-relative floor; the floor is the contract, the number is recorded for comparison).
+
+Stage Summary:
+- Axis-10 M2 GREEN closed: 20/20 first-run, 4 honest notes, arch-relative floor applied by declared supervisor decision, digest 484b081615c1cf48.
+- NOT PROVEN: five-station closure (M3 ATOMS / M4 R3 / M5 GATE all pending — stop line honored); cross-hardware performance (single 2-core VM, one measurement session); core-suite interaction (the 4313 re-run belongs to M5 per the order).
+- STOPPED at the order's stop line: M3 ATOMS not started — awaiting supervisor confirmation of M2.
