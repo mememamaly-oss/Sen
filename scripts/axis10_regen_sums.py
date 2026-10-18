@@ -20,6 +20,10 @@ FILES = [
     "results/axis10/axis10_ATOMS_pytest_run1_RED.txt",
     "results/axis10/axis10_RUN2.json",
     "results/axis10/axis10_RUN3.json",
+    "results/axis10/axis10_R3.json",
+    "results/axis10/axis10_R3_run1_pytest.txt",
+    "results/axis10/axis10_R3_run2_pytest.txt",
+    "results/axis10/axis10_R3_run3_pytest.txt",
 ]
 
 lines = []
