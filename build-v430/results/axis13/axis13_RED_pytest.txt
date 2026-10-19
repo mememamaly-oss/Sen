@@ -1,0 +1,205 @@
+FFFFFFFFFFFFFFFFFFFF                                                     [100%]
+=================================== FAILURES ===================================
+_________________________________ test_H13_01 __________________________________
+
+    def test_H13_01():
+        """خلط الخوارزمية — الوضع الضعيف: RS256 يصدر، HS256 بمفتاح PEM العام يُقبل،
+        والتحكم الفاسد يُرفض — التفاضل الإلزامي (positive)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:554: ModuleNotFoundError
+_________________________________ test_H13_02 __________________________________
+
+    def test_H13_02():
+        """خلط الخوارزمية — الوضع السليم: المتحقق يقبل RS256 الصحيح فقط؛
+        المجس المزور مرفوض والتحكم مرفوض → لا نتيجة + TESTED_NEGATIVE."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:574: ModuleNotFoundError
+_________________________________ test_H13_03 __________________________________
+
+    def test_H13_03():
+        """خلط الخوارزمية — لا مفتاح قابل للاكتشاف (كل مسارات JWKS 404):
+        UNTESTABLE + صفر مجسات (الأمانة الميزانية N7)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:591: ModuleNotFoundError
+_________________________________ test_H13_04 __________________________________
+
+    def test_H13_04():
+        """قبول none عند المتحقق — الوضع الضعيف: none بلا توقيع مقبول والفاسد
+        مرفوض → النتيجة (positive)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:608: ModuleNotFoundError
+_________________________________ test_H13_05 __________________________________
+
+    def test_H13_05():
+        """قبول none — الوضع السليم: المتحقق يرفض none والفاسد معاً →
+        لا نتيجة + TESTED_NEGATIVE."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:626: ModuleNotFoundError
+_________________________________ test_H13_06 __________________________________
+
+    def test_H13_06():
+        """التحكم الصارم للتفاضل: متحقق يقبل كل شيء (none والفاسد معاً) →
+        ليست نتيجة؛ تسجَّل OBSERVED_ANOMALY (لا تصنيفاً كاذباً)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:643: ModuleNotFoundError
+_________________________________ test_H13_07 __________________________________
+
+    def test_H13_07():
+        """GraphQL batching — الوضع المفعَّل: مصفوفة عمليتين تُنفَّذان معاً →
+        النتيجة (positive)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:661: ModuleNotFoundError
+_________________________________ test_H13_08 __________________________________
+
+    def test_H13_08():
+        """GraphQL batching — الوضع السليم: المصفوفة تُرفض 400 → لا نتيجة."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:677: ModuleNotFoundError
+_________________________________ test_H13_09 __________________________________
+
+    def test_H13_09():
+        """التهريب بالتوقيت — الوضع الضعيف: CL+TE معاً → الخلفية تجوع
+        SMUG_BACK_TIMEOUT والتحكم سريع → النتيجة بصنف مؤَزَّن desync (N3)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:692: ModuleNotFoundError
+_________________________________ test_H13_10 __________________________________
+
+    def test_H13_10():
+        """التهريب — الخادم الممتثل: الشكل الغامض يُرفض 400 فوراً → لا نتيجة
+        (لا ادعاء توقيت على رفض صريح)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:709: ModuleNotFoundError
+_________________________________ test_H13_11 __________________________________
+
+    def test_H13_11():
+        """التهريب — حارس ضد FP: بطء عام دون العتبة (تحكم 0.4s / مجس 0.6s؛
+        العتبة max(3×التحكم, 500ms)=1.2s) → لا نتيجة below-threshold."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:725: ModuleNotFoundError
+_________________________________ test_H13_12 __________________________________
+
+    def test_H13_12():
+        """Mass assignment — الوضع الضعيف: الحقل الامتيازي الشكل يُربط ويُخزَّن
+        (state-oracle على كائن الجلسة الذاتية) → النتيجة (positive)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:741: ModuleNotFoundError
+_________________________________ test_H13_13 __________________________________
+
+    def test_H13_13():
+        """Mass assignment — الوضع السليم: القائمة البيضاء تتجاهل الحقل →
+        لا نتيجة + TESTED_NEGATIVE."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:758: ModuleNotFoundError
+_________________________________ test_H13_14 __________________________________
+
+    def test_H13_14():
+        """Mass assignment — بلا أوراكل حالة (GET 404): UNTESTABLE + صفر مجسات."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:773: ModuleNotFoundError
+_________________________________ test_H13_15 __________________________________
+
+    def test_H13_15():
+        """Prototype pollution — الوضع الضعيف: __proto__ يكتب في النموذج المشترك
+        والأوراكل يعكس الـcanary في موضع لم يرسله العميل → النتيجة (positive)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:789: ModuleNotFoundError
+_________________________________ test_H13_16 __________________________________
+
+    def test_H13_16():
+        """Prototype pollution — الوضع السليم: الدمج يتخطى __proto__ →
+        لا نتيجة + TESTED_NEGATIVE."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:806: ModuleNotFoundError
+_________________________________ test_H13_17 __________________________________
+
+    def test_H13_17():
+        """تثبيت التسجيل في النقاط الأربع (13.3): SARIF + IMPACT + HYPOTHESIS +
+        REPLAYABLE + RISK — بالمعرفات والمستويات الحرفية من المواصفة §13.1."""
+>       from sentinel.modernsec import MODERN_TYPES
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:822: ModuleNotFoundError
+_________________________________ test_H13_18 __________________________________
+
+    def test_H13_18():
+        """توجيه VR + fail-closed: نتيجة confusion تُوجَّه لفرعها وتصير VERIFIED
+        بعد إعادة التفاضل الحي؛ والنوع غير المسجل يظل مرفوضاً (v4.2.0 باقٍ)."""
+>       from sentinel.modernsec import run_modern_battery
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:850: ModuleNotFoundError
+_________________________________ test_H13_19 __________________________________
+
+    def test_H13_19():
+        """التوصيل الكامل عبر الماسح الحقيقي: هدف مركّب واحد → المسح يطلق
+        البطارية (التوصيل الكسول) والست كلها تصل VERIFIED؛ ونفس البذرة =
+        نفس النتائج (الحتمية) — مسحاً مستقلين."""
+>       from sentinel.modernsec import MODERN_TYPES
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:877: ModuleNotFoundError
+_________________________________ test_H13_20 __________________________________
+
+    def test_H13_20():
+        """انضباط الوحدة: استيراد كسول (orchestrator لا يسحب modernsec على مستوى
+        الوحدة — عملية فرعية نظيفة)، المفردات الحرفية، POST_BUDGET، وحتمية
+        derive_canary."""
+>       from sentinel.modernsec import (JWKS_PATHS, MERGE_NAMES, POST_BUDGET,
+                                        PRIV_NAMES, UPDATE_NAMES, derive_canary)
+E       ModuleNotFoundError: No module named 'sentinel.modernsec'
+
+tests/test_axis13_detectors.py:909: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/test_axis13_detectors.py::test_H13_01 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_02 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_03 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_04 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_05 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_06 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_07 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_08 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_09 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_10 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_11 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_12 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_13 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_14 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_15 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_16 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_17 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_18 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_19 - ModuleNotFoundError: No ...
+FAILED tests/test_axis13_detectors.py::test_H13_20 - ModuleNotFoundError: No ...
+20 failed in 0.52s
