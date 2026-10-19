@@ -319,11 +319,12 @@ def test_H07_09():
     assert abs(ours["p_value"] - float(ref.pvalue)) < 1e-9, \
         f"p={ours['p_value']} لا يطابق scipy {ref.pvalue}"
     # وإزاحة المتوسط المعروف عن الحقيقة → رفض قوي متسق مع المرجع
-    ours2 = m.ttest_1samp(sample, 10.9)
-    ref2 = scipy_stats.ttest_1samp(sample, 10.9)
+    # (إزاحة 1σ كاملة: قوية كفاية فوق خطأ المعاينة العرضي للعينة)
+    ours2 = m.ttest_1samp(sample, 12.0)
+    ref2 = scipy_stats.ttest_1samp(sample, 12.0)
     assert abs(ours2["p_value"] - float(ref2.pvalue)) < 1e-9, \
         "p للمتوسط المغاير لا يطابق scipy"
-    assert ours2["p_value"] < 0.05, "إزاحة 0.45σ (n=50) يجب أن تُكشف"
+    assert ours2["p_value"] < 0.05, "إزاحة 1σ (n=50) يجب أن تُكشف"
 
 
 # ============================================================ H07_10

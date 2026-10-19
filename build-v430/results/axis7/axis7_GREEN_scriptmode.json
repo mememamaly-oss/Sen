@@ -1,0 +1,95 @@
+{
+ "suite": "axis7-metrics",
+ "station": "run",
+ "total": 14,
+ "passed_count": 14,
+ "failed": 0,
+ "passed": true,
+ "digest": "14d72c42a5cf8371672dc8249aa57c55dc2c2309b459e0d463deba8406296547",
+ "cases": [
+  {
+   "name": "test_H07_01",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.008301
+  },
+  {
+   "name": "test_H07_02",
+   "ok": true,
+   "error": null,
+   "dur_s": 2.7e-05
+  },
+  {
+   "name": "test_H07_03",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.000134
+  },
+  {
+   "name": "test_H07_04",
+   "ok": true,
+   "error": null,
+   "dur_s": 3.6e-05
+  },
+  {
+   "name": "test_H07_05",
+   "ok": true,
+   "error": null,
+   "dur_s": 2.1e-05
+  },
+  {
+   "name": "test_H07_06",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.004993
+  },
+  {
+   "name": "test_H07_07",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.001271
+  },
+  {
+   "name": "test_H07_08",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.002354
+  },
+  {
+   "name": "test_H07_09",
+   "ok": true,
+   "error": null,
+   "dur_s": 1.308344
+  },
+  {
+   "name": "test_H07_10",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.0001
+  },
+  {
+   "name": "test_H07_11",
+   "ok": true,
+   "error": null,
+   "dur_s": 2.7e-05
+  },
+  {
+   "name": "test_H07_12",
+   "ok": true,
+   "error": null,
+   "dur_s": 8e-06
+  },
+  {
+   "name": "test_H07_13",
+   "ok": true,
+   "error": null,
+   "dur_s": 8e-06
+  },
+  {
+   "name": "test_H07_14",
+   "ok": true,
+   "error": null,
+   "dur_s": 1.1e-05
+  }
+ ]
+}
