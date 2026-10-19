@@ -1,3 +1,104 @@
+# SENTINEL Axis-12 — Boundaries & Transparency, Closed End-to-End
+
+## Axis-12 stations
+
+- M1 RED (8591480): the 15-case suite (H12_01..H12_15) pre-registered
+  BEFORE the engine existed; all 15 failed with the single honest
+  pattern (ModuleNotFoundError: No module named
+  'sentinel.transparency', verified uniform in the deposit).
+  Contract derived and declared (supersedable at any station
+  boundary): D1 = the authoritative archived spec section 12
+  (BoundaryRecord = (Node, Reason, Category, Timestamp, Confidence)
+  + the literal 14-category table; the six no-hallucination rules
+  R1-R6 with 'claim not in {supported by evidence} -> report
+  Hallucination'; the BoundaryEngine interface
+  record/query/coverage/verify_claim/detect_hallucination/export;
+  the O(1)-record / O(|Records|) complexity row) + D2 = the
+  build-order scope (axis 12 = boundaries & transparency, the LAST
+  axis). The literal H12 table is unrecoverable (lost with the
+  session cuts) — same honest provenance as axes 4/8/11. Evidence:
+  axis12_RED.json (digest 130f3449).
+- M2 GREEN (4816023): sentinel/transparency.py per the
+  pre-registered contract — pure stdlib (hashlib/json/time); the 14
+  literal categories with documented meanings; BoundaryRecord with
+  content-addressed ids, the ONE declared clock touch
+  (record(timestamp=None) with an in-engine monotone clamp), and the
+  volatile timestamp excluded from every digest; the evidence store
+  (attach/resolve, content-addressed); make_claim; the six rules
+  with the literal spec texts, each RECOMPUTING from raw materials
+  (triple_run from its runs list not its label; inventory against
+  the LIVE digest+count; measurement value matched literally); the
+  universal boundary-refutation check (a recorded boundary on the
+  claim's exact subject refutes any positive claim — the boundary
+  inventory is the truth of what did NOT happen) and the evidence
+  subject-match check; coverage() as a MEASUREMENT with stated
+  absences; export() with boundary_digest over the boundary registry
+  only + import_export full round-trip with tamper rejection; the
+  append-only audit ledger recording EVERY verdict AND detection.
+  15/15 first run (digest 27570f36). Module path declared:
+  sentinel/boundary.py is the v4.1.0 core-suite module and stays
+  untouched. Closed axes 7/8/11 re-run fresh alongside: 53/53.
+- M3 ATOMS (2cd7fdf): the three batteries 3/3 first run (overall
+  digest 0d9fb6a4): 12a 400 planted cycles — 1200 claims classified
+  exactly as constructed (400/400 agreement; 400/400 hallucinations
+  caught), two full passes reproduce the identical 400-seal list,
+  single bit flip in a reason changes the seal; 12b 150
+  independent-reference matches byte-exact (50 record ids + 25
+  artifact ids + 25 boundary digests over differently-shaped engines
+  + 25 coverage counts + 25 claim ids); 12c exactly 40 adversarial
+  scenarios (12 structural + 10 gate sabotage ALL caught + 8
+  precision no-false-positives incl. round-trip re-verified claims +
+  6 boundary/tamper + 4 liveness) + live state check clean. One
+  battery-side fix declared (engine untouched): the first final
+  twin omitted the second lawful record the health case
+  legitimately added.
+- M4 R3 (2217dcc1): three fully separate processes, all six digests
+  IDENTICAL first run (suite 27570f36 x3 = the M2 digest; atoms
+  0d9fb6a4 x3 = the M3 digest — hash-seed independent as designed).
+  G4 as declared (the axis-11 inherited contract): no literal
+  container in this environment (proven external-2 X3); isolation =
+  separate processes + PYTHONHASHSEED=0 pinned. Standing tool
+  scripts/axis12_r3.py committed per the tools clause.
+- M5 GATE (this commit): the FULL core gate fresh on the final
+  axis-12 tree. Suite 4313/4313 (cache wiped pre-round; 19 chunks
+  227/227; 6 foreground ranges 681+454+908x3+454; AGG_RC=0) + doctor
+  17/17 (standing scanme.nmap.org health-check disclosure) + bench x3
+  run-3c0652b6be (38/0/0/37) F1=1.0 @7161/199 gt 0373baf92a92dce2,
+  structural compare vs the accepted record ALL IDENTICAL
+  COMPARE_RC=0 — LIVE proof the hot path never imports transparency
+  (requests 4784 record vs 7161 fresh — informational by design, the
+  standing N3) + axis-12 suite/atoms FRESH on the gate tree: pytest
+  18 (15 + 3 batteries) and script-mode digests 27570f36 / 0d9fb6a4
+  BOTH DIGEST_MATCH vs the station anchors + standing scope-edge
+  battery 6/6 digest c2916ba3 with --red-proof all saboteurs caught;
+  the fresh run matched the standing digest but rewrote
+  battery_GREEN.json wall times — the anchor a08828ee restored by a
+  defensive checkout and re-verified intact (the standing
+  discipline). Standing tool scripts/assemble_axis12_deposits.py
+  committed per the tools clause, judged ALL GREEN rc=0; deposits:
+  gate/bench_axis12_27570f36.log + axis12_GATE_pytest.txt +
+  SHA256SUMS (10 evidence files, Task-76 convention, verify OK).
+
+## Axis-12 honest limits
+
+- The boundary vocabulary is the spec's 14 categories; the engine
+  measures what has been RECORDED — coverage() is a registry
+  measurement, never a scan-coverage certificate (R2 governs that
+  distinction by construction).
+- The no-hallucination gate is as strong as its evidence feeding:
+  it verifies claims against resolvable artifacts, live
+  recomputation, and the recorded boundary inventory. It cannot
+  adjudicate claims about subjects with neither evidence nor
+  boundaries — those fail R1..R6 honestly (unsupported), which is
+  the declared behavior.
+- Wall times stay outside every digest (the axis-11 discipline
+  applied to axis-12); the one clock touch is declared and clamped
+  monotone per engine.
+- With axis-12 the 12-axis build order is EXHAUSTED end-to-end
+  (axes 1,2,3,4,7,8,10,11,12 built through their five-station
+  gates; everything not built remains governed by the standing
+  honest boundary inventory — no silent gaps).
+
 # SENTINEL Axis-11 — Determinism & Reproducibility, Closed End-to-End
 
 ## Axis-11 stations
