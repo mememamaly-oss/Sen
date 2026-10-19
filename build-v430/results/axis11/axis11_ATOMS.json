@@ -1,0 +1,61 @@
+{
+ "suite": "axis11-atoms",
+ "station": "M3-ATOMS",
+ "total": 3,
+ "passed_count": 3,
+ "failed": 0,
+ "passed": true,
+ "overall_digest": "64edf7a774e21a3a890334fcf1ccef173c05a3f0334f7e4bb5af8af4317455a9",
+ "batteries": [
+  {
+   "battery": "11a",
+   "what": "400 seeded cycles: triple identical + bit-flip divergence + repeatable digest",
+   "ok": true,
+   "detail": {
+    "cycles": 400,
+    "crash_count": 0,
+    "triple_identical": 800,
+    "input_flips_diverged": 800,
+    "seed_flips_diverged": 800,
+    "repeatable": true,
+    "root_lists_hex": [
+     "f4f069e3c6578e58",
+     "f4f069e3c6578e58"
+    ]
+   }
+  },
+  {
+   "battery": "11b",
+   "what": "150 independent-reference matches (75 SplitMix64 + 25 canonical JSON + 50 flow merkle/digest)",
+   "ok": true,
+   "detail": {
+    "matched": {
+     "prng": 75,
+     "canonical": 25,
+     "flow": 50
+    },
+    "mismatch_total": 0,
+    "mismatches": []
+   }
+  },
+  {
+   "battery": "11c",
+   "what": "exactly 40 adversarial scenarios (20 structural + 8 nondeterminism + 4 tamper + 4 restore + 4 boundary) + live state check",
+   "ok": true,
+   "detail": {
+    "adversarial_total": 40,
+    "behaved_as_declared": 40,
+    "crash_count": 0,
+    "by_class": {
+     "structural": 20,
+     "nondeterminism": 8,
+     "tamper": 4,
+     "restore": 4,
+     "boundary": 4
+    },
+    "deviations": [],
+    "state_poisoning_check": true
+   }
+  }
+ ]
+}
