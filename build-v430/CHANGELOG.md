@@ -1,3 +1,75 @@
+# SENTINEL final-round-1 — The Complete Acceptance Round: Internal Battery + THE REAL External Scan, Closed End-to-End
+
+Supervisor order 2026-10-20 (verbatim): the tool's rigorous tests — COMPLETE
+internal and external, REAL, on LEGITIMATE applications and sites. Round
+final-round-1 delivers exactly that on the final 12-axis tree (build order
+exhausted @ 94cf323), in four stations, every station an isolated commit +
+immediate push + ls-remote.
+
+## final-round-1 stations
+
+- F0 charter + rate proxy (3f1f54f): CHARTER_FINAL.md pre-registered BEFORE
+  any scan traffic — a closed list of FOUR legitimate targets (WAVSEP local
+  golden reference; scanme.nmap.org — the Nmap Project's publicly designated
+  scan-test site, THE real external target; testphp.vulnweb.com — Acunetix's
+  licensed scanner demo, http-only; OWASP Juice Shop local, conditional on
+  docker). The closed-list rule verbatim from rounds 1-2: any other host in
+  any record = immediate abort. Detection-only; rate <=2 req/s ENFORCED BY
+  INFRA; budget <=1500 req / 30 min; explicit bounds (--max-pages 8,
+  --timeout 12, --seed 20261020). Pre-charter contacts disclosed raw (2
+  state-probe GETs + 2 DNS lookups, nothing else). STANDING TOOL
+  scripts/rate_proxy.py (tools clause): token-bucket 2/s, STRUCTURAL
+  one-host whitelist (absolute-URI smuggles -> 403 + logged), full JSONL
+  compliance log — local judgment 4/4 PASS, zero external contact. Doctor
+  17/17 fresh at round opening.
+- F1 the complete internal battery (ac8011f): all caches wiped, everything
+  FRESH — core suite 6 foreground ranges -> machine aggregate 19 chunks
+  227/227 = 4313/4313 AGG_RC=0; doctor 17/17; bench x3 = run-3c0652b6be
+  (38/0/0/37) F1=1.0 @7161/199 gt 0373baf92a92dce2, structural compare vs
+  the accepted record ALL IDENTICAL (the live hot-path-untouched proof);
+  ALL FIVE BUILT AXES fresh: pytest 96 passed and all TEN script-mode
+  digests DIGEST_MATCH vs the banked station anchors (7: 14d72c42/cd1fd9d4,
+  8: 0a2214e9/11df7a3f, 10: 484b0816/fa4c9ed7, 11: 249843ed/64edf7a7,
+  12: 27570f36/0d9fb6a4) — the closed logical streams of the ENTIRE build
+  reproduce on the final tree; scope-edge battery 6/6 digest c2916ba3 +
+  red-proof all saboteurs caught + anchor a08828ee INTACT (no drift, no
+  checkout needed this round). Standing assembler
+  scripts/assemble_final_deposits.py judged ALL GREEN rc=0.
+- F2 the real external scan (34d6192): THE CAMPAIGN'S FIRST REAL LIVE-SITE
+  SCAN. testphp: one verify GET -> curl(124) timeout, the identical
+  round-1/X2 block pattern, no scan, no hammering. scanme.nmap.org: verify
+  GET 200 @0.316s then the real bounded scan through the rate proxy —
+  run-71ca9f1d6e, 574 requests, 5 pages, 9 endpoints, 18 verified findings
+  (9 missing_security_headers + 9 server_banner_disclosure), 0 candidates,
+  0 rejected, wall 4m55s. COMPLIANCE from the proxy's own JSONL log: 583
+  forwarded / 0 blocked / 0 closed-list violations / 0 consecutive 5xx /
+  0x429 / budget 574-of-1500 and 294.3s-of-1800s WITHIN / sustained
+  1.98 req/s (bucket-burst behavior disclosed: 3 req in an aligned second
+  in 10 of 291 seconds). ARTIFACT DISCLOSURE: the v1.0 proxy injected its
+  own Server header and stripped target headers, so the 18 header-class
+  findings measured the proxy-delivered response; one direct GET
+  corroborates BOTH classes on the target's real posture (Server:
+  Apache/2.4.7 (Ubuntu) is a genuine banner disclosure; no security
+  headers present). Proxy fixed to v1.1 (verbatim header forwarding, own
+  banner suppressed, selftest re-judged 4/4) — no re-scan: the
+  minimal-footprint principle on a legitimate third-party site.
+- F3 conditional + closure (this commit): no docker binary — the honest
+  one-liner (round-1/X3 verbatim); no unsafe download substitutes.
+  Deposits: 11 evidence files under results/final/ + SHA256SUMS (Task-76
+  convention, verify OK). Worklog task 85.
+
+## Honest limits of this round
+
+- scanme is a static legitimate site: zero injection-class findings
+  expected (pre-registered) and measured — F2 proves REAL external
+  execution + closed-list + rate compliance, not vulnerability abundance.
+- The official quantitative reference remains the WAVSEP local benchmark
+  (F1: 4313/4313 + F1=1.0 structural IDENTICAL).
+- testphp blocked from the current network path (measured, no speculation);
+  no docker in this environment.
+- Everything not built remains governed by the standing honest boundary
+  inventory — no silent gaps.
+
 # SENTINEL Axis-12 — Boundaries & Transparency, Closed End-to-End
 
 ## Axis-12 stations
