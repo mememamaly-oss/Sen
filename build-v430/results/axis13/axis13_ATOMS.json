@@ -1,0 +1,1268 @@
+{
+ "suite": "axis13-atoms",
+ "station": "M3-ATOMS",
+ "total": 3,
+ "passed_count": 3,
+ "passed": true,
+ "overall_digest": "fb6eafe1bfd8c7213689d1994bf2e6b1a6fe10502ccf887e99357762e077522d",
+ "batteries": [
+  {
+   "battery": "13a planted cycles",
+   "ok": true,
+   "detail": {
+    "cycles": 48,
+    "agreement": 48,
+    "repeatable": true,
+    "bit_flip_sensitive": true,
+    "seal_list_sha": "ea96f4dbbbea623f",
+    "second_pass_sha": "ea96f4dbbbea623f"
+   }
+  },
+  {
+   "battery": "13b independent refs",
+   "ok": true,
+   "detail": {
+    "matched": 100,
+    "mismatches": 0,
+    "breakdown": {
+     "pem": 25,
+     "canary": 25,
+     "corrupt_sig": 20,
+     "recipe": 15,
+     "vocab": 15
+    },
+    "mismatch_list": []
+   }
+  },
+  {
+   "battery": "13c adversarial x40",
+   "ok": true,
+   "detail": {
+    "total": 40,
+    "by_class": {
+     "structural": 12,
+     "sabotage": 10,
+     "precision": 8,
+     "tamper": 6,
+     "liveness": 4
+    },
+    "failures": []
+   }
+  }
+ ],
+ "records": {
+  "13a planted cycles": [
+   {
+    "mode": "confusion-vuln",
+    "i": 0,
+    "expected": {
+     "jwt_algorithm_confusion": "FINDING",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "FINDING",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "confusion-vuln",
+    "i": 1,
+    "expected": {
+     "jwt_algorithm_confusion": "FINDING",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "FINDING",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "confusion-vuln",
+    "i": 2,
+    "expected": {
+     "jwt_algorithm_confusion": "FINDING",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "FINDING",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "confusion-neg",
+    "i": 0,
+    "expected": {
+     "jwt_algorithm_confusion": "TESTED_NEGATIVE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "TESTED_NEGATIVE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "confusion-neg",
+    "i": 1,
+    "expected": {
+     "jwt_algorithm_confusion": "TESTED_NEGATIVE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "TESTED_NEGATIVE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "confusion-neg",
+    "i": 2,
+    "expected": {
+     "jwt_algorithm_confusion": "TESTED_NEGATIVE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "TESTED_NEGATIVE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "none-vuln",
+    "i": 0,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "FINDING",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "FINDING",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "none-vuln",
+    "i": 1,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "FINDING",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "FINDING",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "none-vuln",
+    "i": 2,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "FINDING",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "FINDING",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "none-neg",
+    "i": 0,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "none-neg",
+    "i": 1,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "none-neg",
+    "i": 2,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "no-jwks",
+    "i": 0,
+    "expected": {
+     "jwt_algorithm_confusion": "UNTESTABLE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "UNTESTABLE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "no-jwks",
+    "i": 1,
+    "expected": {
+     "jwt_algorithm_confusion": "UNTESTABLE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "UNTESTABLE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "no-jwks",
+    "i": 2,
+    "expected": {
+     "jwt_algorithm_confusion": "UNTESTABLE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "UNTESTABLE",
+     "jwt_none_acceptance": "TESTED_NEGATIVE",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "any-sig",
+    "i": 0,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "OBSERVED_ANOMALY",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "OBSERVED_ANOMALY",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "any-sig",
+    "i": 1,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "OBSERVED_ANOMALY",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "OBSERVED_ANOMALY",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "any-sig",
+    "i": 2,
+    "expected": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "OBSERVED_ANOMALY",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "OBSERVED_ANOMALY",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "batch-enabled",
+    "i": 0,
+    "expected": {
+     "graphql_batching_enabled": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "batch-enabled",
+    "i": 1,
+    "expected": {
+     "graphql_batching_enabled": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "batch-enabled",
+    "i": 2,
+    "expected": {
+     "graphql_batching_enabled": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "batch-reject",
+    "i": 0,
+    "expected": {
+     "graphql_batching_enabled": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "batch-reject",
+    "i": 1,
+    "expected": {
+     "graphql_batching_enabled": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "batch-reject",
+    "i": 2,
+    "expected": {
+     "graphql_batching_enabled": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "desync",
+    "i": 0,
+    "expected": {
+     "http_request_smuggling": "FINDING",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "FINDING",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "desync",
+    "i": 1,
+    "expected": {
+     "http_request_smuggling": "FINDING",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "FINDING",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "desync",
+    "i": 2,
+    "expected": {
+     "http_request_smuggling": "FINDING",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "FINDING",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "compliant-400",
+    "i": 0,
+    "expected": {
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "compliant-400",
+    "i": 1,
+    "expected": {
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "compliant-400",
+    "i": 2,
+    "expected": {
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "slow-guard",
+    "i": 0,
+    "expected": {
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "slow-guard",
+    "i": 1,
+    "expected": {
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "slow-guard",
+    "i": 2,
+    "expected": {
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "TESTED_NEGATIVE",
+     "mass_assignment": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "bind-all",
+    "i": 0,
+    "expected": {
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "bind-all",
+    "i": 1,
+    "expected": {
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "bind-all",
+    "i": 2,
+    "expected": {
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "whitelist",
+    "i": 0,
+    "expected": {
+     "mass_assignment": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "TESTED_NEGATIVE",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "whitelist",
+    "i": 1,
+    "expected": {
+     "mass_assignment": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "TESTED_NEGATIVE",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "whitelist",
+    "i": 2,
+    "expected": {
+     "mass_assignment": "TESTED_NEGATIVE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "TESTED_NEGATIVE",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "no-oracle",
+    "i": 0,
+    "expected": {
+     "mass_assignment": "UNTESTABLE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "UNTESTABLE",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "no-oracle",
+    "i": 1,
+    "expected": {
+     "mass_assignment": "UNTESTABLE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "UNTESTABLE",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "no-oracle",
+    "i": 2,
+    "expected": {
+     "mass_assignment": "UNTESTABLE",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "UNTESTABLE",
+     "prototype_pollution": "NOT_DISCOVERED"
+    },
+    "agree": true
+   },
+   {
+    "mode": "node-like",
+    "i": 0,
+    "expected": {
+     "prototype_pollution": "FINDING",
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "FINDING"
+    },
+    "agree": true
+   },
+   {
+    "mode": "node-like",
+    "i": 1,
+    "expected": {
+     "prototype_pollution": "FINDING",
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "FINDING"
+    },
+    "agree": true
+   },
+   {
+    "mode": "node-like",
+    "i": 2,
+    "expected": {
+     "prototype_pollution": "FINDING",
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "FINDING"
+    },
+    "agree": true
+   },
+   {
+    "mode": "sanitized",
+    "i": 0,
+    "expected": {
+     "prototype_pollution": "TESTED_NEGATIVE",
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "TESTED_NEGATIVE"
+    },
+    "agree": true
+   },
+   {
+    "mode": "sanitized",
+    "i": 1,
+    "expected": {
+     "prototype_pollution": "TESTED_NEGATIVE",
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "TESTED_NEGATIVE"
+    },
+    "agree": true
+   },
+   {
+    "mode": "sanitized",
+    "i": 2,
+    "expected": {
+     "prototype_pollution": "TESTED_NEGATIVE",
+     "mass_assignment": "FINDING",
+     "http_request_smuggling": "UNTESTABLE",
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED"
+    },
+    "got": {
+     "jwt_algorithm_confusion": "NOT_DISCOVERED",
+     "jwt_none_acceptance": "NOT_DISCOVERED",
+     "graphql_batching_enabled": "NOT_DISCOVERED",
+     "http_request_smuggling": "UNTESTABLE",
+     "mass_assignment": "FINDING",
+     "prototype_pollution": "TESTED_NEGATIVE"
+    },
+    "agree": true
+   }
+  ],
+  "13b independent refs": [],
+  "13c adversarial x40": [
+   {
+    "name": "struct-01 endpoints=None",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-02 unparsable url",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-03 https smuggling skip",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-04 out-of-scope host",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-05 unsigned harvest",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-06 no auth-shaped endpoint",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-07 graphql GET-only",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-08 update GET-only",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-09 pp live",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-10 smug live",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-11 budget cap",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "struct-12 empty list",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "sabotage-01 lying confusion",
+    "ok": true,
+    "why": "fresh differential: forged HTTP 401 vs corrupted HTTP 401"
+   },
+   {
+    "name": "sabotage-02 lying none",
+    "ok": true,
+    "why": "fresh differential: none-variant HTTP 401 vs corrupted original HTTP 401"
+   },
+   {
+    "name": "sabotage-03 lying smug once",
+    "ok": true,
+    "why": "fresh pair: control 0ms, probe 0ms, threshold 500ms — quantized class: below-threshold"
+   },
+   {
+    "name": "sabotage-04 lying smug len-aware",
+    "ok": true,
+    "why": "fresh pair: control 0ms, probe 0ms, threshold 500ms — quantized class: below-threshold"
+   },
+   {
+    "name": "sabotage-05 lying smug vr-aware",
+    "ok": true,
+    "why": "fresh pair: control 0ms, probe 0ms, threshold 500ms — quantized class: below-threshold"
+   },
+   {
+    "name": "sabotage-06 lying gql counter",
+    "ok": true,
+    "why": "fresh batch rejected (HTTP 400)"
+   },
+   {
+    "name": "sabotage-07 lying gql shape",
+    "ok": true,
+    "why": "fresh batch rejected (HTTP 400)"
+   },
+   {
+    "name": "sabotage-08 lying profile first-only",
+    "ok": true,
+    "why": "fresh canary roundtrip: the canary sits under 'role' NOT persisted on replay"
+   },
+   {
+    "name": "sabotage-09 prefix-aware profile",
+    "ok": true,
+    "why": "fresh canary roundtrip: the canary sits under 'role' NOT persisted on replay"
+   },
+   {
+    "name": "sabotage-10 lying settings",
+    "ok": true,
+    "why": "fresh canary roundtrip: the prototype does not reflect it on replay"
+   },
+   {
+    "name": "precision-01 both-accepted anomaly not finding",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "precision-02 slow below threshold",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "precision-03 compliant 400",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "precision-04 batch accepted not array-shaped",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "precision-05 ma canary under wrong key",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "precision-06 ma confirm oracle 500",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "precision-07 pp echo is not pollution",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "precision-08 all-reject verifier",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "tamper-01 recipe removed",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "tamper-02 endpoint url tampered",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "tamper-03 recipe poisoned",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "tamper-04 budget exactly capped",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "tamper-05 seed None deterministic",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "tamper-06 order-insensitive determinism",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "liveness-01 twin fixtures identical",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "liveness-02 different seed different canary same class",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "liveness-03 empty surface zero requests",
+    "ok": true,
+    "why": ""
+   },
+   {
+    "name": "liveness-04 no duplicate findings",
+    "ok": true,
+    "why": ""
+   }
+  ]
+ }
+}
