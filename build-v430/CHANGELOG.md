@@ -1,3 +1,97 @@
+# SENTINEL Axis-8 — Military-Grade Cryptographic Proof (Ed25519/Merkle/chains/RFC3161/AEAD/HKDF/custody)
+
+Station ledger:
+- M1 (RED): tests/test_axis8_proof.py written FIRST — 15 cases
+  H08_01..H08_15. PROVENANCE (axis-4 pattern, declared): the
+  supervisor's literal H08 table from the 2026-10-19 build order is
+  NOT recoverable from any committed record (SPEC has no H tables;
+  worklog task 80 quotes H07 only) — the contract is DERIVED from D1
+  the banked authoritative spec §8 (proof model 8.1, Merkle 8.2,
+  RFC 3161 8.4, evidence chain 8.5, ProofEngine 8.6) + D2 the
+  build-order scope list (Ed25519, Merkle, SHA-256 chains, RFC 3161,
+  ChaCha20-Poly1305, HKDF-SHA256, custody chain), supersedable at any
+  station boundary. DECLARED BOUNDARY: zk-SNARK (spec §8.3) out of
+  scope (not in the build-order list; real ZK needs trusted
+  setup+pairing) — future station if ordered. RED executed fresh:
+  0/15, single failure pattern = ModuleNotFoundError('sentinel.proof')
+  x15 (count-verified, zero other error types), 0.20s; script-mode
+  digest 1f6584dc3abe2882. RFC anchors verified LIVE vs pyca before
+  baking (RFC 8032 T1 seed/pub/sig, RFC 8439 §2.8.2 full vector —
+  my memorized tag constant was WRONG and corrected to the
+  live-verified one BEFORE RED, zero test-side drift; RFC 5869 TC1).
+- M2 (GREEN): sentinel/proof.py (699 lines, pure stdlib:
+  hashlib/hmac/os/struct; pyca EXTERNAL test-only reference —
+  byte-exact cross-checks since Ed25519+AEAD are deterministic, the
+  axis-7 scipy pattern). Two honest iteration notes from the first
+  run (13/15): (1) ENGINE bug caught by the RFC 8439 §2.8.2 anchor —
+  Poly1305 mac input order was ct-first; the literal RFC order is
+  AAD-first; fixed in both encrypt+decrypt (exactly what baked
+  anchors exist for); (2) TEST-side: pyca enum member is
+  Encoding.Raw not .RAW (my helper; supervisor-literal assertions
+  untouched). Engine: ProofError hierarchy (ValidationError
+  structural atomic-reject / IntegrityError semantic — declared
+  split), Ed25519 RFC 8032 pure-python (extended coordinates,
+  deterministic, RFC T1 byte-exact + pyca live match), Merkle §8.2
+  (duplicate-last odd convention CT-style, proofs ≤ ceil(log2 n)+1),
+  evidence chain §8.5 literal (genesis 32 zeros, any-modification-
+  breaks verified at head/mid/tail/drop/swap/forge), RFC 3161-style
+  timestamp (TST=Sign(TSA, Hash(data)||le64(Time)); local TSA keys
+  only; explicit when_ms injection — axis-11 discipline), ChaCha20-
+  Poly1305 RFC 8439 (verify-before-decrypt, zero plaintext leak),
+  HKDF-SHA256 RFC 5869 (TC1 byte-exact, 255*32 bound), proof model
+  §8.1 six-field P with canonical-JSON hashing, custody chain with
+  structural anti-forgery (transfer atomically rejected unless the
+  transferor key == current holder; verify returns honest
+  {valid, length, final_custodian, breaks}). GREEN 15/15, digest
+  0a2214e9b895791e; rerun digest MATCH. Purity proven live: AST
+  import scan stdlib-only; engine import graph pulls ZERO external
+  crypto modules.
+- M3 (atoms): the 3 batteries (derived per the M1 declared
+  contract), closed 3/3, overall digest 11df7a3f0eb77b6b. 8a: 500
+  seeded Ed25519+Merkle cycles (seed=200000+i) x2 independent passes
+  -> sign/verify True, msg-tamper False, wrong-pub False, inclusion
+  member True / non-member False, root deterministic: ZERO crashes
+  (1000 cycle-passes), records digest repeatable in-process. 8b: 200
+  cross-checks vs EXTERNAL reference — Ed25519 x100 vs pyca (pub+sig
+  byte-exact), AEAD x60 vs pyca (ct||tag byte-exact), HKDF x40 vs an
+  INDEPENDENT RFC 5869 re-implementation inside the battery ->
+  200/200 matched, 0 mismatches. 8c: exactly 50 adversarial scenarios
+  (8 Ed25519 + 6 Merkle structural + 3 Merkle semantic + 6 chain + 6
+  timestamp + 8 AEAD + 5 HKDF + 7 claims + 1 custody non-holder):
+  50/50 atomic-reject with the DECLARED outcome, zero unexpected
+  types, live state-poisoning check clean (post-battery canary
+  byte-identical). Honest note: my first attack list counted 51 —
+  the battery's own 'exactly 50' assertion caught it RAW (engine
+  innocent: all 51 rejected atomically); removed the redundant
+  mk_root_none; battery-side fix declared.
+- M4 (determinism, R3): suite 15/15 x3 + atoms 3/3 x3, ALL in
+  separate subprocesses (full memory/state isolation). Suite digest
+  0a2214e9b895791e x3 IDENTICAL; atoms overall digest
+  11df7a3f0eb77b6b x3 IDENTICAL. Permanent tool
+  scripts/axis8_r3.py committed per the standing tools clause.
+- M5 (gate, CLOSURE): full core gate fresh on the final axis-8 tree
+  — suite 4313/4313 (19/19 chunks 227/227, AGG_RC=0, cache wiped
+  pre-round, 6 foreground ranges 681+454+908x3+454), doctor 17/17
+  PASS rc=0, bench x3 run-3c0652b6be 38/0/0/37 P=R=F1=1.0 @7161/199
+  gt 0373baf92a92dce2 structurally identical vs the accepted record
+  verify_pt1 (COMPARE_RC=0) — zero core drift, proven LIVE; axis-8
+  suite+atoms fresh on the final tree: pytest 18/18 (15 proof + 3
+  batteries) + script-mode suite 15/15 digest 0a2214e9...
+  DIGEST_MATCH=True vs M2/M4 + atoms 3/3 11df7a3f... DIGEST_MATCH
+  =True vs M3/M4; standing scope-edge battery 6/6 digest
+  c2916ba3b060f40b MATCH + --red-proof all saboteurs caught (battery
+  rewrite differed by wall-time metadata only, dur_s c05 — anchor
+  a08828ee RESTORED per the axis-11 digest discipline, same declared
+  pattern as the axis-7 round). Deposits committed:
+  results/gate_axis8_0a2214e9.log + results/bench_axis8_0a2214e9.log
+  + axis8_GATE_pytest.txt + SHA256SUMS (11 evidence files) + the
+  standing tool scripts/assemble_axis8_deposits.py. AXIS 8 CLOSED
+  end-to-end. Station chain: c9364df -> 4a0f4d1 -> e882922 ->
+  727d910 -> M5. Standing boundaries (declared): zk-SNARK out of
+  scope (spec §8.3 — future station if ordered); pyca never an
+  engine dependency; RFC 3161 timestamps are LOCAL TSA keys only
+  (closed target list); wall-times outside every digest.
+
 # SENTINEL Axis-7 — Measurement & Metrics (GPI/AHP, ARIMA, stats, timing, CC/SI)
 
 Station ledger:
