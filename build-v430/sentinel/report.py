@@ -242,6 +242,14 @@ SARIF_RULES = {
     "websocket_cross_user_access":             "SEN-WS-002",
     "websocket_message_reflection":            "SEN-WS-003",
     "websocket_origin_not_enforced":           "SEN-WS-004",
+    # v4.4.0 (axis 13): the modern vulnerability battery — the six recent-
+    # CVE-class families (see docs/SPEC_AXES_13_16.md §13.1)
+    "jwt_algorithm_confusion":                 "SEN-JWT-002",
+    "jwt_none_acceptance":                     "SEN-JWT-003",
+    "graphql_batching_enabled":                "SEN-GQL-008",
+    "http_request_smuggling":                  "SEN-SMK-001",
+    "mass_assignment":                         "SEN-MA-001",
+    "prototype_pollution":                     "SEN-PP-001",
 }
 SARIF_LEVEL = {"critical": "error", "high": "error", "medium": "warning",
                "low": "note", "info": "note"}

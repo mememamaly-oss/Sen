@@ -1,0 +1,131 @@
+{
+ "suite": "axis13-modernsec",
+ "station": "run",
+ "total": 20,
+ "passed_count": 20,
+ "failed": 0,
+ "passed": true,
+ "digest": "dfa89987ee824c13ab1a63cda512b50769091e9c475cc3ad3a3b36d97a35c51d",
+ "cases": [
+  {
+   "name": "test_H13_01",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.561406
+  },
+  {
+   "name": "test_H13_02",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.555357
+  },
+  {
+   "name": "test_H13_03",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.531179
+  },
+  {
+   "name": "test_H13_04",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.524119
+  },
+  {
+   "name": "test_H13_05",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.642527
+  },
+  {
+   "name": "test_H13_06",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.562429
+  },
+  {
+   "name": "test_H13_07",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.504194
+  },
+  {
+   "name": "test_H13_08",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.503994
+  },
+  {
+   "name": "test_H13_09",
+   "ok": true,
+   "error": null,
+   "dur_s": 1.201931
+  },
+  {
+   "name": "test_H13_10",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.001389
+  },
+  {
+   "name": "test_H13_11",
+   "ok": true,
+   "error": null,
+   "dur_s": 1.001831
+  },
+  {
+   "name": "test_H13_12",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.504995
+  },
+  {
+   "name": "test_H13_13",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.504632
+  },
+  {
+   "name": "test_H13_14",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.503516
+  },
+  {
+   "name": "test_H13_15",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.506724
+  },
+  {
+   "name": "test_H13_16",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.506917
+  },
+  {
+   "name": "test_H13_17",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.048648
+  },
+  {
+   "name": "test_H13_18",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.569944
+  },
+  {
+   "name": "test_H13_19",
+   "ok": true,
+   "error": null,
+   "dur_s": 6.39754
+  },
+  {
+   "name": "test_H13_20",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.145604
+  }
+ ]
+}

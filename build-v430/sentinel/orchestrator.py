@@ -61,7 +61,7 @@ class ScanConfig:
                  allowed_domains=None, oast=None, browser=True, auth=None,
                  openapi=True, openapi_spec=None, authz=None, secrets=True,
                  vault=None, vault_key_file=None, workflow=False, logic_active=False,
-                 graphql=True, websocket=True, exclude_urls=None):
+                 graphql=True, websocket=True, modern=True, exclude_urls=None):
         self.allow_private = allow_private
         self.max_pages = max_pages
         self.crawl, self.active, self.passive = crawl, active, passive
@@ -81,6 +81,9 @@ class ScanConfig:
         self.logic_active = logic_active       # Phase 58: attack battery (--logic-active)
         self.graphql = graphql       # v4.1.0: GraphQL intelligence engine
         self.websocket = websocket   # v4.1.0: WebSocket intelligence engine
+        self.modern = modern         # v4.4.0 (axis 13): modern vulnerability battery
+        # (JWT algorithm confusion + none-acceptance, GraphQL batching,
+        # request-smuggling timing, mass assignment, prototype pollution)
         self.exclude_urls = list(exclude_urls or [])
         # V411-EXC: operator-declared URL exclusions (substring match) — the
         # surface is neither page-fetched, kept in the endpoint map, nor
@@ -1077,6 +1080,36 @@ class SentinelScanner:
                                            provenance="orchestrator:websocket")
         else:
             self.stats["websocket"] = ws_stats_default
+
+        # ---- Axis 13 (v4.4.0): the modern vulnerability battery — LAZY import
+        # (the graphql/wsattack pattern; the hot path never imports it at module
+        # level). Fires only on its narrow trigger shapes; every candidate goes
+        # through the SAME fail-closed verifier as everything else (VR-29..34).
+        if self.cfg.modern and self.cfg.active:
+            try:
+                from .modernsec import run_modern_battery
+                mres = run_modern_battery(self.engine, endpoints, seed=self.seed)
+                for f in mres.findings:
+                    f.run_id = self.run_id
+                    self.stats["candidates"] += 1
+                    self.bus.emit("CandidateCreated", type=f.type, url=f.endpoint_url,
+                                  param=f.parameter)
+                    _mep = next((e for e in endpoints if e.url == f.endpoint_url), None)
+                    self.findings.append(self.verifier.verify(f, _mep))
+                self.stats["modern"] = {"findings": len(mres.findings),
+                                        "boundaries": mres.boundaries,
+                                        "probe_counts": mres.probe_counts}
+                if mres.requests:
+                    self.stats["requests"] = self.stats["requests"] + mres.requests
+            except Exception as e:
+                fid = self.failures.record("modernsec", f"{type(e).__name__}: {e}", {})
+                self.bus.emit("ScannerFailed", scanner="modernsec", failure=fid,
+                              error=str(e)[:200])
+                self.stats["modern"] = {"enabled": True, "error": str(e)[:160]}
+                self.boundary.tool_failure("modernsec", self.target.url,
+                                           f"{type(e).__name__}: {e}",
+                                           evidence=f"failure {fid}",
+                                           provenance="orchestrator:modernsec")
 
         # ---- Phase 12: dedup + correlation + risk
         verified = [f for f in self.findings if f.status == FindingStatus.VERIFIED]

@@ -69,6 +69,38 @@ IMPACT_PROFILES: dict[str, tuple[str, str]] = {
          "answers 'Did you mean <field>?' — the GraphQL API discloses its "
          "field names through error suggestions even when introspection is "
          "disabled (V4.3.3, DVGA solution #8)."),
+    "jwt_algorithm_confusion":
+        ("proven", "Algorithm confusion proven by re-execution (V4.4.0, axis 13): "
+         "an HS256-forged token signed with the PUBLIC key material was "
+         "accepted while the corrupted-signature control was rejected — "
+         "the verifier mixes asymmetric and symmetric algorithms (CWE-347, "
+         "the RS/HS confusion class)."),
+    "jwt_none_acceptance":
+        ("proven", "Unsigned-token acceptance proven by re-execution (V4.4.0, axis 13): "
+         "an alg=none token with an empty signature was accepted while the "
+         "corrupted-signature original was rejected — the verifier honors the "
+         "none algorithm (CWE-347/CWE-287)."),
+    "graphql_batching_enabled":
+        ("indicated", "Array-batched operations accepted (V4.4.0, axis 13): "
+         "a JSON array of read-only operations returned an array of results — "
+         "N operations execute per request (rate-limit bypass / "
+         "cost-amplification surface)."),
+    "http_request_smuggling":
+        ("indicated", "Desync timing signature measured (V4.4.0, axis 13): "
+         "the CL+TE conflicting request answered far above the control with "
+         "a benign canary body — a request-smuggling-capable pipeline is "
+         "INDICATED (CWE-444); pipeline corruption never attempted "
+         "(detection-only)."),
+    "mass_assignment":
+        ("proven", "Mass assignment proven by state-oracle (V4.4.0, axis 13): "
+         "a privilege-shaped parameter with a CANARY value (never a real "
+         "privilege) was persisted into the scan's own session object — "
+         "the server binds arbitrary request fields into the model (CWE-915)."),
+    "prototype_pollution":
+        ("proven", "Prototype pollution proven by state-oracle (V4.4.0, axis 13): "
+         "the __proto__ key was accepted by the merge and the shared "
+         "prototype now carries the canary at a position the client never "
+         "sent it to (CWE-1321)."),
     "nosql_injection":
         ("proven", "Query operator injection proven: an attacker-supplied "
          "$operator object flipped an authentication rejection into "
@@ -294,6 +326,12 @@ HYPOTHESIS_BY_CLASS: dict[str, str] = {
     "csrf": "a hostile-origin state-changing request is accepted like a "
             "same-origin one",
     "jwt_security": "unsigned/alg-none tokens are accepted",
+    "jwt_algorithm_confusion": "the RS/HS confusion pair is accepted",
+    "jwt_none_acceptance": "the none-algorithm token is accepted",
+    "graphql_batching_enabled": "array-batched operations execute",
+    "http_request_smuggling": "the desync timing signature reproduces",
+    "mass_assignment": "the privilege-shaped canary persists",
+    "prototype_pollution": "the prototype canary reflects",
     "host_header_injection": "an attacker-controlled Host is reflected into "
                              "application output",
     "idor_bola": "a low-privilege session retrieves another identity's private "
@@ -461,6 +499,9 @@ REPLAYABLE_TYPES = {
     "nosql_injection": "nosql", "jwt_security": "jwt",
     "host_header_injection": "hostheader", "ssti": "ssti",
     "code_injection": "codei", "graphql_field_suggestions": "gqlsuggest",
+    "jwt_algorithm_confusion": "jwtconf", "jwt_none_acceptance": "jwtnone",
+    "graphql_batching_enabled": "gqlbatch", "http_request_smuggling": "smug",
+    "mass_assignment": "massassign", "prototype_pollution": "protopoll",
 }
 
 

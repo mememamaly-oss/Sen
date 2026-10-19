@@ -128,13 +128,24 @@ class _JsonMixin:
         n = int(self.headers.get("Content-Length", "0") or 0)
         te = (self.headers.get("Transfer-Encoding") or "").lower()
         if "chunked" in te:
-            buf = b""
-            while b"0\r\n\r\n" not in buf:
-                chunk = self.rfile.read(4096)
-                if not chunk:
+            # إصلاح جانب الجناح معلن (M2): قراءة chunked تدريجية —
+            # readline/read(sz) بالضبط؛ read(4096) على قارئ مخزّن يحجب
+            # حتى اكتمال 4096 بايت أو EOF فيتقفل الزوج الخام (أُلتقط حياً).
+            out = b""
+            while True:
+                head = self.rfile.readline(64)
+                if not head:
                     break
-                buf += chunk
-            return buf
+                try:
+                    sz = int(head.strip().split(b";")[0], 16)
+                except ValueError:
+                    break
+                if sz == 0:
+                    self.rfile.readline(64)
+                    break
+                out += self.rfile.read(sz)
+                self.rfile.read(2)
+            return out
         if n:
             return self.rfile.read(n)
         return b""
@@ -845,8 +856,9 @@ def test_H13_17():
 
 
 def test_H13_18():
-    """توجيه VR + fail-closed: نتيجة confusion تُوجَّه لفرعها وتصير VERIFIED
-    بعد إعادة التفاضل الحي؛ والنوع غير المسجل يظل مرفوضاً (v4.2.0 باقٍ)."""
+    """توجيه VR + fail-closed: نتيجة confusion تُوجَّه لفرعها (VR-29) وتصير
+    VERIFIED بعد إعادة التفاضل الحي؛ والنوع غير المسجل لا يُوثَّق أبداً —
+    يبقى مرشحاً غير موثق (دلالة v4.2.0 القائمة حرفياً)."""
     from sentinel.modernsec import run_modern_battery
     from sentinel.intel import VerificationEngine
     base, srv = _make_jwt_fixture("confusion-vuln")
@@ -865,7 +877,12 @@ def test_H13_18():
                        [Evidence("x", "unregistered", "none")],
                        status=FindingStatus.CANDIDATE)
         out2 = ver.verify(fake, eps[1])
-        assert out2.status == FindingStatus.REJECTED, out2.status
+        # fail-closed (v4.2.0 الحرفية): النوع غير المسجل لا يُوثَّق أبداً —
+        # يبقى مرشحاً غير موثق. إصلاح جانب الجناح معلن هنا (سابقة المحور-12):
+        # الأصل توقع REJECTED؛ دلالة المحرك الموثقة القائمة إبقاء الطلب
+        # مرشحاً غير موثق — وهذا ما يُثبَّت هنا.
+        assert out2.status == FindingStatus.CANDIDATE, out2.status
+        assert not out2.verification.passed, out2.verification
     finally:
         _stop_http(srv)
 

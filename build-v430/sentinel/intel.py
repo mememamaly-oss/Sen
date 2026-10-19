@@ -1937,6 +1937,68 @@ class VerificationEngine:
                                    "for this class by nature")
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED
+        elif f.type == "jwt_algorithm_confusion":
+            # VR-29 (axis 13): a FRESH end-to-end differential — fresh harvest,
+            # fresh key discovery, a fresh forged pair; the flip must reproduce.
+            from .modernsec import replay_confusion, recipe_of
+            ok29, notes29 = replay_confusion(self.engine, f)
+            v = Verification(method="re-test:fresh-confusion-differential",
+                             passed=ok29, confidence=0.9 if ok29 else 0.15,
+                             rounds=2, notes=notes29)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok29 else FindingStatus.REJECTED
+
+        elif f.type == "jwt_none_acceptance":
+            # VR-30 (axis 13): a fresh none pair against a fresh harvest.
+            from .modernsec import replay_none
+            ok30, notes30 = replay_none(self.engine, f)
+            v = Verification(method="re-test:fresh-none-differential",
+                             passed=ok30, confidence=0.9 if ok30 else 0.15,
+                             rounds=2, notes=notes30)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok30 else FindingStatus.REJECTED
+
+        elif f.type == "graphql_batching_enabled":
+            # VR-31 (axis 13): a fresh batch of two DIFFERENT read-only shapes.
+            from .modernsec import replay_batching
+            ok31, notes31 = replay_batching(self.engine, f)
+            v = Verification(method="re-test:fresh-batch",
+                             passed=ok31, confidence=0.85 if ok31 else 0.15,
+                             rounds=1, notes=notes31)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok31 else FindingStatus.REJECTED
+
+        elif f.type == "http_request_smuggling":
+            # VR-32 (axis 13): a fresh raw timing pair on a fresh connection —
+            # the quantized class must reproduce (never raw milliseconds).
+            from .modernsec import replay_smuggling
+            ok32, notes32 = replay_smuggling(self.engine, f)
+            v = Verification(method="re-test:fresh-timing-pair",
+                             passed=ok32, confidence=0.85 if ok32 else 0.15,
+                             rounds=1, notes=notes32)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok32 else FindingStatus.REJECTED
+
+        elif f.type == "mass_assignment":
+            # VR-33 (axis 13): a fresh canary roundtrip with a DIFFERENT value.
+            from .modernsec import replay_ma
+            ok33, notes33 = replay_ma(self.engine, f)
+            v = Verification(method="re-test:fresh-canary-roundtrip",
+                             passed=ok33, confidence=0.9 if ok33 else 0.15,
+                             rounds=2, notes=notes33)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok33 else FindingStatus.REJECTED
+
+        elif f.type == "prototype_pollution":
+            # VR-34 (axis 13): a fresh prototype canary with a DIFFERENT value.
+            from .modernsec import replay_pp
+            ok34, notes34 = replay_pp(self.engine, f)
+            v = Verification(method="re-test:fresh-prototype-canary",
+                             passed=ok34, confidence=0.9 if ok34 else 0.15,
+                             rounds=2, notes=notes34)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok34 else FindingStatus.REJECTED
+
         elif f.type in ("ssrf", "command_injection"):
             # VF-02 (v4.2.0) fail-closed: blind classes whose ONLY proof channel is
             # out-of-band. Without an OOB callback + armed OAST there is NO response
@@ -1978,7 +2040,11 @@ RISK_WEIGHTS = {"sql_injection": 9, "xss_reflected": 7, "xss_dom": 7, "path_trav
                 "credential_exposure": 8,
                 "open_redirect": 4, "http_response_header_injection": 6,
                 "missing_security_headers": 2, "server_banner_disclosure": 1,
-                "tech_banner_disclosure": 1, "vulnerable_js_dependency": 2}
+                "tech_banner_disclosure": 1, "vulnerable_js_dependency": 2,
+                # v4.4.0 (axis 13): the modern vulnerability battery
+                "jwt_algorithm_confusion": 8, "jwt_none_acceptance": 8,
+                "graphql_batching_enabled": 3, "http_request_smuggling": 6,
+                "mass_assignment": 8, "prototype_pollution": 8}
 
 class FindingPipeline:
     def __init__(self, bus: EventBus):
