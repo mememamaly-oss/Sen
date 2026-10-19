@@ -59,8 +59,10 @@ PROVENANCE (معلنة بأمانة، مقدَّمة — نمط سابقة ال�
              flow_merkle وfinal_payload يختلفان عن الأساس في كل
              موقع؛ لا موضع صامت.
   H11_07 — حساسية انعكاس البت — البذرة: قلب بت واحد في seed
-             (بتات معلنة) → مخرجات مختلفة؛ والوجه الآخر في الحالة
-             نفسها: نفس البذرة مروراً → نفس المخرجات بالبايت.
+             (بتات معلنة) → التدفق مختلف (الجذر/الهضم/السجل)؛
+             والوجه الوظيفي: plaintext المستعاد يظل المدخل القانوني
+             نفسه (البذرة تغيّر الأدلة — المواد/التوقيع/التشفير/
+             الجذر — لا الأصل)؛ ونفس البذرة مروراً → نفس المخرجات.
   H11_08 — G5 قياسية المدخلات: مدخلان متكافئان قانونياً (dict
              بترتيب إدراج معكوس) → canonical_input متطابق بالبايت →
              execute متطابقة تماماً؛ تمثيل مختلف قانونياً → مخرجات
@@ -89,7 +91,8 @@ PROVENANCE (معلنة بأمانة، مقدَّمة — نمط سابقة ال�
              كائن Executor ثانٍ → نفس النتيجة (لا حالة كامنة).
   H11_14 — المتجه المرجعي المستقل: إعادة تنفيذ SplitMix64 مستقلة
              داخل الاختبار (ثوابت معلنة) مقابل SeededPRNG بايت-ببايت
-             (بذور 0/1/2/12345) + next_bytes big-endian + derive_stream
+             (بذور داخل عقد [1,2^64): 1/2/3/12345) + next_bytes
+             big-endian + derive_stream
              والاشتقاق المستقل + randbelow ضمن [0,n) وحتمي.
   H11_15 — التكامل مع النواة الحتمية المغلقة: default_pipeline
              (ست خطوات فوق sentinel.proof — المحور-8): 20 زوجاً
@@ -298,7 +301,10 @@ def test_H11_04():
             ls = nxt
         return ls[0]
     manual_root = _root(leaves[:])
-    ref_root = proof.merkle_root(leaves)
+    # مرجع المحور-8: merkle_root يتلقى البيانات الخام ويهضمها داخلياً
+    # (Leaf=SHA-256(data)) — نمرر الأسطر نفسها فتكون أوراقه = هضوم
+    # الأسطر = نفس أوراق flow_merkle (تصحيح تقني قبل أول تنفيذ)
+    ref_root = proof.merkle_root([l.encode("utf-8") for l in lines])
     assert manual_root == ref_root == r.flow_merkle(rec["steps"]), \
         "flow merkle must equal hand answer AND closed-axis reference"
     assert rec["flow_merkle_hex"] == manual_root.hex()
@@ -323,15 +329,18 @@ def test_H11_05():
     d0 = r.diff(a, b)
     assert d0["merkle_equal"] is True and d0["digest_equal"] is True
     assert d0["payload_equal"] is True and d0["first_diff"] is None
-    # تحريف الحمولة النهائية فقط
-    tam = json.loads(json.dumps(b))          # نسخ عميق قياسي
+    # تحريف الحمولة النهائية فقط (نسخ عميق — RunRecord يحمل bytes:
+    # التصحيح التقني قبل أول تنفيذ؛ JSON لا يمثل bytes)
+    import copy
+    tam = copy.deepcopy(b)
     tam["final_payload"] = bytes(tam["final_payload"][:-1]) + b"x"
     d1 = r.diff(a, tam)
     assert d1["merkle_equal"] is True        # الجذر لم يُمس
     assert d1["payload_equal"] is False
     assert d1["first_diff"] == "final_payload"
     # تحريب سجل خطوة → الجذر يكسر (الحرفية §11.3)
-    tam2 = json.loads(json.dumps(b))
+    import copy as _copy2
+    tam2 = _copy2.deepcopy(b)
     tam2["steps"][2]["out_sha256"] = "00" * 32
     d2 = r.diff(a, tam2)
     assert d2["merkle_equal"] is False and d2["digest_equal"] is False
@@ -363,8 +372,10 @@ def test_H11_06():
 
 # ============================================================ H11_07
 def test_H11_07():
-    """H11_07 — حساسية انعكاس البت — البذرة: بت واحد في seed →
-    مخرجات مختلفة؛ نفس البذرة مروراً → نفس المخرجات (الوجهان)."""
+    """H11_07 — حساسية انعكاس البت — البذرة: بت واحد → التدفق مختلف
+    (الجذر/الهضم/السجل)؛ والدورة الوظيفية صامدة: plaintext المستعاد
+    هو المدخل القانوني نفسه مهما كانت البذرة (البذرة تغيّر الأدلة
+    لا الأصل) — الوجهان في الحالة نفسها."""
     r = _repro()
     ex = r.DeterministicExecutor(r.default_pipeline())
     base = ex.execute(INPUT_A, SEED_A)
@@ -376,10 +387,15 @@ def test_H11_07():
         rec = ex.execute(INPUT_A, seed2)
         assert rec["flow_merkle_hex"] != base["flow_merkle_hex"], \
             f"silent flip at seed bit {bit}"
-        assert rec["final_payload"] != base["final_payload"], \
-            f"payload silent at seed bit {bit}"
+        assert rec["flow_digest"] != base["flow_digest"], \
+            f"digest silent at seed bit {bit}"
+        assert rec["steps"] != base["steps"], \
+            f"steps silent at seed bit {bit}"
         assert rec["input_sha256"] == base["input_sha256"], \
             "seed flip must not touch the input digest"
+        # الوجه الوظيفي: فك التشفير يعيد الأصل نفسه مهما كانت البذرة
+        assert rec["final_payload"] == base["final_payload"], \
+            "verify cycle must restore the same plaintext"
 
 
 # ============================================================ H11_08
@@ -571,8 +587,9 @@ def test_H11_14():
     الاختبار مقابل SeededPRNG بايت-ببايت + الاشتقاق المستقل
     + randbelow داخل النطاق وحتمي."""
     r = _repro()
-    # 1) u64 عبر بذور معلنة مقابل المرجع المستقل
-    for seed in (0, 1, 2, 12345):
+    # 1) u64 عبر بذور معلنة داخل العقد [1,2^64) — مقابل المرجع
+    #    المستقل (تصحيح GREEN: البذرة 0 كانت خارج العقد والرفض صحيح)
+    for seed in (1, 2, 3, 12345):
         ref = _ref_splitmix_seq(seed, 64)
         pr = r.SeededPRNG(seed)
         got = [pr.next_u64() for _ in range(64)]

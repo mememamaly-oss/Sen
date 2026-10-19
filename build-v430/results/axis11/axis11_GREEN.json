@@ -1,0 +1,101 @@
+{
+ "suite": "axis11-repro",
+ "station": "run",
+ "total": 15,
+ "passed_count": 15,
+ "failed": 0,
+ "passed": true,
+ "digest": "249843ed0a0eea5a2c7bf188fe1d7468c92071e657d36c83310e78c84cfb92e6",
+ "cases": [
+  {
+   "name": "test_H11_01",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.009314
+  },
+  {
+   "name": "test_H11_02",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.033634
+  },
+  {
+   "name": "test_H11_03",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.027621
+  },
+  {
+   "name": "test_H11_04",
+   "ok": true,
+   "error": null,
+   "dur_s": 7.4e-05
+  },
+  {
+   "name": "test_H11_05",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.01925
+  },
+  {
+   "name": "test_H11_06",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.063617
+  },
+  {
+   "name": "test_H11_07",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.063519
+  },
+  {
+   "name": "test_H11_08",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.036866
+  },
+  {
+   "name": "test_H11_09",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.04052
+  },
+  {
+   "name": "test_H11_10",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.018926
+  },
+  {
+   "name": "test_H11_11",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.000133
+  },
+  {
+   "name": "test_H11_12",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.018278
+  },
+  {
+   "name": "test_H11_13",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.081577
+  },
+  {
+   "name": "test_H11_14",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.001579
+  },
+  {
+   "name": "test_H11_15",
+   "ok": true,
+   "error": null,
+   "dur_s": 0.364078
+  }
+ ]
+}
