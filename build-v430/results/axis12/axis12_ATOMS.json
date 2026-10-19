@@ -1,0 +1,304 @@
+{
+ "suite": "axis12-atoms",
+ "station": "M3-ATOMS",
+ "total": 3,
+ "passed_count": 3,
+ "failed": 0,
+ "passed": true,
+ "overall_digest": "0d9fb6a46ce37f62c0cf7be3a7a9b420f5cad0145972be32dc94a749760bfa34",
+ "batteries": [
+  {
+   "battery": "12a",
+   "what": "400 planted cycles: 1200 claims classified as constructed + two-pass seal repeatability + bit-flip sensitivity",
+   "ok": true,
+   "detail": {
+    "cycles": 400,
+    "crash_count": 0,
+    "classification_agreement": 400,
+    "lawful_supported": 800,
+    "hallucinations_caught": 400,
+    "repeatable": true,
+    "seal_lists": [
+     "900bb99c43d9c0a9eb48d171b6ce761d0b85714150bb621ffef08181cde9ec83",
+     "900bb99c43d9c0a9eb48d171b6ce761d0b85714150bb621ffef08181cde9ec83"
+    ],
+    "bit_flip_sensitive": true
+   }
+  },
+  {
+   "battery": "12b",
+   "what": "150 independent-reference matches (50 record ids + 25 artifact ids + 25 boundary digests + 25 coverage counts + 25 claim ids), byte-exact",
+   "ok": true,
+   "detail": {
+    "matched": {
+     "record_ids": 50,
+     "artifact_ids": 25,
+     "boundary_digest": 25,
+     "coverage": 25,
+     "claim_ids": 25
+    },
+    "mismatch_total": 0,
+    "crash_count": 0
+   }
+  },
+  {
+   "battery": "12c",
+   "what": "exactly 40 adversarial scenarios (12 structural + 10 gate sabotage + 8 precision + 6 boundary/tamper + 4 liveness) + live state check",
+   "ok": true,
+   "detail": {
+    "behaved_as_declared": 40,
+    "crash_count": 0,
+    "by_class": {
+     "structural": 12,
+     "gate_sabotage": 10,
+     "precision": 8,
+     "boundary_tamper": 6,
+     "liveness": 4
+    },
+    "log": [
+     {
+      "class": "structural",
+      "name": "unknown-category-record",
+      "behaved": true,
+      "dur_s": 7e-06
+     },
+     {
+      "class": "structural",
+      "name": "unknown-category-query",
+      "behaved": true,
+      "dur_s": 7e-06
+     },
+     {
+      "class": "structural",
+      "name": "confidence-out-of-range",
+      "behaved": true,
+      "dur_s": 4e-06
+     },
+     {
+      "class": "structural",
+      "name": "confidence-bool",
+      "behaved": true,
+      "dur_s": 3e-06
+     },
+     {
+      "class": "structural",
+      "name": "timestamp-negative",
+      "behaved": true,
+      "dur_s": 3e-06
+     },
+     {
+      "class": "structural",
+      "name": "node-empty",
+      "behaved": true,
+      "dur_s": 1e-06
+     },
+     {
+      "class": "structural",
+      "name": "reason-empty",
+      "behaved": true,
+      "dur_s": 1e-06
+     },
+     {
+      "class": "structural",
+      "name": "attach-unknown-kind",
+      "behaved": true,
+      "dur_s": 3e-06
+     },
+     {
+      "class": "structural",
+      "name": "attach-non-json-content",
+      "behaved": true,
+      "dur_s": 1.3e-05
+     },
+     {
+      "class": "structural",
+      "name": "claim-unknown-kind",
+      "behaved": true,
+      "dur_s": 2e-06
+     },
+     {
+      "class": "structural",
+      "name": "claim-evidence-string",
+      "behaved": true,
+      "dur_s": 2e-06
+     },
+     {
+      "class": "structural",
+      "name": "verify-malformed-raw-claim",
+      "behaved": true,
+      "dur_s": 4e-06
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "fabricated-evidence",
+      "behaved": true,
+      "dur_s": 2.4e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "evidence-subject-mismatch",
+      "behaved": true,
+      "dur_s": 2.8e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "lying-triple-label",
+      "behaved": true,
+      "dur_s": 3.7e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "lying-inventory-count",
+      "behaved": true,
+      "dur_s": 4.6e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "boundary-contradiction",
+      "behaved": true,
+      "dur_s": 3.1e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "value-mismatch",
+      "behaved": true,
+      "dur_s": 3.3e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "single-run-determinism",
+      "behaved": true,
+      "dur_s": 2.6e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "honesty-measured-drift",
+      "behaved": true,
+      "dur_s": 2.5e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "failed-precondition",
+      "behaved": true,
+      "dur_s": 2.3e-05
+     },
+     {
+      "class": "gate_sabotage",
+      "name": "completeness-empty-registry",
+      "behaved": true,
+      "dur_s": 3e-05
+     },
+     {
+      "class": "precision",
+      "name": "verification-ok",
+      "behaved": true,
+      "dur_s": 2.4e-05
+     },
+     {
+      "class": "precision",
+      "name": "coverage-ok",
+      "behaved": true,
+      "dur_s": 2.9e-05
+     },
+     {
+      "class": "precision",
+      "name": "determinism-ok",
+      "behaved": true,
+      "dur_s": 4.2e-05
+     },
+     {
+      "class": "precision",
+      "name": "honesty-ok",
+      "behaved": true,
+      "dur_s": 2.8e-05
+     },
+     {
+      "class": "precision",
+      "name": "capability-ok",
+      "behaved": true,
+      "dur_s": 2.4e-05
+     },
+     {
+      "class": "precision",
+      "name": "completeness-ok",
+      "behaved": true,
+      "dur_s": 4.3e-05
+     },
+     {
+      "class": "precision",
+      "name": "multi-evidence-verification",
+      "behaved": true,
+      "dur_s": 3.2e-05
+     },
+     {
+      "class": "precision",
+      "name": "roundtrip-verify",
+      "behaved": true,
+      "dur_s": 4.8e-05
+     },
+     {
+      "class": "boundary_tamper",
+      "name": "import-tampered-record",
+      "behaved": true,
+      "dur_s": 5.5e-05
+     },
+     {
+      "class": "boundary_tamper",
+      "name": "import-tampered-evidence",
+      "behaved": true,
+      "dur_s": 5.4e-05
+     },
+     {
+      "class": "boundary_tamper",
+      "name": "roundtrip-preserves-ledger",
+      "behaved": true,
+      "dur_s": 7.2e-05
+     },
+     {
+      "class": "boundary_tamper",
+      "name": "stale-inventory-flips-live",
+      "behaved": true,
+      "dur_s": 5.9e-05
+     },
+     {
+      "class": "boundary_tamper",
+      "name": "post-rejection-health",
+      "behaved": true,
+      "dur_s": 4.2e-05
+     },
+     {
+      "class": "boundary_tamper",
+      "name": "auto-timestamp-monotone",
+      "behaved": true,
+      "dur_s": 8e-06
+     },
+     {
+      "class": "liveness",
+      "name": "same-feed-identical-exports",
+      "behaved": true,
+      "dur_s": 0.000124
+     },
+     {
+      "class": "liveness",
+      "name": "auto-ts-digest-stable",
+      "behaved": true,
+      "dur_s": 1.8e-05
+     },
+     {
+      "class": "liveness",
+      "name": "empty-coverage-zeros",
+      "behaved": true,
+      "dur_s": 6e-06
+     },
+     {
+      "class": "liveness",
+      "name": "claim-id-content-addressing",
+      "behaved": true,
+      "dur_s": 2.7e-05
+     }
+    ],
+    "state_poisoning_check": true
+   }
+  }
+ ]
+}
