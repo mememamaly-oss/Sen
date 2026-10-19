@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.0.2, pluggy-1.6.0
+rootdir: /home/z
+configfile: pyproject.toml
+plugins: Faker-40.1.2, metadata-3.1.1, asyncio-1.3.0, ddtrace-4.2.2, cov-7.0.0, json-report-1.5.0, anyio-4.13.0
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 35 items
+
+tests/test_axis7_metrics.py ..............                               [ 40%]
+tests/test_axis7_atoms.py ...                                            [ 48%]
+tests/test_axis8_proof.py ...............                                [ 91%]
+tests/test_axis8_atoms.py ...                                            [100%]
+
+============================= 35 passed in 21.94s ==============================

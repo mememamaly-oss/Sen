@@ -1,0 +1,84 @@
+{
+ "phase": "X1",
+ "round": "external-round-2",
+ "charter": "results/external2/CHARTER_ROUND2.md section 4 (pre-registered before this phase)",
+ "tree_head_at_gate": "a93c28e2f21876f03833f252a4aa9c158d74bb23",
+ "core_suite": {
+  "total": 4313,
+  "passed": 4313,
+  "chunks": 19,
+  "per_chunk": 227,
+  "agg_rc": 0
+ },
+ "doctor": {
+  "overall": "PASS",
+  "passed": 17,
+  "total": 17,
+  "rc": 0
+ },
+ "bench": {
+  "runs": [
+   {
+    "run_id": "run-3c0652b6be",
+    "confusion": [
+     38,
+     0,
+     0,
+     37
+    ]
+   },
+   {
+    "run_id": "run-3c0652b6be",
+    "confusion": [
+     38,
+     0,
+     0,
+     37
+    ]
+   },
+   {
+    "run_id": "run-3c0652b6be",
+    "confusion": [
+     38,
+     0,
+     0,
+     37
+    ]
+   }
+  ],
+  "requests": 7161,
+  "findings": 199,
+  "gt_sha": "0373baf92a92dce2",
+  "compare_verdict": "ALL IDENTICAL",
+  "compare_rc": 0,
+  "reference": "results/verify_pt1/bench_run1.json"
+ },
+ "axes_fresh": {
+  "ax7-suite": {
+   "digest": "14d72c42a5cf8371",
+   "match": true
+  },
+  "ax7-atoms": {
+   "digest": "cd1fd9d4bdb3b85d",
+   "match": true
+  },
+  "ax8-suite": {
+   "digest": "0a2214e9b895791e",
+   "match": true
+  },
+  "ax8-atoms": {
+   "digest": "11df7a3f0eb77b6b",
+   "match": true
+  }
+ },
+ "pytest_both_axes": "============================= 35 passed in 21.94s ==============================",
+ "scope_edge": {
+  "passed": 6,
+  "failed": 0,
+  "digest": "c2916ba3b060f40b",
+  "anchor_restored": true,
+  "anchor_intact": true,
+  "red_proof_all_caught": true
+ },
+ "recovery_disclosure": "environment wiped to pre-campaign snapshot; tree restored from bank @ a93c28e; the lost session's X1/X2/X3/closure claims (082a6b4/e1f6a3f/676ea9b) exist in no ref \u2014 this station is a fresh redo"
+}

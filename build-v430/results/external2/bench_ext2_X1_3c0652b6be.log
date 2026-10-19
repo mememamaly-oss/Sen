@@ -1,0 +1,18 @@
+=== SENTINEL external round-2 X1 BENCH x3 deposit ===
+date(utc): 2026-10-19T17:41:48Z | tree HEAD at gate: a93c28e2f21876f03833f252a4aa9c158d74bb23
+
+run 1: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion=(38, 0, 0, 37) | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 2: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion=(38, 0, 0, 37) | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+run 3: run_id=run-3c0652b6be | seed=benchmark-fixed-seed | confusion=(38, 0, 0, 37) | P=1.0 R=1.0 F1=1.0 | requests=7161 | findings=199 | gt_sha=0373baf92a92dce2
+
+----- structural compare vs the accepted record -----
+(reference: results/verify_pt1/bench_run1.json; informational requests vary by design)
+/home/z/my-project/build-v430/results/verify_pt1/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=4784 findings=199 gt=0373baf92a92dce2
+/tmp/ext2_X1_bench_1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/ext2_X1_bench_1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7161) -> IDENTICAL
+/tmp/ext2_X1_bench_2.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/ext2_X1_bench_2.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7161) -> IDENTICAL
+/tmp/ext2_X1_bench_3.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7161 findings=199 gt=0373baf92a92dce2
+vs /tmp/ext2_X1_bench_3.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7161) -> IDENTICAL
+VERDICT: ALL IDENTICAL
+GATE_COMPARE_RC=0
