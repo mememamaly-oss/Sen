@@ -207,6 +207,16 @@ def _pyca_ed25519():
     return Ed25519PrivateKey
 
 
+def _pyca_pub(key_obj) -> bytes:
+    """مفتاح pyca العام بايتات خام (Encoding.Raw/PublicFormat.Raw —
+    اسم العضو 'Raw' لا 'RAW': أُصيبت مرّته الأولى في GREEN وأُصلحت
+    بجانب الاختبار؛ توكيدات المشرف الحرفية لم تُمس)."""
+    from cryptography.hazmat.primitives.serialization import (
+        Encoding, PublicFormat)
+    return key_obj.public_key().public_bytes(Encoding.Raw,
+                                             PublicFormat.Raw)
+
+
 def _pyca_aead():
     from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
     return ChaCha20Poly1305
@@ -273,12 +283,7 @@ def test_H08_04():
     assert s1 == s2  # حتمية RFC 8032
     k = _pyca_ed25519().from_private_bytes(seed)
     assert k.sign(msg) == s1  # مرجع خارجي: تطابق بايت-ببايت
-    assert k.public_key().public_bytes(
-        __import__("cryptography.hazmat.primitives.serialization",
-                   fromlist=["Encoding"]).Encoding.RAW,
-        __import__("cryptography.hazmat.primitives.serialization",
-                   fromlist=["PublicFormat"]).PublicFormat.Raw) \
-        == p.ed25519_public_key(seed)
+    assert _pyca_pub(k) == p.ed25519_public_key(seed)
 
 
 # ============================================================ H08_05
