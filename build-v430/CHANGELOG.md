@@ -1,3 +1,55 @@
+# SENTINEL External Round-2 — The Post-Axes-7+8 Sequence, Redone Honestly After the Environment Wipe
+
+Station ledger:
+- Recovery (round pre-flight): the environment was discovered wiped
+  to a pre-campaign IV13-era snapshot (worklog 923 lines, no
+  build-v430, a fresh UUID noise commit f2d41e8 above it — discarded
+  via reset, never pushed, no loss). The campaign was restored from
+  the bank: reset to a93c28e (ancestry verified live: the ancient
+  tip IS an ancestor of the campaign chain — a catch-up move, not a
+  rewrite). The lost session's claimed stations (X1 082a6b4 /
+  X2 e1f6a3f / closure 676ea9b) exist in NO ref on the remote
+  (cat-file ABSENT across every ref incl. the sentinel-x parallel
+  branches) — their numbers are unverifiable and were NOT carried
+  forward; the round was redone from scratch per the pre-registered
+  charter.
+- X0 (a93c28e — pre-existing on the bank, the restore point):
+  round-2 charter pre-registered (derived contract, declared
+  provenance) + fresh doctor 17/17.
+- X1 (75d8e7f): the FINAL GATE, fresh from scratch (all caches
+  wiped): suite 4313/4313 (19 chunks 227/227, 6 foreground ranges
+  681+454+908x3+454, AGG_RC=0) + doctor 17/17 rc=0 + bench x3
+  run-3c0652b6be (38/0/0/37) F1=1.0 @7161/199 gt 0373baf92a92dce2
+  structurally IDENTICAL tuple-by-tuple vs the accepted record
+  (COMPARE_RC=0; requests 4784 vs 7161 informational by design) +
+  axes 7+8 suites/atoms FRESH (pytest 35 = 14+3 + 15+3; script-mode
+  digests 14d72c42 / cd1fd9d4 / 0a2214e9 / 11df7a3f ALL DIGEST_MATCH
+  vs the banked station anchors) + standing scope-edge battery 6/6
+  digest c2916ba3 (the fresh run rewrote battery_GREEN.json with
+  wall-time metadata only — anchor a08828ee RESTORED per the
+  axis-11 digest discipline, verified intact) + red-proof all
+  saboteurs caught. Standing tool committed per the tools clause:
+  scripts/assemble_external2_deposits.py (judged ALL GREEN rc=0).
+- X2 (dbf2dda): testphp.vulnweb.com BLOCKED_UNREACHABLE — the
+  identical round-1 pattern, measured as-is: one authorized GET
+  (curl 28, 20002ms, status 000, the TCP handshake never completed),
+  TCP diagnostics 2 rounds 45s apart (port 80 + 443 timeout x4), DNS
+  resolves fine (44.228.249.3), egress controls healthy (github.com
+  and example.com OPEN 0.0s) — the block is target-side/path-side,
+  NOT a container restriction. Scan NOT RUN (cannot scan an
+  unreachable target; the closed list forbids substitutes); findings
+  honestly zero. The lost session's "REACHABLE, 65 requests / 9
+  findings" claim exists in no ref and is contradicted by fresh
+  measurement — discarded as evidence.
+- X3 (this commit): no Docker (command -v docker -> rc=1; no binary
+  at the standard paths) — the same honest one-line verdict as
+  round-1 T3; no unsafe download alternatives.
+
+Standing boundaries (unchanged): the closed 3-target list; the caps
+and abort conditions inherited from round-1 verbatim; axes 11-12
+UNBUILT — the next station in the build order is axis-11, awaiting
+the supervisor's approval per the standing stop rule.
+
 # SENTINEL Axis-8 — Military-Grade Cryptographic Proof (Ed25519/Merkle/chains/RFC3161/AEAD/HKDF/custody)
 
 Station ledger:
