@@ -1,3 +1,87 @@
+# SENTINEL Axis-7 — Measurement & Metrics (GPI/AHP, ARIMA, stats, timing, CC/SI)
+
+Station ledger:
+- M1 (RED): tests/test_axis7_metrics.py written FIRST — 14 cases
+  H07_01..H07_14, the supervisor's H-table registered verbatim (every
+  case with its literal assertions; G2 discharged before any code).
+  RED executed fresh: 0/14, single failure pattern =
+  ModuleNotFoundError('sentinel.metrics') x14 (count-verified, zero
+  other error types), 14 failed / 0.32s; script-mode digest
+  7b2db191ad99b4ad. Deposits results/axis7/{axis7_RED.json,
+  axis7_RED_pytest.txt, SHA256SUMS}. Contract notes declared: TTF/TTE/
+  TTT/TTO definitions; ARIMA(1,0,0) = AR(1)+const via conditional LS;
+  AHP principal eigenvector (power iteration, hand-computable 3x3);
+  degenerate ANOVA conventions (SSB=0 -> F:=0.0/p:=1.0, SSW=0 ->
+  F:=inf); pure-stdlib engine, scipy as EXTERNAL test-only reference
+  (1e-9); validation-before-mutation everywhere. Suite standalone,
+  NOT @case-registered (4313 core untouched by construction).
+- M2 (GREEN): sentinel/metrics.py (~600 lines, pure stdlib — math
+  only; scipy external test-only reference). Two honest iteration
+  notes: (1) Lanczos constant mixup caught by the H07_09 scipy-match
+  (g=7 n=9 coefficients paired with the wrong variant constant ->
+  corrected to t=z-1+7.5, verified vs math.lgamma within 1e-15);
+  (2) MY auxiliary H07_09 assertion (0.45-sigma shift detectable) was
+  statistically underpowered for the seeded sample's realized mean —
+  fixed to 1-sigma; the supervisor's LITERAL assertion (p matches
+  scipy) unchanged and passing. Engine: MetricRegistry, minmax/zscore
+  normalize (atomic rejections: out-of-declared-range, zero
+  variance), AHP power-iteration weights (exact 1-sum) + GPI
+  (weight-sum/negatives/[0,1] contracts), ARIMA(1,0,0) centered-LS
+  fit+forecast, ANOVA (declared degenerate conventions), t-test
+  (ddof=1) + Spearman (average-rank ties), TimingTracker (monotonic,
+  first-mark-wins), CC/SI (numeric-coherence rejections),
+  build_measurement_report (unmeasured always present, no wall-clock
+  — axis-11 discipline). GREEN 14/14, digest 14d72c42a5cf8371; rerun
+  digest MATCH (determinism sanity). Deposits: axis7_GREEN.json +
+  pytest raw + scriptmode + SHA256SUMS (5 files).
+- M3 (atoms): the 3 literal batteries (supervisor order 2026-10-19),
+  closed 3/3, overall digest cd1fd9d4bdb3b85d. 3a: 500 seeded random
+  AR(1) series (seed=100000+i, n 50-400, phi -0.95..0.95) x2
+  independent passes -> minmax+zscore (calibration verified
+  per-series) + GPI over fraction-indicators w/ fixed consistent 4x4
+  AHP (hand answer 8/15,4/15,2/15,1/15) + ARIMA fit/forecast: ZERO
+  crashes, digest repeatable in-process (d1==d2). 3b: 200
+  statistical groups vs the EXTERNAL scipy reference: ANOVA F
+  (<1e-9 rel) + p (abs 1e-9 above 1e-3, rel 1e-6 below), ttest t/p,
+  Spearman on deliberately tie-quantized samples -> 600/600 matched,
+  0 mismatches. 3c: exactly 50 adversarial scenarios (negative
+  weights, weight-sum!=1, NaN/Inf, empty/short/constant series,
+  div-zero via lo==hi/declared=0/total=0, bool poisoning, length
+  mismatches, registry miss): 50/50 atomic-reject with the DECLARED
+  exception, zero unexpected types, live state-poisoning check clean
+  (a failed record leaves no trace). Deposits: axis7_ATOMS.json +
+  pytest raw + SHA256SUMS (7 files).
+- M4 (determinism, R3): suite 14/14 x3 + atoms 3/3 x3, ALL in
+  separate subprocesses (full memory/state isolation). Suite digest
+  14d72c42a5cf8371 x3 IDENTICAL; atoms overall digest
+  cd1fd9d4bdb3b85d x3 IDENTICAL. Permanent tool scripts/axis7_r3.py
+  committed per the standing tools clause. Deposits: axis7_R3.json +
+  SHA256SUMS (8 files).
+- M5 (gate, CLOSURE): full core gate fresh on the final axis-7 tree —
+  suite 4313/4313 (19/19 chunks 227/227, AGG_RC=0, cache wiped
+  pre-round, 6 foreground ranges 681+454+908x3+454), doctor 17/17
+  PASS rc=0, bench x3 run-3c0652b6be 38/0/0/37 P=R=F1=1.0 @7161/199
+  gt 0373baf92a92dce2 structurally identical vs the accepted record
+  verify_pt1 (COMPARE_RC=0) — zero core drift, proven LIVE not just
+  by construction; axis-7 suite+atoms fresh on the final tree:
+  pytest 17/17 (14 metrics + 3 atoms) + script-mode suite 14/14
+  digest 14d72c42... DIGEST_MATCH=True vs M2/M4 + atoms 3/3
+  overall_digest cd1fd9d4... DIGEST_MATCH=True vs M3/M4 (the
+  station-closed logical streams reproduce on the final tree);
+  standing scope-edge battery 6/6 digest c2916ba3b060f40b MATCH +
+  --red-proof all saboteurs caught (this round's battery rewrite
+  differed by ONE wall-time metadata char, dur_s 0.0001->0.0 c05
+  perf_counter rounding — logical stream + digest identical, the
+  anchored file RESTORED per the axis-11 digest discipline, anchor
+  a08828ee verified intact). Deposits committed:
+  results/gate_axis7_14d72c42.log + results/bench_axis7_14d72c42.log
+  + axis7_GATE_pytest.txt + SHA256SUMS (11 evidence files) + the
+  standing tool scripts/assemble_axis7_deposits.py. AXIS 7 CLOSED
+  end-to-end. Station chain: 453b3bc -> eaf83cb -> 1f26530 ->
+  c9a1ce0 -> M5. Standing boundaries (declared): scipy never an
+  engine dependency; the ARIMA scope is (1,0,0) per the H-table
+  contract; wall-times live outside every digest.
+
 # SENTINEL Axis-10 — Actors / AIO / Columnar (recovered perf/, bridge-wired)
 
 Station ledger:
