@@ -1,0 +1,82 @@
+{
+ "suite": "axis7-atoms",
+ "station": "M3-ATOMS",
+ "total": 3,
+ "passed_count": 3,
+ "failed": 0,
+ "passed": true,
+ "overall_digest": "cd1fd9d4bdb3b85da8ffc58f888a1d1eb24684303b0190eac665c9bd8bc7fcf4",
+ "batteries": [
+  {
+   "battery": "3a",
+   "what": "500-series normalize+GPI+ARIMA",
+   "ok": true,
+   "detail": {
+    "series": 500,
+    "passes": 2,
+    "crashes": [],
+    "digest_pass1": "bdd6f9465ffb91bd9a2d80720692db2ef5253172d870e4281b250f618367e201",
+    "digest_pass2": "bdd6f9465ffb91bd9a2d80720692db2ef5253172d870e4281b250f618367e201",
+    "repeatable": true,
+    "sample_records": [
+     {
+      "sid": 0,
+      "mm": 1,
+      "zs": 1,
+      "gpi": 0.511313,
+      "phi": -0.831665,
+      "fc": 1.706747
+     },
+     {
+      "sid": 1,
+      "mm": 1,
+      "zs": 1,
+      "gpi": 0.590909,
+      "phi": -0.415517,
+      "fc": -0.249276
+     },
+     {
+      "sid": 2,
+      "mm": 1,
+      "zs": 1,
+      "gpi": 0.547325,
+      "phi": 0.63959,
+      "fc": -5.142388
+     }
+    ],
+    "wall_s": 0.649
+   }
+  },
+  {
+   "battery": "3b",
+   "what": "200-groups ANOVA+ttest+Spearman vs scipy",
+   "ok": true,
+   "detail": {
+    "groups": 200,
+    "matched": {
+     "anova": 200,
+     "ttest": 200,
+     "spearman": 200
+    },
+    "mismatches": [],
+    "mismatch_total": 0,
+    "reference": "scipy 1.14.1 (external, engine never imports it)",
+    "wall_s": 1.022
+   }
+  },
+  {
+   "battery": "3c",
+   "what": "50 adversarial scenarios atomic-reject",
+   "ok": true,
+   "detail": {
+    "attacks": 50,
+    "rejected_atomically": 50,
+    "crashes": [],
+    "state_poisoning_check": true,
+    "attack_digest": "349fd6425fd85a30d55906056d43c4f462fc840912019f9c04021e0e7c2e7f65",
+    "classification": "PRECONDITION_FAILED (xgraph 14) إلا registry_get_missing = عقد KeyError صريح",
+    "wall_s": 0.0
+   }
+  }
+ ]
+}
