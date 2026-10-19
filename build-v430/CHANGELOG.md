@@ -1,3 +1,76 @@
+# SENTINEL Axis-11 — Determinism & Reproducibility, Closed End-to-End
+
+## Axis-11 stations
+
+- M1 RED (19eaa0a): the 15-case suite (H11_01..H11_15) pre-registered
+  BEFORE the engine existed; all 15 failed with the single honest
+  pattern (ModuleNotFoundError: No module named 'sentinel.repro',
+  verified uniform in the deposit). Contract derived and declared
+  (supersedable at any station boundary): D1 = archived spec §11
+  (G1..G5, Triple-Run, Merkle-root diff with automatic investigation,
+  the §11.4 interface) + D2 = the build-order scope list (same
+  seed->same outputs, Triple-Run, logic-flow digest, bit-flip
+  sensitivity). Evidence: axis11_RED.json (digest cdf6a0c2).
+- M2 GREEN (9eb0514): sentinel/repro.py per the pre-registered
+  contract — pure stdlib; SeededPRNG (pure SplitMix64) +
+  derive_stream; canonical_input (G5); flow digest + flow Merkle root
+  (the §8.2 convention); diff/investigate/verify/require (the
+  automatic investigation); freeze_environment (per-package RECORD
+  sha256 — G3 pinning BY HASH) + restore_environment (detection not
+  silence); DeterministicExecutor; default_pipeline over the closed
+  axis-8 core. 15/15 (digest 249843ed). Four GREEN repairs declared
+  in the station commit (merkle reference semantics, bytes
+  deep-copy, the seed-independence of the restored plaintext, and
+  seed 0 outside the declared contract) + the live-recomputation diff
+  (N-i) and numeric sys_flags (N-j).
+- M3 ATOMS (8712d8e): the three batteries 3/3 first run (digest
+  64edf7a7): 11a 400 seeded cycles (triple identical 800/800 across
+  two full passes; input/seed single-bit flips diverge 800/800; the
+  whole battery repeated reproduces the identical root list),
+  11b 150 independent-reference matches byte-exact (75 SplitMix64 +
+  25 canonical JSON + 50 flow roots sizes 1..50), 11c exactly 40
+  adversarial scenarios (20+8+4+4+4) — all 8 planted nondeterminism
+  sources caught by DriftError, the synchronized tamper caught from
+  raw materials, restore names every drift, boundaries 1/2^64-1
+  accepted and 2^64 rejected, live state check clean.
+- M4 R3 (6f1b07d): three fully separate processes, all six digests
+  IDENTICAL first run (suite 249843ed x3 = the M2 digest —
+  hash-seed independent as designed; atoms 64edf7a7 x3). G4 as
+  declared: no literal container in this environment (proven
+  external-2 X3); isolation = separate processes + PYTHONHASHSEED=0
+  pinned (the restore_environment contract). Standing tool
+  scripts/axis11_r3.py committed per the tools clause.
+- M5 GATE (this commit): the FULL core gate fresh on the final
+  axis-11 tree. Suite 4313/4313 (cache wiped pre-round; 19 chunks
+  227/227; 6 foreground ranges 681+454+908x3+454; AGG_RC=0) + doctor
+  17/17 + bench x3 run-3c0652b6be (38/0/0/37) F1=1.0 @7161/199 gt
+  0373baf92a92dce2, structurally IDENTICAL tuple-by-tuple vs the
+  accepted record (COMPARE_RC=0; requests 4784 record vs 7161 fresh
+  informational by design) — proving LIVE that the hot path never
+  imports repro + axis-11 suite/atoms FRESH on the gate tree (pytest
+  18 = 15+3; script-mode digests 249843ed / 64edf7a7 BOTH
+  DIGEST_MATCH vs the M2/M3/M4 anchors) + standing scope-edge
+  battery 6/6 digest c2916ba3 with red-proof all caught; anchor
+  a08828ee verified intact (the fresh run left it byte-identical
+  this round; defensive checkout issued anyway). Standing tool
+  scripts/assemble_axis11_deposits.py committed per the tools clause
+  (judged ALL GREEN rc=0); SHA256SUMS 10 evidence files (Task-76
+  convention).
+
+## Honest limits (declared)
+
+- No literal container (Docker) in this environment — proven
+  external-2 X3 (no binary); the G4 isolation implemented is fully
+  separate processes + a pinned PYTHONHASHSEED, the declared contract.
+- Axis-11 measures the DETERMINISTIC layer: the seeded runner and
+  the default pipeline over the closed axis-8 core. The detection
+  hot path (axes 1-4) is untouched by construction and proven
+  untouched LIVE (the 4313 fresh run + IDENTICAL structural compare).
+- bench informational requests vary by design (4784 record vs 7161
+  fresh); the structural tuple comparison is the authoritative check.
+- Wall times live in dur_s/detail, outside every digest — the
+  axis-11 discipline applied to its own axis.
+
 # SENTINEL External Round-2 — The Post-Axes-7+8 Sequence, Redone Honestly After the Environment Wipe
 
 Station ledger:
