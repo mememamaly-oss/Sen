@@ -1,0 +1,17 @@
+{
+ "phase": "X0",
+ "round": "external-round-2",
+ "charter": "results/external2/CHARTER_ROUND2.md (pre-registered BEFORE any external contact this round)",
+ "tree_head_at_phase": "e858fed11d0f5aed3966a78c8b5e22567e5310ac",
+ "ls_remote_origin_main": "e858fed11d0f5aed3966a78c8b5e22567e5310ac \u2014 MATCH at pre-flight (read-verified; write proof deferred to the station pushes per the standing lesson: never test-write on main)",
+ "working_tree": "clean, zero commits above the station, no environment noise",
+ "doctor": {
+  "overall": "PASS",
+  "passed": 17,
+  "total": 17,
+  "rc": 0
+ },
+ "charter_sha256": "84bd4277c28e389c9b152bc3c8c4c97246b6d6010d26759a837f321512af7d6b",
+ "provenance_status": "declared in CHARTER_ROUND2.md section 0 \u2014 supersedable at any station boundary",
+ "external_contact_this_phase": "NONE (charter registered before any)"
+}
