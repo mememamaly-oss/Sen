@@ -259,11 +259,177 @@ def stage_f1() -> int:
     return 0 if all_green else 1
 
 
+def stage_f2() -> int:
+    """The REAL external scan station — verifies the scan + proxy-log
+    compliance and writes the F2 evidence set."""
+    import hashlib as _h
+
+    RAW = Path("/tmp/final_scan_scanme_raw.json")
+    PLOG = Path("/tmp/final_scanme_proxy.jsonl")
+    items = []
+    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    head_rc, head, _ = run(["git", "rev-parse", "HEAD"], cwd=ROOT)
+
+    d = json.load(open(RAW))
+    s = d.get("stats", {})
+    j = s.get("request_journal", {})
+    raw_sha = _h.sha256(open(RAW, "rb").read()).hexdigest()
+
+    # ---- verify the scan record
+    findings = d.get("findings", [])
+    n_ver = len(findings)
+    green_scan = (d.get("run_id") == "run-71ca9f1d6e"
+                  and s.get("requests") == 574 and n_ver == 18
+                  and s.get("verified") == 18 and s.get("rejected") == 0)
+    items.append(("scan record run-71ca9f1d6e: 574 req, 18 verified, 0 rejected",
+                  green_scan, []))
+
+    # ---- verify proxy-log compliance
+    recs = [json.loads(x) for x in open(PLOG)]
+    fw = [r for r in recs if r["verdict"] == "forwarded"]
+    bl = [r for r in recs if r["verdict"] == "blocked"]
+    eps = sorted(r["epoch"] for r in fw)
+    span = eps[-1] - eps[0]
+    sustained = len(fw) / span if span else 0
+    cons5 = cur = 0
+    for r in fw:
+        cur = cur + 1 if 500 <= r["status"] < 600 else 0
+        cons5 = max(cons5, cur)
+    s429 = sum(1 for r in fw if r["status"] == 429)
+    buckets = {}
+    t0 = eps[0]
+    for e in eps:
+        buckets[int(e - t0)] = buckets.get(int(e - t0), 0) + 1
+    over2 = {k: v for k, v in buckets.items() if v > 2}
+    green_log = (len(bl) == 0 and len(fw) == 583 and cons5 == 0 and s429 == 0
+                 and sustained <= 2.0 and len(fw) <= 1500 and span <= 1800)
+    items.append((f"proxy log: 583 forwarded, 0 blocked, 0 consecutive-5xx, "
+                  f"0x429, sustained {sustained:.2f} req/s, budget OK",
+                  green_log, [f"seconds with >2 req (bucket burst): {over2}"]))
+
+    all_green = all(g for _, g, _ in items) and green_scan and green_log
+
+    # ---- findings inventory
+    from collections import Counter
+    ftypes = dict(Counter(f.get("type") for f in findings))
+
+    # ---- write the scan evidence (journal trimmed; full raw anchored by sha)
+    ev = {k: v for k, v in d.items() if k != "stats"}
+    ev["stats"] = {k: v for k, v in s.items() if k != "request_journal"}
+    ev["journal_note"] = ("574-entry request journal trimmed from the deposit "
+                          "for data minimization; full raw anchored by sha256 "
+                          + raw_sha)
+    ev["full_raw_sha256"] = raw_sha
+    (FIN / "F2_scan_scanme_EVIDENCE.json").write_text(
+        json.dumps(ev, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    shutil.copy(PLOG, FIN / "F2_scanme_proxy_log.jsonl")
+
+    # ---- the station report
+    report = {
+        "phase": "F2", "round": "final-round-1",
+        "charter": "results/final/CHARTER_FINAL.md section 4 (pre-registered)",
+        "tree_head_at_station": head.strip(),
+        "target_3_testphp": {
+            "status": "BLOCKED_UNREACHABLE",
+            "verify_get": "ONE GET (the pre-registered budget) -> curl exit 124 "
+                          "timeout, no response received — the identical "
+                          "round-1/X2 pattern",
+            "dns": "resolves (44.228.249.3) — the block is path-side, no "
+                   "speculation about cause",
+            "scan": "NOT RUN — cannot scan an unreachable target; the closed "
+                    "list forbids substitutes; zero hammering"
+        },
+        "target_2_scanme": {
+            "status": "SCANNED — the campaign's FIRST REAL external scan",
+            "verify_get": {"code": 200, "bytes": 6974, "time_s": 0.316,
+                           "root_body_sha256_prefix": "7c6ac262c9cd17bf"},
+            "direct_header_record": {
+                "note": "ONE direct GET (disclosed) capturing the target's "
+                        "true response headers — the corroborating record "
+                        "for the header-class findings",
+                "server": "Apache/2.4.7 (Ubuntu)",
+                "security_headers_present": [],
+                "headers_raw": ["HTTP/1.1 200 OK",
+                                "Server: Apache/2.4.7 (Ubuntu)",
+                                "Accept-Ranges: bytes",
+                                "Vary: Accept-Encoding",
+                                "Transfer-Encoding: chunked",
+                                "Content-Type: text/html"]},
+            "scan": {
+                "run_id": d.get("run_id"), "seed": d.get("seed"),
+                "scanner": d.get("scanner"),
+                "engine_target": "http://127.0.0.1:8899/ (the rate proxy; "
+                                 "upstream scanme.nmap.org, host-rewritten, "
+                                 "paths 1:1)",
+                "requests": 574, "pages_crawled": 5, "endpoints": 9,
+                "verified": 18, "candidates": 0, "rejected": 0,
+                "finding_types": ftypes,
+                "wall_duration_s": 295.2,
+                "full_raw_sha256": raw_sha}},
+        "compliance": {
+            "closed_list_violations": 0,
+            "blocked_smuggle_attempts": len(bl),
+            "five_xx_consecutive_max": cons5, "http_429": s429,
+            "sustained_rate_req_per_s": round(sustained, 3),
+            "burst_disclosure": "token bucket 2/s capacity-2 (the round-1 "
+                                "charter's literal mechanism): max 3 requests "
+                                "in an aligned second in 10 of 291 seconds "
+                                "(post-idle bucket bursts); sliding-window max "
+                                "4 at scan start; sustained 1.98/s",
+            "budget": "574/1500 requests, 294.3s/1800s — WITHIN",
+            "status_dist": {"200": 445, "404": 134, "400": 3,
+                            "reset": 1},
+            "stop_conditions": "none triggered (0 consecutive 5xx, no 429, "
+                               "no stress signals, budget respected)"},
+        "artifact_disclosure": [
+            "The v1.0 proxy injected its own Server header "
+            "(sentinel-rate-proxy/1.0 Python/3.12.15) and forwarded only "
+            "status+Content-Type+body — so the 18 header-class findings "
+            "measured the PROXY-DELIVERED response, not the target's raw "
+            "posture",
+            "The engine's verification is honest for what was delivered to "
+            "it; the interpretation required this disclosure",
+            "The single direct GET corroborates BOTH finding classes on the "
+            "target's real posture: Server: Apache/2.4.7 (Ubuntu) IS a real "
+            "banner disclosure, and NO security headers ARE present",
+            "Proxy fixed to v1.1 (upstream headers forwarded verbatim, own "
+            "banner suppressed, selftest re-judged 4/4) — committed for "
+            "future rounds; NO re-scan this round: the minimal-footprint "
+            "principle on a legitimate third-party site (574 requests is "
+            "enough; the classes are corroborated)"],
+        "honest_limits": [
+            "scanme is a static legitimate site — zero injection-class "
+            "findings expected (pre-registered) and measured; the scan "
+            "proves REAL external execution + closed-list + rate compliance, "
+            "not vulnerability abundance",
+            "the official quantitative reference remains the WAVSEP local "
+            "benchmark (F1)"],
+    }
+    (FIN / "F2_report.json").write_text(
+        json.dumps(report, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    # ---- SHA256SUMS over every evidence file
+    sums = []
+    for p in sorted(FIN.rglob("*")):
+        if p.is_file() and p.name != "SHA256SUMS":
+            sums.append(f"{sha256(p)}  results/final/{p.relative_to(FIN)}")
+    (FIN / "SHA256SUMS").write_text("\n".join(sums) + "\n", encoding="utf-8")
+
+    for name, good, extra in items:
+        print(("GREEN " if good else "RED   ") + name)
+        for e in extra:
+            print("      " + e)
+    print("VERDICT:", "ALL GREEN — F2 CLOSED" if all_green else "FAILURE")
+    return 0 if all_green else 1
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", choices=["f1"], default="f1")
+    ap.add_argument("--stage", choices=["f1", "f2"], default="f1")
     a = ap.parse_args()
-    return stage_f1() if a.stage == "f1" else 2
+    if a.stage == "f1":
+        return stage_f1()
+    return stage_f2()
 
 
 if __name__ == "__main__":

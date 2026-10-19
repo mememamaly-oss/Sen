@@ -55,7 +55,15 @@ class TokenBucket:
 
 class RateProxyHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
-    server_version = "sentinel-rate-proxy/1.0"
+    # v1.1: forward the upstream's response headers VERBATIM (minus
+    # hop-by-hop + recomputed Content-Length) and suppress this proxy's own
+    # banner — v1.0 injected "sentinel-rate-proxy/1.0" as the Server header
+    # and dropped the target's real headers, which made header-class scan
+    # findings measure the PROXY, not the target (declared in final-round-1
+    # F2; the fix stands for future rounds, the F2 evidence stands as-is
+    # with the disclosed artifact + the corroborating direct GET).
+    server_version = ""       # no banner of our own
+    sys_version = ""          # no python version leak either
 
     # set by serve():
     upstream_host = None      # structural whitelist — the ONLY host we dial
@@ -131,9 +139,11 @@ class RateProxyHandler(BaseHTTPRequestHandler):
             with urllib.request.urlopen(req, timeout=self.UPSTREAM_TIMEOUT) as r:
                 raw = r.read(self.MAX_RESP)
                 status, ctype = r.status, r.headers.get("Content-Type", "")
+                r_headers = dict(r.headers.items())
         except urllib.error.HTTPError as e:
             raw = e.read(self.MAX_RESP)
             status, ctype = e.code, e.headers.get("Content-Type", "")
+            r_headers = dict(e.headers.items())
         except Exception as e:  # upstream timeouts / resets — recorded honestly
             self._log("forwarded", method, path, 0,
                       (time.monotonic() - t0) * 1000.0, f"upstream error: {e}")
@@ -147,8 +157,17 @@ class RateProxyHandler(BaseHTTPRequestHandler):
         self.__class__.forwarded += 1
         self._log("forwarded", method, path, status,
                   (time.monotonic() - t0) * 1000.0)
-        self.send_response(status)
-        if ctype:
+        self.send_response_only(status)          # no Server/Date of our own
+        hop = {"connection", "transfer-encoding", "content-length", "keep-alive",
+               "proxy-authenticate", "proxy-authorization", "te", "trailer", "upgrade"}
+        sent_ct = False
+        for k, v in (r_headers or {}).items():
+            if k.lower() in hop:
+                continue
+            if k.lower() == "content-type":
+                sent_ct = True
+            self.send_header(k, v)
+        if not sent_ct and ctype:
             self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(raw)))
         self.end_headers()

@@ -1,0 +1,78 @@
+{
+ "phase": "F2",
+ "round": "final-round-1",
+ "charter": "results/final/CHARTER_FINAL.md section 4 (pre-registered)",
+ "tree_head_at_station": "ac8011f6794ae3065c86da95b105c54b72bd69b7",
+ "target_3_testphp": {
+  "status": "BLOCKED_UNREACHABLE",
+  "verify_get": "ONE GET (the pre-registered budget) -> curl exit 124 timeout, no response received — the identical round-1/X2 pattern",
+  "dns": "resolves (44.228.249.3) — the block is path-side, no speculation about cause",
+  "scan": "NOT RUN — cannot scan an unreachable target; the closed list forbids substitutes; zero hammering"
+ },
+ "target_2_scanme": {
+  "status": "SCANNED — the campaign's FIRST REAL external scan",
+  "verify_get": {
+   "code": 200,
+   "bytes": 6974,
+   "time_s": 0.316,
+   "root_body_sha256_prefix": "7c6ac262c9cd17bf"
+  },
+  "direct_header_record": {
+   "note": "ONE direct GET (disclosed) capturing the target's true response headers — the corroborating record for the header-class findings",
+   "server": "Apache/2.4.7 (Ubuntu)",
+   "security_headers_present": [],
+   "headers_raw": [
+    "HTTP/1.1 200 OK",
+    "Server: Apache/2.4.7 (Ubuntu)",
+    "Accept-Ranges: bytes",
+    "Vary: Accept-Encoding",
+    "Transfer-Encoding: chunked",
+    "Content-Type: text/html"
+   ]
+  },
+  "scan": {
+   "run_id": "run-71ca9f1d6e",
+   "seed": "20261020",
+   "scanner": "sentinel-core/4.3.0",
+   "engine_target": "http://127.0.0.1:8899/ (the rate proxy; upstream scanme.nmap.org, host-rewritten, paths 1:1)",
+   "requests": 574,
+   "pages_crawled": 5,
+   "endpoints": 9,
+   "verified": 18,
+   "candidates": 0,
+   "rejected": 0,
+   "finding_types": {
+    "missing_security_headers": 9,
+    "server_banner_disclosure": 9
+   },
+   "wall_duration_s": 295.2,
+   "full_raw_sha256": "733f4500f84c4fbcffbe7abfba8b4ffd120f1cc7effb783098bfb475449a737d"
+  }
+ },
+ "compliance": {
+  "closed_list_violations": 0,
+  "blocked_smuggle_attempts": 0,
+  "five_xx_consecutive_max": 0,
+  "http_429": 0,
+  "sustained_rate_req_per_s": 1.981,
+  "burst_disclosure": "token bucket 2/s capacity-2 (the round-1 charter's literal mechanism): max 3 requests in an aligned second in 10 of 291 seconds (post-idle bucket bursts); sliding-window max 4 at scan start; sustained 1.98/s",
+  "budget": "574/1500 requests, 294.3s/1800s — WITHIN",
+  "status_dist": {
+   "200": 445,
+   "404": 134,
+   "400": 3,
+   "reset": 1
+  },
+  "stop_conditions": "none triggered (0 consecutive 5xx, no 429, no stress signals, budget respected)"
+ },
+ "artifact_disclosure": [
+  "The v1.0 proxy injected its own Server header (sentinel-rate-proxy/1.0 Python/3.12.15) and forwarded only status+Content-Type+body — so the 18 header-class findings measured the PROXY-DELIVERED response, not the target's raw posture",
+  "The engine's verification is honest for what was delivered to it; the interpretation required this disclosure",
+  "The single direct GET corroborates BOTH finding classes on the target's real posture: Server: Apache/2.4.7 (Ubuntu) IS a real banner disclosure, and NO security headers ARE present",
+  "Proxy fixed to v1.1 (upstream headers forwarded verbatim, own banner suppressed, selftest re-judged 4/4) — committed for future rounds; NO re-scan this round: the minimal-footprint principle on a legitimate third-party site (574 requests is enough; the classes are corroborated)"
+ ],
+ "honest_limits": [
+  "scanme is a static legitimate site — zero injection-class findings expected (pre-registered) and measured; the scan proves REAL external execution + closed-list + rate compliance, not vulnerability abundance",
+  "the official quantitative reference remains the WAVSEP local benchmark (F1)"
+ ]
+}
