@@ -1,0 +1,49 @@
+{
+ "suite": "axis7-r3",
+ "station": "M4-R3",
+ "runs": {
+  "suite": [
+   {
+    "run": 1,
+    "total": 14,
+    "passed": 14,
+    "digest": "14d72c42a5cf8371672dc8249aa57c55dc2c2309b459e0d463deba8406296547"
+   },
+   {
+    "run": 2,
+    "total": 14,
+    "passed": 14,
+    "digest": "14d72c42a5cf8371672dc8249aa57c55dc2c2309b459e0d463deba8406296547"
+   },
+   {
+    "run": 3,
+    "total": 14,
+    "passed": 14,
+    "digest": "14d72c42a5cf8371672dc8249aa57c55dc2c2309b459e0d463deba8406296547"
+   }
+  ],
+  "atoms": [
+   {
+    "run": 1,
+    "total": 3,
+    "passed": 3,
+    "digest": "cd1fd9d4bdb3b85da8ffc58f888a1d1eb24684303b0190eac665c9bd8bc7fcf4"
+   },
+   {
+    "run": 2,
+    "total": 3,
+    "passed": 3,
+    "digest": "cd1fd9d4bdb3b85da8ffc58f888a1d1eb24684303b0190eac665c9bd8bc7fcf4"
+   },
+   {
+    "run": 3,
+    "total": 3,
+    "passed": 3,
+    "digest": "cd1fd9d4bdb3b85da8ffc58f888a1d1eb24684303b0190eac665c9bd8bc7fcf4"
+   }
+  ]
+ },
+ "suite_digest_identical": true,
+ "atoms_digest_identical": true,
+ "passed": true
+}
