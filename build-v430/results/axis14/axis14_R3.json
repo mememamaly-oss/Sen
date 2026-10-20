@@ -1,0 +1,50 @@
+{
+ "suite": "axis14-r3",
+ "station": "M4-R3",
+ "isolation": "3 separate subprocesses, full memory/state isolation; PYTHONHASHSEED=0 pinned in each env (the inherited G4 contract: no literal container in this environment — proven external-2 X3)",
+ "runs": {
+  "suite": [
+   {
+    "run": 1,
+    "total": 16,
+    "passed": 16,
+    "digest": "6fa44ea679143cb780b9ece67fca3a19a040b96c1fab0c4152ae1b02a33337a1"
+   },
+   {
+    "run": 2,
+    "total": 16,
+    "passed": 16,
+    "digest": "6fa44ea679143cb780b9ece67fca3a19a040b96c1fab0c4152ae1b02a33337a1"
+   },
+   {
+    "run": 3,
+    "total": 16,
+    "passed": 16,
+    "digest": "6fa44ea679143cb780b9ece67fca3a19a040b96c1fab0c4152ae1b02a33337a1"
+   }
+  ],
+  "atoms": [
+   {
+    "run": 1,
+    "total": 3,
+    "passed": 3,
+    "digest": "deac91875fa4fbc509c7595d4d25aab092b092692828960cf428ed8cf9a38eef"
+   },
+   {
+    "run": 2,
+    "total": 3,
+    "passed": 3,
+    "digest": "deac91875fa4fbc509c7595d4d25aab092b092692828960cf428ed8cf9a38eef"
+   },
+   {
+    "run": 3,
+    "total": 3,
+    "passed": 3,
+    "digest": "deac91875fa4fbc509c7595d4d25aab092b092692828960cf428ed8cf9a38eef"
+   }
+  ]
+ },
+ "suite_digest_identical": true,
+ "atoms_digest_identical": true,
+ "passed": true
+}
