@@ -1573,6 +1573,21 @@ class SentinelScanner:
         # construction; this catches any future accidental leakage path.
         if self.vault is not None:
             rep = self.vault.scrub(rep)
+        # Axis 14 (v4.4.1): the independently-auditable layer — LAZY import
+        # (the apath pattern; the hot path never imports it at module level).
+        # ADDITIVE ONLY: one "audit" section — no finding changed, no request
+        # added, no stats touched (pinned by the axis-14 wing).
+        try:
+            from .audit import enrich_report
+            rep = enrich_report(rep, seed=self.seed, run_id=self.run_id)
+        except Exception as e:
+            fid = self.failures.record("audit", f"{type(e).__name__}: {e}", {})
+            self.bus.emit("ScannerFailed", scanner="audit", failure=fid,
+                          error=str(e)[:200])
+            self.boundary.tool_failure("audit", self.target.url,
+                                       f"{type(e).__name__}: {e}",
+                                       evidence=f"failure {fid}",
+                                       provenance="orchestrator:audit")
         return rep
 
 

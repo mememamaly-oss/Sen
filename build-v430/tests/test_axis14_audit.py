@@ -268,8 +268,8 @@ def test_H14_11():
         msg = f"axis14 cross message {i}".encode()
         sig = ed25519_sign(priv, msg)
         Ed25519PublicKey.from_public_bytes(pub).verify(sig, msg)   # المرجع يقبل
-        k2 = Ed25519PrivateKey.generate_private_key()
-        ref_sig = k2.sign(msg)
+        k2 = Ed25519PrivateKey.generate()   # إصلاح جانب الجناح معلن (M2):
+        ref_sig = k2.sign(msg)              # الواجهة generate() لا generate_private_key
         ref_pub = k2.public_key().public_bytes_raw()
         assert ed25519_verify(ref_sig, msg, ref_pub), \
             "the pure implementation must verify the reference's signature"
@@ -305,12 +305,14 @@ def test_H14_12():
         open(sp, "wb").write(sig)
         open(tp, "wb").write(b"tampered message")
         ok = subprocess.run(["openssl", "pkeyutl", "-verify", "-pubin",
-                              "-inkey", pp, "-rawin", "-in", mp, "-sig", sp],
+                              "-inkey", pp, "-rawin", "-in", mp,
+                              "-sigfile", sp],
                             capture_output=True)
         assert ok.returncode == 0 and b"Successful" in ok.stdout, \
             f"openssl must verify: {ok.stdout!r} {ok.stderr!r}"
         bad = subprocess.run(["openssl", "pkeyutl", "-verify", "-pubin",
-                              "-inkey", pp, "-rawin", "-in", tp, "-sig", sp],
+                              "-inkey", pp, "-rawin", "-in", tp,
+                              "-sigfile", sp],
                              capture_output=True)
         assert bad.returncode != 0, "openssl must reject the tampered message"
 
