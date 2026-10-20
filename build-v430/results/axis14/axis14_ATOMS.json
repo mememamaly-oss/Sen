@@ -1,0 +1,54 @@
+{
+ "suite": "axis14-atoms",
+ "station": "M3-ATOMS",
+ "total": 3,
+ "passed_count": 3,
+ "passed": true,
+ "overall_digest": "deac91875fa4fbc509c7595d4d25aab092b092692828960cf428ed8cf9a38eef",
+ "batteries": [
+  {
+   "battery": "14a planted cycles",
+   "ok": true,
+   "detail": {
+    "cycles": 45,
+    "agreement": 45,
+    "repeatable": true,
+    "bit_flip_sensitive": true,
+    "pass1_seal_sha": "9512daaf9883240d",
+    "pass2_seal_sha": "9512daaf9883240d"
+   }
+  },
+  {
+   "battery": "14b independent refs",
+   "ok": true,
+   "detail": {
+    "matched": 133,
+    "total_checks": 133,
+    "mismatches": 0,
+    "breakdown": {
+     "merkle": 30,
+     "ed25519": 50,
+     "canonical": 20,
+     "message": 15,
+     "keypair": 18
+    },
+    "mismatch_list": []
+   }
+  },
+  {
+   "battery": "14c adversarial x40",
+   "ok": true,
+   "detail": {
+    "total": 40,
+    "by_class": {
+     "structural": 12,
+     "sabotage": 10,
+     "precision": 8,
+     "tamper": 6,
+     "liveness": 4
+    },
+    "failures": []
+   }
+  }
+ ]
+}

@@ -40,7 +40,8 @@ import base64
 import hashlib
 import json
 
-from .proof import ed25519_public_key, ed25519_sign, merkle_root
+from .proof import (ValidationError as _VE, ed25519_public_key,
+                     ed25519_sign, merkle_root)
 from .repro import derive_stream
 
 __all__ = [
@@ -148,14 +149,17 @@ def header_canonical(report: dict) -> str:
 
 def signed_message(run_id: str, root_hex: str, count: int,
                    report: dict) -> bytes:
-    """هضم الرسالة الموقَّعة (N6): الحقول بفاصل 0x00 — استحالة تضارب
-    المحتوى مع الفواصل."""
-    return hashlib.sha256(b"\x00".join([
-        str(run_id).encode("utf-8"),
-        str(root_hex).encode("utf-8"),
-        str(int(count)).encode("utf-8"),
-        header_canonical(report).encode("utf-8"),
-    ])).digest()
+    """هضم الرسالة الموقَّعة (N6): الحقول بفاصل 0x00. المحصّن (M3 قبل
+    البطاريات — يُعلن): أي حقل يحوي 0x00 يُرفض ذرياً — وإلا لتمكن تراكب
+    الترميز (x\x00y|z ≡ x|y\x00z) من إنتاج نفس الهضم لقيم مختلفة."""
+    parts = [str(run_id), str(root_hex), str(int(count)),
+             header_canonical(report)]
+    for f in parts:
+        if "\x00" in f:
+            raise _VE(
+                "signed_message: NUL byte in a field — the \\x00 "
+                "joined encoding would be ambiguous")
+    return hashlib.sha256(b"\x00".join(p.encode("utf-8") for p in parts)).digest()
 
 
 # ---- §3 the deterministic keypair (spec §14.2) --------------------------------
@@ -174,7 +178,11 @@ def derive_keypair(seed):
 # ---- §4 the audit block -------------------------------------------------------
 def audit_block(report: dict, seed=None) -> dict:
     """قسم التدقيق الكامل — إضافة فقط؛ لا يغير شيئاً في التقرير."""
-    findings = list(report.get("findings") or [])
+    raw = report.get("findings")
+    # fail-closed (المحصّن في M3 قبل البطاريات — يُعلن): السجلات قائمة
+    # حصراً؛ أي شكل آخر (dict/tuple/None) = مجموعة فارغة صادقة — لا
+    # مفاتيح dict تتحول أوراقاً بلا إعلان.
+    findings = list(raw) if isinstance(raw, list) else []
     root = merkle_root_of_records(findings)
     effective_seed = seed if seed is not None else report.get("seed")
     priv, pub = derive_keypair(effective_seed)
