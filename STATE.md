@@ -3,7 +3,8 @@
 **One honest file with the full picture. No marketing. If a claim is not
 backed by a number or a committed artifact, it does not belong here.**
 
-- Last updated: 2026-10-14 (UTC) — round 19: **TRUSTBOUND CLOSED — the
+- Last updated: 2026-10-20 (UTC) — round 20: **AXIS-13 CLOSED END-TO-END — the modern vulnerability battery: six recent-CVE-class detectors (JWT algorithm confusion + none-acceptance, GraphQL batching, request-smuggling BY TIMING, mass assignment, prototype pollution), all built under the five-station gates with the standing discipline.** New engine module sentinel/modernsec.py (pure stdlib — the RSA public key reconstructed from the JWKS n/e by a minimal DER encoder; NO key material ever stored in a finding — the proof is the differential) + the four registration points (evidence/report/intel VR-29..34/orchestrator lazy wiring). MANDATORY differential everywhere: no differential -> no finding, only an honest boundary (TESTED_NEGATIVE / UNTESTABLE / OBSERVED_ANOMALY / NOT_DISCOVERED) — zero probes when preconditions are missing. Station chain M1 RED 0/20 (uniform ModuleNotFoundError, digest 6eef4f89) -> M2 GREEN 20/20 (dfa89987ee824c13) -> M3 ATOMS 3/3 (fb6eafe1bfd8c721: 48 planted cycles x2 passes byte-identical + bit-flip sensitive, 100 independent references, 40 adversarial exactly 12+10+8+6+4 — the lying-target class caught by the VR fail-closed in all ten) -> M4 R3 six digests IDENTICAL x3 -> M5 GATE: 4313/4313 fresh cache-wiped + doctor 17/17 + bench x3 run-3c0652b6be (38/0/0/37) F1=1.0 @7162/199 gt 0373baf92a92dce2 STRUCTURALLY IDENTICAL vs the accepted record — the LIVE no-regression proof (the six new detectors fired ZERO findings on WAVSEP) + the closed axes fresh (65 pytest + all six digests DIGEST_MATCH) + scope-edge 6/6 digest c2916ba3 with red-proof and the anchor a08828ee intact. The program: docs/SPEC_AXES_13_16.md (banked verbatim supervisor order) — axes 14 (Merkle+Ed25519 auditable report), 15 (CI/CD developer API), 16 (OWASP Benchmark 95%+ with the documented Burp/ZAP comparison) remain, EACH awaiting the supervisor's approval after its predecessor's M5 (the standing stop rule). HONEST LEDGER CATCH-UP (this file's rounds 20-25 gap): external-round-2 (X0-X3), axes 11-12, and final-round-1 (F0-F3, the first REAL external scan on scanme.nmap.org) are fully committed and evidenced in CHANGELOG.md + worklog tasks 82-85 — they were ledgered there, not here; no silent gaps.
+- Round 19 (2026-10-14): **TRUSTBOUND CLOSED — the
   recall-push campaign now at FOUR categories at 100.00% (sqli, xss, cmdi,
   trustbound), precision 1.0000 across ALL (zero FP), covered-set recall
   90.33% -> 94.31% at F1 0.9707.** trustbound 38.55% -> 100.00% (83/83 TP,
@@ -117,6 +118,9 @@ backed by a number or a committed artifact, it does not belong here.**
 ---
 
 ## 1. What is built and PROVEN (with numbers)
+
+**Round 20 (2026-10-20) — AXIS-13 CLOSED: the modern vulnerability battery, six families, zero regressions.**
+Per-family at the M5 gate: jwt_algorithm_confusion (SEN-JWT-002, HIGH, proven — RS/HS confusion, the verifier accepts an HS256 token signed with the PUBLIC key PEM body while rejecting the corrupted control), jwt_none_acceptance (SEN-JWT-003, HIGH, proven — the verifier honors alg=none with an empty signature while rejecting the corrupted original; both-accepted -> OBSERVED_ANOMALY, never a finding), graphql_batching_enabled (SEN-GQL-008, LOW, indicated — arrays of read-only ops execute, rate-limit-bypass surface), http_request_smuggling (SEN-SMK-001, MEDIUM, indicated — CL+TE raw-socket timing pair, threshold max(3x control, 500ms), quantized classes desync/below-threshold/rejected-ambiguous, pipeline corruption NEVER attempted), mass_assignment (SEN-MA-001, HIGH, proven — a privilege-shaped param with a FABRICATED canary value persisted via state-oracle on the scan's OWN session objects, never a real privilege), prototype_pollution (SEN-PP-001, HIGH, proven — __proto__ merge + reflection oracle; the DOM variant declared out of the default scope). All six carry VR-29..34 fresh-replay branches in the fail-closed verifier. Gates: suite 4313/4313 (fresh, cache-wiped, the heavies c03=285s c07=211s), doctor 17/17, bench x3 STRUCTURALLY IDENTICAL @7162/199 gt 0373baf92a92dce2, scope-edge 6/6 digest c2916ba3 + red-proof, anchor a08828ee intact. Deposits: results/axis13/ (7 evidence files + SHA256SUMS, verify OK) + results/gate_axis13_dfa89987.log + bench log. Pre-existing NOT rebuilt (the spec 0.2 disclosure): jwt_security issuance (DETECT-18/VR-15) + graphql_introspection_enabled (SEN-GQL-001).
 
 **Round 19 (2026-10-14) — trustbound CLOSED at 100.00%, zero regressions.**
 Per-category recall at precision 1.0000 (fresh full 12-chunk run on the TB
@@ -562,7 +566,17 @@ live re-scan (see section 5). Raw IV14 adjudication evidence:
 
 ## 5. What has NOT happened yet (as of this file's date)
 
-0. **Round-9 honest open gaps (internal test, not external verification):**
+0. **The extension program (axes 14-16) — registered, NOT built (docs/SPEC_AXES_13_16.md):**
+   axis 14 (the independently-auditable report: Merkle root + Ed25519 public key,
+   externally verifiable with open tools — NOTE: the axis-8 proof module already
+   carries pure-stdlib Ed25519+Merkle primitives to build on), axis 15 (the CI/CD
+   developer API surface), axis 16 (the OWASP Benchmark push from the committed
+   round-19 baseline — full-set 93.64% = TP 1325 / FN 90 of 1415 vulnerable, at
+   precision 1.0000 — to 95%+ with the documented Burp/ZAP comparison). EACH
+   awaits the supervisor's approval after its predecessor's M5 — the standing
+   stop rule; no silent starts.
+
+1. **Round-9 honest open gaps (internal test, not external verification):**
    Juice Shop login-form params invisible (Angular-rendered form — the login-SQLi
    challenge stays unproven); basket BOLA probed but not claimed (victim-marker
    oracle needs identity markers; basket JSON carries UserId only); WebGoat XSS

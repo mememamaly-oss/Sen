@@ -1,3 +1,72 @@
+# SENTINEL Axis-13 — Modern Vulnerability Detectors, Closed End-to-End
+
+The first axis of the extension program (docs/SPEC_AXES_13_16.md — the four-axis
+supervisor order banked verbatim; axes 14-16 remain, each awaiting the standing
+post-M5 approval). Six recent-CVE-class detector families the market demands and
+most existing tools do not cover, all under the five-station gates with the
+standing discipline.
+
+## Axis-13 stations
+
+- M1 RED (8553f89): the 20-case suite (H13_01..H13_20) pre-registered BEFORE
+  the engine existed; all 20 failed with the single honest pattern
+  (ModuleNotFoundError: No module named 'sentinel.modernsec'); digest
+  6eef4f8735806f35. Contract D1 = spec §13 + D2 = the order's scope; the two
+  pre-existing capabilities (jwt_security issuance, graphql introspection)
+  disclosed in the spec §0.2 and NOT rebuilt.
+- M2 GREEN (b7eb59e): sentinel/modernsec.py per the pre-registered contract —
+  pure stdlib; the RSA public key reconstructed from the JWKS n/e by a
+  minimal DER encoder (the leading-0x00 DER integer rule); MANDATORY
+  differential everywhere; honest boundaries (TESTED_NEGATIVE / UNTESTABLE /
+  OBSERVED_ANOMALY / NOT_DISCOVERED) with ZERO probes when preconditions are
+  missing (budget honesty); the four registration points (evidence, report
+  SARIF, intel VR-29..34, orchestrator lazy wiring); 20/20 first full run
+  (digest dfa89987ee824c13). STATION EVIDENCE: bench x3 run-3c0652b6be
+  (38/0/0/37) F1=1.0 @7162/199 gt 0373baf92a92dce2 STRUCTURALLY IDENTICAL vs
+  the accepted record (the LIVE no-regression proof — the six new detectors
+  fired ZERO findings on WAVSEP) + the closed axes fresh (65 pytest + all six
+  digests DIGEST_MATCH). Three live-caught fixes declared (the corrupt-sig
+  middle-char rule, the wing fixture's incremental chunked reader, the
+  H13_18 fail-closed wording per v4.2.0's standing semantics).
+- M3 ATOMS (4049e81): 3/3 first run (overall digest fb6eafe1bfd8c721). 13a:
+  48 planted cycles (16 modes x3), every family's classification known by
+  construction, two full passes reproduce the identical 48-seal list
+  byte-for-byte, a single bit flip changes the seal. 13b: 100 independent
+  references byte-exact (25 PEM reconstructions vs cryptography — the test
+  side may use it, the engine never does; 25 canary derivations; 20
+  corrupt-sig guarantees; 15 recipe parses; 15 literal vocabularies). 13c:
+  exactly 40 adversarial (12+10+8+6+4) — the signature class: LYING TARGETS
+  (a door that opens for the probe then lies to the verification) caught by
+  the VR fail-closed replay in all ten.
+- M4 R3 (d970d3e): six digests IDENTICAL x3 across three fully separate
+  processes with PYTHONHASHSEED=0 (suite dfa89987ee824c13 x3 = the M2 digest;
+  atoms fb6eafe1bfd8c721 x3 = the M3 digest — hash-seed independent).
+- M5 GATE + closure (this commit): the FULL core gate FRESH (cache wiped):
+  6 foreground ranges (681+454+908x3+454; the heavies c03=285s c07=211s) ->
+  machine aggregate 19 chunks 227/227 = 4313/4313 AGG_RC=0 + doctor 17/17 +
+  bench x3 STRUCTURALLY IDENTICAL + the axis-13 suite/atoms FRESH on the gate
+  tree (pytest 20 + script-mode digests DIGEST_MATCH vs the station anchors) +
+  the closed axes fresh (65 pytest + six digests DIGEST_MATCH) + the standing
+  scope-edge battery 6/6 digest c2916ba3 with --red-proof all saboteurs caught
+  + the anchor a08828ee restored by a defensive checkout and re-verified
+  intact. Standing tool scripts/assemble_axis13_deposits.py judged ALL GREEN
+  rc=0; deposits: 7 evidence files under results/axis13/ + the gate and bench
+  logs + SHA256SUMS (Task-76 convention, verify OK).
+
+## Honest limits of this axis
+
+- http_request_smuggling is INDICATED, never proven-exploitable: the timing
+  differential is the whole claim; pipeline corruption is NEVER attempted
+  (detection-only by design — the supervisor's literal "بالتوقيت" order).
+- The smuggling family covers http targets only (https declared out); the
+  confusion family covers the RSA JWKS class (the dominant CVE family; ES
+  declared out); the PP DOM/browser variant is out of the default engine
+  scope (--no-browser).
+- Measured timings live OUTSIDE every digest (quantized to classes — the
+  axis-11/12 discipline); bench request counts are informational by design.
+- The pre-existing jwt_security (issuance side) and graphql_introspection
+  were NOT rebuilt — the spec §0.2 disclosure; no silent double-coverage.
+
 # SENTINEL final-round-1 — The Complete Acceptance Round: Internal Battery + THE REAL External Scan, Closed End-to-End
 
 Supervisor order 2026-10-20 (verbatim): the tool's rigorous tests — COMPLETE
