@@ -1,3 +1,77 @@
+# SENTINEL Axis-14 — The Independently-Auditable Report, Closed End-to-End
+
+The second axis of the extension program (docs/SPEC_AXES_13_16.md). The
+competitive claim the supervisor ordered: the report carries a Merkle root +
+an Ed25519 public key, so ANY external auditor verifies EVERY result with
+OPEN tools and NO code access — a property neither Burp Suite nor OWASP ZAP
+carries.
+
+## Axis-14 stations
+
+- M1 RED (381db87): the 16-case suite (H14_01..H14_16) pre-registered BEFORE
+  the engine existed; all 16 failed with the single honest pattern
+  (ModuleNotFoundError: No module named 'sentinel.audit'); digest
+  f653209fa205bd57. Contract D1 = spec §14 + D2 = the order's scope.
+- M2 GREEN (5c91c81): sentinel/audit.py per the pre-registered contract —
+  BUILT ON the closed axes (axis-8's Ed25519 + §8.2 Merkle primitives;
+  axis-11's SeededPRNG for the deterministic keypair), never reimplementing.
+  The declared VOLATILE_KEYS stripped recursively at every depth (timing
+  notes can never move the root); the empty set = the declared constant
+  sha256(b''); the signed message = sha256(run_id \x00 root \x00 count \x00
+  header_canonical); the recipe embedded in every report AND in
+  docs/AUDIT_VERIFICATION.md; lazy wiring in orchestrator.report() after the
+  vault scrub. 16/16 first full run (digest 6fa44ea679143cb7). STATION
+  EVIDENCE: bench x3 STRUCTURALLY IDENTICAL vs the accepted record (the
+  additive layer changed zero findings — the live proof) + the closed axes
+  fresh (85 pytest + 8 digests DIGEST_MATCH). Two wing-side fixes declared
+  (the cryptography generate() API; the openssl -sigfile option confirmed
+  against the live 3.5.7).
+- M3 ATOMS (7da1c1d): 3/3 (overall digest deac91875fa4fbc5). 14a: 45 planted
+  cycles (15 shapes x3) — every root known by construction via an
+  in-battery independent Merkle; two full passes reproduce the identical
+  45-seal list byte-for-byte; a single input bit flip changes the seal.
+  14b: 133/133 independent references byte-exact (30 Merkle trees 0..29,
+  50 Ed25519 cross-checks in both directions vs cryptography, 20 canonical
+  strings, 15 signed-message digests, 18 keypair properties incl. the
+  declared str-coercion). 14c: exactly 40 adversarial (12+10+8+6+4) — the
+  signature class: THE LYING REPORT (tampered after signing) caught by the
+  external auditor in all ten forms; and the honest trust-model limit pinned:
+  a fully consistent forgery is NOT detectable without the out-of-band
+  public key — documented, never papered over. TWO ENGINE HARDENINGS
+  declared (fail-closed; the wing re-verified 16/16 after them): findings
+  must be a LIST (dict/tuple coerce to the honest empty set — list(dict)
+  would have silently made the dict's keys the leaves); and signed_message
+  rejects NUL bytes in raw fields atomically (the encoding-overlap attack
+  x\x00y|z == x|y\x00z).
+- M4 R3 (11418b0): six digests IDENTICAL x3 across three fully separate
+  processes with PYTHONHASHSEED=0 (suite 6fa44ea6 x3 = the M2 digest; atoms
+  deac9187 x3 = the M3 digest — hash-seed independent).
+- M5 GATE + closure (this commit): the FULL core gate FRESH (cache wiped):
+  6 foreground ranges (681+454+908x3+454; the heavies c03=285s c07=211s) ->
+  machine aggregate 19 chunks 227/227 = 4313/4313 AGG_RC=0 + doctor 17/17 +
+  bench x3 STRUCTURALLY IDENTICAL + the axis-14 suite/atoms FRESH on the gate
+  tree (pytest 16 + script-mode digests DIGEST_MATCH vs the station anchors) +
+  the closed axes fresh (85 pytest + 8 digests DIGEST_MATCH) + the standing
+  scope-edge battery 6/6 digest c2916ba3 with --red-proof + the anchor
+  a08828ee restored by a defensive checkout and re-verified intact.
+  Standing tool scripts/assemble_axis14_deposits.py judged ALL GREEN rc=0;
+  deposits: 9 evidence files under results/axis14/ + the gate and bench logs
+  + SHA256SUMS (Task-76 convention, 11 files, verify OK).
+
+## Honest limits of this axis
+
+- The signature proves INTERNAL CONSISTENCY (the findings + the report
+  identity). A fully consistent forgery (attacker's key + root + signature)
+  is NOT detectable without the out-of-band public key — the trust model is
+  documented in docs/AUDIT_VERIFICATION.md and pinned in the atoms battery.
+- rejected_candidates and stats are OUTSIDE the signed stream by design
+  (stats are volatile by nature; the recipe declares the coverage).
+- Volatile-field edits (verification notes, durations) are NOT flagged —
+  they live outside the signed logical stream by design.
+- Bench request counts remain informational by design; the authoritative
+  no-regression check is the structural tuple compare (IDENTICAL over the
+  carrying tree — the live additivity proof).
+
 # SENTINEL Axis-13 — Modern Vulnerability Detectors, Closed End-to-End
 
 The first axis of the extension program (docs/SPEC_AXES_13_16.md — the four-axis
