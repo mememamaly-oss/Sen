@@ -1,3 +1,45 @@
+# SENTINEL Independent Audit Round (audit-rb-1) — Red Team / Blue Team / Military-Crypto Standards + Live External Tests
+
+Supervisor order 2026-10-20 (9th token): full adversarial audit of the tool
+FROM THE REPOSITORY. Every verdict EXECUTED, not theoretical. Full report:
+results/audit/AUDIT_REPORT.md (Arabic). Headlines:
+- RED (critical, live-proven): SSRF guard is string-matching — 6/7 obfuscated
+  forms (decimal/hex/octal/trailing-dot/localhost./v6-mapped) reached a private
+  listener under allow_private=False (RT-01); TLS engine runs CERT_NONE — a
+  self-signed MITM intercepted the scan AND captured the Authorization header
+  (RT-05); the Ed25519 report key is seed-derived with a 64-bit domain — we
+  forged a fully-consistent findings-erased report verified TRUE by the external
+  recipe (RT-03) and recovered the seed from the embedded pubkey in 0.14s via a
+  date dictionary (RT-04); the request journal stores Authorization/API keys in
+  plaintext (RT-07); ReDoS in impact.py:883 _HOSTNAME_RE (quadratic, measured
+  8KB=1.1s -> 2MB=hours) (RT-08).
+- BLUE (held under attack): all HTML report artifacts escaped 7 hostile
+  structural marks; vault refused bit-flip/wrong-key/truncation, ciphertext-only
+  at rest, 0600 fail-closed; cookie jar cross-host isolated; scope-edge battery
+  6/6 digest c2916ba3 (anchor match) + red-proof both saboteurs caught;
+  parameterized SQL throughout; zero pickle/eval/shell surfaces. One auditor
+  self-correction recorded: an initial RT-02 'INJECTED' was a false positive
+  (inert attribute text) — corrected before verdict.
+- MILITARY CRYPTO: FIPS 140-3/CNSA 2.0/SP 800-52/57/131A/186-5 table over 12
+  primitives — internally competent (EtM, constant-time MAC, RFC-conformant
+  Ed25519) but NOT military-compliant: seed-derived keys (critical), no TLS
+  server auth (critical), ChaCha20/BLAKE3 non-FIPS, SHA-256 vs CNSA SHA-384,
+  Ed25519 vs CNSA P-384, no HSM story.
+- LIVE EXTERNAL (charter results/audit/CHARTER_AUDIT.md, closed list,
+  <=2 req/s structural, 600-req budget): testasp.vulnweb.com first-ever scan —
+  BUDGET BREACH DISCLOSED (1,261 reqs before kill; AUD-GOV-01: the engine has
+  no built-in request budget) with raw differential signal banked (Templatize.asp
+  500x71/96 = the app's SSTI surface choking under probes); testaspnet
+  watchdog-capped 603/603 with TWO byte-identical request streams (live
+  determinism proof); both targets completed no-crawl scans in-budget — 3
+  verified signed findings each, the FIRST externally-signed scans in campaign
+  history; testphp unreachable (F2 pattern), testhtml/testcgi NXDOMAIN, scanme
+  not rescanned (minimal footprint, F2 stands).
+Standing tools committed: scripts/rt_network_attacks.py, scripts/rt_crypto_
+attacks.py, scripts/audit_external_scan.py (with budget watchdog). Deposits:
+results/audit/ (report + charters + batteries + proxy logs + signed scans +
+SHA256SUMS).
+
 # SENTINEL Axis-14 — The Independently-Auditable Report, Closed End-to-End
 
 The second axis of the extension program (docs/SPEC_AXES_13_16.md). The

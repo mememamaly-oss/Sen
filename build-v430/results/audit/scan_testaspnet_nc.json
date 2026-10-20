@@ -1,0 +1,1737 @@
+{
+ "run_id": "run-71ca9f1d6e",
+ "seed": "20261020",
+ "scanner": "sentinel-core/4.3.0",
+ "target": "http://127.0.0.1:8900/",
+ "stats": {
+  "requests": 24,
+  "endpoints": 1,
+  "candidates": 0,
+  "verified": 3,
+  "rejected": 0,
+  "duration": 15.85,
+  "openapi": {
+   "source": null,
+   "paths": 0,
+   "new_endpoints": 0
+  },
+  "param_intel": {
+   "params_total": 0,
+   "by_kind": {},
+   "value_shape_upgrades": 0,
+   "data_objects": {}
+  },
+  "graphql": {
+   "enabled": true,
+   "candidates": 0,
+   "endpoints": [],
+   "introspected": 0,
+   "queries": 0,
+   "mutations": 0,
+   "tests": 0,
+   "requests": 4,
+   "boundaries": 0
+  },
+  "websocket": {
+   "enabled": true,
+   "candidates": 0,
+   "channels": [],
+   "connected": 0,
+   "protocols": {},
+   "tests": 0,
+   "connections": 9,
+   "blocked_by_planner": 0
+  },
+  "modern": {
+   "findings": 0,
+   "boundaries": [
+    {
+     "family": "jwt_algorithm_confusion",
+     "kind": "NOT_DISCOVERED",
+     "detail": "no auth-shaped endpoint in flight"
+    },
+    {
+     "family": "jwt_none_acceptance",
+     "kind": "NOT_DISCOVERED",
+     "detail": "no auth-shaped endpoint in flight"
+    },
+    {
+     "family": "graphql_batching_enabled",
+     "kind": "NOT_DISCOVERED",
+     "detail": "no graphql-shaped POST endpoint in flight"
+    },
+    {
+     "family": "http_request_smuggling",
+     "kind": "NOT_DISCOVERED",
+     "detail": "no POST endpoint in flight"
+    },
+    {
+     "family": "mass_assignment",
+     "kind": "NOT_DISCOVERED",
+     "detail": "no update-shaped endpoint in flight"
+    },
+    {
+     "family": "prototype_pollution",
+     "kind": "NOT_DISCOVERED",
+     "detail": "no merge-shaped endpoint in flight"
+    }
+   ],
+   "probe_counts": {
+    "jwt_algorithm_confusion": {
+     "sent": 0,
+     "cap": 12
+    },
+    "jwt_none_acceptance": {
+     "sent": 0,
+     "cap": 12
+    },
+    "graphql_batching_enabled": {
+     "sent": 0,
+     "cap": 4
+    },
+    "http_request_smuggling": {
+     "sent": 0,
+     "cap": 16
+    },
+    "mass_assignment": {
+     "sent": 0,
+     "cap": 8
+    },
+    "prototype_pollution": {
+     "sent": 0,
+     "cap": 8
+    }
+   }
+  },
+  "request_journal": {
+   "req-17662395": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/openapi.json",
+     "path": "/openapi.json",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 404,
+     "headers": {
+      "content-type": "text/html",
+      "server": "Microsoft-IIS/8.5",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:00 GMT",
+      "content-length": "1245"
+     },
+     "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>404 - File or directory not found.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>404 - File or directory not found.</h2>\r\n  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 359.9
+    }
+   },
+   "req-4f19ae35": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/swagger.json",
+     "path": "/swagger.json",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 404,
+     "headers": {
+      "content-type": "text/html",
+      "server": "Microsoft-IIS/8.5",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:00 GMT",
+      "content-length": "1245"
+     },
+     "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>404 - File or directory not found.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>404 - File or directory not found.</h2>\r\n  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 335.5
+    }
+   },
+   "req-189e79b1": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/swagger/v1/swagger.json",
+     "path": "/swagger/v1/swagger.json",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 404,
+     "headers": {
+      "content-type": "text/html",
+      "server": "Microsoft-IIS/8.5",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:01 GMT",
+      "content-length": "1245"
+     },
+     "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>404 - File or directory not found.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>404 - File or directory not found.</h2>\r\n  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 322.3
+    }
+   },
+   "req-0943b774": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/v2/api-docs",
+     "path": "/v2/api-docs",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 404,
+     "headers": {
+      "content-type": "text/html",
+      "server": "Microsoft-IIS/8.5",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:01 GMT",
+      "content-length": "1245"
+     },
+     "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>404 - File or directory not found.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>404 - File or directory not found.</h2>\r\n  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 346.2
+    }
+   },
+   "req-1b67df33": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 403,
+     "headers": {
+      "content-type": "text/html; charset=us-ascii",
+      "server": "Microsoft-HTTPAPI/2.0",
+      "date": "Tue, 20 Oct 2026 05:39:02 GMT",
+      "content-length": "312"
+     },
+     "body": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\r\n<HTML><HEAD><TITLE>Forbidden</TITLE>\r\n<META HTTP-EQUIV=\"Content-Type\" Content=\"text/html; charset=us-ascii\"></HEAD>\r\n<BODY><h2>Forbidden URL</h2>\r\n<hr><p>HTTP Error 403. The request URL is forbidden.</p>\r\n</BODY></HTML>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 455.4
+    }
+   },
+   "req-b10b8c42": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 403,
+     "headers": {
+      "content-type": "text/html; charset=us-ascii",
+      "server": "Microsoft-HTTPAPI/2.0",
+      "date": "Tue, 20 Oct 2026 05:39:02 GMT",
+      "content-length": "312"
+     },
+     "body": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\r\n<HTML><HEAD><TITLE>Forbidden</TITLE>\r\n<META HTTP-EQUIV=\"Content-Type\" Content=\"text/html; charset=us-ascii\"></HEAD>\r\n<BODY><h2>Forbidden URL</h2>\r\n<hr><p>HTTP Error 403. The request URL is forbidden.</p>\r\n</BODY></HTML>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 506.6
+    }
+   },
+   "req-8a0f9204": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "path": "/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 403,
+     "headers": {
+      "content-type": "text/html; charset=us-ascii",
+      "server": "Microsoft-HTTPAPI/2.0",
+      "date": "Tue, 20 Oct 2026 05:39:03 GMT",
+      "content-length": "312"
+     },
+     "body": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\r\n<HTML><HEAD><TITLE>Forbidden</TITLE>\r\n<META HTTP-EQUIV=\"Content-Type\" Content=\"text/html; charset=us-ascii\"></HEAD>\r\n<BODY><h2>Forbidden URL</h2>\r\n<hr><p>HTTP Error 403. The request URL is forbidden.</p>\r\n</BODY></HTML>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 502.0
+    }
+   },
+   "req-3a3ef749": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "path": "/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 403,
+     "headers": {
+      "content-type": "text/html; charset=us-ascii",
+      "server": "Microsoft-HTTPAPI/2.0",
+      "date": "Tue, 20 Oct 2026 05:39:03 GMT",
+      "content-length": "312"
+     },
+     "body": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\r\n<HTML><HEAD><TITLE>Forbidden</TITLE>\r\n<META HTTP-EQUIV=\"Content-Type\" Content=\"text/html; charset=us-ascii\"></HEAD>\r\n<BODY><h2>Forbidden URL</h2>\r\n<hr><p>HTTP Error 403. The request URL is forbidden.</p>\r\n</BODY></HTML>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 588.9
+    }
+   },
+   "req-5e4883de": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/../../../../etc/passwd",
+     "path": "/../../../../etc/passwd",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 403,
+     "headers": {
+      "content-type": "text/html; charset=us-ascii",
+      "server": "Microsoft-HTTPAPI/2.0",
+      "date": "Tue, 20 Oct 2026 05:39:04 GMT",
+      "content-length": "312"
+     },
+     "body": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\"http://www.w3.org/TR/html4/strict.dtd\">\r\n<HTML><HEAD><TITLE>Forbidden</TITLE>\r\n<META HTTP-EQUIV=\"Content-Type\" Content=\"text/html; charset=us-ascii\"></HEAD>\r\n<BODY><h2>Forbidden URL</h2>\r\n<hr><p>HTTP Error 403. The request URL is forbidden.</p>\r\n</BODY></HTML>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 497.3
+    }
+   },
+   "req-fc18f399": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "set-cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45; path=/; HttpOnly",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:04 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 608.3
+    }
+   },
+   "req-8c8a95cb": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Origin": "https://sentinel-probe.example",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:05 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 497.1
+    }
+   },
+   "req-7f66edeb": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Host": "sentinel-hh-42032866af.example",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:05 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 497.2
+    }
+   },
+   "req-924ff92c": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:06 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 514.8
+    }
+   },
+   "req-3792176b": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "sentineltb1marker": "1",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:06 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 487.0
+    }
+   },
+   "req-be050802": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "sentineltb2marker": "1",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:07 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 502.6
+    }
+   },
+   "req-101591b1": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "sentineltb1markerzz": "1",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:07 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 539.7
+    }
+   },
+   "req-ba1e16f3": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "sentineltb2markerzz": "1",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:08 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 523.6
+    }
+   },
+   "req-116fa145": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "..": "1",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:08 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 528.7
+    }
+   },
+   "req-06f624ff": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "sentinel-hn-89828": "1",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:09 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 647.6
+    }
+   },
+   "req-29073494": {
+    "request": {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "path": "/",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)"
+     },
+     "body": ""
+    },
+    "response": {
+     "status": 200,
+     "headers": {
+      "cache-control": "private",
+      "content-type": "text/html; charset=utf-8",
+      "server": "Microsoft-IIS/8.5",
+      "x-aspnet-version": "2.0.50727",
+      "set-cookie": "ASP.NET_SessionId=d2b20e55y1fuhwfeyp2ktlrm; path=/; HttpOnly",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:09 GMT",
+      "content-length": "14044"
+     },
+     "body": "\r\n<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" >\r\n<HTML>\r\n\t<HEAD>\r\n\t\t<title>acublog news</title>\r\n\t\t<META http-equiv=\"Content-Type\" content=\"text/html; charset=windows-1252\">\r\n\t\t<meta content=\"Microsoft Visual Studio .NET 7.1\" name=\"GENERATOR\">\r\n\t\t<meta content=\"C#\" name=\"CODE_LANGUAGE\">\r\n\t\t<meta content=\"JavaScript\" name=\"vs_defaultClientScript\">\r\n\t\t<meta content=\"http://schemas.microsoft.com/intellisense/ie5\" name=\"vs_targetSchema\">\r\n\t\t<LINK href=\"styles.css\" type=\"text/css\" rel=\"stylesheet\">\r\n\t</HEAD>\r\n\t<body>\r\n\t\t<form name=\"Form1\" method=\"post\" action=\"default.aspx\" id=\"Form1\">\r\n<div>\r\n<input type=\"hidden\" name=\"__EVENTTARGET\" id=\"__EVENTTARGET\" value=\"\" />\r\n<input type=\"hidden\" name=\"__EVENTARGUMENT\" id=\"__EVENTARGUMENT\" value=\"\" />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/wEPDwUKLTEwNTI0MjkwNQ9kFgICAQ9kFgICAQ9kFgQCAQ8WBB4EaHJlZgUKbG9naW4uYXNweB4JaW5uZXJodG1sBQVsb2dpbmQCAw8WBB8AZB4HVmlzaWJsZWhkZArjxDMCoNA8/4bzlRmUHIna4LG5\" />\r\n</div>\r\n\r\n<script type=\"text/javascript\">\r\n//<![CDATA[\r\nvar theForm = document.forms['Form1'];\r\nif (!theForm) {\r\n    theForm = document.Form1;\r\n}\r\nfunction __doPostBack(eventTarget, eventArgument) {\r\n    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {\r\n        theForm.__EVENTTARGET.value = eventTarget;\r\n        theForm.__EVENTARGUMENT.value = eventArgument;\r\n        theForm.submit();\r\n    }\r\n}\r\n//]]>\r\n</script>\r\n\r\n\r\n<div>\r\n\r\n\t<input type=\"hidden\" name=\"__VIEWSTATEGENERATOR\" id=\"__VIEWSTATEGENERATOR\" value=\"CA0B0334\" />\r\n\t<input type=\"hidden\" name=\"__EVENTVALIDATION\" id=\"__EVENTVALIDATION\" value=\"/wEWVwLpus/wCALi++jXCAKUlvjlDgK20sH6DwK20sH6DwK20vWRBwK20vWRBwK20qn5BQK20qn5BQK20t2dDQK20t2dDQKL+a8FAov5rwUCi/nD2QkCi/nD2QkCi/n3/AICi/n3/AICi/nrkwoCi/nrkwoCi/mftgMCi/mftgMCi/mzzQwCi/mzzQwCi/mn4AUCi/mn4AUCi/nbhA0Ci/nbhA0Ci/mP7AsCi/mP7AsCi/mjgwMCi/mjgwMCvJPvxAkCvJPvxAkCvJODmwECvJODmwECvJO3vgoCvJO3vgoCvJOr1QMCvJOr1QMCvJPf6QwCvJPf6QwCvJPzjAQCvJPzjAQCvJPnow0CvJPnow0CvJObxgYCvJObxgYCvJPPrwMCvJPPrwMCvJPjwgwCvJPjwgwCkbrN6w8CkbrN6w8CkbrhjgcCkbrhjgcCkbqVJQKRupUlApG6ifgJApG6ifgJApG6vZ8BApG6vZ8BApG60bMKApG60bMKApG6xdYDApG6xdYDApG6+e0MApG6+e0MApG6rdUJApG6rdUJApG6wekCApG6wekCAtTZwJ4HAtTZwJ4HAtTZ9DUC1Nn0NQLU2ejICQLU2ejICQLU2ZzvAgLU2ZzvAgLU2bCCCgLU2bCCCgLU2aTZAwLU2aTZAwLU2dj9DALU2dj9DALU2cyQBALU2cyQBOADTL8/1D30ovyktck2hrroq87L\" />\r\n</div>\r\n\t\t\t\r\n<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD style=\"COLOR: #e6dccf\" bgColor=\"#806640\" height=\"75\"><a href=\"https://www.acunetix.com/\"><IMG src=\"images/logo_acunetix.gif\" align=\"absMiddle\" border=\"0\" alt=\"Acunetix website security\"></a></TD>\r\n\t\t<TD style=\"FONT-WEIGHT: bold; FONT-SIZE: small; COLOR: #e6dccf\" align=\"right\" bgColor=\"#806640\"\r\n\t\t\theight=\"75\">Test Website for <a href=\"https://www.acunetix.com/vulnerability-scanner/\">Acunetix Web Vulnerability Scanner</a></TD>\r\n\t</TR>\r\n</TABLE>\r\n<TABLE id=\"Table2\" cellSpacing=\"0\" cellPadding=\"5\" width=\"790\" align=\"center\" border=\"0\">\r\n\t<TR>\r\n\t\t<TD class=\"MenuBar\" style=\"BORDER-LEFT: #806040 1px solid\"><A class=\"menu\" title=\"About\" href=\"about.aspx\">about</A>\r\n\t\t\t<A class=\"menu\" title=\"Latest news\" href=\"default.aspx\">news</A> <a href=\"login.aspx\" id=\"Mainmenu2_lnkLog\" class=\"menu\" name=\"lnkLog\">login</a>  <a href=\"Signup.aspx\" id=\"Mainmenu2_lnkSignup\" class=\"menu\" name=\"lnkSignup\">\r\n\t\t\t\tsignup</a> <A class=\"menu\" title=\"Network scanner\" href=\"https://www.acunetix.com/vulnerability-scanner/network-vulnerability-scanner/\">network scanner</A>\r\n\t\t\t\t<A class=\"menu\" title=\"Network vuln help\" href=\"https://www.acunetix.com/blog/articles/network-vulnerability-assessment-gotchas-avoid/\">network vuln help</A>\r\n\t\t</TD>\r\n\t\t<td class=\"MenuBar\" align=\"right\" width=\"50px\">\r\n\t\t\t<A href=\"rssFeed.aspx\"><IMG src=\"images/rss.gif\" border=\"0\"></A>\r\n\t\t</td>\r\n\t</TR>\r\n</TABLE>\r\n\r\n\t\t\t<TABLE id=\"Table1\" cellSpacing=\"0\" cellPadding=\"10\" width=\"790\" align=\"center\" border=\"0\">\r\n\t\t\t\t<TR>\r\n\t\t\t\t\t<TD id=\"tdPageData\" valign=\"top\">\r\n\t\t\t\t\t<DIV class=\"NewsDate\">posted ",
+     "redirect_chain": [],
+     "elapsed_ms": 531.6
+    }
+   },
+   "req-1e3af390": {
+    "request": {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/graphql",
+     "path": "/graphql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 404,
+     "headers": {
+      "content-type": "text/html",
+      "server": "Microsoft-IIS/8.5",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:10 GMT",
+      "content-length": "1245"
+     },
+     "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>404 - File or directory not found.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>404 - File or directory not found.</h2>\r\n  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 368.4
+    }
+   },
+   "req-bb446746": {
+    "request": {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/api/graphql",
+     "path": "/api/graphql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 502,
+     "headers": {
+      "server": "",
+      "date": "Tue, 20 Oct 2026 05:39:14 GMT",
+      "content-type": "application/json",
+      "content-length": "71"
+     },
+     "body": "{\"error\": \"upstream unreachable: [Errno 104] Connection reset by peer\"}",
+     "redirect_chain": [],
+     "elapsed_ms": 170.4
+    }
+   },
+   "req-92327cef": {
+    "request": {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/graphql/v1",
+     "path": "/graphql/v1",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 404,
+     "headers": {
+      "content-type": "text/html",
+      "server": "Microsoft-IIS/8.5",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:10 GMT",
+      "content-length": "1245"
+     },
+     "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>404 - File or directory not found.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>404 - File or directory not found.</h2>\r\n  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 492.9
+    }
+   },
+   "req-f57acc10": {
+    "request": {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/gql",
+     "path": "/gql",
+     "headers": {
+      "User-Agent": "Mozilla/5.0 (compatible; Sentinel/4.3.0; +security-scanner)",
+      "Content-Type": "application/json",
+      "Cookie": "ASP.NET_SessionId=0rpfiunqh21c2d55azmurj45"
+     },
+     "body": "{\"query\": \"{__typename}\"}"
+    },
+    "response": {
+     "status": 404,
+     "headers": {
+      "content-type": "text/html",
+      "server": "Microsoft-IIS/8.5",
+      "x-powered-by": "ASP.NET",
+      "date": "Tue, 20 Oct 2026 05:39:11 GMT",
+      "content-length": "1245"
+     },
+     "body": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n<head>\r\n<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\"/>\r\n<title>404 - File or directory not found.</title>\r\n<style type=\"text/css\">\r\n<!--\r\nbody{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}\r\nfieldset{padding:0 15px 10px 15px;} \r\nh1{font-size:2.4em;margin:0;color:#FFF;}\r\nh2{font-size:1.7em;margin:0;color:#CC0000;} \r\nh3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} \r\n#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:\"trebuchet MS\", Verdana, sans-serif;color:#FFF;\r\nbackground-color:#555555;}\r\n#content{margin:0 0 0 2%;position:relative;}\r\n.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}\r\n-->\r\n</style>\r\n</head>\r\n<body>\r\n<div id=\"header\"><h1>Server Error</h1></div>\r\n<div id=\"content\">\r\n <div class=\"content-container\"><fieldset>\r\n  <h2>404 - File or directory not found.</h2>\r\n  <h3>The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.</h3>\r\n </fieldset></div>\r\n</div>\r\n</body>\r\n</html>\r\n",
+     "redirect_chain": [],
+     "elapsed_ms": 468.1
+    }
+   }
+  },
+  "request_journal_dropped": 0,
+  "fingerprint": {
+   "waf": null,
+   "tech": {
+    "headers": {
+     "server": "Microsoft-IIS/8.5",
+     "x-aspnet-version": "2.0.50727",
+     "x-powered-by": "ASP.NET"
+    },
+    "cookies": [
+     "asp.net_sessionid"
+    ],
+    "frameworks": [
+     "ASP.NET WebForms",
+     "cookies:ASP.NET"
+    ],
+    "angularjs": false
+   }
+  },
+  "rate_limit": {
+   "limited": 0,
+   "retries": 0,
+   "recovered": 0
+  },
+  "coverage": {
+   "discovered": 10,
+   "tested": 10,
+   "passive": 1,
+   "secrets_scanned": 1,
+   "active": 10,
+   "authz_probed": 0,
+   "active_or_authz": 10,
+   "untested": 0,
+   "skip_reasons": {},
+   "coverage_pct": 100.0,
+   "endpoints": [
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/",
+     "source": "seed",
+     "activity": [
+      "passive",
+      "secrets",
+      "active"
+     ],
+     "skips": [],
+     "baseline": 200
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/..%2f..%2fetc%2fpasswd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "GET",
+     "url": "http://127.0.0.1:8900/../../../../etc/passwd",
+     "source": "seed",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/api/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/gql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/graphql",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    },
+    {
+     "method": "POST",
+     "url": "http://127.0.0.1:8900/graphql/v1",
+     "source": "manual",
+     "activity": [
+      "active"
+     ],
+     "skips": [],
+     "baseline": null
+    }
+   ],
+   "detail_truncated": 0,
+   "dimensions": {
+    "endpoint": {
+     "dimension": "endpoint",
+     "discovered": 10,
+     "tested": 10,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "04aaa64037e9",
+       "meta": {
+        "url": "http://127.0.0.1:8900/",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "3d8717632f73",
+       "meta": {
+        "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "4f9a289430c8",
+       "meta": {
+        "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2fwindows%2fwin.ini",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "83e694c12708",
+       "meta": {
+        "url": "http://127.0.0.1:8900/..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "86a543b765c4",
+       "meta": {
+        "url": "http://127.0.0.1:8900/api/graphql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "9dbca8f66518",
+       "meta": {
+        "url": "http://127.0.0.1:8900/../../../../etc/passwd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "ae218dcbc1bc",
+       "meta": {
+        "url": "http://127.0.0.1:8900/graphql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "c67dc7e65209",
+       "meta": {
+        "url": "http://127.0.0.1:8900/gql",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "cea43ca76515",
+       "meta": {
+        "url": "http://127.0.0.1:8900/..%2f..%2f..%2f..%2f..%2f..%2fetc%2fpasswd",
+        "method": "GET"
+       },
+       "tested": true,
+       "untested_reason": ""
+      },
+      {
+       "key": "eb571f37ac07",
+       "meta": {
+        "url": "http://127.0.0.1:8900/graphql/v1",
+        "method": "POST"
+       },
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "parameter": {
+     "dimension": "parameter",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no parameter surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "authentication": {
+     "dimension": "authentication",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "anonymous-probe",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "identity": {
+     "dimension": "identity",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no identity surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "authorization": {
+     "dimension": "authorization",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {
+      "no_multi_user_config": 1
+     },
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no authorization surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "entity": {
+     "dimension": "entity",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no entity surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "object": {
+     "dimension": "object",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no object surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow": {
+     "dimension": "workflow",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "workflow_branch": {
+     "dimension": "workflow_branch",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no workflow branch surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "state": {
+     "dimension": "state",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no state surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "api_protocol": {
+     "dimension": "api_protocol",
+     "discovered": 1,
+     "tested": 1,
+     "untested": 0,
+     "untested_reasons": {},
+     "pct": 100.0,
+     "status": "TESTED",
+     "items": [
+      {
+       "key": "http",
+       "meta": {},
+       "tested": true,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    },
+    "graphql": {
+     "dimension": "graphql",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no graphql surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "websocket": {
+     "dimension": "websocket",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no websocket surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "browser": {
+     "dimension": "browser",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no browser surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "oast": {
+     "dimension": "oast",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {
+      "no OAST channel armed (blind classes inert)": 1
+     },
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no oast surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "detector": {
+     "dimension": "detector",
+     "discovered": 0,
+     "tested": 0,
+     "untested": 0,
+     "untested_reasons": {},
+     "status": "NOT_DISCOVERED",
+     "pct": 0.0,
+     "note": "no detector surface was observed on this target",
+     "items": [],
+     "items_truncated": 0
+    },
+    "evidence": {
+     "dimension": "evidence",
+     "discovered": 1,
+     "tested": 0,
+     "untested": 1,
+     "untested_reasons": {},
+     "pct": 0.0,
+     "status": "UNTESTED",
+     "items": [
+      {
+       "key": "verified-findings",
+       "meta": {},
+       "tested": false,
+       "untested_reason": ""
+      }
+     ],
+     "items_truncated": 0
+    }
+   }
+  },
+  "appmap": {
+   "surfaces": {
+    "page": {
+     "count": 1,
+     "endpoints": [
+      "http://127.0.0.1:8900/"
+     ]
+    },
+    "api": {
+     "count": 0,
+     "endpoints": []
+    },
+    "form_or_action": {
+     "count": 0,
+     "endpoints": []
+    },
+    "static": {
+     "count": 0,
+     "endpoints": []
+    }
+   },
+   "authentication": {
+    "mode": "anonymous",
+    "roles_tested": [],
+    "accounts_logged_in": 0
+   },
+   "access_matrix": null,
+   "data_objects": {},
+   "workflows": null,
+   "coverage": {
+    "discovered": 10,
+    "tested": 10,
+    "untested": 0,
+    "coverage_pct": 100.0,
+    "skip_reasons": {}
+   }
+  },
+  "reasoning": {
+   "generated": 0,
+   "tested": 0,
+   "tested_verified": 0,
+   "verified": 0,
+   "refuted": 0,
+   "untestable": 0,
+   "untestable_reasons": {},
+   "hypotheses": []
+  },
+  "digital_twin": {
+   "nodes": 7,
+   "edges": 3,
+   "node_kinds": {
+    "boundary": 2,
+    "finding": 3,
+    "role": 1,
+    "surface": 1
+   },
+   "edge_kinds": {
+    "produced_finding": 3
+   },
+   "identities": 0,
+   "roles": 1,
+   "surfaces_total": 1,
+   "surfaces_write": 0,
+   "surfaces_read": 1,
+   "entities": 0,
+   "workflow_steps": 0,
+   "states_observed": 0,
+   "findings_attached": 3,
+   "secrets_masked": 0,
+   "hypotheses": 0,
+   "surfaces_with_untested_reasons": 0,
+   "flows": [],
+   "authorization_matrix": {},
+   "entity_inventory": [],
+   "belief_audit": [],
+   "why_examples": []
+  },
+  "boundary": {
+   "records": 2,
+   "by_state": {
+    "NOT_DISCOVERED": 2
+   },
+   "by_category": {
+    "graphql": 1,
+    "websocket": 1
+   },
+   "unresolved": 2,
+   "unresolved_detail": [
+    {
+     "category": "graphql",
+     "target": "http://127.0.0.1:8900/",
+     "state": "NOT_DISCOVERED",
+     "reason": "no GraphQL endpoint observed (path-shape, JS extraction and well-known probes all empty)",
+     "remediation": ""
+    },
+    {
+     "category": "websocket",
+     "target": "http://127.0.0.1:8900/",
+     "state": "NOT_DISCOVERED",
+     "reason": "no WebSocket channel observed (JS extraction and well-known probes all empty)",
+     "remediation": ""
+    }
+   ],
+   "states_vocabulary": [
+    "TESTED",
+    "VERIFIED",
+    "REFUTED",
+    "SUPERSEDED",
+    "UNTESTABLE",
+    "NOT_DISCOVERED",
+    "NOT_SUPPORTED",
+    "BLOCKED_BY_PERMISSION",
+    "BLOCKED_BY_AUTH",
+    "BLOCKED_BY_SAFETY",
+    "BLOCKED_BY_ENVIRONMENT",
+    "TIMEOUT",
+    "TOOL_FAILURE",
+    "DEPENDENCY_MISSING",
+    "NOT_APPLICABLE"
+   ]
+  },
+  "api_inventory": {
+   "total": 1,
+   "by_protocol": {
+    "http": 1
+   },
+   "apis": [
+    {
+     "protocol": "http",
+     "method": "GET",
+     "path": "/",
+     "channel": "",
+     "sources": [
+      "seed"
+     ],
+     "parameters": [],
+     "findings": 3,
+     "finding_types": [
+      "missing_security_headers",
+      "server_banner_disclosure",
+      "tech_banner_disclosure"
+     ],
+     "authentication": "unknown",
+     "coverage_status": "tested"
+    }
+   ]
+  },
+  "action_matrix": {
+   "identities": [
+    {
+     "name": "anonymous",
+     "role": "anonymous"
+    }
+   ],
+   "actions": [
+    "read",
+    "create",
+    "update",
+    "delete",
+    "approve",
+    "execute",
+    "export",
+    "admin"
+   ],
+   "matrix": {
+    "anonymous": {
+     "read": "untested:no anonymous baseline for these surfaces",
+     "create": "untested:no surface of this action class was probed under this identity",
+     "update": "untested:no surface of this action class was probed under this identity",
+     "delete": "untested:no surface of this action class was probed under this identity",
+     "approve": "untested:no surface of this action class was probed under this identity",
+     "execute": "untested:no surface of this action class was probed under this identity",
+     "export": "untested:no surface of this action class was probed under this identity",
+     "admin": "untested:no surface of this action class was probed under this identity"
+    }
+   },
+   "discovered_surface_actions": {
+    "read": 1
+   }
+  },
+  "planner": {
+   "operations_evaluated": 1,
+   "by_impact": {
+    "READ_ONLY": 1
+   },
+   "blocked": 0,
+   "logic_active": false,
+   "policy": "READ_ONLY/LOW_IMPACT automatic; STATE_CHANGING needs --logic-active; DESTRUCTIVE blocked",
+   "decisions": [
+    {
+     "url": "http://127.0.0.1:8900/",
+     "method": "GET",
+     "impact": "READ_ONLY",
+     "allowed": true,
+     "policy": "automatic",
+     "rationale": "GET fetch \u2014 observation only, no server state can change",
+     "note": "passive-baseline"
+    }
+   ]
+  },
+  "proofs": [
+   {
+    "finding_id": "F-b4c66833e6",
+    "type": "missing_security_headers",
+    "severity": "low",
+    "attack_hypothesis": "protective headers are absent",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8900/",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_absent",
+      "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy",
+      "request_id": "req-fc18f399"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8900/",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_absent"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8900/ as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_absent)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-0375c50a23",
+    "type": "server_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "server software version disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8900/",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "Server: Microsoft-IIS/8.5",
+      "request_id": "req-fc18f399"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8900/",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8900/ as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   },
+   {
+    "finding_id": "F-e12c1f91ac",
+    "type": "tech_banner_disclosure",
+    "severity": "low",
+    "attack_hypothesis": "technology stack disclosed",
+    "preconditions": [
+     "target reachable within scope"
+    ],
+    "requests": [
+     {
+      "method": "GET",
+      "url": "http://127.0.0.1:8900/",
+      "parameter": ""
+     }
+    ],
+    "responses": [
+     {
+      "kind": "header_value",
+      "detail": "X-Powered-By: ASP.NET",
+      "request_id": "req-fc18f399"
+     }
+    ],
+    "identity": "primary scan session",
+    "state_before": "",
+    "state_after": "",
+    "impact": {
+     "grade": "indicated",
+     "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+     "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+     "evidence_chain": {
+      "request": "GET http://127.0.0.1:8900/",
+      "parameter": "",
+      "evidence_kinds": [
+       "header_value"
+      ],
+      "out_of_band": false,
+      "verification": "single-response-evidence",
+      "verification_passed": true
+     }
+    },
+    "reproduction": [
+     {
+      "step": 1,
+      "request": "authenticate a session with the application (as configured for the scan)",
+      "expect": "an authenticated session cookie/header"
+     },
+     {
+      "step": 2,
+      "request": "send GET http://127.0.0.1:8900/ as recorded",
+      "expect": "the same evidence kind fires as in the attached proof (header_value)"
+     }
+    ],
+    "confidence": 0.7,
+    "verification": {
+     "method": "single-response-evidence",
+     "passed": true,
+     "rounds": 1,
+     "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+    },
+    "proof_grade": "indicated"
+   }
+  ],
+  "unverified_candidates": 0,
+  "secrets": {
+   "classes_found": [],
+   "findings": 0,
+   "masking": "raw values never stored (prefix+length only)"
+  }
+ },
+ "findings": [
+  {
+   "id": "F-b4c66833e6",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:8900/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, x-frame-options, x-content-type-options, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.3.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent \u2014 defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8900/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-0375c50a23",
+   "type": "server_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:8900/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "Server: Microsoft-IIS/8.5"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.3.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Server software version disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8900/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  },
+  {
+   "id": "F-e12c1f91ac",
+   "type": "tech_banner_disclosure",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:8900/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_value",
+     "detail": "X-Powered-By: ASP.NET"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response \u2014 no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.3.0",
+   "run_id": "",
+   "risk": 7,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Technology stack disclosed \u2014 reconnaissance aid.",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read \u2014 no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:8900/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_value"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   }
+  }
+ ],
+ "rejected_candidates": [],
+ "unverified_candidates": [],
+ "attack_paths": {
+  "layer": "sentinel-apath/4.3.0",
+  "paths": [],
+  "summary": {
+   "target": "http://127.0.0.1:8900/",
+   "run_id": "run-71ca9f1d6e",
+   "paths_total": 0,
+   "paths_verified": 0,
+   "paths_inferred": 0,
+   "singles": 0,
+   "chains": 0,
+   "weak_link_histogram": {},
+   "seed_findings": [],
+   "non_seed_findings": {
+    "F-0375c50a23": "server_banner_disclosure",
+    "F-b4c66833e6": "missing_security_headers",
+    "F-e12c1f91ac": "tech_banner_disclosure"
+   },
+   "honesty": "A path equals its weakest link: 0/0 paths carry EVERY link verified; the rest are INFERRED and name their weak links. No link is ever marked verified without an evidence reference traceable to a verified finding, a raw journal entry, or a scan artifact. Chained paths additionally require every hop evidenced; an inferred bridge (e.g. script execution not demonstrated) makes the whole chain INFERRED."
+  }
+ },
+ "audit": {
+  "merkle_root": "7bf53ad265613564c137ef771c2d38f564c1c948725e85e5b49796efcac377d5",
+  "findings_count": 3,
+  "algorithm": "sha256-merkle-dup-last-on-odd",
+  "leaf_spec": "canonical-json-sorted-compact-utf8-volatile-excluded",
+  "signature_scheme": "Ed25519-RFC8032-pure-stdlib",
+  "signed_message_spec": "sha256(run_id \\x00 merkle_root \\x00 findings_count \\x00 header_canonical) \u2014 the 32-byte digest; the Ed25519 signature covers the digest",
+  "public_key_b64": "QTksH1lStmBEV+kw0hoJCM7tk9JjfHtVln+klK7adM8=",
+  "signature_b64": "oQEhh3+GKomZ1yhq0q2pi0Qxg4JmsbCltClm8xp4M3AvdjTj4qsCkWEiy/rssXXYSyJ/bkWb63yO70irUpj1Dw==",
+  "recipe": "INDEPENDENT VERIFICATION RECIPE (open tools only, no code access):\n1) For each verified finding record in report.findings, compute leaf_i = sha256(canonical(record)) where canonical = JSON with SORTED keys, separators (',', ':'), UTF-8, and the declared volatile keys (notes, durations, wall times, stats, requests...) removed recursively at every depth.\n2) Build the Merkle tree: pair leaves bottom-up, node = sha256(left || right); when a level has an ODD count, duplicate its last hash once. The empty findings set has the root sha256(b'') = e3b0c44298fc1c14...55. The result must equal report.audit.merkle_root.\n3) Compute the signed message digest: sha256 of the four fields joined by a single 0x00 byte each: run_id, merkle_root, findings_count, then the canonical header JSON {'run_id','seed','scanner','target'} (sorted keys, compact).\n4) Verify the Ed25519 signature (RFC 8032) of that digest with the embedded public key (report.audit.public_key_b64, 32 raw bytes): python cryptography: Ed25519PublicKey.from_public_bytes(base64.b64decode(public_key_b64)).verify(base64.b64decode(signature_b64), digest); openssl: build the SPKI PEM 302a300506032b6570032100||pubkey and run openssl pkeyutl -verify -pubin -inkey pub.pem -rawin -in msg.bin -sig sig.bin. Any mismatch in (2) or (4) means the report was altered after signing \u2014 tampering is DETECTED, not trusted."
+ }
+}
