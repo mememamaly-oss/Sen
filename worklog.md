@@ -5424,3 +5424,30 @@ Stage Summary:
 - كل الأحكام قابلة لإعادة الإنتاج بالأدوات الدائمة المودعة (rt_network_attacks.py / rt_crypto_attacks.py / audit_external_scan.py).
 - غير المثبت (صريح): لا نتائج مؤكدة من فئات نشطة على التطبيقين (البطارية لا تكمل داخل 600 على تطبيق بهذا الحجم)؛ الإشارة الخام ليست نتائج؛ scanme غير معاد.
 - التوكن التاسع نشط (نداءات سطر الأوامر حصراً، صفر كتابات على القرص) — يُلغى من GitHub فور قبول التقرير كالعادة.
+
+---
+Task ID: 91
+Agent: Super Z (main agent)
+Task: Supervisor restoration order 2026-10-21 (new rule #1: commit+push+ls-remote immediately after every verified differential test) — Step 0 (restore build-v430 campaign tree from GitHub) + Step 1 (re-prove vulnerabilities live on the restored tree, no fixes).
+
+Work Log:
+- PRE-STATE (recorded earlier this session as Task 90, then Task 90's own worklog entry was wiped by the Step-0 reset — honest note): the sandbox had been rolled back to the 2026-10-03 save point (HEAD f2d41e8, v4.2.2/IV13 state); the entire v430 campaign existed only in the previous session's filesystem and was erased locally. Task 90 verified this with raw evidence and stopped (no code modified).
+- Step 0.1: git fetch origin — pulled 8 new refs (branches archive/iv14/*, main, sentinel-x*, sx-src; tags backup/release-v4.2.5, backup/release-v4.2.6, v4.2.3, v4.2.5, v4.3.0, v4.4.0). ls-remote HEAD = 511fcc85270cb3feee94c51ffbd1d7cb59774f30 (the audit-rb-1 commit — the previous session DID push the campaign tree; only the local sandbox copy was lost).
+- Step 0.2: git cat-file -t 511fcc8 -> "commit" (rc=0).
+- Step 0.3: git reset --hard 511fcc8 — 2572 files restored; git status --short EMPTY (fully clean); HEAD = 511fcc8.
+- Step 0.4: build-v430/sentinel/*.py count = 50 (>20 required); tests/test_scope_edge_battery.py present (14247 bytes); sentinel/audit.py + sentinel/impact.py restored; standing tools at repo-root scripts/ (rt_network_attacks.py, rt_crypto_attacks.py, audit_external_scan.py).
+- Step 0.5: doctor -> PASS 17/17.
+- Step 0.6: local HEAD = origin/main = 511fcc85270cb3feee94c51ffbd1d7cb59774f30, MATCH: YES. No push needed.
+- Step 1 (re-proof on restored tree, read-only):
+  * RT-01 SSRF unit: 7/7 VULN BYPASS (0177.0.0.1, 2130706433, 0x7f000001, 127.1, localhost., [::ffff:127.0.0.1], 127.0.0.1.nip.io) — vulnerability OPEN (the previous session's local RT-01 fix was never committed, so it is gone with the rollback; must be re-applied in Step 2).
+  * RT-02 TLS: http_engine.py:135 check_hostname=False, :136 verify_mode=ssl.CERT_NONE — OPEN.
+  * RT-05 credentials: journal records "the request exactly as issued (headers incl. ...)" at http_engine.py:502 — plaintext header storage OPEN (full RED proof reserved for Step 4.1 per order).
+  * RT-06 ReDoS: _HOSTNAME_RE.findall('A'*50000+'!') -> REDOS_CONFIRMED (5s SIGALRM) — OPEN.
+  * RT-07 budget: max_requests occurrences in orchestrator.py = 0 — OPEN (no enforcement).
+- No fixes applied. Stopped per order; awaiting supervisor approval of the Step-1 table before Step 2 (RT-01).
+
+Stage Summary:
+- Campaign tree fully restored from GitHub at 511fcc8 (origin=local, clean, doctor 17/17) — the rollback cost only uncommitted work (previous RT-01 fix + battery edits), everything committed survived.
+- All five ordered vulnerabilities re-proven LIVE on the restored tree with raw outputs banked above.
+- New rule #1 acknowledged and will be enforced from Step 2 onward: every fix = commit + push + ls-remote immediately.
+- This worklog entry rides uncommitted until the first fix commit (campaign convention: worklog updates ship inside fix commits).
