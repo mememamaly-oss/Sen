@@ -880,7 +880,50 @@ def _chain_title(cp):
 
 
 # ------------------------------------------------------------------ assessor
-_HOSTNAME_RE = re.compile(r"[a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+){2,}", re.IGNORECASE)
+# RT-06 fix (audit-rb-1): the raw pattern
+#   re.compile(r"[a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+){2,}", re.IGNORECASE)
+# is quadratic on dot-less input: at every start position the greedy
+# [a-z0-9-]* consumes the whole run, then backtracks char-by-char hunting the
+# two mandatory dots — measured live: >5s on 50,001 chars (REDOS_CONFIRMED).
+# The fix combines BOTH ordered options:
+#   (A) total input cap of 65,536 chars before any matching, and
+#   (B) linearization: a no-backtrack token pre-scan skips dot-less runs in
+#       O(n) (a hostname match REQUIRES >=2 dots, so a dot-less token can
+#       never match), and each dot-bearing token is bounded to 300-char
+#       end-windows before the core pattern runs (RFC 1035/1123 hostname
+#       max is 253 — longer runs are not hostnames).
+_HOSTNAME_CORE = re.compile(r"[a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+){2,}", re.IGNORECASE)
+_HOSTNAME_TOKEN = re.compile(r"[A-Za-z0-9.-]+")           # linear: single class, no backtracking
+_HOSTNAME_MAX_INPUT = 65_536                               # option A cap
+_HOSTNAME_MAX_TOKEN = 300                                  # RFC hostname bound + margin
+
+
+class _BoundedHostnameRE:
+    """Drop-in findall replacement: same extraction language on realistic
+    bodies, linear time on hostile ones. Honest boundary: matches living
+    ENTIRELY inside a >300-char dot-bearing run beyond both end-windows are
+    not extracted (they are not valid hostnames by RFC length anyway)."""
+
+    def findall(self, s):
+        if not s:
+            return []
+        if len(s) > _HOSTNAME_MAX_INPUT:
+            s = s[:_HOSTNAME_MAX_INPUT]
+        out = []
+        for tok in _HOSTNAME_TOKEN.findall(s):
+            if "." not in tok:
+                continue                       # linear skip: no dots, no match possible
+            if len(tok) <= _HOSTNAME_MAX_TOKEN:
+                out.extend(_HOSTNAME_CORE.findall(tok))
+            else:
+                head = tok[:_HOSTNAME_MAX_TOKEN]
+                tail = tok[-_HOSTNAME_MAX_TOKEN:]
+                out.extend(_HOSTNAME_CORE.findall(head))
+                out.extend(_HOSTNAME_CORE.findall(tail))
+        return out
+
+
+_HOSTNAME_RE = _BoundedHostnameRE()
 _WORD_RE = re.compile(r"\b[A-Za-z0-9]{4,}\b")
 BROWSER_LABELS = frozenset({"browser_exec", "browser_exec_dom",
                              "browser_exec_stored", "browser_redirect"})

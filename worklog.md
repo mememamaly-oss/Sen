@@ -5504,3 +5504,21 @@ Work Log:
 Stage Summary:
 - RT-05 closed red/green: 5/5 verbatim -> 5/5 [REDACTED] with zero secret material in the journal and context headers preserved; pytest 206/206.
 - ONLY build-v430/sentinel/http_engine.py modified (+ worklog + scripts/rt05_creds_proof.py standing tool).
+
+---
+Task ID: 95
+Agent: Super Z (main agent)
+Task: Step 5 (supervisor batch permission) — fix RT-06 (ReDoS, quadratic hostname regex) in build-v430/sentinel/impact.py ONLY.
+
+Work Log:
+- 5.1 RED (banked Step 1, same tree): _HOSTNAME_RE.findall('A'*50000+'!') -> REDOS_CONFIRMED (5s SIGALRM). Root cause: pattern [a-z0-9][a-z0-9-]*(?:\.[a-z0-9-]+){2,} IGNORECASE — at every start position the greedy class consumes the whole dot-less run then backtracks char-by-char hunting the 2 mandatory dots = O(n^2) (~1.25e9 steps at 50K).
+- ENGINEERING HONESTY NOTE: ordered option A alone (65,536 cap) does NOT satisfy the ordered GREEN script — the test payload is 50,001 chars, UNDER the cap, and the raw pattern stays quadratic on it. Applied BOTH options as the order permitted (A recommended + B fallback).
+- 5.2 FIX in impact.py only (line 883 region): kept the core pattern verbatim (_HOSTNAME_CORE); new _HOSTNAME_RE is a _BoundedHostnameRE drop-in findall wrapper: (A) total input cap 65,536; (B) linear no-backtrack token pre-scan [A-Za-z0-9.-]+ skips dot-less tokens in O(n) (a match requires >=2 dots) and bounds each dot-bearing token to 300-char head+tail windows (RFC 1035/1123 hostname max 253) before the core pattern runs. Both call sites (lines 1000-1001) unchanged — same .findall interface.
+- 5.3 GREEN (scripts/rt06_redos_proof.py): supervisor's exact script OK 0.000s (was >5s); six hostile batteries (60K dots-only / 59K-A+dots-tail / dots-head / alternating / 50K+bang / 200K over-cap) all <= 0.002s; semantic-equivalence differential OLD raw pattern vs NEW wrapper on a realistic body: IDENTICAL extraction sets (EQUIVALENT: YES, 8/8 hostnames incl. UPPER.CASE.HOST and hyphenated). First implementation had a windowing bug CAUGHT BY MY OWN HONESTY CHECK (tokens 301-600 chars only ran the dot-less head window, missing '.example.com' tails — fixed by always running head+tail; re-verified: long-tail token now extracts).
+- 5.4 GATE: pytest tests/ -> 206 passed in 253.88s, ZERO failures.
+- 5.5 COMMIT+PUSH IMMEDIATELY (new rule #1).
+- Residual limitations (explicit): (a) matches living ENTIRELY inside the middle of a >600-char dot-bearing token (beyond both 300-char end-windows) are not extracted — not valid hostnames by RFC length; documented boundary, irrelevant to the XXE exfil call site; (b) _WORD_RE and other regexes in impact.py were NOT audited this round (order scoped line 883 only) — flagged as follow-up; (c) input beyond 65,536 chars is truncated before extraction (option A semantics as ordered).
+
+Stage Summary:
+- RT-06 closed red/green: >5s REDOS_CONFIRMED -> 0.000s on the identical payload; equivalence on realistic content proven identical; pytest 206/206.
+- ONLY build-v430/sentinel/impact.py modified (+ worklog + scripts/rt06_redos_proof.py standing tool).
