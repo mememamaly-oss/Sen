@@ -10995,7 +10995,7 @@ def unit_gtp11_jdbc_error_signature():
                 self.send_header("Content-Length", str(len(body)))
                 self.end_headers(); self.wfile.write(body)
                 return
-            b = b"<html><body>results for " + n.encode() + " (12 rows)</body></html>"
+            b = b"<html><body>results for " + n.encode() + b" (12 rows)</body></html>"
             self.send_response(200); self.send_header("Content-Length", str(len(b)))
             self.end_headers(); self.wfile.write(b)
     port = 8857

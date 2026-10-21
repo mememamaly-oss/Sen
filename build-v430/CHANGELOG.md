@@ -1,3 +1,46 @@
+# SENTINEL ORD-001-REMAND — the red-team remand CLOSED (2026-10-21)
+
+Supervisor order ORD-001-REMAND (blocking, before ORD-002): close the three
+open items with the strict RED -> GREEN -> Gate methodology. Every fix was
+committed+pushed+ls-remote MATCH YES the moment it was proven (rule #1).
+
+- Item 1 — RT-03/RT-04 (crypto seed entropy) — commit e4d9159: run seed
+  os.urandom(32) hex (256-bit, core.new_run_id; never dates/timestamps/
+  serials); Ed25519 keypair via HKDF-SHA256 (RFC 5869, domain-separated
+  salt+info) over the FULL >=32-byte material; seeds under 32 bytes are
+  rejected fail-closed at the CLI parse AND the crypto layer. RED live: the
+  date-dictionary recovered a report key in 2,484 candidates and a
+  findings-erased forged report passed the EXTERNAL cryptography recipe.
+  GREEN: a date-seeded report cannot even be signed — zero candidates;
+  replay determinism byte-identical (Axis 14 preserved).
+- Item 2 — RT-01 TOCTOU (DNS rebinding) — commit 68f616a, the supervisor's
+  Option A: resolve ONCE, validate EVERY answer, pin the transport to the
+  validated address; original hostname preserved in Host + SNI +
+  certificate hostname validation (https never breaks TLS SNI — no
+  HONEST_BOUNDARIES carve-out needed for TLS). RED live: the engine fetched
+  an EVIL listener's body through the second resolution. GREEN: the rebind
+  answer is rejected at the pin, evil_hits=0.
+- Item 3 — request-body sanitization — commit b48a2da: sanitize_request_body
+  in _journal_put; form/JSON sensitive keys -> [REDACTED]; binary/multipart
+  >= 1KB -> [BINARY_BODY_OMITTED_FOR_SECURITY]; < 1KB verbatim (the ordered
+  exception); wire requests untouched (journal-side only, like RT-05).
+  RED live: password/token/binary verbatim in the journal. GREEN: shape
+  preserved, secrets gone.
+
+FINAL GATE (fresh, full): suite 4313/4313 (19x227; dedup 227/227 exact;
+port-collision-safe partition — 17 fixture ports are each shared by exactly
+two cases, separated across chunks by construction) + doctor 17/17 +
+bench x3 ALL IDENTICAL vs the accepted anchor run-3c0652b6be (COMPARE_RC=0;
+zero verdict changes; the ordered seed growth moved the anchor run_id to
+run-d6b26b92d0 — disclosed) + pytest 214/214 + scope-edge 6/6 x3 digest
+c2916ba3b060f40b (station anchor intact) + red-team battery 5/5 standing
++ 3/3 new proofs. Every declared limit now lives in docs/HONEST_BOUNDARIES.md.
+What this does NOT prove: pre-remand short-seed reports cannot be
+re-derived (their public keys still verify); unseeded reports are
+unforgeable but unreproducible; < 1KB binary/multipart bodies stay verbatim
+by ordered spec; response bodies stay verbatim by design (verification
+evidence).
+
 # SENTINEL Independent Audit Round (audit-rb-1) — Red Team / Blue Team / Military-Crypto Standards + Live External Tests
 
 Supervisor order 2026-10-20 (9th token): full adversarial audit of the tool

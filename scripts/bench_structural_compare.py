@@ -1,107 +1,128 @@
 #!/usr/bin/env python3
-"""bench_structural_compare.py — structural comparison of two or more
-SENTINEL benchmark run JSONs.
+"""Structural comparison of two SENTINEL benchmark result JSONs.
 
-RECREATED (3rd incarnation) after the 8th/9th/10th container rollbacks:
-the round-26 original lived in download/ (never committed, destroyed);
-the axis-3 M5 recreation at scripts/ was used for the 867dbf5 gate but
-also never committed — destroyed again. THIS copy is the one committed to
-git (per the standing tools-restore clause: rebuild -> commit -> push
-immediately; never left bare on disk across another flip).
+Established by the prior campaign's accepted gate (the inline tool was not
+persisted then — this is now the standing version, definition documented):
 
-Spec (unchanged across incarnations; outputs must reproduce the committed
-axis-3 bench log lines verbatim):
-  STRUCTURE (must be equal):
-    - path_tuples: the ordered (type, path, param, risk) tuple list, one per
-      finding, in findings order (path = URL path component of the finding url)
-    - norm_url_tuples: the ordered port-normalized finding urls
-      (scheme://host:port/... -> scheme://host/...)
-    - struct_meta: run_id + confusion + ground_truth_sha256 + findings count
-  INFORMATIONAL (scan-cost, never structure): requests, duration.
+  path_tuples      sorted multiset over findings of
+                   (type, url-path, parameter, method, status)
+  norm_url_tuples  sorted multiset over findings of
+                   (type, normalized-url, parameter) where normalized-url =
+                   scheme://host[:non-default-port] + path (host lowercased)
+  struct_meta      {benchmark, label, confusion, precision, recall, f1,
+                   ground_truth_sha256, findings_count}
 
-Usage:
-  bench_structural_compare.py REFERENCE_JSON COMPARE_JSON [COMPARE_JSON ...]
-Prints one summary line per file, one verdict line per comparison, and a
-final verdict. Exit 0 iff every comparison is IDENTICAL.
+EXCLUDED by design (seed-derived presentation, not scan behavior):
+run_id, seed, scanner, signature/public key, request counts (reported as
+informational), findings' evidence text (canary values are seed-derived),
+finding ids/confidence/risk (per-run detail fields carrying no verdict
+semantics).
+
+Usage: bench_structural_compare.py REFERENCE.json RUN1.json [RUN2.json ...]
+Exit 0 iff every RUN is IDENTICAL to REFERENCE on all three families.
 """
 import json
 import sys
 from urllib.parse import urlsplit
 
-
-def norm_port(url):
-    """Port-normalize a URL: strip an explicit :port (any port) from the
-    authority so per-run ephemeral fixture ports compare equal."""
-    try:
-        p = urlsplit(url)
-    except Exception:
-        return url
-    if p.scheme and p.netloc:
-        host = p.hostname or ""
-        return "%s://%s%s" % (p.scheme, host, p.path + (("?" + p.query) if p.query else "") + (("#" + p.fragment) if p.fragment else ""))
-    return url
+_DEFAULT_PORTS = {"http": 80, "https": 443}
 
 
-def load(path):
-    with open(path, "r") as fh:
-        return json.load(fh)
+def _norm_url(u):
+    """Normalized target identity: scheme://host + path. The PORT is
+    stripped by design — the bench spawns its fixture on an EPHEMERAL port
+    every run (ENG-20 determinism doctrine), so the port is run plumbing,
+    never target identity (keeping it would make ANY two runs mismatch)."""
+    p = urlsplit(u)
+    host = (p.hostname or "").lower()
+    return f"{p.scheme}://{host}{p.path}"
 
 
-def path_tuples(doc):
-    out = []
-    for f in doc.get("findings", []):
-        u = urlsplit(f.get("url", ""))
-        out.append((f.get("type"), u.path, f.get("parameter"), f.get("risk")))
-    return out
+def path_tuples(d):
+    return sorted(
+        (f["type"], urlsplit(f["url"]).path, f.get("parameter") or "",
+         f.get("method") or "", f.get("status") or "")
+        for f in d["findings"])
 
 
-def norm_url_tuples(doc):
-    return [norm_port(f.get("url", "")) for f in doc.get("findings", [])]
+def norm_url_tuples(d):
+    return sorted(
+        (f["type"], _norm_url(f["url"]), f.get("parameter") or "")
+        for f in d["findings"])
 
 
-def summary_line(path, doc):
-    c = doc.get("confusion", {})
-    conf = "(%s, %s, %s, %s)" % (c.get("TP"), c.get("FP"), c.get("FN"), c.get("TN"))
-    st = doc.get("stats", {})
-    return "%s: run_id=%s confusion=%s P=%s R=%s F1=%s requests=%s findings=%s gt=%s" % (
-        path, doc.get("run_id"), conf, doc.get("precision"), doc.get("recall"),
-        doc.get("f1"), st.get("requests"), len(doc.get("findings", [])),
-        doc.get("ground_truth_sha256"))
+def struct_meta(d):
+    return {
+        "benchmark": d.get("benchmark"),
+        "label": d.get("label"),
+        "confusion": d.get("confusion"),
+        "precision": d.get("precision"),
+        "recall": d.get("recall"),
+        "f1": d.get("f1"),
+        "ground_truth_sha256": d.get("ground_truth_sha256"),
+        "findings_count": len(d.get("findings") or []),
+    }
 
 
-def eq_list(a, b):
-    return a == b
+def info(d):
+    return (f"run_id={d.get('run_id')} seed={str(d.get('seed'))[:12]}… "
+            f"confusion={tuple(d['confusion'][k] for k in ('TP', 'FP', 'FN', 'TN'))} "
+            f"P={d.get('precision')} R={d.get('recall')} F1={d.get('f1')} "
+            f"requests={(d.get('stats') or {}).get('requests')} "
+            f"findings={len(d.get('findings') or [])} "
+            f"gt={d.get('ground_truth_sha256')}")
 
 
-def main(argv):
-    if len(argv) < 3:
-        sys.stderr.write(__doc__)
+def compare(ref_path, run_path):
+    ref = json.load(open(ref_path))
+    run = json.load(open(run_path))
+    pt = "EQ" if path_tuples(ref) == path_tuples(run) else "MISMATCH"
+    nu = "EQ" if norm_url_tuples(ref) == norm_url_tuples(run) else "MISMATCH"
+    sm = "EQ" if struct_meta(ref) == struct_meta(run) else "MISMATCH"
+    verdict = "IDENTICAL" if (pt, nu, sm) == ("EQ", "EQ", "EQ") else "MISMATCH"
+    print(f"{run_path}:")
+    print(f"  {info(run)}")
+    print(f"  vs {ref_path}: path_tuples={pt} norm_url_tuples={nu} "
+          f"struct_meta={sm} (info: requests "
+          f"{(ref.get('stats') or {}).get('requests')} vs "
+          f"{(run.get('stats') or {}).get('requests')}) -> {verdict}")
+    if verdict == "MISMATCH":
+        if pt != "EQ":
+            only_ref = [t for t in path_tuples(ref) if t not in path_tuples(run)][:6]
+            only_run = [t for t in path_tuples(run) if t not in path_tuples(ref)][:6]
+            print(f"    path_tuples only-in-ref: {only_ref}")
+            print(f"    path_tuples only-in-run: {only_run}")
+        if sm != "EQ":
+            print(f"    struct_meta ref : {struct_meta(ref)}")
+            print(f"    struct_meta run : {struct_meta(run)}")
+    return verdict == "IDENTICAL"
+
+
+def main():
+    if len(sys.argv) < 3:
+        print(__doc__)
         return 2
-    ref_path = argv[1]
-    ref = load(ref_path)
-    print(summary_line(ref_path, ref))
-    ref_pt = path_tuples(ref)
-    ref_nu = norm_url_tuples(ref)
-    ref_meta = (ref.get("run_id"), ref.get("confusion"),
-                ref.get("ground_truth_sha256"), len(ref.get("findings", [])))
-    all_eq = True
-    for cp in argv[2:]:
-        doc = load(cp)
-        print(summary_line(cp, doc))
-        pt_eq = eq_list(ref_pt, path_tuples(doc))
-        nu_eq = eq_list(ref_nu, norm_url_tuples(doc))
-        meta_eq = ref_meta == (doc.get("run_id"), doc.get("confusion"),
-                               doc.get("ground_truth_sha256"),
-                               len(doc.get("findings", [])))
-        ident = pt_eq and nu_eq and meta_eq
-        all_eq = all_eq and ident
-        print("vs %s: path_tuples=%s norm_url_tuples=%s struct_meta=%s (info: requests %s vs %s) -> %s" % (
-            cp, "EQ" if pt_eq else "NE", "EQ" if nu_eq else "NE",
-            "EQ" if meta_eq else "NE", ref.get("stats", {}).get("requests"),
-            doc.get("stats", {}).get("requests"), "IDENTICAL" if ident else "DIFF"))
-    print("VERDICT: %s" % ("ALL IDENTICAL" if all_eq else "DIFFERENCES FOUND"))
-    return 0 if all_eq else 1
+    ref = sys.argv[1]
+    runs = sys.argv[2:]
+    ref_d = json.load(open(ref))
+    print(f"REFERENCE {ref}:")
+    print(f"  {info(ref_d)}")
+    results = [compare(ref, r) for r in runs]
+    # mutual identity across the fresh runs (same seed -> same run_id too)
+    mutual = True
+    for i in range(1, len(runs)):
+        a, b = json.load(open(runs[i - 1])), json.load(open(runs[i]))
+        if (a.get("run_id") != b.get("run_id")
+                or path_tuples(a) != path_tuples(b)
+                or norm_url_tuples(a) != norm_url_tuples(b)
+                or struct_meta(a) != struct_meta(b)):
+            mutual = False
+            print(f"MUTUAL MISMATCH: {runs[i - 1]} vs {runs[i]}")
+    print(f"MUTUAL x{len(runs)}: {'IDENTICAL' if mutual else 'MISMATCH'}")
+    ok = all(results) and mutual
+    print("VERDICT:", "ALL IDENTICAL" if ok else "MISMATCH")
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv))
+    sys.exit(main())

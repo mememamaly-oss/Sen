@@ -27,12 +27,12 @@
   {
    "name": "c04_legitimate_subdomains_stay_accepted",
    "ok": true,
-   "dur_s": 0.0
+   "dur_s": 0.0151
   },
   {
    "name": "c05_typosquat_family",
    "ok": true,
-   "dur_s": 0.0
+   "dur_s": 0.0036
   },
   {
    "name": "c06_allowed_hosts_exact_membership",
