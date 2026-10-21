@@ -34,6 +34,26 @@ def case(fn):
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # PORTABILITY FIX: test the tree we live in (was hardcoded /home/z/my-project/sentinel)
 
+# ================================================================ HARNESS BUDGET OVERRIDE (RT-07)
+# The regression suite IS the platform's verified capability profile — its
+# scans run FULL streams by design (the 4313 anchor = 19 chunks x 227 cases).
+# The operator-facing request budget (ScanConfig max_requests=500 default,
+# audit-rb-1 RT-07 fix) does NOT apply inside this harness process: default
+# it to unbounded HERE, in ONE visible place — the same documented opt-out
+# pattern as the benchmark (sentinel/cli.py) and the axis-13 E2E battery.
+# Any case that wants to TEST the budget itself passes max_requests=<N>
+# explicitly and is respected (setdefault, never a hard override).
+from sentinel.orchestrator import ScanConfig as _HarnessScanConfig
+_harness_cfg_init_original = _HarnessScanConfig.__init__
+
+
+def _harness_cfg_init_patched(self, *args, **kwargs):
+    kwargs.setdefault("max_requests", 0)
+    return _harness_cfg_init_original(self, *args, **kwargs)
+
+
+_HarnessScanConfig.__init__ = _harness_cfg_init_patched
+
 # ================================================================ UNIT SUITE
 from sentinel.core import (Endpoint, Finding, Parameter, ParamKind, ParamLocation,
                            ScopeRule, is_private_ip, EventBus, Evidence)

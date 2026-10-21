@@ -5558,3 +5558,25 @@ Work Log:
 Stage Summary:
 - Scope-edge battery restored to GREEN under the RT-01 fail-closed world: 6/6 x3 stable digest c2916ba3b060f40b (= the station anchor, case names preserved), red-proof both saboteurs caught, pytest 206/206.
 - ONLY build-v430/tests/test_scope_edge_battery.py modified (+ worklog).
+
+---
+Task ID: 98
+Agent: Super Z (main agent)
+Task: Step 8 (supervisor batch permission) — the FULL final gate: clean state, suite 4313/4313, doctor 17/17, bench x3 structural compare vs the accepted record, full pytest zero failures, scope battery 6/6, SHA256SUMS of every modified file.
+
+Work Log:
+- Cleaned /tmp/tb_gates + /tmp/tb_bench_* per the ordered procedure.
+- FIRST GATE RUN CAUGHT A REAL REGRESSION (the gate doing its job): chunk c02 FAILED at 14s — regression_crlf_header_injection_and_xxe_live (AssertionError: CRLF header injection must be found and verified). Root cause: that suite case's ScanConfig inherits the RT-07 default budget 500; its full scan (30 pages, crawl+active+verify) needs more, cut mid-stream before CRLF/XXE verification. NOTE: pytest could not catch this — the @case functions live in the script-mode suite (run_tests.py), not pytest collection.
+- SYSTEMATIC RESOLUTION (third application of the same documented opt-out pattern — bench cli.py, axis-13 H13_19, now the suite): tests/run_tests.py header gains ONE visible harness override — ScanConfig.__init__ wrapped so max_requests defaults to 0 (unbounded) INSIDE the suite process only (setdefault — explicit per-case values respected). 64 scattered call-site edits avoided; the anchored suite file diff is 19 lines at one location; operator-facing default 500 untouched.
+- Suite re-run after the harness fix: 19/19 chunks PASS (c00-c18, heavies c03=268s c07=212s, range totals 681+681+681+681+681+908), machine aggregate: "chunks: 19 | per-chunk: 227/227 failed=0 (all)" -> SUITE TOTAL: 4313/4313, AGG_RC=0.
+- Doctor: PASS 17/17.
+- Bench x3 (fresh runs, own fixtures): run1/run2/run3 ALL run-3c0652b6be confusion (38,0,0,37) P=1.0 R=1.0 F1=1.0 findings=199 gt=0373baf92a92dce2 requests=7162 each; structural compare vs the accepted reference results/verify_pt1/bench_run1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ for ALL THREE -> VERDICT: ALL IDENTICAL, COMPARE_RC=0 (the reference's 4784 requests is informational-only by design — the structural tuple compare is the authoritative check, requests=7162 matches the axis-14 M2 station runs exactly).
+- Full pytest (fresh, on the final tree): 206 passed in 259.38s, ZERO failures.
+- Scope-edge battery (fresh, gate record): 6/6 passed digest c2916ba3b060f40b.
+- Artifacts: results/gate_rt_fixes/GATE_LOG.txt (header + aggregate + bench compare verdict + pytest + battery) + results/gate_rt_fixes/SHA256SUMS over all 12 campaign-modified files (7 engine/test files + 4 standing proof tools + the suite).
+- COMMIT+PUSH IMMEDIATELY (new rule #1).
+
+Stage Summary:
+- FULL GATE GREEN on the fixed tree: 4313/4313 + doctor 17/17 + bench x3 ALL IDENTICAL vs the accepted anchor (COMPARE_RC=0) + pytest 206/206 + battery 6/6 — the five security fixes changed ZERO verdicts over the anchored record while closing RT-01/02/05/06/07.
+- The budget-default/regression-anchor conflict is now systematically closed at all three harness levels (bench, axis-13 E2E, script suite) with one consistent documented pattern; the ONE regression the gate caught (c02 CRLF/XXE) was diagnosed and resolved the same hour.
+- Modified this step: build-v430/tests/run_tests.py (the harness override) + results/gate_rt_fixes/* + worklog.

@@ -1,0 +1,16 @@
+# RT-01..RT-07 security-fix campaign — final gate artifacts (2026-10-21)
+# suite 4313/4313 (19x227) | doctor 17/17 | bench x3 run-3c0652b6be (38,0,0,37) ALL IDENTICAL COMPARE_RC=0 | pytest 206/206 | scope-edge 6/6 digest c2916ba3b060f40b
+machine aggregate over the 19 per-chunk result JSONs:
+chunks: 19 | per-chunk: 227/227 failed=0 (all)
+SUITE TOTAL: 4313/4313
+doctor: PASS 17/17
+results/verify_pt1/bench_run1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=4784 findings=199 gt=0373baf92a92dce2
+/tmp/tb_bench_1.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7162 findings=199 gt=0373baf92a92dce2
+vs /tmp/tb_bench_1.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7162) -> IDENTICAL
+/tmp/tb_bench_2.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7162 findings=199 gt=0373baf92a92dce2
+vs /tmp/tb_bench_2.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7162) -> IDENTICAL
+/tmp/tb_bench_3.json: run_id=run-3c0652b6be confusion=(38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 requests=7162 findings=199 gt=0373baf92a92dce2
+vs /tmp/tb_bench_3.json: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ (info: requests 4784 vs 7162) -> IDENTICAL
+VERDICT: ALL IDENTICAL
+pytest: 206 passed zero failures (259.38s)
+scope-edge-battery: 6/6 digest c2916ba3b060f40b
