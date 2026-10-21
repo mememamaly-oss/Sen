@@ -5597,3 +5597,36 @@ Work Log:
 Stage Summary:
 - Campaign COMPLETE through the ordered Step 9: every fix red/green-proven on the final tree, full gate green (4313/4313, doctor 17/17, bench x3 IDENTICAL vs anchor, pytest 206/206, battery 6/6), every step committed+pushed immediately per new rule #1 (6 campaign commits: 8817773 RT-01 / 2cc752a RT-02 / 3f08081 RT-05 / 33087f2 RT-06 / 6f0fe53 RT-07 / 9fcf970 battery / e65d12c full gate), MATCH: YES verified after every push.
 - NOT in this campaign's ordered scope (awaiting supervisor): RT-03/RT-04 (Ed25519 seed derivation + signature forgery — the original audit's crypto findings, NOT in the ordered fix list of this round), live external re-tests (per-target approval gate per the standing charter), CHANGELOG/tag/push finalization ritual.
+
+---
+Task ID: 100
+Agent: Super Z (main agent)
+Task: ORD-001-REMAND session bootstrap — survive rollback #2, restore the tree, stand up the remand execution frame.
+
+Work Log:
+- Rollback #2 hit BEFORE any remand work started: the sandbox returned /home/z/my-project to the pre-v430 era (build-v430 gone; worklog.md itself rolled back to the 924-line Task-13 state; build-v411/421/422 reappeared). The first tool batch of the session failed entirely (sandbox unavailable); the second revealed the wipe. Honest stop, no fabrication, no git command reached the network during the failure window.
+- Recovery per the standing lifeline: remote re-armed with the supervisor's fresh PAT (token lives ONLY in .git/config, never in any commit); git fetch; ls-remote showed origin/main = 5c0de347 (175 commits ahead of the rollback point — the entire ORD-001 campaign survived on GitHub); git reset --hard origin/main restored 2,450 tracked files (build-v430 = 410 files) and the 5,599-line worklog with tasks 91-99 intact.
+- Tree verification: git log re-read the campaign chain (8817773 RT-01 / 2cc752a RT-02 / 3f08081 RT-05 / 33087f2 RT-06 / 6f0fe53 RT-07 / 9fcf970 battery / e65d12c full gate 4313 + bench x3 IDENTICAL / 5c0de34 worklog). Worklog line 5599 confirmed RT-03/RT-04 were explicitly left out of the previous campaign's ordered scope — exactly what ORD-001-REMAND now closes.
+- Pre-flight for the three remand items: derive_keypair located (audit.py §3: sha256(str(seed))[:8] -> SeededPRNG — the RT-04 64-bit ceiling); seed flow mapped (core.new_run_id default uuid4().hex[:8] = 32 bits; cli bench seed "benchmark-fixed-seed" 21 bytes; 30+ short suite case seeds; axis13/14 test seeds); _journal_put located (http_engine.py:608, raw bodies); the two by-name connection sites located (http_engine.py:516-518 initial + 550-553 redirect hop) — both resolve DNS a second time inside http.client = the TOCTOU window.
+
+Stage Summary:
+- The campaign survives its second total wipe: GitHub remains the single source of truth; restore verified MATCH by construction (reset --hard origin/main). The remand frame is up with all target code located and all gate-breaking seed dependencies enumerated BEFORE any edit.
+
+---
+Task ID: 101
+Agent: Super Z (main agent)
+Task: ORD-001-REMAND item 1 — RT-03/RT-04 crypto seed entropy: run seed from os.urandom(32), NEVER dates/timestamps/serials, HKDF-SHA256 keypair derivation, operator --seed under 32 bytes rejected fail-closed. RED -> GREEN -> full pytest, then commit+push+ls-remote immediately (rule #1).
+
+Work Log:
+- RED proof first (scripts/rt03_seed_entropy_proof.py, standing tool, live on the vulnerable tree): (A) a realistic report signed with a DATE seed -> embedded public key -> YYYYMMDD dictionary 2020-2026 -> seed '20261019' recovered after 2,484 candidates in 4.07s -> private key recovered -> findings-ERASED forged report re-signed and VERIFIED TRUE by the EXTERNAL recipe (python cryptography, zero SENTINEL code in the verify half) — the exact RT-03+RT-04 reproduction; (B) default run seed = uuid4().hex[:8] = 32 bits (ordered: 256); (C) derive_keypair('20261021') accepted with no policy; (D) the key did NOT equal an independent RFC 5869 HKDF-SHA256 (legacy path = plain-hash-derived PRNG stream).
+- Battery RED: tests/test_rt_remand_battery.py item-1 tests failed on the vulnerable tree exactly as ordered (test_rt03_seed_entropy + test_rt04_hkdf_derivation FAILED; test_rt04_replay_determinism PASSED — it is the Axis-14 regression guard, green on both trees by design).
+- FIX (audit.py only, §3): new _seed_material (None -> os.urandom(32) fresh per call = unforgeable unseeded key, N7 preserved; str -> canonical >=64-hex decode, else utf-8 when >=32 bytes, else SeedPolicyError) + _hkdf_sha256 (RFC 5869 extract-then-expand, stdlib hmac) + derive_keypair = HKDF-SHA256(ikm, salt=SENTINEL-axis14-ed25519-HKDF-SHA256-v1, info=axis14-ed25519-keypair, 32). The sha256[:8] intermediate is gone entirely. Module docstring/import-contract updated (hmac+os declared).
+- FIX (core.py): new_run_id(None) default seed = os.urandom(32).hex() (64 chars, 256-bit) — run_id derivation unchanged (sha1).
+- FIX (cli.py): (a) scan --seed under 32 bytes -> ap.error fail-closed BEFORE the run starts; (b) bench seed "benchmark-fixed-seed" (21B) -> "bench430"*8 (64 chars) — deterministic anchor preserved, disclosed consequence: bench run_id changes from run-3c0652b6be (structural compare at the gate re-defines the anchor).
+- CONTRACT-DRIVEN TEST UPDATES (disclosed, all ordered consequences of the seed floor): axis14_audit SEED_A/SEED_B + e2e seeds -> 64-char forms; import-contract test adds hmac/os; axis14_atoms seed loops extended, struct-06 (identity keys absent -> fresh unforgeable key per call), struct-07 (seed None -> fresh key, was "deterministic"), struct-08 (empty/unseeded -> BOTH rejected fail-closed, was "distinct derivable pair"), str-coercion declared behavior -> both-rejected single policy; axis13-detectors e2e seed -> 64-char; run_tests.py harness gains ONE visible seed-padding point (the same one-point pattern as max_requests) — operator path keeps the hard rejection.
+- GREEN: proof all-GREEN on the fixed tree (date-seeded report cannot even be signed — the attack has no artifact); battery 3/3; FULL pytest 209 passed in 252s (206 + 3 new), zero failures (one mid-gate failure was the H14_16 import contract catching the new hmac/os imports — the gate doing its job; declaration updated, not silenced).
+
+Stage Summary:
+- RT-03/RT-04 closed red/green: date-dictionary recovery + external-recipe forgery -> zero candidates (rejected at the source); 32-bit default -> 256-bit urandom; no length policy -> >=32B fail-closed at BOTH the CLI parse and the crypto layer; plain-hash/PRNG derivation -> HKDF-SHA256 proven equal to two independent implementations (stdlib hmac + cryptography library); Axis-14 replay determinism preserved (same seed -> byte-identical signature, proven in proof E and battery).
+- Modified: sentinel/audit.py + sentinel/core.py + sentinel/cli.py + 5 test files + new tests/test_rt_remand_battery.py + scripts/rt03_seed_entropy_proof.py + worklog.
+- Honest residual: pre-remand reports signed with short seeds can no longer be RE-DERIVED (their embedded public keys still VERIFY their existing signatures — verification never derives); unseeded (None) reports are now unforgeable but unreproducible by design (N7); bench anchor run_id necessarily changed (seed had to grow to 64 chars) — the structural compare at the final gate re-anchors and discloses.

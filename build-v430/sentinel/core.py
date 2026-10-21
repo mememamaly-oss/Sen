@@ -3,7 +3,7 @@ Core domain models (Phase 1: Core Engine).
 Every scan is reproducible: RunID + Seed + Version + ConfigHash.
 """
 from __future__ import annotations
-import dataclasses, hashlib, json, time, uuid
+import dataclasses, hashlib, json, os, time, uuid
 from enum import Enum
 from typing import Optional
 from urllib.parse import urlsplit
@@ -286,6 +286,10 @@ class EventBus:
 
 
 def new_run_id(seed: Optional[str] = None) -> tuple[str, str]:
-    """Deterministic reproduction: RunID derived from seed (Phase 36)."""
-    seed = seed or uuid.uuid4().hex[:8]
+    """Deterministic reproduction: RunID derived from seed (Phase 36).
+    ORD-001-REMAND (RT-03): the DEFAULT run seed is os.urandom(32) hex —
+    256-bit entropy, 64 chars. Never dates/timestamps/serial ids; short
+    operator seeds are rejected downstream (audit fail-closed + the CLI
+    parser gate), never silently accepted."""
+    seed = seed or os.urandom(32).hex()
     return "run-" + hashlib.sha1(seed.encode()).hexdigest()[:10], seed

@@ -900,7 +900,8 @@ def test_H13_19():
             # verify the modern battery's FULL delivery (all 6 classes VERIFIED);
             # the operator-facing default (500) would cut the stream mid-battery.
             cfg = ScanConfig(allow_private=True, max_pages=6, crawl=True, active=True,
-                             passive=True, timeout=8.0, seed="axis13-e2e", browser=False,
+                             passive=True, timeout=8.0,
+                             seed="axis13-e2e" + "-" * 54, browser=False,
                              oast=None, graphql=True, websocket=False, secrets=False,
                              max_requests=0)
             sc = SentinelScanner(base + "/", cfg)

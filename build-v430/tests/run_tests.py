@@ -49,6 +49,16 @@ _harness_cfg_init_original = _HarnessScanConfig.__init__
 
 def _harness_cfg_init_patched(self, *args, **kwargs):
     kwargs.setdefault("max_requests", 0)
+    # ORD-001-REMAND (RT-03/RT-04): the audit keypair now REJECTS any seed
+    # under 32 bytes (fail-closed). The suite's historical case seeds are
+    # short labels; this harness pads them to 64 bytes DETERMINISTICALLY
+    # (same case -> same padded seed -> same run_id across runs) — the same
+    # one-visible-point opt-out pattern as the budget above. The operator
+    # path keeps the hard rejection (cli.py --seed + audit.SeedPolicyError);
+    # padding exists ONLY inside this suite process.
+    _seed = kwargs.get("seed")
+    if isinstance(_seed, str) and 0 < len(_seed.encode("utf-8")) < 32:
+        kwargs["seed"] = (_seed + "-" * 64)[:64]
     return _harness_cfg_init_original(self, *args, **kwargs)
 
 

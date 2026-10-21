@@ -67,8 +67,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sentinel.core import Endpoint  # noqa: E402 — موجودة قبل M2 لاستخدامها في الجناح
 
 SUITE = "axis14-audit"
-SEED_A = "axis14-fixed-seed"
-SEED_B = "axis14-other-seed"
+# ORD-001-REMAND (RT-03/RT-04): seeds must carry >= 32 bytes — the 64-char
+# forms below keep every historical assertion shape while satisfying the
+# new floor (utf-8 path; they are not valid hex).
+SEED_A = "axis14-fixed-seed" + "-" * 47      # 17 + 47 = 64 chars
+SEED_B = "axis14-other-seed" + "-" * 47      # 17 + 47 = 64 chars
 EMPTY_SHA_HEX = ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca"
                  "495991b7852b855")            # sha256(b"") — الثابت المعلن
 
@@ -412,7 +415,7 @@ def test_H14_15():
         def _scan():
             cfg = ScanConfig(allow_private=True, max_pages=5, crawl=True,
                              active=False, passive=True, timeout=6.0,
-                             seed="axis14-e2e", browser=False, oast=None,
+                             seed="axis14-e2e" + "-" * 54, browser=False, oast=None,
                              graphql=False, websocket=False, secrets=False,
                              modern=False)
             sc = SentinelScanner(base + "/", cfg)
@@ -423,8 +426,8 @@ def test_H14_15():
         rep2 = _scan()
         n1 = sum(1 for f in rep1["findings"])
         assert n1 >= 3, f"expected deterministic findings, got {n1}"
-        a1 = enrich_report(dict(rep1), seed="axis14-e2e")["audit"]
-        a2 = enrich_report(dict(rep2), seed="axis14-e2e")["audit"]
+        a1 = enrich_report(dict(rep1), seed="axis14-e2e" + "-" * 54)["audit"]
+        a2 = enrich_report(dict(rep2), seed="axis14-e2e" + "-" * 54)["audit"]
         assert rep1["run_id"] == rep2["run_id"], "same seed must give the same run_id"
         assert a1["merkle_root"] == a2["merkle_root"], "same scan seed → same root"
         assert a1["signature_b64"] == a2["signature_b64"], \
@@ -458,14 +461,17 @@ def test_H14_16():
     for needle in ("openssl", "pkeyutl", "from_public_bytes", "sha256"):
         assert needle in doc_text, needle
     # بلا تبعيات خارجية: الكود الملتزم يستورد stdlib + sentinel فقط
+    # (ORD-001-REMAND RT-03/RT-04 أضاف hmac — لـHKDF — وos — لـurandom
+    # في derive_keypair/None؛ كلاهما stdlib خالص، والتعريف أعلاه هو سجل
+    # التغيير المعلن، لا انحرافاً صامتاً).
     src = open(os.path.join(here, "sentinel", "audit.py"), encoding="utf-8").read()
     import re as _re
     imports = set(_re.findall(r"^\s*(?:from|import)\s+([A-Za-z_][A-Za-z0-9_.]*)",
                               src, _re.M))
-    allowed = {"json", "hashlib", "base64", "__future__",
+    allowed = {"json", "hashlib", "base64", "hmac", "os", "__future__",
                "sentinel", "sentinel.proof", "sentinel.repro"}
     bad = {i for i in imports if i.split(".")[0] not in
-           {"json", "hashlib", "base64", "__future__", "sentinel"}}
+           {"json", "hashlib", "base64", "hmac", "os", "__future__", "sentinel"}}
     assert not bad, f"audit.py must stay stdlib+sentinel only; found {bad} ({imports})"
 
 

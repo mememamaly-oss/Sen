@@ -197,7 +197,7 @@ def battery_14b():
 
     # 25 Ed25519 بالاتجاهين مقابل cryptography
     for i in range(25):
-        priv, pub = derive_keypair(f"axis14b-key-{i}")
+        priv, pub = derive_keypair(f"axis14b-key-{i}" + "0" * 50)
         msg = f"axis14b message {i}".encode()
         sig = ed25519_sign(priv, msg)
         Ed25519PublicKey.from_public_bytes(pub).verify(sig, msg)
@@ -239,18 +239,29 @@ def battery_14b():
 
     # 10 خصائص زوج مفاتيح
     for i in range(8):
-        a1, b1 = derive_keypair(f"kp-{i}")
-        a2, b2 = derive_keypair(f"kp-{i}")
+        a1, b1 = derive_keypair(f"kp-{i}" + "0" * 60)
+        a2, b2 = derive_keypair(f"kp-{i}" + "0" * 60)
         _match("keypair", f"kp-stable-{i}", (a1 == a2, b1 == b2), (True, True))
-        c1, d1 = derive_keypair(f"kp-{i}-other")
+        c1, d1 = derive_keypair(f"kp-{i}-other" + "0" * 55)
         _match("keypair", f"kp-distinct-{i}", (a1 != c1, b1 != d1), (True, True))
     _match("keypair", "kp-pub-eq-primitive",
-           [ed25519_public_key(derive_keypair("axis14b-final")[0])
-            == derive_keypair("axis14b-final")[1]], [True])
-    # السلوك المعلن: البذرة تُحوّل نصاً (str-coercion) — 123 و"123"
-    # زوج واحد بالتصميم (لا "إكراه عرضي" — هذا هو العقد).
+           [ed25519_public_key(derive_keypair("axis14b-final" + "0" * 51)[0])
+            == derive_keypair("axis14b-final" + "0" * 51)[1]], [True])
+    # السلوك المعلن بعد ORD-001-REMAND (RT-03/RT-04): القيمة غير النصية
+    # تُحوّل نصاً ثم تخضع لنفس أرضية الـ32 بايتاً — 123 و"123" كلاهما
+    # مرفوض (سياسة واحدة، لا قبول عرضي). العقد القديم (زوج واحد
+    # بالتصميم عبر str-coercion) تغيّر بأمر المشرف — موثّق هنا بصدق.
+    _int_rejected = _str_rejected = False
+    try:
+        derive_keypair(123)
+    except Exception:
+        _int_rejected = True
+    try:
+        derive_keypair("123")
+    except Exception:
+        _str_rejected = True
     _match("keypair", "kp-str-coercion-declared",
-           derive_keypair(123) == derive_keypair("123"), True)
+           (_int_rejected, _str_rejected), (True, True))
     total_checks = 30 + 50 + 20 + 15 + 18
     return {"ok": matched == total_checks and not mismatches, "detail": {
         "matched": matched, "total_checks": total_checks,
@@ -337,23 +348,36 @@ def battery_14c():
             r.pop(k, None)
         blk = audit_block(r)
         again = audit_block(dict(r))
-        _record("struct-06 identity keys absent honest defaults",
-                blk["signature_b64"] == again["signature_b64"])
+        # ORD-001-REMAND (RT-03): بلا بذرة → مفتاح جديد غير قابل للتزوير لكل
+        # استدعاء (N7: لا ادعاء تكرار) — العقد القديم (مفتاح "unseeded"
+        # ثابت معروف للجميع = قابل للتزوير) تغيّر بأمر المشرف.
+        _record("struct-06 identity keys absent fresh unforgeable key",
+                blk["signature_b64"] != again["signature_b64"])
     except Exception as e:
         _record("struct-06 identity keys absent honest defaults", False, repr(e)[:90])
     try:
         b1 = audit_block(_report([_rec(1)]), seed=None)
         b2 = audit_block(_report([_rec(1)]), seed=None)
-        _record("struct-07 seed None deterministic", b1 == b2)
+        # ORD-001-REMAND (RT-03): seed=None → مفتاح عشوائي جديد لكل استدعاء
+        # (غير قابل للتزوير؛ لا ادعاء تكرار — N7). العقد القديم (زوج ثابت
+        # عبر "unseeded" معروف للجميع) تغيّر بأمر المشرف.
+        _record("struct-07 seed None fresh unforgeable key",
+                b1["public_key_b64"] != b2["public_key_b64"])
     except Exception as e:
         _record("struct-07 seed None deterministic", False, repr(e)[:90])
     try:
-        b1 = audit_block(_report([_rec(1)]), seed="")
-        b2 = audit_block(_report([_rec(1)]), seed="unseeded")
-        _record("struct-08 empty seed distinct from unseeded",
-                b1["public_key_b64"] != b2["public_key_b64"])
-    except Exception as e:
-        _record("struct-08 empty seed distinct from unseeded", False, repr(e)[:90])
+        # ORD-001-REMAND (RT-03/RT-04): البذورات الفارغة/القصيرة مرفوضة
+        # fail-closed — العقد القديم ("" و"unseeded" زوجان مختلفان قابلان
+        # للاشتقاق) تغيّر بأمر المشرف: لا مادة مفتاح من أي بذرة أضعف من
+        # 32 بايتاً إطلاقاً.
+        audit_block(_report([_rec(1)]), seed="")
+        _record("struct-08 empty/unseeded rejected fail-closed", False)
+    except Exception:
+        try:
+            audit_block(_report([_rec(1)]), seed="unseeded")
+            _record("struct-08 empty/unseeded rejected fail-closed", False)
+        except Exception:
+            _record("struct-08 empty/unseeded rejected fail-closed", True)
     try:
         r = _report([_rec(1), _rec(2)])
         before = set(r)
@@ -634,7 +658,7 @@ def battery_14c():
         try:
             cfg = ScanConfig(allow_private=True, max_pages=3, crawl=True,
                              active=False, passive=True, timeout=6.0,
-                             seed="axis14-atoms-l3", browser=False, oast=None,
+                             seed="axis14-atoms-l3" + "0" * 50, browser=False, oast=None,
                              graphql=False, websocket=False, secrets=False,
                              modern=False)
             sc = SentinelScanner(base + "/", cfg)
@@ -657,7 +681,7 @@ def battery_14c():
         try:
             cfg = ScanConfig(allow_private=True, max_pages=6, crawl=True,
                              active=True, passive=True, timeout=8.0,
-                             seed="axis14-atoms-l4", browser=False, oast=None,
+                             seed="axis14-atoms-l4" + "0" * 50, browser=False, oast=None,
                              graphql=True, websocket=False, secrets=False,
                              modern=True)
             sc = SentinelScanner(base + "/", cfg)

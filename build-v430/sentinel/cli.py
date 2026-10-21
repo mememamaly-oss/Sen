@@ -144,7 +144,12 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
         # by this very benchmark going FN on xss_dom). Budget recalibrated to track
         # the fixture, same doctrine as the Phase 55 browser-budget recalibration.
         cfg = ScanConfig(allow_private=True, max_pages=40, timeout=timeout,
-                         strategy_path=strategy_path, seed="benchmark-fixed-seed",
+                         strategy_path=strategy_path,
+                         # ORD-001-REMAND (RT-03/RT-04): 64 chars (>= 32
+                         # bytes) — compliant with the seed floor while
+                         # staying a FIXED deterministic anchor for the
+                         # bench (was "benchmark-fixed-seed", 21 bytes).
+                         seed="bench430" * 8,
                          oast=oast, auth=auth, authz=authz_cfg,
                          # Phase 58 (v3.0.0): the benchmark exercises the FULL
                          # platform including the Workflow Intelligence engine —
@@ -475,6 +480,16 @@ def main():
     if a.cmd == "doctor":
         print(json.dumps(doctor(), indent=1))
     elif a.cmd == "scan":
+        # ORD-001-REMAND (RT-03/RT-04): an operator-passed --seed must carry
+        # >= 32 bytes of material (64 hex chars recommended for runs;
+        # >= 64 utf-8 chars otherwise). Weak seeds (dates, timestamps,
+        # serial ids, short labels) are rejected fail-closed BEFORE the
+        # run starts — the same floor is enforced again at the crypto layer
+        # (audit.SeedPolicyError).
+        if a.seed is not None and len(a.seed.encode("utf-8")) < 32:
+            ap.error("--seed must carry at least 32 bytes (64 hex chars "
+                     "recommended) — weak seeds are fail-closed rejected "
+                     "(RT-03/RT-04)")
         auth = None
         if a.auth_token:
             # AUTH-05 token mode: Bearer JWT / API key / custom header.
