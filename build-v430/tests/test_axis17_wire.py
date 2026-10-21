@@ -23,11 +23,16 @@ N4)  الحالة 3 تثبت **الاستدعاء** (حدث RaceProbeStarted + �
      — وفئة "تحويل" تحجبها لاحقاً بوابة المفردات الداخلية للحزمة نفسها
      (delete/transfer بأمر ORD-002 الحرفي) فتظهر بحد
      destructive_blocked وصفر إرسال: النتيجة الصادقة المأمورة.
-N5)  عزل طبقة المخطط في الحالة 4 على نمط حالة-9 للمحور-17: المسار
-     /setup يصنفه planner المحرك DESTRUCTIVE (قائمة V411-DISC-SAFE)
-     وهو **ليس** في قائمة race الداخلية — فالرفض يجري عبر بوابة
-     المخطط المربوطة وحدها (الدليل في evidence_chain)؛ ونقطة "حذف"
-     الحرفية /delete تُثبت أيضاً (الطبقتان معاً).
+N5)  عزل طبقة المخطط في الحالة 4: نقطة فئة "تعديل" /update تحمل
+     أمراً تدميرياً في الاستعلام ?mode=reseed (صنف OWSP-21 الموثق:
+     التطبيقات الموجّهة بالاستعلام) — الكلمة في قائمة planner المحرك
+     DESTRUCTIVE (V411-DISC-SAFE) و**ليست** في قائمة race الداخلية
+     (حدود الكلمات: reseed ≠ reset) فبوابة المفردات الداخلية تمررها
+     (PASSED في السلسلة) ثم بوابة المخطط المربوطة وحدها ترفضها
+     (REJECTED في السلسلة) — عزل ثنائي الطبقة على نمط حالتي 5/9
+     في جناح المحور؛ ونقطة "حذف" الحرفية /delete تُثبت أيضاً (تحجبها
+     البوابة الداخلية أولاً — كلا الطبقتين ترفضانها؛ الحدود في كلا
+     الاتجاهين destructive_blocked).
 N6)  الحالة 5 تعيد التحقق خارجياً بتوقيع المحور-14 من الحقول المنشورة
      وحدها (وصفة الذرة-8: جذر ميركل فوق evidence_chain + هضم مركب
      بفواصل 0x00 + ed25519_verify) وتثبت حساسية التلاعب.
@@ -41,6 +46,16 @@ N9)  الجناح خارج تسجيل @case — عقد الـsuite 227×19=4313 
 N10) برهان "لا استدعاء إطلاقاً بلا --race" (الحالة 2) يجري في عملية
      فرعية طازجة (نمط المحور-13 للاستيراد الكسول) لأن sys.modules
      داخل العملية تتلوث بترتيب الحالات الأبجدي.
+N11) عيب اكتشفه الربط قبل الالتزام وصُحح (نمط RED->GREEN): عدّادات
+     الزيارات عند الخادم لا تعزل بطارية السباق — بطاريات المحرك
+     النشطة نفسها تفحص نماذج POST المكتشفة (سلوك المحرك المسبق
+     المستقل عن هذا الأمر). العدّ الدقيق لطلبات السباق يجري عبر
+     سجل المحرك: كل فحص يكتب بمفاتيح مسبوقة "race:" (مساحة أسماء
+     الوكيل في الربط تمنع تصادم rids بين الفحوص المتعاقبة). الحالة 5
+     تشترط >= 10 زيارات خادم (بطارية المحرك فوقها سلوكها المسبق).
+     الصياغة الأصلية للعدّادات كانت ستمرّ خطأً أو تفشل خطأً — صُححت
+     قبل التزام GREEN مع بقاء خاصية RED (كل حالة تظل تفشل على شجرة
+     غير مربوطة بالنمط الموحد).
 
 الأمر الحرفي المودَع (ORD-002-WIRE — فقرة الاختبارات):
     أنشئ: tests/test_axis17_wire.py
@@ -93,16 +108,18 @@ RACE_DEFAULT_VARIANCE = 0.005
 class _WireFixture:
     """تطبيق محلي 127.0.0.1 بنقاط حساسة بأربع فئات مأمورة.
 
-    الصفحة الرئيسية تحمل **نماذج** (لا روابط) إلى أربع نقاط — فزاحف
-    المحرك يسجلها كنقاط POST دون أن يجلب صفحاتها، وبوابة المخطط تحجب
-    بطاريات المحرك النشطة عنها كلها بلا --logic-active (STATE_CHANGING
-    أو DESTRUCTIVE) — فيصبح عددّاد الزيارات لكل (method,path) برهاناً
-    دقيقاً: بطارية السباق هي المرسل الوحيد الممكن.
+    الصفحة الرئيسية تحمل نماذج POST ووصلة GET إلى النقاط — الزاحف يسجلها
+    جميعاً كنقاط مكتشفة. بطاريات المحرك النشطة تفحص نماذج POST
+    المكتشفة بسلوكها المسبق المستقل (كما اكتشف الربط حيّاً — N11)،
+    لذلك عزل طلبات بطارية السباق يجري عبر مفاتيح "race:" في سجل
+    المحرك (كل فحص يكتب بمفاتيح مسبوقة — عدّ دقيق لا لبس فيه).
 
       /transfer — فئة "تحويل"  (تحجبها بوابة race الداخلية: transfer)
       /delete   — فئة "حذف"    (تحجبها الطبقتان: delete)
-      /setup    — عزل المخطط   (planner المحرك DESTRUCTIVE، قائمة race
-                  الداخلية نظيفة منها — نمط حالة-9)
+      /update?mode=reseed — فئة "تعديل" بأمر تدميري في الاستعلام
+                 (planner المحرك DESTRUCTIVE عبر reseed؛ قائمة race
+                 الداخلية نظيفة منها — عزل البوابة المربوطة، صنف OWSP-21؛
+                 الزاحف نفسه يرفض جلبها بموجب DESTRUCTIVE_GET_RE)
       /pay      — فئة "دفع"    (قابلة للفحص: توقيت حلقي ضيق => سباق)
     """
 
@@ -114,12 +131,10 @@ class _WireFixture:
         '<form action="/delete" method="POST">'
         '<input name="target_id" value="7">'
         '<input type="submit" name="btnDel" value="OK"></form>'
-        '<form action="/setup" method="POST">'
-        '<input name="mode" value="reseed">'
-        '<input type="submit" name="btnSetup" value="OK"></form>'
         '<form action="/pay" method="POST">'
         '<input name="amount" value="5"><input name="note" value="canary-probe">'
         '<input type="submit" name="btnPay" value="Pay"></form>'
+        '<a href="/update?mode=reseed">reseed settings</a>'
         "</body></html>"
     )
 
@@ -202,6 +217,15 @@ def _section_entry(rep, needle):
         if needle in str(p.get("endpoint", "")):
             return p
     return None
+
+
+def _race_journal_hits(rep, needle):
+    """عدّ طلبات بطارية السباق ل نقطة من سجل المحرك — المفاتيح المسبوقة
+    "race:" (مساحة أسماء الوكيل). هذا العدّ الدقيق المعزول (N11)."""
+    jr = rep.get("stats", {}).get("request_journal") or {}
+    return sum(1 for k, v in jr.items()
+               if str(k).startswith("race:")
+               and needle in str((v or {}).get("request", {}).get("url", "")))
 
 
 # ============================================================ الحالات الست
@@ -295,7 +319,8 @@ def test_wire_enabled_triggers_probe():
         assert entry["honest_boundary"] == "destructive_blocked", \
             f"transfer boundary {entry['honest_boundary']!r}"
         assert entry["request_count"] == 0
-        assert fx.post_hits("/transfer") == 0, "race battery POSTed to /transfer"
+        assert _race_journal_hits(rep, "/transfer") == 0, \
+            "the race battery sent requests to the transfer point"
     finally:
         fx.stop()
 
@@ -313,25 +338,29 @@ def test_wire_destructive_blocked():
         assert entry_del["honest_boundary"] == "destructive_blocked", \
             f"delete boundary {entry_del['honest_boundary']!r}"
         assert entry_del["request_count"] == 0
-        assert fx.post_hits("/delete") == 0, "race battery POSTed to /delete"
+        assert _race_journal_hits(rep, "/delete") == 0, \
+            "the race battery sent requests to the delete point"
         assert not any(f["type"] == "race_condition"
                        and "/delete" in f["url"] for f in rep["findings"])
-        # (ب) عزل طبقة المخطط (نمط حالة-9): /setup — planner المحرك
-        # يصنفها DESTRUCTIVE وقائمة race الداخلية نظيفة منها، فالرفض
-        # يجري عبر البوابة المربوطة وحدها والدليل في السلسلة
-        entry_setup = _section_entry(rep, "/setup")
-        assert entry_setup is not None, "setup point not examined"
-        assert entry_setup["honest_boundary"] == "destructive_blocked", \
-            f"setup boundary {entry_setup['honest_boundary']!r}"
-        chain = " || ".join(str(s) for s in entry_setup.get("evidence_chain", []))
+        # (ب) عزل طبقة المخطط (نمط حالتي 5/9 للمحور-17): نقطة "تعديل"
+        # /update?mode=reseed — الكلمة التدميرية في الاستعلام يصنفها
+        # planner المحرك DESTRUCTIVE (OWSP-21) وهي ليست في قائمة race
+        # الداخلية (حدود كلمات: reseed ≠ reset)، فالبوابة الداخلية
+        # تمررها والرفض يجري عبر البوابة المربوطة وحدها — الدليل في السلسلة
+        entry_upd = _section_entry(rep, "/update")
+        assert entry_upd is not None, "update point not examined"
+        assert entry_upd["honest_boundary"] == "destructive_blocked", \
+            f"update boundary {entry_upd['honest_boundary']!r}"
+        chain = " || ".join(str(s) for s in entry_upd.get("evidence_chain", []))
         assert "planner_gate:REJECTED" in chain, \
             f"the rejection did not flow through the wired planner gate: {chain!r}"
         assert "vocabulary_gate:PASSED" in chain, \
-            "isolation broken: the internal gate fired on /setup"
-        assert entry_setup["request_count"] == 0
-        assert fx.post_hits("/setup") == 0, "race battery POSTed to /setup"
+            "isolation broken: the internal gate fired on /update"
+        assert entry_upd["request_count"] == 0
+        assert _race_journal_hits(rep, "/update") == 0, \
+            "the race battery sent requests to the update point"
         assert not any(f["type"] == "race_condition"
-                       and "/setup" in f["url"] for f in rep["findings"])
+                       and "/update" in f["url"] for f in rep["findings"])
     finally:
         fx.stop()
 
@@ -352,8 +381,10 @@ def test_wire_result_in_report():
             f"{entry['timing_variance']!r})"
         assert entry["request_count"] == 10, \
             f"expected the ordered 10-sample probe, got {entry['request_count']}"
-        assert fx.post_hits("/pay") == 10, \
-            f"server saw {fx.post_hits('/pay')} of 10 race POSTs"
+        assert _race_journal_hits(rep, "/pay") == 10, \
+            "the race battery's 10 requests are not in the engine journal"
+        assert fx.post_hits("/pay") >= 10, \
+            f"server saw {fx.post_hits('/pay')} POSTs — fewer than the race battery's 10"
         # النتيجة => Finding موقّع في التقرير
         found = [f for f in rep["findings"]
                  if f["type"] == "race_condition" and "/pay" in f["url"]]

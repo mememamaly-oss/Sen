@@ -98,14 +98,19 @@ def _benchmark_fixture(base_url: str):
 
 
 def run_benchmark(base_url="http://127.0.0.1:8777", out="results/benchmark.json",
-                  strategy_path=None, timeout=12.0, label=""):
+                  strategy_path=None, timeout=12.0, label="",
+                  race=False, race_parallel=10, race_variance=0.005):
     """Scan the fixture and score against ground truth (spec 29/30).
     ENG-20: on the default target the benchmark spawns its OWN fresh fixture
     on an ephemeral port (determinism regardless of leftover listeners) and
-    tears it down after; explicit --url targets keep OP-01 self-repair."""
+    tears it down after; explicit --url targets keep OP-01 self-repair.
+    ORD-002-WIRE: race=False keeps the anchored regression record; --race
+    additionally exercises the race battery (the no-regression proof run)."""
     base_url, spawned = _benchmark_fixture(base_url)   # ENG-20 owned fixture
     try:
-        return _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned)
+        return _run_benchmark_inner(base_url, out, strategy_path, timeout, label,
+                                    spawned, race=race, race_parallel=race_parallel,
+                                    race_variance=race_variance)
     finally:
         if spawned is not None:
             spawned.terminate()                        # we started it -> we stop it
@@ -115,7 +120,8 @@ def run_benchmark(base_url="http://127.0.0.1:8777", out="results/benchmark.json"
                 spawned.kill(); spawned.wait(timeout=5)
 
 
-def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
+def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned,
+                         race=False, race_parallel=10, race_variance=0.005):
     gt = json.load(open(os.path.join(os.path.dirname(__file__), "..", "benchmarks", "ground_truth.json")))
     # Phase 49: the benchmark exercises the FULL platform — OAST armed, so the blind
     # XXE ground-truth entry (/vuln/oob-stock) is confirmable out-of-band.
@@ -160,7 +166,11 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
                          # benchmark's anchored request stream (~7k requests) and
                          # verdict record (38/0/0/37) are the determinism anchor;
                          # the operator-facing default (500) must not castrate it.
-                         max_requests=0)
+                         max_requests=0,
+                         # ORD-002-WIRE: the race battery (off = the anchored
+                         # record; on = the ordered no-regression proof run)
+                         race=race, race_parallel=race_parallel,
+                         race_variance=race_variance)
         sc = SentinelScanner(base_url, cfg)
         result = sc.run()
     finally:
@@ -369,8 +379,35 @@ def main():
                         "duplicate execution / privilege bound) on fresh sessions — "
                         "THESE PROBES CHANGE APPLICATION STATE (canary values, "
                         "bounded budgets); every finding requires state-oracle proof")
+    # ---- ORD-002-WIRE (axis-17): the race-condition battery flags. OFF by
+    # default; without --race the sentinel/race/ package is never even
+    # loaded (zero effect on a normal scan — pinned by test_wire_disabled_by_default).
+    s.add_argument("--race", action="store_true",
+                   help="ORD-002-WIRE/axis-17: enable the race-condition "
+                        "detection battery — sensitive endpoints (transfer/pay/"
+                        "delete/modify/withdraw/move vocabulary) receive small "
+                        "bursts of concurrent identical requests and the timing "
+                        "variance decides race_detected; destructive vocabulary "
+                        "is ALWAYS rejected before any send. Default: disabled", )
+    s.add_argument("--race-parallel", type=int, default=10, metavar="N",
+                   help="race battery: max concurrent requests per probe "
+                        "(default: 10; range 1..64 — the package's own budget gate "
+                        "enforces fail-closed)")
+    s.add_argument("--race-variance", type=float, default=0.005, metavar="F",
+                   help="race battery: timing-variance threshold in seconds — a "
+                        "mutating group whose unbiased sample variance falls "
+                        "below it is flagged race_detected (default: 0.005)")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
+    # ORD-002-WIRE: the benchmark can also exercise the race battery (--race).
+    b.add_argument("--race", action="store_true",
+                   help="ORD-002-WIRE/axis-17: also run the race-condition "
+                        "battery during the benchmark scan (default: off — the "
+                        "anchored no-race bench is the regression record)")
+    b.add_argument("--race-parallel", type=int, default=10, metavar="N",
+                   help="race battery concurrency cap (default: 10)")
+    b.add_argument("--race-variance", type=float, default=0.005, metavar="F",
+                   help="race battery timing-variance threshold in seconds (default: 0.005)")
     sub.add_parser("doctor")
     sub.add_parser("repair-demo")
     # ---- Phase 46+: findings / report / serve
@@ -525,7 +562,9 @@ def main():
                          authz=authz_cfg, secrets=not a.no_secrets,
                          vault=a.vault or None, vault_key_file=a.vault_key_file or None,
                          workflow=a.workflow, logic_active=a.logic_active,
-                         exclude_urls=a.exclude_url)
+                         exclude_urls=a.exclude_url,
+                         race=a.race, race_parallel=a.race_parallel,
+                         race_variance=a.race_variance)
         # Phase 58: the attack battery changes application state — a loud,
         # explicit warning before a single probe leaves the engine.
         if a.logic_active:
@@ -534,6 +573,20 @@ def main():
                   "tamper / duplicate execution / privilege bound / cross-user / "
                   "cross-object / cross-state) WILL be executed against the target "
                   "with canary values and bounded budgets.", flush=True)
+        # ORD-002-WIRE: the race battery sends real concurrent traffic to
+        # sensitive endpoints — a loud, explicit warning before any burst
+        # leaves the engine (the --logic-active doctrine).
+        if a.race:
+            print("[!] --race: race-condition probes are ENABLED — sensitive "
+                  "endpoints (transfer/pay/delete/modify/withdraw/move) will "
+                  "receive bursts of 10 concurrent identical requests each; "
+                  "destructive vocabulary (delete/transfer/...) is ALWAYS "
+                  "rejected before any send.", flush=True)
+            if not (1 <= a.race_parallel <= 64):
+                ap.error("--race-parallel must be within 1..64 (the package's "
+                         "budget gate is fail-closed)")
+            if a.race_variance <= 0:
+                ap.error("--race-variance must be a positive threshold in seconds")
         # Phase 52: channel-aware OAST arming. auto = local listener for targets
         # that can reach loopback (lab fixtures), PUBLIC webhook channel for remote
         # targets (live-proven: ginandjuice.shop blind XXE confirmed via webhook.site
@@ -606,7 +659,9 @@ def main():
         for f in sorted(rep["findings"], key=lambda x: -x["risk"]):
             print(f"  [{f['severity'].upper():8s}] {f['type']:26s} {f['url'][:60]:60s} param={f['parameter']:6s} risk={f['risk']}")
     elif a.cmd == "benchmark":
-        rep = run_benchmark(a.url, a.out, a.strategy_path, a.timeout, label="cli")
+        rep = run_benchmark(a.url, a.out, a.strategy_path, a.timeout, label="cli",
+                            race=a.race, race_parallel=a.race_parallel,
+                            race_variance=a.race_variance)
         c = rep["confusion"]
         if rep["stats"]["requests"] <= 5:
             print("[OP-01] WARNING: benchmark target unreachable (requests<=5); "

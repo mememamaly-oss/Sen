@@ -5,7 +5,8 @@ from __future__ import annotations
 import json, os, time
 import urllib.parse
 from .core import (Endpoint, EventBus, Evidence, Finding, FindingStatus, ScopeRule, ParamKind,
-                   Severity, Target, DiscoverySource, new_run_id, SCANNER_VERSION)
+                   Severity, Target, DiscoverySource, new_run_id, SCANNER_VERSION, Verification,
+                   ParamLocation)
 from .http_engine import RequestEngine, RequestMutation, Response
 from .discovery import DiscoveryEngine
 from .discovery import DESTRUCTIVE_GET_RE   # V411-DISC-SAFE vocabulary gate
@@ -62,7 +63,9 @@ class ScanConfig:
                  openapi=True, openapi_spec=None, authz=None, secrets=True,
                  vault=None, vault_key_file=None, workflow=False, logic_active=False,
                  graphql=True, websocket=True, modern=True, exclude_urls=None,
-                 max_requests: int = 500):
+                 max_requests: int = 500,
+                 race: bool = False, race_parallel: int = 10,
+                 race_variance: float = 0.005):
         self.allow_private = allow_private
         self.max_pages = max_pages
         # RT-07 fix (audit-rb-1 AUD-GOV-01): hard request budget. The engine had
@@ -98,6 +101,13 @@ class ScanConfig:
         # the operator pins the target's state instead of letting a crawler
         # flip it mid-scan (live-caught on DVGA: /difficulty/<level> switches
         # the whole application between easy and hardened GraphQL behavior).
+        # ---- ORD-002-WIRE (axis-17): the race-condition battery wiring.
+        # OFF by default — without --race the sentinel/race/ package is never
+        # imported, never registered, never invoked (constraint 4; pinned by
+        # test_wire_disabled_by_default in a fresh subprocess).
+        self.race = bool(race)                      # --race (explicit operator opt-in)
+        self.race_parallel = int(race_parallel)     # --race-parallel N (concurrency cap)
+        self.race_variance = float(race_variance)   # --race-variance F (decision threshold)
 
 
 class _FingerprintingProxy:
@@ -153,6 +163,35 @@ class _BudgetProxy:
         return getattr(self._inner, name)
 
 
+class _RaceJournalProxy(dict):
+    """ORD-002-WIRE: مساحة أسماء لطلبات السباق داخل سجل المحرك المشترك.
+    كل فحص سباق يرقّم طلباته من race-0000 — الكتابة المباشرة بال rid نفسه
+    كانت ستتصادم بين الفحوص المتعاقبة وتُسقط أدلة سابقة من السجل
+    (عيب حقيقي اكتشفه الجناح قبل الالتزام). الوكيل يسبق المفاتيح
+    بـ"race:" داخل سجل المحرك، يحتفظ بعدّه المحلي للسطر الصادق في
+    سلسلة أدلة الحزمة، ويلتزم سقف سجل المحرك نفسه (JOURNAL_MAX —
+    الانضباط المحكم للسجل المحدود). تنسيق القيم نفسه حرفياً من
+    الحزمة: رؤوس RT-05 مقنعة وجسم بند-3 مقنع."""
+
+    _MAX = 6000          # نفس سقف سجل المحرك (http_engine.JOURNAL_MAX)
+
+    def __init__(self, inner):
+        super().__init__()
+        self._inner = inner
+        self._dropped = 0
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        if self._inner is None:
+            return
+        inner_n = len(self._inner) - sum(1 for k in self._inner
+                                          if str(k).startswith("race:"))
+        if inner_n >= self._MAX:
+            self._dropped += 1
+            return
+        self._inner[f"race:{key}"] = value
+
+
 class SentinelScanner:
     def __init__(self, target_url: str, cfg: ScanConfig | None = None):
         self.cfg = cfg or ScanConfig()
@@ -177,6 +216,203 @@ class SentinelScanner:
         self.vault = None         # Phase 57: opened Credential Vault (armed capture)
         self.stats = {"requests": 0, "endpoints": 0, "candidates": 0, "verified": 0, "rejected": 0,
                       "duration": 0.0}
+        self._race_section = None    # AXIS-17 WIRE: set ONLY when cfg.race ran
+
+    # ------------------------------------------------- AXIS-17 WIRE (ORD-002-WIRE)
+    # Pure WIRING of the closed sentinel/race/ package (STATE.md round-23)
+    # through its four registration points — bus / journal / planner_gate /
+    # signer. Zero package logic here, zero package edits (constraint 1);
+    # everything is INJECTED, never imported by the package (its test 10).
+    _RACE_SENSITIVE_WORDS = ("transfer", "convert", "pay", "payment", "checkout",
+                             "delete", "remove", "modify", "edit", "update",
+                             "withdraw", "withdrawal", "move", "relocate")
+
+    def _race_sensitive(self, endpoints) -> list:
+        """النقاط الحساسة بعد الاكتشاف (الأمر: تحويل/دفع/حذف/تعديل/سحب/
+        نقل) — تحديد حتمي بمفردات حدود-كلمات على المسار والاستعلام.
+        استبعادات المشغل (V411-EXC) محترمة؛ النقطة بلا معامل قابل للفحص
+        تدخل بحد empty_parameter الصادق (لا إرسال — قرار الحزمة نفسها)."""
+        out, seen = [], set()
+        for ep in endpoints:
+            if any(x and x in ep.url for x in (self.cfg.exclude_urls or [])):
+                continue
+            u = urllib.parse.urlsplit(ep.url)
+            hay = (u.path or "").replace("/", " ").replace("-", " ").replace("_", " ").replace(".", " ")
+            q = urllib.parse.unquote_plus(u.query or "")
+            for sep in ("&", "=", "+", "%", "|", ";"):
+                q = q.replace(sep, " ")
+            hay += " " + q.replace("/", " ").replace("-", " ").replace("_", " ")
+            if not set(hay.lower().split()) & set(self._RACE_SENSITIVE_WORDS):
+                continue
+            key = ((ep.method or "GET").upper(), u.path or "/",
+                   tuple(sorted(p.name for p in ep.parameters)))
+            if key in seen:
+                continue
+            seen.add(key)
+            param = next((p.name for p in ep.parameters
+                          if p.kind != ParamKind.TOKEN and not p.flow_control
+                          and not p.is_file), "")
+            out.append((ep, param))
+        return sorted(out, key=lambda t: ((t[0].method or "GET").upper(), t[0].url, t[1]))
+
+    def _run_race_battery(self, endpoints) -> dict:
+        """تشغيل بطارية السباق — ربط صرف عبر نقاط التسجيل الأربع."""
+        import hashlib as _hashlib
+        from . import race as race_pkg                 # lazy (constraint 4)
+        from . import proof
+        from .audit import derive_keypair
+        from .planner import classify_operation
+
+        # (نقطة 3) بوابة المخطط — سطح المحرك الحقيقي نفسه؛ التدميري
+        # يُرفض دائماً، وعلم --race هو الإذن الصريح للمعدِّلات (عقيدة
+        # المخطط: لا يحجب ما فعّله المشغّل صراحة). كل قرار يُسجَّل في
+        # سجل قرارات المخطط نفسه — مسار التدقيق "ماذا فعل هذا المسح
+        # بتطبيقي؟" يبقى كاملاً.
+        def planner_gate(plan):
+            verdict = classify_operation(plan.get("url", ""),
+                                         plan.get("method", "POST"))
+            impact = verdict["impact"]
+            allowed = impact != "DESTRUCTIVE"
+            try:
+                self.attack_planner.decisions.append({
+                    "url": str(plan.get("url", "")).split("?")[0],
+                    "method": str(plan.get("method", "POST")).upper(),
+                    "impact": impact, "allowed": allowed,
+                    "policy": "operator-enabled (--race); destructive blocked",
+                    "rationale": verdict["rationale"]})
+                if not allowed:
+                    self.attack_planner.blocked += 1
+            except Exception:
+                pass
+            return allowed, f"planner:{impact}"
+
+        # (نقطة 4) التوقيع — آلية المحور-14 حرفياً: جذر ميركل فوق سلسلة
+        # الأدلة (وصفة §8.2 من proof) + هضم مركب بفواصل 0x00 + ed25519
+        # من primitives المحور-8؛ الزوج يُشتق من بذرة التشغيلة عبر
+        # audit.derive_keypair (HKDF-SHA256 على كامل المادة، أرضية RT-03).
+        priv, pub = derive_keypair(self.seed)
+
+        def signer(payload: bytes) -> dict:
+            doc = json.loads(payload.decode("utf-8"))
+            chain = doc.get("evidence_chain", [])
+            if chain:
+                leaves = [json.dumps({"step": s}, sort_keys=True,
+                                     separators=(",", ":"), ensure_ascii=False)
+                          for s in chain]
+                root_hex = proof.merkle_root(
+                    [l.encode("utf-8") for l in leaves]).hex()
+            else:
+                root_hex = _hashlib.sha256(b"").hexdigest()
+            digest = _hashlib.sha256("\x00".join([
+                str(doc.get("endpoint", "")), str(doc.get("parameter", "")),
+                str(int(doc.get("request_count", 0))), root_hex,
+                _hashlib.sha256(payload).hexdigest()]).encode("utf-8")).hexdigest()
+            sig = proof.ed25519_sign(priv, bytes.fromhex(digest))
+            return {"signature": sig.hex(), "public_key": pub.hex(),
+                    "merkle_root": root_hex, "algorithm": "ed25519"}
+
+        # (النقطتان 1+2) التسجيل: bus + journal — الحقن لكل فحص عبر
+        # وكيل مساحة الأسماء (يمنع تصادم rids بين الفحوص ويحفظ سقف
+        # السجل)؛ الطلبات تدخل سجل المحرك المشترك بنفس تنسيقه
+        # وتقنّع RT-05/item-3 داخل الحزمة نفسها — ثم البوابة والتوقيع.
+        ctx = race_pkg.register(
+            bus=self.bus, journal=None,   # the proxy below is the injection point
+            planner_gate=planner_gate, signer=signer)
+
+        section = {"title": "Race Condition Analysis", "enabled": True,
+                   "trigger": "--race",
+                   "parallel_cap": self.cfg.race_parallel,
+                   "variance_threshold": self.cfg.race_variance,
+                   "sensitive_words": sorted(self._RACE_SENSITIVE_WORDS),
+                   "probed": [], "finding_gates": [],
+                   "findings": 0, "requests": 0}
+        total_requests, n_findings = 0, 0
+        for ep, param in self._race_sensitive(endpoints):
+            # هندسة الطلب (نفس منطق _render في المحرك): معاملات الاستعلام
+            # تُعاد إلى عنوان الفحص — بوابة المخطط تفحص المسار والاستعلام
+            # معاً (OWSP-21) فلا يجوز أن تضيع الاستعلامات هنا (عيب حقيقي
+            # اكتشفه الجناح حيّاً: نقطة GET ?mode=reseed كانت تُفحص بلا
+            # استعلامها فلا ترى البوابة الكلمة التدميرية).
+            qparams = [(p.name, p.value or "") for p in ep.parameters
+                       if getattr(p, "location", None) == ParamLocation.QUERY]
+            probe_url = ep.url
+            if qparams and "?" not in probe_url:
+                probe_url = ep.url + "?" + urllib.parse.urlencode(qparams)
+            body, headers = "", {}
+            if (ep.method or "GET").upper() in ("POST", "PUT", "PATCH"):
+                fields = [(p.name, p.value or "sentinel-probe")
+                          for p in ep.parameters
+                          if p.kind != ParamKind.TOKEN and not p.flow_control
+                          and not p.is_file
+                          and getattr(p, "location", None) in
+                          (ParamLocation.BODY, ParamLocation.JSON)]
+                if not fields:
+                    fields = [(p.name, p.value or "sentinel-probe")
+                              for p in ep.parameters
+                              if p.kind != ParamKind.TOKEN and not p.flow_control
+                              and not p.is_file]
+                if fields:
+                    body = urllib.parse.urlencode(fields)
+                    headers["Content-Type"] = "application/x-www-form-urlencoded"
+            res = race_pkg.wire_plan(
+                ctx, probe_url, parameter=param, samples=10, body=body,
+                headers=headers, method=(ep.method or "GET").upper(),
+                journal=_RaceJournalProxy(
+                    getattr(self.bus, "request_journal", None)),
+                max_concurrent=self.cfg.race_parallel,
+                timeout=self.cfg.timeout, threshold=self.cfg.race_variance,
+                mutating=True, run_id=self.run_id)
+            # القيد في القسم يبقى res.to_dict() نقية — الوحدة الموقعة
+            # القابلة للتحقق الخارجي بتوقيع المحور-14 (أي مفتاح إضافي بعد
+            # التوقيع يبطل التحقق — عيب اكتشفه الجناح حيّاً). قرارات الربط
+            # تُسجّل في مفتاح قسم منفصل خارج الحمولة الموقعة.
+            entry = res.to_dict()
+            gate_note = {"endpoint": res.endpoint, "created": False,
+                         "reason": ""}
+            # بوابة النتيجة على مستوى الربط (قرار ربط معلن، لا منطق حزمة):
+            # فحص فشلت طلباته كلها (404/5xx/أعطال) لا يولّد نتيجة — توقيتات
+            # الفشل ليست دليل سباق؛ القيد يظهر في القسم بصراحة.
+            if res.race_detected and int(res.stats.get("ok", 0)) > 0:
+                gate_note["created"] = True
+                f = Finding(
+                    type="race_condition", severity=Severity.HIGH,
+                    endpoint_url=res.endpoint, parameter=res.parameter,
+                    method=res.method, confidence=0.9,
+                    status=FindingStatus.VERIFIED, run_id=self.run_id,
+                    verification=Verification(
+                        method="race:concurrent-timing-variance", passed=True,
+                        confidence=0.9, rounds=res.request_count,
+                        notes=(f"unbiased sample variance {res.timing_variance:.8f}s "
+                               f"< threshold {self.cfg.race_variance}s over "
+                               f"{res.request_count} concurrent requests")),
+                    evidence=[
+                        Evidence(kind="race_timing_variance",
+                                 detail=(f"variance={res.timing_variance:.8f}s over "
+                                         f"{res.request_count} concurrent {res.method} "
+                                         f"requests (threshold={self.cfg.race_variance}s)")),
+                        Evidence(kind="race_evidence_chain",
+                                 detail=" -> ".join(str(s) for s in
+                                                    res.evidence_chain)[:280]),
+                        Evidence(kind="race_signature",
+                                 detail=("axis-14 merkle+ed25519; root="
+                                         + (res.merkle_root or "")[:24] + ".. pub="
+                                         + (res.public_key or "")[:24]
+                                         + ".. (full signed result: report.race_analysis)"))])
+                self.findings.append(f)
+                self.stats["candidates"] += 1
+                self.bus.emit("CandidateCreated", type=f.type, url=f.endpoint_url,
+                              param=f.parameter)
+                n_findings += 1
+            elif res.race_detected:
+                gate_note["reason"] = ("race_detected on an all-failed probe "
+                                       "(0 successful responses) — no finding: "
+                                       "failure timings are not race evidence")
+            section["probed"].append(entry)
+            section["finding_gates"].append(gate_note)
+            total_requests += int(res.request_count)
+        section["findings"] = n_findings
+        section["requests"] = total_requests
+        return section
 
     # ---------------------------------------------------------------- run
     def _path_traversal_bases(self, endpoints) -> list[str]:
@@ -1157,6 +1393,26 @@ class SentinelScanner:
                                            evidence=f"failure {fid}",
                                            provenance="orchestrator:modernsec")
 
+        # ---- AXIS-17 WIRE (ORD-002-WIRE): the race-condition battery —
+        # pure WIRING of the closed sentinel/race/ package through its four
+        # registration points; runs ONLY when the operator passed --race.
+        # A default scan never reaches this block at all (constraint 4).
+        if self.cfg.race:
+            try:
+                self._race_section = self._run_race_battery(endpoints)
+            except Exception as e:
+                fid = self.failures.record("race", f"{type(e).__name__}: {e}", {})
+                self.bus.emit("ScannerFailed", scanner="race", failure=fid,
+                              error=str(e)[:200])
+                self._race_section = {
+                    "title": "Race Condition Analysis", "enabled": True,
+                    "error": str(e)[:160], "boundary": "engine_error",
+                    "probed": [], "findings": 0, "requests": 0}
+                self.boundary.tool_failure("race", self.target.url,
+                                           f"{type(e).__name__}: {e}",
+                                           evidence=f"failure {fid}",
+                                           provenance="orchestrator:race")
+
         # ---- Phase 12: dedup + correlation + risk
         verified = [f for f in self.findings if f.status == FindingStatus.VERIFIED]
         rejected = [f for f in self.findings if f.status == FindingStatus.REJECTED]
@@ -1221,6 +1477,12 @@ class SentinelScanner:
         # ride the main engine and are already counted there).
         if wf_extra_requests:
             self.stats["requests"] += wf_extra_requests
+        # AXIS-17 WIRE: the race battery rides its own transport (http.client
+        # concurrency inside sentinel/race/) — its requests are counted on top
+        # of the engine total so the report's request count stays the whole
+        # truth (zero when --race absent — the section is never even built).
+        if getattr(self, "_race_section", None) and self._race_section.get("requests"):
+            self.stats["requests"] += self._race_section["requests"]
         ded = self.pipeline.dedup(verified)
         final = self.pipeline.correlate(ded)
         for f in final:
@@ -1634,6 +1896,14 @@ class SentinelScanner:
                                        f"{type(e).__name__}: {e}",
                                        evidence=f"failure {fid}",
                                        provenance="orchestrator:audit")
+        # AXIS-17 WIRE (ORD-002-WIRE): the race section rides the report ONLY
+        # when the operator passed --race (the order: without the flag the
+        # section never appears — a default scan never sets _race_section).
+        # Added AFTER the audit enrich so the axis-14 report signature (over
+        # the findings) is untouched by the section's presence.
+        _race_sec = getattr(self, "_race_section", None)
+        if _race_sec is not None:
+            rep["race_analysis"] = _race_sec
         return rep
 
 
