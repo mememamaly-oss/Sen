@@ -5487,3 +5487,20 @@ Work Log:
 Stage Summary:
 - RT-02 closed red/green on the same tree: MITM 200+Authorization-captured -> SSLCertVerificationError with zero interceptor hits; opt-in warning path proven; pytest 206/206.
 - ONLY build-v430/sentinel/http_engine.py modified (+ worklog + scripts/rt02_tls_proof.py standing tool).
+
+---
+Task ID: 94
+Agent: Super Z (main agent)
+Task: Step 4 (supervisor batch permission) — fix RT-05 (credential headers journaled in plaintext) in build-v430/sentinel/http_engine.py ONLY.
+
+Work Log:
+- 4.1 RED (live): standing tool scripts/rt05_creds_proof.py — plain-HTTP fixture on 127.0.0.1 (allow_private=True), request carrying 5 credential headers + 3 context headers; vulnerable tree journal: secrets_leaked_verbatim=[Authorization, X-Api-Key, Cookie, X-Auth-Token, Proxy-Authorization] 5/5 verbatim -> RED CREDENTIALS_IN_JOURNAL_PLAINTEXT.
+- 4.2 FIX in http_engine.py only, supervisor's logic verbatim: class-level _SENSITIVE_HEADERS frozenset (authorization, x-api-key, cookie, x-auth-token, proxy-authorization); _journal_put now writes safe_headers = {k: '[REDACTED]' if k.lower() in SENSITIVE else v} — the journal keeps the request SHAPE, never the secrets. The request still goes out with full headers (redaction is journal-side only; scanning/auth flows unaffected).
+- 4.3 GREEN (same script, fixed tree): secrets_leaked_verbatim=(none), redacted_markers=5/5, non_sensitive_headers_preserved=3/3 (User-Agent/Accept/X-Trace-Id intact — verification value preserved) -> GREEN CREDENTIAL_PROTECTED.
+- 4.4 GATE: pytest tests/ -> 206 passed in 250.14s, ZERO failures (no test depended on verbatim credential headers).
+- 4.5 COMMIT+PUSH IMMEDIATELY (new rule #1).
+- Residual limitations (explicit): (a) request BODIES still carry submitted parameter values verbatim BY DESIGN — that is the raw evidence pairs' verification value; probe values (canaries/payloads) are not credentials; a login POST body carrying real passwords would still be journaled — the ordered fix covers the five HEADER families only; (b) Set-Cookie RESPONSE headers in the journal response section still show session ids (harvested cookie values) — response-side redaction was not in the ordered scope and is flagged as follow-up; (c) redaction is textual — any FUTURE sensitive header family must be added to the frozenset.
+
+Stage Summary:
+- RT-05 closed red/green: 5/5 verbatim -> 5/5 [REDACTED] with zero secret material in the journal and context headers preserved; pytest 206/206.
+- ONLY build-v430/sentinel/http_engine.py modified (+ worklog + scripts/rt05_creds_proof.py standing tool).

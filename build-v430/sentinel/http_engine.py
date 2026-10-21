@@ -596,17 +596,31 @@ class RequestEngine:
             return Response(url=url, error=f"{type(e).__name__}: {e}"[:200], elapsed=time.time() - t0, request_id=rid)
 
     # ---- v4.2.1: journal writer (passive capture, bounded) ----
+    # RT-05 fix (audit-rb-1): credential-bearing headers must never land in the
+    # journal (and thus in evidence packages / report bundles) in plaintext.
+    # The journal is the substrate for EXTERNAL verification — it leaves the
+    # machine, so it must carry the request SHAPE, not the secrets inside it.
+    _SENSITIVE_HEADERS = frozenset({
+        'authorization', 'x-api-key', 'cookie',
+        'x-auth-token', 'proxy-authorization',
+    })
+
     def _journal_put(self, jr: dict, rid: str, method: str, url: str,
                      headers: dict, body: str, path: str) -> None:
         if len(jr) >= JOURNAL_MAX:
             self.bus.request_journal_dropped = getattr(self.bus, "request_journal_dropped", 0) + 1
             return
+        safe_headers = {
+            k: ('[REDACTED]' if k.lower() in self._SENSITIVE_HEADERS
+                else v)
+            for k, v in headers.items()
+        }
         jr[rid] = {
             "request": {
                 "method": method,
                 "url": url,
                 "path": path,
-                "headers": dict(headers),
+                "headers": safe_headers,
                 "body": (body or "")[:JOURNAL_BODY_LIMIT],
             },
             "response": None,
