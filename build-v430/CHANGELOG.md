@@ -1,3 +1,67 @@
+# SENTINEL — ORD-003: AXIS-18 SYMBOLIC EXECUTION ENGINE — CLOSED END-TO-END (2026-10-22)
+
+Supervisor order ORD-003 (classification: NEW CAPABILITY; prerequisite
+ORD-002-WIRE CLOSED — verified TRUE against GitHub main 5349e47 after the
+local container was found rolled back ~20 rounds; the stale-baseline draft
+is preserved on branch axis18/draft-on-rolledback-v422). v4.3.0 axis work
+continues in build-v430 (the SaaS engine pointer stays at build-v425 — the
+axis rounds never moved it; a release decision that belongs to the
+supervisor, not to this order).
+
+## The change (purely additive, stdlib only, default OFF)
+- sentinel/symbolic/ — six modules, each <300 lines: models (Constraint/
+  Solution/Path/SymbolicResult + Merkle-SHA256 + RFC-8032 Ed25519 in pure
+  stdlib arithmetic — three real crypto defects caught and fixed during the
+  build, primitives validated against the RFC test-1 vector, sign path
+  domain-separated by design); parser (error-prose patterns with span
+  consumption, status-code differentials, ast expression parsing with
+  compound-origin tagging); solver (bounded exact solving: minimal integers,
+  deterministic string generation, cross-variable references, closed honest
+  boundaries; never raises on unsolvable input); gates (destructive solution
+  values blocked BEFORE payload generation, planner-aligned vocabulary);
+  integration (injected-sender verification, strict activation oracle, the
+  four-phase chain); __init__ (THE FOUR REGISTRATION POINTS — the only
+  coupling surface; the package never imports the engine).
+- Wiring (engine side, flag-gated): ScanConfig.symbolic (default False);
+  passive-baseline sources collected only when flagged (zero extra
+  requests); the trigger after the race battery (lazy import — flag-off =
+  the package is never imported; bomb-tested); verification sends ride the
+  FULL engine stack (scope gate + journal + RT-07 budget) and the Safe
+  Attack Planner URL gate (defense in depth); report section
+  "symbolic_analysis" ONLY when --symbolic ran (the race-pattern
+  conditional copy into the deposited doc) + the HTML section from stats;
+  cli --symbolic with a loud pre-scan notice; doctor +2 checks
+  (symbolic_engine, symbolic_signature) -> 19/19.
+
+## Proofs (all fresh on the recovered baseline; evidence results/axis18/)
+- AXIS-18 suite 20/20 (M1 RED proven first: 12/12 failing pre-implementation
+  on the stale tree; 10 mandated + 2 live end-to-end integrations through
+  the complete SentinelScanner + 8 hostile atoms incl. six signature-tamper
+  variants).
+- pytest 230 passed + 10 skipped in 294.36s.
+- bench x3 WITHOUT --symbolic: run-d6b26b92d0 (38,0,0,37) @7162/199
+  gt=0373baf9 — bench_structural_compare vs the accepted anchor
+  run-3c0652b6be: ALL IDENTICAL, MUTUAL x3, COMPARE_RC=0 (zero verdict
+  changes — the purely-additive constraint proven at the verdict level).
+- doctor 19/17->19/19. scope-edge 6/6 x3 digest c2916ba3b060f40b (station
+  anchor intact). THE ORDERED 4313: suite 19x227 = 4313/4313, dedup
+  226/226 (the single exclusion is the documented runner-only env stall).
+- Live --symbolic smoke on the real fixture: scan behavior unchanged,
+  honest ZERO constraints extracted from a corpus with no validation prose,
+  section present in the deposited doc.
+
+## What this does NOT prove
+- The solver is deliberately bounded: linear comparisons, lengths, string
+  shapes, enums, cross-refs. Non-linear arithmetic answers
+  complex_solver_unavailable — the honest limit of a stdlib solver.
+- Extraction covers a curated, unambiguous pattern vocabulary; anything
+  else is left unextracted (the vulnapp smoke proves the zero-guess
+  behavior on a real corpus).
+- "activated" (original validation error absent AND status < 400) is a
+  path-activation fact, NOT a severity classification. AXIS-18 adds NO
+  finding types and touches NO verifier branches — its output is a signed
+  analysis section, by design.
+
 # SENTINEL — ORD-002-WIRE: THE RACE PACKAGE WIRED INTO THE REAL SCAN PATH — CLOSED END-TO-END (2026-10-21)
 
 Supervisor order ORD-002-WIRE (classification: INTEGRATION, not a new axis;

@@ -1,0 +1,108 @@
+{
+ "suite": "axis18",
+ "total": 20,
+ "failed": 0,
+ "cases": [
+  {
+   "name": "test_symbolic_module_exists",
+   "ok": true,
+   "ms": 18
+  },
+  {
+   "name": "test_constraint_extraction_from_error_message",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "test_constraint_extraction_from_status_codes",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "test_simple_constraint_solving",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "test_text_constraint_solving",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "test_payload_generation",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "test_destructive_solution_blocked",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "test_result_serialization",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "test_no_engine_import",
+   "ok": true,
+   "ms": 17
+  },
+  {
+   "name": "test_bench_unchanged",
+   "ok": true,
+   "ms": 652
+  },
+  {
+   "name": "integ_symbolic_flag_off_zero_calls",
+   "ok": true,
+   "ms": 503
+  },
+  {
+   "name": "integ_symbolic_flag_on_end_to_end",
+   "ok": true,
+   "ms": 510
+  },
+  {
+   "name": "atom_symbolic_unsatisfiable_constraint",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "atom_symbolic_complex_constraint",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "atom_symbolic_tautology",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "atom_symbolic_contradiction",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "atom_symbolic_nested_constraints",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "atom_symbolic_string_constraints",
+   "ok": true,
+   "ms": 0
+  },
+  {
+   "name": "atom_symbolic_no_false_positive",
+   "ok": true,
+   "ms": 4
+  },
+  {
+   "name": "atom_symbolic_report_signature",
+   "ok": true,
+   "ms": 9
+  }
+ ],
+ "passed": true
+}
