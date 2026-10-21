@@ -5763,3 +5763,60 @@ Work Log:
 Stage Summary:
 - AXIS-17 is CLOSED END-TO-END: M1 RED 0/10 (148849cf7043dee7) -> M2 GREEN 10/10 (17ebb3f1c2aaf4a7) -> M3 ATOMS 8/8 (5f0917fded934a76) -> M4 R3 (4313/4313 + 224/224 + 17/17 + bench x3 IDENTICAL, VERDICT-DIFF NONE) -> M5 (scope-edge 6/6 x3 c2916ba3b060f40b + evidence pack + all three ledgers updated).
 - STOPPED at the ordered gate. Awaiting the supervisor's approval before anything further.
+
+---
+Task ID: 110
+Agent: Super Z (main agent)
+Task: ORD-002-WIRE / AXIS-17 — M1 RED: write tests/test_axis17_wire.py FIRST (the 6 ordered cases under their literal names); all must fail on the current tree with the uniform wiring-absent pattern; deposit the RED evidence; commit+push+ls-remote (rule #1).
+
+Work Log:
+- Session start: the supervisor's new "iron" PAT installed into the remote (the first new PAT was read-only — 403 on push across all auth formats, API user-level push:True but no Contents grant; reported, never printed in full). Pending local noise commit bd8a00a (12 one-line oob-*.N droppings, UUID message, the documented noise class — same pattern task 105 pushed per precedent) pushed with the iron token; ls-remote MATCH restored. Prerequisite verified live: AXIS-17 CLOSED at 78c852b (M5 gate), the package deliberately unwired ("awaits the supervisor's explicit order" — this order).
+- M1 RED written FIRST (no engine file touched): tests/test_axis17_wire.py — the 6 ordered cases under their literal names (test_wire_race_flag_exists, test_wire_disabled_by_default, test_wire_enabled_triggers_probe, test_wire_destructive_blocked, test_wire_result_in_report, test_wire_bench_unchanged). PROVENANCE D1 = ORD-002-WIRE verbatim in the header, D2 = worklog tasks 105-109 + STATE.md round-23. Disclosures N1-N10. The wing carries its own local fixture (127.0.0.1, forms for transfer/delete/pay + the /update?mode=reseed link), fixed >=32-byte seeds (RT-03 floor), and the --out station runner (digest over case names/types only).
+- RED RUN (live): 0/6 passed | digest 410f98849d26dd2e — the uniform wiring-absent pattern exactly as the order's parentheticals demand: 3x TypeError (ScanConfig race= kwarg), 2x AttributeError (cfg.race), 1x "scan CLI lacks --race". Evidence deposited results/axis17/axis17_WIRE_RED.json. Change scope verified: only the test file + the evidence file; sentinel/race/ byte-identical (empty diff).
+
+Stage Summary:
+- M1 RED closed at 0c70076 (pushed, MATCH YES): the 6-case wire wing exists, fails on the unwired tree with the pure uniform pattern, evidence deposited.
+- M2 GREEN next: the three allowed surfaces only — cli.py flags, orchestrator trigger + report section, ScanConfig plumbing. sentinel/race/ must stay byte-identical.
+
+---
+Task ID: 111
+Agent: Super Z (main agent)
+Task: ORD-002-WIRE / AXIS-17 — M2 GREEN: implement the wiring (CLI flags + ScanConfig + the orchestrator trigger + the report section); the wire wing flips 6/6; the full pytest battery green; sentinel/race/ byte-identical; commit+push+ls-remote (rule #1).
+
+Work Log:
+- The wiring (allowed surfaces only): cli.py — --race/--race-parallel/--race-variance on scan AND benchmark (loud state-changing warning + fail-closed pre-validation, the --logic-active doctrine); orchestrator.py — ScanConfig(race=False, race_parallel=10, race_variance=0.005) appended params, Verification+ParamLocation imports, the trigger block after the modern battery (guarded by cfg.race; lazy `from . import race` so a default scan never even imports the package), _race_sensitive (the ordered six categories, word boundaries over path AND query, V411-EXC respected, deterministic ordering), _run_race_battery (register() via the four registration points; per-probe _RaceJournalProxy; the engine's real classify_operation as planner gate with every decision appended to the planner's own audit trail; the axis-14 signer over audit.derive_keypair(run seed); race_condition Findings VERIFIED/HIGH; request accounting after the engine total; the "race_analysis" report section ONLY when --race ran, added after the audit enrich so the axis-14 report signature is untouched).
+- FOUR defects caught by the RED->GREEN loop itself, fixed pre-commit and disclosed (wing header N11/N5): (1) sensitive selection missed path-slash word boundaries (words ran together with the leading '/'); (2) successive probes collide on race-0000 rids in the shared engine journal (the proxy namespaces keys "race:" under the same JOURNAL_MAX=6000) AND the wing's server-side counters cannot isolate the battery — the engine's own active batteries legitimately probe the same discovered POST forms (my fixture assumption was wrong, caught live; the wing now counts race requests by "race:" journal keys); (3) discovery records GET endpoints WITHOUT their query string — the probe lost ?mode=reseed so the planner gate never saw the OWSP-21 destructive command; query params are now rebuilt onto the probe URL per the engine's own _render doctrine; (4) an all-failed probe (10x404) produced race_detected=True — failure timings are not race evidence (wiring-level ok>0 gate, disclosed in section.finding_gates) AND post-signature mutation of the entry (a finding_created key) broke external axis-14 verification — section entries are now pure res.to_dict() signed units with wiring decisions in a separate finding_gates key.
+- GREEN RUN (live): 6/6 passed | digest 41a17cf098813c73; evidence deposited results/axis17/axis17_WIRE_GREEN.json. Full pytest battery: 230 passed in 291.37s (the prior 224 + the 6 ordered test_wire_*), zero failures. sentinel/race/ byte-identical (empty diff over the package).
+
+Stage Summary:
+- M2 GREEN closed at c8387f4 (pushed, MATCH YES): the wiring is live through the four registration points, the wing 6/6, pytest 230/230, the package untouched.
+- The GATE is next: pytest fresh + bench x3 both modes vs the anchor + doctor + scope-edge x3 + the evidence pack.
+
+---
+Task ID: 112
+Agent: Super Z (main agent)
+Task: ORD-002-WIRE / AXIS-17 — THE GATE: pytest all green; bench x3 WITHOUT --race = (38,0,0,37) IDENTICAL vs the anchor; bench x3 WITH --race works with no regression; doctor 17/17; scope-edge 6/6 x3; evidence pack + SHA256SUMS; commit+push+ls-remote (rule #1).
+
+Work Log:
+- First gate pass (on c8387f4) caught a GATE-OBSERVABILITY defect, honestly diagnosed and fixed before the final gate: the race-bench evidence looked like the battery never ran (probed=0) — the truth: the bench out-doc is a DERIVED document that never carried the scan report's race section, while the battery demonstrably ran (spy-proven live: cfg.race=True, selection=10 transfer-family endpoints, the section built with probed=10 in the scan's own report; zero race planner-gate decisions and zero race: journal keys on the fixture are the CORRECT outcome — every sensitive point there is transfer-family, blocked by the package's internal vocabulary gate BEFORE the planner gate and before any send). Fix 322c316: the bench out-doc carries race_analysis conditionally (no-race docs keep their byte shape; the structural compare reads only its documented families). Wire suite re-verified 6/6 on that tree.
+- THE FINAL GATE (fresh, on 322c316, one log record; the single-shot driver exceeds the sandbox tool deadline so it ran in sections — drivers persisted scripts/wire_gate.sh + wire_gate_resume.sh): (1) PYTEST 230 passed in 304.21s (PYTEST_RC=0); (2) BENCH x3 WITHOUT --race: all (38,0,0,37) run-d6b26b92d0 P/R/F1=1.0 @7162 requests / 199 findings / gt 0373baf92a92dce2 — structural compare vs the accepted anchor run-3c0652b6be: path/norm-url/struct ALL EQ x3, MUTUAL x3 IDENTICAL, NORACE_COMPARE_RC=0; (3) BENCH x3 WITH --race: the same (38,0,0,37) with the section IN THE DEPOSITED DOC — probed=10 (4 destructive_blocked + 6 empty_parameter), race_requests=0, race_findings=0 — ALL IDENTICAL vs anchor, RACE_COMPARE_RC=0 (works, no regression, the live proof in BOTH modes); (4) DOCTOR 17/17; (5) SCOPE-EDGE 6/6 x3 digest c2916ba3b060f40b (byte-identical to the station anchor; the driver's summary one-liner used a wrong key name — corrected in the log, the deposited JSONs are the record).
+- Evidence pack: results/axis17/wire/ — GATE_LOG.txt + SHA256SUMS over 11 files (bench x3 both modes, doctor, scope-edge x3). Committed and pushed at 839a120, ls-remote MATCH YES.
+
+Stage Summary:
+- The ordered gate PASSES on every item: pytest 230, bench IDENTICAL in both modes vs the anchor (COMPARE_RC=0 x2), doctor 17/17, scope-edge anchor intact.
+- The ledgers are next (STATE.md round 24 + CHANGELOG + this worklog), then the ordered STOP.
+
+---
+Task ID: 113
+Agent: Super Z (main agent)
+Task: ORD-002-WIRE / AXIS-17 — LEDGERS: STATE.md round 24, CHANGELOG entry, worklog tasks 110-113; final commit+push+ls-remote MATCH; then STOP and await the supervisor's approval (the ordered stop rule).
+
+Work Log:
+- STATE.md round 24 (ORD-002-WIRE CLOSED END-TO-END — the wiring, the station chain with digests and commits, the five defects, the honest limits; round 23 demoted to history per the file's convention with its superseded standing-state line marked, its text otherwise untouched).
+- CHANGELOG.md: the ORD-002-WIRE entry at the top (the wiring, the gate numbers, the five defects, the evidence paths).
+- This worklog entry (tasks 110-113).
+- Token hygiene across the session: the first new PAT was read-only (403 push, all formats — reported to the supervisor, never printed in full); the supervisor's "iron" replacement installed and used; both tokens only ever in the git remote URL and shell variables.
+
+Stage Summary:
+- ORD-002-WIRE is CLOSED END-TO-END: M1 RED 0/6 (410f98849d26dd2e, 0c70076) -> M2 GREEN 6/6 (41a17cf098813c73, c8387f4) -> GATE on 322c316 (pytest 230 + bench x3 IDENTICAL both modes vs the anchor + doctor 17/17 + scope-edge 6/6 x3 anchor digest, evidence pack results/axis17/wire/, 839a120) -> ledgers (this commit).
+- sentinel/race/ byte-identical from M1 RED through the final gate (empty diff, the whole point of the order honored). The program: STOPPED at the ordered gate — no further work without the supervisor's explicit approval.

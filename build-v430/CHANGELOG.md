@@ -1,3 +1,63 @@
+# SENTINEL — ORD-002-WIRE: THE RACE PACKAGE WIRED INTO THE REAL SCAN PATH — CLOSED END-TO-END (2026-10-21)
+
+Supervisor order ORD-002-WIRE (classification: INTEGRATION, not a new axis;
+prerequisite AXIS-17 CLOSED verified live: bd8a00a + STATE.md round-23). The
+ordered scope: wire sentinel/race/ into the orchestrator ONLY — no new package
+logic; sentinel/race/ stays byte-identical (empty diff); zero change to current
+results without --race (bench x3 IDENTICAL); without --race the package is
+never even imported. Every station committed+pushed+ls-remote MATCH YES at the
+moment of proof (rule #1).
+
+- The CLI: --race (default OFF) + --race-parallel N (default 10, fail-closed
+  1..64) + --race-variance F (default 0.005s) on BOTH scan and benchmark, with
+  the loud state-changing warning (the --logic-active doctrine) and
+  pre-validation.
+- The orchestrator trigger (_run_race_battery): sensitive-endpoint selection
+  over the ordered six categories (تحويل/دفع/حذف/تعديل/سحب/نقل — word
+  boundaries over path AND query), register() once through the four
+  registration points (bus / journal / planner_gate / signer), wire_plan per
+  endpoint, the engine's real classify_operation as the planner gate
+  (DESTRUCTIVE always rejected; --race is the operator's explicit permission
+  for state-changing probes; every decision in the planner's own audit trail),
+  the axis-14 signer (merkle over evidence_chain + compound 0x00 digest +
+  ed25519; keypair = audit.derive_keypair over the run seed), race_condition
+  Findings, honest request accounting, and the report section "race_analysis"
+  ONLY when --race ran.
+- The journal: _RaceJournalProxy namespaces race requests "race:" inside the
+  engine's shared journal (the same JOURNAL_MAX=6000 discipline) — successive
+  probes each number from race-0000 and would otherwise collide and drop
+  earlier evidence.
+- Station chain: M1 RED 0/6 uniform wiring-absent pattern (digest
+  410f98849d26dd2e) -> M2 GREEN 6/6 (41a17cf098813c73) + pytest 230 passed
+  (224 prior + 6 test_wire_*) -> GATE (tree 322c316): pytest 230 in 304.21s +
+  bench x3 WITHOUT --race (38,0,0,37) ALL IDENTICAL vs the accepted anchor
+  (MUTUAL x3, COMPARE_RC=0) + bench x3 WITH --race the same (38,0,0,37) with
+  the section IN THE DEPOSITED DOC (probed=10: 4 destructive_blocked + 6
+  empty_parameter, race_requests=0 — every sensitive point on the fixture is
+  transfer-family, honestly blocked by the package's own internal vocabulary
+  gate BEFORE any send) and ALL IDENTICAL vs anchor (COMPARE_RC=0) — the live
+  no-regression proof in BOTH modes + doctor 17/17 + scope-edge 6/6 x3 digest
+  c2916ba3b060f40b (station anchor intact).
+- FIVE defects caught by the RED->GREEN loop and the gate itself, all fixed
+  pre-commit and disclosed: (1) sensitive selection missed path-slash word
+  boundaries; (2) probe rid collisions in the shared journal + the wing's
+  server-side counters could not isolate the battery (the engine's own active
+  batteries legitimately probe the same discovered forms — counting now by
+  "race:" journal keys); (3) GET endpoints lose their query string at
+  discovery — the probe rebuilt it per the engine's _render doctrine so the
+  planner gate sees query-routed destructive commands (OWSP-21); (4) an
+  all-failed probe (10x404) produced race_detected=True — failure timings are
+  not race evidence (wiring-level ok>0 gate, disclosed in section
+  finding_gates); (5) post-signature mutation of the section entry broke
+  external axis-14 verification (entries are now pure signed res.to_dict()
+  units); plus the gate-observability fix: the bench out-doc now carries
+  race_analysis when --race ran (conditional — no-race docs keep their byte
+  shape).
+- Evidence: results/axis17/ (axis17_WIRE_RED.json, axis17_WIRE_GREEN.json) +
+  results/axis17/wire/ (GATE_LOG.txt + SHA256SUMS over 11 files: bench x3 both
+  modes, doctor, scope-edge x3) + the standing drivers scripts/wire_gate.sh /
+  wire_gate_resume.sh. Ledgers: STATE.md round 24 + worklog tasks 110-113.
+
 # SENTINEL — AXIS-17 RACE CONDITION DETECTION ENGINE — CLOSED END-TO-END (2026-10-21)
 
 Supervisor order ORD-002 (new capability; prerequisite ORD-001 CLOSED verified
