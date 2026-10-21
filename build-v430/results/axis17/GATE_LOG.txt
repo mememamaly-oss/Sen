@@ -1,0 +1,41 @@
+# ORD-002 — AXIS-17 RACE CONDITION DETECTION ENGINE — FINAL GATE (2026-10-21)
+# station chain M1->M2->M3->M4->M5, every station committed+pushed+ls-remote MATCH YES at the moment of proof (rule #1)
+#   M1 RED  0d3164c (0/10, digest 148849cf7043dee7, uniform ModuleNotFoundError) | M2 GREEN 2578b8f (10/10, 17ebb3f1c2aaf4a7)
+#   M3 ATOMS 929d0ca (8/8, 5f0917fded934a76) | M4 R3 85ab923 | M5 = this gate
+# the package: sentinel/race/{__init__,engine,analysis,gates,models,integration}.py (76/214/135/228/177/249 lines)
+# purely additive: ZERO engine files modified (verified by empty git diff over sentinel/ minus race/) — the four
+#   registration points exist as the single integration surface (journal / planner_gate / signer / bus), all
+#   INJECTED, never imported (test_no_engine_import scans the source: no `from sentinel.` outside sentinel.race)
+SUITE (fresh by order; stale prior-tree /tmp chunks wiped first):
+  chunks: 19 | per-chunk: 227/227 failed=0 (all) | SUITE TOTAL: 4313/4313 | dedup: cases=227 covered=227 missing=0
+  AGG VERDICT: PASS, AGG_RC=0. Honest note: the single-process full-pass experiment reproduced its documented
+  226/227 port-collision artifact (unit_v41_no_hallucination_gate) — the platform's chunked design is the record
+  (same structural fact as the ORD-001 gate; that bind PASSED inside its chunk here too).
+PYTEST (fresh): 224 passed in 264.57s = the prior 214 + the 10 ordered test_race_* — zero failures.
+NEW SUITES (fresh in this gate): ordered ten 10/10 (re-deposited axis17_GREEN.json) + atoms 8/8 (axis17_ATOMS.json).
+DOCTOR: PASS 17/17.
+BENCH x3 (fresh, own fixtures): all run-d6b26b92d0 confusion (38, 0, 0, 37) P=1.0 R=1.0 F1=1.0
+  findings=199 gt=0373baf92a92dce2 requests=7162 (each) — structural compare vs the accepted anchor
+  results/verify_pt1/bench_run1.json (run-3c0652b6be): path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ
+  -> IDENTICAL x3, MUTUAL x3 IDENTICAL, COMPARE_RC=0. VERDICT-DIFF vs the frozen record: NONE (zero verdict
+  changes on any family) — the live no-regression/additivity proof.
+SCOPE-EDGE battery x3 (fresh): 6/6 x3, digest c2916ba3b060f40b all three — byte-identical to the station anchor.
+DEFECTS CAUGHT BY THE GATES THEMSELVES (all fixed pre-commit, disclosed):
+  (1) models._coerce keyed the type table before the honest_boundary branch (KeyError on 4 cases at first GREEN)
+  (2) case-9 isolation: 'delete' in the query tripped the internal vocabulary gate before the planner gate ever
+      saw the plan — re-isolated via 'setup' (engine-planner DESTRUCTIVE, absent from race's internal list)
+  (3) integration used to append 'signature ok' to evidence_chain AFTER signing — would have invalidated the
+      signature against the merkle-rooted published chain; signing now never touches the chain on success
+  (4) the reset fixture closed the raw socket while keep-alive refs kept the kernel socket alive — the client
+      saw neither FIN nor RST and waited the full timeout; live-diagnosed, isolated proof (Errno 104), fixed
+      with close_connection=True + flush + SO_LINGER(0); the atom then proved partial results + boundary
+HONEST LIMITS (declared, full list in the module docstrings + STATE.md):
+  (a) the redaction policy inside race/gates.py is a LITERAL COPY of the engine's RT-05 + item-3 policy — any
+      future engine policy change must update this copy manually (single declared divergence point)
+  (b) analysis implements the supervisor's LITERAL contract (mutating-group variance < 0.005); the variance is
+      the unbiased sample variance, disclosed in the module docstring
+  (c) the race package is NOT yet wired into a live scan (no orchestrator trigger) — wiring it in awaits the
+      supervisor's explicit order (the standing stop rule); until then it is reachable via plan_race_probe /
+      register / wire_plan by any caller
+  (d) timings enter tests as class quanta (fast-enough), never raw ms — digests carry no timing or port values
+  (e) IPv6 only in bracket form; raw multi-colon hosts are rejected fail-closed (not guessed)

@@ -1,3 +1,54 @@
+# SENTINEL — AXIS-17 RACE CONDITION DETECTION ENGINE — CLOSED END-TO-END (2026-10-21)
+
+Supervisor order ORD-002 (new capability; prerequisite ORD-001 CLOSED verified
+live before any work): build the Race Condition Detection Engine — TOCTOU and
+race-condition exposure via concurrent requests and timing-variance analysis.
+Every station committed+pushed+ls-remote MATCH YES at the moment of proof
+(rule #1).
+
+- The package (purely additive — ZERO engine files modified, verified by an
+  empty git diff): sentinel/race/ with the six ordered files — __init__.py 76
+  (the ordered registration point: register(bus, journal, planner_gate,
+  signer) + wire_plan), engine.py 214 (concurrent send with a hard cap by
+  construction, results in input order, sequential fallback carrying
+  single_thread_mode, manual no-urllib URL split fail-closed, the exception
+  ladder mapping to honest boundaries), analysis.py 135 (the supervisor's
+  LITERAL contract: mutating-group variance < 0.005s decides; no deciding
+  group => no false positive), gates.py 228 (the destructive-vocabulary gate
+  on body+path, budget normalization 1..64 fail-closed, the timing gate
+  0..1000, and the redaction policy as a LITERAL COPY of the engine's
+  RT-05+item-3 — disclosed), models.py 177 (the eight ordered fields with
+  literal type coercion, fail-closed from_dict, deterministic serialize),
+  integration.py 249 (the pipeline: empty_parameter/vocabulary/planner-gate
+  rejections send NOTHING — proven by server hits == 0; the journal closure
+  writes the engine's literal journal format with redacted headers+bodies;
+  the overall honest boundary by declared priority; the external signer
+  fills the signature fields and never touches the chain on success).
+- The four registration points are the single integration surface; all
+  services are INJECTED, never imported (test_no_engine_import scans the
+  source). The signature is the axis-14 recipe built from the engine's own
+  audited primitives (proof.merkle_root §8.2 + proof.ed25519_* + the
+  signed_message 0x00-separator pattern); the atom proves EXTERNAL
+  verification from published fields alone, and a tampered request_count
+  FAILS verification (load-bearing, not decoration).
+- Station chain: M1 RED 0/10 uniform (148849cf7043dee7) -> M2 GREEN 10/10
+  (17ebb3f1c2aaf4a7) -> M3 ATOMS 8/8 (5f0917fded934a76) -> M4 R3 (all fresh):
+  suite 4313/4313 (AGG_RC=0, dedup 227/227 exact) + pytest 224/224 (214+10)
+  + doctor 17/17 + bench x3 (38,0,0,37) run-d6b26b92d0 COMPARE_RC=0 vs the
+  accepted anchor (VERDICT-DIFF: NONE — the live additivity proof) -> M5:
+  scope-edge 6/6 x3 digest c2916ba3b060f40b (station anchor intact) + the
+  evidence pack results/axis17/ (GATE_LOG + 29-file SHA256SUMS).
+- Four defects were caught by the gates themselves and fixed pre-commit
+  (all disclosed in the gate log): the models coercion order, the case-9
+  gate isolation, the signature-invalidating post-sign append, and the
+  invisible reset (keep-alive refs keeping a "closed" socket alive —
+  live-diagnosed with an isolated Errno-104 proof).
+- Honest limits (full list in STATE.md round 23): the redaction copy is the
+  single declared divergence point; the analysis contract is the
+  supervisor's literal one; the package is NOT yet wired into a live scan —
+  wiring it into the scan battery awaits the supervisor's explicit order
+  (the standing stop rule). STOPPED at the ordered gate.
+
 # SENTINEL ORD-001-REMAND — the red-team remand CLOSED (2026-10-21)
 
 Supervisor order ORD-001-REMAND (blocking, before ORD-002): close the three

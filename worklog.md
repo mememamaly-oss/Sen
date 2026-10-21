@@ -5747,3 +5747,19 @@ Work Log:
 Stage Summary:
 - M4 R3 closed: 4313/4313 fresh + 224/224 pytest + 10/10 + 8/8 + 17/17 + bench x3 IDENTICAL (COMPARE_RC=0) — zero regressions anywhere.
 - Committing and pushing immediately (rule #1). M5 GATE is next: scope-edge battery x3 6/6, the evidence pack results/axis17/ + SHA256SUMS, STATE.md + CHANGELOG, then STOP and await the supervisor's approval (the ordered stop rule).
+
+---
+Task ID: 109
+Agent: Super Z (main agent)
+Task: ORD-002 / AXIS-17 — M5 GATE: scope-edge x3 6/6, verdict-diff vs the frozen record = NONE, evidence pack results/axis17/ + SHA256SUMS, STATE.md + CHANGELOG, then STOP and await the supervisor's approval (no next axis without an explicit order).
+
+Work Log:
+- SCOPE-EDGE battery x3 (fresh): 6/6 x3, digest c2916ba3b060f40b all three runs — byte-identical to the station anchor (deposited results/axis17/scope_edge_run{1,2,3}.json).
+- VERDICT-DIFF vs the frozen record: NONE — established by the standing structural compare over the three fresh bench runs (path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ x3, MUTUAL x3 IDENTICAL, COMPARE_RC=0) — zero verdict changes on any family; recorded in GATE_LOG.
+- EVIDENCE PACK: results/axis17/ — GATE_LOG.txt + SHA256SUMS over 29 files (the RED/GREEN/ATOMS digests, the 19 fresh chunk JSONs, bench x3, scope-edge x3) — the whole station chain is re-verifiable from the pack alone.
+- LEDGERS: STATE.md round 23 (AXIS-17 CLOSED END-TO-END; round 22 demoted to history per the file's convention, its text untouched) + CHANGELOG.md (the AXIS-17 entry at the top) + this worklog entry.
+- The ordered stop rule honored: NO next axis started; the package is NOT wired into a live scan (no orchestrator trigger) — wiring it into the scan battery awaits the supervisor's explicit order. It remains reachable via plan_race_probe / register / wire_plan by any caller.
+
+Stage Summary:
+- AXIS-17 is CLOSED END-TO-END: M1 RED 0/10 (148849cf7043dee7) -> M2 GREEN 10/10 (17ebb3f1c2aaf4a7) -> M3 ATOMS 8/8 (5f0917fded934a76) -> M4 R3 (4313/4313 + 224/224 + 17/17 + bench x3 IDENTICAL, VERDICT-DIFF NONE) -> M5 (scope-edge 6/6 x3 c2916ba3b060f40b + evidence pack + all three ledgers updated).
+- STOPPED at the ordered gate. Awaiting the supervisor's approval before anything further.
