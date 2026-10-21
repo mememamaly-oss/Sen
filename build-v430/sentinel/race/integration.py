@@ -230,18 +230,21 @@ def plan_race_probe(endpoint: str, *, parameter: str, samples: int = 10,
         evidence_chain=ev, honest_boundary=boundary,
         stats=stats, run_id=run_id)
 
-    # 7) التوقيع (نقطة تسجيل خارجية — ذرة 8)
+    # 7) التوقيع (نقطة تسجيل خارجية — ذرة 8): يوقّع الحالة النهائية
+    # المنشورة كما هي. النجاح لا يعدّل evidence_chain إطلاقاً — أي
+    # إضافة لاحقة للسلسلة تبطل التوقيع، لذلك التوقيع الناجح يُعلن في
+    # حقوله الخاصة (signature/public_key/merkle_root/algorithm)؛
+    # الفشل وحده يُفصح داخل السلسلة (نتيجة غير موقعة — حد صادق).
     if signer is not None:
         try:
             sig = signer(models.serialize(result).encode("utf-8"))
             result.signature = sig.get("signature")
             result.public_key = sig.get("public_key")
+            result.merkle_root = sig.get("merkle_root")
             result.signature_algorithm = sig.get("algorithm", "ed25519")
-            ev.append(f"signature:{result.signature_algorithm} ok")
         except Exception as e:                                  # noqa: BLE001
             errors.append(f"signer:{type(e).__name__}: {e}"[:200])
-            ev.append("signature:ERROR (unsigned — disclosed)")
-        result.evidence_chain = list(ev)
-        if errors:
+            result.evidence_chain = list(result.evidence_chain) + [
+                "signature:ERROR (unsigned — disclosed)"]
             result.stats["errors"] = result.stats.get("errors", []) + errors
     return result

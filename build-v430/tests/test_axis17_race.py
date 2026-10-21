@@ -75,6 +75,8 @@ import hashlib
 import json
 import os
 import re
+import socket
+import struct
 import sys
 import threading
 import time
@@ -107,6 +109,7 @@ class _RaceFixture:
         self.mode, self.delay, self.reset_after = mode, delay, reset_after
         self.hits = 0
         self.peak = 0
+        self.order = []          # ترتيب الوصول الحرفي (مسارات الطلبات) — ذرة 7
         self._inflight = 0
         self._lock = threading.Lock()
         outer = self
@@ -119,6 +122,7 @@ class _RaceFixture:
                     outer.hits += 1
                     outer._inflight += 1
                     outer.peak = max(outer.peak, outer._inflight)
+                    outer.order.append(self.path)
                     n = outer.hits
 
                 def _done():
@@ -141,7 +145,20 @@ class _RaceFixture:
                     self._release()
                     return
                 if outer.mode == "reset_after" and n > outer.reset_after:
+                    # قطع قاطع يراه العميل حتماً (شُخّص حيًّا): يجب
+                    # إنهاء حلقة keep-alive أولاً (close_connection=True)
+                    # وإلا بقيت مرجعيات rfile/wfile تُبقي المقبس حيًّا
+                    # رغم close() الخام — فينتظر العميل حتى المهلة بلا
+                    # FIN/RST على الإطلاق.
+                    self.close_connection = True
                     try:
+                        self.wfile.flush()
+                    except Exception:
+                        pass
+                    try:
+                        self.connection.setsockopt(
+                            socket.SOL_SOCKET, socket.SO_LINGER,
+                            struct.pack("ii", 1, 0))
                         self.connection.close()
                     except Exception:
                         pass
