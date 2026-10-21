@@ -5540,3 +5540,21 @@ Work Log:
 Stage Summary:
 - RT-07 closed red/green: COUNT 0 enforcement -> exact stop at 10/10 with the ordered log line; opt-out path proven (3,799 requests unchoked); pytest 206/206; the two regression anchors (bench determinism + axis13 battery E2E) preserved via explicit documented opt-outs.
 - Modified: build-v430/sentinel/orchestrator.py (the fix), + the two disclosed harness accommodations (tests/test_axis13_detectors.py, sentinel/cli.py benchmark), + worklog + scripts/rt07_budget_proof.py standing tool.
+
+---
+Task ID: 97
+Agent: Super Z (main agent)
+Task: Step 7 (supervisor batch permission) — update the scope-edge battery c04/c05: replace dead artificial DNS names with real resolvable subdomains under authorized domains, keep battery logic complete, gate must return 6/6 with a stable fresh digest.
+
+Work Log:
+- LIVE DNS SURVEY first (measurement, not assumption): RESOLVE = demo.testfire.net (65.61.137.117), testfire.net, www.testfire.net, ginandjuice.shop, demo.owasp-juice.shop, testasp.vulnweb.com (44.238.29.444), testaspnet.vulnweb.com (44.238.29.444), testphp.vulnweb.com (44.228.249.3); DEAD = sub.demo / a.b.demo / evildemo.testfire.net, nottestfire.net, eviltestfire.net.
+- 7.1 c04/c05 located (BATTERY list lines 169-176); the dead names were exactly: c04's sub.demo.testfire.net + a.b.demo.testfire.net (must_accept) and c05's evildemo.testfire.net boundary (must_accept under shape B).
+- 7.2 UPDATE (tests/test_scope_edge_battery.py only, logic preserved): NEW SHAPE_C ["vulnweb.com"] + ENG_C (the authorized NT OBJECTives test-target zone with three REAL subdomains). c04: shape A keeps demo.testfire.net itself; shape B keeps testfire.net + www.testfire.net (real); shape C carries the deeper-subdomain acceptance semantics with the three real test targets (replacing the dead artificial deeper names). c05: the boundary split into its two true halves — LIVE oddly-named subdomain accepted (real testphp under shape C) + DEAD-DNS name under an allowed zone now REJECTED (evildemo under shape B, fail-closed per the ordered RT-01 semantic, locked as must_reject so nobody loosens it). Red-proof controls updated to real names. Header/docstring updated with the DNS-dependency note.
+- 7.3 GREEN: 3 consecutive runs -> 6/6 passed, digest c2916ba3b060f40b IDENTICAL across all 3 (stable). HONEST NOTE: the digest is byte-identical to the station anchor c2916ba3 because the digest covers (case-name, ok) pairs and all six case NAMES were deliberately preserved — the semantic contract is unchanged; only the content became DNS-real. Red-proof re-run: both saboteurs still CAUGHT (bare_endswith 3 probes, substring 5 probes) — the sabotage detection lock holds on the updated battery.
+- 7.4 GATE: pytest tests/ -> 206 passed in 260.96s, ZERO failures.
+- 7.5 COMMIT+PUSH IMMEDIATELY (new rule #1).
+- Residual limitations (explicit): (a) the battery now depends on LIVE DNS resolution for its must_accept cases (the same dependency any real scan has — documented in the file header); if the sandbox loses DNS the battery fails honestly rather than passing vacuously; (b) the deeper-nesting acceptance is now demonstrated via real SIBLING subdomains under vulnweb.com (no real 4-level name exists under any authorized zone — the a.b.demo 2-level-deep artificial case has no live equivalent); (c) battery runs as its own standing gate item (not registered in run_tests.py — the 227-case/4313 core contract untouched, per the battery's original design).
+
+Stage Summary:
+- Scope-edge battery restored to GREEN under the RT-01 fail-closed world: 6/6 x3 stable digest c2916ba3b060f40b (= the station anchor, case names preserved), red-proof both saboteurs caught, pytest 206/206.
+- ONLY build-v430/tests/test_scope_edge_battery.py modified (+ worklog).

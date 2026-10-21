@@ -25,14 +25,14 @@
   },
   {
    "saboteur": "bare_endswith-control",
-   "url": "https://sub.demo.testfire.net/x",
+   "url": "https://www.testfire.net/x",
    "still_accepted": true
   },
   {
    "saboteur": "bare_endswith-control",
-   "url": "https://www.testfire.net/x",
+   "url": "https://testasp.vulnweb.com/x",
    "still_accepted": true
   }
  ],
- "dur_s": 0.0002
+ "dur_s": 0.0001
 }

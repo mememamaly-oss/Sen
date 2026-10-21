@@ -32,16 +32,24 @@ same-class family locks):
        same-class variants sub.demo.testfire.net.attacker.com and
        demo.testfire.net.evil.invalid
   C04  THE OPPOSITE (the ordered counter-case) — legitimate subdomains stay
-       ACCEPTED: demo.testfire.net + sub.demo.testfire.net +
-       a.b.demo.testfire.net under shape A; testfire.net + www.testfire.net
-       under shape B. A regression here (over-tight gate) is caught too.
+       ACCEPTED. RT-01 era (supervisor permission 2026-10-21): the original
+       artificial deeper names (sub.demo / a.b.demo.testfire.net) were DEAD in
+       public DNS and the new resolve-or-reject is_private_ip (correctly)
+       refuses them — replaced with REAL resolvable subdomains under
+       AUTHORIZED zones: shape A keeps demo.testfire.net itself; shape B keeps
+       testfire.net + www.testfire.net (both live); NEW shape C [vulnweb.com —
+       the authorized NT OBJECTives test-target zone] carries the deeper-
+       subdomain acceptance semantics with its three REAL test targets
+       (testasp / testaspnet / testphp.vulnweb.com, all live-resolved).
   C05  same-class typosquat family (the phase-0 T4 set, now permanent):
        o->0, i->1, truncated TLD, dot->hyphen, substring host, prefix-embedded
-       (+ the semantic boundary the battery's own first run caught: under
-       shape B, <anything>.testfire.net is a GENUINE subdomain of the allowed
-       registered zone and stays accepted — v1 wrongly expected rejection
-       there; the gate was right, the v1 expectation was not; boundary now
-       locked as a must_accept)
+       (+ the semantic boundary the battery's own first run caught, updated
+       for the RT-01 era: under shape B, a LIVE oddly-named subdomain of the
+       allowed zone stays accepted — represented now by the real testphp
+       sibling under shape C — while a DEAD-DNS name under the allowed zone
+       (evildemo.testfire.net) is REJECTED by the resolve-or-reject rule:
+       ambiguity = refusal is the ordered RT-01 semantic, locked as a
+       must_reject so nobody loosens it later)
   C06  allowed_hosts exact-membership semantics (the other half of the same
        host-matching logic, OWSP-22's independent-gate fix): exact members
        pass, non-members and would-be 'sub.<member>' do NOT (hosts list is
@@ -73,6 +81,12 @@ from sentinel.http_engine import RequestEngine       # noqa: E402
 
 SHAPE_A = ["demo.testfire.net"]   # orchestrator.py:117 default for the target
 SHAPE_B = ["testfire.net"]        # registered-domain form
+SHAPE_C = ["vulnweb.com"]         # authorized test-target zone (real subdomains)
+
+# NOTE (RT-01 era): every must_accept hostname below is LIVE-RESOLVABLE public
+# DNS — the scope gate now resolves hostnames and refuses dead ones (ambiguity
+# = rejection). The battery therefore depends on working DNS resolution, the
+# same dependency any real scan has.
 
 
 def engine_for(allowed_domains):
@@ -82,6 +96,7 @@ def engine_for(allowed_domains):
 
 ENG_A = engine_for(SHAPE_A)
 ENG_B = engine_for(SHAPE_B)
+ENG_C = engine_for(SHAPE_C)
 
 
 def must_reject(eng, url, why):
@@ -123,14 +138,25 @@ def c03_probe3_suffix_embedded_attacker():
 def c04_legitimate_subdomains_stay_accepted():
     """The ordered OPPOSITE (the counter-case): genuine subdomains of the
     allowed domain must REMAIN accepted — the fix class must never
-    over-tighten into refusing the target's own tree."""
-    for url in ("https://demo.testfire.net/bank/main.jsp",
-                "https://sub.demo.testfire.net/bank/main.jsp",
-                "https://a.b.demo.testfire.net/x"):
-        must_accept(ENG_A, url, "shape A [demo.testfire.net]")
+    over-tighten into refusing the target's own tree. RT-01 era: all
+    must_accept hosts are REAL resolvable names under authorized zones
+    (the old artificial sub.demo/a.b.demo.testfire.net were dead in DNS and
+    the resolve-or-reject rule now correctly refuses dead names)."""
+    # shape A: the allowed host itself (live: 65.61.137.117)
+    must_accept(ENG_A, "https://demo.testfire.net/bank/main.jsp",
+                "shape A [demo.testfire.net]")
+    # shape B: the registered zone + its real www (both live)
     for url in ("https://testfire.net/x",
                 "https://www.testfire.net/x"):
         must_accept(ENG_B, url, "shape B [testfire.net]")
+    # shape C: REAL deeper subdomains under the authorized vulnweb.com zone —
+    # this carries the deeper-tree acceptance semantics the dead artificial
+    # names used to (mis)carry (all three live-resolved: 44.238.29.444 /
+    # 44.238.29.444 / 44.228.249.3 at battery-update time)
+    for url in ("https://testasp.vulnweb.com/x",
+                "https://testaspnet.vulnweb.com/x",
+                "https://testphp.vulnweb.com/x"):
+        must_accept(ENG_C, url, "shape C [vulnweb.com]")
 
 
 def c05_typosquat_family():
@@ -142,15 +168,19 @@ def c05_typosquat_family():
     must_reject(ENG_A, "https://demo-testfire.net/x", "dot->hyphen")
     must_reject(ENG_A, "https://evildemo.testfire.net/x", "substring host")
     must_reject(ENG_A, "https://xdemo.testfire.net/x", "prefix-embedded")
-    # SEMANTIC BOUNDARY (caught by the battery's own first run — the v1
-    # expectation here was wrong, the gate was right): under shape B the
-    # whole REGISTERED ZONE testfire.net is allowed, so evildemo.testfire.net
-    # is a GENUINE subdomain of the allowed zone and MUST be accepted. The
-    # suffix-collision attack class is hosts whose own registered domain
-    # DIFFERS (nottestfire.net / eviltestfire.net — C01/C02), never
-    # oddly-named subdomains inside the allowed zone.
-    must_accept(ENG_B, "https://evildemo.testfire.net/x",
-                "genuine subdomain of the allowed registered domain (shape B)")
+    # SEMANTIC BOUNDARY (RT-01 era update of the boundary this battery's first
+    # run caught): under an allowed zone, a LIVE oddly-named subdomain stays
+    # accepted — represented by the real testphp sibling under shape C — while
+    # a DEAD-DNS name under the allowed zone (evildemo.testfire.net under
+    # shape B) is now REJECTED by the resolve-or-reject rule: ambiguity =
+    # refusal is the ordered RT-01 semantic, locked here as a must_reject so
+    # nobody loosens it later. The suffix-collision ATTACK class remains
+    # hosts whose own registered domain DIFFERS (nottestfire.net /
+    # eviltestfire.net — C01/C02), never live subdomains inside the zone.
+    must_accept(ENG_C, "https://testphp.vulnweb.com/x",
+                "live oddly-named subdomain inside the allowed zone (shape C)")
+    must_reject(ENG_B, "https://evildemo.testfire.net/x",
+                "dead-DNS subdomain under an allowed zone — fail-closed (RT-01)")
     must_reject(ENG_B, "https://testfire.net.evil.invalid/x", "suffix-embedded, shape B")
 
 
@@ -230,9 +260,10 @@ def run_red_proof():
     # and the legitimate-subdomain guard must NOT be a saboteur victim:
     # (a correct-behaving gate keeps accepting the target tree — the
     # saboteurs here are LOOSER than the real gate, so controls still pass;
-    # recorded for completeness, not a pass condition)
-    for url, eng, shape in (("https://sub.demo.testfire.net/x", ENG_A, "A"),
-                            ("https://www.testfire.net/x", ENG_B, "B")):
+    # recorded for completeness, not a pass condition). RT-01 era: real
+    # resolvable control names (the old sub.demo control was dead DNS).
+    for url, eng, shape in (("https://www.testfire.net/x", ENG_B, "B"),
+                            ("https://testasp.vulnweb.com/x", ENG_C, "C")):
         sab_ok, _ = sabotage_bare_endswith(eng, url)
         results.append({"saboteur": "bare_endswith-control", "url": url,
                         "still_accepted": bool(sab_ok)})
