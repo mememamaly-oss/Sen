@@ -1,0 +1,44 @@
+{
+ "suite": "scope-edge-battery",
+ "ordered_probes": [
+  "nottestfire.net",
+  "eviltestfire.net",
+  "demo.testfire.net.attacker.com"
+ ],
+ "total": 6,
+ "failed": 0,
+ "passed": true,
+ "cases": [
+  {
+   "name": "c01_probe1_nottestfire",
+   "ok": true,
+   "dur_s": 0.0
+  },
+  {
+   "name": "c02_probe2_eviltestfire",
+   "ok": true,
+   "dur_s": 0.0
+  },
+  {
+   "name": "c03_probe3_suffix_embedded_attacker",
+   "ok": true,
+   "dur_s": 0.0
+  },
+  {
+   "name": "c04_legitimate_subdomains_stay_accepted",
+   "ok": true,
+   "dur_s": 0.1075
+  },
+  {
+   "name": "c05_typosquat_family",
+   "ok": true,
+   "dur_s": 0.0666
+  },
+  {
+   "name": "c06_allowed_hosts_exact_membership",
+   "ok": true,
+   "dur_s": 0.0004
+  }
+ ],
+ "digest": "c2916ba3b060f40b62b12f13e64da02f39996e1f070e620279d6fa93c79f4013"
+}
