@@ -2,7 +2,7 @@
 Scanners never build HTTP requests directly — they emit RequestMutations.
 """
 from __future__ import annotations
-import http.client, ipaddress, re, socket, ssl, time, urllib.parse, uuid
+import http.client, ipaddress, json, re, socket, ssl, time, urllib.parse, uuid
 from dataclasses import dataclass, field
 from .core import Endpoint, EventBus, ParamKind, ParamLocation, ScopeRule, VERSION, is_private_ip
 
@@ -700,13 +700,19 @@ class RequestEngine:
                 else v)
             for k, v in headers.items()
         }
+        ct = next((v for k, v in headers.items()
+                   if k.lower() == "content-type"), "")
         jr[rid] = {
             "request": {
                 "method": method,
                 "url": url,
                 "path": path,
                 "headers": safe_headers,
-                "body": (body or "")[:JOURNAL_BODY_LIMIT],
+                # RT-05 (headers) + ORD-001-REMAND item 3 (bodies): the
+                # journal carries the request SHAPE, never the secrets
+                # inside it — on either side of the request.
+                "body": sanitize_request_body(
+                    (body or "")[:JOURNAL_BODY_LIMIT], ct),
             },
             "response": None,
         }
@@ -754,6 +760,75 @@ class _PinnedHTTPSConnection(http.client.HTTPSConnection):
             self._tunnel()
         self.sock = self._context.wrap_socket(self.sock,
                                               server_hostname=self.host)
+
+
+# ---- request-body sanitization (ORD-001-REMAND item 3) ---------------------
+# The journal is the substrate for EXTERNAL verification — it leaves the
+# machine inside every evidence package, so it must carry the request's
+# SHAPE, never the secrets inside it (the same doctrine as the RT-05
+# header redaction, extended to bodies). The WIRE request is never
+# modified — redaction is journal-side only (auth flows and probes are
+# untouched), exactly like the RT-05 headers.
+SENSITIVE_BODY_KEYS = frozenset((
+    "password", "passwd", "secret", "token", "credit_card", "cvv", "ssn",
+))
+BODY_REDACTED = "[REDACTED]"
+BINARY_BODY_OMITTED = "[BINARY_BODY_OMITTED_FOR_SECURITY]"
+_BINARY_CONTENT_TYPES = frozenset((
+    "application/octet-stream", "multipart/form-data",
+))
+_BINARY_KEEP_UNDER = 1024          # the ORDERED exception: < 1KB stays verbatim
+_JSON_VALUE_RE = re.compile(
+    r'("(?:' + "|".join(sorted(SENSITIVE_BODY_KEYS)) + r')"\s*:\s*)'
+    r'("(?:[^"\\]|\\.)*"|[^"\s,\}\]]+)', re.IGNORECASE)
+
+
+def _redact_json_obj(o):
+    if isinstance(o, dict):
+        return {k: (BODY_REDACTED if str(k).lower() in SENSITIVE_BODY_KEYS
+                    else _redact_json_obj(v))
+                for k, v in o.items()}
+    if isinstance(o, list):
+        return [_redact_json_obj(x) for x in o]
+    return o
+
+
+def sanitize_request_body(body: str, content_type: str) -> str:
+    """Journal-side redaction of request bodies. Ordered families:
+    form-urlencoded and JSON -> sensitive-key values become [REDACTED]
+    (structural JSON walk with a regex fallback for capped/invalid JSON);
+    binary (application/octet-stream) and multipart/form-data -> bodies
+    >= 1KB are logged as [BINARY_BODY_OMITTED_FOR_SECURITY], < 1KB stay
+    verbatim (the ORDERED exception); every other content type is journaled
+    verbatim as before (documented boundary in HONEST_BOUNDARIES.md)."""
+    if body is None:
+        return ""
+    b = body if isinstance(body, str) else str(body)
+    ct = (content_type or "").split(";")[0].strip().lower()
+    if ct == "application/x-www-form-urlencoded":
+        out = []
+        for pair in b.split("&"):
+            k, sep, v = pair.partition("=")
+            key = urllib.parse.unquote_plus(k).strip().lower()
+            if sep and key in SENSITIVE_BODY_KEYS:
+                out.append(f"{k}={BODY_REDACTED}")
+            else:
+                out.append(pair)
+        return "&".join(out)
+    if ct == "application/json":
+        try:
+            return json.dumps(_redact_json_obj(json.loads(b)),
+                              ensure_ascii=False)
+        except (ValueError, TypeError):
+            # capped or invalid JSON: best-effort regex redaction so a cut
+            # body still never carries a secret verbatim
+            return _JSON_VALUE_RE.sub(
+                lambda m: m.group(1) + f'"{BODY_REDACTED}"', b)
+    if ct in _BINARY_CONTENT_TYPES:
+        if len(b.encode("utf-8", "replace")) < _BINARY_KEEP_UNDER:
+            return b
+        return BINARY_BODY_OMITTED
+    return b
 
 
 def make_session_cookie_ep(ep: Endpoint, cookies: dict) -> Endpoint:

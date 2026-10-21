@@ -221,3 +221,121 @@ def test_rt01_pin_host_header():
     assert _EchoHost.seen_host == f"localhost:{port}", \
         f"the server must observe the ORIGINAL authority in Host " \
         f"(got {_EchoHost.seen_host!r})"
+
+
+# ================================================================ item 3 (body sanitization)
+def _body_fixture():
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    class _Sink(BaseHTTPRequestHandler):
+        def _sink(self):
+            self.rfile.read(int(self.headers.get("Content-Length") or 0))
+            body = b"ok"
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        do_GET = do_POST = _sink
+
+        def log_message(self, *a):
+            pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _Sink)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+
+def _journal_body_of(eng, path):
+    for v in eng.bus.request_journal.values():
+        if path in (v.get("request") or {}).get("path", ""):
+            return (v.get("request") or {}).get("body", "")
+    return None
+
+
+def _send_post(eng, port, path, content_type, body):
+    from sentinel.core import Endpoint
+    from sentinel.http_engine import RequestMutation
+    ep = Endpoint(url=f"http://127.0.0.1:{port}{path}", method="POST")
+    m = RequestMutation(endpoint=ep, body_override=body,
+                        extra_headers={"Content-Type": content_type})
+    return eng.send(m)
+
+
+def test_body_form_redaction():
+    """POST body username=admin&password=SuperSecret123 -> the journal must
+    carry password=[REDACTED] (value redacted, pair shape preserved)."""
+    from sentinel.http_engine import RequestEngine
+
+    srv = _body_fixture()
+    try:
+        eng = RequestEngine(
+            ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+            EventBus("rt-body-form"), timeout=6)
+        eng.bus.request_journal = {}
+        _send_post(eng, srv.server_address[1], "/form",
+                   "application/x-www-form-urlencoded",
+                   "username=admin&password=SuperSecret123")
+        jb = _journal_body_of(eng, "/form")
+        assert jb is not None, "the form request must be journaled"
+        assert "password=[REDACTED]" in jb, \
+            f"RED: the journal must show password=[REDACTED] (got {jb!r})"
+        assert "SuperSecret123" not in jb, "the secret value must be gone"
+        assert "username=admin" in jb, "non-sensitive pairs stay verbatim"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+def test_body_json_redaction():
+    """JSON body {"token": "abc123", ...} -> the journal must carry
+    "token": "[REDACTED]" (structural walk incl. nested keys)."""
+    from sentinel.http_engine import RequestEngine
+
+    srv = _body_fixture()
+    try:
+        eng = RequestEngine(
+            ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+            EventBus("rt-body-json"), timeout=6)
+        eng.bus.request_journal = {}
+        _send_post(eng, srv.server_address[1], "/json",
+                   "application/json",
+                   '{"token": "abc123", "user": "u1",'
+                   ' "nested": {"secret": "s3cr3t!"}}')
+        jb = _journal_body_of(eng, "/json")
+        assert jb is not None, "the json request must be journaled"
+        assert '"token": "[REDACTED]"' in jb, \
+            f"RED: the journal must show token: [REDACTED] (got {jb!r})"
+        assert "abc123" not in jb, "the token value must be gone"
+        assert '"secret": "[REDACTED]"' in jb, "nested sensitive keys too"
+        assert "s3cr3t" not in jb, "the nested secret value must be gone"
+        assert '"user": "u1"' in jb, "non-sensitive keys stay verbatim"
+    finally:
+        srv.shutdown(); srv.server_close()
+
+
+def test_body_binary_omission():
+    """Content-Type application/octet-stream: >= 1KB bodies are omitted as
+    [BINARY_BODY_OMITTED_FOR_SECURITY]; < 1KB bodies stay verbatim (the
+    ORDERED exception)."""
+    from sentinel.http_engine import RequestEngine
+
+    srv = _body_fixture()
+    try:
+        eng = RequestEngine(
+            ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True),
+            EventBus("rt-body-bin"), timeout=6)
+        eng.bus.request_journal = {}
+        _send_post(eng, srv.server_address[1], "/bin",
+                   "application/octet-stream", "B" * 2048)
+        jb = _journal_body_of(eng, "/bin")
+        assert jb is not None, "the binary request must be journaled"
+        assert jb == "[BINARY_BODY_OMITTED_FOR_SECURITY]", \
+            f"RED: >=1KB binary must be omitted (got {str(jb)[:40]!r})"
+        _send_post(eng, srv.server_address[1], "/smallbin",
+                   "application/octet-stream", "S" * 512)
+        js = _journal_body_of(eng, "/smallbin")
+        assert js == "S" * 512, \
+            f"<1KB binary stays verbatim per the ordered exception (got {str(js)[:40]!r})"
+    finally:
+        srv.shutdown(); srv.server_close()
