@@ -101,7 +101,8 @@ class RequestEngine:
     scanning reachable; without it the server rejects every request that needs
     a session before the vulnerable code path is ever exercised."""
     def __init__(self, scope: ScopeRule, bus: EventBus, timeout: float = DEFAULT_TIMEOUT,
-                 adaptive_timeout: float | None = None, default_headers: dict | None = None):
+                 adaptive_timeout: float | None = None, default_headers: dict | None = None,
+                 allow_insecure_tls: bool = False):
         self.scope, self.bus, self.timeout = scope, bus, adaptive_timeout or timeout
         self.base_timeout = timeout
         self.requests_sent = 0
@@ -131,9 +132,26 @@ class RequestEngine:
         self.rate_limited = 0          # 429/503 responses seen
         self.rate_limit_retries = 0    # actual retry sleeps performed
         self.rate_limit_recovered = 0  # retries that then got a normal status
+        # RT-02 fix (audit-rb-1): TLS peer verification is ON by default.
+        # The old ctx (check_hostname=False + CERT_NONE) let a live MITM with a
+        # self-signed certificate intercept engine requests and capture the
+        # Authorization header (proven live, results/audit/). Insecure mode is
+        # now an explicit, warned opt-in for targets with genuinely broken
+        # certificates — never a silent default.
+        self.allow_insecure_tls = allow_insecure_tls
         self._ctx = ssl.create_default_context()
-        self._ctx.check_hostname = False
-        self._ctx.verify_mode = ssl.CERT_NONE
+        if allow_insecure_tls:
+            self._ctx.check_hostname = False
+            self._ctx.verify_mode = ssl.CERT_NONE
+            bus.emit("InsecureTLSWarning",
+                     msg="allow_insecure_tls=True: TLS certificate verification "
+                         "DISABLED for this engine — a man-in-the-middle can "
+                         "intercept traffic and capture credentials; use only "
+                         "against owned test targets on trusted networks")
+        else:
+            self._ctx.check_hostname = True
+            self._ctx.verify_mode = ssl.CERT_REQUIRED
+            self._ctx.load_default_certs()
         # ---- v4.2.1: request journal (supervisor directive 2026-10-03) ----
         # Passive raw capture so scan results carry the raw request/response
         # pair behind every request_id — the substrate for INDEPENDENT external

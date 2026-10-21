@@ -5470,3 +5470,20 @@ Stage Summary:
 - RT-01 closed red/green on the restored 511fcc8 tree: 7/7 BYPASS -> 7/7 BLOCKED, public traffic unaffected (live-verified), pytest 206/206, doctor standing 17/17 from Step 0.
 - First commit under new rule #1 (push immediately after every verified differential) — the rollback lesson enforced from this step onward.
 - ONLY build-v430/sentinel/core.py modified (+ worklog record). No other files touched.
+
+---
+Task ID: 93
+Agent: Super Z (main agent)
+Task: Step 3 (supervisor batch permission 2026-10-21: complete all fixes in sequence, each with its own commit+push, RED->GREEN->pytest discipline) — fix RT-02 (TLS CERT_NONE) in build-v430/sentinel/http_engine.py ONLY.
+
+Work Log:
+- 3.1 RED (live): standing tool scripts/rt02_tls_proof.py — openssl self-signed cert (CN=127.0.0.1 + SAN IP:127.0.0.1), ThreadingHTTPServer TLS interceptor on 127.0.0.1, RequestEngine with ScopeRule(allowed_hosts=["127.0.0.1"], allow_private=True) so the RT-01 scope guard passes EXPLICITLY and the only layer under test is TLS. Vulnerable tree: engine_ok=True status=200, mitm_hits=1, captured_auth="Bearer RT7-BEARER-SECRET..." -> RED TLS_MITM_ACCEPTED (matches the audit-rb-1 record).
+- 3.2 FIX in http_engine.py only: (a) __init__ signature += allow_insecure_tls: bool=False (appended last — all 11 existing callers verified keyword/positional-compatible); (b) replaced check_hostname=False/CERT_NONE with: default branch check_hostname=True + CERT_REQUIRED + load_default_certs(); explicit opt-in branch (allow_insecure_tls=True) keeps the old insecure flags AND emits bus event InsecureTLSWarning (structured event log = the report substrate). Comment block documents the live MITM proof reference.
+- 3.3 GREEN (same script, fixed tree): engine_ok=False status=0 error=SSLCertVerificationError self-signed certificate, mitm_hits=0 -> GREEN CERT_REJECTED. Script-verdict bug fixed honestly (engine stores errors as strings; original isinstance check mislabeled the raw-pass as INCONCLUSIVE — the raw values were already GREEN). Opt-in path verified separately: allow_insecure_tls=True -> check_hostname=False, verify_mode=0, InsecureTLSWarning emitted with full warning text.
+- 3.4 GATE: pytest tests/ -> 206 passed in 257.07s, ZERO failures.
+- 3.5 COMMIT+PUSH IMMEDIATELY (new rule #1): "fix RT-02: TLS — CERT_REQUIRED + check_hostname + load_default_certs by default; insecure mode explicit warned opt-in" (http_engine.py + worklog + the standing proof script).
+- Residual limitations (explicit): (a) revoked/expired-cert targets now FAIL until the operator explicitly opts in — intentional behavior change, scans against the campaign's http:// targets unaffected (all 5 authorized targets are plain http; the standing record shows TLS targets failed cert checks even before); (b) no certificate pinning — standard WebPKI trust only; (c) TOCTOU between hostname check and connect is handled inside http.client per-connection (check_hostname binds to the connected socket), the residual risk is a rogue CA in the system store — out of scope.
+
+Stage Summary:
+- RT-02 closed red/green on the same tree: MITM 200+Authorization-captured -> SSLCertVerificationError with zero interceptor hits; opt-in warning path proven; pytest 206/206.
+- ONLY build-v430/sentinel/http_engine.py modified (+ worklog + scripts/rt02_tls_proof.py standing tool).
