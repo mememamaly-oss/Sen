@@ -65,7 +65,7 @@ class ScanConfig:
                  graphql=True, websocket=True, modern=True, exclude_urls=None,
                  max_requests: int = 500,
                  race: bool = False, race_parallel: int = 10,
-                 race_variance: float = 0.005):
+                 race_variance: float = 0.005, symbolic=False):
         self.allow_private = allow_private
         self.max_pages = max_pages
         # RT-07 fix (audit-rb-1 AUD-GOV-01): hard request budget. The engine had
@@ -108,6 +108,11 @@ class ScanConfig:
         self.race = bool(race)                      # --race (explicit operator opt-in)
         self.race_parallel = int(race_parallel)     # --race-parallel N (concurrency cap)
         self.race_variance = float(race_variance)   # --race-variance F (decision threshold)
+        # ---- AXIS-18 (ORD-003): symbolic execution analysis. OFF by default —
+        # without --symbolic the sentinel/symbolic/ package is never imported,
+        # never invoked, sends nothing, and no section appears (bomb-tested in
+        # tests/test_axis18_symbolic.py; bench x3 zero-drift at the gate).
+        self.symbolic = bool(symbolic)              # --symbolic (operator opt-in)
 
 
 class _FingerprintingProxy:
@@ -217,6 +222,10 @@ class SentinelScanner:
         self.stats = {"requests": 0, "endpoints": 0, "candidates": 0, "verified": 0, "rejected": 0,
                       "duration": 0.0}
         self._race_section = None    # AXIS-17 WIRE: set ONLY when cfg.race ran
+        self._symbolic_sources: list[dict] = []  # AXIS-18: passive-baseline response
+        #                                          sources, collected ONLY when
+        #                                          cfg.symbolic (zero extra requests)
+        self._symbolic_section = None  # AXIS-18: set ONLY when cfg.symbolic ran
 
     # ------------------------------------------------- AXIS-17 WIRE (ORD-002-WIRE)
     # Pure WIRING of the closed sentinel/race/ package (STATE.md round-23)
@@ -776,6 +785,15 @@ class SentinelScanner:
                 if r.error:
                     self.coverage.skipped(ep, "transport_error")
                 else:
+                    # AXIS-18 (ORD-003): with --symbolic, stash the baseline
+                    # response as a constraint-extraction source (body bounded;
+                    # zero extra requests — the analysis reads what the scan
+                    # already fetched).
+                    if getattr(self.cfg, "symbolic", False):
+                        self._symbolic_sources.append(
+                            {"url": ep.url, "method": ep.method or "GET",
+                             "text": (r.body or "")[:2000], "status": r.status,
+                             "note": "passive-baseline"})
                     # Phase 56 honesty gate: an ANONYMOUS scan that cannot open an
                     # endpoint (401/403, or bounced to a login gate) is an
                     # explicitly-accounted untested surface. With credentials
@@ -1413,6 +1431,67 @@ class SentinelScanner:
                                            evidence=f"failure {fid}",
                                            provenance="orchestrator:race")
 
+        # ---- AXIS-18 (ORD-003): Symbolic Execution Engine (--symbolic).
+        # Purely additive: with the flag OFF this block is dead code — the
+        # package is never imported (lazy import below), never invoked, and
+        # no section appears (bomb-tested; bench x3 zero-drift at the gate).
+        # With the flag ON the four-phase chain runs over the passive-baseline
+        # sources collected above: extract constraints from validation prose,
+        # solve exactly (stdlib only), gate destructive values BEFORE any
+        # request, verify path activation through the FULL engine stack
+        # (scope gate + journal + budget) and the planner URL gate.
+        if getattr(self.cfg, "symbolic", False) and self._symbolic_sources:
+            from .symbolic import run_symbolic_analysis, summarize
+            from .core import ParamLocation as _SymPL
+
+            def _sym_send(m: dict) -> dict:
+                """The injected sender (registration point RP-4): rides the
+                full engine stack — scope-gated, journaled, budget-counted,
+                exactly like every other engine request."""
+                params = dict(m.get("params") or {})
+                var = next(iter(params), "")
+                ep = Endpoint(url=m.get("url", ""), method=m.get("method") or "GET")
+                mut = RequestMutation(endpoint=ep, param_name=var,
+                                      param_location=_SymPL.QUERY,
+                                      param_value=str(params.get(var, "")),
+                                      note=m.get("note", "symbolic-verify"))
+                r = self.engine.send(mut)
+                return {"status": r.status, "body": r.body or "", "error": r.error}
+
+            def _sym_url_gate(url: str, method: str) -> dict:
+                """Defense in depth: the Safe Attack Planner classifies the
+                verification URL; DESTRUCTIVE class = never sent (the
+                package-side value gate already blocked destructive values)."""
+                g = self.attack_planner.gate(url, method=method, note="symbolic-verify")
+                return {"allowed": bool(g.get("allowed")), "impact": g.get("impact"),
+                        "reason": g.get("rationale", "")}
+
+            try:
+                _sym_results = run_symbolic_analysis(
+                    self._symbolic_sources, sender=_sym_send,
+                    url_gate=_sym_url_gate, seed=self.seed or self.run_id)
+                self._symbolic_section = summarize(_sym_results,
+                                                   sources=len(self._symbolic_sources))
+                self.stats["symbolic"] = {k: v for k, v in self._symbolic_section.items()
+                                          if k != "results"}
+                self.stats["symbolic"]["results"] = self._symbolic_section["results"]
+                self.bus.emit("SymbolicAnalysisCompleted",
+                              **{k: v for k, v in self._symbolic_section.items()
+                                 if k != "results"})
+            except Exception as e:
+                # AXIS-18 failures are analysis-level, never scan-level: the
+                # scan continues; the failure is an honest boundary.
+                fid = self.failures.record("symbolic", f"{type(e).__name__}: {e}", {})
+                self.bus.emit("ScannerFailed", scanner="symbolic", failure=fid,
+                              error=str(e)[:200])
+                self._symbolic_section = {
+                    "title": "Symbolic Execution Analysis", "enabled": True,
+                    "error": str(e)[:160], "boundary": "engine_error"}
+                self.boundary.tool_failure("symbolic", self.target.url,
+                                           f"{type(e).__name__}: {e}",
+                                           evidence=f"failure {fid}",
+                                           provenance="orchestrator:axis18")
+
         # ---- Phase 12: dedup + correlation + risk
         verified = [f for f in self.findings if f.status == FindingStatus.VERIFIED]
         rejected = [f for f in self.findings if f.status == FindingStatus.REJECTED]
@@ -1904,6 +1983,13 @@ class SentinelScanner:
         _race_sec = getattr(self, "_race_section", None)
         if _race_sec is not None:
             rep["race_analysis"] = _race_sec
+        # AXIS-18 (ORD-003): the symbolic section rides the report doc the
+        # same way — present ONLY when --symbolic ran; the stats copy feeds
+        # the store/HTML path. Added after the audit enrich so the axis-14
+        # report signature (over the findings) is untouched by its presence.
+        _sym_sec = getattr(self, "_symbolic_section", None)
+        if _sym_sec is not None:
+            rep["symbolic_analysis"] = _sym_sec
         return rep
 
 
@@ -2146,6 +2232,46 @@ def doctor(allow_private=False) -> dict:
             "guided-walk synthesis OK")
     except Exception as e:
         add("workflow_engine", False, str(e)[:120])
+    # AXIS-18 (ORD-003): Symbolic Execution Engine — the four registration
+    # points importable + a REAL extraction->solve->payload round trip.
+    try:
+        from .symbolic import (parse_constraints, parse_expression, solve_constraints,
+                               generate_payload, REGISTRATION_POINTS)
+        assert len(REGISTRATION_POINTS) == 4
+        cons = parse_constraints(text="password must be at least 8 characters")
+        assert cons and cons[0].expr == "len(password) >= 8", [c.expr for c in cons]
+        sol = solve_constraints(cons)
+        assert sol["status"] == "solved" and \
+            len(sol["solutions"]["password"].value) >= 8, sol
+        payload, blocked = generate_payload(sol["solutions"])
+        assert payload.get("password") and not blocked, (payload, blocked)
+        destructive = solve_constraints(parse_expression('mode == "delete_all"'))
+        _, dblocked = generate_payload(destructive["solutions"])
+        assert "mode" in dblocked, dblocked
+        add("symbolic_engine", True,
+            "AXIS-18 registration points OK — extract 'len(password) >= 8' -> "
+            "solve -> gated payload; destructive solution blocked pre-send")
+    except Exception as e:
+        add("symbolic_engine", False, str(e)[:120])
+    # AXIS-18 evidence signing: Merkle root + Ed25519 sign/verify round trip
+    # (RFC 8032 arithmetic, stdlib-only; externally verifiable signatures).
+    try:
+        from .symbolic.models import SymbolicResult, Constraint, Solution, \
+            sign_result, verify_result_signature
+        r = SymbolicResult(constraints=[Constraint("password", ">=", 8, "length",
+                                                   "len(password) >= 8")],
+                           solution=Solution("password", "password123", "doctor"),
+                           payload={"password": "password123"})
+        sign_result(r, b"doctor-selftest")
+        d = r.to_dict()
+        assert verify_result_signature(d), "signature failed verification"
+        d["payload"]["password"] = "tampered"
+        assert not verify_result_signature(d), "tampering not caught"
+        add("symbolic_signature", True,
+            "AXIS-18 Merkle root + Ed25519 sign/verify round-trip OK — tamper "
+            "rejected, externally verifiable (embedded public key)")
+    except Exception as e:
+        add("symbolic_signature", False, str(e)[:120])
     passed = sum(1 for c in checks if c["status"] == "PASS")
     return {"overall": "PASS" if passed == len(checks) else "DEGRADED",
             "passed": passed, "total": len(checks), "checks": checks}

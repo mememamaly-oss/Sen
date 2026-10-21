@@ -577,6 +577,40 @@ def _build_html(store: Store, run_id: str) -> str:
 
     v41_html = _v41_sections(intel_stats)
 
+    # AXIS-18 (ORD-003): Symbolic Execution Analysis — present ONLY when the
+    # run carried --symbolic (stats["symbolic"]); zero footprint otherwise.
+    sym_stats = (stats.get("symbolic") or {}) if isinstance(stats, dict) else {}
+    sym_html = ""
+    if sym_stats.get("enabled"):
+        def _sym_cell(r):
+            sol = r.get("solution") or {}
+            val = sol.get("value")
+            shown = repr(val) if val is not None else (
+                r.get("blocked") or r.get("honest_boundary") or "—")
+            return e(str(shown))[:120]
+        srows = "".join(
+            f"<tr><td class='u'>{e('; '.join((r.get('constraint') or [])[:3]))[:200]}</td>"
+            f"<td><code>{_sym_cell(r)}</code></td>"
+            f"<td class='u'>{e(str(r.get('payload') or '—'))[:120]}</td>"
+            f"<td>{e(str(r.get('verified') or r.get('blocked') or r.get('honest_boundary') or '—'))}</td>"
+            f"<td class='ev'>{e(str((r.get('signature') or {}).get('merkle_root', ''))[:16])}…</td></tr>"
+            for r in (sym_stats.get("results") or []))
+        _sym_none = "<tr><td colspan='5'>None</td></tr>"
+        sym_html = (
+            "<section><h2>Symbolic Execution Analysis — التنفيذ الرمزي (AXIS-18)</h2>"
+            f"<div class='box'>sources: <b>{sym_stats.get('sources', 0)}</b> · "
+            f"constraints: <b>{sym_stats.get('constraints_extracted', 0)}</b> · "
+            f"solved: <b>{sym_stats.get('solved', 0)}</b> · "
+            f"blocked-by-gate: <b>{sym_stats.get('blocked', 0)}</b> · "
+            f"path-activated: <b>{sym_stats.get('verified_activated', 0)}</b> · "
+            f"not-activated: <b>{sym_stats.get('not_activated', 0)}</b> · "
+            f"honest boundaries: <b>{e(json.dumps(sym_stats.get('boundaries') or {}, ensure_ascii=False))}</b>"
+            "<br><small>القيم محسوبة رياضياً من قيود التحقق المستخرجة من استجابات التطبيق؛ "
+            "كل نتيجة موقعة (Merkle + Ed25519) وقابلة للتحقق الخارجي بالمفتاح العام المضمّن؛ "
+            "الحلول التدميرية تُحظر قبل إرسال أي طلب — الحدود الصادقة مسجّلة لا مخفية.</small></div>"
+            "<table><tr><th>Constraint</th><th>Solution / Boundary</th><th>Payload</th>"
+            f"<th>Verified</th><th>Merkle root</th></tr>{srows or _sym_none}</table></section>")
+
     stat_items = "".join(f"<div class='stat'><b>{e(str(v))}</b><span>{e(str(k))}</span></div>"
                          for k, v in (stats.items() if isinstance(stats, dict)
                                       else zip(["requests", "endpoints", "verified", "rejected"],
@@ -606,6 +640,7 @@ def _build_html(store: Store, run_id: str) -> str:
 <section><h2>Statistics</h2><div class="stats">{stat_items}</div></section>
 {intel_html}
 {v41_html}
+{sym_html}
 <section><h2>Verified findings ({len(findings)})</h2>
 <table><tr><th>Sev</th><th>Type</th><th>ID</th><th>URL</th><th>Param</th><th>Risk</th><th>Conf</th><th>Evidence</th><th>Verification</th></tr>
 {''.join(rows) or '<tr><td colspan="9">None</td></tr>'}</table></section>

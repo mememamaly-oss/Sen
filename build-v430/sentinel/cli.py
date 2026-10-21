@@ -217,6 +217,10 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned,
     # never adds the key: the anchored regression record keeps its byte shape).
     if result.get("race_analysis") is not None:
         report["race_analysis"] = result["race_analysis"]
+    # AXIS-18: same conditional-copy discipline — the deposited doc carries
+    # the section only when --symbolic actually ran.
+    if result.get("symbolic_analysis") is not None:
+        report["symbolic_analysis"] = result["symbolic_analysis"]
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     json.dump(report, open(out, "w"), indent=1)
     return report
@@ -403,6 +407,15 @@ def main():
                    help="race battery: timing-variance threshold in seconds — a "
                         "mutating group whose unbiased sample variance falls "
                         "below it is flagged race_detected (default: 0.005)")
+    # ---- AXIS-18 (ORD-003): the symbolic execution flag. OFF by default;
+    # without --symbolic the sentinel/symbolic/ package is never imported
+    # (zero effect on a normal scan — pinned by the bomb test in the suite).
+    s.add_argument("--symbolic", action="store_true",
+                   help="AXIS-18 (ORD-003): symbolic execution analysis — extract "
+                        "validation constraints from application responses, solve "
+                        "them exactly (stdlib only), and send the COMPUTED values "
+                        "as bounded verification payloads; destructive solutions "
+                        "are blocked before any request is sent")
     b = sub.add_parser("benchmark"); b.add_argument("--url", default="http://127.0.0.1:8777")
     b.add_argument("--out", default="results/benchmark.json"); b.add_argument("--strategy-path"); b.add_argument("--timeout", type=float, default=12.0)
     # ORD-002-WIRE: the benchmark can also exercise the race battery (--race).
@@ -570,7 +583,15 @@ def main():
                          workflow=a.workflow, logic_active=a.logic_active,
                          exclude_urls=a.exclude_url,
                          race=a.race, race_parallel=a.race_parallel,
-                         race_variance=a.race_variance)
+                         race_variance=a.race_variance, symbolic=a.symbolic)
+        # AXIS-18: computed payloads are SENT to validation endpoints — a
+        # loud, explicit notice before the first symbolic request leaves.
+        if a.symbolic:
+            print("[i] --symbolic: AXIS-18 symbolic execution is ENABLED — "
+                  "validation constraints extracted from responses will be "
+                  "solved exactly and the COMPUTED values sent as bounded "
+                  "verification payloads (destructive solutions are blocked "
+                  "before any request).", flush=True)
         # Phase 58: the attack battery changes application state — a loud,
         # explicit warning before a single probe leaves the engine.
         if a.logic_active:
