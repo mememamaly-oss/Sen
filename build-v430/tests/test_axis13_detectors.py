@@ -896,9 +896,13 @@ def test_H13_19():
     base, srv = _make_combined_fixture()
     try:
         def _scan():
+            # RT-07: regression harness — budget explicitly OFF: this E2E must
+            # verify the modern battery's FULL delivery (all 6 classes VERIFIED);
+            # the operator-facing default (500) would cut the stream mid-battery.
             cfg = ScanConfig(allow_private=True, max_pages=6, crawl=True, active=True,
                              passive=True, timeout=8.0, seed="axis13-e2e", browser=False,
-                             oast=None, graphql=True, websocket=False, secrets=False)
+                             oast=None, graphql=True, websocket=False, secrets=False,
+                             max_requests=0)
             sc = SentinelScanner(base + "/", cfg)
             sc.run()
             return sc

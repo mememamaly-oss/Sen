@@ -150,7 +150,12 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned):
                          # platform including the Workflow Intelligence engine —
                          # learning AND the attack battery (fixture v8's wizard
                          # twins are the ground truth for the five logic classes).
-                         workflow=True, logic_active=True)
+                         workflow=True, logic_active=True,
+                         # RT-07: regression harness — budget explicitly OFF: the
+                         # benchmark's anchored request stream (~7k requests) and
+                         # verdict record (38/0/0/37) are the determinism anchor;
+                         # the operator-facing default (500) must not castrate it.
+                         max_requests=0)
         sc = SentinelScanner(base_url, cfg)
         result = sc.run()
     finally:

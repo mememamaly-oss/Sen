@@ -5522,3 +5522,21 @@ Work Log:
 Stage Summary:
 - RT-06 closed red/green: >5s REDOS_CONFIRMED -> 0.000s on the identical payload; equivalence on realistic content proven identical; pytest 206/206.
 - ONLY build-v430/sentinel/impact.py modified (+ worklog + scripts/rt06_redos_proof.py standing tool).
+
+---
+Task ID: 96
+Agent: Super Z (main agent)
+Task: Step 6 (supervisor batch permission) — fix RT-07 (no built-in request budget) in build-v430/sentinel/orchestrator.py.
+
+Work Log:
+- 6.1 RED (banked Step 1): grep max_requests in orchestrator.py -> COUNT: 0 (no enforcement anywhere); live precedent: the testasp campaign breached 1,261 requests before the EXTERNAL watchdog killed it (audit-rb-1 AUD-GOV-01).
+- 6.2 FIX: (a) ScanConfig += max_requests: int = 500 (ordered default; 0/negative = explicit off, never silent); (b) new _BudgetProxy in orchestrator.py — the SAME architectural pattern as _FingerprintingProxy/_CoverageProxy: wrapped at SentinelScanner.__init__ construction (outermost, before auth/verifier take references) so EVERY phase's requests count (auth, crawl, browser, active detectors, verification replays); on limit: ONE BudgetReached event with the ordered message format "BUDGET_REACHED: stopped at N requests (limit=M)" + every further send() short-circuits with the scope-block response pattern (status=0 + error="budget:...") — loops finish cleanly, report stays honest; (c) Response import added to orchestrator's http_engine imports.
+- 6.3 GREEN (scripts/rt07_budget_proof.py, live vulnapp fixture): budget=10 arm -> scan_completed=True in 0.2s, engine_requests=10 EXACTLY, budget_events=1, message byte-exact 'BUDGET_REACHED: stopped at 10 requests (limit=10)'; control arm (max_requests=0 explicit off) -> 3,799 requests, ZERO budget events, completes fully. First script run had a self-bug (subprocess.run on serve_forever blocked forever — honest fix to Popen, recorded).
+- CONFLICT DISCOVERED AND RESOLVED (disclosed scope deviation): the ordered default 500 BREAKS the ordered Step-8/9 gates — proven live: pytest test_H13_19 FAILED with default 500 (modern battery cut mid-stream, jwt_algorithm_confusion missing); the cli benchmark's anchored stream is ~7,162 requests (would change every verdict vs the 38/0/0/37 anchor). Resolution: the two REGRESSION HARNESSES opt out EXPLICITLY with documented comments — tests/test_axis13_detectors.py test_H13_19 _scan() += max_requests=0 (battery E2E must verify FULL delivery), sentinel/cli.py benchmark ScanConfig += max_requests=0 (determinism anchor preservation). Operator-facing default stays 500 (the ordered intent); the scan CLI keeps the default; Python API exposes the knob (ScanConfig.max_requests). This deviation from "orchestrator.py only" is disclosed here and in the report — it is the minimal change set that satisfies BOTH ordered requirements simultaneously.
+- 6.4 GATE: pytest tests/ -> 206 passed in 256.73s, ZERO failures (after the one harness accommodation).
+- 6.5 COMMIT+PUSH IMMEDIATELY (new rule #1).
+- Residual limitations (explicit): (a) the CLI scan command has no --max-requests flag yet — operators raise the budget via the Python API (ScanConfig) until a follow-up adds the flag; (b) budget counts requests, not bytes/time — a slowloris target can still consume wall-clock (timeout bounds each request; not a full runtime governor); (c) requests issued before SentinelScanner construction (none today — engine lives inside the scanner) are outside the proxy; (d) serve-mode (api.py) constructs SentinelScanner per scan — inherits the 500 default automatically (verified by grep: no ScanConfig constructions inside sentinel/ besides cli.py benchmark/scan and the class itself).
+
+Stage Summary:
+- RT-07 closed red/green: COUNT 0 enforcement -> exact stop at 10/10 with the ordered log line; opt-out path proven (3,799 requests unchoked); pytest 206/206; the two regression anchors (bench determinism + axis13 battery E2E) preserved via explicit documented opt-outs.
+- Modified: build-v430/sentinel/orchestrator.py (the fix), + the two disclosed harness accommodations (tests/test_axis13_detectors.py, sentinel/cli.py benchmark), + worklog + scripts/rt07_budget_proof.py standing tool.

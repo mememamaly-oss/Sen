@@ -6,7 +6,7 @@ import json, os, time
 import urllib.parse
 from .core import (Endpoint, EventBus, Evidence, Finding, FindingStatus, ScopeRule, ParamKind,
                    Severity, Target, DiscoverySource, new_run_id, SCANNER_VERSION)
-from .http_engine import RequestEngine, RequestMutation
+from .http_engine import RequestEngine, RequestMutation, Response
 from .discovery import DiscoveryEngine
 from .discovery import DESTRUCTIVE_GET_RE   # V411-DISC-SAFE vocabulary gate
 from .discovery import (STATE_CHANGE_GET_RE, LOGOUT_PATH_RE,
@@ -61,9 +61,15 @@ class ScanConfig:
                  allowed_domains=None, oast=None, browser=True, auth=None,
                  openapi=True, openapi_spec=None, authz=None, secrets=True,
                  vault=None, vault_key_file=None, workflow=False, logic_active=False,
-                 graphql=True, websocket=True, modern=True, exclude_urls=None):
+                 graphql=True, websocket=True, modern=True, exclude_urls=None,
+                 max_requests: int = 500):
         self.allow_private = allow_private
         self.max_pages = max_pages
+        # RT-07 fix (audit-rb-1 AUD-GOV-01): hard request budget. The engine had
+        # NO built-in limit — the live testasp campaign breached 1,261 requests
+        # before the external watchdog killed it. Default 500; 0/negative = off
+        # (explicit operator opt-out, never silent).
+        self.max_requests = max_requests
         self.crawl, self.active, self.passive = crawl, active, passive
         self.timeout, self.seed = timeout, seed
         self.strategy_path = strategy_path
@@ -111,6 +117,42 @@ class _FingerprintingProxy:
         return getattr(self._inner, name)
 
 
+class _BudgetProxy:
+    """RT-07 fix (audit-rb-1 AUD-GOV-01): hard request budget as a transparent
+    engine proxy — the same architectural pattern as _FingerprintingProxy /
+    _CoverageProxy. Wrapped at construction time, OUTERMOST of every later
+    proxy, so EVERY request the scan issues (auth, crawl, browser, active
+    detectors, verification replays, authz identities, graphql, websocket)
+    counts against the same limit. On reaching the limit it emits ONE
+    BUDGET_REACHED event and short-circuits every further send() with a
+    synthetic error response (the scope-block pattern: status=0 + error) —
+    loops finish cleanly, no mid-flight exceptions, the report is honest
+    about what was cut short."""
+    def __init__(self, inner, bus: EventBus, max_requests: int):
+        self._inner, self._bus, self._max = inner, bus, int(max_requests)
+        self._announced = False
+        self.stopped_at = None
+
+    def send(self, m):
+        sent = getattr(self._inner, "requests_sent", 0)
+        if sent >= self._max:
+            if not self._announced:
+                self._announced = True
+                self.stopped_at = sent
+                self._bus.emit("BudgetReached",
+                               msg=f"BUDGET_REACHED: stopped at {sent} requests "
+                                   f"(limit={self._max})",
+                               requests=sent, limit=self._max)
+            url = getattr(getattr(m, "endpoint", None), "url", "")
+            return Response(status=0, url=url,
+                            error=f"budget:BUDGET_REACHED: stopped at {sent} "
+                                  f"requests (limit={self._max})")
+        return self._inner.send(m)
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
 class SentinelScanner:
     def __init__(self, target_url: str, cfg: ScanConfig | None = None):
         self.cfg = cfg or ScanConfig()
@@ -120,6 +162,10 @@ class SentinelScanner:
         self.scope = ScopeRule(allowed_domains=[self.target.host] + self.cfg.allowed_domains,
                                allow_private=self.cfg.allow_private)
         self.engine = RequestEngine(self.scope, self.bus, timeout=self.cfg.timeout)
+        # RT-07: budget wrap BEFORE anything else holds a reference — every
+        # request of every phase flows through it (auth included).
+        if self.cfg.max_requests and self.cfg.max_requests > 0:
+            self.engine = _BudgetProxy(self.engine, self.bus, self.cfg.max_requests)
         self.verifier = VerificationEngine(self.engine, self.bus, oast=self.cfg.oast)
         self.browser = None       # Phase 50: BrowserEngine (set in run() when enabled+available)
         self.fp = FingerprintCollector()   # Phase 54: passive WAF + tech map
