@@ -2,7 +2,7 @@
 Scanners never build HTTP requests directly — they emit RequestMutations.
 """
 from __future__ import annotations
-import http.client, re, socket, ssl, time, urllib.parse, uuid
+import http.client, ipaddress, re, socket, ssl, time, urllib.parse, uuid
 from dataclasses import dataclass, field
 from .core import Endpoint, EventBus, ParamKind, ParamLocation, ScopeRule, VERSION, is_private_ip
 
@@ -392,6 +392,62 @@ class RequestEngine:
             return False, f"private/localhost host {host} blocked by scope policy"
         return True, ""
 
+    def _pin_target(self, host, scheme, port):
+        """RT-01 TOCTOU fix (ORD-001-REMAND item 2): resolve ONCE, validate
+        EVERY answer against the RT-01 guard, return (pinned_address, None)
+        or (None, reason). Fail-closed on any ambiguity — the same doctrine
+        as core.is_private_ip. The caller pins the transport to the returned
+        address; http.client never resolves the name again."""
+        if not host:
+            return None, "empty host"
+        bare = host.strip().strip("[]")
+        try:
+            ipaddress.ip_address(bare)
+            addrs = [bare]                     # IP literal: no DNS at all
+            literal = True
+        except ValueError:
+            literal = False
+        if not literal:
+            try:
+                ais = socket.getaddrinfo(
+                    bare, port or (443 if scheme == "https" else 80),
+                    0, socket.SOCK_STREAM)
+            except Exception as exc:
+                return None, (f"dns-unresolvable "
+                              f"({type(exc).__name__}: {exc})")[:120]
+            addrs = [a[4][0] for a in ais if a and a[4]]
+            if not addrs:
+                return None, "dns-empty-answer"
+        if not self.scope.allow_private:
+            for a in addrs:
+                if is_private_ip(a):
+                    return None, (f"resolved {a} unsafe for {host} "
+                                  f"(rebind-guard)")[:120]
+        if not addrs:
+            return None, "no addresses"
+
+        def _order(a):
+            try:
+                o = ipaddress.ip_address(a)
+                return (o.version, int(o))
+            except ValueError:
+                return (9, 0)
+
+        # deterministic pin: same answer set -> same pinned address,
+        # regardless of resolver ordering (bench determinism).
+        pinned = sorted(set(addrs), key=_order)[0]
+        return pinned, None
+
+    @staticmethod
+    def _authority_header(host, scheme, port):
+        """Host header value: the ORIGINAL authority — brackets for v6,
+        non-default port kept, never the pinned IP."""
+        hh = f"[{host}]" if (":" in host and not host.startswith("[")) else host
+        default = 443 if scheme == "https" else 80
+        if port and port != default:
+            hh = f"{hh}:{port}"
+        return hh
+
     def _harvest_cookies(self, getheaders, host: str, req_path: str = "/"):
         """ENG-05: collect every Set-Cookie (http.client yields them as separate
         header tuples — a dict comprehension silently keeps only the LAST one).
@@ -512,10 +568,26 @@ class RequestEngine:
             ck = "" if skip_jar else self._cookie_header(parsed.hostname or "", parsed.path or "/")
             if ck:
                 headers.setdefault("Cookie", ck)
+            # RT-01 TOCTOU fix (ORD-001-REMAND item 2, Option A): resolve
+            # ONCE, validate EVERY answer, pin the transport to the validated
+            # address. The original authority rides in Host; http.client never
+            # resolves the target name again.
+            pinned, pin_err = self._pin_target(
+                parsed.hostname, parsed.scheme, parsed.port)
+            if pin_err is not None:
+                self.bus.emit("RequestBlockedByScope", url=url,
+                              reason=f"pin: {pin_err}")
+                return Response(status=0, url=url,
+                                error=f"scope:pin:{pin_err}",
+                                elapsed=time.time() - t0, request_id=rid)
+            headers.setdefault("Host", self._authority_header(
+                parsed.hostname, parsed.scheme, parsed.port))
             if parsed.scheme == "https":
-                conn = http.client.HTTPSConnection(parsed.hostname, parsed.port, timeout=self.timeout, context=self._ctx)
+                conn = _PinnedHTTPSConnection(
+                    parsed.hostname, parsed.port, self.timeout, self._ctx, pinned)
             else:
-                conn = http.client.HTTPConnection(parsed.hostname, parsed.port, timeout=self.timeout)
+                conn = _PinnedHTTPConnection(
+                    parsed.hostname, parsed.port, self.timeout, pinned)
             path = parsed.path + ("?" + parsed.query if parsed.query else "")
             # v4.2.1 journal: record the request exactly as issued (headers incl.
             # the session Cookie; body capped). Created once per rid — ENG-09
@@ -547,10 +619,18 @@ class RequestEngine:
                 if pu.hostname != parsed.hostname and not self.scope.follow_cross_host:
                     break
                 conn.close()
+                hop_pinned, hop_err = self._pin_target(
+                    pu.hostname, pu.scheme, pu.port)
+                if hop_err is not None:
+                    self.bus.emit("RedirectBlockedByScope", url=nxt,
+                                  reason=f"pin: {hop_err}")
+                    break
                 if pu.scheme == "https":
-                    conn = http.client.HTTPSConnection(pu.hostname, pu.port, timeout=self.timeout, context=self._ctx)
+                    conn = _PinnedHTTPSConnection(
+                        pu.hostname, pu.port, self.timeout, self._ctx, hop_pinned)
                 else:
-                    conn = http.client.HTTPConnection(pu.hostname, pu.port, timeout=self.timeout)
+                    conn = _PinnedHTTPConnection(
+                        pu.hostname, pu.port, self.timeout, hop_pinned)
                 # ENG-07 (live-caught via fixture v5 /doLogin): the hop request used to
                 # reuse the ORIGINAL request's Cookie header, so cookies issued ON the
                 # redirect response (login flows rotate the session: Set-Cookie SESS=s2
@@ -559,6 +639,11 @@ class RequestEngine:
                 # Cookie header from the CURRENT jar for every hop, exactly like a
                 # browser following a redirect chain.
                 hop_headers = dict(headers)
+                # RT-01 TOCTOU: the hop re-routes — Host follows the HOP authority
+                # (an inherited caller Host would point the virtual host at the
+                # wrong origin; overwriting is the honest redirect semantic).
+                hop_headers["Host"] = self._authority_header(
+                    pu.hostname, pu.scheme, pu.port)
                 ck2 = self._cookie_header(pu.hostname or "", pu.path or "/")
                 if ck2:
                     hop_headers["Cookie"] = ck2
@@ -625,6 +710,50 @@ class RequestEngine:
             },
             "response": None,
         }
+
+
+# ---- RT-01 TOCTOU / DNS-rebinding pin (ORD-001-REMAND item 2, Option A) ----
+# The pre-remand engine (post RT-01 string-match fix) still handed the NAME
+# to http.client, which resolved DNS a SECOND time at connect — between the
+# scope check and the connect the answer could change (DNS rebinding; proven
+# RED live in scripts/rt01_toctou_proof.py: the guard resolved a PUBLIC
+# address, http.client resolved 127.0.0.1 and the engine fetched the EVIL
+# listener's body). The ordered fix: the engine resolves ONCE per request,
+# validates EVERY answer against the RT-01 guard, and pins the transport to
+# the validated address. The original hostname rides in the Host header
+# (http) and in SNI + certificate hostname validation (https —
+# wrap_socket(server_hostname=host)) — pinning never breaks TLS SNI, so
+# Option A covers both schemes and no HONEST_BOUNDARIES carve-out is needed
+# for the TLS case.
+class _PinnedHTTPConnection(http.client.HTTPConnection):
+    """Socket opens to the VALIDATED address; the Host header (set by
+    _dispatch) carries the original authority."""
+
+    def __init__(self, host, port, timeout, pinned):
+        super().__init__(host, port, timeout=timeout)
+        self._pinned = pinned
+
+    def connect(self):
+        self.sock = self._create_connection((self._pinned, self.port),
+                                            self.timeout)
+
+
+class _PinnedHTTPSConnection(http.client.HTTPSConnection):
+    """Same pin; TLS keeps SNI + certificate hostname validation bound to
+    the ORIGINAL hostname (server_hostname=self.host — the RT-02 CERT_REQUIRED
+    fix validates the certificate against the name, never against the IP)."""
+
+    def __init__(self, host, port, timeout, context, pinned):
+        super().__init__(host, port, timeout=timeout, context=context)
+        self._pinned = pinned
+
+    def connect(self):
+        self.sock = self._create_connection((self._pinned, self.port),
+                                            self.timeout)
+        if self._tunnel_host:
+            self._tunnel()
+        self.sock = self._context.wrap_socket(self.sock,
+                                              server_hostname=self.host)
 
 
 def make_session_cookie_ep(ep: Endpoint, cookies: dict) -> Endpoint:

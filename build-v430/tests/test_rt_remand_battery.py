@@ -17,7 +17,7 @@ import pytest
 
 from sentinel import audit
 from sentinel.audit import audit_block, derive_keypair, enrich_report
-from sentinel.core import new_run_id
+from sentinel.core import EventBus, ScopeRule, new_run_id
 
 try:
     from cryptography.hazmat.primitives import hashes as _hashes
@@ -120,3 +120,104 @@ def test_rt04_replay_determinism():
     r1 = enrich_report(_rep(seed_a), seed=seed_a)
     r2 = enrich_report(_rep(seed_a), seed=seed_a)
     assert r1["audit"]["signature_b64"] == r2["audit"]["signature_b64"]
+
+
+# ================================================================ item 2 (RT-01 TOCTOU)
+def test_rt01_dns_rebinding_blocked():
+    """DNS-rebinding simulation: the name resolves to a PUBLIC address on
+    the first lookup (the guard passes) and to 127.0.0.1 on every later
+    lookup (the rebinding flip). The connection to the SECOND (unsafe) IP
+    must be BLOCKED — the engine resolves once, validates every answer,
+    and pins the transport to the validated address."""
+    import socket as _socket
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    from sentinel.core import Endpoint
+    from sentinel.http_engine import RequestEngine, RequestMutation
+
+    rebind_name = "rebind.sentinel-proof.test"
+    safe_ip = "93.184.216.34"
+
+    class _Evil(BaseHTTPRequestHandler):
+        hits = 0
+
+        def do_GET(self):
+            type(self).hits += 1
+            body = b"EVIL-REBOUND-CONTENT"
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *a):
+            pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _Evil)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+
+    real_getaddrinfo = _socket.getaddrinfo
+    state = {"n": 0}
+
+    def fake(host, *args, **kwargs):
+        if host == rebind_name:
+            state["n"] += 1
+            answer = safe_ip if state["n"] == 1 else "127.0.0.1"
+            return real_getaddrinfo(answer, *args, **kwargs)
+        return real_getaddrinfo(host, *args, **kwargs)
+
+    try:
+        _socket.getaddrinfo = fake
+        eng = RequestEngine(
+            ScopeRule(allowed_hosts=[rebind_name], allow_private=False),
+            EventBus("rt01-rebind"), timeout=6)
+        ep = Endpoint(url=f"http://{rebind_name}:{port}/rebind", method="GET")
+        resp = eng.send(RequestMutation(endpoint=ep))
+    finally:
+        _socket.getaddrinfo = real_getaddrinfo
+
+    assert _Evil.hits == 0, \
+        f"RED: the engine connected to the rebound (unsafe) IP — evil " \
+        f"listener hit {_Evil.hits} time(s) with status {resp.status}"
+    assert resp.status == 0, f"the blocked request must return status=0 (got {resp.status})"
+    assert "pin" in (resp.error or ""), \
+        f"the block must carry the pin reason (got {resp.error!r})"
+
+
+def test_rt01_pin_host_header():
+    """Option A semantics preserved: the pinned transport carries the
+    ORIGINAL authority in the Host header — never the pinned IP."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+    from sentinel.core import Endpoint
+    from sentinel.http_engine import RequestEngine, RequestMutation
+
+    class _EchoHost(BaseHTTPRequestHandler):
+        seen_host = ""
+
+        def do_GET(self):
+            type(self).seen_host = self.headers.get("Host", "")
+            body = f"HOST={type(self).seen_host}".encode()
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *a):
+            pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _EchoHost)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+
+    eng = RequestEngine(
+        ScopeRule(allowed_hosts=["localhost"], allow_private=True),
+        EventBus("rt01-host"), timeout=6)
+    ep = Endpoint(url=f"http://localhost:{port}/pin", method="GET")
+    r = eng.send(RequestMutation(endpoint=ep))
+    assert r.status == 200, f"the pinned request must still succeed (got {r.status})"
+    assert _EchoHost.seen_host == f"localhost:{port}", \
+        f"the server must observe the ORIGINAL authority in Host " \
+        f"(got {_EchoHost.seen_host!r})"
