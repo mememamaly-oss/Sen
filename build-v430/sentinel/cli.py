@@ -211,6 +211,12 @@ def _run_benchmark_inner(base_url, out, strategy_path, timeout, label, spawned,
         "findings": findings,
         "ground_truth_sha256": hashlib.sha256(json.dumps(gt, sort_keys=True).encode()).hexdigest()[:16],
     }
+    # ORD-002-WIRE: the bench doc carries the race section when --race ran —
+    # the ordered gate ("bench x3 WITH --race: works, no regression") must be
+    # OBSERVABLE from the deposited doc alone (a null section on no-race runs
+    # never adds the key: the anchored regression record keeps its byte shape).
+    if result.get("race_analysis") is not None:
+        report["race_analysis"] = result["race_analysis"]
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     json.dump(report, open(out, "w"), indent=1)
     return report
