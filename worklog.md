@@ -5580,3 +5580,20 @@ Stage Summary:
 - FULL GATE GREEN on the fixed tree: 4313/4313 + doctor 17/17 + bench x3 ALL IDENTICAL vs the accepted anchor (COMPARE_RC=0) + pytest 206/206 + battery 6/6 — the five security fixes changed ZERO verdicts over the anchored record while closing RT-01/02/05/06/07.
 - The budget-default/regression-anchor conflict is now systematically closed at all three harness levels (bench, axis-13 E2E, script suite) with one consistent documented pattern; the ONE regression the gate caught (c02 CRLF/XXE) was diagnosed and resolved the same hour.
 - Modified this step: build-v430/tests/run_tests.py (the harness override) + results/gate_rt_fixes/* + worklog.
+
+---
+Task ID: 99
+Agent: Super Z (main agent)
+Task: Step 9 (supervisor batch permission) — the FINAL red-team battery: re-run every attack proof on the final fixed tree; any still-open vulnerability = immediate stop.
+
+Work Log:
+- RT-01 (supervisor's exact unit script): 7/7 OK BLOCKED — 0177.0.0.1 / 2130706433 / 0x7f000001 / 127.1 / localhost. / [::ffff:127.0.0.1] / 127.0.0.1.nip.io all refused.
+- RT-02 (live MITM interceptor, self-signed cert CN+SAN=127.0.0.1): engine_ok=False, SSLCertVerificationError CERTIFICATE_VERIFY_FAILED self-signed certificate, mitm_hits=0, captured_auth=(none) -> CERT_REJECTED, MITM saw nothing.
+- RT-05 (live journal capture, 5 credential headers + 3 context headers): secrets_leaked_verbatim=(none), redacted_markers=5/5 (Authorization/X-Api-Key/Cookie/X-Auth-Token/Proxy-Authorization -> [REDACTED]), non_sensitive_headers_preserved=3/3 -> CREDENTIAL_PROTECTED.
+- RT-06 (supervisor's exact script + 6 hostile batteries): 'A'*50000+'!' -> OK 0.000s (was REDOS_CONFIRMED >5s); dots_only_60k 0.000s / A_run_60k_dots_tail 0.002s / dots_head 0.002s / alternating_60k 0.000s / trailing_bang_50k 0.000s / over_cap_200k 0.002s; semantic equivalence old-vs-new extraction IDENTICAL.
+- RT-07 (live fixture scan): budget=10 arm -> BUDGET_REACHED_MSG byte-exact 'BUDGET_REACHED: stopped at 10 requests (limit=10)', engine_requests=10 exactly, scan completes cleanly; opt-out control -> 3,799 requests, zero budget events -> STOPPED_AT_BUDGET.
+- ALL FIVE GREEN. No still-open vulnerability in the ordered set. No stop condition triggered.
+
+Stage Summary:
+- Campaign COMPLETE through the ordered Step 9: every fix red/green-proven on the final tree, full gate green (4313/4313, doctor 17/17, bench x3 IDENTICAL vs anchor, pytest 206/206, battery 6/6), every step committed+pushed immediately per new rule #1 (6 campaign commits: 8817773 RT-01 / 2cc752a RT-02 / 3f08081 RT-05 / 33087f2 RT-06 / 6f0fe53 RT-07 / 9fcf970 battery / e65d12c full gate), MATCH: YES verified after every push.
+- NOT in this campaign's ordered scope (awaiting supervisor): RT-03/RT-04 (Ed25519 seed derivation + signature forgery — the original audit's crypto findings, NOT in the ordered fix list of this round), live external re-tests (per-target approval gate per the standing charter), CHANGELOG/tag/push finalization ritual.
