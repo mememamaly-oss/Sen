@@ -5730,3 +5730,20 @@ Work Log:
 Stage Summary:
 - M3 ATOMS closed: 8/8 green (digest 5f0917fded934a76), evidence deposited results/axis17/axis17_ATOMS.json; two real defects (signing-invalidating append; invisible reset) caught by the atoms themselves and fixed pre-commit — the atoms are load-bearing, not decoration.
 - Committing and pushing immediately (rule #1). M4 R3 is next: the full old suite (4313) + new tests, benchmark x3 = 38/0/0/37, doctor 17/17.
+
+---
+Task ID: 108
+Agent: Super Z (main agent)
+Task: ORD-002 / AXIS-17 — M4 R3 (no-regression): re-run the full old suite (4313) + the new tests, benchmark x3 must stay 38/0/0/37, doctor 17/17; commit+push+ls-remote (rule #1).
+
+Work Log:
+- SUITE (the anchor contract, FRESH by order — stale /tmp chunks from the prior gate's tree were wiped before this run, the driver re-planned from a fresh full pass): full detached pass ~1801s of case time (227 ran, 1 failed — the KNOWN structural single-process port-collision artifact, exactly as the prior gate disclosed; the one failing bind unit_v41_no_hallucination_gate is the documented case), LPT plan c00~760s/1 ... c18~22s/28, then 19/19 chunks executed fresh and cached-PASS one by one. AGG: chunks 19 | per-chunk 227/227 failed=0 (all) | SUITE TOTAL 4313/4313 | dedup coverage cases=227 covered=227 missing=0 failed=0 — AGG VERDICT PASS, AGG_RC=0.
+- PYTEST (fresh): 224 passed in 264.57s (the prior 214 + the 10 new ordered test_race_* cases) — zero failures.
+- NEW SUITES (fresh within this gate): the ordered ten 10/10 (re-deposited results/axis17/axis17_GREEN.json) + the eight atoms 8/8 (re-deposited results/axis17/axis17_ATOMS.json).
+- DOCTOR: PASS 17/17 (fresh).
+- BENCH x3 (fresh, own fixtures): all run-d6b26b92d0 confusion (38, 0, 0, 37) P=1.0 R=1.0 F1=1.0 findings=199 gt=0373baf92a92dce2 requests=7162 each. STRUCTURAL COMPARE vs the accepted anchor results/verify_pt1/bench_run1.json (run-3c0652b6be) via the standing tool: path_tuples=EQ norm_url_tuples=EQ struct_meta=EQ -> IDENTICAL x3, MUTUAL x3 IDENTICAL, COMPARE_RC=0. The anchor's 4784 requests is informational-only by the tool's documented design; 7162 matches the ORD-001 station runs exactly. ZERO verdict changes — the live additivity proof: the purely-additive race package changed NOTHING in the engine's scan behavior.
+- Honest note: bench JSON carries confusion as a dict {'TP':38,...}; the compare tool reads it correctly — a first summary one-liner of mine misread it as keys (my reading bug, fixed before any report; the underlying data was correct all along).
+
+Stage Summary:
+- M4 R3 closed: 4313/4313 fresh + 224/224 pytest + 10/10 + 8/8 + 17/17 + bench x3 IDENTICAL (COMPARE_RC=0) — zero regressions anywhere.
+- Committing and pushing immediately (rule #1). M5 GATE is next: scope-edge battery x3 6/6, the evidence pack results/axis17/ + SHA256SUMS, STATE.md + CHANGELOG, then STOP and await the supervisor's approval (the ordered stop rule).
