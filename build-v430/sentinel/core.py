@@ -51,22 +51,56 @@ class ScopeRule:
     follow_cross_host: bool = False
 
 
-PRIVATE_V4 = [("10.",), ("192.168.",), ("172.",)]  # 172.16-31 handled precisely below
-META_V4 = ("169.254.", "100.100.", "fd00:", "fe80:")
+PRIVATE_V4 = [("10.",), ("192.168.",), ("172.",)]  # 172.16-31 handled precisely below  # legacy: kept for reference; is_private_ip no longer uses it
+META_V4 = ("169.254.", "100.100.", "fd00:", "fe80:")  # legacy: kept for reference; is_private_ip no longer uses it
 
+import ipaddress, socket
+
+_CGNAT = ipaddress.ip_network("100.64.0.0/10")
+
+def _addr_unsafe(a) -> bool:
+    if (a.is_private or a.is_loopback or
+        a.is_link_local or a.is_reserved or
+        a.is_multicast or a.is_unspecified):
+        return True
+    if getattr(a, 'version', 0) == 4 and \
+       a in _CGNAT:
+        return True
+    for mapped in (getattr(a, 'ipv4_mapped', None),
+                   getattr(a, 'sixtofour', None)):
+        if mapped and _addr_unsafe(mapped):
+            return True
+    return False
 
 def is_private_ip(ip: str) -> bool:
-    if not ip: return True
-    if ip in ("127.0.0.1", "0.0.0.0", "::1", "localhost"): return True
-    if ip.startswith("10.") or ip.startswith("192.168.") or ip.startswith("169.254."): return True
-    if ip.startswith("172."):
-        try:
-            second = int(ip.split(".")[1])
-            if 16 <= second <= 31: return True
-        except Exception:
-            return True
-    if ip.lower().startswith(("fd", "fe80", "::1")): return True
-    return False
+    if not ip:
+        return True
+    h = ip.strip()
+    if h.startswith('[') and h.endswith(']'):
+        h = h[1:-1]
+    # أشكال IPv4 المتحررة (ثماني/عشري/سداسي)
+    try:
+        import struct
+        packed = socket.inet_aton(h)
+        return _addr_unsafe(
+            ipaddress.IPv4Address(packed))
+    except OSError:
+        pass
+    # عناوين حرفية v4/v6
+    try:
+        return _addr_unsafe(ipaddress.ip_address(h))
+    except ValueError:
+        pass
+    # أسماء مضيف: حل DNS وفحص كل عنوان
+    try:
+        addrs = socket.getaddrinfo(
+            h, None, 0, socket.SOCK_STREAM)
+        return any(
+            _addr_unsafe(ipaddress.ip_address(
+                a[4][0]))
+            for a in addrs)
+    except Exception:
+        return True  # أي غموض = رفض
 
 
 # ---------------------------------------------------------------- Parameter / Endpoint

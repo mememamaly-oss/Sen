@@ -5451,3 +5451,22 @@ Stage Summary:
 - All five ordered vulnerabilities re-proven LIVE on the restored tree with raw outputs banked above.
 - New rule #1 acknowledged and will be enforced from Step 2 onward: every fix = commit + push + ls-remote immediately.
 - This worklog entry rides uncommitted until the first fix commit (campaign convention: worklog updates ship inside fix commits).
+
+---
+Task ID: 92
+Agent: Super Z (main agent)
+Task: Step 2 (supervisor explicit permission 2026-10-21) — fix RT-01 (SSRF string-matching guard) in build-v430/sentinel/core.py ONLY, red/green differential, pytest gate, then commit+push+ls-remote IMMEDIATELY (new rule #1).
+
+Work Log:
+- 2.1 RED (banked in Step 1, same tree): 7/7 VULN BYPASS — 0177.0.0.1 / 2130706433 / 0x7f000001 / 127.1 / localhost. / [::ffff:127.0.0.1] / 127.0.0.1.nip.io all reached the guard and were NOT recognized as private under the old string-matching is_private_ip.
+- 2.2 FIX applied to sentinel/core.py only, supervisor's prescribed logic verbatim: module-level `import ipaddress, socket`; `_CGNAT = 100.64.0.0/10`; `_addr_unsafe()` (is_private/is_loopback/is_link_local/is_reserved/is_multicast/is_unspecified + CGNAT + ipv4_mapped/sixtofour recursion); `is_private_ip()` now: bracket-strip -> inet_aton for liberal IPv4 forms (octal/decimal/hex) -> ip_address literal -> getaddrinfo DNS resolve + check ALL resolved addresses -> ANY exception = True (fail-closed). Legacy PRIVATE_V4/META_V4 constants kept as reference (verified zero external users) with a comment marking them legacy.
+- 2.3 GREEN (same script, fixed tree): 7/7 OK BLOCKED — all obfuscated forms now rejected.
+- Over-blocking honesty check: public literals 8.8.8.8 / 1.1.1.1 / 45.33.32.156 / 93.184.216.34 ALLOWED; 172.16.0.1 BLOCKED while 172.32.0.1 (outside RFC1918) ALLOWED (precise CIDR, and my own test list initially mislabeled 172.32.0.1 as must-block — the CODE is correct, the test expectation was wrong; recorded honestly); CGNAT 100.64.0.1 BLOCKED; metadata 169.254.169.254 BLOCKED; 0.0.0.0/::1/fe80::1/fd00::1/::ffff:10.0.0.5 BLOCKED. Live DNS confirmed working in sandbox: demo.testfire.net -> 65.61.137.117 ALLOWED, example.com -> 104.20.23.154 ALLOWED, 127.0.0.1.nip.io resolves to loopback and BLOCKED.
+- 2.4 GATE: python3 -m pytest tests/ --tb=short -q -> 206 passed in 255.94s, ZERO failures (matches the pre-rollback record).
+- 2.5 COMMIT+PUSH IMMEDIATELY per new rule #1: commit "fix RT-01: SSRF — parse-and-resolve replaces string matching in is_private_ip; fail-closed" (core.py + this worklog entry per campaign convention), pushed to origin main with the supervisor's PAT used inline-only (never on disk/config), ls-remote verification below.
+- Residual limitations (explicit): (a) TOCTOU/DNS-rebinding race between check-time resolution and connect-time is inherent to check-then-connect without a pinned resolver — documented, not solved by this fix; (b) getaddrinfo adds DNS latency to every hostname scope check (no cache added — out of the ordered scope); (c) the scope-edge battery c04/c05 dead-DNS expectation is known to conflict with the new fail-closed rule — battery update is Step 7 per the supervisor's order, NOT touched in this commit.
+
+Stage Summary:
+- RT-01 closed red/green on the restored 511fcc8 tree: 7/7 BYPASS -> 7/7 BLOCKED, public traffic unaffected (live-verified), pytest 206/206, doctor standing 17/17 from Step 0.
+- First commit under new rule #1 (push immediately after every verified differential) — the rollback lesson enforced from this step onward.
+- ONLY build-v430/sentinel/core.py modified (+ worklog record). No other files touched.
