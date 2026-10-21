@@ -341,10 +341,12 @@ def test_journal_integration():
 def test_planner_gate_integration():
     """الاختبار 9: الطلبات تمر عبر بوابة المخطط قبل الإرسال؛ التدميرية تُرفض دائماً.
 
-    العزل المدروس: الطلب "التدميري" هنا يحمل الكلمة في الاستعلام (شكل
-    يصنفه planner المحرك الحقيقي DESTRUCTIVE) وجسمه حميد — فالرفض
-    يثبت أنه جرى عبر بوابة المخطط نفسها، لا عبر بوابة الأجسام الداخلية
-    (الاختبار 5 يغطي تلك، وهذا يغطي هذه؛ الاثنتان defence-in-depth).
+    العزل المدروس: كلمة "setup" يصنفها planner المحرك الحقيقي DESTRUCTIVE
+    (قائمة V411-DISC-SAFE) وهي **ليست** من مفردات بوابة race الداخلية —
+    فبوابة المفردات الداخلية تمررها (PASSED) ثم بوابة المخطط الخارجية
+    وحدها ترفضها؛ الرفض يثبت أنه جرى عبر planner نفسه لا عبر البوابة
+    الداخلية (الاختبار 5 يغطي تلك بطبقتها، وهذا يغطي هذه بطبقتها —
+    defence-in-depth بطبقتين مستقلتين).
     """
     from sentinel.planner import classify_operation       # حقن من المحرك (N2)
     from sentinel.race.integration import plan_race_probe
@@ -360,9 +362,9 @@ def test_planner_gate_integration():
                               max_concurrent=2, timeout=5.0,
                               planner_gate=planner_gate)
         assert ben.request_count == 4 and fx.hits == 4, "benign plan blocked?"
-        des = plan_race_probe(fx.url + "?action=delete",
+        des = plan_race_probe(fx.url + "?action=setup",
                               parameter="account_id",
-                              body="account_id=7&confirm=1", samples=4,
+                              body="account_id=7&mode=reseed", samples=4,
                               max_concurrent=2, timeout=5.0,
                               planner_gate=planner_gate)
         assert des.request_count == 0, "destructive plan sent requests"

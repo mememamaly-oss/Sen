@@ -1,0 +1,61 @@
+{
+ "suite": "axis17-race",
+ "station": "run",
+ "total": 10,
+ "passed_count": 10,
+ "failed": 0,
+ "passed": true,
+ "digest": "17ebb3f1c2aaf4a7beff36d8b2e03e94048bf4f24a698185bb2677b92787ac09",
+ "cases": [
+  {
+   "name": "test_budget_enforcement",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_concurrent_send_basic",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_destructive_vocabulary_gate",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_journal_integration",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_no_engine_import",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_planner_gate_integration",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_race_module_exists",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_result_serialization",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_timing_analysis_detects_race",
+   "ok": true,
+   "error": ""
+  },
+  {
+   "name": "test_timing_analysis_no_false_positive",
+   "ok": true,
+   "error": ""
+  }
+ ]
+}
