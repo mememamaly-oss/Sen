@@ -1,0 +1,41 @@
+{
+ "suite": "axis17-wire",
+ "station": "M1-RED",
+ "total": 6,
+ "passed_count": 0,
+ "failed": 6,
+ "passed": false,
+ "digest": "410f98849d26dd2e11d19b3b19d33e47a1e66dcec29d473d43008eac0b066c68",
+ "cases": [
+  {
+   "name": "test_wire_bench_unchanged",
+   "ok": false,
+   "error": "AssertionError: "
+  },
+  {
+   "name": "test_wire_destructive_blocked",
+   "ok": false,
+   "error": "TypeError: ScanConfig.__init__() got an unexpected keyword argument 'race'"
+  },
+  {
+   "name": "test_wire_disabled_by_default",
+   "ok": false,
+   "error": "AttributeError: 'ScanConfig' object has no attribute 'race'"
+  },
+  {
+   "name": "test_wire_enabled_triggers_probe",
+   "ok": false,
+   "error": "TypeError: ScanConfig.__init__() got an unexpected keyword argument 'race'"
+  },
+  {
+   "name": "test_wire_race_flag_exists",
+   "ok": false,
+   "error": "AssertionError: scan CLI lacks --race"
+  },
+  {
+   "name": "test_wire_result_in_report",
+   "ok": false,
+   "error": "TypeError: ScanConfig.__init__() got an unexpected keyword argument 'race'"
+  }
+ ]
+}
