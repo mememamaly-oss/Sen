@@ -1,95 +1,126 @@
-# TEST REPORT — كل أمر ونتيجته الفعلية
+# TEST_REPORT.md — النتائج الفعلية بالأوامر ورموز الخروج
 
-**التاريخ:** 2026-10-23 · **البيئة:** Python 3.12.15 / bun 1.3.14 / Node 24 / Linux (container)
-**مدير الحزم:** bun (bun.lock — استُخدم `bun install/update`، لم يُستخدم npm ci لأنه غير مطابق للمشروع)
-
-> لا اختبار ادّعى نجاحه هنا دون سطر نتيجة فعلي أدناه. عمليات لم تُنفذ موثقة بـ NOT RUN/BLOCKED مع السبب.
+> **النسخة المختبرة:** commit `b31dd30` (فرع `qa/real-testing-gate`) — البناء المختبر يعادل كود هذا الالتزام حرفياً (تغييرات ما بعد البناء كانت Caddyfile/ci.yml فقط ولا تدخل في بناء التطبيق).
+> **التاريخ:** 2026-10-23 · **البيئة:** pod معزول — bun 1.3.14, node 24.21, Python 3.12.15, Caddy مدمج, Docker غير متوفر.
+> **التصنيفات:** PASS نُفّذ واجتاز · FAIL نُفّذ وفشل · BLOCKED تعذّر لسبب بيئة/صلاحية · NOT RUN لم يُنفّذ · INCONCLUSIVE أدلة غير كافية.
+>
+> هذا التقرير **يحل محل** تقرير 2026-10-23 الأولي (task-16): كل نتائجه أُعيد التحقق منها هنا ضمن بطارية أشمل، وعيوب جديدة اكتُشفت وأُصلحت (`b31dd30`).
 
 ---
 
-## البطارية النهائية (تشغيل واحد متماسك بعد آخر تعديل)
+## 0. خط الأساس المثبت
 
-| # | الأمر | النتيجة | الحالة |
-|---|---|---|---|
-| 1 | `bun run lint` (eslint .) | خروج 0، صفر أخطاء/تحذيرات | **PASS** |
-| 2 | `bun run typecheck` (tsc --noEmit) | خروج 0 | **PASS** |
-| 3 | `bun test --preload ./tests/setup.ts tests/security.test.ts` | **19 pass / 0 fail** (66 expect) | **PASS** |
-| 4 | `python3 -m pytest tests/test_network_policy.py tests/test_engine_smoke.py -q` | **57 passed** in 19.44s | **PASS** |
-| 5 | `bash scripts/run_integration_tests.sh` | خادم dev حقيقي على 3177 + قاعدة scratch → **12 pass / 0 fail** (46 expect)، rc=0 | **PASS** |
-| 6 | `python3 -m sentinel.cli doctor` | **19/19 PASS** (0 FAIL, 0 WARN) | **PASS** |
-| 7 | `bun run build` (مع DATABASE_URL/SECRET تجريبيين) | ✓ Compiled successfully، 20/20 صفحة، standalone مولّد | **PASS** |
-| 8 | `bunx prisma validate` | "The schema at prisma/schema.prisma is valid" | **PASS** |
-| 9 | `bun audit` | 28 (19 high / 8 moderate / 1 low) — **كلها سلاسل أدوات تطوير**، 0 إنتاج، 0 حرجة (كانت 107/5 حرجة) | **PASS بتحفظ موثق** |
-| 10 | مسح الأسرار (نمط CI) `git grep -E '(github_pat_…\|ghp_…\|sk-…\|BEGIN PRIVATE KEY)'` | نظيف على الملفات المتتبعة | **PASS** |
-| 11 | مسح تاريخ git الكامل (7288 blob) | لا قيم اعتماد حقيقية (التفصيل في SECURITY_AUDIT §P-02) | **PASS** |
+| الفحص | النتيجة | الدليل |
+|---|---|---|
+| git fetch origin (قراءة فقط) | PASS | origin/main = `722d9fd` — الريموت لم يُمَسّ (لا push إطلاقاً في هذه المهمة) |
+| المحلي main | — | `02a2211` = origin/main + إصلاحات task-16 (لم تُدفع قط — توثيق 401 في worklog) |
+| فرع العمل | — | `qa/real-testing-gate` من `02a2211` — **كل التزامات هذه المهمة محلية هنا** |
+| توكن الدفع | **BLOCKED** | القيمة الكاملة غير مخزنة على القرص (بروتوكول البصمة فقط: آخر4=`50pN`)، وآخر حالة موثقة لها 401؛ المهمة نفسها تمنع الدفع — **لا حاجة لتوكن في مهمة قراءة-فقط** |
 
-## تفصيل اختبارات الانحدار الأمنية (الأسماء الفعلية من المخرجات)
+## 1. البطارية النهائية (بعد آخر تعديل — Level 5)
 
-### `tests/security.test.ts` — 19/19
-```
-(pass) SSRF policy: normalizeScanOptions (audit 2026-10-23) > THE REGRESSION: client-supplied allowPrivate:true is IGNORED for non-demo public targets
-(pass) SSRF policy > client allowPrivate:false on the demo target still allows private (server policy wins both ways)
-(pass) SSRF policy > demo target => private egress allowed (platform-managed fixture)
-(pass) SSRF policy > non-demo local URL is denied without explicit lab mode
-(pass) SSRF policy > non-demo local URL is allowed ONLY in explicit lab mode
-(pass) SSRF policy > numeric option clamping survives (regression guard)
-(pass) isLocalUrl heuristic > loopback + RFC1918 + CGNAT + link-local literals are local (13 حالة)
-(pass) isLocalUrl heuristic > wildcard DNS conventions count as local (5 حالات)
-(pass) isLocalUrl heuristic > public hosts are not local (5 حالات)
-(pass) isLocalUrl heuristic > IPv4-mapped IPv6 and exotic v4 forms are local (6 حالات — أضيفت بعد المراجعة العدائية)
-(pass) isLocalUrl heuristic > garbage is not local
-(pass) login rate limiter > allows up to N hits then blocks, with retryAfter
-(pass) login rate limiter > keys are isolated
-(pass) login rate limiter > window slides (expired hits free the key)
-(pass) password hashing > round-trip verify
-(pass) password hashing > unique salts: same password, different hashes
-(pass) password hashing > malformed stored hash fails closed
-(pass) RBAC helpers > role ranking is total and correct
-(pass) RBAC helpers > slugify: ascii, arabic, fallback
-```
+| # | الأمر | النتيجة | رمز الخروج |
+|---|-------|---------|-----------|
+| 1 | `bun install --frozen-lockfile` | PASS — 670 installs، لا تغييرات | 0 |
+| 2 | `bun run lint` | PASS — صفر تحذيرات | 0 |
+| 3 | `bun run typecheck` | PASS | 0 |
+| 4 | `bun run test` (وحدات) | **PASS 21/21** (منها اختبارا انحدار جديدان للإصلاحات) | 0 |
+| 5 | `python3 -m pytest tests/ -q` | **PASS 57/57** (18.66s) | 0 |
+| 6 | `bash scripts/run_integration_tests.sh` | **PASS 12/12** (7.23s) | 0 |
+| 7 | `bun run build` (مع NEXTAUTH_SECRET اختباري) | PASS — بناء standalone كامل | 0 |
+| 7b | `bun run build` (بدون NEXTAUTH_SECRET) | **فشل مقصود — الحارس الأمني يعمل** (يرفض البناء بلا سر) | 1 ✔ |
+| 8 | `python3 -m sentinel.cli doctor` | **PASS 19/19** | 0 |
+| 9 | `python3 -m sentinel.cli benchmark` | **PASS — precision 1.0 / recall 1.0 / F1 1.0** على `local-fixture-v11` (**synthetic** — fixture مصمم، ليس قياس إنترنت واقعي) | 0 |
+| 10 | `bash scripts/qa_cli_contract.sh` (عقد README) | **PASS 5/5**: scan (result.json 1.47MB) · reproduce F-0d8399fd3d (وصفة كاملة) · report HTML (1.95MB) · doctor 19 · أعلام `--race --symbolic` | 0 |
+| 11 | `bash scripts/qa_caddy_validate.sh` | PASS — `caddy validate`: "Valid configuration" (كانت تفشل بـ`//` قبل الإصلاح) | 0 |
+| 12 | `bash scripts/qa_caddy_behavior.sh` | PASS — بروكسي 200 · **`?XTransformPort=8998` لا يُناوب** (يذهب للتطبيق) · headers تمر | 0 |
+| 13 | `python3 scripts/qa_live_battery.py` (خادم إنتاج مبني :3100 + قاعدة نظيفة) | **PASS 33/33** — التفصيل الكامل أدناه | 0 |
+| 14 | مسح الأسرار (نمط CI) على الملفات المتتبعة | PASS — نظيف | 0 |
 
-### `tests/test_network_policy.py` — 54/54
-- 38 حالة عنوان خطر محجوبة (loopback بكل أشكاله، RFC1918، 169.254.169.254، CGNAT 100.64/10، unspecified/multicast/reserved، IPv6 ULA/link-local/loopback، IPv4-mapped، 6to4، `0177.0.0.1`/`2130706433`/`0x7f.0.0.1`، `localhost`، أسماء غير قابلة للحل = فشل مغلق)
-- 7 عناوين عامة حدّية مسموحة (172.32.0.1، 100.128.0.1، …)
-- بوابة النطاق: هدف خاص بلا `--allow-private` → مرفوض؛ قفزة redirect إلى loopback → مرفوضة (بالسماح المضيف وبدونه)؛ file/ftp/gopher/dict/ws → مرفوضة؛ المنافذ والمسارات الممنوعة مفروضة
-- **إثبات حي**: سيرفر redirect محلي 302→loopback: البوابة ترفض القفزة **ولا تُفتح أي وصلة للوجهة** (recorder بلا أي اتصال)
-- VERSION=4.4.0، سلامة fixtures/benchmarks الثلاثة، مسار cli الافتراضي يحل الملفات
+**مجموع الفحوصات الآلية الناجحة في البطارية النهائية: 147** (21+57+12+33+5+19) زائد البناء والتحققين.
 
-### `tests/test_engine_smoke.py` — 3/3
-```
-(pass) test_vulnapp_serves_index            — السيرفر يخدم صفحة فهرس حقيقية
-(pass) test_engine_scan_smoke_on_fixture    — فحص حي قصير: run_id + نتائج ≥3 + missing_security_headers + عقد result.json
-(pass) test_doctor_no_failures              — 19 فحصاً، صفر FAIL
-```
+## 2. البطارية الحية التفصيلية (33/33) — scripts/qa_live_battery.py
 
-### `tests/api.integration.test.ts` — 12/12 (عبر السلك، خادم Next.js حقيقي)
-```
-(pass) fresh instance reports needsBootstrap=true
-(pass) RACE: 10 concurrent bootstrap POSTs — exactly ONE wins   ← 200×1 + 409×9 + DB: مستخدم واحد/قفل واحد
-(pass) unauthenticated /api/me is 401
-(pass) the winning account can log in and see OWNER org
-(pass) SSRF chain: private-network target creation is rejected  ← 6 عناوين داخلية كلها 400
-(pass) public target creation succeeds; URL with credentials is rejected
-(pass) OWNER adds a MEMBER and a VIEWER
-(pass) MEMBER logs in, creates own target, but CANNOT scan the OWNER's target (write-level fix) ← 403
-(pass) MEMBER can start a scan on their OWN target (policy still functional)
-(pass) VIEWER can read but cannot create targets (RBAC matrix)  ← قراءة 200 / إنشاء 403
-(pass) cross-org isolation: MEMBER of org A gets 404 for a foreign org id
-(pass) login rate limiting: 11th bad attempt on a fresh email is refused ← 401 فاشل-مغلق
-```
+**ضد بناء إنتاجي حقيقي (standalone) على قاعدة نظيفة معزولة — ليس dev:**
 
-## أدلة تجريبية أثناء التطوير (قيم ولها دلالتها)
+### وظيفي (A1–A14)
+| المعرف | الاختبار | النتيجة | الدليل المختصر |
+|--------|----------|---------|----------------|
+| A1 | needsBootstrap=true على قاعدة نظيفة | PASS | HTTP 200 |
+| A2 | صفحة الدخول تعرض (عربي RTL) | PASS | HTTP 200, lang="ar" |
+| A3 | /api/me بلا جلسة → 401 | PASS | 401 |
+| A4 | **سباق bootstrap: 10 POST متزامنة → فائز واحد بالضبط** | PASS | winners=1, losers=9 (409) |
+| A5 | bootstrap ثانٍ → 409 | PASS | 409 |
+| A6 | دخول credentials → كوكي جلسة | PASS | next-auth.session-token صدر |
+| A6.1 | /api/me يعيد المالك | PASS | owner@sentinel.test |
+| A6.2 | كوكي الجلسة HttpOnly + SameSite | PASS | كلاهما true |
+| A7 | كلمة مرور خاطئة → لا جلسة | PASS | بلا كوكي جلسة |
+| A8 | إنشاء الهدف التجريبي (fixture مُدار) | **PASS بعد إصلاح D-01** (كان 503) | isDemo=true |
+| A8.1 | fixture حي على 127.0.0.1:8777 | PASS | TCP متصل |
+| A9 | هدف عام (إنشاء فقط — لم يُفحص أبداً) | PASS | 200 |
+| A10 | بدء فحص على الهدف التجريبي | PASS | RUNNING |
+| A11 | **الفحص يكتمل عبر المحرك الحقيقي** | PASS | COMPLETED + runId + duration |
+| A11.1 | نتائج مثبتة (19 نتيجة: SQLi حرج، SSTI حرج، Host-Header متوسط...) | PASS | 19 صف في القاعدة |
+| A12 | توليد 5 صيغ تقارير | PASS | HTML/JSON/SARIF/EXECUTIVE/GLASS كلها OK |
+| A12.1 | استرجاع محتوى التقرير | PASS | 200 |
+| A13 | OWNER يضيف MEMBER وVIEWER | PASS | 200/200 |
+| A14 | سجل التدقيق يسجل العمليات | PASS | 4+ إدخالات (bootstrap.admin_created, target.created, member.added×2) |
 
-- **سباق bootstrap قبل الإصلاح النهائي (10 متزامنة على النسخة ذات المعاملة التفاعلية):** فائز واحد + خاسرون P1008/P2028 (عواصف مهلة SQLite بتجمع اتصال=1) — هذا القياس هو مبرر إعادة التصميم إلى INSERT ذرّي مفرد. بعد إعادة التصميم: فائز واحد + 409 نظيفة، صفر مهلات.
-- **محاولات وهم العرض أثناء التدقيق:** وثّق أن مخرجات بعض الأوامر كانت تُحرف `[mid]`→`id]` في العرض فقط؛ صحّح المنهجية بفحوص md5/عدّ أدلة على الملفات نفسها. أثر ذلك على التقارير: لا شيء (الاستنتاجات النهائية كلها مبنية على أدلة ملفات لا على عرض طرفية).
+### أمني (B1–B12) — مقارن بـOWASP WSTG
+| المعرف | WSTG | الاختبار | النتيجة | الدليل |
+|--------|------|----------|---------|--------|
+| B1 | ATHN/ATHZ-01 | مصفوفة 9 مسارات محمية بلا جلسة → 401 | PASS | كلها 401 (bootstrap عام بالتصميم GET) |
+| B2 | ATHN-07 | **تحديد معدل الدخول** | PASS | المحاولات 1-10 ≈33ms (حرق scrypt متساوٍ)، 11-13 ≈2.7ms + جسم `error=RATE_LIMITED` — **فشل مغلق** |
+| B3 | INPV/SSRF | **18 صيغة عناوين خاصة/بديلة تُرفض** (loopback, RFC1918, CGNAT, link-local/ metadata, [::1], [fd00::1], [::ffff:127.0.0.1], [::ffff:10.0.0.5], 0.0.0.0, ثماني 0177، عشري 2130706433, ست عشري 0x7f000001, localhost, metadata hosts, بيانات اعتماد في URL, Azure metadata) | PASS | مرفوض=18/18، لا هروب |
+| B4 | ATHZ-02 | VIEWER لا ينشئ أهدافاً | PASS | 403 |
+| B4.1 | ATHZ-04 | MEMBER لا يفحص هدف OWNER (مستوى الكتابة) | PASS | 403 |
+| B4.2 | ATHZ-04 | عزل بين المؤسسات → 404 | PASS | 404 (لا تمييز وجودية) |
+| B5 | INPV-05 | مدخلات بشكل SQLi: لا تسريب أخطاء SQL ولا 500 | PASS | لا leak، لا 500 (Prisma مُعلْمَت) |
+| B6 | ERRL-01 | JSON مشوه → بلا stack trace | PASS | رسالة عربية عامة فقط |
+| B7 | CLNT/CSP | ترويسات أمنية على كل الاستجابات | **PASS بعد إصلاح D-02** (كانت غائبة كلياً) | nosniff + XFO:DENY + Referrer-Policy + CSP(frame-ancestors 'none') |
+| B8 | CONF | تنزيل التقرير: nosniff + attachment | PASS | كلاهما موجودان |
+| B9 | INPV-02 | تقرير HTML خالٍ من حقن `<script>` خام | PASS | لا raw-script |
+| B10 | SESS-06 | مسار الخروج يعمل | PASS | 200 |
+| B11 | CONF-06 | OPTIONS على API | PASS | 204 |
+| B12 | INPV/SSRF | PATCH هدف إلى URL خاص → مرفوض | **PASS بعد زوال شلال D-01** | 400 |
 
-## NOT RUN / BLOCKED (بلا استثناءات)
+## 3. اختبار المتصفح الحقيقي (Level 3) — ضد بناء الإنتاج
+
+| التدفق | النتيجة | الدليل |
+|--------|---------|--------|
+| صفحة الدخول تعرض (عربي RTL، حقول، زر) | PASS | snapshot + `browser-01-overview.png` |
+| دخول owner@sentinel.test → تحويل /overview | PASS | URL تغير، الجلسة قائمة |
+| لوحة الملاحة الكاملة (نظرة عامة/أهداف/فحوصات/ثغرات/تقارير/توأم/منظمة/تدقيق) | PASS | snapshot كامل |
+| صفحة الأهداف تعرض الهدف التجريبي المُدار | PASS | "Sentinel Demo App (vulnapp محلي) مُدار" |
+| صفحة التقارير: 5 صيغ بعدّاد لكل صيغة | PASS | browser-03 |
+| **عارض التقرير HTML: iframe بـ`sandbox=""` بلا allow-same-origin** | PASS | `{"sandbox":"","srcdocLen":1974531,"hasAllowSameOrigin":false}` |
+| **عزل نافذة التقرير (opaque origin)** | PASS | الوصول من الأب: `BLOCKED: DOMException` |
+| صفر أخطاء صفحة/كونسول بعد إضافة CSP الجديدة | PASS | `errors` فارغ على كل الصفحات |
+| صفحة الثغرات تعرض الحرجة | PASS | browser-05 (3 حرجة) |
+| صفحة التوأم الرقمي تعرض | PASS | browser-06 |
+
+## 4. ما لم يُنفّذ (حالات BLOCKED / NOT RUN موثقة)
 
 | البند | الحالة | السبب الحرفي |
-|---|---|---|
-| `prisma migrate dev` على قاعدة حقيقية | NOT RUN | لا توجد قاعدة إنتاج في هذه البيئة؛ القاعدة الاختبارية عبر `db push` على ملف scratch فقط (قاعدة اختبار معزولة — لا بيانات حقيقية لُمسّت) |
-| E2E واجهة بمتصفح (تحديد سلوك sandbox بصرياً) | NOT RUN | بيئة التدقيق بلا متصفح؛ السمة موثقة بنيوياً في الملف وفي البناء |
-| فحص أمني هجومي على أنظمة خارجية | NOT RUN **بقرار** | محظور بتعليمات المهمة — كل الاختبارات الحية على loopback محلي معزول أو fixtures خاصة |
-| `npm audit` | NOT RUN | غير مطابق — المشروع بـ bun.lock؛ استُخدم `bun audit` |
-| دفع الفرع إلى GitHub | **BLOCKED** | التوكن المزود يُرجع 401 Bad credentials على /user و/repos (مُلغى أو خطأ نسخ)؛ الفرع كامل محلياً وجاهز |
-| فتح PR | BLOCKED | يتطلب الدفع أولاً |
+|-------|--------|--------------|
+| اختبار خارجي عبر شبكة عامة (Level 4) | **BLOCKED** | لا توجد بيئة staging منشورة مصرح بها؛ القاعدة: لا ادعاء اختبار خارجي بلا تفويض — التفصيل في EXTERNAL_TEST_REPORT.md |
+| سير CI على GitHub | **NOT RUN** | الدفع ممنوع بموجب المهمة؛ **بديلاً عنه:** كل خطوة من خطوات ci.yml نُفذت محلياً واجتازت (lint/typecheck/unit/integration/build/doctor/pytest/secrets) — لا يعني ذلك أن CI سيمرّ على GitHub حكماً |
+| Docker | **BLOCKED** | غير مثبت في البيئة |
+| فحص هدف HTTPS عام حقيقي | **NOT RUN** | يتطلب هدفاً مصرحاً به — لا يوجد؛ الفحص الخارجي بلا تفويض محظور |
+| بنك اختبار حمل/أداء عالي | **NOT RUN** | خارج النطاق المصرح (لا DoS/flooding) |
+| `db:migrate` (Prisma migrations) | NOT RUN | المشروع يستخدم `db push` (لا مجلد migrations أصلاً) — مخطط بالكامل عبر push مُختبر |
+
+## 5. العيوب المكتشفة والمُصلحة خلال هذه المهمة (قبل البطارية النهائية)
+
+| المعرف | الخطورة | العيب | الإصلاح | الدليل |
+|--------|---------|-------|---------|--------|
+| D-01 | عالية | **نشر الإنتاج معطوب**: خادم standalone يغيّر cwd إلى `.next/standalone` → جسر المحرك يشغّل المحرك/الهدف التجريبي من مخرجات البناء → 503 للهدف التجريبي وفشل كل الفحوصات في مسار الإنتاج (dev كان يعمل فيخفي العيب) | `resolveProjectRoot()` في engine.ts: صعود من cwd مع تخطي نسخ `.next` المتتبعة الجزئية | قبل: 503 + سجل "can't open file .../standalone/fixtures/vulnapp.py"؛ بعد: 33/33 و19 نتيجة من فحص حقيقي |
+| D-02 | متوسطة | صفر ترويسات أمنية على كل الاستجابات | next.config.ts: nosniff/XFO/Referrer-Policy/CSP | قبل: لا شيء؛ بعد: البطارية B7 + المتصفح بلا كسر |
+| D-04 | منخفضة | CI يشغّل `bun test` السائب فيلتقط ملف التكامل ذا المسار غير الموثوق (self-spawn) | ci.yml: وحدات عبر `bun run test` + تكامل عبر السكربت الرسمي | فشل موثق للself-spawn في هذه البيئة (مهلة 121s) |
+| D-05 | عالية | **Caddyfile "المُصلح" لا يُحمَّل أصلاً**: تعليقات `//` غير معروفة في صيغة Caddyfile — أي نشر بالكلفة المصلحة كان سيفشل بالكامل | تحويل إلى `#` | قبل: "unrecognized directive: //"؛ بعد: "Valid configuration" + اختبار سلوكي |
+| ENV-1 | حرجة (بيئة، ليس الكود) | الكلفة الحية للـpod على :81 (`/app/Caddyfile` — root) ما تزال تحمل relay `XTransformPort` مكشوفاً على كل الواجهات (IP عام 21.0.6.201) — **خارج صلاحياتي** (لا root) | **مطلوب من المشغل**: استبدال /app/Caddyfile بالنسخة المصلحة من المستودع + reload | إثبات مباشر: canary على 8999 وصل عبر `:81/?XTransformPort=8999` |
+
+## 6. إعادة التشغيل (قابلية إعادة الاختبار — Level 5)
+
+كل ما سبق قابل لإعادة التنفيذ حرفياً من الالتزام `b31dd30` عبر:
+`bash scripts/run_integration_tests.sh` · `python3 scripts/qa_live_battery.py` (بعد `bash scripts/qa_start_prod.sh`) · `bash scripts/qa_cli_contract.sh` · `bash scripts/qa_caddy_validate.sh && bash scripts/qa_caddy_behavior.sh` · `bun run test` · `python3 -m pytest tests/ -q` — لا أسرار مطلوبة (NEXTAUTH_SECRET يولد per-run).

@@ -5885,3 +5885,27 @@ Stage Summary:
 - All 12 confirmed vulnerabilities FIXED with regression proof (88 tests, all green, single coherent final battery). 0 critical prod dependency vulns. Engine (sentinel/) untouched except VERSION — its fail-closed network policy verified as the intact last line of defense.
 - Deliverables on disk: SECURITY_AUDIT.md, REMEDIATION_REPORT.md, TEST_REPORT.md, tests/ (5 files), scripts/run_integration_tests.sh, .github/workflows/ci.yml, restored fixtures/ + benchmarks/.
 - BLOCKED items for the supervisor: (1) push requires a VALID PAT with Contents:Read+write — current token is rejected by GitHub (401) — suggest revoking and minting a fresh one; (2) repo is PUBLIC — confirm intent; (3) browser-E2E not possible in this pod.
+
+---
+Task ID: 17
+Agent: Super Z (main agent)
+Task: Supervisor order 2026-10-23 «MISSION: FULL REAL-WORLD TESTING, EVIDENCE-ONLY DOCUMENTATION, ZERO-UNAPPROVED-PUBLISHING» — comprehensive real testing of SEN across levels 1-5, fix defects, quality/security release gate. NO push/merge/release/deploy.
+
+Work Log:
+- Token: not needed/used — the mission itself forbids all remote writes; repo is public (anonymous read verified, origin/main = 722d9fd untouched). Previous session PAT recorded as 401-rejected (fingerprint last4 50pN only; full value never on disk).
+- Baseline proven: local main 02a2211 = origin/main + task-16 remediation commits (never pushed). Working branch qa/real-testing-gate created.
+- Anomalous working-tree .gitignore (un-ignored .env/db/.next) found and safely restored to HEAD — secret-leak risk removed, both versions recorded in worklog.
+- Re-proved the "members/id]" filename is a display-layer illusion independently (echo test + hex decode of git index entry = members/[mid]).
+- Executed across ALL levels: unit 21/21 (incl. 2 new regressions), pytest 57/57, integration (bash runner) 12/12, PRODUCTION standalone build ×2 (incl. proving the NEXTAUTH_SECRET fail-closed guard both ways), live HTTP battery 33/33 against the production build on isolated port+DB (bootstrap race 10-ways single winner, full engine E2E scan→19 findings→5 report formats, WSTG-mapped security matrix: 18/18 SSRF forms rejected, RBAC/IDOR/tenant isolation, rate limiting proven by timing+body evidence RATE_LIMITED), CLI contract 5/5 (scan/reproduce/report/doctor/--race --symbolic), doctor 19/19, benchmark v11 P/R/F1=1.0 (synthetic, labeled as such), browser (Chromium) 10 flows incl. report iframe sandbox="" + opaque-origin DOMException + zero console errors, 6 screenshots committed.
+- 4 NEW defects found by real testing and FIXED in b31dd30: D-01 HIGH production standalone broken (next standalone chdir + partial traced sentinel copy defeated naive root resolution — engine/demo target dead in prod path; fixed by resolveProjectRoot() skipping .next), D-02 MEDIUM zero security headers app-wide (added nosniff/XFO/Referrer-Policy/CSP via next.config.ts, browser-verified non-breaking), D-05 HIGH remediated Caddyfile could not load at all ('//' comments are invalid Caddyfile syntax; converted to '#', proven by caddy validate + behavioral test showing XTransformPort relay GONE), D-04 LOW CI invoked bare `bun test` catching the unreliable self-spawn integration path (CI now uses bun run test + bash runner).
+- ENV-1 CONFIRMED (live environment, NOT repo code): the pod's live /app/Caddyfile (root-owned, pid 2) still carries the XTransformPort SSRF relay on *:81 (public iface 21.0.6.201); canary on :8999 reached through :81; internal platform ports (12600/19001/19006) reachable. No root/admin-API in pod → fix requires OPERATOR action (replace /app/Caddyfile with the repo's fixed one + reload). Documented with reproduction steps in SECURITY_AUDIT §4 and KNOWN_LIMITATIONS.
+- Also found and fixed 3 test-design bugs in my own battery (audit logs key, rate-limit criterion via RATE_LIMITED body + timing, SQLi criteria) — disclosed, not hidden.
+- Level 4 external: NOT EXECUTED — BLOCKED (no authorized staging environment); honestly documented, no external-testing claims anywhere. Level 5: full battery re-run after last change, all green; tested build == candidate commit code.
+- Final battery total: 147 automated checks PASS (21+57+12+33+5+19) + build + caddy validate/behavioral + browser evidence. Secret scan on tracked files: CLEAN.
+- Deliverables (7 docs, all tied to b31dd30): TEST_PLAN.md, TEST_REPORT.md (rewritten), SECURITY_AUDIT.md (rewritten), EXTERNAL_TEST_REPORT.md (new), COVERAGE_REPORT.md (new), KNOWN_LIMITATIONS.md (new), RELEASE_GATE.md (new — decision: RELEASE CANDIDATE READY FOR HUMAN APPROVAL with 2 mandatory pre-publish constraints).
+- Committed locally: b31dd30 (fixes+QA scripts+evidence) + this docs commit. NOTHING pushed — origin untouched.
+
+Stage Summary:
+- Candidate commit b31dd30 on local branch qa/real-testing-gate: 5 code defects found-by-real-testing fixed with regression proof; all executable tests green; release gate decision READY FOR HUMAN APPROVAL gated on (1) operator fixing live pod Caddy ENV-1 and (2) authorized external test before any public exposure.
+- Environment restored to as-found state (dev server restart, no test servers left on :3000).
+- Awaiting explicit supervisor approval for ANY remote action.
