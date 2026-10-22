@@ -50,28 +50,120 @@ export type ScanOptions = {
   noBrowser: boolean;
 };
 
-function isLocalUrl(raw: string): boolean {
+/**
+ * LAB MODE (audit 2026-10-23, SSRF remediation):
+ * When SENTINEL_ALLOW_PRIVATE_TARGETS=1 the operator explicitly opts the
+ * deployment into "lab mode" — private-network targets are accepted for
+ * non-demo targets too. Default OFF. This is a server-side deployment
+ * decision, NEVER a per-request client decision.
+ */
+export function labModeEnabled(): boolean {
+  return process.env.SENTINEL_ALLOW_PRIVATE_TARGETS === "1";
+}
+
+/**
+ * Heuristic pre-filter for "does this URL point at an internal network?".
+ * This is NOT the security boundary — the engine (sentinel/http_engine.py +
+ * core.is_private_ip) re-validates EVERY connection (DNS answers included,
+ * redirect hops included) and fails closed. This function only decides
+ * whether the *scan policy* may even consider private egress.
+ * Hostname-based detection is deliberately conservative: anything that
+ * looks internal (loopback names, RFC1918/CGNAT literals, IPv6 ULA/
+ * link-local/loopback literals, .local/.internal/.localhost suffixes,
+ * *.nip.io/*.sslip.io style wildcards) counts as local.
+ */
+export function isLocalUrl(raw: string): boolean {
   try {
     const u = new URL(raw);
-    const h = u.hostname;
-    return (
+    const h = u.hostname.toLowerCase().replace(/^\[|\]$/g, "");
+    if (
       h === "localhost" ||
-      h === "127.0.0.1" ||
-      h === "::1" ||
-      h === "0.0.0.0" ||
-      h.startsWith("10.") ||
-      h.startsWith("192.168.") ||
-      /^172\.(1[6-9]|2\d|3[01])\./.test(h)
-    );
+      h.endsWith(".localhost") ||
+      h.endsWith(".local") ||
+      h.endsWith(".internal") ||
+      h.endsWith(".nip.io") ||
+      h.endsWith(".sslip.io") ||
+      h.endsWith(".localtest.me")
+    ) {
+      return true;
+    }
+    // IPv4 literals (incl. exotic forms) and IPv6 literals
+    const v4 = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (v4) {
+      const [a, b] = [Number(v4[1]), Number(v4[2])];
+      if (a === 127 || a === 0 || a === 10) return true;
+      if (a === 192 && b === 168) return true;
+      if (a === 172 && b >= 16 && b <= 31) return true;
+      if (a === 169 && b === 254) return true; // link-local / cloud metadata
+      if (a === 100 && b >= 64 && b <= 127) return true; // CGNAT
+      return false;
+    }
+    if (h.includes(":")) {
+      // IPv6 literal
+      if (h === "::1" || h === "::") return true;
+      if (/^f[cd][0-9a-f]{2}:/.test(h)) return true; // fc00::/7 ULA
+      if (/^fe[89ab][0-9a-f]:/.test(h)) return true; // fe80::/10 link-local
+      // IPv4-mapped IPv6 — the URL parser normalizes [::ffff:10.0.0.1] to
+      // the hex form "::ffff:a00:1", so handle BOTH spellings.
+      const dotted = h.match(/^::ffff:(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+      const hexed = h.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/);
+      let a: number | null = null, b: number | null = null;
+      if (dotted) { a = Number(dotted[1]); b = Number(dotted[2]); }
+      else if (hexed) {
+        const v4 = (parseInt(hexed[1], 16) << 16) | parseInt(hexed[2], 16);
+        a = (v4 >>> 24) & 0xff; b = (v4 >>> 16) & 0xff;
+      }
+      if (a !== null && b !== null) {
+        if (a === 127 || a === 0 || a === 10) return true;
+        if (a === 192 && b === 168) return true;
+        if (a === 172 && b >= 16 && b <= 31) return true;
+        if (a === 169 && b === 254) return true;
+        if (a === 100 && b >= 64 && b <= 127) return true;
+      }
+      return false;
+    }
+    // exotic IPv4 forms (hex "0x7f.0.0.1", octal "0177.0.0.1", int "2130706433")
+    // — parse like inet_aton does and re-check the ranges
+    if (/^(0x[0-9a-f]+|\d+)(\.(0x[0-9a-f]+|\d+)){0,3}$/.test(h)) {
+      const parts = h.split(".").map((p) => (p.startsWith("0x") ? parseInt(p, 16) : parseInt(p, 10)));
+      if (parts.length <= 4 && parts.every((p) => Number.isFinite(p) && p >= 0 && p < 256)) {
+        const [a, b = 0] = [parts[0] ?? 0, parts[1] ?? 0];
+        if (a === 127 || a === 0 || a === 10) return true;
+        if (a === 192 && b === 168) return true;
+        if (a === 172 && b >= 16 && b <= 31) return true;
+        if (a === 169 && b === 254) return true;
+        if (a === 100 && b >= 64 && b <= 127) return true;
+      }
+    }
+    return false;
   } catch {
     return false;
   }
 }
 
-export function normalizeScanOptions(input: Partial<ScanOptions> | undefined, url: string): ScanOptions {
-  const local = isLocalUrl(url);
+/**
+ * SERVER-SIDE scan network policy (audit 2026-10-23).
+ *
+ * Before the fix, `allowPrivate` came from the request body — any MEMBER
+ * could set allowPrivate:true and drive the server to scan internal
+ * networks (SSRF). Now the policy is computed exclusively on the server:
+ *
+ *   private egress allowed  ⟺  target.isDemo (the platform-managed local
+ *                               fixture), OR the deployment is in explicit
+ *                               lab mode (SENTINEL_ALLOW_PRIVATE_TARGETS=1,
+ *                               an operator decision) AND the URL actually
+ *                               points at an internal network.
+ *
+ * Client-supplied `allowPrivate` is intentionally IGNORED (any value).
+ */
+export function normalizeScanOptions(
+  input: Partial<ScanOptions> | undefined,
+  target: { url: string; isDemo: boolean }
+): ScanOptions {
+  const local = isLocalUrl(target.url);
+  const allowPrivate = target.isDemo || (labModeEnabled() && local);
   return {
-    allowPrivate: input?.allowPrivate ?? local, // local/lab targets need it; public default off
+    allowPrivate,
     maxPages: Math.min(Math.max(Number(input?.maxPages) || 25, 1), 200),
     timeout: Math.min(Math.max(Number(input?.timeout) || 10, 3), 60),
     noBrowser: Boolean(input?.noBrowser),
@@ -232,12 +324,25 @@ type EngineFinding = {
   impact?: unknown;
 };
 
-/** Read engine store.db → engineId → fingerprint (for recurring analysis). */
+/** Read engine store.db → engineId → fingerprint (for recurring analysis).
+ *
+ * SECURITY (audit 2026-10-23): the previous version embedded the store path
+ * into a `python -c` code string. The path is platform-controlled (not
+ * client input), but the pattern is a code-injection class hazard — the
+ * path now travels through argv, never through code text.
+ */
 function readFingerprintsSync(storePath: string): Record<string, string> {
   try {
     const r = spawnSync(
       PYTHON,
-      ["-c", `import sqlite3, json\ndb = sqlite3.connect(${JSON.stringify(storePath)})\nprint(json.dumps({r[0]: r[1] for r in db.execute("SELECT id, fingerprint FROM findings").fetchall()}))`],
+      [
+        "-c",
+        "import sys, sqlite3, json\n" +
+          "db = sqlite3.connect(sys.argv[1])\n" +
+          "print(json.dumps({r[0]: r[1] for r in db.execute('SELECT id, fingerprint FROM findings').fetchall()}))",
+        "--",
+        storePath,
+      ],
       { cwd: ENGINE_DIR, timeout: 15000 }
     );
     if (r.status !== 0 || !r.stdout) return {};

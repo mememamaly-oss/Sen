@@ -48,16 +48,31 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new ApiError(400, "البريد الإلكتروني غير صالح");
     if (password.length < 8) throw new ApiError(400, "كلمة المرور يجب أن تكون 8 أحرف على الأقل");
 
+    // SECURITY (audit 2026-10-23): concurrent add-member requests for the
+    // same new email raced user.create into an unhandled P2002 (500). The
+    // unique constraints (User.email, Membership[userId,orgId]) are the
+    // authority — violations map to explicit 409s, not 500s.
     let member = await db.user.findUnique({ where: { email } });
     const isNewUser = !member;
     if (!member) {
-      member = await db.user.create({ data: { email, name, passwordHash: hashPassword(password) } });
+      try {
+        member = await db.user.create({ data: { email, name, passwordHash: hashPassword(password) } });
+      } catch (e) {
+        if ((e as { code?: string }).code === "P2002") {
+          // concurrent request created the user first — adopt it
+          member = await db.user.findUnique({ where: { email } });
+        }
+        if (!member) throw e;
+      }
     }
-    const existing = await db.membership.findUnique({
-      where: { userId_orgId: { userId: member.id, orgId: access.orgId } },
-    });
-    if (existing) throw new ApiError(409, "هذا المستخدم عضو في المنظمة بالفعل");
-    await db.membership.create({ data: { userId: member.id, orgId: access.orgId, role } });
+    try {
+      await db.membership.create({ data: { userId: member.id, orgId: access.orgId, role } });
+    } catch (e) {
+      if ((e as { code?: string }).code === "P2002") {
+        throw new ApiError(409, "هذا المستخدم عضو في المنظمة بالفعل");
+      }
+      throw e;
+    }
     await audit("member.added", {
       orgId: access.orgId,
       userId: user.id,

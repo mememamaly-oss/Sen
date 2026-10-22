@@ -30,13 +30,25 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const name = String(body.name || "").trim();
     if (name.length < 2) throw new ApiError(400, "اسم المنظمة قصير جدًا");
-    let slug = slugify(name);
-    while (await db.organization.findUnique({ where: { slug } })) {
-      slug = `${slug}-${Date.now().toString(36).slice(-4)}`;
+    // SECURITY (audit 2026-10-23): slug uniqueness is enforced by the DB —
+    // the old check-then-create loop raced into an unhandled P2002 (500).
+    // Now collisions (concurrent same-name orgs) retry with a fresh slug.
+    let org: { id: string; name: string; slug: string } | null = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      let slug = slugify(name);
+      if (attempt > 0) slug = `${slug}-${Date.now().toString(36).slice(-4)}${attempt}`;
+      try {
+        org = await db.organization.create({ data: { name, slug } });
+        break;
+      } catch (e) {
+        const code = (e as { code?: string }).code;
+        if (code === "P2002" || code === "P2034") continue; // slug taken / sqlite write conflict — retry
+        throw e;
+      }
     }
-    const org = await db.organization.create({ data: { name, slug } });
+    if (!org) throw new ApiError(500, "تعذر توليد معرف فريد للمنظمة — أعد المحاولة");
     await db.membership.create({ data: { userId: user.id, orgId: org.id, role: "OWNER" } });
-    await audit("org.created", { orgId: org.id, userId: user.id, detail: { name, slug } });
+    await audit("org.created", { orgId: org.id, userId: user.id, detail: { name, slug: org.slug } });
     return NextResponse.json({ id: org.id, name: org.name, slug: org.slug, role: "OWNER" });
   } catch (e) {
     return jsonError(e);

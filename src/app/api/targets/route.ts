@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireUser, requireOrgAccess, jsonError, ApiError, audit } from "@/lib/rbac";
 import { ensureDemoTarget, DEMO_TARGET_URL, DEMO_TARGET_NAME } from "@/lib/demo-target";
+import { isLocalUrl, labModeEnabled } from "@/lib/engine";
 
 // GET /api/targets?orgId=... — org-scoped list with scan stats
 export async function GET(req: NextRequest) {
@@ -52,6 +53,14 @@ function validHttpUrl(raw: string): URL | null {
 }
 
 // POST /api/targets — create target {orgId, name, url, description?, isDemo?}
+//
+// SECURITY (audit 2026-10-23, SSRF chain break): a non-demo target pointing
+// at an internal network (loopback/RFC1918/CGNAT/link-local/metadata/IPv6
+// ULA…) is REJECTED unless the deployment is in explicit lab mode
+// (SENTINEL_ALLOW_PRIVATE_TARGETS=1) — previously any MEMBER could register
+// http://10.0.0.5:8080 and the scan layer would auto-enable private egress.
+// The engine re-validates every hop independently (fail-closed), so this is
+// defense in depth, not the only barrier.
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
@@ -73,6 +82,13 @@ export async function POST(req: NextRequest) {
       if (!url) throw new ApiError(400, "URL مطلوب");
       const u = validHttpUrl(url);
       if (!u) throw new ApiError(400, "URL غير صالح — يجب أن يبدأ بـ http:// أو https://");
+      if (u.username || u.password) throw new ApiError(400, "URL يتضمن بيانات اعتماد — غير مسموح");
+      if (isLocalUrl(url) && !labModeEnabled()) {
+        throw new ApiError(
+          400,
+          "عناوين الشبكة الداخلية/المحلية غير مسموحة للأهداف — وضع المختبر (SENTINEL_ALLOW_PRIVATE_TARGETS=1) مطلوب من مسؤول النشر"
+        );
+      }
       url = u.toString();
       if (!name) name = u.hostname;
     }

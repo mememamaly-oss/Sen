@@ -188,3 +188,13 @@ model TwinGraph {
   @@unique([orgId, scanId])
   @@index([orgId])
 }
+
+// SECURITY (audit 2026-10-23, bootstrap race): DB-level invariant that makes
+// "exactly one platform bootstrap" impossible to race. The bootstrap
+// transaction INSERTs the row with key "bootstrap" — a concurrent winner's
+// unique-constraint violation (P2002) deterministically rejects every loser.
+// The row also survives as a permanent marker that bootstrap is closed.
+model PlatformLock {
+  key       String   @id
+  createdAt DateTime @default(now())
+}

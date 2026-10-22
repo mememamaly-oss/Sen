@@ -100,7 +100,15 @@ export default function ReportViewerPage() {
             <iframe
               title={d.report.title}
               srcDoc={d.content}
-              sandbox="allow-same-origin"
+              // SECURITY (audit 2026-10-23): sandbox="" gives the report an
+              // opaque origin with scripts AND same-origin access disabled.
+              // Previously sandbox="allow-same-origin" let engine-generated
+              // HTML (which embeds target-controlled strings — findings,
+              // evidence, reflected payloads) inherit the app's origin; any
+              // escaping gap in the engine's HTML generator would have meant
+              // script execution with full authenticated API access to the
+              // SaaS. Reports are static documents — no scripts needed.
+              sandbox=""
               className="h-[72vh] w-full rounded-lg border bg-white"
             />
           ) : (

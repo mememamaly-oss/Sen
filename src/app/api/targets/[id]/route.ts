@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireUser, requireOrgAccess, requireTargetAccess, jsonError, ApiError, audit } from "@/lib/rbac";
+import { isLocalUrl, labModeEnabled } from "@/lib/engine";
 
 // PATCH /api/targets/:id — update {orgId, name?, url?, description?}
 export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
@@ -23,8 +24,15 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       try {
         const u = new URL(String(body.url));
         if (u.protocol !== "http:" && u.protocol !== "https:") throw new Error();
+        if (u.username || u.password) throw new ApiError(400, "URL يتضمن بيانات اعتماد — غير مسموح");
+        // SECURITY (audit 2026-10-23): same internal-network rejection as
+        // target creation — PATCH must not become the SSRF bypass.
+        if (isLocalUrl(u.toString()) && !labModeEnabled()) {
+          throw new ApiError(400, "عناوين الشبكة الداخلية/المحلية غير مسموحة للأهداف خارج وضع المختبر");
+        }
         data.url = u.toString();
-      } catch {
+      } catch (e) {
+        if (e instanceof ApiError) throw e;
         throw new ApiError(400, "URL غير صالح");
       }
     }

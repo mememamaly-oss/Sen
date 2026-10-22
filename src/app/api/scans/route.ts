@@ -53,13 +53,22 @@ export async function GET(req: NextRequest) {
 }
 
 // POST /api/scans — start a scan {orgId, targetId, options?}
+//
+// SECURITY (audit 2026-10-23):
+//   1. Scan start is a WRITE-level action on the target (it consumes org
+//      resources, writes findings/reports, and drives network egress from
+//      the server) — previously it only required "read", which let any
+//      MEMBER scan targets created by other members.
+//   2. options.allowPrivate from the client is IGNORED by
+//      normalizeScanOptions — the private-egress policy is computed
+//      exclusively on the server (demo target / explicit lab mode).
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
     const body = await req.json();
     const orgId = String(body.orgId || "");
     const access = await requireOrgAccess(user, orgId, "MEMBER");
-    const target = await requireTargetAccess(access, String(body.targetId || ""), "read");
+    const target = await requireTargetAccess(access, String(body.targetId || ""), "write");
 
     const active = await db.scan.findFirst({
       where: { targetId: target.id, status: { in: ["QUEUED", "RUNNING"] } },
@@ -68,7 +77,7 @@ export async function POST(req: NextRequest) {
       throw new ApiError(409, "يوجد فحص نشط على هذا الهدف بالفعل — انتظر انتهاءه أو ألغِه أولًا (تسلسل الفحوصات لكل هدف)");
     }
 
-    const options = normalizeScanOptions(body.options, target.url);
+    const options = normalizeScanOptions(body.options, { url: target.url, isDemo: target.isDemo });
 
     // self-healing demo target: restart the managed fixture if it is down
     if (target.isDemo) {
