@@ -1,0 +1,200 @@
+[
+  {
+    "id": "A1",
+    "name": "fresh instance needsBootstrap=true",
+    "status": "PASS",
+    "evidence": "HTTP 200 body=b'{\"needsBootstrap\":true}'"
+  },
+  {
+    "id": "A2",
+    "name": "root/login page renders 200 (RTL Arabic)",
+    "status": "PASS",
+    "evidence": "HTTP 200 len=7298 has-arabic-rtl=True"
+  },
+  {
+    "id": "A3",
+    "name": "unauthenticated /api/me -> 401",
+    "status": "PASS",
+    "evidence": "HTTP 401 body=b'{\"error\":\"\\xd8\\xba\\xd9\\x8a\\xd8\\xb1 \\xd9\\x85\\xd8\\xb5\\xd8\\xb1\\xd8\\xad \\xe2\\x80\\x94 \\xd9\\x8a\\xd8\\xac\\xd8\\xa8 \\xd8\\xaa\\xd8\\xb3\\xd8\\xac\\xd9\\x8a\\xd9\\x84 \\xd8\\xa7\\xd9\\x84\\xd8\\xaf\\xd8\\xae\\xd9\\x88\\xd9\\x84\"}'"
+  },
+  {
+    "id": "A4",
+    "name": "bootstrap race: 10 concurrent POSTs -> exactly 1 winner (409 for losers)",
+    "status": "PASS",
+    "evidence": "winners=1 losers=9 codes=[409, 409, 409, 409, 409, 409, 409, 409, 200, 409]"
+  },
+  {
+    "id": "A5",
+    "name": "bootstrap after first admin -> 409",
+    "status": "PASS",
+    "evidence": "HTTP 409 body=b'{\"error\":\"\\xd8\\xa7\\xd9\\x84\\xd8\\xad\\xd8\\xb3\\xd8\\xa7\\xd8\\xa8 \\xd8\\xa7\\xd9\\x84\\xd8\\xa3\\xd9\\x88\\xd9\\x84 \\xd9\\x85\\xd9\\x88\\xd8\\xac\\xd9\\x88\\xd8\\xaf \\xd8\\xa8\\xd8\\xa7\\xd9\\x84\\xd9\\x81\\xd8\\xb9\\xd9\\x84 \\xe2\\x80\\x94 \\xd8\\xa7\\xd8\\xb3\\xd8\\xaa\\xd8\\xae\\xd8\\xaf\\xd9\\x85 \\xd8\\xaa\\xd8\\xb3\\xd8\\xac\\xd9\\x8a\\xd9\\x84 \\xd8\\xa7\\xd9\\x84\\xd8\\xaf\\xd8\\xae\\xd9\\x88\\xd9\\x84 \\xd8'"
+  },
+  {
+    "id": "A6",
+    "name": "credentials login yields session cookie",
+    "status": "PASS",
+    "evidence": "HTTP 200 session-cookie=True cookies=['next-auth.csrf-token', 'next-auth.callback-url', 'next-auth.session-token']"
+  },
+  {
+    "id": "A6.1",
+    "name": "authenticated /api/me returns the owner",
+    "status": "PASS",
+    "evidence": "HTTP 200 body=b'{\"user\":{\"id\":\"cmvk41jbm0000p1ci25a4zvqe\",\"email\":\"owner@sentinel.test\",\"name\":\"Owner\"},\"orgs\":[{\"id\":\"cmvk41jbu0001p1ci7nmvocwz\",\"name\":\"QA'"
+  },
+  {
+    "id": "A6.2",
+    "name": "session cookie HttpOnly + SameSite",
+    "status": "PASS",
+    "evidence": "set-cookie='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..GGrqlOodEGhGLxyD.71fZ5MDKUhzze6qdPwBVLYxs0TaKiSXO85jWOExXgeNISSgmLZIxGym1xcbu2ZXxBncCx2BV4ACDSP' httponly=True samesite=True"
+  },
+  {
+    "id": "A7",
+    "name": "wrong password -> no session cookie",
+    "status": "PASS",
+    "evidence": "HTTP 401 session-cookie-issued=False"
+  },
+  {
+    "id": "A8",
+    "name": "demo target creation (managed vulnapp fixture)",
+    "status": "PASS",
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk41jwu0007p1ci4lthnmr9\",\"name\":\"Sentinel Demo App (vulnapp \\xd9\\x85\\xd8\\xad\\xd9\\x84\\xd9\\x8a)\",\"url\":\"http://127.0.0.1:8777\",\"isDemo\":true}' orgId=cmvk41jbu000..."
+  },
+  {
+    "id": "A8.1",
+    "name": "demo fixture (vulnapp) listening on 127.0.0.1:8777",
+    "status": "PASS",
+    "evidence": "tcp-connect=ok"
+  },
+  {
+    "id": "A9",
+    "name": "public non-demo target creation (never scanned)",
+    "status": "PASS",
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk41jxm000bp1ciat3bciq2\",\"name\":\"Public inert target\",\"url\":\"https://example.org/sen-qa-inert\",\"isDemo\":false}'"
+  },
+  {
+    "id": "A10",
+    "name": "scan start on demo target",
+    "status": "PASS",
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk41jy1000fp1ci0a72ah1j\",\"status\":\"RUNNING\"}'"
+  },
+  {
+    "id": "A11",
+    "name": "demo scan reaches COMPLETED",
+    "status": "PASS",
+    "evidence": "status=COMPLETED runId=run-0913412636 dur=11.36s err="
+  },
+  {
+    "id": "A11.1",
+    "name": "findings persisted from engine run",
+    "status": "PASS",
+    "evidence": "count=19 types=['ssti', 'sql_injection', 'host_header_injection', 'missing_security_headers', 'missing_security_headers', 'missing_security_headers', 'missing_security_headers', 'missing_security_headers']"
+  },
+  {
+    "id": "A12",
+    "name": "report generation for all 5 formats",
+    "status": "PASS",
+    "evidence": "results=HTML:OK, JSON:OK, SARIF:OK, EXECUTIVE:OK, GLASS:OK"
+  },
+  {
+    "id": "A12.1",
+    "name": "report content retrievable",
+    "status": "PASS",
+    "evidence": "HTTP 200 len=1986409"
+  },
+  {
+    "id": "A13",
+    "name": "OWNER adds MEMBER and VIEWER",
+    "status": "PASS",
+    "evidence": "member HTTP 200 viewer HTTP 200"
+  },
+  {
+    "id": "A14",
+    "name": "audit log records actions",
+    "status": "PASS",
+    "evidence": "HTTP 200 entries=13 sample=['member.added', 'member.added', 'report.created', 'report.created', 'report.created']"
+  },
+  {
+    "id": "B1",
+    "name": "unauthenticated API access -> 401 on all protected routes",
+    "status": "PASS",
+    "evidence": "codes=[('/api/me', 401), ('/api/orgs', 401), ('/api/orgs/cmvk41jbu0001p1ci7nmvocwz', 401), ('/api/orgs/cmvk41jbu0001p1ci7nmvocwz/members', 401), ('/api/targets', 401), ('/api/scans', 401), ('/api/reports', 401), ('/api/audit', 401), ('/api/bootstrap', 200)]"
+  },
+  {
+    "id": "B2",
+    "name": "login brute-force rate limiting (fail-closed + proven short-circuit)",
+    "status": "PASS",
+    "evidence": "13th attempt body=b'{\"url\":\"http://localhost:3000/api/auth/error?error=RATE_LIMI' t1=32ms t13=3ms"
+  },
+  {
+    "id": "B3",
+    "name": "SSRF: all private/exotic target forms rejected 400",
+    "status": "PASS",
+    "evidence": "rejected=18/18 escapes=[]"
+  },
+  {
+    "id": "B4",
+    "name": "VIEWER cannot create targets (403)",
+    "status": "PASS",
+    "evidence": "HTTP 403 body=b'{\"error\":\"\\xd8\\xa7\\xd9\\x84\\xd8\\xaf\\xd9\\x88\\xd8\\xb1 \\xd8\\xa7\\xd9\\x84\\xd8\\xad\\xd8\\xa7\\xd9\\x84\\xd9\\x8a (VIEWER) \\xd9\\x84\\xd8\\xa7 \\xd9\\x8a\\xd9\\x85\\xd9\\x84\\xd9\\x83 \\xd8\\xb5\\xd9\\x84\\xd8\\xa7\\xd8\\xad\\xd9\\x8a\\xd8\\xa9 \\xd9\\x87\\xd8\\xb0\\xd9\\x87 \\xd8\\xa7\\xd9\\x84\\xd8\\xb9\\xd9\\x85\\xd9\\x84\\xd9\\x8a\\xd8\\xa9 (\\xd9\\x85\\xd8\\xb7\\xd9\\x84\\xd9'"
+  },
+  {
+    "id": "B4.1",
+    "name": "MEMBER cannot scan OWNER's demo target (write-level)",
+    "status": "PASS",
+    "evidence": "HTTP 403 body=b'{\"error\":\"\\xd9\\x84\\xd8\\xa7 \\xd8\\xaa\\xd9\\x85\\xd9\\x84\\xd9\\x83 \\xd8\\xb5\\xd9\\x84\\xd8\\xa7\\xd8\\xad\\xd9\\x8a\\xd8\\xa9 \\xd8\\xaa\\xd8\\xb9\\xd8\\xaf\\xd9\\x8a\\xd9\\x84/\\xd8\\xad\\xd8\\xb0\\xd9\\x81 \\xd9\\x87\\xd8\\xb0\\xd8\\xa7 \\xd8\\xa7\\xd9\\x84\\xd9\\x87\\xd8\\xaf\\xd9\\x81 (\\xd8\\xa7\\xd9\\x84\\xd9\\x85\\xd9\\x84\\xd9\\x83\\xd9\\x8a\\xd8\\xa9 \\xd9\\x84\\xd9\\x85\\xd9\\x86\\xd8\\xb4\\xd8\\xa6\\xd9'"
+  },
+  {
+    "id": "B4.2",
+    "name": "cross-org access -> 404 (tenant isolation)",
+    "status": "PASS",
+    "evidence": "HTTP 404 body=b'{\"error\":\"\\xd8\\xa7\\xd9\\x84\\xd9\\x85\\xd9\\x86\\xd8\\xb8\\xd9\\x85\\xd8\\xa9 \\xd8\\xba\\xd9\\x8a\\xd8\\xb1 \\xd9\\x85\\xd9\\x88\\xd8\\xac\\xd9\\x88\\xd8\\xaf\\xd8\\xa9\"}'"
+  },
+  {
+    "id": "B5",
+    "name": "SQLi-shaped inputs: no SQL error leak, no 500s (Prisma parameterized)",
+    "status": "PASS",
+    "evidence": "codes=[200, 200, 404] leak=False (200=odd-but-safe name accepted; 404=invalid org)"
+  },
+  {
+    "id": "B6",
+    "name": "malformed JSON body handled without stack leak",
+    "status": "PASS",
+    "evidence": "HTTP 500 leak=False body=b'{\"error\":\"\\xd8\\xae\\xd8\\xb7\\xd8\\xa3 \\xd8\\xaf\\xd8\\xa7\\xd8\\xae\\xd9\\x84\\xd9\\x8a \\xd9\\x81\\xd9\\x8a \\xd8\\xa7\\xd9\\x84\\xd8\\xae\\xd8\\xa7\\xd8\\xaf\\xd9\\x85\"}'"
+  },
+  {
+    "id": "B7",
+    "name": "security headers present (nosniff at minimum; CSP/XFO documented)",
+    "status": "PASS",
+    "evidence": "headers: nosniff=nosniff csp=True xfo=DENY referrer=strict-origin-when-cross-origin"
+  },
+  {
+    "id": "B8",
+    "name": "report download: nosniff + Content-Disposition attachment",
+    "status": "PASS",
+    "evidence": "nosniff=nosniff disposition='attachment; filename=\"sentinel-report-cmvk41tlt002rp1cikjyqi'"
+  },
+  {
+    "id": "B9",
+    "name": "report HTML contains no raw <script> injection from findings",
+    "status": "PASS",
+    "evidence": "raw-script-found=False content-len=1974531"
+  },
+  {
+    "id": "B10",
+    "name": "signout endpoint reachable (csrf flow documented)",
+    "status": "PASS",
+    "evidence": "HTTP 200"
+  },
+  {
+    "id": "B11",
+    "name": "OPTIONS on API handled",
+    "status": "PASS",
+    "evidence": "HTTP 204"
+  },
+  {
+    "id": "B12",
+    "name": "PATCH target to private URL rejected",
+    "status": "PASS",
+    "evidence": "HTTP 400 body=b'{\"error\":\"\\xd9\\x84\\xd8\\xa7 \\xd9\\x8a\\xd9\\x85\\xd9\\x83\\xd9\\x86 \\xd8\\xaa\\xd8\\xba\\xd9\\x8a\\xd9\\x8a\\xd8\\xb1 URL \\xd9\\x84\\xd9\\x84\\xd9\\x80 demo target\"}'"
+  }
+]

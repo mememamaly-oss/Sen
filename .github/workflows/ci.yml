@@ -36,13 +36,20 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
-      - name: Unit + integration tests (bun:test)
-        run: bun test
+      - name: Unit tests (bun:test, unit files only — the integration suite
+          self-spawns a dev server and is NOT reliable as a bare `bun test`;
+          its supported path is the bash runner below)
+        run: bun run test
         env:
           NODE_ENV: test
 
+      - name: Integration tests (bash-managed server — the supported path)
+        run: bash scripts/run_integration_tests.sh
+
       - name: Production build
         run: bun run build
+        env:
+          NEXTAUTH_SECRET: "ci-only-secret-not-for-production"
 
   engine:
     name: Engine (doctor / network policy / fixtures)

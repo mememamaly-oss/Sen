@@ -1,24 +1,29 @@
-// SENTINEL production reverse proxy.
-//
-// SECURITY (audit 2026-10-23): the previous configuration exposed a fully
-// unauthenticated SSRF relay — any client could pass ?XTransformPort=<port>
-// and reach ANY service bound to localhost (databases, admin panels, the
-// engine, metrics). Port/host selection from untrusted request input has
-// been REMOVED ENTIRELY. The upstream is now a static, compile-time target.
-//
-// Deployment rules that accompany this file:
-//   * the Next.js app (:3000) is the ONLY upstream reachable through :81;
-//   * internal services (engine, fixture app on 127.0.0.1:8777, Prisma,
-//     anything else) MUST bind to loopback and MUST NOT be exposed by any
-//     other proxy rule or port mapping;
-//   * do not reintroduce query/header-driven upstream selection.
+# SENTINEL production reverse proxy.
+#
+# SECURITY (audit 2026-10-23): the previous configuration exposed a fully
+# unauthenticated SSRF relay — any client could pass ?XTransformPort=<port>
+# and reach ANY service bound to localhost (databases, admin panels, the
+# engine, metrics). Port/host selection from untrusted request input has
+# been REMOVED ENTIRELY. The upstream is now a static, compile-time target.
+#
+# QA (2026-10-23): comments converted from '//' to '#' — Caddyfile syntax
+# only supports '#' comments; the '//' style made this file UNLOADABLE
+# ("unrecognized directive: //"), so a deployment with the "fixed" config
+# would have failed to start caddy at all.
+#
+# Deployment rules that accompany this file:
+#   * the Next.js app (:3000) is the ONLY upstream reachable through :81;
+#   * internal services (engine, fixture app on 127.0.0.1:8777, Prisma,
+#     anything else) MUST bind to loopback and MUST NOT be exposed by any
+#     other proxy rule or port mapping;
+#   * do not reintroduce query/header-driven upstream selection.
 :81 {
-	handle {
-		reverse_proxy localhost:3000 {
-			header_up Host {host}
-			header_up X-Forwarded-For {remote_host}
-			header_up X-Forwarded-Proto {scheme}
-			header_up X-Real-IP {remote_host}
-		}
-	}
+        handle {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
 }

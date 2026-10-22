@@ -16,3 +16,12 @@ __pycache__/
 *.db
 *.db-shm
 *.db-wal
+
+# QA campaign artifacts (2026-10-23): heavy/raw run outputs stay local;
+# durable evidence (screenshots, battery results, benchmark metrics) IS tracked.
+qa-results/cli/
+qa-results/benchmark_v11_output.json
+qa-results/qa-prod.db
+qa-results/*.log
+qa-results/*.pid
+results/

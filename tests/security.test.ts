@@ -207,3 +207,32 @@ describe("RBAC helpers", () => {
     expect(slugify("!!!")).toMatch(/^org-/);
   });
 });
+
+// ------------------------------------------- QA regression (2026-10-23 gate)
+
+describe("production standalone fixes (QA gate 2026-10-23)", () => {
+  test("ENGINE_DIR resolves to the real engine tree (standalone chdir regression)", async () => {
+    // Before the fix, the standalone server chdir()s into .next/standalone,
+    // making cwd-based ENGINE_DIR point at the build output — demo target
+    // 503'd and every scan FAILED. The resolver must find sentinel/cli.py.
+    const { ENGINE_DIR } = await import("@/lib/engine");
+    const fs = await import("fs");
+    const path = await import("path");
+    expect(fs.existsSync(path.join(ENGINE_DIR, "sentinel", "cli.py"))).toBe(true);
+    expect(ENGINE_DIR.endsWith(".next/standalone")).toBe(false);
+  });
+
+  test("security headers are configured for every route (headers regression)", async () => {
+    const nextConfig = (await import("../next.config")).default;
+    const result = await nextConfig.headers!();
+    const all = result.find((r) => r.source === "/:path*");
+    expect(all).toBeDefined();
+    const keys = all!.headers.map((h) => h.key);
+    expect(keys).toContain("X-Content-Type-Options");
+    expect(keys).toContain("X-Frame-Options");
+    expect(keys).toContain("Referrer-Policy");
+    expect(keys).toContain("Content-Security-Policy");
+    const csp = all!.headers.find((h) => h.key === "Content-Security-Policy")!.value;
+    expect(csp).toContain("frame-ancestors 'none'");
+  });
+});

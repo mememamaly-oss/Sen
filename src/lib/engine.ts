@@ -21,12 +21,36 @@ import { audit } from "@/lib/rbac";
 //   saas-data/reports/<reportId>.<ext>     generated reports
 // ─────────────────────────────────────────────────────────────────────────────
 
-const PROJECT_ROOT = process.cwd();
+// SECURITY/QA (audit 2026-10-23, standalone fix): the Next.js standalone
+// production server chdir()s into .next/standalone at boot, so process.cwd()
+// points INSIDE the build output — spawning the engine (sentinel/) or the
+// demo fixture (fixtures/vulnapp.py) from there failed with
+// "can't open file .../.next/standalone/fixtures/vulnapp.py" (503 on demo
+// target creation, FAILED scans). Resolve the real repo root by walking up
+// from cwd until the engine tree is found; explicit env overrides still win.
+function resolveProjectRoot(): string {
+  let dir = process.cwd();
+  for (let i = 0; i < 8; i++) {
+    // Skip directories inside .next — the standalone build TRACES a partial
+    // engine copy (.next/standalone/sentinel/cli.py ONLY, no fixtures/, no
+    // package tree) which must never win over the real repo root.
+    if (dir.split(path.sep).includes(".next")) {
+      dir = path.dirname(dir);
+      continue;
+    }
+    if (fs.existsSync(path.join(dir, "sentinel", "cli.py"))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return process.cwd(); // fallback: current behavior (engine missing → loud error)
+}
+const PROJECT_ROOT = resolveProjectRoot();
 export const ENGINE_DIR = process.env.SENTINEL_ENGINE_DIR || PROJECT_ROOT;
 const PYTHON = process.env.SENTINEL_PYTHON || "python3";
 // Absolute override keeps artifacts OUTSIDE .next/standalone (which is wiped on
-// every rebuild) when running the production standalone server (it chdir()s
-// into .next/standalone, making cwd-based paths point at the traced copy).
+// every rebuild) when running the production standalone server. The default
+// now uses the RESOLVED root (not the standalone chdir cwd).
 const DATA_DIR = process.env.SENTINEL_DATA_DIR
   ? path.resolve(process.env.SENTINEL_DATA_DIR)
   : path.join(PROJECT_ROOT, "saas-data");
