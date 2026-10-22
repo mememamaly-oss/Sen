@@ -5864,3 +5864,24 @@ Stage Summary:
 - main is now a pure RUNNABLE repo: engine (axes 1-18) + perf layer + SaaS app + run scripts + README. Zero tests, zero benchmarks, zero campaign artifacts, zero old builds, zero verification tomes, zero docs — all recoverable via backup/pre-clean-2026-10-23 and ordinary git history (no rewrites done).
 - The app-to-engine bridge now points at the CORRECT final engine (it was silently wired to stale build-v425 before — a real defect found and fixed during the clean).
 - Supervisor's declared intent "سابدا من جديد" is fully served: the repo is a clean launchpad; new tests/specs can be authored from zero without legacy noise.
+
+---
+Task ID: 16
+Agent: Super Z (main agent)
+Task: Supervisor order 2026-10-23 «مهمة تدقيق أمني صارم وإصلاح فعلي وتحقق» — SEN strict security audit, remediation & verification mission (nuclear-grade, no flattery, real tests only).
+
+Work Log:
+- Token verification FIRST: supplied PAT → 401 Bad credentials on /user and /repos (GitHub itself: "Invalid username or token" on git push). Repo discovered PUBLIC (anon 200). Read-only work possible (public), push BLOCKED — documented everywhere, zero false claims.
+- Audit executed on branch security/audit-remediation from main@722d9fd: full tree (219 files) + Caddyfile + scripts + git history (7288 blobs scanned for credentials).
+- 12 CONFIRMED findings fixed (V-01..V-12 in SECURITY_AUDIT.md): Caddy XTransformPort SSRF relay; client-controlled allowPrivate; private-target creation chain (POST+PATCH, IPv4-mapped/exotic forms); bootstrap TOCTOU race (redesigned to atomic PlatformLock INSERT after measuring SQLite P1008/P2028 storms — 10-way concurrent race now yields exactly one winner); scan-start read→write RBAC elevation; orgs/members P2002 races; report viewer allow-same-origin→sandbox='' + nosniff; login timing equalization + rate limiting + NEXTAUTH_SECRET guards; python -c path interpolation→argv; db:push --accept-data-loss removed; fixtures/benchmarks restored byte-identical (SHA256-proven) from backup/pre-clean-2026-10-23; VERSION 4.3.0→4.4.0.
+- 1 FALSE POSITIVE honestly disclosed: "broken members/id] route" was a display-layer illusion (the transport renders [mid] as id]) — proven by md5 comparison of git ls-files output; NO fix needed, route was always correct. Two forensic rabbit holes (ghost dentry, flapping .git/index) both traced to the same display illusion; wasted ~2h, fully documented for the record.
+- Environment pathology catalogued: child processes spawned from inside bun test observed stale file content (prisma push read an old schema without PlatformLock); integration suite redesigned to a bash-managed server runner (scripts/run_integration_tests.sh) — deterministic, 12/12.
+- Dependencies: bun update within ranges (next-auth 4.24.15 SECURITY, next 16.4.2, sharp 0.35.5) + 10 dead deps removed (zero imports proven, incl. next-intl with its own advisories) → 107 vulns (5 critical) → 28 dev-chain-only (0 critical, 0 prod). Full battery re-run after every dependency change.
+- Tests built from zero (user's earlier order had deleted all tests): 19 bun unit + 57 python (network policy 54 + engine smoke 3 incl. live vulnapp scan + doctor) + 12 HTTP integration (bootstrap race, NextAuth sessions, SSRF rejections, RBAC matrix, cross-org isolation, rate limiting) = 88 new tests + doctor 19/19 + build 20/20 + lint/typecheck clean + secret scan clean.
+- Reports: SECURITY_AUDIT.md (confirmed/probable/excluded + remaining risks + safe-deploy checklist), REMEDIATION_REPORT.md (per-file rationale), TEST_REPORT.md (every command + actual output; NOT RUN/BLOCKED documented with literal reasons).
+- Committed: 46a006e (32 files, +4130/−854). Push attempted 3 ways (no creds, env, inline token) — ALL BLOCKED (401). Remote main untouched at 722d9fd; branch exists LOCALLY ONLY.
+
+Stage Summary:
+- All 12 confirmed vulnerabilities FIXED with regression proof (88 tests, all green, single coherent final battery). 0 critical prod dependency vulns. Engine (sentinel/) untouched except VERSION — its fail-closed network policy verified as the intact last line of defense.
+- Deliverables on disk: SECURITY_AUDIT.md, REMEDIATION_REPORT.md, TEST_REPORT.md, tests/ (5 files), scripts/run_integration_tests.sh, .github/workflows/ci.yml, restored fixtures/ + benchmarks/.
+- BLOCKED items for the supervisor: (1) push requires a VALID PAT with Contents:Read+write — current token is rejected by GitHub (401) — suggest revoking and minting a fresh one; (2) repo is PUBLIC — confirm intent; (3) browser-E2E not possible in this pod.
