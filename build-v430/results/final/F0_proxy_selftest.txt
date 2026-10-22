@@ -1,4 +1,0 @@
-PASS J1 forwarding
-PASS J2 rate<=2/s (span 1.50s for 4 req)
-PASS J3 absolute-URI smuggle blocked 403
-PASS J4 log complete

@@ -1,1 +1,0 @@
-{"gate":"benchmark_x3","status":"PASS","f1":1.0}

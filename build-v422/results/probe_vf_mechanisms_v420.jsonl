@@ -1,6 +1,0 @@
-{"engine": "v420", "probe": "VF-01a-unlisted-type", "type": "future_widget_scan", "status": "FindingStatus.CANDIDATE", "confidence": 0.3, "method": "unverified:no-branch", "passed": false}
-{"engine": "v420", "probe": "VF-01b-ssrf-no-oob", "type": "ssrf", "status": "FindingStatus.CANDIDATE", "confidence": 0.3, "method": "unverified:blind-class-no-oob", "passed": false}
-{"engine": "v420", "probe": "VF-01c-passive-confidence", "type": "missing_security_headers", "status": "FindingStatus.VERIFIED", "confidence": 0.7, "method": "single-response-evidence"}
-{"engine": "v420", "probe": "VF-03-path-a-mild-diff", "type": "sql_injection", "status": "FindingStatus.REJECTED", "confidence": 0.15, "method": "error:replay-2variants", "passed": false}
-{"engine": "v420", "probe": "VF-04-no-proof", "outcome": "raised", "error_type": "ValueError", "error": "workflow findings REQUIRE an explicit state-oracle proof: proof={'rule': ..., 'obs': {...}} — the passed flag is DERIVED from raw observations by _derive_wf_pro"}
-{"engine": "v420", "probe": "VF-04-bad-rule", "outcome": "raised", "error_type": "ValueError", "error": "unknown workflow proof rule 'bogus-rule' — add an explicit derivation branch in _derive_wf_proof (fail-closed)"}

@@ -5840,3 +5840,27 @@ Stage Summary:
 - ORD-003 closed with proofs on the recovered real baseline: 20/20 axis suite + 230 pytest + 4313/4313 suite + bench x3 zero-drift (their anchor, their tool) + doctor 19/19 + scope-edge 6/6 x3 anchor digest + live smoke with the section in the deposited doc. Evidence pack SHA256SUMS'd.
 - The rollback-#14 contradiction is part of the permanent record (STATE sec 4, GATE_LOG story, this entry): local disk lied, GitHub was the survivor, the stale-baseline draft is preserved for audit (axis18/draft-on-rolledback-v422 @ 6dcfe27), main was never force-pushed.
 - Save status: axis18-real holds transplant+gates+ledgers; main merge next, then ls-remote verification.
+
+---
+Task ID: 15
+Agent: Super Z (main agent)
+Task: Supervisor order 2026-10-23 «ابدا الحذف والتعديل لا تبقي شي الا المهم للتشغيل من المحور الاول الي المحور الاخير احذف كل شيء حتي الاختبارات سابدا من جديد» with a fresh full-permission PAT.
+
+Work Log:
+- New PAT verified: git read+write confirmed (ls-remote OK). Full fetch of all 11 branches + tags; local pod was 20 days stale (HEAD b2b4cfa Oct-3 era) — ALL of the Oct-14..22 axes campaign lived only on GitHub.
+- Reality check from origin/main (a051fe6): axes 1-18 CLOSED end-to-end (final chain: v4.3.0 axes 1-4 -> axis 7 metrics -> axis 8 crypto proofs -> axis 10 perf (perf/ at root, bridged by sentinel/infra.py) -> axes 11/12 -> axis 13 modernsec -> axis 14 Merkle+Ed25519 audit -> axis 17 race/ -> axis 18 symbolic/ -> v4.4.0). Axis-19 exists ONLY as SPEC + RED tests on branch axis19-dev (never completed).
+- SAFETY FIRST: tag backup/pre-clean-2026-10-23 = a051fe6 pushed to GitHub BEFORE any deletion. Deletions are ordinary commits (no history rewrite) — every removed byte stays recoverable from git history + that tag.
+- Clean executed on branch clean/axes-final (reset -B from a051fe6 after an environment auto-commit (83540f6, UUID pattern) had hijacked the first attempt onto the stale local chain — dropped as local-only noise, never pushed):
+  * MOVED build-v430/sentinel -> /sentinel (the one true engine, all axes 1-18, 52 modules incl. race/ + symbolic/).
+  * KEPT: sentinel/, perf/ (actors+aio+columnar only — engine imports them via infra.py), src/ + prisma/ + public/ + app configs (package.json, bun.lock, tsconfig, next.config, tailwind, postcss, eslint, components.json), Caddyfile, scripts/start_dev_server.sh + start_prod_server.sh + bootstrap_demo_data.py, worklog.md, README.md (new run guide).
+  * DELETED (2356 paths): build-v400..build-v430 (10 snapshots incl. all their results/oob-*/fixtures/benchmarks), tests, fixtures/benchmarks of the engine, perf/tests + perf/results, INDEPENDENT_*.md (3 verification tomes), PHASE_02_L1_COMPLETION, STATE.md, audit-results, campaign, docs (axis specs), examples, gap-validation, mini-services, release-archives, saas-data, composer.phar, ~125 campaign scripts, old root sentinel/ (v2.x relic).
+- MODIFICATIONS (the ordered "والتعديل"): sentinel/infra.py _REPO_ROOT parents[2]->parents[1] (package moved up one level; disclosed in-code); src/lib/engine.ts ENGINE_DIR default build-v425 -> PROJECT_ROOT (was pointing at a STALE pre-axes build — the app would have run the wrong engine); .gitignore rewritten for the new tree; README.md created (run guide, Arabic).
+- Runnability proven fresh on the cleaned tree BEFORE push: python3 -m sentinel.cli --help OK; doctor 19/19 PASS (17 core + symbolic_engine + symbolic_signature); sentinel.infra import OK (the modified bridge finds perf/ at the new root); engine tree = 52 modules intact.
+- PUSHED: clean/axes-final -> main (fast-forward over a051fe6); ls-remote verified main = the clean commit. Safety tag backup/pre-clean-2026-10-23 remains on GitHub pointing at the pre-clean a051fe6.
+- BRANCHES: deleted all 10 non-main branches on GitHub (axis18-real [==main], axis18/draft-on-rolledback-v422, axis19-dev [SPEC_AXIS19 + RED tests — SHAs 993583b+6a8aca9 recorded here for recovery], sentinel-x-wip, sentinel-x/phase-1-verified, sx-src, archive/iv14/* x3, archive/v423-parallel-eng15-20). ONLY main remains. Tags (v4.x, recovery, backup/*) kept as version memory — removal on request.
+- Note on the local stale commits b2b4cfa/83540f6 (task-14 worklog entry + env noise): they live only in this pod's local main, superseded by this entry's record; not pushed, not lost content.
+
+Stage Summary:
+- main is now a pure RUNNABLE repo: engine (axes 1-18) + perf layer + SaaS app + run scripts + README. Zero tests, zero benchmarks, zero campaign artifacts, zero old builds, zero verification tomes, zero docs — all recoverable via backup/pre-clean-2026-10-23 and ordinary git history (no rewrites done).
+- The app-to-engine bridge now points at the CORRECT final engine (it was silently wired to stale build-v425 before — a real defect found and fixed during the clean).
+- Supervisor's declared intent "سابدا من جديد" is fully served: the repo is a clean launchpad; new tests/specs can be authored from zero without legacy noise.

@@ -1,9 +1,0 @@
-# TMP giant-evidence anchors (the standing precedent: files left in /tmp,
-# hash-anchored here; /tmp survives only until the next pod flip).
-
-f1b0411791087e71fac981929968946b7cea8138071c8459f94271098b0f7954  /tmp/bench_unify_1.json  (10019343 bytes)
-1cdfbd0b2bdb8b0d8d2e5ab84b634995d7ac4488f5712cf389825ac709967921  /tmp/bench_unify_1.out  (9728363 bytes)
-935d7578659592e7277e52a8890a8522cb710510556350e8c9c55a3d761311af  /tmp/bench_unify_2.json  (10019416 bytes)
-da00b51bc432ed2a553ea6ee7883fab86ffb231f3d26dd7f958f1193f8e44d7f  /tmp/bench_unify_2.out  (9728436 bytes)
-5453857bb24b604472d593f408d70057027749d746862097a67fef71aeb89cd2  /tmp/bench_unify_3.json  (10019242 bytes)
-ddf6544c6766ff1562f131cea4e694256ae44de8dd8eecb88ece1f3c691cc717  /tmp/bench_unify_3.out  (9728262 bytes)
