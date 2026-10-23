@@ -101,6 +101,33 @@ export async function POST(req: NextRequest) {
       detail: { scanId: scan.id, targetId: target.id, url: target.url, options },
     });
 
+    // SECURITY (19-axis audit 2026-10-23, G8 — scan-start TOCTOU):
+    // the active-scan check above is check-then-act. Three concurrent POSTs
+    // all passed it and spawned THREE engine processes against the same
+    // target (proven live: 3 scan rows RUNNING + 3 engine scan dirs).
+    // Earliest-wins compensation: every participant re-reads the active
+    // scans for this target under a total order (createdAt asc, id asc).
+    // The globally-earliest scan sees itself and proceeds; every later scan
+    // deterministically sees the earliest, cancels ITSELF before the engine
+    // is spawned, and returns 409 — concurrent duplicate engine runs are
+    // impossible regardless of how the requests interleave.
+    const winner = await db.scan.findFirst({
+      where: { targetId: target.id, status: { in: ["QUEUED", "RUNNING"] } },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    if (winner && winner.id !== scan.id) {
+      await db.scan.update({
+        where: { id: scan.id },
+        data: { status: "CANCELLED", error: "فحص متزامن آخر بدأ على نفس الهدف", finishedAt: new Date() },
+      });
+      await audit("scan.cancelled_duplicate", {
+        orgId: access.orgId,
+        userId: user.id,
+        detail: { scanId: scan.id, targetId: target.id, keptScanId: winner.id },
+      });
+      throw new ApiError(409, "يوجد فحص نشط على هذا الهدف بالفعل — فحص متزامن مكرر أُلغي (تسلسل الفحوصات لكل هدف)");
+    }
+
     try {
       await engineStartScan(scan.id, { id: target.id, url: target.url });
     } catch (e) {

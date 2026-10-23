@@ -35,6 +35,17 @@ export function jsonError(e: unknown) {
   if (e instanceof ApiError) {
     return NextResponse.json({ error: e.message }, { status: e.status });
   }
+  // SECURITY (19-axis audit 2026-10-23, G11): a malformed JSON body throws
+  // SyntaxError from req.json() — that is a CLIENT error, not a server
+  // fault. Previously it fell through to the 500 branch (proven live:
+  // POST with body "{not-json" returned HTTP 500). Classify it as 400 so
+  // the 500 channel stays meaningful for real server faults.
+  if (e instanceof SyntaxError) {
+    return NextResponse.json(
+      { error: "جسم الطلب غير صالح — JSON تالف" },
+      { status: 400 }
+    );
+  }
   console.error("[api] unexpected error:", e);
   return NextResponse.json({ error: "خطأ داخلي في الخادم" }, { status: 500 });
 }

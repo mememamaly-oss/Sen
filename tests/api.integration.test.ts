@@ -326,4 +326,46 @@ describe("bootstrap atomicity + auth + RBAC over the wire", () => {
     const blocked = await login(jar, "brute@integration.test", "wrong-password-11");
     expect(blocked.status).toBe(401);
   });
+  // ------------------- 19-axis audit regressions (2026-10-23, G8/G11) --------
+
+    test("G8 RACE: 3 concurrent scan starts on ONE target — exactly ONE accepted", async () => {
+      // Before the fix, the active-scan guard was check-then-act: three
+      // concurrent POSTs all passed it and spawned THREE engine processes
+      // on one target (proven live: 3 RUNNING scan rows + 3 engine scan
+      // dirs). Earliest-wins compensation must accept exactly one and 409
+      // the rest. The race target uses the reserved .invalid TLD so the
+      // winner's engine fails fast without touching any external system.
+      const t = await api(adminJar, "POST", "/api/targets", {
+        orgId, name: "Scan Race Target", url: "https://scan-race-test.invalid/",
+      });
+      expect(t.status).toBe(200);
+      const raceTargetId = ((await t.json()) as { id: string }).id;
+
+      const results = await Promise.all(
+        [0, 1, 2].map(() =>
+          api(adminJar, "POST", "/api/scans", { orgId, targetId: raceTargetId }).then((r) => r.status)
+        )
+      );
+      const wins = results.filter((s) => s === 200).length;
+      const refused = results.filter((s) => s === 409).length;
+      expect(wins).toBe(1);
+      expect(refused).toBe(2);
+
+      // cleanup: cancel the winner so no engine process lingers
+      const list = await api(adminJar, "GET", `/api/scans?orgId=${orgId}&targetId=${raceTargetId}`);
+      const { scans } = (await list.json()) as { scans: { id: string; status: string }[] };
+      for (const s of scans.filter((x) => x.status === "RUNNING" || x.status === "QUEUED")) {
+        await api(adminJar, "DELETE", `/api/scans/${s.id}?orgId=${orgId}`);
+      }
+    });
+
+    test("G11: malformed JSON body is 400, not 500 (jsonError classification)", async () => {
+      // Before the fix this returned HTTP 500 (proven live in the gap probe).
+      const r = await fetch(`${BASE}/api/targets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: adminJar.header() },
+        body: "{not-json",
+      });
+      expect(r.status).toBe(400);
+    });
 });

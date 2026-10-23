@@ -236,3 +236,25 @@ describe("production standalone fixes (QA gate 2026-10-23)", () => {
     expect(csp).toContain("frame-ancestors 'none'");
   });
 });
+
+// ---------------------------- 19-axis audit regressions (2026-10-23)
+
+describe("19-axis audit fixes (2026-10-23)", () => {
+  test("G11: malformed JSON body (SyntaxError) maps to 400, not 500", async () => {
+    // Before the fix, POSTing "{not-json" returned HTTP 500 (proven live in
+    // the gap probe). req.json() throws SyntaxError — jsonError must
+    // classify it as a client error.
+    const { jsonError } = await import("@/lib/rbac");
+    const res = jsonError(new SyntaxError("Unexpected token n in JSON at position 1"));
+    expect(res.status).toBe(400);
+    const body = (res as unknown as { bodyUsed?: boolean }) && res;
+    // ApiError path unchanged (still propagates its own status)
+    const { ApiError } = await import("@/lib/rbac");
+    const apiRes = jsonError(new ApiError(409, "conflict"));
+    expect(apiRes.status).toBe(409);
+    // Unknown errors remain 500 (the 500 channel stays for real faults)
+    const errRes = jsonError(new Error("boom"));
+    expect(errRes.status).toBe(500);
+    void body;
+  });
+});
