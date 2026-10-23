@@ -1,0 +1,104 @@
+[
+  {
+    "id": "PRE",
+    "name": "bootstrap precondition",
+    "status": "PASS",
+    "evidence": "HTTP 200"
+  },
+  {
+    "id": "PRE1",
+    "name": "owner session established",
+    "status": "PASS",
+    "evidence": "/api/me HTTP 200 body=b'{\"user\":{\"id\":\"cmvkbltlj0000swya3ltxh3c4\",\"email\":\"gap-0278e'"
+  },
+  {
+    "id": "PRE2",
+    "name": "members created",
+    "status": "PASS",
+    "evidence": "member=cmvkbltp... viewer=cmvkbltr... (membership ids from GET)"
+  },
+  {
+    "id": "PRE3",
+    "name": "member session established",
+    "status": "PASS",
+    "evidence": "/api/me HTTP 200"
+  },
+  {
+    "id": "G1",
+    "name": "MEMBER self-escalation to OWNER rejected",
+    "status": "PASS",
+    "evidence": "HTTP 403 body=b'{\"error\":\"\\xd8\\xa7\\xd9\\x84\\xd8\\xaf\\xd9\\x88\\xd8\\xb1 \\xd8\\xa7\\xd9\\x84\\xd8\\xad\\xd8\\xa7\\xd9\\x84\\xd9\\x8a (MEMBER) \\xd9\\x84\\xd8\\xa7 \\xd9\\x8a\\xd9\\x85\\xd9\\x84\\xd9\\x83 \\xd8\\xb5\\xd9\\x84\\xd8\\xa7\\xd8\\xad\\xd9\\x8a\\xd8\\xa9 \\xd9\\x87\\xd8\\xb0\\xd9\\x87 \\xd8\\xa7\\xd9\\x84\\xd8\\xb9\\xd9\\x85\\xd9\\x84\\xd9\\x8a\\xd"
+  },
+  {
+    "id": "G2",
+    "name": "MEMBER deleting another member rejected",
+    "status": "PASS",
+    "evidence": "HTTP 403 body=b'{\"error\":\"\\xd8\\xa7\\xd9\\x84\\xd8\\xaf\\xd9\\x88\\xd8\\xb1 \\xd8\\xa7\\xd9\\x84\\xd8\\xad\\xd8\\xa7\\xd9\\x84\\xd9\\x8a (MEMBER) \\xd9\\x84\\xd8\\xa7 \\xd9\\x8a\\xd9\\x85\\xd9\\x84\\xd9\\x83 \\xd8\\xb5\\xd9\\x84\\xd8\\xa7\\xd8\\xad\\xd9\\x8a\\xd8\\xa9 \\xd9\\x87\\xd8\\xb0\\xd9\\x87 \\xd8\\xa7\\xd9\\x84\\xd8\\xb9\\xd9\\x85\\xd9\\x84\\xd9\\x8a\\xd"
+  },
+  {
+    "id": "G3",
+    "name": "OWNER role changes work + audited",
+    "status": "PASS",
+    "evidence": "patch rc ok=True; audit has role_changed=True; actions sample=['member.role_changed', 'member.role_changed', 'rbac.role_denied', 'rbac.role_denied', 'member.added', 'member.added']"
+  },
+  {
+    "id": "G4",
+    "name": "last-OWNER demotion refused",
+    "status": "PASS",
+    "evidence": "HTTP 409 body=b'{\"error\":\"\\xd9\\x84\\xd8\\xa7 \\xd9\\x8a\\xd9\\x85\\xd9\\x83\\xd9\\x86 \\xd8\\xa5\\xd8\\xb2\\xd8\\xa7\\xd9\\x84\\xd8\\xa9 \\xd8\\xa2\\xd8\\xae\\xd8\\xb1 OWNER \\xd9\\x85\\xd9\\x86 \\xd8\\xa7\\xd9\\x84\\xd9\\x85\\xd9\\x86\\xd8\\xb8\\xd9\\x85\\xd8\\xa9\"}'"
+  },
+  {
+    "id": "PRE4",
+    "name": "second org created",
+    "status": "PASS",
+    "evidence": "HTTP 200 org2=cmvkbltv30..."
+  },
+  {
+    "id": "G5",
+    "name": "cross-org finding access (org1 member -> org2 finding) = 404",
+    "status": "PASS",
+    "evidence": "HTTP 404 body=b'{\"error\":\"\\xd8\\xa7\\xd9\\x84\\xd9\\x85\\xd9\\x86\\xd8\\xb8\\xd9\\x85\\xd8\\xa9 \\xd8\\xba\\xd9\\x8a\\xd8\\xb1 \\xd9\\x85\\xd9\\x88\\xd8\\xac\\xd9\\x88\\xd8\\xaf\\xd8\\xa9\"}'"
+  },
+  {
+    "id": "G6",
+    "name": "no Access-Control-Allow-Origin echoed for evil origin",
+    "status": "PASS",
+    "evidence": "ACAO header='ABSENT (good)'; status=200"
+  },
+  {
+    "id": "G7",
+    "name": "POST bootstrap after setup = 409",
+    "status": "PASS",
+    "evidence": "HTTP 409 body=b'{\"error\":\"\\xd8\\xa7\\xd9\\x84\\xd8\\xad\\xd8\\xb3\\xd8\\xa7\\xd8\\xa8 \\xd8\\xa7\\xd9\\x84\\xd8\\xa3\\xd9\\x88\\xd9\\x84 \\xd9\\x85\\xd9\\x88\\xd8\\xac\\xd9\\x88\\xd8\\xaf \\xd8\\xa8\\xd8\\xa7\\xd9\\x84\\xd9\\x81\\xd8\\xb9\\xd9\\x84 \\xe2\\x80\\x94 \\xd8\\xa7\\xd8\\xb3\\xd8\\xaa\\xd8\\xae\\xd8\\xaf\\xd9\\x85 \\xd8\\xaa\\xd8\\xb3\\xd8\\xac\\xd9\\x8a"
+  },
+  {
+    "id": "G8",
+    "name": "3 concurrent scan starts -> exactly 1 accepted",
+    "status": "PASS",
+    "evidence": "statuses=[200, 409, 409] accepted=1 (409 serialized the rest)"
+  },
+  {
+    "id": "G9",
+    "name": "5 concurrent report generations all succeed",
+    "status": "PASS",
+    "evidence": "statuses=[200, 200, 200, 200, 200]"
+  },
+  {
+    "id": "G10",
+    "name": "session cookie: httpOnly + sameSite present",
+    "status": "PASS",
+    "evidence": "set-cookie sample='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..VQkvhfYnlXWnHkOo.QblCJWBiMGSQGHsTQkbQx6vXQB60'"
+  },
+  {
+    "id": "G11",
+    "name": "malformed JSON -> 4xx (no 500 crash)",
+    "status": "PASS",
+    "evidence": "HTTP 400"
+  },
+  {
+    "id": "G12",
+    "name": "audit endpoint is read-only (POST/PUT/DELETE not routable)",
+    "status": "PASS",
+    "evidence": "POST=405 DELETE=405 PUT=405"
+  }
+]

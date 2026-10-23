@@ -1,0 +1,43 @@
+{
+  "meta": {
+    "date": "2026-10-23",
+    "target": "http://127.0.0.1:3100 (production standalone, fresh scratch DB)",
+    "scale": "SMOKE-scale, single pod, loopback only — comparable only across identical runs",
+    "server_rss_before_kb": 173112,
+    "server_rss_after_kb": 209416,
+    "rss_delta_kb": 36304
+  },
+  "scenarios": [
+    {
+      "scenario": "S1 api reads (/api/scans)",
+      "requests": 120,
+      "concurrency": 12,
+      "wall_sec": 0.45,
+      "rps": 264.7,
+      "p50_ms": 42.3,
+      "p90_ms": 60.9,
+      "p99_ms": 65.7,
+      "max_ms": 67.5,
+      "errors_5xx": 0
+    },
+    {
+      "scenario": "S2 page render (overview)",
+      "requests": 60,
+      "concurrency": 6,
+      "wall_sec": 0.11,
+      "rps": 554.2,
+      "p50_ms": 7.6,
+      "p90_ms": 26.5,
+      "p99_ms": 41.5,
+      "max_ms": 41.5,
+      "errors_5xx": 0
+    }
+  ],
+  "verdicts": {
+    "S1_p99_under_2000ms": true,
+    "S1_zero_5xx": true,
+    "S2_p99_under_3000ms": true,
+    "S2_zero_5xx": true,
+    "rss_growth_under_150MB": true
+  }
+}
