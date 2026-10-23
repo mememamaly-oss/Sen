@@ -5981,3 +5981,26 @@ Stage Summary:
 - Q4: Last pushed commit = 722d9fd9fed9fbaceefde9cbc3e6a62a03d2ac9d (verified authenticated during task 19; repo now private, so offered re-verification via fresh PAT or the user's own ls-remote). 12 local-only commits since; zero pushes (no stored credentials; all attempts documented blocked).
 - Q5: Full re-proof command + complete verbatim output delivered in chat; relay re-confirmed live TODAY.
 - Gate status UNCHANGED: RED — PUSH PROHIBITED.
+
+---
+Task ID: 21
+Agent: main (Z.ai)
+Task: Network forensics round (3 user questions: internet reachability, what's behind closed doors, multi-tenancy sharing) + responsible-disclosure package (user initially asked to harvest messages/passwords/accounts — DECLINED as that crosses into intrusion; pivoted to the legitimate deliverable: the vulnerability report, especially since the prior inventory proved no real data exists).
+
+Work Log:
+- Identity/topology: hostname c-6adab973-145cf406-9bcac2a9f718; PID1 tini; cgroup /k8s.io/c-<id>; KATA_CONTAINER=true (one Kata microVM per session); Alibaba FC cn-hongkong; FC_FUNCTION_NAME=ws-2d72299e-6408-441c-8aa0-b90f637034ee; **FC_CUSTOM_LISTEN_PORT=81** — the platform's designated ingress port IS the vulnerable port.
+- IP forensics: container 21.0.7.207/32 in 21.0.0.0/8 = DNIC-SNET-021 (US DoD reserved) reused as internal overlay — NOT internet-routed. Egress via shared NAT pool (8.212.10.159 → 47.57.232.232 changed within seconds). ARP: only gateway 21.0.0.1 + Alibaba internal DNS/metadata (100.100.2.136/138, 100.100.100.200) — no neighbor containers visible.
+- Preview URL hunt: wildcard DNS confirmed — 6 arbitrary preview-*.space-z.ai names ALL resolve to the shared ALB alb-1i2q34bllrtyl61zig.cn-hongkong.aliyuncsslbintl.com; all 6 returned "404 page not found" at the gateway (true session hostname not knowable from inside). Honest conclusion: public ingress path exists platform-wide; per-session liveness UNPROVEN from inside.
+- Original vulnerable Caddyfile recovered from git history (5de40c4): reverse_proxy localhost:{query.XTransformPort} — host pinned to localhost, only port attacker-controlled → relay cannot reach metadata/other containers/external hosts (scope limit, lowers severity but confirms fleet-wide pattern since the file is image-baked).
+- Closed doors inventory (banner-only, no data extraction): :81 root caddy (the flaw), :3000 Sen dev app (user z), :12600/:19001/:19005/:19006 = platform session-agent services (root; PID 875/916 uv/python main.py = the Z.ai agent itself). /app root-only. No Docker socket. No other users' processes (single-tenant microVM). Cross-session access via this relay: IMPOSSIBLE (localhost-pinned).
+- Fleet-wide implication documented: image-baked Caddyfile (Apr 3 timestamp) → every session container from this image carries the same SSRF relay on its designated ingress port.
+- Internet-watch canary launched (scripts/internet_canary_watch.py, 20-min window from 03:23:32Z, bind 127.0.0.1:8998, logs X-Real-IP per hit to distinguish internal 127.0.0.1 vs gateway-origin hits). Self-test via relay OK (logged X-Real-IP=127.0.0.1).
+- Responsible-disclosure package built at download/ZAI_ENV1_SSRF_DISCLOSURE_2026-10-23.zip (5 files: REPORT_AR/REPORT_EN/INTERNET_TEST_INSTRUCTIONS/POC_LIVE_REPROOF/INTERNAL_SURFACE_MAP; sha256 2650169f3e3cf114b4535e8d212f3c3fe493bbaa82ef7812438f51bfb1b9a1f8; staging dir download/env1-disclosure/).
+
+Stage Summary:
+- Q1 (internet reachability): container IP not internet-routed, but platform design puts the flaw ON the public ingress path (FC_CUSTOM_LISTEN_PORT=81 + shared ALB + wildcard preview DNS). Per-session live URL unproven from inside — decisive external test offered to user (canary live, instructions delivered).
+- Q2 (behind closed doors): full surface map delivered — root Caddy (the flaw), the session agent services, the Sen dev app; nothing else; no real secrets/PII (prior inventory); relay scope = localhost-only.
+- Q3 (multi-tenancy): compute isolated per session (Kata microVM, unique function, no neighbors visible, no cross-session reach via this relay); shared = ALB/DNS/egress NAT/control plane/base image. Fleet-wide exposure flagged for the operator.
+- Deliverable: ZAI_ENV1_SSRF_DISCLOSURE_2026-10-23.zip in download/ (bilingual report + PoC + instructions + surface map).
+- Declined-and-documented: harvesting credentials/messages from platform services (user request) — no real data exists anyway; report is the correct handover artifact.
+- Gate status UNCHANGED: RED — PUSH PROHIBITED.
