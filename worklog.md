@@ -5933,3 +5933,30 @@ Stage Summary:
 - The gate caught 2 real defects the previous campaign's docs missed (dead-path CLI contract script + 7 new dependency advisories incl. 4 HIGH in the prod chain) — both fixed with regression-proof re-runs on the final SHA; the repo itself is now strictly better than what task-17 verified.
 - Path to GREEN: operator replaces /app/Caddyfile with repo Caddyfile @7fc49ef + reload (canary re-test), authorized staging env provided (or formally re-scoped), gate re-run (~15 min), then push 7fc49ef to verified/security-audit-2026-10-23.
 - All artifacts: download/green-gate-backup-2026-10-23/ (full+incremental bundles clone-verified, working-state, gate report, SHA256SUMS) + qa-results/ evidence files.
+
+---
+Task ID: 19
+Agent: Super Z (main agent)
+Task: Supervisor MASTER DIRECTIVE 2026-10-23 — 19-axis security/quality/release-gate mission: full audit, safe in-place fixes with regression tests, final verification, gate decision, downloadable evidence archive. Default RED.
+
+Work Log:
+- Phase 0: env inventoried (bun 1.3.14, node 24, py 3.12.15, git 2.47.3); new PAT verified read-only (repo now PRIVATE — was public); ENV-1 re-proven LIVE via canary from loopback AND public iface (pod recreated, IP changed 21.0.6.201→21.0.7.207, vulnerable Caddyfile baked in image). DISCOVERED: download/ WIPED between sessions (previous 423MB backup lost) — rebuilt everything. .gitignore truncated AGAIN by environment (2nd time) — restored from HEAD, ignores verified 5/5. Fresh backup + RESTORE PROOF: clone from bundle == HEAD; byte-compare 11/11 sampled files; tarball extraction OK.
+- Phase 1: SYSTEM_MAP.md — every claim tied to actual path/command (19 API routes, unified auth chain, Prisma-only queries (0 queryRaw), 0 shell:true, 0 eval, 0 cron, 0 docker, zod declared-but-unused finding I-05).
+- Axis 1: THREAT_MODEL.md — 7 assets, 6 attacker classes, 12 ranked scenarios, assumptions + residual risks.
+- NEW hunting tool: scripts/axis19_gap_probe.py — 12 security checks never covered before (member self-escalation PATCH, member deletion RBAC, last-owner protection, cross-org finding IDOR, CORS echo, bootstrap-after-setup, concurrent scan race, concurrent reports, cookie flags, malformed JSON, audit read-only). PRE-FIX: 15/17 — 2 REAL DEFECTS FOUND:
+  * F-19A-01 Medium (Axis 16): scan-start TOCTOU — 3 concurrent POST /api/scans on one target ALL accepted; DB showed 3 RUNNING rows + 3 engine dirs. FIX: earliest-wins compensation (total order createdAt+id; losers self-cancel BEFORE engine spawn + audit scan.cancelled_duplicate + 409).
+  * F-19A-02 Low (Axis 12): malformed JSON → 500 (misclassified client error). FIX: jsonError maps SyntaxError → 400.
+  * RED→GREEN PROVEN both ways: stash fixes → unit 1 fail + integration 2 fails; restore → unit 22/22 + integration 14/14 (incl. new G8 RACE + G11 tests). Gap probe post-fix: 17/17.
+- Axis batteries on code-final 3ad6506 (ALL GREEN): unit 22/22, pytest 57/57, integration 14/14, live battery 33/33 (prod standalone :3100), browser E2E 12/12 (real scan COMPLETED findings=19, sandbox+SecurityError), gap probe 17/17, CLI 5/5, doctor 19/19, caddy validate+behavioral (repo relay REMOVED), benchmark P/R/F1=1.0 (38/0/0/37, run-d6b26b92d0), build PASS + no-secret guard REFUSES, bun audit --prod = ZERO, secret scan on 178,510 added lines CLEAN (all hits = planted fixture canaries/redacted evidence/ci placeholders), load test (Axis 18, new): API p99 65.7ms @12conc 264rps, pages p99 41.5ms, ZERO 5xx, RSS +36MB.
+- Committed chain: 3b52c08 (fixes+tests+probe+docs) → 3ad6506 (evidence pack) → 5884a0c (RELEASE_GATE RED + MASTER_REPORT) → eff2787 (evidence refresh; worktree clean).
+- 10 required documents in audit-19axis/: MASTER_REPORT, EXECUTION_LOG, FINDINGS, REMEDIATIONS, TEST_MATRIX, DEPENDENCY_REVIEW, SECRET_SCAN_SUMMARY, RELEASE_GATE, BACKUP_RESTORE_PROOF, SYSTEM_MAP+THREAT_MODEL (+SHA256SUMS at backup root).
+- Backup refreshed to FINAL SHA eff2787 with fresh clone-verify (RESTORE-PROOF-OK) + incremental bundle + working-state tarball (no secrets/dbs/logs) + 19axis-final-archive.zip (integrity PASS) + SHA256SUMS — all under download/sen-19axis-audit-2026-10-23/.
+- Test-side bugs found & fixed transparently: gap-probe response shapes/csrf sequencing, integration test scoping (ReferenceError).
+- Environment restored: dev server :3000 UP (as found), prod/test servers stopped, vulnapp fixture deliberately stopped (ENV-1 hygiene).
+- NOTHING PUSHED — verified via API: origin/main == 722d9fd throughout. Token never persisted to disk; used read-only.
+
+Stage Summary:
+- VERDICT: RED — PUSH PROHIBITED. Everything inside mission authority is GREEN (179 test-level checks + all suite gates on the exact final tree; 2 new real defects found and fixed with RED→GREEN regression proof; zero secrets; prod-chain deps zero; restore-proofed backup). The two blockers are operator-level: (1) ENV-1 live pod Caddy SSRF relay (re-confirmed TODAY, externally reachable, root required) and (2) no authorized external/staging environment.
+- Final candidate: eff2787 (local main) — code-final battery on 3ad6506, docs-only commits after (fast re-verified: unit 22/22 + typecheck on each).
+- The mission's own hunting mandate produced real value: the 12-check gap probe found 2 defects every previous battery missed (member/role escalation surface was never tested; scan-start race; error misclassification).
+- Path to GREEN documented in MASTER_REPORT §17: operator replaces container Caddyfile + reload + canary re-proof; staging env or formal re-scope; re-run gate (~20 min, scripts committed); then push to verified/security-audit-2026-10-23.
