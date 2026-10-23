@@ -1,0 +1,74 @@
+[
+  {
+    "id": "W1",
+    "name": "login page renders",
+    "status": "PASS",
+    "evidence": "url=http://127.0.0.1:3100/login title='SENTINEL — منصة استخبارات الأمن'"
+  },
+  {
+    "id": "W2",
+    "name": "bootstrap owner created (API precondition)",
+    "status": "PASS",
+    "evidence": "HTTP 200"
+  },
+  {
+    "id": "W3",
+    "name": "owner login lands on app (not /login)",
+    "status": "PASS",
+    "evidence": "landed=http://127.0.0.1:3100/overview"
+  },
+  {
+    "id": "W4",
+    "name": "page / renders",
+    "status": "PASS",
+    "evidence": "url=http://127.0.0.1:3100/overview"
+  },
+  {
+    "id": "W5",
+    "name": "page /targets renders",
+    "status": "PASS",
+    "evidence": "url=http://127.0.0.1:3100/targets"
+  },
+  {
+    "id": "W6",
+    "name": "page /reports renders",
+    "status": "PASS",
+    "evidence": "url=http://127.0.0.1:3100/reports"
+  },
+  {
+    "id": "W7",
+    "name": "demo target created",
+    "status": "PASS",
+    "evidence": "HTTP 200 isDemo=True"
+  },
+  {
+    "id": "W8",
+    "name": "engine scan reaches COMPLETED with findings (real E2E)",
+    "status": "PASS",
+    "evidence": "status=COMPLETED findings=19 scanId=cmvk7uxyg000..."
+  },
+  {
+    "id": "W9",
+    "name": "report generation all 5 formats",
+    "status": "PASS",
+    "evidence": "{'HTML': True, 'JSON': True, 'SARIF': True, 'EXECUTIVE': True, 'GLASS': True}"
+  },
+  {
+    "id": "W10",
+    "name": "report iframe: sandbox='' + opaque origin (no doc read)",
+    "status": "PASS",
+    "evidence": "{\"found\": true, \"sandbox\": \"\", \"originError\": \"SecurityError: Failed to read a named property 'document' from 'Window': Blocked a frame with origin \\\"http://127.0.0.1:3100\\\" from accessing a cross-origin frame.\", \"canReadDoc\": false}"
+  },
+  {
+    "id": "W11",
+    "name": "twin page renders",
+    "status": "PASS",
+    "evidence": "url=http://127.0.0.1:3100/twin"
+  },
+  {
+    "id": "W12",
+    "name": "console hygiene: zero pageerrors; zero errors on authenticated pages",
+    "status": "PASS",
+    "evidence": "pageerrors=0 post-login-errors=0 [] pre-login-401(expected)=2 [(1792714382.4751318, 'http401', '401 http://127.0.0.1:3100/api/me'), (1792714383.2541144, 'http401', '401 http://127.0.0.1:3100/api/me')]"
+  }
+]

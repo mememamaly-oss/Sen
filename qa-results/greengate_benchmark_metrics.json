@@ -1,0 +1,18 @@
+{
+  "benchmark": "local-fixture-v11",
+  "label": "cli",
+  "run_id": "run-d6b26b92d0",
+  "ground_truth_sha256": "0373baf92a92dce2",
+  "metrics": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0
+  },
+  "confusion": {
+    "TP": 38,
+    "FP": 0,
+    "FN": 0,
+    "TN": 37
+  },
+  "note": "green-gate re-run 2026-10-23; heavy raw output stays local (gitignored)"
+}

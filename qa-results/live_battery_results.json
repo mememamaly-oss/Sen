@@ -21,7 +21,7 @@
     "id": "A4",
     "name": "bootstrap race: 10 concurrent POSTs -> exactly 1 winner (409 for losers)",
     "status": "PASS",
-    "evidence": "winners=1 losers=9 codes=[409, 409, 409, 409, 409, 409, 409, 409, 200, 409]"
+    "evidence": "winners=1 losers=9 codes=[409, 409, 409, 409, 409, 409, 409, 409, 409, 200]"
   },
   {
     "id": "A5",
@@ -39,13 +39,13 @@
     "id": "A6.1",
     "name": "authenticated /api/me returns the owner",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"user\":{\"id\":\"cmvk41jbm0000p1ci25a4zvqe\",\"email\":\"owner@sentinel.test\",\"name\":\"Owner\"},\"orgs\":[{\"id\":\"cmvk41jbu0001p1ci7nmvocwz\",\"name\":\"QA'"
+    "evidence": "HTTP 200 body=b'{\"user\":{\"id\":\"cmvk7cqn30000p1ljnblro225\",\"email\":\"owner@sentinel.test\",\"name\":\"Owner\"},\"orgs\":[{\"id\":\"cmvk7cqnl0001p1lj56hs7djc\",\"name\":\"QA'"
   },
   {
     "id": "A6.2",
     "name": "session cookie HttpOnly + SameSite",
     "status": "PASS",
-    "evidence": "set-cookie='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..GGrqlOodEGhGLxyD.71fZ5MDKUhzze6qdPwBVLYxs0TaKiSXO85jWOExXgeNISSgmLZIxGym1xcbu2ZXxBncCx2BV4ACDSP' httponly=True samesite=True"
+    "evidence": "set-cookie='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..dUWVtMx9XuVFvj_c.PFbqDJytOpgGQGyK7z9Km995A2aFoxrhDaSkwXMhEnKGsZF9Dpv3jwL4jIGKzxkGakUaWtIEjJhbQM' httponly=True samesite=True"
   },
   {
     "id": "A7",
@@ -57,7 +57,7 @@
     "id": "A8",
     "name": "demo target creation (managed vulnapp fixture)",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk41jwu0007p1ci4lthnmr9\",\"name\":\"Sentinel Demo App (vulnapp \\xd9\\x85\\xd8\\xad\\xd9\\x84\\xd9\\x8a)\",\"url\":\"http://127.0.0.1:8777\",\"isDemo\":true}' orgId=cmvk41jbu000..."
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk7cr890007p1lj2zry9np7\",\"name\":\"Sentinel Demo App (vulnapp \\xd9\\x85\\xd8\\xad\\xd9\\x84\\xd9\\x8a)\",\"url\":\"http://127.0.0.1:8777\",\"isDemo\":true}' orgId=cmvk7cqnl000..."
   },
   {
     "id": "A8.1",
@@ -69,19 +69,19 @@
     "id": "A9",
     "name": "public non-demo target creation (never scanned)",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk41jxm000bp1ciat3bciq2\",\"name\":\"Public inert target\",\"url\":\"https://example.org/sen-qa-inert\",\"isDemo\":false}'"
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk7cr96000bp1lj3qczdykm\",\"name\":\"Public inert target\",\"url\":\"https://example.org/sen-qa-inert\",\"isDemo\":false}'"
   },
   {
     "id": "A10",
     "name": "scan start on demo target",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk41jy1000fp1ci0a72ah1j\",\"status\":\"RUNNING\"}'"
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk7cr9m000fp1lji6up5yoi\",\"status\":\"RUNNING\"}'"
   },
   {
     "id": "A11",
     "name": "demo scan reaches COMPLETED",
     "status": "PASS",
-    "evidence": "status=COMPLETED runId=run-0913412636 dur=11.36s err="
+    "evidence": "status=COMPLETED runId=run-298778fad6 dur=11.4s err="
   },
   {
     "id": "A11.1",
@@ -99,7 +99,7 @@
     "id": "A12.1",
     "name": "report content retrievable",
     "status": "PASS",
-    "evidence": "HTTP 200 len=1986409"
+    "evidence": "HTTP 200 len=1986410"
   },
   {
     "id": "A13",
@@ -117,13 +117,13 @@
     "id": "B1",
     "name": "unauthenticated API access -> 401 on all protected routes",
     "status": "PASS",
-    "evidence": "codes=[('/api/me', 401), ('/api/orgs', 401), ('/api/orgs/cmvk41jbu0001p1ci7nmvocwz', 401), ('/api/orgs/cmvk41jbu0001p1ci7nmvocwz/members', 401), ('/api/targets', 401), ('/api/scans', 401), ('/api/reports', 401), ('/api/audit', 401), ('/api/bootstrap', 200)]"
+    "evidence": "codes=[('/api/me', 401), ('/api/orgs', 401), ('/api/orgs/cmvk7cqnl0001p1lj56hs7djc', 401), ('/api/orgs/cmvk7cqnl0001p1lj56hs7djc/members', 401), ('/api/targets', 401), ('/api/scans', 401), ('/api/reports', 401), ('/api/audit', 401), ('/api/bootstrap', 200)]"
   },
   {
     "id": "B2",
     "name": "login brute-force rate limiting (fail-closed + proven short-circuit)",
     "status": "PASS",
-    "evidence": "13th attempt body=b'{\"url\":\"http://localhost:3000/api/auth/error?error=RATE_LIMI' t1=32ms t13=3ms"
+    "evidence": "13th attempt body=b'{\"url\":\"http://localhost:3000/api/auth/error?error=RATE_LIMI' t1=39ms t13=4ms"
   },
   {
     "id": "B3",
@@ -171,13 +171,13 @@
     "id": "B8",
     "name": "report download: nosniff + Content-Disposition attachment",
     "status": "PASS",
-    "evidence": "nosniff=nosniff disposition='attachment; filename=\"sentinel-report-cmvk41tlt002rp1cikjyqi'"
+    "evidence": "nosniff=nosniff disposition='attachment; filename=\"sentinel-report-cmvk7d0zk002rp1ljnn8y2'"
   },
   {
     "id": "B9",
     "name": "report HTML contains no raw <script> injection from findings",
     "status": "PASS",
-    "evidence": "raw-script-found=False content-len=1974531"
+    "evidence": "raw-script-found=False content-len=1974532"
   },
   {
     "id": "B10",
