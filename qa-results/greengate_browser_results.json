@@ -45,7 +45,7 @@
     "id": "W8",
     "name": "engine scan reaches COMPLETED with findings (real E2E)",
     "status": "PASS",
-    "evidence": "status=COMPLETED findings=19 scanId=cmvk8ehnx000..."
+    "evidence": "status=COMPLETED findings=19 scanId=cmvkbvvni000..."
   },
   {
     "id": "W9",
@@ -69,6 +69,6 @@
     "id": "W12",
     "name": "console hygiene: zero pageerrors; zero errors on authenticated pages",
     "status": "PASS",
-    "evidence": "pageerrors=0 post-login-errors=0 [] pre-login-401(expected)=2 [(1792715294.5158727, 'http401', '401 http://127.0.0.1:3100/api/me'), (1792715295.2714424, 'http401', '401 http://127.0.0.1:3100/api/me')]"
+    "evidence": "pageerrors=0 post-login-errors=0 [] pre-login-401(expected)=2 [(1792721144.5533965, 'http401', '401 http://127.0.0.1:3100/api/me'), (1792721145.3219826, 'http401', '401 http://127.0.0.1:3100/api/me')]"
   }
 ]

@@ -9,13 +9,13 @@
     "id": "PRE1",
     "name": "owner session established",
     "status": "PASS",
-    "evidence": "/api/me HTTP 200 body=b'{\"user\":{\"id\":\"cmvkbltlj0000swya3ltxh3c4\",\"email\":\"gap-0278e'"
+    "evidence": "/api/me HTTP 200 body=b'{\"user\":{\"id\":\"cmvkbwatv0000swciroins3ee\",\"email\":\"gap-27a6c'"
   },
   {
     "id": "PRE2",
     "name": "members created",
     "status": "PASS",
-    "evidence": "member=cmvkbltp... viewer=cmvkbltr... (membership ids from GET)"
+    "evidence": "member=cmvkbwax... viewer=cmvkbwaz... (membership ids from GET)"
   },
   {
     "id": "PRE3",
@@ -51,7 +51,7 @@
     "id": "PRE4",
     "name": "second org created",
     "status": "PASS",
-    "evidence": "HTTP 200 org2=cmvkbltv30..."
+    "evidence": "HTTP 200 org2=cmvkbwb2s0..."
   },
   {
     "id": "G5",
@@ -75,7 +75,7 @@
     "id": "G8",
     "name": "3 concurrent scan starts -> exactly 1 accepted",
     "status": "PASS",
-    "evidence": "statuses=[200, 409, 409] accepted=1 (409 serialized the rest)"
+    "evidence": "statuses=[409, 200, 409] accepted=1 (409 serialized the rest)"
   },
   {
     "id": "G9",
@@ -87,7 +87,7 @@
     "id": "G10",
     "name": "session cookie: httpOnly + sameSite present",
     "status": "PASS",
-    "evidence": "set-cookie sample='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..VQkvhfYnlXWnHkOo.QblCJWBiMGSQGHsTQkbQx6vXQB60'"
+    "evidence": "set-cookie sample='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..mpfvf0fiayCMwLxR.D8V-RyuSavMuHQBxulpkXPuIDUOl'"
   },
   {
     "id": "G11",

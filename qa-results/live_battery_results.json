@@ -39,13 +39,13 @@
     "id": "A6.1",
     "name": "authenticated /api/me returns the owner",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"user\":{\"id\":\"cmvk8d3gp0000p170ntwjs8ad\",\"email\":\"owner@sentinel.test\",\"name\":\"Owner\"},\"orgs\":[{\"id\":\"cmvk8d3gt0001p170b2htou7k\",\"name\":\"QA'"
+    "evidence": "HTTP 200 body=b'{\"user\":{\"id\":\"cmvkbvdm60000swy87rpnblfo\",\"email\":\"owner@sentinel.test\",\"name\":\"Owner\"},\"orgs\":[{\"id\":\"cmvkbvdmr0001swy8ejuh6j11\",\"name\":\"QA'"
   },
   {
     "id": "A6.2",
     "name": "session cookie HttpOnly + SameSite",
     "status": "PASS",
-    "evidence": "set-cookie='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..wyU2anrSb43lglHD.oENL1rMTgrTZX9WtMYBIWOyesgv34fNx6g1C7bsotJQMmu5fFNRmvH_3i-1YMjkQ2jJNRjQGoyTV9c' httponly=True samesite=True"
+    "evidence": "set-cookie='next-auth.session-token=eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..67ek6Bn0JhvX0VuZ.HXpcQPamGreqLtX2k2T113VZLqXv-HVlClIO7nAZvWluwQtygf_XHHrwv2FN_Fq6ONHxEOGKMAk6J_' httponly=True samesite=True"
   },
   {
     "id": "A7",
@@ -57,7 +57,7 @@
     "id": "A8",
     "name": "demo target creation (managed vulnapp fixture)",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk8d3nn0007p170ls0x5opo\",\"name\":\"Sentinel Demo App (vulnapp \\xd9\\x85\\xd8\\xad\\xd9\\x84\\xd9\\x8a)\",\"url\":\"http://127.0.0.1:8777\",\"isDemo\":true}' orgId=cmvk8d3gt000..."
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvkbvdt20007swy8yrgh86zy\",\"name\":\"Sentinel Demo App (vulnapp \\xd9\\x85\\xd8\\xad\\xd9\\x84\\xd9\\x8a)\",\"url\":\"http://127.0.0.1:8777\",\"isDemo\":true}' orgId=cmvkbvdmr000..."
   },
   {
     "id": "A8.1",
@@ -69,19 +69,19 @@
     "id": "A9",
     "name": "public non-demo target creation (never scanned)",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk8d3o7000bp1702kvp858k\",\"name\":\"Public inert target\",\"url\":\"https://example.org/sen-qa-inert\",\"isDemo\":false}'"
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvkbvdto000bswy84x959waq\",\"name\":\"Public inert target\",\"url\":\"https://example.org/sen-qa-inert\",\"isDemo\":false}'"
   },
   {
     "id": "A10",
     "name": "scan start on demo target",
     "status": "PASS",
-    "evidence": "HTTP 200 body=b'{\"id\":\"cmvk8d3ok000fp170hrjdm0wl\",\"status\":\"RUNNING\"}'"
+    "evidence": "HTTP 200 body=b'{\"id\":\"cmvkbvdu1000fswy86iibikwv\",\"status\":\"RUNNING\"}'"
   },
   {
     "id": "A11",
     "name": "demo scan reaches COMPLETED",
     "status": "PASS",
-    "evidence": "status=COMPLETED runId=run-f016d4782c dur=11.22s err="
+    "evidence": "status=COMPLETED runId=run-216336c31e dur=11.23s err="
   },
   {
     "id": "A11.1",
@@ -99,7 +99,7 @@
     "id": "A12.1",
     "name": "report content retrievable",
     "status": "PASS",
-    "evidence": "HTTP 200 len=1986412"
+    "evidence": "HTTP 200 len=1986399"
   },
   {
     "id": "A13",
@@ -117,13 +117,13 @@
     "id": "B1",
     "name": "unauthenticated API access -> 401 on all protected routes",
     "status": "PASS",
-    "evidence": "codes=[('/api/me', 401), ('/api/orgs', 401), ('/api/orgs/cmvk8d3gt0001p170b2htou7k', 401), ('/api/orgs/cmvk8d3gt0001p170b2htou7k/members', 401), ('/api/targets', 401), ('/api/scans', 401), ('/api/reports', 401), ('/api/audit', 401), ('/api/bootstrap', 200)]"
+    "evidence": "codes=[('/api/me', 401), ('/api/orgs', 401), ('/api/orgs/cmvkbvdmr0001swy8ejuh6j11', 401), ('/api/orgs/cmvkbvdmr0001swy8ejuh6j11/members', 401), ('/api/targets', 401), ('/api/scans', 401), ('/api/reports', 401), ('/api/audit', 401), ('/api/bootstrap', 200)]"
   },
   {
     "id": "B2",
     "name": "login brute-force rate limiting (fail-closed + proven short-circuit)",
     "status": "PASS",
-    "evidence": "13th attempt body=b'{\"url\":\"http://localhost:3000/api/auth/error?error=RATE_LIMI' t1=38ms t13=3ms"
+    "evidence": "13th attempt body=b'{\"url\":\"http://localhost:3000/api/auth/error?error=RATE_LIMI' t1=39ms t13=3ms"
   },
   {
     "id": "B3",
@@ -159,7 +159,7 @@
     "id": "B6",
     "name": "malformed JSON body handled without stack leak",
     "status": "PASS",
-    "evidence": "HTTP 500 leak=False body=b'{\"error\":\"\\xd8\\xae\\xd8\\xb7\\xd8\\xa3 \\xd8\\xaf\\xd8\\xa7\\xd8\\xae\\xd9\\x84\\xd9\\x8a \\xd9\\x81\\xd9\\x8a \\xd8\\xa7\\xd9\\x84\\xd8\\xae\\xd8\\xa7\\xd8\\xaf\\xd9\\x85\"}'"
+    "evidence": "HTTP 400 leak=False body=b'{\"error\":\"\\xd8\\xac\\xd8\\xb3\\xd9\\x85 \\xd8\\xa7\\xd9\\x84\\xd8\\xb7\\xd9\\x84\\xd8\\xa8 \\xd8\\xba\\xd9\\x8a\\xd8\\xb1 \\xd8\\xb5\\xd8\\xa7\\xd9\\x84\\xd8\\xad \\xe2\\x80\\x94 JSON \\xd8\\xaa\\xd8\\xa7\\xd9\\x84\\xd9\\x81\"}'"
   },
   {
     "id": "B7",
@@ -171,13 +171,13 @@
     "id": "B8",
     "name": "report download: nosniff + Content-Disposition attachment",
     "status": "PASS",
-    "evidence": "nosniff=nosniff disposition='attachment; filename=\"sentinel-report-cmvk8ddd6002rp170p0cy6'"
+    "evidence": "nosniff=nosniff disposition='attachment; filename=\"sentinel-report-cmvkbvnio002rswy8ixfmo'"
   },
   {
     "id": "B9",
     "name": "report HTML contains no raw <script> injection from findings",
     "status": "PASS",
-    "evidence": "raw-script-found=False content-len=1974534"
+    "evidence": "raw-script-found=False content-len=1974521"
   },
   {
     "id": "B10",
