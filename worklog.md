@@ -5960,3 +5960,24 @@ Stage Summary:
 - Final candidate: eff2787 (local main) — code-final battery on 3ad6506, docs-only commits after (fast re-verified: unit 22/22 + typecheck on each).
 - The mission's own hunting mandate produced real value: the 12-check gap probe found 2 defects every previous battery missed (member/role escalation surface was never tested; scan-start race; error misclassification).
 - Path to GREEN documented in MASTER_REPORT §17: operator replaces container Caddyfile + reload + canary re-proof; staging env or formal re-scope; re-run gate (~20 min, scripts committed); then push to verified/security-audit-2026-10-23.
+
+---
+Task ID: 20
+Agent: main (Z.ai)
+Task: Follow-up verification round (5 user questions): machine secrets/user-data inventory, external-vs-internal vantage honesty, live-Caddy fix capability, remote main state, ENV-1 live re-proof.
+
+Work Log:
+- Fix-capability evidence: user z uid=1001, sudo requires password; signal check on the root proxy (PID 2) returns Operation not permitted; /app/Caddyfile is root:root mode 600 and unreadable; /app/ unreadable; local admin endpoint :2019 gives connection refused. NO path to modify the live service from this account.
+- Vantage proof: `ip route get 21.0.7.207` returns `local ... dev lo` — every previous "public interface" canary request originated INSIDE the container and never left the machine. No true external test was ever performed; Level-4 stays BLOCKED.
+- Secrets inventory (scripts/audit_env_secrets_inventory.py): zero PAT values on disk (search over /home/z for token prefixes matched only worklog fingerprint docs, scan-script patterns, and planted fixture canaries); no ~/.ssh, no GPG, no PEM private keys; no .git-credentials/.netrc/gh; .env = DATABASE_URL path only; .npmrc = prefix only; no secret env vars (only match was BUN_..._PATH containing "_PAT" substring); /root + /etc/shadow unreadable to uid 1001.
+- User data = 100% synthetic: qa-prod.db 3 users (gap-27a6c644@t.local, mem-, view- ; scrypt hashes; created by task-19 gap probe), tests/integration.db 3 users (racer0@integration.test, member@, viewer@), db/custom.db EMPTY, CLI stores (runs/findings only). Fixture emails = @sentinel-fixture.local/@example.com. No real PII anywhere.
+- Remote state: unauthenticated API now 404 for mememamaly-oss/Sen; account exists (created 2026-09-10) but public_repos=0; rate limit remaining=9, so the repo was turned PRIVATE or deleted; live remote verification impossible without credentials. Last authenticated verification (task 19): origin/main = 722d9fd9fed9fbaceefde9cbc3e6a62a03d2ac9d, no other branches, nothing pushed after it. Local main = f597522a8fe361d5965794acc339920cc48364dd, 12 commits ahead, all local-only (incl. platform snapshot commits 5861853 + f597522 with UUID messages: qa-results refresh + .backup-stage list).
+- ENV-1 live re-proof (scripts/live_canary_reproof.sh @ 2026-10-23 02:57:07Z): canary bound 127.0.0.1:8998 loopback-only; direct via public IP gives CONNECTION REFUSED (control OK); via http://127.0.0.1:81/?XTransformPort=8998 gives HTTP 200 body "CANARY-HIT CANARY-ENV1-025707"; via http://21.0.7.207:81/?XTransformPort=8998 gives HTTP 200 same canary (request still from inside); lowercase variant does NOT relay (returns Sen app HTML — case-sensitive); dead port 8997 gives 502 Bad Gateway (parameter honored per-request). RELAY STILL LIVE.
+
+Stage Summary:
+- Q1: No real secrets or real user data on the machine — full inventory delivered; PAT never persisted (scan-proven).
+- Q2: Honest correction — ALL tests ran from INSIDE the container (incl. the "public IP" one, which routes via dev lo). External reachability: unproven and untestable from inside, which is exactly why Level-4 is BLOCKED and the gate is RED.
+- Q3: Cannot fix the live edge proxy (4 independent proofs). Owner = Z.ai platform operator (image-baked /app/Caddyfile). Gave user 3 paths: support-escalation text, formal re-scope of ENV-1 as sandbox infra, or staging env.
+- Q4: Last pushed commit = 722d9fd9fed9fbaceefde9cbc3e6a62a03d2ac9d (verified authenticated during task 19; repo now private, so offered re-verification via fresh PAT or the user's own ls-remote). 12 local-only commits since; zero pushes (no stored credentials; all attempts documented blocked).
+- Q5: Full re-proof command + complete verbatim output delivered in chat; relay re-confirmed live TODAY.
+- Gate status UNCHANGED: RED — PUSH PROHIBITED.
