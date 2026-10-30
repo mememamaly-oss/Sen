@@ -6004,3 +6004,41 @@ Stage Summary:
 - Deliverable: ZAI_ENV1_SSRF_DISCLOSURE_2026-10-23.zip in download/ (bilingual report + PoC + instructions + surface map).
 - Declined-and-documented: harvesting credentials/messages from platform services (user request) — no real data exists anyway; report is the correct handover artifact.
 - Gate status UNCHANGED: RED — PUSH PROHIBITED.
+
+---
+
+## 2026-10-31 — Phase-2 commercial campaign (P2): compliance × distribution × PostgreSQL
+
+Owner directive (session 2026-10-31, administration PAT supplied): execute
+Phase-2 items 5/6/7 + groundwork for 8–10. One session, executed end to end:
+
+- Item 6: `sentinel/compliance.py` — 54 detector classes mapped (OWASP Top 10
+  2021 + 2025 FINAL, CWE, PCI DSS 6.4.2 = 6.6 in v3.2.1). Source honesty rule:
+  `official` only when the CWE appears in the category's official mapped-CWE
+  list (fetched 2026-10-31, embedded, machine-rechecked by the parity test);
+  everything else tagged `scope`. 12/54 official-2021, 36/54 official-2025.
+  Wired into result.json + SARIF/exec/JSON/HTML/GLASS + platform column
+  (complianceJson) + finding UI + /docs/compliance + `sentinel compliance` CLI.
+  secure_cookie was found unregistered BY the new CI check (3 findings honestly
+  unmapped) → fixed: SEN-CKI-001 + CWE-614 → A02:2025 official.
+- Item 7: SQLite→PostgreSQL — real migrations, applied on a real local cluster
+  (pgserver wheel, unprivileged; TCP 127.0.0.1:55432 because Prisma 6 rejects
+  socket-only URIs). Engine stores stay SQLite by design. Next-auth hardened:
+  server-side (app) layout guard + signIn page /login. Public surface: landing,
+  /docs (5 pages), /demo + /api/demo/scan (hardcoded target, per-IP 3/hour,
+  single lane, capped output, no tenant writes).
+- Item 5: CI rebuilt as ONE workflow file, five jobs (web on a PG service
+  container; engine; secrets; fixture = canonical campaign-config run with the
+  benchmark gate F1==1.0/TP==38/FP==0; compliance drift guard) + GitLab CI
+  template integrations/gitlab-ci/sen-scan.gitlab-ci.yml.
+- Phase-3 groundwork documents: docs/phase3/{pentest-rfp,soc2-readiness,
+  hosted-free-tier}.md.
+- Verification (all local, pre-push): python 196/196 · bun 27/27 (incl. live
+  CLI parity) · integration 26/26 on real PG · doctor PASS · typecheck/lint/
+  build PASS · canonical fixture reproduced EXACTLY (F1=1.0, TP=38/FP=0,
+  199 verified/30 types/7162 requests) · drift guard clean.
+- Environment notes: dev sandbox re-injects a stale DATABASE_URL between
+  commands → the runner now protocol-checks (postgresql://) instead of
+  trusting mere presence. Next-16 single-dev-server-per-dir lock hit again
+  (platform dev server on :3000) — kill, run suite, restore.
+Full record: evidence/phase2-compliance-ci/RECORD.md.
