@@ -3,9 +3,9 @@
 PROVENANCE (عقد M1 المُسجَّل — tests/test_axis8_proof.py):
 - العقد مُشتق من المواصفة المرجعية المؤرشفة §8 (D1) + قائمة نطاق أمر
   البناء (D2)، مُعلن وقابل للإحلال عند أي حد محطة (سابقة المحور-4).
-- الاعتماديات: hashlib + hmac + os من stdlib؛ وEd25519 وChaCha20-Poly1305
-  عبر مكتبة cryptography (pyca) — لا حساب نقاطي يدوي ولا دالة كتلة
-  ChaCha20/Poly1305 يدوية منذ 2026-10-30. HKDF لا يزال stdlib.
+- الاعتماديات: hashlib + os من stdlib؛ وEd25519 وChaCha20-Poly1305 وHKDF
+  عبر مكتبة cryptography (pyca) — لا حساب نقاطي ولا حلقة expand ولا
+  دالة كتلة يدوية منذ 2026-10-30.
 - انضباط المحور-11: كل الأزمنة معاملات صريحة (when_ms=None → ساعة
   النظام؛ البطاريات تمرر أزمنة مثبتة). لا زمن حائطي في أي هاضم.
 - validation-before-mutation: العقود البنيوية (أنواع/أطوال/حدود)
@@ -22,7 +22,8 @@ PROVENANCE (عقد M1 المُسجَّل — tests/test_axis8_proof.py):
   §5  طابع RFC 3161       §8.4 (TST=Sign(TSA, Hash(data)||Time) محلياً)
   §6  ChaCha20-Poly1305   RFC 8439 §2.8 AEAD عبر مكتبة cryptography
                           (pyca) منذ 2026-10-30 — ناتج مطابق بايت-لبايت
-  §7  HKDF-SHA256         RFC 5869 (extract + expand)
+  §7  HKDF-SHA256         RFC 5869 عبر صنفي HKDF/HKDFExpand في
+                          مكتبة cryptography (منذ 2026-10-30)
   §8  نموذج الإثبات       §8.1/§8.6 (P الستّي، تمثيل JSON قياسي حتمي)
   §9  سلسلة الحيازة       تسجيل/تنازل موقّع بسلسلة روابط — التنازل
                           من غير الحائز الحالي مرفوض ذرياً (ضد التزوير
@@ -31,13 +32,14 @@ PROVENANCE (عقد M1 المُسجَّل — tests/test_axis8_proof.py):
 from __future__ import annotations
 
 import hashlib
-import hmac
 import json
 import os
 import time
 
 from cryptography.exceptions import InvalidSignature, InvalidTag
-from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.hmac import HMAC
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF, HKDFExpand
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey, Ed25519PublicKey)
@@ -315,36 +317,51 @@ def chacha20poly1305_decrypt(key: bytes, nonce: bytes, ct_tag: bytes,
 
 
 # ============================================================ §7 HKDF-SHA256
+# منذ 2026-10-30: RFC 5869 عبر صنفي HKDF وHKDFExpand في مكتبة
+# cryptography (pyca) — لا حلقة expand يدوية ولا تركيب HMAC يدوي هنا.
+# الناتج بايت-لبايت مطابق للتنفيذ اليدوي السابق (متحقق بمتجهات
+# RFC 5869 A.1-A.3 الرسمية في tests/test_proof_hkdf_rfc5869.py).
+# ملاحظة تنفيذية: صنف HKDF لا يعرض استخراج PRK منفرداً، لذا تُنفَّذ
+# hkdf_sha256_extract ببدائي HMAC من المكتبة نفسها
+# (cryptography.hazmat.primitives.hmac.HMAC) — لا شيء يدوي.
+
+
 def hkdf_sha256_extract(salt: bytes, ikm: bytes) -> bytes:
-    """RFC 5869 §2.2: PRK = HMAC-SHA256(salt, IKM)."""
+    """RFC 5869 §2.2: PRK = HMAC-SHA256(salt, IKM) — عبر بدائي HMAC
+    في مكتبة cryptography (الملح الفارغ => 32 صفراً كما في RFC)."""
     salt = _require_bytes(salt, None, "salt")
     ikm = _require_bytes(ikm, None, "ikm")
     if len(salt) == 0:
         salt = b"\x00" * 32  # RFC 5869: الافتراضي أصفار بطول الهاش
-    return hmac.new(salt, ikm, hashlib.sha256).digest()
+    mac = HMAC(salt, hashes.SHA256())
+    mac.update(ikm)
+    return mac.finalize()
 
 
 def hkdf_sha256_expand(prk: bytes, info: bytes, length: int) -> bytes:
-    """RFC 5869 §2.3: T(i)=HMAC(PRK, T(i-1)||info||i) — الحد 255·32."""
+    """RFC 5869 §2.3 عبر صنف HKDFExpand — الحد 255·32 كما كان."""
     prk = _require_bytes(prk, None, "prk")
     info = _require_bytes(info, None, "info")
     length = _require_int(length, "length")
     if not 1 <= length <= 255 * 32:
         raise ValidationError(
             f"hkdf: length must be in [1, {255 * 32}], got {length}")
-    okm = bytearray()
-    t = b""
-    i = 1
-    while len(okm) < length:
-        t = hmac.new(prk, t + info + bytes([i]),
-                     hashlib.sha256).digest()
-        okm.extend(t)
-        i += 1
-    return bytes(okm[:length])
+    return HKDFExpand(algorithm=hashes.SHA256(), length=length,
+                      info=info).derive(prk)
 
 
 def hkdf_sha256(ikm: bytes, salt: bytes, info: bytes, length: int) -> bytes:
-    return hkdf_sha256_expand(hkdf_sha256_extract(salt, ikm), info, length)
+    """RFC 5869 (extract ثم expand) عبر صنف HKDF في مكتبة cryptography
+    — الملح الفارغ يُعامل داخلياً كأصفار بطول الهاش (A.3 متحقق)."""
+    ikm = _require_bytes(ikm, None, "ikm")
+    salt = _require_bytes(salt, None, "salt")
+    info = _require_bytes(info, None, "info")
+    length = _require_int(length, "length")
+    if not 1 <= length <= 255 * 32:
+        raise ValidationError(
+            f"hkdf: length must be in [1, {255 * 32}], got {length}")
+    return HKDF(algorithm=hashes.SHA256(), length=length, salt=salt,
+                info=info).derive(ikm)
 
 
 # ============================================================ §8 نموذج الإثبات
