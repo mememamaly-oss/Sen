@@ -51,6 +51,12 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: bun install --frozen-lockfile
 
+      # the compliance parity test spawns `python3 -m sentinel.cli compliance
+      # --json` — the engine imports cryptography+blake3 at module level, so
+      # the runner python needs them too
+      - name: Install engine python dependencies (parity test)
+        run: pip install -r requirements.txt
+
       - name: Prisma generate
         run: bunx prisma generate
 
@@ -87,6 +93,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install engine dependencies (cryptography + blake3)
+        run: pip install -r requirements.txt
+
       - name: Engine doctor (19 checks)
         run: python3 -m sentinel.cli doctor
 
@@ -119,6 +128,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Install engine dependencies (cryptography + blake3)
+        run: pip install -r requirements.txt
 
       - name: Canonical full-platform run (verified campaign config; store persisted)
         run: |
@@ -169,6 +181,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - name: Install engine dependencies (cryptography + blake3)
+        run: pip install -r requirements.txt
 
       - name: Regenerate and compare (stale registry can never ship)
         run: |
