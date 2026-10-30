@@ -4,8 +4,9 @@ Proof Layer).
 PROVENANCE (عقد M1 المُسجَّل — tests/test_axis8_proof.py):
 - العقد مُشتق من المواصفة المرجعية المؤرشفة §8 (D1) + قائمة نطاق أمر
   البناء (D2)، مُعلن وقابل للإحلال عند أي حد محطة (سابقة المحور-4).
-- المحرك نقي stdlib حصراً: hashlib + hmac + os + struct. لا pyca، لا
-  scipy، لا أي استيراد خارجي. المراجع الخارجية في الاختبارات فقط.
+- الاعتماديات: hashlib + hmac + os + struct من stdlib، وEd25519 عبر
+  مكتبة cryptography (pyca) منذ استبدال التنفيذ اليدوي — لا حساب
+  نقاطي يدوي. ChaCha20-Poly1305 وHKDF لا يزالان stdlib.
 - انضباط المحور-11: كل الأزمنة معاملات صريحة (when_ms=None → ساعة
   النظام؛ البطاريات تمرر أزمنة مثبتة). لا زمن حائطي في أي هاضم.
 - validation-before-mutation: العقود البنيوية (أنواع/أطوال/حدود)
@@ -36,6 +37,11 @@ import json
 import os
 import struct
 import time
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey, Ed25519PublicKey)
 
 __all__ = [
     "ProofError", "ValidationError", "IntegrityError",
@@ -96,95 +102,8 @@ def _canonical(obj) -> bytes:
 
 
 # ============================================================ §2 Ed25519
-# منحنى edwards25519 — RFC 8032. تنفيذ خالص بأعداد بايثون الكبيرة
-# (إحداثيات ممتدة X:Y:Z:T بالتكافؤ x=X/Z, y=Y/Z, T=XY/Z).
-_Q = 2 ** 255 - 19
-_L = 2 ** 252 + 27742317777372353535851937790883648493
-_D = (-121665 * pow(121666, _Q - 2, _Q)) % _Q
-_I = pow(2, (_Q - 1) // 4, _Q)
-_BX = 15112221349535400772501151409588531511454012693041857206046113283949847762202
-_BY = 46316835694926478169428394003475163141307993866256225615783033603165251855960
-_B = (_BX, _BY, 1, (_BX * _BY) % _Q)
-_IDENTITY = (0, 1, 1, 0)
-
-
-def _inv_q(x: int) -> int:
-    return pow(x, _Q - 2, _Q)
-
-
-def _recover_x(y: int, sign: int):
-    """فك ضغط النقطة: حل x²=(y²-1)/(d·y²+1) وضبط إشارة البِت الأعلى."""
-    if y >= _Q:
-        return None
-    x2 = ((y * y - 1) * _inv_q(_D * y * y + 1)) % _Q
-    if x2 == 0:
-        return None if sign else 0
-    x = pow(x2, (_Q + 3) // 8, _Q)
-    if (x * x - x2) % _Q != 0:
-        x = (x * _I) % _Q
-    if (x * x - x2) % _Q != 0:
-        return None
-    if x % 2 != sign:
-        x = _Q - x
-    return x
-
-
-def _pt_add(P, Q):
-    """جمع نقطتين بإحداثيات ممتدة (RFC 8032 §5.1.4)."""
-    x1, y1, z1, t1 = P
-    x2, y2, z2, t2 = Q
-    a = ((y1 - x1) * (y2 - x2)) % _Q
-    b = ((y1 + x1) * (y2 + x2)) % _Q
-    c = (2 * t1 * t2 * _D) % _Q
-    d = (2 * z1 * z2) % _Q
-    e, f, g, h = b - a, d - c, d + c, b + a
-    return ((e * f) % _Q, (g * h) % _Q, (f * g) % _Q, (e * h) % _Q)
-
-
-def _pt_mult(P, e: int):
-    """ضرب سكّالي مزدوج-وجمع (حتمي — لا نوافذ عشوائية)."""
-    Q = _IDENTITY
-    while e:
-        if e & 1:
-            Q = _pt_add(Q, P)
-        P = _pt_add(P, P)
-        e >>= 1
-    return Q
-
-
-def _pt_compress(P) -> bytes:
-    x, y, z, _t = P
-    zi = _inv_q(z)
-    x = (x * zi) % _Q
-    y = (y * zi) % _Q
-    return int.to_bytes(y | ((x & 1) << 255), 32, "little")
-
-
-def _pt_decompress(s: bytes):
-    if len(s) != 32:
-        raise ValidationError("point encoding must be 32 bytes")
-    val = int.from_bytes(s, "little")
-    sign = val >> 255
-    y = val & ((1 << 255) - 1)
-    x = _recover_x(y, sign)
-    if x is None:
-        raise ValidationError("invalid point encoding (not on curve)")
-    return (x, y, 1, (x * y) % _Q)
-
-
-def _secret_expansion(seed: bytes):
-    """توسيع البذرة: a مقيدّة (clamp) + بادئة عشوائية RFC 8032 §5.1.5."""
-    h = hashlib.sha512(seed).digest()
-    a = int.from_bytes(h[:32], "little")
-    a &= (1 << 254) - 8
-    a |= (1 << 254)
-    return a, h[32:]
-
-
-def _sha512_mod_l(data: bytes) -> int:
-    return int.from_bytes(hashlib.sha512(data).digest(), "little") % _L
-
-
+# RFC 8032 عبر مكتبة cryptography (pyca) — لا حساب نقاطي يدوي في هذا
+# الملف بعد الآن. العقود العامة (أسماء/ترتيب وسائط/سلوك الرفض) كما هي.
 def ed25519_generate_seed() -> bytes:
     """بذرة 32 بايت من os.urandom (مصدر النظام وحده — معلن)."""
     return os.urandom(32)
@@ -192,20 +111,16 @@ def ed25519_generate_seed() -> bytes:
 
 def ed25519_public_key(seed: bytes) -> bytes:
     seed = _require_bytes(seed, 32, "seed")
-    a, _prefix = _secret_expansion(seed)
-    return _pt_compress(_pt_mult(_B, a))
+    return Ed25519PrivateKey.from_private_bytes(seed)\
+        .public_key()\
+        .public_bytes(serialization.Encoding.Raw,
+                      serialization.PublicFormat.Raw)
 
 
 def ed25519_sign(seed: bytes, message: bytes) -> bytes:
     seed = _require_bytes(seed, 32, "seed")
     message = _require_bytes(message, None, "message")
-    a, prefix = _secret_expansion(seed)
-    a_enc = _pt_compress(_pt_mult(_B, a))
-    r = _sha512_mod_l(prefix + message)
-    r_enc = _pt_compress(_pt_mult(_B, r))
-    k = _sha512_mod_l(r_enc + a_enc + message)
-    s = (r + k * a) % _L
-    return r_enc + int.to_bytes(s, 32, "little")
+    return Ed25519PrivateKey.from_private_bytes(seed).sign(message)
 
 
 def ed25519_verify(signature: bytes, message: bytes,
@@ -214,18 +129,11 @@ def ed25519_verify(signature: bytes, message: bytes,
     message = _require_bytes(message, None, "message")
     public_key = _require_bytes(public_key, 32, "public key")
     try:
-        a_pt = _pt_decompress(public_key)
-        r_pt = _pt_decompress(signature[:32])
-    except ValidationError:
+        Ed25519PublicKey.from_public_bytes(public_key)\
+            .verify(signature, message)
+        return True
+    except (InvalidSignature, ValueError):
         return False
-    s = int.from_bytes(signature[32:], "little")
-    if s >= _L:
-        return False
-    k = _sha512_mod_l(signature[:32] + public_key + message)
-    # معادلة RFC 8032: s·B = R + k·A (بلا عامل مساعد — يكفي للعقد)
-    lhs = _pt_mult(_B, s)
-    rhs = _pt_add(r_pt, _pt_mult(a_pt, k))
-    return _pt_compress(lhs) == _pt_compress(rhs)
 
 
 # ============================================================ §3 Merkle
