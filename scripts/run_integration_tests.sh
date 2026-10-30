@@ -6,29 +6,48 @@
 # sandboxed environments (child-process trees can observe stale file
 # content); a bash-managed server + attached test suite is deterministic.
 #
-# Steps: fresh scratch DB -> prisma db push -> boot dev server -> wait
+# P2-D (2026-10-31): the platform DB is PostgreSQL. Two supported modes:
+#   1. DATABASE_URL already provided (CI service container) — used verbatim.
+#   2. local dev — scripts/pg_dev_start.sh --reset provisions a FRESH local
+#      cluster + database (drop + create) on 127.0.0.1:55432.
+# The schema is built with `prisma migrate deploy` (the REAL migration
+# files — every integration run re-validates them end to end).
+#
+# Steps: fresh PG database -> migrate deploy -> boot dev server -> wait
 # ready -> run bun test against it -> always kill server -> exit with the
 # test's exit code.
 set -uo pipefail
 cd "$(dirname "$0")/.."
 
 PORT="${INTEGRATION_PORT:-3177}"
-DB="tests/integration.db"
 LOG="tests/integration-server.log"
 URL="http://127.0.0.1:${PORT}"
 
-export DATABASE_URL="file:$(pwd)/${DB}"
-export NEXTAUTH_SECRET="integration-test-secret"
-export SENTINEL_DATA_DIR="/tmp/sentinel-test-data"
+# P2-D: the platform DB is PostgreSQL. The runner accepts a ready DATABASE_URL
+# (protocol-checked — CI provides a postgres service container) and provisions
+# the local dev cluster for anything else (unset, sqlite leftovers, garbage —
+# dev sandboxes re-inject stale env between commands, so the check is by
+# PROTOCOL, never by mere presence).
+case "${DATABASE_URL:-}" in
+  postgresql://*|postgres://*) : ;;  # provided and valid for this schema — verbatim
+  *)
+    DATABASE_URL="$(bash scripts/pg_dev_start.sh --reset)" || {
+      echo "FATAL: pg_dev_start.sh failed"; exit 1;
+    }
+    ;;
+esac
+export DATABASE_URL
+export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-integration-test-secret}"
+export SENTINEL_DATA_DIR="${SENTINEL_DATA_DIR:-/tmp/sentinel-test-data}"
 
 # --- clean state -------------------------------------------------------------
 pkill -f "next dev -p ${PORT}" 2>/dev/null && sleep 1
-rm -f "${DB}" "${DB}-journal" "${DB}-wal" "${DB}-shm" "${LOG}"
-mkdir -p /tmp/sentinel-test-data
+rm -f "${LOG}"
+mkdir -p "${SENTINEL_DATA_DIR}"
 
-# --- schema push (bash context: reads the CURRENT schema.prisma) -------------
-if ! bunx prisma db push --skip-generate >>"${LOG}" 2>&1; then
-  echo "FATAL: prisma db push failed"; cat "${LOG}"; exit 1
+# --- schema: the real migration files (never ad-hoc db push) ------------------
+if ! bunx prisma migrate deploy >>"${LOG}" 2>&1; then
+  echo "FATAL: prisma migrate deploy failed"; cat "${LOG}"; exit 1
 fi
 
 # --- boot the dev server -------------------------------------------------------

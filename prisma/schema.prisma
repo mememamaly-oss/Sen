@@ -2,15 +2,21 @@
 // UNMODIFIED security engine (build-v411, tagged v4.1.1).
 // Tenant isolation: every business row carries orgId and every query is
 // membership-guarded at the API layer (src/lib/rbac.ts).
-// NOTE: SQLite does not support enums — role/status/severity are validated
-// in code (RBAC_WHITELISTS in src/lib/rbac.ts).
+//
+// P2-D (2026-10-31): PostgreSQL migration — provider moved from sqlite to
+// postgresql. role/status/severity REMAIN String columns validated in code
+// (RBAC_WHITELISTS in src/lib/rbac.ts) by design: single source of truth, and
+// the guard survives even if the column type ever widens.
+//
+// P2-C: Finding.complianceJson carries the engine's OWASP/CWE/PCI DSS mapping
+// (imported verbatim from result.json — never recomputed platform-side).
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -124,6 +130,7 @@ model Finding {
   verificationJson String // engine verification record
   impactJson       String // engine impact {grade, statement, safe_proof, evidence_chain}
   proofJson        String? // engine Evidence-OS proof (reproduction recipe) when present
+  complianceJson   String? // P2-C: engine compliance mapping {cwe, owasp_2021, owasp_2025, pci_dss} — imported verbatim from result.json
   createdAt        DateTime     @default(now())
   org              Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
   scan             Scan         @relation(fields: [scanId], references: [id], onDelete: Cascade)
