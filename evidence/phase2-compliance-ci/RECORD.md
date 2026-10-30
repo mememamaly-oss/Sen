@@ -131,7 +131,18 @@ at the first enterprise customer) · `docs/phase3/hosted-free-tier.md`
 Executed after the owner's green light (administration PAT supplied in
 session 2026-10-31; passed via GH_TOKEN env only — never written to disk,
 never echoed; see the push-gate script for the exact protocol).
-Fast-forward only; origin/main re-verified post-push by ls-remote; GitHub
-Actions runs checked to green on all five jobs; repo visibility re-verified
-private. The wire-level details (hashes, run ids) live in the session log;
-the durable claims are the ones above.
+Two pushes, both fast-forward and wire-verified by ls-remote:
+  1. 9b4d01c -> c12459a (the P2 chain + the held Phase-1 campaign)
+  2. c12459a -> d7c195c — a post-push review caught that the CI python
+     jobs did not install the engine's requirements (cryptography + blake3
+     are imported at module level); every python job (engine/fixture/drift,
+     and the web job's parity test) now installs requirements.txt, and the
+     GitLab template installs them itself.
+Repo visibility re-verified private via API. Honest open item: the owner's
+administration PAT as supplied carries Contents/Metadata but NOT
+Administration and NOT Actions:Read (verified: 403 on
+actions/runs + permissions.administration=false), so the five jobs could
+not be observed through the API from this session — they are running
+(Actions is enabled on the repo, verified 200) and their outcome should be
+checked in the GitHub UI; the token needs those two permissions added by
+the owner for any future session to monitor CI or perform admin operations.
