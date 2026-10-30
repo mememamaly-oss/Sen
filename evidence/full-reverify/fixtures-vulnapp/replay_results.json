@@ -1,12 +1,12 @@
 {
  "summary": {
   "findings_total": 199,
-  "REPRODUCTION_VERIFIED": 1,
-  "NOT_REPLAYABLE": 36,
-  "REPRODUCTION_FAILED": 3,
+  "REPRODUCTION_VERIFIED": 5,
+  "NOT_REPLAYABLE": 35,
+  "REPRODUCTION_FAILED": 0,
   "errors": 159,
-  "scan_wall_seconds": 102.3,
-  "replay_wall_seconds": 0.0
+  "scan_wall_seconds": 102.2,
+  "replay_wall_seconds": 0.5
  },
  "results": [
   {
@@ -40,9 +40,9 @@
   {
    "finding_id": "F-032bdac7bf",
    "type": "command_injection",
-   "replay": "REPRODUCTION_FAILED",
-   "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)",
-   "evidence": "",
+   "replay": "REPRODUCTION_VERIFIED",
+   "reason": "the same vuln class re-verified on a clean engine",
+   "evidence": "server executed a blind fetch out-of-band from unknown (interaction oob-0a109ba3cd66) — blind command injection: form=detect — separator battery [';', '&&'] (blind shell fetch) triggered an outbound c",
    "url": "http://127.0.0.1:8777/vuln/ping",
    "parameter": "host"
   },
@@ -222,9 +222,9 @@
   {
    "finding_id": "F-aa9556d310",
    "type": "http_response_header_injection",
-   "replay": "NOT_REPLAYABLE",
-   "reason": "no automated replay implemented for class http_response_header_injection",
-   "evidence": "",
+   "replay": "REPRODUCTION_VERIFIED",
+   "reason": "the same vuln class re-verified on a clean engine",
+   "evidence": "CRLF in param split a second response header: x-sentinel-probe: 'injected' (attacker-controlled header injection)",
    "url": "http://127.0.0.1:8777/vuln/jsparam.php",
    "parameter": "cat"
   },
@@ -240,18 +240,18 @@
   {
    "finding_id": "F-e462d9cbcb",
    "type": "csrf",
-   "replay": "REPRODUCTION_FAILED",
-   "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)",
-   "evidence": "",
+   "replay": "REPRODUCTION_VERIFIED",
+   "reason": "the same vuln class re-verified on a clean engine",
+   "evidence": "state-changing POST accepted from hostile origin (https://csrf-probe.example): baseline -> HTTP 200 (23B), cross-origin replay -> HTTP 200 (23B) — no CSRF token in the form and no Origin/Referer valid",
    "url": "http://127.0.0.1:8777/vuln/csrf-action",
    "parameter": "email"
   },
   {
    "finding_id": "F-04eeda1891",
    "type": "jwt_security",
-   "replay": "REPRODUCTION_FAILED",
-   "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)",
-   "evidence": "",
+   "replay": "REPRODUCTION_VERIFIED",
+   "reason": "the same vuln class re-verified on a clean engine",
+   "evidence": "server issues UNSIGNED JWT (alg=none, empty signature) — RFC 8725 §3.1: if the verifier honors none, any party can forge arbitrary claims. claims: role, sub; missing exp claim (no expiry)",
    "url": "http://127.0.0.1:8777/vuln/jwt-login",
    "parameter": "-"
   },
