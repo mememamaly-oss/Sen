@@ -1021,7 +1021,7 @@ class TraversalDetector(Detector):
                 return Finding("path_traversal", Severity.HIGH, ep.url, p.name, ep.method,
                                [Evidence("file_marker", f"content of {fname} leaked (marker {marker!r} at offset {i})",
                                          resp.request_id, resp.body[i:i + 200])],
-                               status=FindingStatus.CANDIDATE)
+                               status=FindingStatus.CANDIDATE, detector=self.name)
         # GTP-03(c): existence-oracle candidates ride the note channel — the
         # orchestrator's existence pair (exists vs missing) lands here with
         # resp tagged 'trav_exists:<payload>'; the differential is computed by
@@ -1071,7 +1071,7 @@ class TraversalDetector(Detector):
                               f"(etc/passwd) -> HTTP {rk.status}, missing (etc/{missing}) -> "
                               f"HTTP {rm.status} — the sink leaks file existence outside its base",
                               rk.request_id)],
-                    status=FindingStatus.CANDIDATE)
+                    status=FindingStatus.CANDIDATE, detector=self.name)
             # GTP-03b: neutralize the echo on the ENTITY-NORMALIZED view — the
             # payload echoes back HTML-encoded (&#x2f;home&#x2f;...); the raw
             # .replace() never stripped it, so the differential measured the
@@ -1117,7 +1117,7 @@ class TraversalDetector(Detector):
                               f"({len(rk.body or '')}B) vs missing ({len(rm.body or '')}B) differ "
                               f"beyond the echoed payload — the sink leaks file existence "
                               f"outside its base", rk.request_id)],
-                    status=FindingStatus.CANDIDATE)
+                    status=FindingStatus.CANDIDATE, detector="traversal")
             # GTP-12e (round 5, live-caught: BenchmarkTest00002 — the type case
             # of GTP-03c's own comment): a write-capable sink answers IDENTICAL
             # EMPTY responses on the existence pair (/etc/passwd and
@@ -1158,7 +1158,7 @@ class TraversalDetector(Detector):
                                   f"answers differ beyond the echo — write-capable sink "
                                   f"(FileOutputStream family) leaks path writability "
                                   f"outside its base", rw.request_id)],
-                        status=FindingStatus.CANDIDATE)
+                        status=FindingStatus.CANDIDATE, detector="traversal")
         return None
 
 
@@ -1584,7 +1584,7 @@ class HeaderNameTraversalDetector(Detector):
                                      f"the header NAME and leaks file existence one level outside "
                                      f"its base (header names cannot carry '/', so the provable "
                                      f"escape depth is one level)", r1.request_id)],
-                           status=FindingStatus.CANDIDATE)
+                           status=FindingStatus.CANDIDATE, detector="trav_hname")
         return None
 
 
@@ -1651,7 +1651,7 @@ class ParamNameTraversalDetector(Detector):
                                      f"file path from the parameter NAME (exists-boolean flip, "
                                      f"stream-error text, or empty-vs-echo) and leaks file state "
                                      f"one level outside its base", r1.request_id)],
-                           status=FindingStatus.CANDIDATE)
+                           status=FindingStatus.CANDIDATE, detector="trav_pname")
         return None
 
 
@@ -2245,7 +2245,7 @@ class CommandInjectionDetector(Detector):
                               "the parameter NAME (renamed-clone probe, value = the declared "
                               "value); the verifier must replay the name channel, not a "
                               "value mutation", None)],
-                    status=FindingStatus.CANDIDATE)
+                    status=FindingStatus.CANDIDATE, detector="cmdi")
             return None
         # CM-1: ONE combined poll window covers ALL channels for this
         # (endpoint, param): the variant channel ("detect") AND both twin
@@ -2283,7 +2283,7 @@ class CommandInjectionDetector(Detector):
                           f"{_form_txt} triggered an outbound curl. "
                           f"recipe: param={p.name} iid={iid}",
                           resp.request_id)],
-                status=FindingStatus.CANDIDATE)
+                status=FindingStatus.CANDIDATE, detector="cmdi")
         return None
 
 
@@ -2858,7 +2858,7 @@ class CmdiEchoDetector(Detector):
                               f"in response (literal absent from base) and {self.EXPRS[1]} -> 42 "
                               f"confirms — separator {sep.strip()!r} reached a shell context "
                               f"[ctx: …{body[max(0,i-40):i+20]}…]", r.request_id)],
-                    status=FindingStatus.CANDIDATE)
+                    status=FindingStatus.CANDIDATE, detector="cmdi_echo")
             # GTP-04b(a): ENV-ARRAY twin — FOO=<expr> rides the envp array into
             # insecureCmd.sh's `eval $FOO`; the arithmetic computes in the eval
             # shell and lands in the echoed process output. Base control is the
@@ -2894,7 +2894,7 @@ class CmdiEchoDetector(Detector):
                               f"form stays clean) and {self.EXPRS[1]} -> 42 confirms — the "
                               f"tainted string rode the environment into a shell eval "
                               f"[ctx: …{(r_e.body or '')[max(0,ie-40):ie+20]}…]", r_e.request_id)],
-                    status=FindingStatus.CANDIDATE)
+                    status=FindingStatus.CANDIDATE, detector="cmdi_echo")
             # GTP-04b(b): DIRECT-EXEC twin — the value IS argv (no shell): the
             # real /usr/bin/echo prints the canary ALONE ('<c1>' in body while
             # 'echo <c1>' is absent — a reflection carries the full payload
@@ -2924,7 +2924,7 @@ class CmdiEchoDetector(Detector):
                                           f"carry the full payload text; an exec output does "
                                           f"not), second fresh canary confirms "
                                           f"[ctx: …{bd_a[max(0,ja-40):ja+20]}…]", rd_a.request_id)],
-                                status=FindingStatus.CANDIDATE)
+                                status=FindingStatus.CANDIDATE, detector="cmdi_echo")
             ep_params += 1
         return None
 

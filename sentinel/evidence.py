@@ -393,14 +393,20 @@ def _snippet(text: str, limit: int = 400) -> str:
 
 
 def build_proof(finding, state_before: str = "", state_after: str = "",
-                reproduction: list | None = None) -> dict:
+                reproduction: list | None = None, endpoint=None) -> dict:
     """The Evidence-OS proof file for ONE verified finding.
 
     state_before/state_after: the workflow-oracle snapshot pair (workflow and
     authz classes); empty for request-level classes whose proof IS the
     differential. reproduction: ordered, human-executable steps (each a dict
     {step, request, expect}) — when omitted, a canonical recipe is derived
-    from the evidence chain.
+    from the evidence chain. endpoint (RP-1, replay fidelity 2026-10-31): the
+    scanned Endpoint the finding came from — when provided, the proof records
+    the endpoint's full parameter SHAPE (name/location/value/kind) so a clean
+    replay reconstructs the exact request (query vs form vs JSON body), and
+    the producing detector's NAME (RP-3) so one-type-many-detectors classes
+    route to the RIGHT channel on replay. Legacy proofs (no endpoint) keep
+    the exact historical shape — nothing is retroactively upgraded.
     """
     impact = assess(finding)
     verified = bool(finding.verification and finding.verification.passed)
@@ -408,16 +414,45 @@ def build_proof(finding, state_before: str = "", state_after: str = "",
                   "request_id": e.request_id} for e in finding.evidence]
     if reproduction is None:
         reproduction = _canonical_reproduction(finding)
+    req0 = {"method": finding.method,
+            "url": finding.endpoint_url.split("?")[0],
+            "parameter": finding.parameter}
+    if endpoint is not None:
+        # RP-1: the endpoint's parameter shape decides the request's wire
+        # form (QUERY string / form BODY / JSON BODY / header) — without it a
+        # clean replay rebuilt every param as a GET-style query param and
+        # form/JSON endpoints answered 400 before any detector could fire
+        # (live-caught 2026-10-31: csrf /vuln/csrf-action 'email required',
+        # jwt /vuln/jwt-login 'expected application/json').
+        _eps = list(getattr(endpoint, "parameters", None) or [])
+        req0["request_params"] = [
+            {"name": p.name,
+             "location": (p.location.value if hasattr(p.location, "value")
+                          else str(p.location)),
+             "value": (p.value or "")[:80],
+             "kind": (p.kind.value if hasattr(p.kind, "value") else str(p.kind))}
+            for p in _eps]
+        _m = next((p for p in _eps if p.name == finding.parameter), None)
+        if _m is not None:
+            req0["param_location"] = (_m.location.value
+                                       if hasattr(_m.location, "value")
+                                       else str(_m.location))
     return {
         "finding_id": finding.id,
         "type": finding.type,
         "severity": finding.severity.value,
         "attack_hypothesis": HYPOTHESIS_BY_CLASS.get(finding.type, DEFAULT_HYPOTHESIS),
         "preconditions": _preconditions(finding),
-        "requests": [{"method": finding.method,
-                      "url": finding.endpoint_url.split("?")[0],
-                      "parameter": finding.parameter}],
+        "requests": [req0],
         "responses": evidences,
+        # RP-3: the producing detector's NAME — one vuln_type can be produced
+        # by several detectors probing different input channels; routing a
+        # replay by type name alone probes the wrong channel (live-caught
+        # 2026-10-31: five remote path_traversal header-NAME findings were
+        # replayed through the VALUE-channel detector and all five died as
+        # REPRODUCTION_FAILED). Empty on findings from unstamped detectors —
+        # replay falls back to the historical type map (unchanged behavior).
+        "detector": getattr(finding, "detector", "") or "",
         "identity": getattr(finding, "authz_context", "") or "primary scan session",
         "state_before": _snippet(state_before),
         "state_after": _snippet(state_after),
@@ -494,7 +529,12 @@ def reproduce_command(proof: dict) -> str:
 # ------------------------------------------------------------------ v4.1.0 replay
 REPLAYABLE_TYPES = {
     "sql_injection": "sqli", "xss_reflected": "xss", "path_traversal": "traversal",
-    "open_redirect": "redirect", "ssrf": "ssrf", "header_injection": "crlf",
+    "open_redirect": "redirect", "ssrf": "ssrf",
+    # RP-drive-by (2026-10-31): the historical key was "header_injection" —
+    # a type NO detector produces (CrlfDetector emits
+    # http_response_header_injection), so every CRLF finding replayed as
+    # "no automated replay implemented". Fixed to the real type name.
+    "http_response_header_injection": "crlf",
     "xxe": "xxe", "command_injection": "cmdi", "csrf": "csrf",
     "nosql_injection": "nosql", "jwt_security": "jwt",
     "host_header_injection": "hostheader", "ssti": "ssti",
@@ -505,7 +545,8 @@ REPLAYABLE_TYPES = {
 }
 
 
-def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
+def replay_finding(proof: dict, scope, bus, timeout: float = 12.0,
+                   oast=None) -> dict:
     """Proof Engine 2.0 (Phase V41-09): re-execute ONE finding's proof from a
     CLEAN engine — no session reuse, no prior state — and report the outcome
     honestly:
@@ -520,11 +561,27 @@ def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
 
     The replay re-runs the SAME detector + verification pipeline (not a
     simplified re-check), on a fresh RequestEngine scoped to the finding's
-    own surface."""
+    own surface.
+
+    RP-1/2/3 (replay fidelity, 2026-10-31 — the three replay-path defects
+    live-caught in the full-reverify campaign):
+      RP-1 the request is reconstructed from the proof's recorded parameter
+          SHAPE (query vs form vs JSON body) when the proof carries one
+          (legacy proofs keep the historical QUERY-guess behavior);
+      RP-2 OOB-dependent detectors (cmdi/ssrf/xxe — needs_oast) get the
+          caller-provided armed channel wired in exactly like the scan does;
+          with no channel the verdict is the honest NOT_REPLAYABLE, never
+          the misleading 'no longer produces a candidate' (an inert detector
+          cannot 'fail to reproduce' — it never tried);
+      RP-3 the detector is resolved by the proof's RECORDED detector name
+          when present (one vuln_type may be produced by several detectors
+          probing different channels), falling back to the historical
+          type-name map.
+    """
     from .http_engine import RequestEngine
     from .intel import VerificationEngine
     from . import detect as _dm
-    from .core import Endpoint, Parameter, ParamLocation, ParamKind
+    from .core import Endpoint, Parameter, ParamLocation, ParamKind, ParamKind as _PK
     from .detect import _pseudo_param
 
     out = {"finding_id": proof.get("finding_id", ""),
@@ -538,7 +595,26 @@ def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
                          "proof file's manual steps (replay needs the scan's "
                          "credentials configuration)")
         return out
-    det_name = REPLAYABLE_TYPES.get(ftype)
+    # RP-3: prefer the recorded producing detector; validate against the
+    # real registry (a stale/unknown name falls back to the type map).
+    det_name = proof.get("detector") or ""
+    if det_name and det_name not in {d.name for d in _dm.ACTIVE_DETECTORS}:
+        det_name = ""
+    if not det_name:
+        # RP-3 legacy fallback (2026-10-31): proofs recorded before the
+        # detector stamp carry no routing name — but the channel-signature
+        # PREFIXES the name-channel detectors put in the finding's own
+        # parameter are deterministic ('header:' is trav_hname's,
+        # 'param-name:' is trav_pname's). Routing a legacy header-NAME
+        # finding through the VALUE-channel detector is exactly the defect
+        # that killed the five remote path_traversal replays — the signature
+        # recovers the right channel without re-scanning.
+        _param = ((proof.get("requests") or [{}])[0]).get("parameter") or ""
+        if ftype == "path_traversal" and _param.startswith("header:"):
+            det_name = "trav_hname"
+        elif ftype == "path_traversal" and _param.startswith("param-name:"):
+            det_name = "trav_pname"
+    det_name = det_name or REPLAYABLE_TYPES.get(ftype)
     if det_name is None:
         out["reason"] = f"no automated replay implemented for class {ftype}"
         return out
@@ -546,14 +622,50 @@ def replay_finding(proof: dict, scope, bus, timeout: float = 12.0) -> dict:
     if det_cls is None:
         out["reason"] = f"detector {det_name} unavailable"
         return out
+    # RP-2: OOB-dependent detectors need an ARMED channel — exactly like the
+    # scan (orchestrator Phase 53). Without one the honest verdict is
+    # NOT_REPLAYABLE (the class's own recorded precondition), not FAILED.
+    if getattr(det_cls, "needs_oast", False) and oast is None:
+        out["reason"] = ("OOB-dependent class: replay needs an armed OAST "
+                         "channel (the proof's own precondition — see "
+                         "preconditions); pass oast= with an armed channel "
+                         "(local OastServer for loopback targets, a public "
+                         "provider for remote ones)")
+        return out
     req = (proof.get("requests") or [{}])[0]
     url, param = req.get("url", ""), req.get("parameter", "")
     try:
         engine = RequestEngine(scope, bus, timeout=timeout)
-        verifier = VerificationEngine(engine, bus)
+        verifier = VerificationEngine(engine, bus, oast=oast)
         det = det_cls(engine, bus, None)
-        params = [Parameter(param, ParamLocation.QUERY, "1").classify()] \
-            if param else []
+        if getattr(det, "needs_oast", False):
+            det.oast = oast            # same wiring as orchestrator Phase 53
+        # RP-1: reconstruct the request SHAPE. A recorded shape wins; a
+        # recorded param location is the second best; the historical
+        # QUERY-guess applies only to legacy proofs (and '-' / empty params
+        # mean class-level findings with no param to rebuild).
+        shape = req.get("request_params") or []
+        if shape:
+            params = []
+            for d in shape:
+                try:
+                    loc = ParamLocation(d.get("location") or "query")
+                except ValueError:
+                    loc = ParamLocation.QUERY
+                p = Parameter(d.get("name") or "", loc, d.get("value") or "1")
+                try:
+                    p.kind = ParamKind(d.get("kind") or "generic")
+                except ValueError:
+                    pass
+                params.append(p)
+        elif param and param not in ("-", ""):
+            try:
+                loc = ParamLocation(req.get("param_location") or "query")
+            except ValueError:
+                loc = ParamLocation.QUERY
+            params = [Parameter(param, loc, "1").classify()]
+        else:
+            params = []
         ep = Endpoint(url=url, method=req.get("method", "GET"), parameters=params)
         if det_name == "sqli" and param:
             cands = list(det.candidates(ep))

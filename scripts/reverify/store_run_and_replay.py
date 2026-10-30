@@ -73,30 +73,40 @@ print(f"scan done in {scan_s:.1f}s: requests={rep['stats']['requests']} "
 # ---- 3. independent clean-engine replay of EVERY finding --------------------
 from sentinel.evidence import replay_finding
 from urllib.parse import urlsplit
+from sentinel.oast import OastServer
 
 proofs = (rep.get("stats") or {}).get("proofs") or []
 by_id = {p.get("finding_id"): p for p in proofs}
 results = []
 t1 = time.time()
-for f in findings:
-    proof = by_id.get(f["id"])
-    if not proof:
-        results.append({"finding_id": f["id"], "type": f["type"],
-                        "url": f["url"], "parameter": f["parameter"],
-                        "replay": "NO_PROOF_PERSISTED"})
-        continue
-    req = (proof.get("requests") or [{}])[0]
-    origin = "{0.scheme}://{0.netloc}".format(urlsplit(req.get("url", "")))
-    scope = ScopeRule(allowed_domains=[urlsplit(req.get("url", "")).hostname],
-                      allow_private=True)
-    try:
-        r = replay_finding(proof, scope, EventBus("reverify"), timeout=12.0)
-    except Exception as exc:  # noqa: BLE001 — recorded, never hidden
-        r = {"replay": "REPLAY_ERROR", "error": repr(exc)}
-    r = dict(r)
-    r.update({"finding_id": f["id"], "type": f["type"], "url": f["url"],
-              "parameter": f["parameter"]})
-    results.append(r)
+# RP-2 (replay fidelity, 2026-10-31): OOB-dependent classes need an ARMED
+# channel on replay — the fixture is loopback, so a local OastServer is the
+# exact channel shape the scan itself used. One shared channel for the whole
+# replay pass (fresh ids per probe; the channel is id-addressed).
+replay_oast = OastServer()
+try:
+    for f in findings:
+        proof = by_id.get(f["id"])
+        if not proof:
+            results.append({"finding_id": f["id"], "type": f["type"],
+                            "url": f["url"], "parameter": f["parameter"],
+                            "replay": "NO_PROOF_PERSISTED"})
+            continue
+        req = (proof.get("requests") or [{}])[0]
+        origin = "{0.scheme}://{0.netloc}".format(urlsplit(req.get("url", "")))
+        scope = ScopeRule(allowed_domains=[urlsplit(req.get("url", "")).hostname],
+                          allow_private=True)
+        try:
+            r = replay_finding(proof, scope, EventBus("reverify"), timeout=12.0,
+                               oast=replay_oast)
+        except Exception as exc:  # noqa: BLE001 — recorded, never hidden
+            r = {"replay": "REPLAY_ERROR", "error": repr(exc)}
+        r = dict(r)
+        r.update({"finding_id": f["id"], "type": f["type"], "url": f["url"],
+                  "parameter": f["parameter"]})
+        results.append(r)
+finally:
+    replay_oast.stop()
 replay_s = time.time() - t1
 
 ok = sum(1 for r in results if r.get("replay") == "REPRODUCTION_VERIFIED")

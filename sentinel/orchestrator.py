@@ -1892,9 +1892,24 @@ class SentinelScanner:
                           "credential_exposure"):
                 return (1, f.type)
             return (2, f.type)
+        # RP-1/RP-3 (replay fidelity, 2026-10-31): proofs must carry the
+        # endpoint's request SHAPE (param locations — query vs form vs JSON
+        # body) and the producing detector's name, or a clean replay rebuilds
+        # every request as GET-style query params and mis-routes
+        # one-type-many-detectors classes (live-caught: csrf/jwt/cmdi fixture
+        # replays + 5 remote path_traversal replays all died as
+        # REPRODUCTION_FAILED for exactly these two reasons).
+        _ep_shape = {}
+        for _e in endpoints:
+            _ep_shape.setdefault((_e.url.split("?")[0], (_e.method or "GET").upper()), _e)
+
+        def _proof_ep(f):
+            return _ep_shape.get((f.endpoint_url.split("?")[0],
+                                  (f.method or "GET").upper()))
         self.stats["proofs"] = [build_finding_proof(
                                        f, getattr(f, "state_before", ""),
-                                       getattr(f, "state_after", "")) for f in
+                                       getattr(f, "state_after", ""),
+                                       endpoint=_proof_ep(f)) for f in
                                 sorted((f for f in final
                                         if f.status == FindingStatus.VERIFIED),
                                        key=_proof_priority)][:40]

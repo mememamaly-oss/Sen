@@ -241,6 +241,15 @@ class Finding:
     # request-level classes whose proof IS the differential.
     state_before: str = ""
     state_after: str = ""
+    # RP-3 (replay fidelity, 2026-10-31): the producing detector's NAME. One
+    # vuln_type can be produced by several detectors probing different input
+    # channels (path_traversal: traversal / trav_hname / trav_pname;
+    # command_injection: cmdi / cmdi_echo) — routing a replay by type name
+    # alone probes the WRONG channel and the proof dies as
+    # REPRODUCTION_FAILED. Detectors with ambiguous types set this; the proof
+    # records it and replay_finding routes by it (falling back to the
+    # historical type map when empty — legacy proofs unchanged).
+    detector: str = ""
 
     def __post_init__(self):
         if not self.id:

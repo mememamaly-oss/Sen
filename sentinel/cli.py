@@ -837,8 +837,24 @@ def main():
             # exposed the latent mismatch.
             scope = ScopeRule(allowed_domains=[urlsplit(req.get("url", "")).hostname],
                               allow_private=True)
-            result = replay_finding(proof, scope, EventBus("replay"),
-                                    timeout=a.timeout)
+            # RP-2 (replay fidelity, 2026-10-31): OOB-dependent classes
+            # (cmdi/ssrf/xxe) verify through an OAST channel — the replay
+            # must arm one exactly like the scan did. Loopback targets get a
+            # LOCAL OastServer (zero external side effects); remote targets
+            # need a public provider, which the caller must supply — the
+            # verdict then says NOT_REPLAYABLE with the reason, never the
+            # misleading 'no longer produces a candidate'.
+            replay_oast = None
+            _host = (urlsplit(req.get("url", "")).hostname or "").lower()
+            if _host in ("127.0.0.1", "localhost", "::1"):
+                from sentinel.oast import OastServer
+                replay_oast = OastServer()
+            try:
+                result = replay_finding(proof, scope, EventBus("replay"),
+                                        timeout=a.timeout, oast=replay_oast)
+            finally:
+                if replay_oast is not None:
+                    replay_oast.stop()
             print(json.dumps(result, indent=1, ensure_ascii=False))
             sys.exit(0 if result.get("replay") == "REPRODUCTION_VERIFIED" else 1)
         print(json.dumps(proof, indent=1, ensure_ascii=False))
