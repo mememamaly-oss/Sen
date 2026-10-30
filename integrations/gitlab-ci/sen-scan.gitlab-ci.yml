@@ -13,6 +13,9 @@
 #     variables:
 #       SENTINEL_TARGET_URL: "https://staging.example.internal"
 #
+# EXPECTS the engine tree at the project root (self-hosted mirror/vendored
+# copy of Sen — the source is private, so there is no public clone step);
+# the job installs its python dependencies itself.
 # The job checks out the engine, runs a REAL scan against SENTINEL_TARGET_URL,
 # exports all five report formats (HTML/JSON/SARIF/EXECUTIVE/GLASS), applies
 # the CI exit contract (0 clean / 1 policy / 2 incomplete / 3 engine), and
@@ -31,6 +34,7 @@
     SENTINEL_TIMEOUT: "12"
   script:
     - test -n "$SENTINEL_TARGET_URL" || { echo "set SENTINEL_TARGET_URL"; exit 1; }
+    - pip install -r requirements.txt
     - python3 -m sentinel.cli scan "$SENTINEL_TARGET_URL"
         --max-pages "$SENTINEL_MAX_PAGES"
         --timeout "$SENTINEL_TIMEOUT"
