@@ -21,6 +21,11 @@ PROVENANCE (عقد M2 المُسجَّل — tests/test_axis11_repro.py):
   §2  PRNG مُبذَّر      SeededPRNG — SplitMix64 خالص (ثوابت معلنة)؛
                         derive_stream(seed, label) — تيار مستقل لكل
                         خطوة (كل العشوائية من البذرة الأم حصراً — G1)
+                        [إفصاح أمني 2026-10-30 (بوابة Part-0): ليست
+                        CSPRNG قطعاً — حتمية بالتصميم لإعادة التشغيل
+                        والتحقق فقط؛ المخرجات لا تصلح ولا تُستخدم كمادة
+                        مفتاح لحماية أسرار حقيقية — انظر الإفصاح N-k
+                        والاختبار العازل tests/test_repro_prng_isolation.py]
   §3  قياسية المدخلات  canonical_input / input_digest (G5) — bytes
                         كما هي؛ غيرها JSON قياسي
   §4  هضم التدفق       flow_lines / flow_digest / flow_merkle
@@ -69,6 +74,13 @@ PROVENANCE (عقد M2 المُسجَّل — tests/test_axis11_repro.py):
   N-j (sys_flags) — الحقول العددية حصراً (رايات بايثون)؛
       count/index الموروثتان عن struct-sequence ليستا رايات
       فتُستبعدان من المواصفة القياسية.
+  N-k (ليست CSPRNG — بوابة Part-0، 2026-10-30): مخرجات SeededPRNG/
+      derive_stream لا تحمي أي بيانات حساسة حقيقية ولا يجب أن تحميها:
+      لا مستهلك تشغيلي واحد خارج هذا الملف (مثبت باختبار grep:
+      tests/test_repro_prng_isolation.py)؛ المسار التاريخي الذي أسيء
+      استخدامه (audit-rb-1، أُغلق 2026-10-21 في sentinel/audit.py) أزيل
+      نهائياً؛ مسار الأسرار الحقيقي هو sentinel/vault.py (مفاتيح
+      os.urandom + AEAD عبر مكتبة cryptography) المستقل تماماً.
 """
 from __future__ import annotations
 
@@ -130,7 +142,15 @@ _MIX2 = 0x94D049BB133111EB
 
 
 class SeededPRNG:
-    """مولد حتمي خالص: البذرة الوحيدة مصدر التسلسل كله (G1)."""
+    """مولد حتمي خالص: البذرة الوحيدة مصدر التسلسل كله (G1).
+
+    SECURITY DISCLOSURE (Part-0 gate, 2026-10-30): NOT a CSPRNG —
+    deterministic by design for replay only — never use output as a
+    real secret-protection key. SplitMix64's determinism IS the feature
+    (identical re-runs prove determinism); the isolation contract is
+    pinned by tests/test_repro_prng_isolation.py: no runtime module
+    outside this file consumes these streams, and the real secret paths
+    (vault/proof/audit/orchestrator) carry no repro dependency."""
 
     __slots__ = ("_s",)
 
