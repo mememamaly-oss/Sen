@@ -11,13 +11,13 @@
   "recall": 1.0,
   "f1": 1.0,
   "undetermined_findings_outside_list": [
-   "xss_reflected@http://127.0.0.1:44067/vault/transfer:acct",
-   "xss_reflected@http://127.0.0.1:44067/vuln/sqli_blind.php:id",
-   "path_traversal@http://127.0.0.1:44067/vuln/jwt-login:user",
-   "path_traversal@http://127.0.0.1:44067/safe/jwt-login:user",
-   "secure_cookie@http://127.0.0.1:44067/safe/jsparam.php:cat",
-   "secure_cookie@http://127.0.0.1:44067/vuln/csrfdivform:session",
-   "secure_cookie@http://127.0.0.1:44067/vuln/jsparam.php:cat"
+   "xss_reflected@http://127.0.0.1:54129/vault/transfer:acct",
+   "xss_reflected@http://127.0.0.1:54129/vuln/sqli_blind.php:id",
+   "path_traversal@http://127.0.0.1:54129/vuln/jwt-login:user",
+   "path_traversal@http://127.0.0.1:54129/safe/jwt-login:user",
+   "secure_cookie@http://127.0.0.1:54129/safe/jsparam.php:cat",
+   "secure_cookie@http://127.0.0.1:54129/vuln/csrfdivform:session",
+   "secure_cookie@http://127.0.0.1:54129/vuln/jsparam.php:cat"
   ],
   "details": [
    {
@@ -671,7 +671,7 @@
   "NOT_REPLAYABLE": 36,
   "REPRODUCTION_FAILED": 3,
   "errors": 159,
-  "scan_wall_seconds": 101.6,
+  "scan_wall_seconds": 102.3,
   "replay_wall_seconds": 0.0
  },
  "ginandjuice-shop": {
@@ -705,7 +705,7 @@
    "disagrees": 0
   }
  },
- "testphp-vulnweb": "UNREACHABLE-SKIPPED (connection timeout from this environment on every attempt 2026-10-30; no scan performed; no substitution made)",
+ "testphp-vulnweb": "UNREACHABLE-SKIPPED (connection timeout from this environment on every attempt 2026-10-31; no scan performed; no substitution made)",
  "docker-targets": {
   "status": "SKIPPED — docker command not found (verified at run time)"
  }

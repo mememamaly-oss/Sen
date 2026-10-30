@@ -11,18 +11,21 @@ SENTINEL: a Python DAST engine (axes 1-18, `sentinel/`) plus a Next.js
 SaaS management app (`src/`, Prisma + SQLite). The engine is invoked by
 the app through a subprocess CLI (`src/lib/engine.ts`).
 
-## Current state (2026-10-30)
+## Current state (2026-10-31)
 
-- Branch `main` = `cleanup/integrity-pass` tip. Branches: main,
-  cleanup/integrity-pass, clean/axes-final, qa/real-testing-gate,
-  security/audit-remediation, phase/02-l1-twin, release/v4.1.1..v4.2.2
-  (9 total) + 12 tags (v4.1.1..v4.4.0, backup/*, recovery/*).
-- Engine: python3, stdlib + `cryptography` (see requirements.txt).
-  Ed25519 is library-backed (pyca/cryptography), RFC 8032 test vectors
-  in tests/test_proof_rfc8032.py.
+- Branch `main` (local) carries the 2026-10-30 crypto completion chain
+  (symbolic-ed25519 -> crypto-library-primitives -> Part-0 gate -> blake3
+  official package -> evidence) plus the 2026-10-31 re-execution commits
+  (repro M2-docstring correction; refreshed full-reverify evidence — see
+  evidence/full-reverify/REEXECUTION_REPORT.md). origin/main = d51a5c1;
+  the 2026-10-31 commits are held back by the push gate.
+- Engine: python3, stdlib + `cryptography` + `blake3==1.0.11`
+  (requirements.txt). Ed25519 is library-backed end to end (proof path:
+  tests/test_proof_rfc8032.py; symbolic path: tests/test_symbolic_rfc8032.py).
 - App: Next.js 16 / React 19 / next-auth 4 — build verified passing
   (2026-10-30) once NEXTAUTH_SECRET is set in the environment.
-- Python suite: 74/74 passing (network policy + engine smoke + RFC 8032).
+- Suites (2026-10-31, re-executed): python 178/178; bun 22 pass / 0 fail /
+  83 expect(); doctor 19/19 PASS.
 - Secret scanning: `.pre-commit-config.yaml` (gitleaks hook); run
   `pre-commit install` once per clone.
 

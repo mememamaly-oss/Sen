@@ -1,7 +1,6 @@
 {
  "url": "http://testphp.vulnweb.com/",
  "http_status": "000",
- "checked": "2026-10-30",
- "verdict": "UNREACHABLE-SKIPPED (connection timeout from this environment on every attempt 2026-10-30; no scan performed; no substitution made)",
- "final_retry_status": "000"
+ "checked": "2026-10-31",
+ "verdict": "UNREACHABLE-SKIPPED (connection timeout from this environment on every attempt 2026-10-31; no scan performed; no substitution made)"
 }
