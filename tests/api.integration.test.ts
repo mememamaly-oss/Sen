@@ -108,27 +108,21 @@ beforeAll(async () => {
     );
     return;
   }
-  // fresh scratch DB
-  for (const f of [DB_FILE, DB_FILE + "-journal", DB_FILE + "-wal", DB_FILE + "-shm"]) {
-    try { fs.rmSync(f); } catch { /* ignore */ }
+  // P2-D: the platform DB is PostgreSQL. The self-spawn path REQUIRES
+  // DATABASE_URL from the environment (the supported path — the bash runner —
+  // either receives it, e.g. a CI service container, or provisions the local
+  // dev cluster via scripts/pg_dev_start.sh). The schema is applied by
+  // `prisma migrate deploy` — never ad-hoc db push — before this suite runs.
+  if (!process.env.DATABASE_URL) {
+    throw new Error(
+      "self-spawn mode requires DATABASE_URL (PostgreSQL) — use scripts/run_integration_tests.sh"
+    );
   }
-  // push schema to the scratch DB
   const env = {
     ...process.env,
-    DATABASE_URL: `file:${DB_FILE}`,
-    NEXTAUTH_SECRET: "integration-test-secret",
-    SENTINEL_DATA_DIR: "/tmp/sentinel-test-data",
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? "integration-test-secret",
+    SENTINEL_DATA_DIR: process.env.SENTINEL_DATA_DIR ?? "/tmp/sentinel-test-data",
   };
-  const push = spawn("bunx", ["prisma", "db", "push", "--skip-generate"], {
-    env,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  await new Promise<void>((resolve, reject) => {
-    let out = "";
-    push.stdout!.on("data", (d) => (out += d));
-    push.stderr!.on("data", (d) => (out += d));
-    push.on("exit", (c) => (c === 0 ? resolve() : reject(new Error("prisma db push failed: " + out))));
-  });
 
   // boot the dev server
   const logFd = fs.openSync(SERVER_LOG, "a");
@@ -368,4 +362,147 @@ describe("bootstrap atomicity + auth + RBAC over the wire", () => {
       });
       expect(r.status).toBe(400);
     });
+});
+
+// ------------------- P2-E/P2-B: the public surface (2026-10-31) ----------------
+// Landing + docs + demo are public; the platform itself moved behind the
+// server-side (app) layout guard. These tests pin both directions.
+
+describe("public surface (P2-E) + server-side session guard (P2-B)", () => {
+  test("landing / renders publicly (no session) with the brand", async () => {
+    const r = await fetch(`${BASE}/`, { redirect: "manual" });
+    expect(r.status).toBe(200);
+    const html = await r.text();
+    expect(html).toContain("SENTINEL");
+  });
+
+  test("/login renders publicly", async () => {
+    const r = await fetch(`${BASE}/login`, { redirect: "manual" });
+    expect(r.status).toBe(200);
+  });
+
+  for (const p of ["/docs", "/docs/compliance", "/docs/ci", "/docs/deployment", "/docs/security", "/demo"]) {
+    test(`public page ${p} renders`, async () => {
+      const r = await fetch(`${BASE}${p}`, { redirect: "manual" });
+      expect(r.status).toBe(200);
+      const html = await r.text();
+      expect(html.length).toBeGreaterThan(500);
+    });
+  }
+
+  test("/docs/compliance carries the registry table (CWE rows present)", async () => {
+    const r = await fetch(`${BASE}/docs/compliance`);
+    const html = await r.text();
+    expect(html).toContain("CWE-89");
+    expect(html).toContain("A05:2025");
+    expect(html).toContain("6.4.2");
+  });
+
+  test("server guard: unauthenticated /overview redirects to /login (P2-B)", async () => {
+    const r = await fetch(`${BASE}/overview`, { redirect: "manual" });
+    expect([302, 307]).toContain(r.status);
+    expect(r.headers.get("location") ?? "").toContain("/login");
+  });
+
+  test("demo API: GET without id is 400; unknown id is 404", async () => {
+    const noId = await fetch(`${BASE}/api/demo/scan`);
+    expect(noId.status).toBe(400);
+    const unknown = await fetch(`${BASE}/api/demo/scan?id=does-not-exist`);
+    expect(unknown.status).toBe(404);
+  });
+
+  // P2-C end to end: engine result.json (with compliance) -> reconcileScan
+  // import -> complianceJson column -> finding-detail API payload. The
+  // platform must carry the engine's mapping VERBATIM, never re-derive it.
+  test("compliance import path: reconcileScan -> column -> API (verbatim)", async () => {
+    const { db } = await import("@/lib/db");
+    const { reconcileScan, SCANS_DIR } = await import("@/lib/engine");
+    const pathMod = await import("path");
+
+    // self-contained session: find the winning racer (the bootstrap race left
+    // exactly one account; which one won is discovered, not assumed)
+    const jar = new Jar();
+    let authed = false;
+    for (let i = 0; i < 10 && !authed; i++) {
+      jar.cookies.clear();
+      const res = await login(jar, `racer${i}@integration.test`, "Racer-Passw0rd!");
+      if (res.status === 200 || res.status === 302) {
+        const me = await api(jar, "GET", "/api/me");
+        if (me.status === 200) authed = true;
+      }
+    }
+    expect(authed).toBe(true);
+
+    const newOrg = await api(jar, "POST", "/api/orgs", { name: "Compliance Import Org" });
+    expect(newOrg.status).toBe(200);
+    const orgId2 = ((await newOrg.json()) as { id: string }).id;
+
+    const org = await db.organization.findUniqueOrThrow({ where: { id: orgId2 } });
+    const user = await db.user.create({
+      data: { email: `comp-${Date.now()}@integration.test`, passwordHash: "scrypt-x", name: "comp" },
+    });
+    const target = await db.target.create({
+      data: { orgId: org.id, createdById: user.id, name: "comp target", url: "https://comp.invalid/" },
+    });
+    const scan = await db.scan.create({
+      data: { orgId: org.id, targetId: target.id, createdById: user.id, status: "QUEUED", optionsJson: "{}" },
+    });
+
+    // engine-shaped result.json with a compliance block on the finding
+    const resultPath = pathMod.join(SCANS_DIR, scan.id, "result.json");
+    fs.mkdirSync(pathMod.dirname(resultPath), { recursive: true });
+    fs.writeFileSync(
+      resultPath,
+      JSON.stringify({
+        run_id: "run-comp-test",
+        scanner: "sentinel-core/4.4.0",
+        stats: { duration: 1.25, proofs: [] },
+        findings: [
+          {
+            id: "F-comp000001",
+            type: "sql_injection",
+            severity: "critical",
+            status: "verified",
+            confidence: 0.98,
+            risk: 92,
+            method: "POST",
+            url: "https://comp.invalid/search",
+            parameter: "q",
+            evidence: [{ kind: "reflection", detail: "sql error" }],
+            verification: { method: "replay", passed: true },
+            compliance: {
+              type: "sql_injection", mapped: true, cwe: "CWE-89",
+              cwe_label: "SQL Injection",
+              owasp_2021: "A03:2021", owasp_2021_title: "Injection", owasp_2021_src: "official",
+              owasp_2025: "A05:2025", owasp_2025_title: "Injection", owasp_2025_src: "official",
+              pci_dss: "6.4.2",
+            },
+          },
+        ],
+      })
+    );
+    await db.scan.update({ where: { id: scan.id }, data: { resultPath } });
+
+    await reconcileScan(scan.id);
+
+    const row = await db.finding.findUnique({ where: { scanId_engineId: { scanId: scan.id, engineId: "F-comp000001" } } });
+    expect(row).not.toBeNull();
+    const complianceStored = JSON.parse(row!.complianceJson ?? "null") as { cwe?: string; pci_dss?: string };
+    expect(complianceStored?.cwe).toBe("CWE-89");
+    expect(complianceStored?.pci_dss).toBe("6.4.2");
+
+    // the finding-detail API returns it verbatim to the UI
+    const detail = await api(jar, "GET", `/api/findings/${row!.id}?orgId=${org.id}`);
+    expect(detail.status).toBe(200);
+    const body = (await detail.json()) as { compliance: { cwe?: string; owasp_2025?: string; pci_dss?: string } | null };
+    expect(body.compliance?.cwe).toBe("CWE-89");
+    expect(body.compliance?.owasp_2025).toBe("A05:2025");
+    expect(body.compliance?.pci_dss).toBe("6.4.2");
+
+    // cleanup: the org stays (append-only audit); remove the probe rows
+    await db.finding.delete({ where: { id: row!.id } });
+    await db.scan.delete({ where: { id: scan.id } });
+    await db.target.delete({ where: { id: target.id } });
+    await db.user.delete({ where: { id: user.id } });
+  });
 });
