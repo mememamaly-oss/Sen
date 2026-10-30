@@ -47,7 +47,11 @@ if (process.env.NODE_ENV === "production" && !process.env.NEXTAUTH_SECRET) {
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt", maxAge: 12 * 60 * 60 },
   secret: process.env.NEXTAUTH_SECRET,
-  pages: { signIn: "/" },
+  // P2-B (2026-10-31): the sign-in page is /login (the root "/" is now the
+  // PUBLIC landing — landing/docs/demo stay reachable without a session).
+  // Production behind the Caddy proxy additionally requires NEXTAUTH_URL to
+  // be set to the public origin (see .env.example / docs deployment page).
+  pages: { signIn: "/login" },
   providers: [
     CredentialsProvider({
       name: "credentials",
