@@ -1,0 +1,134 @@
+{
+ "reobservation_of": "passive findings — fresh fetches, independent of the engine",
+ "results": [
+  {
+   "finding_id": "F-a0965ae454",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-8f0527e325",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-7bcb18152c",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/resources/css/labsScanme.css",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-bf6d4ca7fb",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/resources/js/react.development.js",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-8ac4aa87f5",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/resources/js/react-dom.development.js",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-79832c51cf",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-68cf956bbd",
+   "type": "vulnerable_js_dependency",
+   "url": "https://ginandjuice.shop/resources/js/angular_1-7-7.js",
+   "detail": "bytes=195161 angular-1.7.7-marker=yes",
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-ac1d876594",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/catalog",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-14a00088c7",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/blog",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  },
+  {
+   "finding_id": "F-4775c478d5",
+   "type": "missing_security_headers",
+   "url": "https://ginandjuice.shop/about",
+   "http_status": 200,
+   "headers_still_missing": [
+    "strict-transport-security",
+    "content-security-policy",
+    "x-content-type-options",
+    "referrer-policy"
+   ],
+   "reobservation_agrees": true
+  }
+ ],
+ "summary": {
+  "passive_findings_reobserved": 10,
+  "reobservation_agrees": 10,
+  "disagrees": 0
+ }
+}

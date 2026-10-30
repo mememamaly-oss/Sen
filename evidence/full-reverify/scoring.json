@@ -1,0 +1,712 @@
+{
+ "benchmark_cli_run": {
+  "engine_findings": 199,
+  "confusion": {
+   "TP": 38,
+   "FP": 0,
+   "FN": 0,
+   "TN": 37
+  },
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "undetermined_findings_outside_list": [
+   "xss_reflected@http://127.0.0.1:44067/vault/transfer:acct",
+   "xss_reflected@http://127.0.0.1:44067/vuln/sqli_blind.php:id",
+   "path_traversal@http://127.0.0.1:44067/vuln/jwt-login:user",
+   "path_traversal@http://127.0.0.1:44067/safe/jwt-login:user",
+   "secure_cookie@http://127.0.0.1:44067/safe/jsparam.php:cat",
+   "secure_cookie@http://127.0.0.1:44067/vuln/csrfdivform:session",
+   "secure_cookie@http://127.0.0.1:44067/vuln/jsparam.php:cat"
+  ],
+  "details": [
+   {
+    "case": "sql_injection@/vuln/sqli_error.php:id",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/vuln/sqli_blind.php:id",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/xss.php:q",
+    "cell": "TP"
+   },
+   {
+    "case": "path_traversal@/vuln/traversal.php:file",
+    "cell": "TP"
+   },
+   {
+    "case": "open_redirect@/vuln/redirect.php:url",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/vuln/jsparam.php:cat",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/jsparam.php:cat",
+    "cell": "TP"
+   },
+   {
+    "case": "http_response_header_injection@/vuln/jsparam.php:cat",
+    "cell": "TP"
+   },
+   {
+    "case": "xxe@/vuln/stock:storeId",
+    "cell": "TP"
+   },
+   {
+    "case": "xxe@/vuln/oob-stock:storeId",
+    "cell": "TP"
+   },
+   {
+    "case": "vulnerable_js_dependency@/angular_1-7-7.js:",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/safe/item.php:id",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/safe/search.php:q",
+    "cell": "TN"
+   },
+   {
+    "case": "path_traversal@/safe/read.php:file",
+    "cell": "TN"
+   },
+   {
+    "case": "open_redirect@/safe/go.php:url",
+    "cell": "TN"
+   },
+   {
+    "case": "sql_injection@/safe/jsparam.php:cat",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/safe/jsparam.php:cat",
+    "cell": "TN"
+   },
+   {
+    "case": "http_response_header_injection@/safe/jsparam.php:cat",
+    "cell": "TN"
+   },
+   {
+    "case": "xxe@/safe/stock:storeId",
+    "cell": "TN"
+   },
+   {
+    "case": "xxe@/safe/oob-stock:storeId",
+    "cell": "TN"
+   },
+   {
+    "case": "xxe@/blind/stock:storeId",
+    "cell": "TN"
+   },
+   {
+    "case": "missing_security_headers@*:",
+    "cell": "TP"
+   },
+   {
+    "case": "server_banner_disclosure@*:",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_dom@/vuln/dom-write:search",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/json-reflect:name",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/csrf-reflect:note",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/jsform-reflect:msg",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_dom@/safe/dom-text:search",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/safe/json-reflect:name",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/account:q",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/vault/transfer:acct",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/account:tab",
+    "cell": "TN"
+   },
+   {
+    "case": "ssrf@/vuln/fetch:url",
+    "cell": "TP"
+   },
+   {
+    "case": "command_injection@/vuln/ping:host",
+    "cell": "TP"
+   },
+   {
+    "case": "cors_misconfig@/vuln/cors:Origin",
+    "cell": "TP"
+   },
+   {
+    "case": "ssrf@/safe/fetch:url",
+    "cell": "TN"
+   },
+   {
+    "case": "command_injection@/safe/ping:host",
+    "cell": "TN"
+   },
+   {
+    "case": "cors_misconfig@/safe/cors:Origin",
+    "cell": "TN"
+   },
+   {
+    "case": "ssti@/vuln/ssti:name",
+    "cell": "TP"
+   },
+   {
+    "case": "csrf@/vuln/csrf-action:email",
+    "cell": "TP"
+   },
+   {
+    "case": "nosql_injection@/vuln/nosql-login:user",
+    "cell": "TP"
+   },
+   {
+    "case": "jwt_security@/vuln/jwt-login:",
+    "cell": "TP"
+   },
+   {
+    "case": "host_header_injection@/vuln/hostbuild:Host",
+    "cell": "TP"
+   },
+   {
+    "case": "ssti@/safe/ssti:name",
+    "cell": "TN"
+   },
+   {
+    "case": "csrf@/safe/csrf-action:email",
+    "cell": "TN"
+   },
+   {
+    "case": "nosql_injection@/safe/nosql-login:user",
+    "cell": "TN"
+   },
+   {
+    "case": "jwt_security@/safe/jwt-login:",
+    "cell": "TN"
+   },
+   {
+    "case": "host_header_injection@/safe/hostbuild:Host",
+    "cell": "TN"
+   },
+   {
+    "case": "idor_bola@/api/data:user_id",
+    "cell": "TP"
+   },
+   {
+    "case": "idor_bola@/api/secure/data:user_id",
+    "cell": "TN"
+   },
+   {
+    "case": "vertical_privilege_escalation@/api/admin/stats:",
+    "cell": "TP"
+   },
+   {
+    "case": "vertical_privilege_escalation@/api/secure/admin/stats:",
+    "cell": "TN"
+   },
+   {
+    "case": "credential_exposure@/vuln/leak-config:",
+    "cell": "TP"
+   },
+   {
+    "case": "credential_exposure@/safe/leak-config:",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_step_bypass@/wf/transfer/create:acct",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_out_of_order@/wf/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_value_tamper@/wf/transfer/confirm:amount",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_duplicate_execution@/wf/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_privilege_escalation@/wf/transfer/confirm:mode",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_step_bypass@/wf/safe/transfer/create:acct",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_out_of_order@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_value_tamper@/wf/safe/transfer/confirm:amount",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_duplicate_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_privilege_escalation@/wf/safe/transfer/confirm:mode",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_user_execution@/wf/shared/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_cross_object_execution@/wf/shared/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_cross_state_execution@/wf/shared/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_cross_user_execution@/wf/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_object_execution@/wf/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_state_execution@/wf/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_user_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_object_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_state_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "csrf@/vuln/subscribe-echo:email",
+    "cell": "TN"
+   },
+   {
+    "case": "nosql_injection@/api/nosql-lockout:user",
+    "cell": "TN"
+   }
+  ],
+  "scan_time_verification": {
+   "findings_status_verified": 199,
+   "findings_total": 199,
+   "note": "every finding carries a verification dict — the engine's differential re-execution on a fresh request at scan time; only verified findings are reported"
+  }
+ },
+ "store_full_config_run": {
+  "engine_findings": 199,
+  "confusion": {
+   "TP": 38,
+   "FP": 0,
+   "FN": 0,
+   "TN": 37
+  },
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "undetermined_findings_outside_list": [
+   "xss_reflected@http://127.0.0.1:8777/vault/transfer:acct",
+   "xss_reflected@http://127.0.0.1:8777/vuln/sqli_blind.php:id",
+   "path_traversal@http://127.0.0.1:8777/vuln/jwt-login:user",
+   "path_traversal@http://127.0.0.1:8777/safe/jwt-login:user",
+   "secure_cookie@http://127.0.0.1:8777/safe/jsparam.php:cat",
+   "secure_cookie@http://127.0.0.1:8777/vuln/csrfdivform:session",
+   "secure_cookie@http://127.0.0.1:8777/vuln/jsparam.php:cat"
+  ],
+  "details": [
+   {
+    "case": "sql_injection@/vuln/sqli_error.php:id",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/vuln/sqli_blind.php:id",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/xss.php:q",
+    "cell": "TP"
+   },
+   {
+    "case": "path_traversal@/vuln/traversal.php:file",
+    "cell": "TP"
+   },
+   {
+    "case": "open_redirect@/vuln/redirect.php:url",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/vuln/jsparam.php:cat",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/jsparam.php:cat",
+    "cell": "TP"
+   },
+   {
+    "case": "http_response_header_injection@/vuln/jsparam.php:cat",
+    "cell": "TP"
+   },
+   {
+    "case": "xxe@/vuln/stock:storeId",
+    "cell": "TP"
+   },
+   {
+    "case": "xxe@/vuln/oob-stock:storeId",
+    "cell": "TP"
+   },
+   {
+    "case": "vulnerable_js_dependency@/angular_1-7-7.js:",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/safe/item.php:id",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/safe/search.php:q",
+    "cell": "TN"
+   },
+   {
+    "case": "path_traversal@/safe/read.php:file",
+    "cell": "TN"
+   },
+   {
+    "case": "open_redirect@/safe/go.php:url",
+    "cell": "TN"
+   },
+   {
+    "case": "sql_injection@/safe/jsparam.php:cat",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/safe/jsparam.php:cat",
+    "cell": "TN"
+   },
+   {
+    "case": "http_response_header_injection@/safe/jsparam.php:cat",
+    "cell": "TN"
+   },
+   {
+    "case": "xxe@/safe/stock:storeId",
+    "cell": "TN"
+   },
+   {
+    "case": "xxe@/safe/oob-stock:storeId",
+    "cell": "TN"
+   },
+   {
+    "case": "xxe@/blind/stock:storeId",
+    "cell": "TN"
+   },
+   {
+    "case": "missing_security_headers@*:",
+    "cell": "TP"
+   },
+   {
+    "case": "server_banner_disclosure@*:",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_dom@/vuln/dom-write:search",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/json-reflect:name",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/csrf-reflect:note",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/vuln/jsform-reflect:msg",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_dom@/safe/dom-text:search",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/safe/json-reflect:name",
+    "cell": "TN"
+   },
+   {
+    "case": "xss_reflected@/account:q",
+    "cell": "TP"
+   },
+   {
+    "case": "sql_injection@/vault/transfer:acct",
+    "cell": "TP"
+   },
+   {
+    "case": "xss_reflected@/account:tab",
+    "cell": "TN"
+   },
+   {
+    "case": "ssrf@/vuln/fetch:url",
+    "cell": "TP"
+   },
+   {
+    "case": "command_injection@/vuln/ping:host",
+    "cell": "TP"
+   },
+   {
+    "case": "cors_misconfig@/vuln/cors:Origin",
+    "cell": "TP"
+   },
+   {
+    "case": "ssrf@/safe/fetch:url",
+    "cell": "TN"
+   },
+   {
+    "case": "command_injection@/safe/ping:host",
+    "cell": "TN"
+   },
+   {
+    "case": "cors_misconfig@/safe/cors:Origin",
+    "cell": "TN"
+   },
+   {
+    "case": "ssti@/vuln/ssti:name",
+    "cell": "TP"
+   },
+   {
+    "case": "csrf@/vuln/csrf-action:email",
+    "cell": "TP"
+   },
+   {
+    "case": "nosql_injection@/vuln/nosql-login:user",
+    "cell": "TP"
+   },
+   {
+    "case": "jwt_security@/vuln/jwt-login:",
+    "cell": "TP"
+   },
+   {
+    "case": "host_header_injection@/vuln/hostbuild:Host",
+    "cell": "TP"
+   },
+   {
+    "case": "ssti@/safe/ssti:name",
+    "cell": "TN"
+   },
+   {
+    "case": "csrf@/safe/csrf-action:email",
+    "cell": "TN"
+   },
+   {
+    "case": "nosql_injection@/safe/nosql-login:user",
+    "cell": "TN"
+   },
+   {
+    "case": "jwt_security@/safe/jwt-login:",
+    "cell": "TN"
+   },
+   {
+    "case": "host_header_injection@/safe/hostbuild:Host",
+    "cell": "TN"
+   },
+   {
+    "case": "idor_bola@/api/data:user_id",
+    "cell": "TP"
+   },
+   {
+    "case": "idor_bola@/api/secure/data:user_id",
+    "cell": "TN"
+   },
+   {
+    "case": "vertical_privilege_escalation@/api/admin/stats:",
+    "cell": "TP"
+   },
+   {
+    "case": "vertical_privilege_escalation@/api/secure/admin/stats:",
+    "cell": "TN"
+   },
+   {
+    "case": "credential_exposure@/vuln/leak-config:",
+    "cell": "TP"
+   },
+   {
+    "case": "credential_exposure@/safe/leak-config:",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_step_bypass@/wf/transfer/create:acct",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_out_of_order@/wf/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_value_tamper@/wf/transfer/confirm:amount",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_duplicate_execution@/wf/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_privilege_escalation@/wf/transfer/confirm:mode",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_step_bypass@/wf/safe/transfer/create:acct",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_out_of_order@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_value_tamper@/wf/safe/transfer/confirm:amount",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_duplicate_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_privilege_escalation@/wf/safe/transfer/confirm:mode",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_user_execution@/wf/shared/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_cross_object_execution@/wf/shared/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_cross_state_execution@/wf/shared/transfer/confirm:tid",
+    "cell": "TP"
+   },
+   {
+    "case": "business_logic_cross_user_execution@/wf/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_object_execution@/wf/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_state_execution@/wf/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_user_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_object_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "business_logic_cross_state_execution@/wf/safe/transfer/confirm:tid",
+    "cell": "TN"
+   },
+   {
+    "case": "csrf@/vuln/subscribe-echo:email",
+    "cell": "TN"
+   },
+   {
+    "case": "nosql_injection@/api/nosql-lockout:user",
+    "cell": "TN"
+   }
+  ],
+  "scan_time_verification": {
+   "findings_status_verified": 199,
+   "findings_total": 199,
+   "note": "every finding carries a verification dict — the engine's differential re-execution on a fresh request at scan time; only verified findings are reported"
+  }
+ },
+ "cross_run_agreement": {
+  "run_a": "benchmark CLI (engine-owned fixture, ephemeral port)",
+  "run_b": "full-config store run (own fixture on 127.0.0.1:8777)",
+  "run_a_findings": 199,
+  "run_b_findings": 199,
+  "identical_finding_sets": true,
+  "only_in_a": [],
+  "only_in_b": [],
+  "note": "two independent full-engine executions agreeing on the finding set is re-execution evidence for every finding"
+ },
+ "replay_verification": {
+  "findings_total": 199,
+  "REPRODUCTION_VERIFIED": 1,
+  "NOT_REPLAYABLE": 36,
+  "REPRODUCTION_FAILED": 3,
+  "errors": 159,
+  "scan_wall_seconds": 101.6,
+  "replay_wall_seconds": 0.0
+ },
+ "ginandjuice-shop": {
+  "engine_findings": 15,
+  "scoring": "UNDETERMINED for every finding — PortSwigger publishes no vulnerability list for this target (recorded in predictions.json before the scan)",
+  "findings": [
+   "path_traversal@https://ginandjuice.shop/:header:.. (severity=high, status=verified)",
+   "path_traversal@https://ginandjuice.shop/catalog:header:.. (severity=high, status=verified)",
+   "path_traversal@https://ginandjuice.shop/catalog:param-name:.. (severity=high, status=verified)",
+   "path_traversal@https://ginandjuice.shop/blog:header:.. (severity=high, status=verified)",
+   "path_traversal@https://ginandjuice.shop/blog:param-name:.. (severity=high, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/resources/labheader/css/scanMeHeader.css: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/resources/css/labsScanme.css: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/resources/js/react.development.js: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/resources/js/react-dom.development.js: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/resources/js/angular_1-7-7.js: (severity=low, status=verified)",
+   "vulnerable_js_dependency@https://ginandjuice.shop/resources/js/angular_1-7-7.js: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/catalog: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/blog: (severity=low, status=verified)",
+   "missing_security_headers@https://ginandjuice.shop/about: (severity=low, status=verified)"
+  ],
+  "replay_verification": {
+   "findings_total": 15,
+   "NOT_REPLAYABLE": 10,
+   "REPRODUCTION_FAILED": 5
+  },
+  "passive_reobservation": {
+   "passive_findings_reobserved": 10,
+   "reobservation_agrees": 10,
+   "disagrees": 0
+  }
+ },
+ "testphp-vulnweb": "UNREACHABLE-SKIPPED (connection timeout from this environment on every attempt 2026-10-30; no scan performed; no substitution made)",
+ "docker-targets": {
+  "status": "SKIPPED — docker command not found (verified at run time)"
+ }
+}

@@ -1,0 +1,488 @@
+{
+ "registered_at": "2026-10-30 (before any Part-3 scan)",
+ "method": "ground truth pre-registered from fixture source + repo ground_truth.json + targets' own published statements — never from engine output",
+ "targets": {
+  "fixtures-vulnapp": {
+   "basis": "fixtures/vulnapp.py docstring (read from source) + benchmarks/ground_truth.json v11 (committed file)",
+   "ground_truth_sha256": "f98cd5a0bc9485538777c38f58318e6defdcc7f6a7a090248d12d2b349f03dcb",
+   "case_count": 75,
+   "expected_positives": 38,
+   "expected_negatives": 37,
+   "cases": [
+    {
+     "type": "sql_injection",
+     "endpoint": "/vuln/sqli_error.php",
+     "parameter": "id",
+     "present": true
+    },
+    {
+     "type": "sql_injection",
+     "endpoint": "/vuln/sqli_blind.php",
+     "parameter": "id",
+     "present": true
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/vuln/xss.php",
+     "parameter": "q",
+     "present": true
+    },
+    {
+     "type": "path_traversal",
+     "endpoint": "/vuln/traversal.php",
+     "parameter": "file",
+     "present": true
+    },
+    {
+     "type": "open_redirect",
+     "endpoint": "/vuln/redirect.php",
+     "parameter": "url",
+     "present": true
+    },
+    {
+     "type": "sql_injection",
+     "endpoint": "/vuln/jsparam.php",
+     "parameter": "cat",
+     "present": true
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/vuln/jsparam.php",
+     "parameter": "cat",
+     "present": true
+    },
+    {
+     "type": "http_response_header_injection",
+     "endpoint": "/vuln/jsparam.php",
+     "parameter": "cat",
+     "present": true
+    },
+    {
+     "type": "xxe",
+     "endpoint": "/vuln/stock",
+     "parameter": "storeId",
+     "present": true
+    },
+    {
+     "type": "xxe",
+     "endpoint": "/vuln/oob-stock",
+     "parameter": "storeId",
+     "present": true,
+     "note": "BLIND XXE with out-of-band fetch: response is cycling noise (no response oracle); ONLY the OAST callback can confirm (Phase 49). Benchmark must run with OAST enabled."
+    },
+    {
+     "type": "vulnerable_js_dependency",
+     "endpoint": "/angular_1-7-7.js",
+     "parameter": "",
+     "present": true
+    },
+    {
+     "type": "sql_injection",
+     "endpoint": "/safe/item.php",
+     "parameter": "id",
+     "present": false
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/safe/search.php",
+     "parameter": "q",
+     "present": false
+    },
+    {
+     "type": "path_traversal",
+     "endpoint": "/safe/read.php",
+     "parameter": "file",
+     "present": false
+    },
+    {
+     "type": "open_redirect",
+     "endpoint": "/safe/go.php",
+     "parameter": "url",
+     "present": false
+    },
+    {
+     "type": "sql_injection",
+     "endpoint": "/safe/jsparam.php",
+     "parameter": "cat",
+     "present": false
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/safe/jsparam.php",
+     "parameter": "cat",
+     "present": false
+    },
+    {
+     "type": "http_response_header_injection",
+     "endpoint": "/safe/jsparam.php",
+     "parameter": "cat",
+     "present": false
+    },
+    {
+     "type": "xxe",
+     "endpoint": "/safe/stock",
+     "parameter": "storeId",
+     "present": false
+    },
+    {
+     "type": "xxe",
+     "endpoint": "/safe/oob-stock",
+     "parameter": "storeId",
+     "present": false
+    },
+    {
+     "type": "xxe",
+     "endpoint": "/blind/stock",
+     "parameter": "storeId",
+     "present": false,
+     "note": "BLIND XXE: entities resolve but responses are per-request noise — no response-based oracle exists (ginandjuice.shop live behavior); OOB phase required, must NOT produce a response-verified finding"
+    },
+    {
+     "type": "missing_security_headers",
+     "endpoint": "*",
+     "parameter": "",
+     "present": true
+    },
+    {
+     "type": "server_banner_disclosure",
+     "endpoint": "*",
+     "parameter": "",
+     "present": true
+    },
+    {
+     "type": "xss_dom",
+     "endpoint": "/vuln/dom-write",
+     "parameter": "search",
+     "present": true
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/vuln/json-reflect",
+     "parameter": "name",
+     "present": true
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/vuln/csrf-reflect",
+     "parameter": "note",
+     "present": true
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/vuln/jsform-reflect",
+     "parameter": "msg",
+     "present": true
+    },
+    {
+     "type": "xss_dom",
+     "endpoint": "/safe/dom-text",
+     "parameter": "search",
+     "present": false
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/safe/json-reflect",
+     "parameter": "name",
+     "present": false
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/account",
+     "parameter": "q",
+     "present": true
+    },
+    {
+     "type": "sql_injection",
+     "endpoint": "/vault/transfer",
+     "parameter": "acct",
+     "present": true
+    },
+    {
+     "type": "xss_reflected",
+     "endpoint": "/account",
+     "parameter": "tab",
+     "present": false
+    },
+    {
+     "type": "ssrf",
+     "endpoint": "/vuln/fetch",
+     "parameter": "url",
+     "present": true
+    },
+    {
+     "type": "command_injection",
+     "endpoint": "/vuln/ping",
+     "parameter": "host",
+     "present": true
+    },
+    {
+     "type": "cors_misconfig",
+     "endpoint": "/vuln/cors",
+     "parameter": "Origin",
+     "present": true
+    },
+    {
+     "type": "ssrf",
+     "endpoint": "/safe/fetch",
+     "parameter": "url",
+     "present": false
+    },
+    {
+     "type": "command_injection",
+     "endpoint": "/safe/ping",
+     "parameter": "host",
+     "present": false
+    },
+    {
+     "type": "cors_misconfig",
+     "endpoint": "/safe/cors",
+     "parameter": "Origin",
+     "present": false
+    },
+    {
+     "type": "ssti",
+     "endpoint": "/vuln/ssti",
+     "parameter": "name",
+     "present": true
+    },
+    {
+     "type": "csrf",
+     "endpoint": "/vuln/csrf-action",
+     "parameter": "email",
+     "present": true
+    },
+    {
+     "type": "nosql_injection",
+     "endpoint": "/vuln/nosql-login",
+     "parameter": "user",
+     "present": true
+    },
+    {
+     "type": "jwt_security",
+     "endpoint": "/vuln/jwt-login",
+     "parameter": "",
+     "present": true
+    },
+    {
+     "type": "host_header_injection",
+     "endpoint": "/vuln/hostbuild",
+     "parameter": "Host",
+     "present": true
+    },
+    {
+     "type": "ssti",
+     "endpoint": "/safe/ssti",
+     "parameter": "name",
+     "present": false
+    },
+    {
+     "type": "csrf",
+     "endpoint": "/safe/csrf-action",
+     "parameter": "email",
+     "present": false
+    },
+    {
+     "type": "nosql_injection",
+     "endpoint": "/safe/nosql-login",
+     "parameter": "user",
+     "present": false
+    },
+    {
+     "type": "jwt_security",
+     "endpoint": "/safe/jwt-login",
+     "parameter": "",
+     "present": false
+    },
+    {
+     "type": "host_header_injection",
+     "endpoint": "/safe/hostbuild",
+     "parameter": "Host",
+     "present": false
+    },
+    {
+     "type": "idor_bola",
+     "endpoint": "/api/data",
+     "parameter": "user_id",
+     "present": true
+    },
+    {
+     "type": "idor_bola",
+     "endpoint": "/api/secure/data",
+     "parameter": "user_id",
+     "present": false
+    },
+    {
+     "type": "vertical_privilege_escalation",
+     "endpoint": "/api/admin/stats",
+     "parameter": "",
+     "present": true
+    },
+    {
+     "type": "vertical_privilege_escalation",
+     "endpoint": "/api/secure/admin/stats",
+     "parameter": "",
+     "present": false
+    },
+    {
+     "type": "credential_exposure",
+     "endpoint": "/vuln/leak-config",
+     "parameter": "",
+     "present": true
+    },
+    {
+     "type": "credential_exposure",
+     "endpoint": "/safe/leak-config",
+     "parameter": "",
+     "present": false
+    },
+    {
+     "type": "business_logic_step_bypass",
+     "endpoint": "/wf/transfer/create",
+     "parameter": "acct",
+     "present": true
+    },
+    {
+     "type": "business_logic_out_of_order",
+     "endpoint": "/wf/transfer/confirm",
+     "parameter": "tid",
+     "present": true
+    },
+    {
+     "type": "business_logic_value_tamper",
+     "endpoint": "/wf/transfer/confirm",
+     "parameter": "amount",
+     "present": true
+    },
+    {
+     "type": "business_logic_duplicate_execution",
+     "endpoint": "/wf/transfer/confirm",
+     "parameter": "tid",
+     "present": true
+    },
+    {
+     "type": "business_logic_privilege_escalation",
+     "endpoint": "/wf/transfer/confirm",
+     "parameter": "mode",
+     "present": true
+    },
+    {
+     "type": "business_logic_step_bypass",
+     "endpoint": "/wf/safe/transfer/create",
+     "parameter": "acct",
+     "present": false
+    },
+    {
+     "type": "business_logic_out_of_order",
+     "endpoint": "/wf/safe/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "business_logic_value_tamper",
+     "endpoint": "/wf/safe/transfer/confirm",
+     "parameter": "amount",
+     "present": false
+    },
+    {
+     "type": "business_logic_duplicate_execution",
+     "endpoint": "/wf/safe/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "business_logic_privilege_escalation",
+     "endpoint": "/wf/safe/transfer/confirm",
+     "parameter": "mode",
+     "present": false
+    },
+    {
+     "type": "business_logic_cross_user_execution",
+     "endpoint": "/wf/shared/transfer/confirm",
+     "parameter": "tid",
+     "present": true
+    },
+    {
+     "type": "business_logic_cross_object_execution",
+     "endpoint": "/wf/shared/transfer/confirm",
+     "parameter": "tid",
+     "present": true
+    },
+    {
+     "type": "business_logic_cross_state_execution",
+     "endpoint": "/wf/shared/transfer/confirm",
+     "parameter": "tid",
+     "present": true
+    },
+    {
+     "type": "business_logic_cross_user_execution",
+     "endpoint": "/wf/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "business_logic_cross_object_execution",
+     "endpoint": "/wf/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "business_logic_cross_state_execution",
+     "endpoint": "/wf/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "business_logic_cross_user_execution",
+     "endpoint": "/wf/safe/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "business_logic_cross_object_execution",
+     "endpoint": "/wf/safe/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "business_logic_cross_state_execution",
+     "endpoint": "/wf/safe/transfer/confirm",
+     "parameter": "tid",
+     "present": false
+    },
+    {
+     "type": "csrf",
+     "endpoint": "/vuln/subscribe-echo",
+     "parameter": "email",
+     "present": false
+    },
+    {
+     "type": "nosql_injection",
+     "endpoint": "/api/nosql-lockout",
+     "parameter": "user",
+     "present": false
+    }
+   ],
+   "environment_notes": "local http://127.0.0.1:8777 (requires --allow-private for scope); authenticated scan (demo/demo123) - /account and /vault/transfer 302 to /login for anonymous clients; OAST armed - blind classes (xxe / ssrf / command_injection) are OOB-confirmed only; Phase 55 surfaces on /lab (csrf/nosql/jwt) + /vuln/ssti + /vuln/hostbuild; Phase 56 intelligence surfaces: multi-user authorization matrix (demo=admin, bob/carol=user via benchmarks/authz_accounts.json - idor_bola /api/data + vertical_privilege_escalation /api/admin/stats with secure twins), credential exposure (/vuln/leak-config: aws + github-token + db-uri classes; /safe twin masked), param-intel JSON-object surface (/api/filter); Phase 58 workflow intelligence: /wf/transfer wizard (vulnerable to all five business-logic classes) + /wf/safe/transfer hardened twin (every manipulation refused, ledger = state oracle), scanned with --workflow --logic-active (auth demo/demo123 + authz accounts bob/carol); Phase 60 (fixture v10): /wf/shared/transfer — ONE GLOBAL object store across identities with a seeded foreign-typed object (SORD-0001) and a rollback path (POST /cancel): vulnerable to EXACTLY the three v4.0.0 cross-identity classes (cross_user / cross_object / cross_state) with the five v3.0.0 guards intact (400 draft / 404 unknown / 400 amount-binding / 409 idempotency / 403 wire-role); bench-adv (2026-10-03, fixture v11): two ADVERSARIAL discriminating cases on /lab — /vuln/subscribe-echo (blanket-200 csrf echo, present:false) and /api/nosql-lockout (soft-fail nosql + permanent lockout, present:false) — v4.1.1 false-positives both, v4.2.0 rejects both; the bench now DISCRIMINATES the VF-01..04 fix set",
+   "fixture_docstring_excerpt": "SENTINEL Benchmark Fixture v1 — locally-hosted intentionally vulnerable app.\nGROUND TRUTH (see benchmarks/ground_truth.json):\n  /vuln/sqli_error.php?id      -> sql_injection (error-based)\n  /vuln/sqli_blind.php?id      -> sql_injection (boolean oracle 200/500)\n  /vuln/xss.php?q              -> xss_reflected (raw reflection)\n  /vuln/traversal.php?file     -> path_traversal (reads SENTINEL-SECRET-FILE)\n  /vuln/redirect.php?url       -> open_redirect (Location header)\n  /vuln/jsparam.php?cat        -> sql_injection (500-on-quote, no DB string) +\n                                  xss_reflected (slash-escaping app: <> raw, / escaped) +\n                                  http_response_header_injection (Set-Cookie CRLF)\n                                  [param only discoverable via inline <script> URLs — DISC-05]\n  /vuln/stock POST XML         -> xxe (JS-transformed request; entity file-read differential)\n  /vuln/oob-stock POST XML     -> xxe BLIND (noise response; confirmable ONLY out-of-band)\n  /safe/oob-stock POST XML     -> NEGATIVE (DTD rejected — no entity fetch, no callback)\n  /vuln/fetch?url              -> ssrf (blind server-side fetch; OOB-confirmed only)\n  /safe/fetch?url              -> NEGATIVE (allowlist — no fetch of attacker URLs)\n  /vuln/ping?host              -> command_injection (shell=True interpolation; OOB-confirmed)\n  /safe/ping?host              -> NEGATIVE (argv list, no shell — injection impossible)\n  /vuln/cors                   -> cors_misconfig (arbitrary Origin reflected + credentials)\n  /safe/cors                   -> NEGATIVE (fixed allowlisted origin)\n  /angular_1-7-7.js            -> vulnerable_js_dependency (passive)\n  /safe/search.php?q           -> NEGATIVE (escaped)\n  /safe/item.php?id            -> NEGATIVE (parameterized)\n  /safe/read.php?file          -> NEGATIVE (basename filter)\n  /safe/go.php?url             -> NEGATIVE (allowlist)\n  /safe/jsparam.php?cat        -> NEGATIVE (inline-JS-discoverable but safe)\n  /safe/stock POST XML "
+  },
+  "ginandjuice-shop": {
+   "basis": "the site's own homepage statement (quoted verbatim)",
+   "permission_text": "https://ginandjuice.shop/ (fetched 2026-10-30, HTTP 200): \"This is a deliberately vulnerable web application designed for testing web vulnerability scanners. Put your scanner to the test! ... open 24/7 to satisfy all of your web vulnerability scanner evaluation needs. (c) 2023 PortSwigger Ltd.\"",
+   "official_vuln_list": "NONE EXISTS: PortSwigger publishes no vulnerability or challenge list for ginandjuice.shop (checked 2026-10-30 via web search — only the deliberately-vulnerable declaration above). Per order 3.4(b), every finding on this target is scored UNDETERMINED — claimed neither as confirmed-TP nor as FP.",
+   "pre_registered_expectation": "deliberately vulnerable by design; anonymous scan only (no credentials published); findings scored undetermined"
+  },
+  "testphp-vulnweb": {
+   "basis": "Acunetix's public test site; permission statement lives on acunetix.com pages",
+   "status_at_registration": "UNREACHABLE from this environment on 2026-10-30 (connection timeout, HTTP and HTTPS) — will be retried once at scan time"
+  },
+  "docker-targets": {
+   "basis": "OWASP Juice Shop / WebGoat / DVWA / crAPI / DVGA as official Docker images on localhost",
+   "status_at_registration": "SKIPPED — docker command not found in this environment (verified 2026-10-30); no unauthorized substitution made"
+  }
+ },
+ "scoring_rules": {
+  "a_confirmed_tp": "finding matches a pre-registered positive case (type + endpoint + parameter)",
+  "b_undetermined": "finding outside the documented list (or on a target with no published list) — flagged undetermined, never claimed either way",
+  "c_miss": "pre-registered positive with no matching finding — recorded as FN with the reason if knowable"
+ }
+}

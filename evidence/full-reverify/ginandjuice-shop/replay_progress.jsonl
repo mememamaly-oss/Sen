@@ -1,0 +1,15 @@
+{"finding_id": "F-a0965ae454", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-8f0527e325", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-7bcb18152c", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-bf6d4ca7fb", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-8ac4aa87f5", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-79832c51cf", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-ac1d876594", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-14a00088c7", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-4775c478d5", "type": "missing_security_headers", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class missing_security_headers", "evidence": ""}
+{"finding_id": "F-912ee82b8a", "type": "path_traversal", "replay": "REPRODUCTION_FAILED", "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)", "evidence": ""}
+{"finding_id": "F-d4db111071", "type": "path_traversal", "replay": "REPRODUCTION_FAILED", "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)", "evidence": ""}
+{"finding_id": "F-442ad1c334", "type": "path_traversal", "replay": "REPRODUCTION_FAILED", "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)", "evidence": ""}
+{"finding_id": "F-345f2b35e0", "type": "path_traversal", "replay": "REPRODUCTION_FAILED", "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)", "evidence": ""}
+{"finding_id": "F-c325bc85a4", "type": "path_traversal", "replay": "REPRODUCTION_FAILED", "reason": "the detector no longer produces a candidate on a clean replay (target may have changed or the finding was context-dependent)", "evidence": ""}
+{"finding_id": "F-68cf956bbd", "type": "vulnerable_js_dependency", "replay": "NOT_REPLAYABLE", "reason": "no automated replay implemented for class vulnerable_js_dependency", "evidence": ""}
