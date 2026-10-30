@@ -40,6 +40,9 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
     // Evidence-OS proof (reproduction recipe) — captured at scan import from
     // the engine's stats.proofs (same data source as the engine's reproduce CLI).
     const reproduction = parseJsonSafe<Record<string, unknown> | null>(finding.proofJson, null);
+    // P2-C: engine compliance mapping (OWASP/CWE/PCI) — imported verbatim from
+    // result.json at scan time, returned to the UI as-is. Never recomputed.
+    const compliance = parseJsonSafe<Record<string, unknown> | null>(finding.complianceJson, null);
 
     return NextResponse.json({
       finding: {
@@ -62,6 +65,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
       verification,
       impact,
       reproduction,
+      compliance,
       remediation: remediationFor(finding.type), // platform guidance
     });
   } catch (e) {

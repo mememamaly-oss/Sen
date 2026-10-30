@@ -346,6 +346,8 @@ type EngineFinding = {
   run_id?: string;
   risk?: number;
   impact?: unknown;
+  // P2-C: engine compliance mapping imported verbatim from result.json
+  compliance?: Record<string, unknown> | null;
 };
 
 /** Read engine store.db → engineId → fingerprint (for recurring analysis).
@@ -449,6 +451,7 @@ export async function reconcileScan(scanId: string): Promise<void> {
             verificationJson: JSON.stringify(f.verification ?? {}),
             impactJson: JSON.stringify(f.impact ?? {}),
             proofJson: proofsByFinding.get(f.id) ?? null,
+            complianceJson: f.compliance ? JSON.stringify(f.compliance) : null,
           },
         }).catch(() => null)
       )

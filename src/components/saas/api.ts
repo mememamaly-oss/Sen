@@ -76,6 +76,7 @@ export type FindingDetail = {
   verification: Record<string, unknown>;
   impact: Record<string, unknown>;
   reproduction: Record<string, unknown> | null;
+  compliance: Record<string, unknown> | null;
   remediation: { title: string; summary: string; steps: string[] };
 };
 

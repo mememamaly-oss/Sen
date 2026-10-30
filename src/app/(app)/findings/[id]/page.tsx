@@ -51,6 +51,14 @@ export default function FindingDetailPage() {
   if (!q.data) return null;
   const d = q.data;
   const f = d.finding;
+  // P2-C: engine compliance mapping — rendered exactly as the engine exported it
+  const comp = d.compliance as {
+    mapped?: boolean;
+    cwe?: string | null; cwe_label?: string | null;
+    owasp_2021?: string | null; owasp_2021_title?: string | null; owasp_2021_src?: string | null;
+    owasp_2025?: string | null; owasp_2025_title?: string | null; owasp_2025_src?: string | null;
+    pci_dss?: string | null;
+  } | null;
   const verified = (f.status ?? "").toLowerCase().includes("verified");
   const repro = d.reproduction;
   const hasRepro = repro && Object.keys(repro).length > 0;
@@ -96,6 +104,38 @@ export default function FindingDetailPage() {
             <span>{fmtDate(f.createdAt)}</span>
           </div>
         </div>
+
+        {comp ? (
+          <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
+            <span className="text-xs font-bold text-muted-foreground">{t("compliance.title")}</span>
+            {comp.mapped === false ? (
+              <Badge variant="outline" className="text-muted-foreground">{t("compliance.unmapped")}</Badge>
+            ) : (
+              <>
+                {comp.cwe ? (
+                  <Badge variant="secondary" className="num" dir="ltr" title={comp.cwe_label ?? ""}>
+                    {t("compliance.cwe")} {comp.cwe}
+                  </Badge>
+                ) : null}
+                {comp.owasp_2021 ? (
+                  <Badge variant="outline" className="num" dir="ltr" title={comp.owasp_2021_title ?? ""}>
+                    {comp.owasp_2021} · {comp.owasp_2021_src === "official" ? t("compliance.srcOfficial") : t("compliance.srcScope")}
+                  </Badge>
+                ) : null}
+                {comp.owasp_2025 ? (
+                  <Badge variant="outline" className="num" dir="ltr" title={comp.owasp_2025_title ?? ""}>
+                    {comp.owasp_2025} · {comp.owasp_2025_src === "official" ? t("compliance.srcOfficial") : t("compliance.srcScope")}
+                  </Badge>
+                ) : null}
+                {comp.pci_dss ? (
+                  <Badge className="num" dir="ltr" title={t("compliance.pciNote")}>
+                    {t("compliance.pci")} {comp.pci_dss}
+                  </Badge>
+                ) : null}
+              </>
+            )}
+          </div>
+        ) : null}
       </div>
 
       <Tabs defaultValue="evidence">
