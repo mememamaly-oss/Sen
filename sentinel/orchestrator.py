@@ -110,8 +110,10 @@ class ScanConfig:
         self.race_variance = float(race_variance)   # --race-variance F (decision threshold)
         # ---- AXIS-18 (ORD-003): symbolic execution analysis. OFF by default —
         # without --symbolic the sentinel/symbolic/ package is never imported,
-        # never invoked, sends nothing, and no section appears (bomb-tested in
-        # tests/test_axis18_symbolic.py; bench x3 zero-drift at the gate).
+        # never invoked, sends nothing, and no section appears (the historical
+        # bomb-test file tests/test_axis18_symbolic.py is not part of the
+        # current tree; the signing path is covered by
+        # tests/test_symbolic_rfc8032.py).
         self.symbolic = bool(symbolic)              # --symbolic (operator opt-in)
 
 
@@ -2254,7 +2256,7 @@ def doctor(allow_private=False) -> dict:
     except Exception as e:
         add("symbolic_engine", False, str(e)[:120])
     # AXIS-18 evidence signing: Merkle root + Ed25519 sign/verify round trip
-    # (RFC 8032 arithmetic, stdlib-only; externally verifiable signatures).
+    # (RFC 8032 via the audited cryptography library; externally verifiable).
     try:
         from .symbolic.models import SymbolicResult, Constraint, Solution, \
             sign_result, verify_result_signature

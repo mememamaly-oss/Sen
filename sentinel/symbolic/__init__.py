@@ -27,7 +27,7 @@ the engine flag off, nothing here executes at all.
 """
 from .models import (Constraint, Solution, Path, SymbolicResult,
                      sign_result, verify_result_signature, merkle_root,
-                     ed25519_keypair, ed25519_sign, ed25519_verify,
+                     ed25519_sign, ed25519_verify,
                      HONEST_BOUNDARIES)
 from .parser import (parse_constraints, parse_expression,
                      extract_from_error_message, extract_from_status_codes)

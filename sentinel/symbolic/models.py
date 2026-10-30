@@ -1,5 +1,7 @@
 """AXIS-18 models — Constraint / Solution / Path / SymbolicResult + the
-evidence chain signer (Merkle-SHA256 root + Ed25519, RFC 8032, stdlib only).
+evidence chain signer (Merkle-SHA256 root + Ed25519, RFC 8032 via
+the audited cryptography library since 2026-10-30 — no hand-rolled
+point arithmetic, no pre-hash prefix).
 
 Design invariants (supervisor-visible):
   * Pure data classes; no global mutable state; every field serializable.
@@ -17,6 +19,11 @@ Design invariants (supervisor-visible):
 from __future__ import annotations
 import hashlib
 import json
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import (
+    Ed25519PrivateKey, Ed25519PublicKey)
 
 # ---------------------------------------------------------------- boundaries
 BOUNDARY_UNSATISFIABLE = "unsatisfiable"          # a constraint SET has an empty interval
@@ -152,125 +159,69 @@ def _signing_message(d: dict) -> bytes:
 
 
 # ---------------------------------------------------------------- Ed25519
-# Compact RFC 8032 Ed25519 (the classic reference formulation), pure stdlib
-# arithmetic. Sign/verify round-trips are covered by tests + doctor check.
-_P = 2 ** 255 - 19
-_L = 2 ** 252 + 27742317777372353535851937790883648493
-_D = (-121665 * pow(121666, _P - 2, _P)) % _P
-_I = pow(2, (_P - 1) // 4, _P)
+# FORMAT CHANGE (2026-10-30): signing now goes through the audited
+# `cryptography` library (pyca) per standard RFC 8032 — the actual payload
+# is signed directly, exactly as sentinel/proof.py has since the
+# 2026-10-30 integrity pass. The deleted "axis-18" variant derived keys
+# via sha512(b"sentinel-axis18/" + seed) with hand-rolled point arithmetic;
+# because of that prefix, the SAME seed now yields a DIFFERENT key, and
+# keys never mix across the two eras. Old axis-18 artifacts still verify
+# against their embedded public key (the signature equation was already
+# standard then) — but they can no longer be re-derived from their seed.
+# No production artifact needed to remain verifiable under the old scheme
+# (owner-confirmed 2026-10-30).
+
+_DEFAULT_SEED = hashlib.sha256(b"sentinel-axis18-default-seed").digest()
+# 32-byte deterministic default (RFC 8032 keying). The pre-2026-10-30
+# default was a 28-byte literal that only worked because the hand-rolled
+# expansion absorbed any length; it is derived here once, and documented.
 
 
-def _xrecover(y: int) -> int:
-    xx = (y * y - 1) * pow(_D * y * y + 1, _P - 2, _P)
-    x = pow(xx, (_P + 3) // 8, _P)
-    if (x * x - xx) % _P != 0:
-        x = (x * _I) % _P
-    if (x * x - xx) % _P != 0:
-        raise ValueError("not a quadratic residue — point not on curve")
-    if x % 2 != 0:
-        x = _P - x
-    return x
-
-
-_BY = (4 * pow(5, _P - 2, _P)) % _P
-_BX = _xrecover(_BY)
-_B = (_BX, _BY, 1, (_BX * _BY) % _P)
-_IDENT = (0, 1, 1, 0)
-
-
-def _edwards_add(P, Q):
-    x1, y1, z1, t1 = P
-    x2, y2, z2, t2 = Q
-    a = (y1 - x1) * (y2 - x2) % _P
-    b = (y1 + x1) * (y2 + x2) % _P
-    c = 2 * t1 * _D * t2 % _P
-    d = 2 * z1 * z2 % _P
-    e, f, g, h = b - a, d - c, d + c, b + a
-    return (e * f % _P, g * h % _P, f * g % _P, e * h % _P)
-
-
-def _scalarmult(P, e: int):
-    Q = _IDENT
-    while e > 0:
-        if e & 1:
-            Q = _edwards_add(Q, P)
-        P = _edwards_add(P, P)
-        e >>= 1
-    return Q
-
-
-def _encodepoint(P) -> bytes:
-    x, y, z, _ = P
-    zi = pow(z, _P - 2, _P)
-    x, y = (x * zi) % _P, (y * zi) % _P
-    return bytes([sum(((y >> (8 * i + j)) & 1) << j for j in range(8)) for i in range(31)]
-                 + [sum(((y >> (248 + j)) & 1) << j for j in range(7)) | ((x & 1) << 7)])
-
-
-def _decodepoint(s: bytes):
-    y = int.from_bytes(s[:32], "little") & ((1 << 255) - 1)   # sign bit excluded
-    x = _xrecover(y)
-    if (x & 1) != ((s[31] >> 7) & 1):
-        x = _P - x
-    P = (x, y, 1, (x * y) % _P)
-    xs, ys, zs, ts = P
-    # RFC 8032 curve: -x^2 + y^2 = 1 + d*x^2*y^2  ->  -x^2 + y^2 - z^2 - d*t^2 = 0
-    if (-xs * xs + ys * ys - zs * zs - _D * ts * ts) % _P != 0:
-        raise ValueError("decoded point not on curve")
-    return P
-
-
-def _affine(P):
-    x, y, z, _ = P
-    zi = pow(z, _P - 2, _P)
-    return ((x * zi) % _P, (y * zi) % _P)
-
-
-def _expanded_key(seed: bytes):
-    h = hashlib.sha512(b"sentinel-axis18/" + seed).digest()
-    a = (int.from_bytes(h[:32], "little") & ((1 << 254) - 8)) | (1 << 254)
-    return a, h
-
-
-def ed25519_keypair(seed: bytes) -> tuple[bytes, bytes]:
-    """Deterministic (pub, priv32) from a seed — priv32 is the clamped scalar."""
-    a, _ = _expanded_key(seed)
-    return _encodepoint(_scalarmult(_B, a)), a.to_bytes(32, "little")
+def _seed32(seed: bytes) -> bytes:
+    """RFC 8032 keys a signature from a 32-byte seed. Legacy callers pass
+    other lengths (engine run ids, the doctor selftest); those are
+    normalized by a single SHA-256 — an input rule, not a signature-format
+    rule. The ed25519_* layer below accepts nothing but 32 bytes, exactly
+    like sentinel/proof.py."""
+    if len(seed) == 32:
+        return seed
+    return hashlib.sha256(seed).digest()
 
 
 def ed25519_sign(msg: bytes, seed: bytes) -> tuple[bytes, bytes]:
-    """Returns (public_key, signature) — signature = R (32B) || s (32B)."""
-    a, h = _expanded_key(seed)
-    pub = _encodepoint(_scalarmult(_B, a))
-    r = int.from_bytes(hashlib.sha512(h[32:64] + msg).digest(), "little") % _L
-    R = _encodepoint(_scalarmult(_B, r))
-    k = int.from_bytes(hashlib.sha512(R + pub + msg).digest(), "little") % _L
-    s = (r + k * a) % _L
-    return pub, R + s.to_bytes(32, "little")
+    """Returns (public_key, signature) — standard RFC 8032 via the
+    cryptography library. seed must be exactly 32 bytes; sign_result
+    normalizes legacy lengths before calling in."""
+    if not isinstance(seed, (bytes, bytearray)) or len(seed) != 32:
+        raise ValueError("seed must be exactly 32 bytes (RFC 8032)")
+    if not isinstance(msg, (bytes, bytearray)):
+        raise ValueError("message must be bytes")
+    priv = Ed25519PrivateKey.from_private_bytes(bytes(seed))
+    pub = priv.public_key().public_bytes(
+        serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    return pub, priv.sign(bytes(msg))
 
 
 def ed25519_verify(msg: bytes, pub: bytes, sig: bytes) -> bool:
     if len(sig) != 64 or len(pub) != 32:
         return False
     try:
-        R, A = _decodepoint(sig[:32]), _decodepoint(pub)
-    except Exception:
+        Ed25519PublicKey.from_public_bytes(pub).verify(sig, msg)
+        return True
+    except (InvalidSignature, ValueError):
         return False
-    s = int.from_bytes(sig[32:], "little")
-    if s >= _L:
-        return False
-    k = int.from_bytes(hashlib.sha512(sig[:32] + pub + msg).digest(), "little") % _L
-    return _affine(_scalarmult(_B, s)) == _affine(_edwards_add(R, _scalarmult(A, k)))
 
 
 # ---------------------------------------------------------------- sign/verify
 def sign_result(result: SymbolicResult, seed: bytes = b"") -> SymbolicResult:
     """Build the evidence chain + Merkle root, then Ed25519-sign the result
-    in place. Deterministic for the same content and seed."""
+    in place. Deterministic for the same content and seed. Seeds that are
+    not 32 bytes are normalized by a single SHA-256 (_seed32); an empty
+    seed uses the module default. Signature format changed 2026-10-30."""
     d = result.to_dict()
     result.evidence_chain = _evidence_items(d)
     d["evidence_chain"] = list(result.evidence_chain)
-    pub, sig = ed25519_sign(_signing_message(d), seed or b"sentinel-axis18-default-seed")
+    pub, sig = ed25519_sign(_signing_message(d), _seed32(seed or _DEFAULT_SEED))
     result.signature = {"algo": "ed25519-sha512-merkle", "public_key": pub.hex(),
                         "ed25519": sig.hex(), "merkle_root": merkle_root(result.evidence_chain),
                         "signed_fields": list(_SIGNED_FIELDS)}
