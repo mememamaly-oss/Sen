@@ -8,29 +8,35 @@ is a summary, not a replacement.
 ## What this repository is
 
 SENTINEL: a Python DAST engine (axes 1-18, `sentinel/`) plus a Next.js
-SaaS management app (`src/`, Prisma + SQLite). The engine is invoked by
-the app through a subprocess CLI (`src/lib/engine.ts`).
+SaaS management app (`src/`, Prisma + PostgreSQL — engine per-target
+stores stay SQLite by design). The engine is invoked by the app through a
+subprocess CLI (`src/lib/engine.ts`).
 
 ## Current state (2026-10-31)
 
-- Branch `main` (local = origin/main = d26513e) carries the 2026-10-30
-  crypto completion chain (symbolic-ed25519 -> crypto-library-primitives
-  -> Part-0 gate -> blake3 official package -> evidence) plus the
-  2026-10-31 re-execution commits (repro M2-docstring correction;
-  refreshed full-reverify evidence — see
-  evidence/full-reverify/REEXECUTION_REPORT.md). PUSHED to origin on
-  2026-10-31 after the owner's green light (fast-forward d51a5c1 ->
-  d26513e, no force; wire-verified; see
-  evidence/full-reverify/PUSH_RECORD.md). All cleanup/* branches
-  deleted (local and remote) after merge-containment verification.
+- Branch `main`: origin/main = 9b4d01c after the 2026-10-31 push gate
+  execution; on top of it the Phase-1 commercial campaign (772cc7f,
+  c7f0ab5, b845acc, 2abaacb — held by the gate) and the Phase-2 chain
+  (P2: compliance/CI/PG — see below) were pushed together, fast-forward
+  only, on 2026-10-31 after the owner's green light.
+  Record: evidence/phase2-compliance-ci/RECORD.md (§8 push record).
 - Engine: python3, stdlib + `cryptography` + `blake3==1.0.11`
   (requirements.txt). Ed25519 is library-backed end to end (proof path:
   tests/test_proof_rfc8032.py; symbolic path: tests/test_symbolic_rfc8032.py).
-- App: Next.js 16 / React 19 / next-auth 4 — build verified passing
-  (2026-10-30) once NEXTAUTH_SECRET is set in the environment.
-- Suites (2026-10-31, re-executed): python 189/189 (178 baseline + 7
-  replay-fidelity + 4 oracle-gate tests); bun 22 pass / 0 fail / 83
-  expect(); doctor 19/19 PASS.
+- App: Next.js 16 / React 19 / next-auth 4 — platform DB now PostgreSQL
+  (P2-D, 2026-10-31: real migrations; unprivileged pgserver dev cluster
+  on 127.0.0.1:55432 + docker-compose for the VPS; engine per-target
+  stores stay SQLite by design). Server-side session guard on all (app)
+  pages; public landing + /docs + /demo. Build verified passing
+  (2026-10-31) with NEXTAUTH_SECRET set in the environment.
+- Suites (2026-10-31, P2 re-executed): python 196/196 (189 + 7 compliance
+  mapping tests); bun 27 pass / 0 fail / 163 expect() (22 security + 5
+  compliance, incl. live parity with `sentinel compliance --json`);
+  integration 26/26 over the wire on real PostgreSQL (14 legacy + 12 P2:
+  public surface, server guard, demo API contract, compliance import
+  path); doctor PASS; canonical fixture run reproduced EXACTLY
+  (F1=1.0, TP=38/FP=0, 199 verified / 30 types / 7162 requests —
+  evidence/phase2-compliance-ci/RECORD.md §2).
 - 2026-10-31 Phase-1 commercial campaign (commits 772cc7f, c7f0ab5, local
   — push held by the gate): replay-fidelity gap CLOSED (RP-1/2/3: proofs
   now carry request shape + producing detector + OAST wiring; fixture
@@ -51,6 +57,21 @@ the app through a subprocess CLI (`src/lib/engine.ts`).
   independent-verification/. Owner actions pending: the VPS runner
   (DVWA/crAPI/full-budget Juice Shop/WebGoat deep/OWASP Benchmark) and the
   bug-bounty shortlist (docs/independent-verification/BUG_BOUNTY_SHORTLIST.md).
+- 2026-10-31 Phase-2 commercial campaign (P2, this push): compliance
+  registry for all 54 detector classes (OWASP Top 10 2021 + 2025 FINAL,
+  CWE, PCI DSS 6.4.2 = 6.6 in v3.2.1) with machine-checked official/scope
+  source tags, wired into result.json + all five report formats + the
+  platform (complianceJson column, finding UI chips, /docs/compliance,
+  live demo). SQLite->PostgreSQL migration with REAL migrations. Public
+  landing + docs + demo (/api/demo/scan: hardcoded target, per-IP
+  limits, single lane, no tenant writes). CI rebuilt as ONE workflow
+  file with five jobs (PG service container, canonical fixture run +
+  benchmark gate F1==1.0/TP==38/FP==0, compliance drift guard) + a
+  GitLab CI template (integrations/gitlab-ci/). secure_cookie was found
+  unregistered BY the new check — fixed (SEN-CKI-001, CWE-614).
+  Phase-3 groundwork docs (pentest RFP / SOC 2 readiness / hosted free
+  tier) under docs/phase3/. Full record:
+  evidence/phase2-compliance-ci/RECORD.md.
 - Secret scanning: `.pre-commit-config.yaml` (gitleaks hook); run
   `pre-commit install` once per clone.
 
