@@ -3,9 +3,9 @@
 PROVENANCE (عقد M1 المُسجَّل — tests/test_axis8_proof.py):
 - العقد مُشتق من المواصفة المرجعية المؤرشفة §8 (D1) + قائمة نطاق أمر
   البناء (D2)، مُعلن وقابل للإحلال عند أي حد محطة (سابقة المحور-4).
-- الاعتماديات: hashlib + hmac + os + struct من stdlib، وEd25519 عبر
-  مكتبة cryptography (pyca) منذ استبدال التنفيذ اليدوي — لا حساب
-  نقاطي يدوي. ChaCha20-Poly1305 وHKDF لا يزالان stdlib.
+- الاعتماديات: hashlib + hmac + os من stdlib؛ وEd25519 وChaCha20-Poly1305
+  عبر مكتبة cryptography (pyca) — لا حساب نقاطي يدوي ولا دالة كتلة
+  ChaCha20/Poly1305 يدوية منذ 2026-10-30. HKDF لا يزال stdlib.
 - انضباط المحور-11: كل الأزمنة معاملات صريحة (when_ms=None → ساعة
   النظام؛ البطاريات تمرر أزمنة مثبتة). لا زمن حائطي في أي هاضم.
 - validation-before-mutation: العقود البنيوية (أنواع/أطوال/حدود)
@@ -20,8 +20,8 @@ PROVENANCE (عقد M1 المُسجَّل — tests/test_axis8_proof.py):
                           اصطلاح CT معلن، إثبات O(log n))
   §4  سلسلة الأدلة        §8.5 (H(Pᵢ)=H(Pᵢ₋₁||dataᵢ)، genesis أصفار)
   §5  طابع RFC 3161       §8.4 (TST=Sign(TSA, Hash(data)||Time) محلياً)
-  §6  ChaCha20-Poly1305   RFC 8439 §2-§8 (كتلة ChaCha20 + Poly1305
-                          أعداد كبيرة + AEAD بالترتيب القياسي)
+  §6  ChaCha20-Poly1305   RFC 8439 §2.8 AEAD عبر مكتبة cryptography
+                          (pyca) منذ 2026-10-30 — ناتج مطابق بايت-لبايت
   §7  HKDF-SHA256         RFC 5869 (extract + expand)
   §8  نموذج الإثبات       §8.1/§8.6 (P الستّي، تمثيل JSON قياسي حتمي)
   §9  سلسلة الحيازة       تسجيل/تنازل موقّع بسلسلة روابط — التنازل
@@ -34,11 +34,11 @@ import hashlib
 import hmac
 import json
 import os
-import struct
 import time
 
-from cryptography.exceptions import InvalidSignature
+from cryptography.exceptions import InvalidSignature, InvalidTag
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey, Ed25519PublicKey)
 
@@ -277,96 +277,25 @@ def timestamp_verify(token: dict, data: bytes, tsa_pub: bytes) -> bool:
 
 
 # ============================================================ §6 ChaCha20-Poly1305
-_CHACHA_CONSTANTS = (0x61707865, 0x3320646e, 0x79622d32, 0x6b206574)
-
-
-def _rotl32(v: int, n: int) -> int:
-    return ((v << n) & 0xFFFFFFFF) | (v >> (32 - n))
-
-
-def _quarter(state, a, b, c, d):
-    state[a] = (state[a] + state[b]) & 0xFFFFFFFF
-    state[d] ^= state[a]
-    state[d] = _rotl32(state[d], 16)
-    state[c] = (state[c] + state[d]) & 0xFFFFFFFF
-    state[b] ^= state[c]
-    state[b] = _rotl32(state[b], 12)
-    state[a] = (state[a] + state[b]) & 0xFFFFFFFF
-    state[d] ^= state[a]
-    state[d] = _rotl32(state[d], 8)
-    state[c] = (state[c] + state[d]) & 0xFFFFFFFF
-    state[b] ^= state[c]
-    state[b] = _rotl32(state[b], 7)
-
-
-def _chacha20_block(key: bytes, counter: int, nonce: bytes) -> bytes:
-    """كتلة ChaCha20 واحدة (RFC 8439 §2.3) — بايثون خالص."""
-    k = struct.unpack("<8L", key)
-    n = struct.unpack("<3L", nonce)
-    state = list(_CHACHA_CONSTANTS) + list(k) + [counter & 0xFFFFFFFF] \
-        + list(n)
-    working = list(state)
-    for _ in range(10):
-        _quarter(working, 0, 4, 8, 12)
-        _quarter(working, 1, 5, 9, 13)
-        _quarter(working, 2, 6, 10, 14)
-        _quarter(working, 3, 7, 11, 15)
-        _quarter(working, 0, 5, 10, 15)
-        _quarter(working, 1, 6, 11, 12)
-        _quarter(working, 2, 7, 8, 13)
-        _quarter(working, 3, 4, 9, 14)
-    return struct.pack("<16L", *[(a + b) & 0xFFFFFFFF
-                                 for a, b in zip(working, state)])
-
-
-def _chacha20_xor(key: bytes, nonce: bytes, data: bytes,
-                  counter: int = 1) -> bytes:
-    out = bytearray()
-    for off in range(0, len(data), 64):
-        ks = _chacha20_block(key, counter + off // 64, nonce)
-        chunk = data[off:off + 64]
-        out.extend(a ^ b for a, b in zip(chunk, ks))
-    return bytes(out)
-
-
-def _pad16(data: bytes) -> bytes:
-    return b"\x00" * ((16 - (len(data) % 16)) % 16)
-
-
-_POLY_P = (1 << 130) - 5
-_POLY_R_MASK = 0x0FFFFFFC0FFFFFFC0FFFFFFC0FFFFFFF
-
-
-def _poly1305(key: bytes, msg: bytes) -> bytes:
-    """Poly1305 (RFC 8439 §2.5) بأعداد بايثون الكبيرة — حتمي خالص."""
-    r = int.from_bytes(key[:16], "little") & _POLY_R_MASK
-    s = int.from_bytes(key[16:32], "little")
-    acc = 0
-    for i in range(0, len(msg), 16):
-        block = msg[i:i + 16]
-        n = int.from_bytes(block + b"\x01", "little")
-        acc = ((acc + n) * r) % _POLY_P
-    acc = (acc + s) & ((1 << 128) - 1)
-    return int.to_bytes(acc, 16, "little")
+# منذ 2026-10-30: AEAD وفق RFC 8439 §2.8 عبر بدائي ChaCha20Poly1305 في
+# مكتبة cryptography (pyca) — لا دالة كتلة ChaCha20 يدوية ولا Poly1305
+# يدوي في هذا الملف بعد الآن. الناتج بايت-لبايت مطابق للتنفيذ اليدوي
+# السابق (متحقق بمتجه RFC 8439 §2.8.2 الرسمي في
+# tests/test_proof_aead_rfc8439.py) فكل أثر قديم يظل قابلاً للتحقق وفك
+# التشفير دون أي تغيير.
+# FORMAT MARKER 2026-10-30: §6 implementation switched (hand-rolled ->
+# cryptography AEAD); wire format unchanged (ct || 16-byte tag).
 
 
 def chacha20poly1305_encrypt(key: bytes, nonce: bytes, plaintext: bytes,
                              aad: bytes) -> bytes:
-    """AEAD RFC 8439 §2.8: مفتاح Poly من كتلة counter=0، التشفير من 1،
-    الوسم على (ct||pad||aad||pad||len(aad)||len(ct)). حتمي بالكامل."""
+    """AEAD RFC 8439 §2.8 — يعيد ct||وسم (16 بايتاً). حتمي بالكامل
+    لنفس المدخلات؛ مطابق حرفياً لمتجه §2.8.2 الرسمي."""
     key = _require_bytes(key, 32, "key")
     nonce = _require_bytes(nonce, 12, "nonce")
     plaintext = _require_bytes(plaintext, None, "plaintext")
     aad = _require_bytes(aad, None, "aad")
-    poly_key = _chacha20_block(key, 0, nonce)[:32]
-    ct = _chacha20_xor(key, nonce, plaintext, counter=1)
-    # RFC 8439 §2.8: AAD ثم ciphertext (كلٌّ محشو) ثم الطولان —
-    # الترتيب aad-first هو الحرفي (أُصيب مرتَّتُه الأولى في GREEN
-    # بيد متجه §2.8.2 الثابت — ملاحظة التكرار الصادقة مُسجَّلة).
-    mac_data = (aad + _pad16(aad) + ct + _pad16(ct)
-                + struct.pack("<QQ", len(aad), len(ct)))
-    tag = _poly1305(poly_key, mac_data)
-    return ct + tag
+    return ChaCha20Poly1305(key).encrypt(nonce, plaintext, aad)
 
 
 def chacha20poly1305_decrypt(key: bytes, nonce: bytes, ct_tag: bytes,
@@ -379,14 +308,10 @@ def chacha20poly1305_decrypt(key: bytes, nonce: bytes, ct_tag: bytes,
     aad = _require_bytes(aad, None, "aad")
     if len(ct_tag) < 16:
         raise IntegrityError("aead: ciphertext shorter than the 16-byte tag")
-    ct, tag = ct_tag[:-16], ct_tag[-16:]
-    poly_key = _chacha20_block(key, 0, nonce)[:32]
-    mac_data = (aad + _pad16(aad) + ct + _pad16(ct)
-                + struct.pack("<QQ", len(aad), len(ct)))
-    expected = _poly1305(poly_key, mac_data)
-    if not hmac.compare_digest(expected, tag):
+    try:
+        return ChaCha20Poly1305(key).decrypt(nonce, ct_tag, aad)
+    except InvalidTag:
         raise IntegrityError("aead: authentication failed")
-    return _chacha20_xor(key, nonce, ct, counter=1)
 
 
 # ============================================================ §7 HKDF-SHA256
