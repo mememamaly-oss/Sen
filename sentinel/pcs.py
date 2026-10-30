@@ -2,7 +2,9 @@
 """SENTINEL Axis-3 — PCS: the Persistent Causal Store (spec §3.1–§3.8).
 
 §3.1 Structure: keys are BLAKE3 digests of canonical key material
-       (sentinel/blake3.py, pure Python, zero deps); values are CANONICAL
+       (sentinel/blake3.py — the official blake3 PyPI package since
+       2026-10-30, output byte-identical to the pure-Python code it
+       replaced); values are CANONICAL
        MessagePack (sorted map keys by encoded bytes, smallest integer
        encodings, float64-only, strict type rejection); every record
        carries a Lamport stamp + a vector-clock snapshot; the store root
