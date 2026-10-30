@@ -2170,15 +2170,13 @@ def doctor(allow_private=False) -> dict:
             "coverage / param-intel / secrets (masked) / evidence-impact / appmap / authz OK")
     except Exception as e:
         add("intelligence_engines", False, str(e)[:120])
-    # Credential Vault (Phase 57): crypto self-test — RFC 8439 quarter-round
-    # vector, AEAD roundtrip, tamper rejection, purge leaves no plaintext.
+    # Credential Vault (Phase 57): crypto self-test — RFC 8439 §2.8.2 AEAD
+    # known-answer vector through the library primitive, vault roundtrip,
+    # purge leaves no plaintext.
     try:
         import tempfile as _tf, os as _os2
-        from .vault import Vault, VaultError, keygen, _quarter_round
-        w = [0x11111111, 0x01020304, 0x9b8d6f43, 0x01234567]
-        _quarter_round(w, 0, 1, 2, 3)
-        assert w == [0xea2a92f4, 0xcb1cf8ce, 0x4581472e, 0x5881c4bb], \
-            "ChaCha20 quarter-round vector mismatch"
+        from .vault import Vault, VaultError, keygen, crypto_selftest
+        crypto_selftest()   # RFC 8439 §2.8.2 KAT via the storage AEAD
         with _tf.TemporaryDirectory() as td:
             kf, vp = _os2.path.join(td, "k.json"), _os2.path.join(td, "v.vault")
             keygen(kf, "doctor")
@@ -2191,7 +2189,7 @@ def doctor(allow_private=False) -> dict:
             data = open(vp, "rb").read()
             assert data.count(probe.encode()) == 0, "plaintext survived purge"
         add("credential_vault", True,
-            "ChaCha20+HMAC encrypt-then-MAC OK; audit + purge leave no plaintext")
+            "ChaCha20-Poly1305 AEAD (cryptography) OK; audit + purge leave no plaintext")
     except Exception as e:
         add("credential_vault", False, str(e)[:120])
     # Workflow Engine (Phase 58): parser + clustering + synthesis invariants.

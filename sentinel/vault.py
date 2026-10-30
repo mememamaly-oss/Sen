@@ -65,9 +65,11 @@ Vault file format (JSON, 0600):
      "wraps": [{"key_id": "...", "nonce": "<b64>", "ct": "<b64>",
                 "tag": "<b64>"}],
      "blob": {"nonce": "<b64>", "ct": "<b64>", "tag": "<b64>"}}
-where each wrap = ChaCha20(wrap_key(keyfile, salt), nonce) over the 32-byte
-blob key K, and blob = ChaCha20(enc_key(K), nonce) over the JSON payload
-{records: [...], audit: [...]}.
+where each wrap = ChaCha20-Poly1305 AEAD under wrap_key(keyfile, salt) over
+the 32-byte blob key K, and blob = ChaCha20-Poly1305 AEAD under enc_key(K)
+over the JSON payload {records: [...], audit: [...]} (library AEAD since
+2026-10-30; tags are 16-byte Poly1305 — files written by the previous
+hand-rolled ChaCha20+HMAC scheme no longer decrypt).
 """
 from __future__ import annotations
 
@@ -81,6 +83,9 @@ import tempfile
 import time
 from typing import Any, Callable
 
+from cryptography.exceptions import InvalidTag
+from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+
 VAULT_FORMAT = "sentinel-vault/1"
 KEY_FORMAT = "sentinel-vault-key/1"
 MASK_STARS = "********"
@@ -90,60 +95,20 @@ class VaultError(Exception):
     """Refused operation — wrong key, tampered file, unauthorized access."""
 
 
-# ============================================================ ChaCha20 (RFC 8439)
-
-def _rotl(x: int, n: int) -> int:
-    return ((x << n) | (x >> (32 - n))) & 0xFFFFFFFF
-
-
-def _quarter_round(w: list[int], a: int, b: int, c: int, d: int) -> None:
-    w[a] = (w[a] + w[b]) & 0xFFFFFFFF; w[d] ^= w[a]; w[d] = _rotl(w[d], 16)
-    w[c] = (w[c] + w[d]) & 0xFFFFFFFF; w[b] ^= w[c]; w[b] = _rotl(w[b], 12)
-    w[a] = (w[a] + w[b]) & 0xFFFFFFFF; w[d] ^= w[a]; w[d] = _rotl(w[d], 8)
-    w[c] = (w[c] + w[d]) & 0xFFFFFFFF; w[b] ^= w[c]; w[b] = _rotl(w[b], 7)
-
-
-_CHACHA_CONSTANTS = (0x61707865, 0x3320646E, 0x79622D32, 0x6B206574)
-
-
-def _chacha20_block(key: bytes, counter: int, nonce: bytes) -> bytes:
-    # RFC 8439 §2.3 state: constants(4) || key(8) || counter(word 12,
-    # 32-bit) || nonce(words 13-15, 96-bit) — the 96-bit-nonce layout.
-    state = list(_CHACHA_CONSTANTS)
-    state += [int.from_bytes(key[i:i + 4], "little") for i in range(0, 32, 4)]
-    state += [counter & 0xFFFFFFFF]
-    state += [int.from_bytes(nonce[i:i + 4], "little") for i in range(0, 12, 4)]
-    w = state[:]
-    for _ in range(10):
-        _quarter_round(w, 0, 4, 8, 12)
-        _quarter_round(w, 1, 5, 9, 13)
-        _quarter_round(w, 2, 6, 10, 14)
-        _quarter_round(w, 3, 7, 11, 15)
-        _quarter_round(w, 0, 5, 10, 15)
-        _quarter_round(w, 1, 6, 11, 12)
-        _quarter_round(w, 2, 7, 8, 13)
-        _quarter_round(w, 3, 4, 9, 14)
-    return b"".join(((w[i] + state[i]) & 0xFFFFFFFF).to_bytes(4, "little")
-                    for i in range(16))
-
-
-def chacha20_xor(key: bytes, nonce: bytes, data: bytes, counter: int = 1) -> bytes:
-    """XOR `data` with the ChaCha20 keystream starting at block `counter`.
-    Deterministic, allocation-bounded, pure stdlib."""
-    if len(key) != 32:
-        raise VaultError("chacha20 key must be 32 bytes")
-    if len(nonce) != 12:
-        raise VaultError("chacha20 nonce must be 12 bytes")
-    out = bytearray(len(data))
-    for blk in range((len(data) + 63) // 64):
-        ks = _chacha20_block(key, counter + blk, nonce)
-        chunk = data[blk * 64:(blk + 1) * 64]
-        out[blk * 64:blk * 64 + len(chunk)] = \
-            bytes(c ^ k for c, k in zip(chunk, ks))
-    return bytes(out)
-
-
 # ============================================================ authenticated AEAD
+# 2026-10-30: the hand-rolled ChaCha20 stream cipher + separate
+# HMAC-SHA256 MAC (encrypt-then-MAC) were replaced by the ChaCha20Poly1305
+# AEAD primitive from the cryptography library (pyca) — one audited call
+# instead of hand-assembled parts. The storage envelope keeps the
+# {nonce, ct, tag} shape, but the tag is now the 16-byte Poly1305 tag
+# (was a 32-byte HMAC tag), so vault files written by the previous
+# implementation fail authentication explicitly and can no longer be
+# decrypted. The RFC 8439 §2.8.2 known-answer vector for this AEAD is
+# pinned in crypto_selftest() (called by the doctor) and in
+# tests/test_vault_aead_rfc8439.py. The domain-separated subkey
+# derivation (_derive, stdlib hmac) is unchanged — it is not a
+# hand-rolled primitive.
+
 
 def _derive(master: bytes, label: str) -> bytes:
     """Domain-separated subkey derivation from the 256-bit blob key."""
@@ -151,17 +116,12 @@ def _derive(master: bytes, label: str) -> bytes:
                     hashlib.sha256).digest()
 
 
-def _mac(mac_key: bytes, aad: str, nonce: bytes, ct: bytes) -> bytes:
-    return hmac.new(mac_key, aad.encode() + b"|" + nonce + b"|" + ct,
-                    hashlib.sha256).digest()
-
-
 def aead_encrypt(master: bytes, aad: str, plaintext: bytes) -> dict:
-    """Encrypt-then-MAC under subkeys of `master`. Returns {nonce, ct, tag}."""
+    """AEAD under the enc subkey of `master`. Returns {nonce, ct, tag}."""
     nonce = os.urandom(12)
-    ct = chacha20_xor(_derive(master, "enc"), nonce, plaintext)
-    tag = _mac(_derive(master, "mac"), aad, nonce, ct)
-    return {"nonce": nonce, "ct": ct, "tag": tag}
+    ct_tag = ChaCha20Poly1305(_derive(master, "enc")).encrypt(
+        nonce, plaintext, aad.encode())
+    return {"nonce": nonce, "ct": ct_tag[:-16], "tag": ct_tag[-16:]}
 
 
 def aead_decrypt(master: bytes, aad: str, envelope: dict) -> bytes:
@@ -170,10 +130,44 @@ def aead_decrypt(master: bytes, aad: str, envelope: dict) -> bytes:
         nonce, ct, tag = envelope["nonce"], envelope["ct"], envelope["tag"]
     except (KeyError, TypeError):
         raise VaultError("malformed envelope")
-    expect = _mac(_derive(master, "mac"), aad, nonce, ct)
-    if not hmac.compare_digest(expect, tag):
+    if not (isinstance(nonce, bytes) and isinstance(ct, bytes)
+            and isinstance(tag, bytes)):
+        raise VaultError("malformed envelope")
+    try:
+        return ChaCha20Poly1305(_derive(master, "enc")).decrypt(
+            nonce, ct + tag, aad.encode())
+    except InvalidTag:
         raise VaultError("authentication failed: wrong key or tampered data")
-    return chacha20_xor(_derive(master, "enc"), nonce, ct)
+
+
+# RFC 8439 §2.8.2 — the official AEAD known-answer vector, verbatim.
+_KAT_KEY = bytes.fromhex(
+    "808182838485868788898a8b8c8d8e8f"
+    "909192939495969798999a9b9c9d9e9f")
+_KAT_NONCE = bytes.fromhex("070000004041424344454647")
+_KAT_AAD = bytes.fromhex("50515253c0c1c2c3c4c5c6c7")
+_KAT_PT = (b"Ladies and Gentlemen of the class of '99: If I could offer "
+           b"you only one tip for the future, sunscreen would be it.")
+_KAT_EXPECTED = bytes.fromhex(
+    "d31a8d34648e60db7b86afbc53ef7ec2"
+    "a4aded51296e08fea9e2b5a736ee62d6"
+    "3dbea45e8ca9671282fafb69da92728b"
+    "1a71de0a9e060b2905d6a5b67ecd3b36"
+    "92ddbd7f2d778b8c9803aee328091b58"
+    "fab324e4fad675945585808b4831d7bc"
+    "3ff4def08e4b7a9de576d26586cec64b"
+    "61161ae10b594f09e26a7e902ecbd0600691")
+
+
+def crypto_selftest() -> None:
+    """Known-answer test: RFC 8439 §2.8.2 through the very AEAD primitive
+    used for storage — any drift raises VaultError (the doctor calls this)."""
+    aead = ChaCha20Poly1305(_KAT_KEY)
+    got = aead.encrypt(_KAT_NONCE, _KAT_PT, _KAT_AAD)
+    if got != _KAT_EXPECTED:
+        raise VaultError("RFC 8439 2.8.2 AEAD known-answer mismatch")
+    if aead.decrypt(_KAT_NONCE, got, _KAT_AAD) != _KAT_PT:
+        raise VaultError("RFC 8439 2.8.2 AEAD roundtrip failed")
 
 
 def _b64e(b: bytes) -> str:
