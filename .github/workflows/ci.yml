@@ -1,8 +1,18 @@
 name: CI
 
 # SECURITY (audit 2026-10-23): this pipeline is the regression wall for the
-# remediation — lint + typecheck + unit/integration tests + build + engine
-# doctor + secret scan. It must fail closed: a red CI is never merged.
+# remediation — it must fail closed: a red CI is never merged.
+#
+# P2 (2026-10-31) — ONE workflow file, five jobs:
+#   web        — SaaS app: lint/typecheck/unit/integration/build on a REAL
+#                PostgreSQL service container (P2-D migration exercised on
+#                every run through prisma migrate deploy)
+#   engine     — doctor + the python suite (incl. compliance parity tests)
+#   secrets    — credential-pattern scan of tracked files
+#   fixture    — a REAL scan of the bundled fixture (vulnapp): benchmark
+#                against ground truth + all five report formats as artifacts
+#   drift      — compliance registry drift guard (generated file must match
+#                the engine source; stale check-ins can never ship)
 
 on:
   push:
@@ -11,12 +21,26 @@ on:
 
 jobs:
   web:
-    name: SaaS app (lint / typecheck / tests / build)
+    name: SaaS app (lint / typecheck / tests / build) — PostgreSQL
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: sentinel
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
     env:
-      DATABASE_URL: "file:./ci-test.db"
-      NEXTAUTH_SECRET: "ci-only-secret-not-for-production"
-      SENTINEL_DATA_DIR: "/tmp/sentinel-ci-data"
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sentinel
+      NEXTAUTH_SECRET: ci-only-secret-not-for-production
+      SENTINEL_DATA_DIR: /tmp/sentinel-ci-data
     steps:
       - uses: actions/checkout@v4
 
@@ -43,16 +67,18 @@ jobs:
         env:
           NODE_ENV: test
 
+      # the runner consumes DATABASE_URL (the service container above) and
+      # applies the REAL migration files — every CI run re-validates them
       - name: Integration tests (bash-managed server — the supported path)
         run: bash scripts/run_integration_tests.sh
 
       - name: Production build
         run: bun run build
         env:
-          NEXTAUTH_SECRET: "ci-only-secret-not-for-production"
+          NEXTAUTH_SECRET: ci-only-secret-not-for-production
 
   engine:
-    name: Engine (doctor / network policy / fixtures)
+    name: Engine (doctor / python suite / compliance parity)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -64,7 +90,7 @@ jobs:
       - name: Engine doctor (19 checks)
         run: python3 -m sentinel.cli doctor
 
-      - name: Python security tests
+      - name: Python security tests (incl. compliance mapping parity)
         run: python3 -m pytest tests/ -q
 
   secrets:
@@ -82,3 +108,73 @@ jobs:
             exit 1
           fi
           echo "no credential patterns in tracked files"
+
+  fixture:
+    name: Real fixture scan (canonical run + all report formats)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Canonical full-platform run (verified campaign config; store persisted)
+        run: |
+          python3 scripts/ci_fixture_run.py --out-dir "$RUNNER_TEMP/ci-fixture"
+
+      - name: Benchmark regression gate (confusion vs ground truth)
+        run: |
+          python3 -m sentinel.cli benchmark --race --out "$RUNNER_TEMP/ci-fixture/benchmark.json"
+          python3 - <<'PY'
+          import json, os
+          b = json.load(open(os.environ["RUNNER_TEMP"] + "/ci-fixture/benchmark.json"))
+          c = b["confusion"]
+          print(f"P/R/F1: {b['precision']}/{b['recall']}/{b['f1']} confusion: {c}")
+          # the deterministic record: TP=38 FP=0 FN=0 TN=37, F1=1.0
+          # (evidence/full-reverify/fixtures-vulnapp/benchmark.json)
+          assert b["f1"] == 1.0, f"benchmark F1 regressed: {b['f1']}"
+          assert c["TP"] == 38 and c["FP"] == 0, f"confusion regressed: {c}"
+          print("benchmark regression gate OK")
+          PY
+
+      - name: Export all five report formats from the store
+        run: |
+          F="$RUNNER_TEMP/ci-fixture"
+          RUN_ID=$(python3 -c "import json;print(json.load(open('$F/scan.json'))['run_id'])")
+          for fmt in html json sarif executive glass; do
+            python3 -m sentinel.cli report --db "$F/store.db" \
+              --run-id "$RUN_ID" --format "$fmt" --out "$F/report.$fmt"
+          done
+          python3 -m sentinel.cli compliance --json > "$F/compliance.json"
+
+      - name: Upload scan artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixture-scan
+          path: |
+            ${{ runner.temp }}/ci-fixture/scan.json
+            ${{ runner.temp }}/ci-fixture/report.*
+            ${{ runner.temp }}/ci-fixture/benchmark.json
+            ${{ runner.temp }}/ci-fixture/compliance.json
+          if-no-files-found: error
+
+  drift:
+    name: Compliance registry drift guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Regenerate and compare (stale registry can never ship)
+        run: |
+          python3 scripts/gen_compliance_registry.py
+          if ! git diff --exit-code -- src/lib/compliance-registry.json; then
+            echo "::error::src/lib/compliance-registry.json is stale — regenerate with: python3 scripts/gen_compliance_registry.py"
+            exit 1
+          fi
+          echo "registry in sync with sentinel/compliance.py"
