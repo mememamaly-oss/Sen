@@ -1,9 +1,9 @@
 """SENTINEL v4.4.1 — Axis 14: the independently-auditable report layer.
 
-The competitive claim the supervisor ordered (docs/SPEC_AXES_13_16.md §14,
-banked verbatim): the report carries a Merkle root + an Ed25519 public key,
-so ANY external auditor verifies EVERY result with OPEN tools and NO access
-to the code — a property neither Burp Suite nor OWASP ZAP carries.
+The report carries a Merkle root + an Ed25519 public key, so an external
+auditor can verify the results with open tools and no access to the code;
+the literal verification recipe is embedded in every enriched report
+(audit.recipe).
 
 Built ON the committed closed axes, never reimplementing them:
   - the Ed25519 RFC 8032 primitives and the §8.2 Merkle convention

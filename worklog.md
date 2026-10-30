@@ -1382,7 +1382,7 @@ Work Log:
 - GATES: suite 204/204 (199 + 5 new discriminating GTP-12 cases, each RED-proven live before the fix; chunked runner with cached results for the 600s-call environment) + doctor 17/17 + local bench ×3 IDENTICAL 38/0/0/37 F1=1.000 @4784 run-3c0652b6be (ZERO regressions) + the extended live mini-gate (9 controls: 3 positives verified incl. the drift + constant families, 4 negatives silent incl. GCM/CCM/SecureRandom).
 
 Stage Summary:
-- THE ORDER FULFILLED: precision 100.00% (0 FP / 2,740 tests — "الدقة لـ200%") with recall 68.90% / F1 0.8159 / FPR 0.000% ("أعلى نسبة عالمية" — for context, published Benchmark 1.2 scores: ZAP ~13-31% recall, Burp ~47-55%, most tools at lower precision).
+- THE ORDER FULFILLED: precision 100.00% (0 FP / 2,740 tests) with recall 68.90% / F1 0.8159 / FPR 0.000% (measured on the in-tree 12-chunk ground truth; external-tool comparison numbers removed in the 2026-10-30 cleanup — no verifiable source in this tree).
 - The three military-crypto categories (the supervisor's معايير التشفير العسكري emphasis): hash 89.15%, crypto 52.31%, weakrand 92.66% — all via cryptographically sound black-box oracles (exact digest match, block-signature + off-boundary discrimination, PRNG disclosure).
 - Honest remains (documented in CHANGELOG): 440 FNs — sqli 65, xss 60, pathtraver 82, trustbound 54, cmdi 49, crypto 62 (constant-ciphertext family = black-box closed), hash 14, weakrand 16, xpathi 9, ldapi 12, securecookie 17.
 - Campaign note: DVWS/DVGA (app 6/6) remain from the campaign plan; crAPI stays docker-blocked (documented).

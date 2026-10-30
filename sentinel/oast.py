@@ -13,7 +13,7 @@ the detector and verifier code never change):
     hit as an interaction keyed by a caller-chosen id (the id IS the URL path).
     Optimal for lab/local targets: zero latency, fully deterministic.
   - PublicWebhookProvider (Phase 52): a PUBLIC channel via the webhook.site
-    REST service — Burp-Collaborator-class semantics WITHOUT owning any
+    REST service — out-of-band interaction semantics WITHOUT owning any
     infrastructure. One channel token per scan; the interaction id rides in
     the callback's query string (?i=<id>); poll() reads the service's request
     log. Live-proven end-to-end: ginandjuice.shop's blind XXE fetched a

@@ -1,5 +1,4 @@
-"""SENTINEL Axis-8 — طبقة الإثبات التشفيري (Military-Grade Cryptographic
-Proof Layer).
+"""SENTINEL Axis-8 — طبقة الإثبات التشفيري (Cryptographic Proof Layer).
 
 PROVENANCE (عقد M1 المُسجَّل — tests/test_axis8_proof.py):
 - العقد مُشتق من المواصفة المرجعية المؤرشفة §8 (D1) + قائمة نطاق أمر
