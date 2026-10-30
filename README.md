@@ -38,6 +38,11 @@ python3 scripts/bootstrap_demo_data.py   # (اختياري) بيانات عرض 
 المحرك يُستدعى من التطبيق عبر `src/lib/engine.ts` (subprocess CLI — `ENGINE_DIR`
 افتراضياً جذر المستودع، قابل للتغيير بمتغير `SENTINEL_ENGINE_DIR`).
 
+## فحص الأسرار قبل الالتزام
+
+`pre-commit install` مرة واحدة — خطاف gitleaks (`.pre-commit-config.yaml`)
+يفحص كل تغييرات staged قبل الالتزام.
+
 ## حذف عمداً في تنظيف 2026-10-23 (قابل للاستعادة من وسم `backup/pre-clean-2026-10-23`)
 
 الاختبارات (tests)، fixtures، benchmarks، نتائج الحملات (campaign, saas-data,
