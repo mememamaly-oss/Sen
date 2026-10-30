@@ -1572,6 +1572,31 @@ class HeaderNameTraversalDetector(Detector):
         b1 = echo_neutralize(r1.body or "", self.PROBE_NAME)
         b2 = echo_neutralize(r2.body or "", ctrl, self.PROBE_NAME)
         if r1.status != r2.status or b1 != b2:
+            # PT-D1/PT-D2 (Juice Shop 20.3.0 independent-verification round,
+            # 2026-10-31 — 7 live false positives, both root-caused):
+            # PT-D2 an input-CRASH differential (exactly one side 5xx) is NOT
+            #   a file-existence oracle — live: /api/Products?..=1 -> 500
+            #   'Cannot read properties of undefined' vs control 200; the ORM
+            #   chokes on the odd param name, no file path is ever built.
+            #   The exists-oracle lives INSIDE one response class (both 2xx
+            #   or both 4xx) — one-side-5xx disqualifies the interpretation.
+            # PT-D1 a NON-DETERMINISTIC endpoint differentiates against
+            #   itself — live: /rest/captcha returns a fresh captcha every
+            #   request, so probe-vs-control measured pure noise. A second
+            #   control sample (only sent when a differential is about to
+            #   fire — +1 request per firing candidate, never per endpoint)
+            #   must agree with the first, or the oracle is noise.
+            if (r1.status >= 500) != (r2.status >= 500):
+                return None
+            ctrl2 = f"sentinel-hn-{_r.randrange(1000, 99999)}"
+            r3 = self.engine.send(RequestMutation(endpoint=ep_bare,
+                                                  note="trav-hname-determinism",
+                                                  extra_headers={ctrl2: self.PROBE_VALUE}))
+            if r3 is None or r3.error or not r3.status:
+                return None
+            b3 = echo_neutralize(r3.body or "", ctrl2, self.PROBE_NAME)
+            if r3.status != r2.status or b3 != b2:
+                return None          # the endpoint varies on its own — noise
             return Finding("path_traversal", Severity.HIGH, ep.url,
                            f"header:{self.PROBE_NAME}", ep.method,
                            [Evidence("header_name_oracle",
@@ -1639,6 +1664,24 @@ class ParamNameTraversalDetector(Detector):
         b1 = echo_neutralize(r1.body or "", self.PROBE_NAME)
         b2 = echo_neutralize(r2.body or "", ctrl, self.PROBE_NAME)
         if r1.status != r2.status or b1 != b2:
+            # PT-D1/PT-D2 (Juice Shop 20.3.0 independent-verification round,
+            # 2026-10-31 — 7 live false positives, both root-caused; see the
+            # trav_hname gate for the full live evidence). PT-D2: a one-side-5xx
+            # input-crash differential is not a file-existence oracle (the ORM
+            # chokes on the odd param NAME — /api/Products?..=1 -> 500). PT-D1:
+            # a second control sample must agree with the first or the endpoint
+            # is non-deterministic and the differential was noise (/rest/captcha).
+            if (r1.status >= 500) != (r2.status >= 500):
+                return None
+            ctrl2 = f"sentinel-pn-{_r.randrange(1000, 99999)}"
+            r3 = self.engine.send(RequestMutation(endpoint=ep_bare, param_name=ctrl2,
+                                                  param_value=base,
+                                                  note="trav-pname-determinism"))
+            if r3 is None or r3.error or not r3.status:
+                return None
+            b3 = echo_neutralize(r3.body or "", ctrl2, self.PROBE_NAME)
+            if r3.status != r2.status or b3 != b2:
+                return None          # the endpoint varies on its own — noise
             return Finding("path_traversal", Severity.HIGH, ep.url,
                            f"param-name:{self.PROBE_NAME}", ep.method,
                            [Evidence("param_name_oracle",
