@@ -50,7 +50,10 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
     // non-app trees: SENTINEL engine releases, evidence archives, python projects
     "build-v400/**", "build-v410/**", "build-v411/**", "pkg-v301/**", "verify-live/**",
     "readiness/**", "snapshot-0419/**", "live-targets/**", "gap-validation/**",
-    "mini-services/**", "scripts/**", "saas-data/**", "download/**", "release-archives/**"
+    "mini-services/**", "scripts/**", "saas-data/**", "download/**", "release-archives/**",
+    // vendored public sources of scan targets (local-only, gitignored) —
+    // never part of the app tree; linting them locally would diverge from CI
+    "external/**"
   ]
 }];
 
