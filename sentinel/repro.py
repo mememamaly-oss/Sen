@@ -1,7 +1,7 @@
 """SENTINEL Axis-11 — الحتمية والقابلية للتكرار (Determinism &
 Reproducibility).
 
-PROVENANCE (عقد M2 المُسجَّل — tests/test_axis11_repro.py):
+PROVENANCE (عقد M2 المُسجَّل — تصحيح الوثائق 2026-10-31: المرجع القديم "tests/test_axis11_repro.py" أشار إلى ملف لم يُودَع قط في هذا المستودع (git log --all على المسار فارغ)؛ المثبِّت المُودَع فعلاً منذ بوابة Part-0 (2026-10-30) هو tests/test_repro_prng_isolation.py):
 - العقد مُشتق من المواصفة المؤرشفة §11 (D1) + قائمة نطاق أمر البناء
   (D2)، مُعلن وقابل للإحلال عند أي حد محطة (سابقة المحور-4/8).
 - المحرك نقي stdlib حصراً: hashlib + json + os + sys + platform +
