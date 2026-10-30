@@ -13,12 +13,16 @@ the app through a subprocess CLI (`src/lib/engine.ts`).
 
 ## Current state (2026-10-31)
 
-- Branch `main` (local) carries the 2026-10-30 crypto completion chain
-  (symbolic-ed25519 -> crypto-library-primitives -> Part-0 gate -> blake3
-  official package -> evidence) plus the 2026-10-31 re-execution commits
-  (repro M2-docstring correction; refreshed full-reverify evidence — see
-  evidence/full-reverify/REEXECUTION_REPORT.md). origin/main = d51a5c1;
-  the 2026-10-31 commits are held back by the push gate.
+- Branch `main` (local = origin/main = d26513e) carries the 2026-10-30
+  crypto completion chain (symbolic-ed25519 -> crypto-library-primitives
+  -> Part-0 gate -> blake3 official package -> evidence) plus the
+  2026-10-31 re-execution commits (repro M2-docstring correction;
+  refreshed full-reverify evidence — see
+  evidence/full-reverify/REEXECUTION_REPORT.md). PUSHED to origin on
+  2026-10-31 after the owner's green light (fast-forward d51a5c1 ->
+  d26513e, no force; wire-verified; see
+  evidence/full-reverify/PUSH_RECORD.md). All cleanup/* branches
+  deleted (local and remote) after merge-containment verification.
 - Engine: python3, stdlib + `cryptography` + `blake3==1.0.11`
   (requirements.txt). Ed25519 is library-backed end to end (proof path:
   tests/test_proof_rfc8032.py; symbolic path: tests/test_symbolic_rfc8032.py).
