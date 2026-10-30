@@ -14,11 +14,11 @@ subprocess CLI (`src/lib/engine.ts`).
 
 ## Current state (2026-10-31)
 
-- Branch `main`: origin/main = 9b4d01c after the 2026-10-31 push gate
-  execution; on top of it the Phase-1 commercial campaign (772cc7f,
-  c7f0ab5, b845acc, 2abaacb — held by the gate) and the Phase-2 chain
-  (P2: compliance/CI/PG — see below) were pushed together, fast-forward
-  only, on 2026-10-31 after the owner's green light.
+- Branch `main`: origin/main = d7c195c — pushed 2026-10-31 in two
+  verified fast-forwards (c12459a, then d7c195c after a CI fix found
+  during post-push review: every python job now installs the engine's
+  requirements). On top of 9b4d01c this carries the held Phase-1 campaign
+  (772cc7f..2abaacb) + the P2 chain (99c72ea..d7c195c).
   Record: evidence/phase2-compliance-ci/RECORD.md (§8 push record).
 - Engine: python3, stdlib + `cryptography` + `blake3==1.0.11`
   (requirements.txt). Ed25519 is library-backed end to end (proof path:
