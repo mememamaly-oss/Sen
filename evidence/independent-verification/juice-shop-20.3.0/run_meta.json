@@ -1,0 +1,25 @@
+{
+ "target": "OWASP Juice Shop 20.3.0 (official GitHub release bundle, md5-verified, node24_linux_x64)",
+ "base_url": "http://127.0.0.1:31000",
+ "challenge_list": "data/static/challenges.yml @ tag v20.3.0 (official)",
+ "bounds": {
+  "max_pages": 30,
+  "max_requests": 4500,
+  "timeout": 10.0,
+  "oast": "local",
+  "auth": "documented seed admin account",
+  "batteries_off": [
+   "race",
+   "workflow",
+   "logic_active",
+   "symbolic",
+   "authz"
+  ]
+ },
+ "scan_wall_seconds": 238.8,
+ "requests": 4500,
+ "endpoints": 108,
+ "findings": 109,
+ "browser_pages": 15,
+ "run_id": "run-f602a6227f"
+}

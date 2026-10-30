@@ -28,8 +28,29 @@ the app through a subprocess CLI (`src/lib/engine.ts`).
   tests/test_proof_rfc8032.py; symbolic path: tests/test_symbolic_rfc8032.py).
 - App: Next.js 16 / React 19 / next-auth 4 — build verified passing
   (2026-10-30) once NEXTAUTH_SECRET is set in the environment.
-- Suites (2026-10-31, re-executed): python 178/178; bun 22 pass / 0 fail /
-  83 expect(); doctor 19/19 PASS.
+- Suites (2026-10-31, re-executed): python 189/189 (178 baseline + 7
+  replay-fidelity + 4 oracle-gate tests); bun 22 pass / 0 fail / 83
+  expect(); doctor 19/19 PASS.
+- 2026-10-31 Phase-1 commercial campaign (commits 772cc7f, c7f0ab5, local
+  — push held by the gate): replay-fidelity gap CLOSED (RP-1/2/3: proofs
+  now carry request shape + producing detector + OAST wiring; fixture
+  replay 5 VERIFIED / 35 NOT_REPLAYABLE / 0 FAILED, was 1/36/3; the five
+  remote path_traversal replays all VERIFIED, was 5 FAILED — zero
+  REPRODUCTION_FAILED anywhere). Independent verification began: Juice
+  Shop 20.3.0 official bundle scored against the official 116-challenge
+  list (1 DAST-DETECTED — an unauthenticated password-hash/token exposure
+  on /rest/memories, manually confirmed; 48 scope-misses with per-challenge
+  reasons; 36 class-gaps; 10 config-out; 21 attacker-action) — and the
+  independent target exposed 7 live FPs, both root causes fixed red→green
+  (PT-D1 non-determinism gate, PT-D2 input-crash gate; 116→109 findings,
+  truths kept). WebGoat 2026.4: official JAR on portable JDK 25, real
+  registration flow solved (register.mvc, 6..10-char policy), 40-lesson
+  catalog harvested, bounded authenticated scan (14 endpoints — the
+  #lesson hash-fragment SPA routing is an honest engine gap, documented).
+  See docs/independent-verification/REPORT.md + evidence/
+  independent-verification/. Owner actions pending: the VPS runner
+  (DVWA/crAPI/full-budget Juice Shop/WebGoat deep/OWASP Benchmark) and the
+  bug-bounty shortlist (docs/independent-verification/BUG_BOUNTY_SHORTLIST.md).
 - Secret scanning: `.pre-commit-config.yaml` (gitleaks hook); run
   `pre-commit install` once per clone.
 

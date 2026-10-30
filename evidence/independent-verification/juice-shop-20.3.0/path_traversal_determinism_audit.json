@@ -1,0 +1,159 @@
+{
+ "method": "4-request differential determinism audit (probe x2 + control x2)",
+ "results": [
+  {
+   "finding_id": "F-548c80e2a6",
+   "url": "http://127.0.0.1:31000/api/Feedbacks",
+   "channel": "param-name",
+   "probe": [
+    500,
+    94
+   ],
+   "control": [
+    200,
+    1734
+   ],
+   "probe2": [
+    500,
+    94
+   ],
+   "control2": [
+    200,
+    1734
+   ],
+   "verdict": "STABLE-ORACLE (input-dependent differential — needs semantic review)"
+  },
+  {
+   "finding_id": "F-8430277f5f",
+   "url": "http://127.0.0.1:31000/api/Products",
+   "channel": "param-name",
+   "probe": [
+    500,
+    94
+   ],
+   "control": [
+    200,
+    26405
+   ],
+   "probe2": [
+    500,
+    94
+   ],
+   "control2": [
+    200,
+    26405
+   ],
+   "verdict": "STABLE-ORACLE (input-dependent differential — needs semantic review)"
+  },
+  {
+   "finding_id": "F-f1ace70df2",
+   "url": "http://127.0.0.1:31000/api/Quantitys",
+   "channel": "param-name",
+   "probe": [
+    500,
+    94
+   ],
+   "control": [
+    200,
+    7628
+   ],
+   "probe2": [
+    500,
+    94
+   ],
+   "control2": [
+    200,
+    7628
+   ],
+   "verdict": "STABLE-ORACLE (input-dependent differential — needs semantic review)"
+  },
+  {
+   "finding_id": "F-81e5ee33f1",
+   "url": "http://127.0.0.1:31000/rest/captcha",
+   "channel": "header",
+   "probe": [
+    200,
+    48
+   ],
+   "control": [
+    200,
+    47
+   ],
+   "probe2": [
+    200,
+    47
+   ],
+   "control2": [
+    200,
+    48
+   ],
+   "verdict": "NONDETERMINISTIC (responses vary on their own — differential measured noise)"
+  },
+  {
+   "finding_id": "F-1f6bfca49f",
+   "url": "http://127.0.0.1:31000/rest/captcha",
+   "channel": "param-name",
+   "probe": [
+    200,
+    50
+   ],
+   "control": [
+    200,
+    48
+   ],
+   "probe2": [
+    200,
+    48
+   ],
+   "control2": [
+    200,
+    49
+   ],
+   "verdict": "NONDETERMINISTIC (responses vary on their own — differential measured noise)"
+  },
+  {
+   "finding_id": "F-95b97177fa",
+   "url": "http://127.0.0.1:31000/api/SecurityQuestions",
+   "channel": "param-name",
+   "probe": [
+    500,
+    94
+   ],
+   "control": [
+    200,
+    1934
+   ],
+   "probe2": [
+    500,
+    94
+   ],
+   "control2": [
+    200,
+    1934
+   ],
+   "verdict": "STABLE-ORACLE (input-dependent differential — needs semantic review)"
+  },
+  {
+   "finding_id": "F-de5010e8ff",
+   "url": "http://127.0.0.1:31000/api/Hints",
+   "channel": "param-name",
+   "probe": [
+    500,
+    94
+   ],
+   "control": [
+    200,
+    97672
+   ],
+   "probe2": [
+    500,
+    94
+   ],
+   "control2": [
+    200,
+    97672
+   ],
+   "verdict": "STABLE-ORACLE (input-dependent differential — needs semantic review)"
+  }
+ ]
+}

@@ -1,0 +1,24 @@
+{
+ "target": "OWASP WebGoat 2026.4 (official GitHub release JAR, portable JDK 25 — the jar needs class-file 67+)",
+ "base_url": "http://127.0.0.1:8080/WebGoat",
+ "lesson_catalog": "rendered start.mvc lesson menu (in-app curriculum)",
+ "auth": "in-session registered account (register.mvc, password policy 6..10 chars), engine form-intelligent login",
+ "bounds": {
+  "max_pages": 30,
+  "max_requests": 4500,
+  "timeout": 10.0,
+  "oast": "local",
+  "batteries_off": [
+   "race",
+   "workflow",
+   "logic_active",
+   "symbolic",
+   "authz"
+  ]
+ },
+ "scan_wall_seconds": 21.0,
+ "requests": 972,
+ "endpoints": 14,
+ "findings": 15,
+ "run_id": "run-12671c21ba"
+}
