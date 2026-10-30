@@ -429,6 +429,12 @@ def main():
                    help="race battery timing-variance threshold in seconds (default: 0.005)")
     sub.add_parser("doctor")
     sub.add_parser("repair-demo")
+    cmp = sub.add_parser("compliance", help="P2-C: the OWASP/CWE/PCI DSS "
+                                          "mapping registry — one row per "
+                                          "detector class")
+    cmp.add_argument("--json", action="store_true",
+                     help="machine-readable export (single source for the "
+                          "platform registry and the parity tests)")
     # ---- Phase 46+: findings / report / serve
     fnd = sub.add_parser("findings", help="query persisted findings across runs")
     fnd.add_argument("--db", default="results/sentinel.db")
@@ -714,6 +720,28 @@ def main():
             for f in rows:
                 print(f"  [{f['severity'].upper():8s}] {f['type']:30s} {f['url'][:58]:58s} "
                       f"param={f['parameter']:8s} risk={f['risk']:3d} run={f.get('run_id', '')}")
+    elif a.cmd == "compliance":
+        # P2-C (2026-10-31): the compliance registry — OWASP Top 10 (2021 +
+        # 2025 final), CWE and PCI DSS 6.4.2 per detector class. Source of
+        # truth for every downstream renderer (reports, platform, docs).
+        from sentinel.compliance import (COMPLIANCE, PCI_DSS_REQUIREMENT,
+                                         PCI_DSS_NOTE, compliance_json)
+        if a.json:
+            print(json.dumps(compliance_json(), indent=1, ensure_ascii=False))
+        else:
+            print(f"PCI DSS: {PCI_DSS_REQUIREMENT} — {PCI_DSS_NOTE}")
+            print(f"{len(COMPLIANCE)} detector classes mapped; "
+                  "src: official = CWE in the category's official list "
+                  "(top10.owasp.org, fetched 2026-10-31); scope = editorial")
+            print(f"{'type':38s} {'CWE':9s} {'OWASP 2021':22s} "
+                  f"{'OWASP 2025':22s} PCI")
+            for ftype in sorted(COMPLIANCE):
+                from sentinel.compliance import compliance_for
+                c = compliance_for(ftype)
+                print(f"{ftype:38s} {c['cwe']:9s} "
+                      f"{c['owasp_2021'] + ' (' + c['owasp_2021_src'] + ')':22s} "
+                      f"{c['owasp_2025'] + ' (' + c['owasp_2025_src'] + ')':22s} "
+                      f"{c['pci_dss']}")
     elif a.cmd == "report":
         from sentinel.store import Store
         from sentinel.report import (build_report, build_html, build_sarif,
