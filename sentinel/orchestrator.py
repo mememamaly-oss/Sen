@@ -23,6 +23,7 @@ from .coverage import CoverageTracker, _CoverageProxy
 from .paramintel import ParamIntel
 from .secrets import SecretsScanner
 from .evidence import assess as assess_impact
+from .compliance import compliance_for
 from .evidence import build_proof as build_finding_proof
 from .appmap import build_appmap
 from .authz import AuthzConfig, AuthzEngine, _rank as _az_rank
@@ -1955,7 +1956,9 @@ class SentinelScanner:
             "run_id": self.run_id, "seed": self.seed, "scanner": SCANNER_VERSION,
             "target": self.target.url, "stats": self.stats,
             "findings": [f.to_dict() | {"risk": self.pipeline.risk(f),
-                                        "impact": assess_impact(f)} for f in self.findings
+                                        "impact": assess_impact(f),
+                                        "compliance": compliance_for(f.type)}
+                         for f in self.findings
                          if f.status == FindingStatus.VERIFIED],
             "rejected_candidates": [f.to_dict() for f in self.findings
                                     if f.status == FindingStatus.REJECTED],

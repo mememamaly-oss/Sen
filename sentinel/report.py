@@ -16,6 +16,7 @@ import json
 
 from .store import Store
 from .core import VERSION
+from .compliance import compliance_for, compliance_summary
 
 SEV_COLORS = {"critical": "#c0392b", "high": "#e67e22", "medium": "#f1c40f",
               "low": "#3498db", "info": "#95a5a6"}
@@ -143,6 +144,10 @@ def build_executive(store: Store, run_id: str = "") -> dict:
                                         "coverage gap), 3=engine failure — "
                                         "policy and engine failures are never "
                                         "conflated")},
+        # P2-C: the compliance rollup for this run — OWASP Top 10 (2021 + 2025
+        # final) category counts, CWE counts and the PCI DSS 6.4.2 evidence
+        # tally. Auditable: derived from the same findings as everything else.
+        "compliance": compliance_summary(findings),
     }
 
 
@@ -250,6 +255,9 @@ SARIF_RULES = {
     "http_request_smuggling":                  "SEN-SMK-001",
     "mass_assignment":                         "SEN-MA-001",
     "prototype_pollution":                     "SEN-PP-001",
+    # P2-C (2026-10-31): the engine emits this class (fixture battery) but it
+    # was never registered — a real gap caught by the CI compliance check.
+    "secure_cookie":                           "SEN-CKI-001",
 }
 SARIF_LEVEL = {"critical": "error", "high": "error", "medium": "warning",
                "low": "note", "info": "note"}
@@ -282,8 +290,23 @@ def build_sarif(store: Store, run_id: str = "") -> dict:
         rid = SARIF_RULES.get(ftype, "SEN-GEN-001")
         if rid not in seen:
             seen.add(rid)
+            _c = compliance_for(ftype)
             rules.append({"id": rid, "name": ftype,
-                          "shortDescription": {"text": f"SENTINEL verified finding class: {ftype}"}})
+                          "shortDescription": {"text": f"SENTINEL verified finding class: {ftype}"},
+                          "fullDescription": {"text": (
+                              f"{ftype} — {_c['cwe'] or 'unmapped CWE'}"
+                              + (f" ({_c['cwe_label']})" if _c.get('cwe_label') else "")
+                              + f"; OWASP 2021: {_c['owasp_2021'] or '—'}"
+                              + f"; OWASP 2025: {_c['owasp_2025'] or '—'}"
+                              + f"; PCI DSS: {_c['pci_dss'] or '—'}")},
+                          "properties": {
+                              "cwe": _c["cwe"], "cwe_label": _c["cwe_label"],
+                              "owasp_2021": _c["owasp_2021"],
+                              "owasp_2021_source": _c["owasp_2021_src"],
+                              "owasp_2025": _c["owasp_2025"],
+                              "owasp_2025_source": _c["owasp_2025_src"],
+                              "pci_dss": _c["pci_dss"],
+                              "mapped": _c["mapped"],}})
         ver = f.get("verification") or {}
         evs = "; ".join(f"{e.get('kind', '')}: {str(e.get('detail', ''))[:140]}"
                         for e in (f.get("evidence") or [])[:3])
@@ -299,6 +322,7 @@ def build_sarif(store: Store, run_id: str = "") -> dict:
                 "region": {"snippet": {"text": f.get("parameter") or ""}}}}],
             "properties": {"severity": f.get("severity", ""), "risk": f.get("risk", 0),
                            "confidence": f.get("confidence", 0), "parameter": f.get("parameter", ""),
+                           "compliance": compliance_for(ftype),
                            "verification": {"method": ver.get("method", ""), "passed": ver.get("passed", False),
                                             "notes": str(ver.get("notes", ""))[:200]},
                            "evidence": evs[:400]},
@@ -339,10 +363,20 @@ def _build_json(store: Store, run_id: str) -> dict:
         run = store.get_run(run_id)
         if not run:
             return {"error": f"run {run_id} not found"}
-        return {"kind": "single-run", "scanner": run["scanner"], "run": run}
+        # P2-C: compliance rides every finding (older store runs get the
+        # mapping retroactively — the registry is render-time, never persisted
+        # per-run in the store, so it can evolve without replaying scans).
+        for f in run.get("findings", []):
+            f.setdefault("compliance", compliance_for(f.get("type", "")))
+        return {"kind": "single-run", "scanner": run["scanner"], "run": run,
+                "compliance": compliance_summary(run.get("findings", []))}
     runs = store.list_runs(limit=100)
+    latest = store.list_findings(limit=500)
+    for f in latest:
+        f.setdefault("compliance", compliance_for(f.get("type", "")))
     return {"kind": "overview", "scanner": f"sentinel-core/{VERSION}",
             "summary": store.stats_summary(),
+            "compliance": compliance_summary(latest),
             "recurring": store.recurring(),
             "latest_delta": store.delta(),
             "runs": runs}
@@ -376,6 +410,11 @@ def _build_html(store: Store, run_id: str) -> str:
         evs = "<br>".join(f"{e(ev.get('kind', ''))}: {e(str(ev.get('detail', ''))[:160])}"
                           for ev in (f.get("evidence") or [])[:3])
         ver = f.get("verification") or {}
+        _c = compliance_for(f.get("type", ""))
+        _comp = (" — ".join(x for x in (
+            _c["cwe"] or "", _c["owasp_2021"] or "", _c["owasp_2025"] or "",
+            f"PCI {_c['pci_dss']}" if _c["pci_dss"] else "") if x)
+            or "unmapped")
         rows.append(
             f"<tr><td><span class='pill' style='background:{color}'>{e(sev)}</span></td>"
             f"<td><code>{e(f['type'])}</code></td>"
@@ -384,7 +423,38 @@ def _build_html(store: Store, run_id: str) -> str:
             f"<td><code>{e(f.get('parameter') or '')}</code></td>"
             f"<td>{f.get('risk', 0)}</td><td>{f.get('confidence', 0)}</td>"
             f"<td class='ev'>{evs}</td>"
-            f"<td class='ev'>{e(ver.get('method', ''))}</td></tr>")
+            f"<td class='ev'>{e(ver.get('method', ''))}</td>"
+            f"<td class='ev'>{e(_comp)}</td></tr>")
+    # P2-C: the compliance rollup section — one glance for the compliance
+    # buyer: which OWASP categories (2021 + 2025 final) this run hit, which
+    # CWEs, and the PCI DSS 6.4.2 evidence tally.
+    comp = compliance_summary(findings)
+    comp_rows = "".join(
+        f"<tr><td><code>{e(k)}</td><td>{v}</td></tr>"
+        for k, v in comp["owasp_2025"].items())
+    comp_rows_2021 = "".join(
+        f"<tr><td><code>{e(k)}</td><td>{v}</td></tr>"
+        for k, v in comp["owasp_2021"].items())
+    comp_cwe = ", ".join(f"<code>{e(k)}</code>×{v}" for k, v in comp["cwe"].items()) or "—"
+    comp_html = (f"<section><h2>Compliance — OWASP / CWE / PCI DSS (P2-C)</h2>"
+                 "<div class='box'>Every verified finding carries its compliance "
+                 "mapping (OWASP Top 10 2021 + 2025 final, CWE, PCI DSS 6.4.2 — "
+                 "the web-application protection requirement numbered 6.6 in "
+                 "PCI v3.2.1). Source tags: official = the CWE appears in the "
+                 "category's official mapped-CWE list (top10.owasp.org, fetched "
+                 "2026-10-31); scope = editorial by category scope.</div>"
+                 "<table style='margin-top:10px'><tr><th>OWASP 2025 (final)</th>"
+                 "<th>Findings</th></tr>" + (comp_rows or "<tr><td colspan='2'>—</td></tr>")
+                 + "</table>"
+                 "<table style='margin-top:10px'><tr><th>OWASP 2021</th>"
+                 "<th>Findings</th></tr>" + (comp_rows_2021 or "<tr><td colspan='2'>—</td></tr>")
+                 + "</table>"
+                 f"<div class='box' style='margin-top:10px'>CWEs: {comp_cwe}<br>"
+                 f"PCI DSS 6.4.2 evidence: <b>{comp['pci_dss'].get('6.4.2', 0)}</b> "
+                 "verified findings feed the requirement-6.4.2 assessment record."
+                 + (f"<br>Unmapped types: <b>{comp['unmapped_types']}</b> (shown honestly, never guessed)"
+                    if comp["unmapped_types"] else "")
+                 + "</div></section>")
     rej_rows = "".join(
         f"<li><code>{e(f['type'])}</code> — {e(f['url'])} param=<code>{e(f.get('parameter') or '')}</code> "
         f"({e((f.get('verification') or {}).get('method', ''))})</li>" for f in rejected)
@@ -641,9 +711,10 @@ def _build_html(store: Store, run_id: str) -> str:
 {intel_html}
 {v41_html}
 {sym_html}
+{comp_html}
 <section><h2>Verified findings ({len(findings)})</h2>
-<table><tr><th>Sev</th><th>Type</th><th>ID</th><th>URL</th><th>Param</th><th>Risk</th><th>Conf</th><th>Evidence</th><th>Verification</th></tr>
-{''.join(rows) or '<tr><td colspan="9">None</td></tr>'}</table></section>
+<table><tr><th>Sev</th><th>Type</th><th>ID</th><th>URL</th><th>Param</th><th>Risk</th><th>Conf</th><th>Evidence</th><th>Verification</th><th>Compliance</th></tr>
+{''.join(rows) or '<tr><td colspan="10">None</td></tr>'}</table></section>
 <section><h2>Reproduce a finding (Evidence OS)</h2><div class='box'>
 sentinel reproduce --finding &lt;ID&gt; --db &lt;store.db&gt; — exports the full proof file
 (hypothesis · preconditions · requests · responses · state before/after · impact ·
@@ -703,6 +774,19 @@ def build_glass_html(store: Store, run_id: str = "") -> str:
 
     sev_chips = "".join(chip(s, by_sev[s]) for s in ("critical", "high", "medium", "low", "info")
                         if by_sev.get(s)) or "<div class='chip'>لا نتائج موجبة</div>"
+
+    # P2-C: the compliance chips — OWASP 2025 (final) + 2021 + PCI DSS 6.4.2.
+    comp = compliance_summary(findings)
+    comp_chips = "".join(
+        f"<div class='chip'><span class='dot' style='background:#0a84ff'></span>"
+        f"{e(k)} <b>{v}</b></div>" for k, v in comp["owasp_2025"].items())
+    comp_chips += "".join(
+        f"<div class='chip'><span class='dot' style='background:#bf5af2'></span>"
+        f"{e(k)} <b>{v}</b></div>" for k, v in comp["owasp_2021"].items())
+    comp_chips += (f"<div class='chip'><span class='dot' style='background:#30d158'></span>"
+                   f"PCI DSS 6.4.2 <b>{comp['pci_dss'].get('6.4.2', 0)}</b></div>")
+    if not comp_chips:
+        comp_chips = "<div class='chip'>لا نتائج موجبة</div>"
 
     def stat_card(icon: str, value, label_ar: str, sub: str = "") -> str:
         return (f"<div class='card'><div class='ic'>{icon}</div>"
@@ -829,6 +913,7 @@ def build_glass_html(store: Store, run_id: str = "") -> str:
 </header>
 <div class="grid">{cards}</div>
 <div class="panel"><h2>توزيع الخطر</h2><div class="chips">{sev_chips}</div></div>
+<div class="panel"><h2>الامتثال — OWASP / CWE / PCI DSS</h2><div class="chips">{comp_chips}</div><div class='sub' style='margin-top:10px'>PCI DSS v4.0 Req 6.4.2 (رقم 6.6 في الإصدار 3.2.1) — دليل حماية الواجهات العامة؛ فئات 2025 النهائية بجانب 2021، والتصنيف الرسمي من قوائم CWE الرسمية لكل فئة (top10.owasp.org، جُلبت 2026-10-31) وما سواها مصنّف scope بوضوح.</div></div>
 <div class="panel"><h2>أعلى المخاطر المثبتة</h2>{top_html}</div>
 <div class="panel"><h2>مصفوفة التفويض القابلة للإثبات (دور × حكم وصول)</h2>{az_html}</div>
 <div class="panel"><h2>سير العمل المُتعلَّم (سلاسل متعددة الخطوات)</h2>{flows_html}</div>
