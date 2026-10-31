@@ -1,11 +1,11 @@
 {
   "layer": "3A jwt_weak_secret (battery over HTTP)",
-  "generated": "2026-10-31T14:54:20Z",
+  "generated": "2026-10-31T15:02:52Z",
   "target": "fixtures/modern2_fixture.py --mode vuln /login",
   "finding": {
     "type": "jwt_weak_secret",
     "severity": "Severity.HIGH",
-    "url": "http://127.0.0.1:52025/login",
+    "url": "http://127.0.0.1:36005/login",
     "evidence": [
       {
         "kind": "weak_hmac_secret",

@@ -1,11 +1,11 @@
 {
   "layer": "graphql-aliasing",
-  "generated": "2026-10-31T14:54:20Z",
+  "generated": "2026-10-31T15:02:52Z",
   "target": "fixtures/modern2_fixture.py --mode vuln",
   "finding": {
     "type": "graphql_aliasing",
     "severity": "Severity.LOW",
-    "url": "http://127.0.0.1:52025/graphql",
+    "url": "http://127.0.0.1:36005/graphql",
     "evidence": [
       {
         "kind": "alias_fanout_executed",

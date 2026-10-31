@@ -1,12 +1,12 @@
 {
   "layer": "excessive-data-exposure",
-  "generated": "2026-10-31T14:54:20Z",
+  "generated": "2026-10-31T15:02:52Z",
   "target": "fixtures/modern2_fixture.py --mode safe",
   "findings": [],
   "boundary": {
     "family": "excessive_data_exposure",
     "kind": "TESTED_NEGATIVE",
-    "detail": "no secret-ish field names on http://127.0.0.1:44071/api/users"
+    "detail": "no secret-ish field names on http://127.0.0.1:57075/api/users"
   },
   "result": "ZERO findings on the hardened twin (TESTED_NEGATIVE)"
 }
