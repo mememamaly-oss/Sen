@@ -1,0 +1,19 @@
+{
+ "run_id": "run-c1f1909066",
+ "seed": "real430real430real430real430real430real430real430real430",
+ "scanner": "sentinel-core/4.4.0",
+ "target": "http://127.0.0.1:3000",
+ "findings_count": 59,
+ "merkle_root": "7cca176e60633358946b1dbe3125f86d99aef95baa1cfcbc8eb40e7b21ea98ff",
+ "audit": {
+  "merkle_root": "7cca176e60633358946b1dbe3125f86d99aef95baa1cfcbc8eb40e7b21ea98ff",
+  "findings_count": 59,
+  "algorithm": "sha256-merkle-dup-last-on-odd",
+  "leaf_spec": "canonical-json-sorted-compact-utf8-volatile-excluded",
+  "signature_scheme": "Ed25519-RFC8032-pure-stdlib",
+  "signed_message_spec": "sha256(run_id \\x00 merkle_root \\x00 findings_count \\x00 header_canonical) — the 32-byte digest; the Ed25519 signature covers the digest",
+  "public_key_b64": "oA8w5YhsjcARqU52g/2bWD5y3gAbVTaNal4RyrztPL4=",
+  "signature_b64": "vwHUAoYsSH7eDTPaFyE18Vchreef9sDPtvt512cy1aaj4SwUs2U4AbHu1UI4/t/VvE1NHbi/kjbTOOi3vDNEAw==",
+  "recipe": "INDEPENDENT VERIFICATION RECIPE (open tools only, no code access):\n1) For each verified finding record in report.findings, compute leaf_i = sha256(canonical(record)) where canonical = JSON with SORTED keys, separators (',', ':'), UTF-8, and the declared volatile keys (notes, durations, wall times, stats, requests...) removed recursively at every depth.\n2) Build the Merkle tree: pair leaves bottom-up, node = sha256(left || right); when a level has an ODD count, duplicate its last hash once. The empty findings set has the root sha256(b'') = e3b0c44298fc1c14...55. The result must equal report.audit.merkle_root.\n3) Compute the signed message digest: sha256 of the four fields joined by a single 0x00 byte each: run_id, merkle_root, findings_count, then the canonical header JSON {'run_id','seed','scanner','target'} (sorted keys, compact).\n4) Verify the Ed25519 signature (RFC 8032) of that digest with the embedded public key (report.audit.public_key_b64, 32 raw bytes): python cryptography: Ed25519PublicKey.from_public_bytes(base64.b64decode(public_key_b64)).verify(base64.b64decode(signature_b64), digest); openssl: build the SPKI PEM 302a300506032b6570032100||pubkey and run openssl pkeyutl -verify -pubin -inkey pub.pem -rawin -in msg.bin -sig sig.bin. Any mismatch in (2) or (4) means the report was altered after signing — tampering is DETECTED, not trusted."
+ }
+}
