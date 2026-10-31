@@ -1,6 +1,6 @@
 {
   "layer": "3A jwt_weak_secret (battery over HTTP)",
-  "generated": "2026-10-31T14:54:20Z",
+  "generated": "2026-10-31T15:02:52Z",
   "target": "fixtures/modern2_fixture.py --mode safe /login",
   "findings": [],
   "boundary": {

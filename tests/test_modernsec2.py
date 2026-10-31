@@ -17,16 +17,20 @@ import os
 import socket
 import subprocess
 import sys
+import re
+import threading
 import time
 
 import pytest
+from burhan.http_engine import RequestMutation
+import re
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "fixtures"))
 
-from burhan.core import Endpoint, EventBus, ScopeRule          # noqa: E402
-from burhan.http_engine import RequestEngine                    # noqa: E402
+from burhan.core import Endpoint, EventBus, ScopeRule, Severity          # noqa: E402
+from burhan.http_engine import RequestEngine, RequestMutation                    # noqa: E402
 from burhan import modernsec2                                   # noqa: E402
 from burhan.modernsec2 import (ALIAS_CAP, WEAK_SECRET_WORDLIST,  # noqa: E402
                                FlipDNS, _ProbeListener,
@@ -256,6 +260,122 @@ def test_3b_flip_dns_flips_after_n_queries():
     a2 = resolve("rebind.burhan.test", "127.0.0.1", dns.port)
     a3 = resolve("rebind.burhan.test", "127.0.0.1", dns.port)
     assert (a1, a2, a3) == ("192.0.2.10", "192.0.2.10", "127.0.0.2")
+
+
+# ------------------------------------------------- part 5: adversarial pins
+def test_adversarial_A3_prefixed_password_hash_and_key_id_now_caught():
+    from burhan.modernsec2 import _walk_secret_fields
+    found = _walk_secret_fields(
+        {"user_password_hash": "$2b$12$x", "aws_access_key_id": "AKIA..."})
+    assert "user_password_hash" in found and "aws_access_key_id" in found
+
+
+def test_adversarial_A3_depth_cap_is_the_documented_limit():
+    # beyond depth 3 the bounded walk does not look — intentional cap
+    from burhan.modernsec2 import _walk_secret_fields
+    deep = {"a": {"b": {"c": {"d": {"password_hash": "x"}}}}}
+    assert _walk_secret_fields(deep) == []
+
+
+def test_adversarial_A4_reflector_is_the_declared_surface_limit():
+    # a pure reflector (no resolver work) still yields the finding: the check
+    # verifies response SHAPE, not execution cost — LOW severity by design
+    import threading
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    port = _free_port()
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_POST(self):
+            n = int(self.headers.get("Content-Length", "0"))
+            body = self.rfile.read(n).decode("utf-8", "replace")
+            found = re.findall(r"\ba(\d+)\s*:", body)
+            out = json.dumps({"data": {f"a{i}": "Faked"
+                                       for i in found}}).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(out)))
+            self.end_headers()
+            self.wfile.write(out)
+
+    srv = ThreadingHTTPServer(("127.0.0.1", port), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        eps = [Endpoint(url=f"http://127.0.0.1:{port}/graphql",
+                        method="POST")]
+        res = run_modern_battery_v2(_engine(), eps, seed="adv-a4")
+        assert "graphql_aliasing" in {f.type for f in res.findings}
+        f = next(f for f in res.findings
+                 if f.type == "graphql_aliasing")
+        assert f.severity == Severity.LOW   # the declared surface wording
+    finally:
+        srv.shutdown()
+
+
+def test_adversarial_A5_flip_after_must_match_query_count():
+    # flip_after=2 + a single-validation target: the rebind is MISSED — the
+    # documented tuning parameter, pinned so the limit stays visible
+    dns = FlipDNS(port=0, flip_after=2)
+    dns.start()
+    probe = _ProbeListener(ip="127.0.0.2", port=0)
+    probe.start()
+    port = _free_port()
+    p = _spawn([os.path.join(ROOT, "fixtures", "rebind_fixture.py"),
+                "--role", "vuln", "--dns-port", str(dns.port),
+                "--http-port", str(port)])
+    try:
+        assert _wait_port(port)
+        vuln, _detail = rebind_toctou_probe(
+            f"http://127.0.0.1:{port}/fetch", dns, probe, timeout=6.0)
+        assert not vuln          # the miss is the pinned, documented outcome
+        assert dns.queries == 2  # validation + fetch, both answered PUBLIC
+    finally:
+        p.terminate()
+
+
+def test_adversarial_A6_pinned_public_fetch_never_hits_internal():
+    # safe fetcher pinned to a REACHABLE public upstream: fetch succeeds and
+    # the internal listener is never hit — no false positive
+    import urllib.parse
+    dns = FlipDNS(port=0, flip_after=1, public_ip="127.0.0.1",
+                  internal_ip="127.0.0.2")
+    dns.start()
+    probe = _ProbeListener(ip="127.0.0.2", port=0)
+    probe.start()
+    up = socket.socket()
+    up.bind(("127.0.0.1", 0))
+    up.listen(4)
+    up_port = up.getsockname()[1]
+
+    def _serve():
+        while True:
+            try:
+                c, _ = up.accept()
+                c.recv(1024)
+                c.sendall(b"HTTP/1.0 200 OK\r\nContent-Length: 2\r\n\r\nok")
+                c.close()
+            except OSError:
+                return
+
+    threading.Thread(target=_serve, daemon=True).start()
+    port = _free_port()
+    p = _spawn([os.path.join(ROOT, "fixtures", "rebind_fixture.py"),
+                "--role", "safe", "--dns-port", str(dns.port),
+                "--http-port", str(port)])
+    try:
+        assert _wait_port(port)
+        target = f"http://rebind.burhan.test:{up_port}/x"
+        _engine().send(RequestMutation(
+            endpoint=Endpoint(
+                url=f"http://127.0.0.1:{port}/fetch?url="
+                    f"{urllib.parse.quote(target, safe='')}",
+                method="GET"), note="adv-a6"))
+        time.sleep(1.5)
+        assert not probe.hits
+    finally:
+        p.terminate()
 
 
 # ---------------------------------------------------------------- flag contract

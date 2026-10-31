@@ -1,4 +1,5 @@
-6ccccb6174270968c982a48b8683f776daf6585429eb8d39874f29d69d79efd9  layers/jwt-weak-secret/BLUE-battery.json
-22a93b109cea1e63f1febc31ea7102846a28917a9bdc8c42d50894836a8f51ba  layers/jwt-weak-secret/BLUE.json
-17869d4139ef9973024171c34803969205a408da3f36270f0d1a0fd781b2af7c  layers/jwt-weak-secret/RED-battery.json
-44020f9361abdee01bb41cba0d411b625c22fa3093974434094c4c7a7581c988  layers/jwt-weak-secret/RED.json
+dd5dca5e7bff60fb09ba3b007edbc24e310534b4d1d102d583eb614914d582a1  layers/jwt-weak-secret/BLUE-battery.json
+8a2519c1e29f832746d93c2314d2e29cf24352206232c63f2e52a1cf6b034f10  layers/jwt-weak-secret/BLUE.json
+0d429ee5501ec65e0fd5f015206b5c796a08ad3eac54798d652b68d2300abef5  layers/jwt-weak-secret/RED-battery.json
+e57651212c7a790054ff07ef52677b38e98a6e22029c2361e12c9e1d0702d471  layers/jwt-weak-secret/RED.json
+ab1e8b293e4fd676398670d82855dc753cccb62f8d3e7b817a1992f9e1f77869  layers/jwt-weak-secret/SHA256SUMS

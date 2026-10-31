@@ -43,6 +43,23 @@ New checks, each bounded with its cap documented:
    DNS fixture (fixtures/rebind_fixture.py). Scan-time use requires
    operator-controlled rebinding DNS (BURHAN_REBIND_DNS); without it the
    family is skipped with a loud boundary note, never silently.
+   ADVERSARIAL SWEEP (owner order part 5, 2026-10-31 — real outcomes, pinned
+   by tests/test_modernsec2.py::test_adversarial_*):
+   * HS512/HS384 weak secrets: DETECTED (the check covers every HMAC alg).
+   * corrupted-signature tokens: no match, no crash, bounded cap only.
+   * excessive_data_exposure: prefixed password-hash/key-id fields initially
+     EVADED (user_password_hash, aws_access_key_id) — FIXED by the shape
+     regex above; fields nested deeper than depth 3 remain outside the
+     documented bounded walk (intentional cap, pinned as a known limit).
+   * graphql_aliasing: a pure REFLECTOR that echoes the aN keys without
+     executing resolver work DOES trigger the finding — the check verifies
+     response SHAPE, not execution cost (cost measurement against live
+     targets is out of scope by policy). The finding is deliberately LOW
+     severity and worded as a surface indicator; pinned as intended.
+   * rebind_toctou: flip_after must match the target's per-operation DNS
+     query count — with flip_after=2 and a single-validation target the
+     rebind is MISSED (pinned); the parameter is documented tuning, and
+     real rebinding infrastructure flips per query (TTL 0).
 """
 from __future__ import annotations
 
@@ -87,9 +104,13 @@ _HS_ALGS = {"HS256": hashlib.sha256, "HS384": hashlib.sha384,
 # 3D: secret-ish FIELD NAMES (name-only detection; values never republished)
 _SECRET_FIELD_RE = re.compile(
     r"^(password|passwd|pwd|pass)([_-]?hash)?$", re.I)
+# adversarial fix (owner order part 5, finding A3): prefixed shapes
+# user_password_hash / aws_access_key_id evaded the first shape — caught now
 _SECRET_FIELD_RE2 = re.compile(
-    r"^([a-z0-9_]*?(secret|private[_-]?key|api[_-]?key|access[_-]?key)"
-    r"([_-]?(hash|key))?)$|^(is_internal|internal_id|internal_flag)$",
+    r"^[a-z0-9_]*password[_-]?hash$"
+    r"|^[a-z0-9_]*(secret|private[_-]?key|api[_-]?key|access[_-]?key)"
+    r"([_-]?(hash|id|key))?$"
+    r"|^(is_internal|internal_id|internal_flag)$",
     re.I)
 
 _GQL_PATH_RE = re.compile(r"graphql|gql", re.I)
