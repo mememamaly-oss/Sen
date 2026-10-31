@@ -56,6 +56,7 @@ import time
 from urllib.parse import urlsplit
 
 from .core import Endpoint, Evidence, Finding, FindingStatus, Severity
+from .core import pin_transport_address
 from .http_engine import RequestEngine, RequestMutation
 
 # ------------------------------------------------------------------ §1 vocabulary
@@ -413,10 +414,17 @@ def _graphql_batching(st: _St, eps):
 
 # ------------------------------------------------- §6 request smuggling (timing)
 def _raw_post(host: str, port: int, path: str, headers, body: bytes,
-              timeout: float):
+              timeout: float, allow_private: bool = False):
+    # SSRF fix 2026-10-31 (order 2.2): the raw-socket transport resolves
+    # ONCE through the shared gate (every DNS answer validated against the
+    # private-address policy, fail-closed) and connects to the pinned
+    # address only — never the caller's name.
+    pinned, _why = pin_transport_address(host, port, allow_private=allow_private)
+    if pinned is None:
+        return None, None
     t0 = time.perf_counter()
     try:
-        s = socket.create_connection((host, port), timeout=timeout)
+        s = socket.create_connection((pinned, port), timeout=timeout)
         try:
             req = (f"POST {path} HTTP/1.1\r\nHost: {host}:{port}\r\n"
                    + "".join(f"{k}: {v}\r\n" for k, v in headers)
@@ -451,7 +459,12 @@ def _smug_pair(st: _St, ep: Endpoint, canary: str):
         return None, None, None, None, "unparsable endpoint url"
     allowed = getattr(st.engine.scope, "allowed_domains", None) or []
     ok_host = any(host == d or host.endswith("." + d) for d in allowed)
-    if not ok_host and host not in ("127.0.0.1", "localhost"):
+    # SSRF fix 2026-10-31 (order 2.2): the explicit 127.0.0.1/localhost
+    # carve-out is REMOVED — it let the raw-socket timing pair bypass the
+    # host allowlist entirely for loopback addresses. Loopback targets now
+    # require the host to be in scope AND the scope to carry allow_private
+    # (enforced inside _raw_post via pin_transport_address).
+    if not ok_host:
         return None, None, None, None, "target host outside the scan scope"
     path = u.path + (("?" + u.query) if u.query else "")
     timeout = min(float(getattr(st.engine, "timeout", 10.0) or 10.0), 15.0)
@@ -460,7 +473,7 @@ def _smug_pair(st: _St, ep: Endpoint, canary: str):
     t_c, st_c = _raw_post(host, port, path,
                           [("Content-Type", "application/x-www-form-urlencoded"),
                            ("Content-Length", str(len(cbody)))],
-                          cbody, timeout)
+                          cbody, timeout, allow_private=bool(getattr(st.engine.scope, "allow_private", False)))
     st.requests += 1
     st.counts["http_request_smuggling"]["sent"] += 1
     # المجس: شكل desync — CL يدّعي أقل من الحقيقي بـSMUG_K والجسم chunked كامل
@@ -471,7 +484,7 @@ def _smug_pair(st: _St, ep: Endpoint, canary: str):
                           [("Content-Type", "application/x-www-form-urlencoded"),
                            ("Content-Length", str(n)),
                            ("Transfer-Encoding", "chunked")],
-                          chunked, timeout)
+                          chunked, timeout, allow_private=bool(getattr(st.engine.scope, "allow_private", False)))
     st.requests += 1
     st.counts["http_request_smuggling"]["sent"] += 1
     return t_c, st_c, t_p, st_p, ""

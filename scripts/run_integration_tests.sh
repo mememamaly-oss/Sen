@@ -88,12 +88,17 @@ for p in / /login /docs /docs/compliance /docs/ci /docs/deployment /docs/securit
 done
 echo "public routes warmed"
 
-# --- run the attached suite -----------------------------------------------------
-# timeout ceiling raised for cold-runner compile variance (warmup above makes
-# it rare; the ceiling makes it never fatal)
-INTEGRATION_SERVER_URL="${URL}" INTEGRATION_PORT="${PORT}" \
-  bun test --timeout 60000 tests/api.integration.test.ts tests/bola.integration.test.ts
-RC=$?
+# --- run the attached suites ---------------------------------------------------
+# Each test file runs in its OWN sequential bun invocation: bun test
+# parallelizes FILES within one invocation, and the suites share one
+# database + one server (a parallel beforeAll races the bootstrap). Exit
+# codes aggregate — any red file fails the run.
+RC=0
+for F in tests/api.integration.test.ts tests/bola.integration.test.ts tests/ssrf.integration.test.ts; do
+  echo "--- bun test ${F} ---"
+  INTEGRATION_SERVER_URL="${URL}" INTEGRATION_PORT="${PORT}" \
+    bun test --timeout 60000 "${F}" || RC=1
+done
 
 echo "--- integration runner done (rc=${RC}) ---"
 exit "${RC}"
