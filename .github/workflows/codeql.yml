@@ -1,0 +1,55 @@
+name: CodeQL
+
+# PART 3.2 (public-readiness order, 2026-10-31): CodeQL for both the
+# JavaScript/TypeScript platform (src/) and the Python engine (sentinel/).
+#
+# HONEST LIMITATION, stated up front: CodeQL results and the code-scanning
+# UI require the repository to be PUBLIC (or a paid GitHub Advanced
+# Security license on a private repository). This workflow therefore skips
+# itself while the repository is private and activates on the first push
+# after the visibility flip. Its first real run is verified at that point,
+# not before.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "31 4 * * 1" # weekly, Monday
+  workflow_dispatch:
+
+permissions:
+  # required by codeql-action to upload results; has no effect while the
+  # repository is private (the job is skipped then anyway)
+  security-events: write
+  contents: read
+
+jobs:
+  analyze:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    if: github.repository_visibility == 'public'
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["javascript-typescript", "python"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          # security-extended = the deeper security query suite
+          queries: security-extended
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
