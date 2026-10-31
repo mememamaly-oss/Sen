@@ -1,0 +1,9 @@
+{
+ "run_id": "run-selftest0001",
+ "seed": "selftest-seed-00000000000000000000000000000000",
+ "scanner": "sentinel-selftest/1",
+ "target": "synthetic://selftest",
+ "findings_count": 3,
+ "merkle_root": "fb28307b789380a50d3a8a694c4a6f5c1322fce49089da9b741846808ce36cfa",
+ "audit": null
+}
