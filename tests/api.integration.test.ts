@@ -191,9 +191,9 @@ describe("bootstrap atomicity + auth + RBAC over the wire", () => {
     expect(body.orgId).toBeTruthy();
     expect(await db.user.count()).toBe(1);
     // restore pristine fresh-instance state for the stampede test below
-    // (this suite is order-dependent by design); Membership cascades from
-    // both user and org, AuditLog is SetNull so it must go first.
-    await db.auditLog.deleteMany({});
+    // (this suite is order-dependent by design). AuditLog rows are
+    // APPEND-ONLY since 2026-10-31 (DB trigger) — they stay; they do not
+    // affect any count assertion below.
     await db.user.delete({ where: { id: body.userId! } });
     await db.organization.delete({ where: { id: body.orgId! } });
     await db.platformLock.deleteMany({});

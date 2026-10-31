@@ -31,7 +31,6 @@ model User {
   targetsOwned Target[]
   scansRun     Scan[]
   reportsMade  Report[]
-  auditLogs    AuditLog[]
 }
 
 model Organization {
@@ -45,7 +44,6 @@ model Organization {
   scans       Scan[]
   findings    Finding[]
   reports     Report[]
-  auditLogs   AuditLog[]
   twins       TwinGraph[]
 }
 
@@ -160,6 +158,13 @@ model Report {
   @@index([orgId, createdAt])
 }
 
+// AUDIT-LOG IMMUTABILITY (owner order 2026-10-31, part 2.6): the trail is
+// append-only AT THE DATABASE LEVEL — a BEFORE UPDATE OR DELETE trigger
+// (migration 20261031_audit_immutable) rejects every mutation, so a
+// compromised app-level account cannot erase or rewrite history. The
+// orgId/userId columns are deliberately NOT foreign keys: an append-only
+// trail must survive the deletion of the org/user it references (the old
+// onDelete: SetNull silently REWROTE audit rows when an org was deleted).
 model AuditLog {
   id        String   @id @default(cuid())
   orgId     String?
@@ -167,8 +172,6 @@ model AuditLog {
   action    String
   detail    String?
   createdAt DateTime @default(now())
-  org       Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
-  user      User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([orgId, createdAt])
 }
