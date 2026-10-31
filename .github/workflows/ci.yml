@@ -346,11 +346,25 @@ jobs:
             echo "::notice::TRANSPARENCY_SEED not available (fork/PR context) — entry signing skipped; committed-log verification still runs below"
             exit 0
           fi
+          set +e
           python3 tools/append_transparency.py --report "$RUNNER_TEMP/t/scan.json" \
             --label "fixture:vulnapp (CI)" --no-append \
             --seed-hex "$TRANSPARENCY_SEED" \
             --bundle-root "$RUNNER_TEMP/t-bundle" \
-            --out-entry "$RUNNER_TEMP/t/entry.json"
+            --out-entry "$RUNNER_TEMP/t/entry.json" 2>&1 | tee /tmp/sign.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            # a deterministic run (fixed seed -> fixed run_id) whose entry is
+            # already recorded in the committed log is NOT a failure — the
+            # duplicate refusal is the appender working as designed, and the
+            # committed-log verification below re-proves that exact entry
+            if grep -q "already in the log" /tmp/sign.log; then
+              echo "::notice::this run's entry is already recorded (deterministic run_id) — the committed-log verification below re-proves it"
+              exit 0
+            fi
+            exit 1
+          fi
 
       - name: Upload the signed entry + bundle (adopted into the repo by the gated push)
         uses: actions/upload-artifact@v4
