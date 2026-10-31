@@ -14,14 +14,25 @@ subprocess CLI (`src/lib/engine.ts`).
 
 ## Current state (2026-10-31)
 
-- Branch `main`: origin/main = d7c195c — pushed 2026-10-31 in two
-  verified fast-forwards (c12459a, then d7c195c after a CI fix found
-  during post-push review: every python job now installs the engine's
-  requirements). On top of 9b4d01c this carries the held Phase-1 campaign
-  (772cc7f..2abaacb) + the P2 chain (99c72ea..d7c195c).
-  Record: evidence/phase2-compliance-ci/RECORD.md (§8 push record).
+- Branch `main`: origin/main = fb725eb — pushed 2026-10-31 in verified
+  fast-forwards (2fba859: the three CI fixes + the real-target job;
+  fb725eb: the web warmup fix). **CI is GREEN for the first time:
+  run 41150402123, 6/6 jobs** (web · engine · secrets · fixture · drift ·
+  real-targets). Full diagnosis→fix→green ladder:
+  evidence/ci-green-2026-10-31/RECORD.md.
+- **Real-target validation now exists**: a CI job scanning OWASP Juice
+  Shop v20.3.0 (pinned container) unauthenticated — the engine's first
+  live real-world scan (59 verified / 1 type / 0 unmapped, budget-capped
+  at 2500 requests; honest weak baseline, regression floor committed at
+  evidence/real-targets/juice-shop/floor.json and enforced by CI).
+  Exposed product gaps (asset burn, JSON-API auth, Angular param-intel)
+  are ordered in its RECORD.md.
+- Remote branches: **main only** — the 8 legacy duplicates deleted via
+  the API (administration PAT) after per-branch containment proof; every
+  commit on them remains reachable from main.
 - Engine: python3, stdlib + `cryptography` + `blake3==1.0.11`
-  (requirements.txt). Ed25519 is library-backed end to end (proof path:
+  (requirements.txt; requirements-dev.txt adds pytest for CI/dev).
+  Ed25519 is library-backed end to end (proof path:
   tests/test_proof_rfc8032.py; symbolic path: tests/test_symbolic_rfc8032.py).
 - App: Next.js 16 / React 19 / next-auth 4 — platform DB now PostgreSQL
   (P2-D, 2026-10-31: real migrations; unprivileged pgserver dev cluster
