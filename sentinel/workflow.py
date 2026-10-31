@@ -448,6 +448,13 @@ class WorkflowEngine:
                 out.append((name, canary))
             else:
                 out.append((name, f.get("value") or "1"))
+        # REPRO FIX (2026-10-31): leftover overrides are APPENDED as extra
+        # form fields instead of dropped — how a walk stamps its
+        # deterministic mint marker (wfWalkMarker) for content-addressed
+        # object ids in the fixture. Existing callers override declared
+        # fields only, so their output is unchanged.
+        for name, v in overrides.items():
+            out.append((name, v))
         return out
 
     def _token_refresh(self, fields: list, fresh_token_fields: list) -> list:
@@ -1048,11 +1055,24 @@ class WorkflowEngine:
         return f, {"verdict": "verified", "status": r.status,
                    "executions": f"{n_mid}->{n_post}"}
 
-    def _walk_to_producer(self, k: FlowKnowledge, engine):
+    def _walk_to_producer(self, k: FlowKnowledge, engine, flow_tag: str = ""):
         """Partial walk up to (excluding) the final step; returns
         (pending_form, res_val) where pending_form is the FINAL step's form
-        carrying the fresh resource id, or (None, '')."""
+        carrying the fresh resource id, or (None, '').
+
+        REPRO FIX (2026-10-31, caught by the CI reproducibility gate): with
+        flow_tag, the walk's creates carry a deterministic per-flow marker so
+        the fixture derives a CONTENT-ADDRESSED object id — the global
+        sequential counter made the minted id depend on concurrent
+        interleaving (exactly +8 between two runs), moving the audit Merkle
+        root per run and breaking the "same seed -> the same root" contract."""
+        extra: dict = {}
+        if flow_tag:
+            import hashlib as _hl
+            extra["wfWalkMarker"] = "wfm-" + _hl.sha1(
+                f"{k.cluster}|{flow_tag}".encode("utf-8")).hexdigest()[:12]
         steps, _, pending, _ = self._walk(k.members, engine,
+                                          option_overrides=extra or None,
                                           max_chain=max(1, len(k.steps) - 1))
         if not steps or pending is None:
             return None, ""
@@ -1076,7 +1096,7 @@ class WorkflowEngine:
             return None, {"verdict": "skipped", "note": "no resource linkage",
                           "precondition": True}
         view_b_before = self._oracle(low_engine, k, "wf-atk-xuser-before")
-        pending, res_val = self._walk_to_producer(k, engine_a)
+        pending, res_val = self._walk_to_producer(k, engine_a, flow_tag="cross-user")
         if pending is None or not res_val:
             return None, {"verdict": "no_proof", "note": "walk to producer failed"}
         view_b = self._oracle(low_engine, k, "wf-atk-xuser-view")
@@ -1184,7 +1204,7 @@ class WorkflowEngine:
             return None, {"verdict": "skipped", "note": "no rollback path in this flow",
                           "precondition": True}
         res_name = next(iter(k.resource_params))
-        pending, res_val = self._walk_to_producer(k, engine)
+        pending, res_val = self._walk_to_producer(k, engine, flow_tag="cross-state")
         if pending is None or not res_val:
             return None, {"verdict": "no_proof", "note": "walk to producer failed"}
         cancel_action = k.cancel_paths[0]
@@ -1461,7 +1481,7 @@ class WorkflowEngine:
         res_name = next(iter(k.resource_params))
         # walk everything before the FINAL step -> pending = final form with
         # the fresh, fully-approved object
-        pending, res_val = self._walk_to_producer(k, engine)
+        pending, res_val = self._walk_to_producer(k, engine, flow_tag="rollback-abuse")
         if pending is None or not res_val:
             return None, {"verdict": "no_proof", "note": "walk to final step failed"}
         rollback_action = k.rollback_paths[0]

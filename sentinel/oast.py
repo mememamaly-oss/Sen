@@ -59,9 +59,16 @@ class _OastHandler(BaseHTTPRequestHandler):
         # the full path as the fallback key for non-canonical shapes.
         m = _IID_PREFIX_RE.match(raw)
         iid = m.group(1) if m else raw
+        # REPRO FIX (2026-10-31, caught by the CI reproducibility gate):
+        # record the TCP PEER IP (portless) — detectors prefer it for source
+        # attribution. The Host header fallback carried the listener's
+        # EPHEMERAL port (port=0 bind), which moved the audit Merkle root on
+        # every run for local targets.
+        peer_ip = self.client_address[0] if self.client_address else ""
         self.oast._record(iid, method=self.command, raw_path=raw,
                           ua=self.headers.get("User-Agent", ""),
-                          host=self.headers.get("Host", ""))
+                          host=self.headers.get("Host", ""),
+                          ip=peer_ip)
         body = b"ok"
         self.send_response(200)
         self.send_header("Content-Type", "text/plain")

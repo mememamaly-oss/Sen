@@ -34,7 +34,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-PORTS = {"a": 8791, "b": 8792}
+PORTS = {"a": 8777, "b": 8777}   # SAME target URL for both executions —
+                                   # the finding url/id/OAST-iid fields are
+                                   # URL-derived; different ports = different
+                                   # findings (the first gate run caught exactly
+                                   # that, in its own script, 2026-10-31)
 
 
 def run_scan(tag: str, out_dir: Path) -> dict:
@@ -43,6 +47,23 @@ def run_scan(tag: str, out_dir: Path) -> dict:
     port = PORTS[tag]
     base = f"http://127.0.0.1:{port}"
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # PRE-FLIGHT (2026-10-31, diagnosed live): an ACTIVE LISTENER on the port
+    # would silently capture the scan (a stale fixture did exactly that) —
+    # fail loudly. SO_REUSEADDR mirrors the fixture's own bind semantics, so
+    # TIME_WAIT remnants from the previous execution (7k+ connections) do
+    # NOT trip the check — only a real listener does.
+    import socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    try:
+        sock.bind(("127.0.0.1", port))
+    except OSError as exc:
+        raise SystemExit(
+            f"[{tag}] FATAL: port {port} has an active listener ({exc}) — a "
+            f"stale fixture would silently capture this scan. Kill it and retry.")
+    finally:
+        sock.close()
 
     fixture = subprocess.Popen(
         [sys.executable, str(ROOT / "fixtures" / "vulnapp.py")],
@@ -53,7 +74,12 @@ def run_scan(tag: str, out_dir: Path) -> dict:
     import urllib.request
     probe = urllib.request.urlopen(base + "/", timeout=5).status
     assert probe == 200, probe
-    print(f"[{tag}] fixture up on {base} (pid {fixture.pid})")
+    if fixture.poll() is not None:
+        raise SystemExit(
+            f"[{tag}] FATAL: our fixture process exited (see "
+            f"{out_dir / f'fixture-{tag}.log'}) — the scan would silently "
+            f"hit a foreign server holding the port.")
+    print(f"[{tag}] fixture up on {base} (pid {fixture.pid}) — liveness verified")
 
     from sentinel.auth import AuthProfile
     from sentinel.core import EventBus, ScopeRule  # noqa: F401
@@ -75,6 +101,13 @@ def run_scan(tag: str, out_dir: Path) -> dict:
         rep = SentinelScanner(base, cfg).run()
     finally:
         oast.stop()
+        # release the port so execution B can bind the SAME one (same target
+        # URL is the point of the attestation)
+        fixture.terminate()
+        try:
+            fixture.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            fixture.kill()
 
     # persist the full report for the artifact, compute the attestation
     (out_dir / f"scan-{tag}.json").write_text(

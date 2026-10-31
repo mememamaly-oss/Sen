@@ -1177,6 +1177,15 @@ class Handler(BaseHTTPRequestHandler):
                     acct = form.get("acct", ["800001"])[0] or "800001"   # no draft check
                 st["seq"] += 1
                 tid = "TRF-%04d" % st["seq"]
+                # REPRO FIX (2026-10-31, caught by the scanner's own CI
+                # reproducibility gate): creates stamped with wfWalkMarker
+                # get a CONTENT-ADDRESSED id — the global sequential counter
+                # made the minted id depend on concurrent interleaving, which
+                # moved the audit Merkle root between identical seeded runs.
+                _wfm = form.get("wfWalkMarker", [""])[0]
+                if _wfm:
+                    tid = "TRF-%04d" % (int(_hl.sha256(
+                        _wfm.encode()).hexdigest()[:6], 16) % 900000 + 100000)
                 st["items"][tid] = {"acct": acct, "amount": amount, "mode": "ach",
                                     "state": "pending", "executions": 0}
                 body = _wf_confirm_form(wf_base, s, tid, amount)
