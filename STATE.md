@@ -162,6 +162,24 @@ subprocess CLI (`src/lib/engine.ts`).
   QA/real-testing-gate and audit remediation branches; 19-axis audit
   final state RED→fixed.
 - 2026-10-30: integrity pass (below).
+- 2026-10-31 (later): owner-ordered governance chain — (1) license
+  Apache-2.0 -> PolyForm Shield 1.0.0 (official text verbatim;
+  resale-competing protection; the Apache public window 01:38:45Z ->
+  ~07:0xZ documented in README and the commit); (2) docs/phase3/
+  (pentest RFP / SOC2 readiness / hosted-tier design) removed from
+  HEAD — it enumerated unresolved security gaps and control locations;
+  replaced by a general external-roadmap note; full-history purge would
+  need a separate filter-repo pass (not executed); (3) bootstrap
+  stale-lock reclaim race root-caused via 20x instrumented stampedes
+  and fixed (age-guarded atomic reclaim + holder-scoped compensation +
+  2 deterministic regression tests; full detail in the race-fix
+  commit); integration suite now 28/28. Trademark audit (report only):
+  "SENTINEL" collides with Microsoft Sentinel / SentinelOne and is
+  taken on npm+PyPI (as is "sen"); the in-tree brand is split three
+  ways (SENTINEL in README/UI vs Sen/SEN in repo/Action/social
+  preview); 3 verified-free alternatives proposed (burhan / mihwar /
+  tadqiq — free on npm and PyPI, no same-named security tool on
+  GitHub); renaming awaits explicit owner approval.
 
 ## Rollback / incident record (one line each)
 
