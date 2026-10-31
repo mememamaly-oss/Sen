@@ -45,6 +45,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     if (role === "OWNER" && access.role !== "OWNER") {
       throw new ApiError(403, "فقط OWNER يمكنه منح دور OWNER");
     }
+    // input length caps BEFORE the validation regexes (RFC 5321 path limit
+    // for the email; bounded parse+regex cost by construction)
+    if (email.length > 254 || name.length > 120 || password.length > 256) {
+      throw new ApiError(400, "أحد الحقول طويل جدًا");
+    }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new ApiError(400, "البريد الإلكتروني غير صالح");
     if (password.length < 8) throw new ApiError(400, "كلمة المرور يجب أن تكون 8 أحرف على الأقل");
 

@@ -266,16 +266,29 @@ function pidConnections(pid: number): number {
 }
 
 function readLogTail(logPath: string, maxBytes = 16000): string {
+  // fd-pinned (CodeQL js/file-system-race, 2026-10-31): open ONCE, fstat
+  // THAT descriptor, read from the same descriptor — the path is never
+  // resolved twice (same doctrine as the vault key-file fix)
+  let fd: number;
   try {
-    const size = fs.statSync(logPath).size;
-    const fd = fs.openSync(logPath, "r");
+    fd = fs.openSync(logPath, "r");
+  } catch {
+    return "";
+  }
+  try {
+    const size = fs.fstatSync(fd).size;
     const start = Math.max(0, size - maxBytes);
     const buf = Buffer.alloc(size - start);
     fs.readSync(fd, buf, 0, buf.length, start);
-    fs.closeSync(fd);
     return buf.toString("utf8");
   } catch {
     return "";
+  } finally {
+    try {
+      fs.closeSync(fd);
+    } catch {
+      /* already closed */
+    }
   }
 }
 

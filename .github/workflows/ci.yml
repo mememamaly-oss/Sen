@@ -192,6 +192,14 @@ jobs:
     name: Real fixture scan (canonical run + all report formats)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      # DOGFOODING (owner order 2026-10-31, part 4.3): the engine's own
+      # SARIF report of the bundled fixture is uploaded to the repository's
+      # code-scanning (Security) tab — the tool's detections visible in the
+      # same official surface every GitHub developer already trusts, not
+      # only as a CI artifact.
+      security-events: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -247,6 +255,15 @@ jobs:
             ${{ runner.temp }}/ci-fixture/benchmark.json
             ${{ runner.temp }}/ci-fixture/compliance.json
           if-no-files-found: error
+
+      # DOGFOODING (part 4.3): the engine's own findings for its fixture,
+      # in the repository's Security tab (code-scanning). The upload runs on
+      # every push/PR so the tab always reflects the current engine.
+      - name: Dogfood — upload the engine's own SARIF to the Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ runner.temp }}/ci-fixture/report.sarif
+          category: burhan-engine-fixture
 
   drift:
     name: Compliance registry drift guard

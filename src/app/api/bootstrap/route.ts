@@ -76,6 +76,13 @@ export async function POST(req: NextRequest) {
     const name = String(body.name || "").trim() || email.split("@")[0];
     const password = String(body.password || "");
     const orgName = String(body.orgName || "").trim() || "منظمتي الأولى";
+    // input length caps BEFORE the validation regexes: an unbounded JSON
+    // field costs parse+regex time before any validation runs (measured:
+    // the email regex is linear on V8, but bounded input is still cheaper
+    // by construction — and 254 is the RFC 5321 path limit)
+    if (email.length > 254 || name.length > 120 || orgName.length > 120 || password.length > 256) {
+      throw new ApiError(400, "أحد الحقول طويل جدًا");
+    }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new ApiError(400, "البريد الإلكتروني غير صالح");
     if (password.length < 8) throw new ApiError(400, "كلمة المرور يجب أن تكون 8 أحرف على الأقل");
 

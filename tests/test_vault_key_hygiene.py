@@ -112,7 +112,8 @@ def test_every_vaulterror_path_is_key_free(key, tmp_path):
     # 7. world-readable key file (public perms refusal)
     world = tmp_path / "world.key"
     keygen(str(world), label="world")
-    os.chmod(world, 0o644)
+    # intentional: creates the bad-perms state the gate must refuse
+    os.chmod(world, 0o644)  # codeql[py/overly-permissive-file]
     try:
         Vault.init(str(tmp_path / "w.vault"), str(world), "org2")
         cases.append(("public-perms", "NO ERROR RAISED"))
