@@ -1,0 +1,17 @@
+{
+  "layer": "graphql-aliasing",
+  "generated": "2026-10-31T14:54:20Z",
+  "target": "fixtures/modern2_fixture.py --mode vuln",
+  "finding": {
+    "type": "graphql_aliasing",
+    "severity": "Severity.LOW",
+    "url": "http://127.0.0.1:52025/graphql",
+    "evidence": [
+      {
+        "kind": "alias_fanout_executed",
+        "detail": "ONE request carried 20 aliased copies of a field and the server executed every alias (20/20 present in the response). A per-request rate limit counts 1 request while the server performs 20 units of resolver work — the aliasing cost-DoS surface. Distinct from batching (array of operations) and covered by CWE-400 resource-consumption guidance."
+      }
+    ]
+  },
+  "result": "FINDING produced on the vulnerable fixture"
+}

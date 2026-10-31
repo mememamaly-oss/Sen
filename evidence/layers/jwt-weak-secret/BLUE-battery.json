@@ -1,0 +1,12 @@
+{
+  "layer": "3A jwt_weak_secret (battery over HTTP)",
+  "generated": "2026-10-31T14:54:20Z",
+  "target": "fixtures/modern2_fixture.py --mode safe /login",
+  "findings": [],
+  "boundary": {
+    "family": "jwt_weak_secret",
+    "kind": "TESTED_NEGATIVE",
+    "detail": "secret did not match the 27-entry wordlist (27 offline verifications)"
+  },
+  "result": "ZERO findings on the hardened twin (TESTED_NEGATIVE)"
+}
