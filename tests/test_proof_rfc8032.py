@@ -1,4 +1,4 @@
-"""RFC 8032 §7.1 official test vectors for sentinel.proof Ed25519.
+"""RFC 8032 §7.1 official test vectors for burhan.proof Ed25519.
 
 The three vectors below are copied verbatim from RFC 8032 (Edwards-Curve
 Digital Signature Algorithm), section 7.1 "Test Vectors for Ed25519".
@@ -8,7 +8,7 @@ point arithmetic. Byte-for-byte agreement with RFC 8032 is the pass bar.
 """
 import pytest
 
-from sentinel.proof import (ValidationError, ed25519_public_key,
+from burhan.proof import (ValidationError, ed25519_public_key,
                             ed25519_sign, ed25519_verify)
 
 # ---- RFC 8032 §7.1: TEST 1 (empty message) ---------------------------------

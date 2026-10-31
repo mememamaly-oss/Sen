@@ -55,7 +55,7 @@ export default function DocsPage() {
           </li>
         </ol>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Badge variant="outline" dir="ltr" className="num">engine: sentinel-core/4.4.0</Badge>
+          <Badge variant="outline" dir="ltr" className="num">engine: burhan-core/4.4.0</Badge>
           <Badge variant="outline" dir="ltr" className="num">Next 16 · React 19 · Prisma 6 · PostgreSQL</Badge>
           <Badge variant="outline" dir="ltr" className="num">next-auth 4 · scrypt</Badge>
         </div>

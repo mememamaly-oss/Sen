@@ -1,4 +1,4 @@
-"""SENTINEL Axis-3 — BLAKE3 + PCS test suite (official vectors).
+"""Burhan Axis-3 — BLAKE3 + PCS test suite (official vectors).
 
 Vector provenance — the BLAKE3 reference repository's official
 test_vectors.json (35 cases, input lengths 0..102400 covering every
@@ -11,7 +11,7 @@ filled with a repeating sequence of 251 bytes: 0, 1, 2, ..., 249, 250,
 0, 1, ..." i.e. input[i] = i % 251.
 
 This file is ALSO the correction of the stale reference that used to sit
-in sentinel/blake3.py's docstring: vectors were claimed to live in
+in burhan/blake3.py's docstring: vectors were claimed to live in
 tests/test_axis3_pcs.py while no such file had ever been committed
 (verified: git log --all on the path was empty). The vectors now
 genuinely live at this exact path, and the suite additionally covers the
@@ -21,8 +21,8 @@ of the store root).
 """
 import pytest
 
-from sentinel.blake3 import blake3
-from sentinel.pcs import (PCS, MerkleTree, PCSError, key_digest,
+from burhan.blake3 import blake3
+from burhan.pcs import (PCS, MerkleTree, PCSError, key_digest,
                           msgpack_encode)
 
 
@@ -172,6 +172,6 @@ def test_pcs_root_determinism_same_op_sequence():
 
 
 def test_fresh_store_root_anchor():
-    from sentinel import pcs as _pcs
+    from burhan import pcs as _pcs
     assert PCS().root() == _pcs._EMPTY_ROOT
     assert _pcs._EMPTY_ROOT == blake3(b"sentinel-pcs-empty-v1")

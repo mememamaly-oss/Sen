@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL session — client-side session context on top of /api/me.
+// Burhan session — client-side session context on top of /api/me.
 // Provides the active org (first membership) + role + user, with a hard
 // redirect to /login when unauthenticated (the API layer stays the only
 // enforcement point; this is UX, not a security boundary).

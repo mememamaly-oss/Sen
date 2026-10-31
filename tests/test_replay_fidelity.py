@@ -87,9 +87,9 @@ def vulnapp():
 
 def _mk(base):
     """Shared construction: scope, bus, engine, verifier — loopback only."""
-    from sentinel.core import ScopeRule, EventBus
-    from sentinel.http_engine import RequestEngine
-    from sentinel.intel import VerificationEngine
+    from burhan.core import ScopeRule, EventBus
+    from burhan.http_engine import RequestEngine
+    from burhan.intel import VerificationEngine
 
     scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
     bus = EventBus("replay-fidelity-test")
@@ -106,9 +106,9 @@ def test_rp1_csrf_form_body_replay_verifies(vulnapp):
     body (RP-1). Historical defect: replay probed ?email=... (QUERY) on the
     POST endpoint -> fixture 400 'email required' -> detector silent ->
     REPRODUCTION_FAILED."""
-    from sentinel.core import Endpoint, Parameter, ParamLocation
-    from sentinel.detect import CsrfDetector
-    from sentinel.evidence import build_proof, replay_finding
+    from burhan.core import Endpoint, Parameter, ParamLocation
+    from burhan.detect import CsrfDetector
+    from burhan.evidence import build_proof, replay_finding
 
     scope, bus, engine, ver = _mk(vulnapp)
     ep = Endpoint(url=vulnapp + "/vuln/csrf-action", method="POST",
@@ -137,9 +137,9 @@ def test_rp1_jwt_json_body_replay_verifies(vulnapp):
     defect: the jwt finding's parameter is '-' (class-level finding), so the
     replay sent a bodyless POST -> fixture 400 'expected application/json'
     -> no token in the response -> REPRODUCTION_FAILED."""
-    from sentinel.core import Endpoint, Parameter, ParamLocation
-    from sentinel.detect import JwtDetector
-    from sentinel.evidence import build_proof, replay_finding
+    from burhan.core import Endpoint, Parameter, ParamLocation
+    from burhan.detect import JwtDetector
+    from burhan.evidence import build_proof, replay_finding
 
     scope, bus, engine, ver = _mk(vulnapp)
     ep = Endpoint(url=vulnapp + "/vuln/jwt-login", method="POST",
@@ -167,9 +167,9 @@ def _drive_cmdi(vulnapp, engine, ver, oast):
     """Drive the real cmdi detector the way the orchestrator does (the
     verifier needs the armed channel too — a blind class verifies THROUGH
     the OOB confirmation)."""
-    from sentinel.core import Endpoint, Parameter, ParamLocation
-    from sentinel.detect import CommandInjectionDetector
-    from sentinel.intel import VerificationEngine
+    from burhan.core import Endpoint, Parameter, ParamLocation
+    from burhan.detect import CommandInjectionDetector
+    from burhan.intel import VerificationEngine
 
     ep = Endpoint(url=vulnapp + "/vuln/ping", method="GET",
                   parameters=[Parameter("host", ParamLocation.QUERY,
@@ -186,7 +186,7 @@ def _drive_cmdi(vulnapp, engine, ver, oast):
             break
     assert cand is not None, "cmdi detector must fire (OOB callback on local channel)"
     assert cand.detector == "cmdi", "the cmdi Finding must carry its detector name"
-    from sentinel.core import EventBus as _EB
+    from burhan.core import EventBus as _EB
     _event_bus = lambda: _EB("cmdi-verify")
     ver_oob = VerificationEngine(engine, _event_bus(), oast=oast)
     return ver_oob.verify(cand, ep), ep
@@ -197,8 +197,8 @@ def test_rp2_cmdi_oob_replay_verifies_with_channel(vulnapp):
     wires an armed OAST channel (RP-2). Historical defect: replay built the
     detector with no oast -> candidates() returned [] -> 'no longer produces
     a candidate'."""
-    from sentinel.evidence import build_proof, replay_finding
-    from sentinel.oast import OastServer
+    from burhan.evidence import build_proof, replay_finding
+    from burhan.oast import OastServer
 
     scope, bus, engine, ver = _mk(vulnapp)
     with OastServer() as scan_oast:                       # scan-time channel
@@ -216,8 +216,8 @@ def test_rp2_cmdi_replay_without_channel_is_not_replayable(vulnapp):
     """Without an armed OAST channel the honest verdict is NOT_REPLAYABLE
     (the class's own recorded precondition), never the misleading 'no longer
     produces a candidate' (RP-2)."""
-    from sentinel.evidence import build_proof, replay_finding
-    from sentinel.oast import OastServer
+    from burhan.evidence import build_proof, replay_finding
+    from burhan.oast import OastServer
 
     scope, bus, engine, ver = _mk(vulnapp)
     with OastServer() as scan_oast:
@@ -238,7 +238,7 @@ def test_rp2_cmdi_replay_without_channel_is_not_replayable(vulnapp):
 @pytest.fixture(scope="module")
 def hname_sink():
     """A minimal header-NAME path sink: a header literally named '..' (the
-    sink base's parent) resolves; any sentinel-random control name does not.
+    sink base's parent) resolves; any burhan-random control name does not.
     Mirrors the OWASP-Benchmark oracle the real detector was built on."""
     class HNSink(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
@@ -265,9 +265,9 @@ def test_rp3_header_name_traversal_replays_via_recorded_detector(hname_sink):
     must record WHICH detector produced the finding and the replay must
     route to it (RP-3). Historical defect: type-name routing sent a
     header-NAME finding to the VALUE-channel traversal detector."""
-    from sentinel.core import Endpoint
-    from sentinel.detect import HeaderNameTraversalDetector
-    from sentinel.evidence import build_proof, replay_finding
+    from burhan.core import Endpoint
+    from burhan.detect import HeaderNameTraversalDetector
+    from burhan.evidence import build_proof, replay_finding
 
     scope, bus, engine, ver = _mk(hname_sink)
     ep = Endpoint(url=hname_sink + "/download", method="GET")
@@ -299,9 +299,9 @@ def test_legacy_proof_without_shape_keeps_historical_verdict(vulnapp):
     must keep behaving EXACTLY as they did in the recorded evidence: the
     csrf replay against the FORM endpoint fails with 'no longer produces a
     candidate'. No history rewriting, no retroactive upgrades."""
-    from sentinel.core import Endpoint, Parameter, ParamLocation
-    from sentinel.detect import CsrfDetector
-    from sentinel.evidence import build_proof, replay_finding
+    from burhan.core import Endpoint, Parameter, ParamLocation
+    from burhan.detect import CsrfDetector
+    from burhan.evidence import build_proof, replay_finding
 
     scope, bus, engine, ver = _mk(vulnapp)
     ep = Endpoint(url=vulnapp + "/vuln/csrf-action", method="POST",
@@ -324,9 +324,9 @@ def test_rp3_legacy_header_signature_routes_to_trav_hname(hname_sink):
     carries the trav_hname channel signature ('header:') must route to
     trav_hname via the signature fallback — this is the exact shape of the
     five remote path_traversal findings in the committed evidence."""
-    from sentinel.core import Endpoint
-    from sentinel.detect import HeaderNameTraversalDetector
-    from sentinel.evidence import build_proof, replay_finding
+    from burhan.core import Endpoint
+    from burhan.detect import HeaderNameTraversalDetector
+    from burhan.evidence import build_proof, replay_finding
 
     scope, bus, engine, ver = _mk(hname_sink)
     ep = Endpoint(url=hname_sink + "/download", method="GET")

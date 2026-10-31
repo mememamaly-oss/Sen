@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
       return new NextResponse(content, {
         headers: {
           "Content-Type": mime,
-          "Content-Disposition": `attachment; filename="sentinel-report-${report.id}.${ext}"`,
+          "Content-Disposition": `attachment; filename="burhan-report-${report.id}.${ext}"`,
           // SECURITY (audit 2026-10-23): report HTML embeds target-controlled
           // strings; served as an attachment, nosniff guarantees browsers
           // never reinterpret it as executable content in another MIME type.

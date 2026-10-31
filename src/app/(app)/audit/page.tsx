@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL audit — the append-only trail. Search + expandable detail.
+// Burhan audit — the append-only trail. Search + expandable detail.
 
 import { useMemo, useState } from "react";
 import { ChevronRight, Search, ScrollText } from "lucide-react";

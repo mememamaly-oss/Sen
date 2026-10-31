@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: RAW → CANONICAL MAPPING (spec §4, explicit & documented)
+// Burhan — PHASE 02 L1: RAW → CANONICAL MAPPING (spec §4, explicit & documented)
 //
 // Engine v4.1.1 raw kinds (twin.py + orchestrator.py) map to canonical types.
 // NO raw kind is dropped: kinds without a listed canonical equivalent keep a

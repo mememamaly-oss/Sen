@@ -47,7 +47,7 @@ def _synthetic_report() -> dict:
     return {
         "run_id": "run-selftest0001",
         "seed": "selftest-seed-" + "0" * 32,
-        "scanner": "sentinel-selftest/1",
+        "scanner": "burhan-selftest/1",
         "target": "synthetic://selftest",
         "findings": [
             {"id": "F-syn000001", "type": "sql_injection", "severity": "critical",

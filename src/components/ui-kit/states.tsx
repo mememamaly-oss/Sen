@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL ui-kit — page states: loading skeletons, error+retry, empty.
+// Burhan ui-kit — page states: loading skeletons, error+retry, empty.
 // Every async surface goes through these — no page invents its own states.
 
 import { AlertOctagon, Inbox } from "lucide-react";

@@ -13,11 +13,11 @@ URL="http://127.0.0.1:${PORT}"
 
 export DATABASE_URL="file:$(pwd)/${DB}"
 export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-$(openssl rand -base64 32)}"
-export SENTINEL_DATA_DIR="/tmp/sentinel-qa-data"
+export BURHAN_DATA_DIR="/tmp/burhan-qa-data"
 export PORT
 export HOSTNAME=127.0.0.1
 
-mkdir -p "${DB_DIR}" /tmp/sentinel-qa-data
+mkdir -p "${DB_DIR}" /tmp/burhan-qa-data
 
 # fresh scratch DB
 rm -f "${DB}" "${DB}-journal" "${DB}-wal" "${DB}-shm"

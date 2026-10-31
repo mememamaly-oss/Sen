@@ -1,4 +1,4 @@
-# Sen as a GitHub Action
+# Burhan as a GitHub Action
 
 Add a deterministic DAST scan of your web target to any workflow — one
 line in your CI:
@@ -13,11 +13,11 @@ jobs:
         run: |
           python3 -m http.server 8080 &    # (replace with YOUR app)
           sleep 2
-      - name: Sen DAST scan
-        uses: mememamaly-oss/Sen@v4.5.0
+      - name: Burhan DAST scan
+        uses: mememamaly-oss/burhan@v5.0.0
         with:
           target: http://127.0.0.1:8080
-          out: sen-result.json
+          out: burhan-result.json
           fail-on: high          # optional: fail the job on high+ findings
 ```
 
@@ -26,7 +26,7 @@ jobs:
 | Input | Required | Default | Notes |
 |---|---|---|---|
 | `target` | yes | — | Base URL to scan |
-| `out` | no | `sen-result.json` | The enriched, **signed** JSON result |
+| `out` | no | `burhan-result.json` | The enriched, **signed** JSON result |
 | `db` | no | — | SQLite store path (empty = don't persist) |
 | `seed` | no | — | Run seed, ≥32 bytes: same seed → same scan → same signed findings |
 | `max-pages` | no | `25` | Crawl page budget |
@@ -41,7 +41,7 @@ jobs:
 `low-count` (verified findings per severity), `result-path`.
 
 ```yaml
-      - uses: mememamaly-oss/Sen@v4.5.0
+      - uses: mememamaly-oss/burhan@v5.0.0
         id: sen
         with: { target: "http://127.0.0.1:8080" }
       - run: echo "${{ steps.sen.outputs.findings-count }} findings, ${{ steps.sen.outputs.critical-count }} critical"
@@ -51,15 +51,15 @@ jobs:
 
 - The result file is **signed**: every finding hashes into a Merkle
   root; the root, the finding count and the run identity are
-  Ed25519-signed. Verify any result independently (no Sen code needed):
+  Ed25519-signed. Verify any result independently (no Burhan code needed):
   ```bash
   pip install cryptography
-  python3 tools/independent_verify.py verify-report sen-result.json
+  python3 tools/independent_verify.py verify-report burhan-result.json
   ```
 - Every finding carries its compliance mapping (OWASP Top 10 2021 +
   2025, CWE, PCI DSS 6.4.2) with a source tag (`official` vs `scope`).
 - The scan is deterministic under a fixed seed — the same target, build
-  and seed always produce the same finding set (Sen's own CI asserts
+  and seed always produce the same finding set (Burhan's own CI asserts
   byte-identical finding sets across two independent executions on
   every push).
 
@@ -77,3 +77,16 @@ jobs:
   before the scan step.
 - Scanning targets you do not own or lack permission to test is your
   responsibility, not the action's.
+
+
+## المراجع القديمة (قبل إعادة التسمية) — سلوك رسمي معلن
+
+وفقاً لتوثيق GitHub الرسمي («Renaming a repository»):
+**«GitHub will not redirect calls to an action hosted by a renamed
+repository. Any workflow that uses that action will fail with the error
+`repository not found`.»** — أي أن مراجع Action مثل
+`uses: mememamaly-oss/Sen@v4.5.0` **تتوقف عن العمل** بعد إعادة التسمية
+(روابط الويب وعمليات git تُحوَّل تلقائياً، لكن مراجع Action لا).
+على المستهلكين الانتقال إلى `mememamaly-oss/burhan@v5.0.0`.
+تسجّل وظيفة `GitHub Action dogfood (published tag — external resolution)`
+(خطوة «LEGACY pre-rename ref») نتيجة المحاولة الفعلية على كل تشغيل يدوي.

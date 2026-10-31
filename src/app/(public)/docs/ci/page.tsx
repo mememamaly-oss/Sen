@@ -17,13 +17,13 @@ jobs:
     services:
       postgres:
         image: postgres:17-alpine
-        env: { POSTGRES_PASSWORD: postgres, POSTGRES_DB: sentinel }
+        env: { POSTGRES_PASSWORD: postgres, POSTGRES_DB: burhan }
         ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U postgres" --health-interval 5s
           --health-timeout 3s --health-retries 12
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sentinel
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/burhan
     steps:
       - uses: actions/checkout@v4
       - run: bunx prisma migrate deploy
@@ -31,15 +31,15 @@ jobs:
 
 const GITLAB = `# your .gitlab-ci.yml — include the shipped template:
 include:
-  - project: "mememamaly-oss/Sen"
+  - project: "mememamaly-oss/burhan"
     ref: main
     file: "integrations/gitlab-ci/sen-scan.gitlab-ci.yml"
 
 # then anywhere in your pipeline:
-sentinel:scan:
-  extends: .sentinel:scan
+burhan:scan:
+  extends: .burhan:scan
   variables:
-    SENTINEL_TARGET_URL: "https://staging.example.internal"`;
+    BURHAN_TARGET_URL: "https://staging.example.internal"`;
 
 export default function CiDocsPage() {
   const { t } = useI18n();

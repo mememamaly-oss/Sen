@@ -23,7 +23,7 @@ curl -sf -m 2 -o /dev/null http://127.0.0.1:8777/ || (nohup python3 fixtures/vul
 curl -sf -m 2 -o /dev/null http://127.0.0.1:8777/ && echo "fixture OK" || { echo "fixture DOWN"; exit 1; }
 
 echo "== 1) scan =="
-timeout 300 python3 -m sentinel.cli scan http://127.0.0.1:8777 --allow-private \
+timeout 300 python3 -m burhan.cli scan http://127.0.0.1:8777 --allow-private \
   --out "$OUTDIR/result.json" --db "$OUTDIR/store.db" >"$OUTDIR/scan_stdout.log" 2>&1
 RC=$?
 echo "scan rc=$RC"
@@ -45,7 +45,7 @@ except Exception:
 PY
 )
 if [ -n "$FID" ]; then
-  timeout 120 python3 -m sentinel.cli reproduce --db "$OUTDIR/store.db" --finding "$FID" >"$OUTDIR/repro.log" 2>&1
+  timeout 120 python3 -m burhan.cli reproduce --db "$OUTDIR/store.db" --finding "$FID" >"$OUTDIR/repro.log" 2>&1
   RC=$?
   if [ $RC -eq 0 ]; then echo "reproduce: PASS (finding $FID)"; else echo "reproduce: FAIL"; tail -5 "$OUTDIR/repro.log"; fail; fi
 else
@@ -66,7 +66,7 @@ for t, col in [('runs', 'run_id'), ('run', 'id'), ('scan_run', 'id')]:
 PY
 )
 if [ -n "$RID" ]; then
-  timeout 120 python3 -m sentinel.cli report --db "$OUTDIR/store.db" --run-id "$RID" --format html --out "$OUTDIR/report.html" >"$OUTDIR/report.log" 2>&1
+  timeout 120 python3 -m burhan.cli report --db "$OUTDIR/store.db" --run-id "$RID" --format html --out "$OUTDIR/report.html" >"$OUTDIR/report.log" 2>&1
   RC=$?
   if [ $RC -eq 0 ] && [ -s "$OUTDIR/report.html" ]; then
     echo "report: PASS (run $RID, $(wc -c <"$OUTDIR/report.html") bytes)"
@@ -78,12 +78,12 @@ else
 fi
 
 echo "== 4) doctor =="
-timeout 120 python3 -m sentinel.cli doctor >"$OUTDIR/doctor.log" 2>&1
+timeout 120 python3 -m burhan.cli doctor >"$OUTDIR/doctor.log" 2>&1
 RC=$?
 if [ $RC -eq 0 ]; then echo "doctor: PASS (19 checks)"; else echo "doctor: FAIL"; tail -5 "$OUTDIR/doctor.log"; fail; fi
 
 echo "== 5) optional flags (--race --symbolic) =="
-timeout 300 python3 -m sentinel.cli scan http://127.0.0.1:8777 --allow-private --race --symbolic \
+timeout 300 python3 -m burhan.cli scan http://127.0.0.1:8777 --allow-private --race --symbolic \
   --out "$OUTDIR/result_rs.json" --db "$OUTDIR/store2.db" >"$OUTDIR/scan_rs.log" 2>&1
 RC=$?
 if [ $RC -eq 0 ]; then echo "flags: PASS"; else echo "flags: FAIL"; tail -5 "$OUTDIR/scan_rs.log"; fail; fi

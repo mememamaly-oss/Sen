@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: Security Twin Normalization — TYPES
+// Burhan — PHASE 02 L1: Security Twin Normalization — TYPES
 //
 // Layer separation (spec §3), strictly enforced by module boundaries:
 //   1. RAW ENGINE OUTPUT  — result.json / statsJson produced by engine v4.1.1.

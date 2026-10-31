@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL login — split screen: command-deck brand panel + auth form.
+// Burhan login — split screen: command-deck brand panel + auth form.
 // Handles both states: sign-in, and first-run platform activation (bootstrap).
 
 import { useEffect, useState } from "react";
@@ -60,7 +60,7 @@ function BrandPanel() {
           </li>
           <li className="flex items-center gap-2.5">
             <Activity className="size-4 shrink-0 text-primary" aria-hidden />
-            <span className="num text-muted-foreground">sentinel-core/4.1.1 · F1&nbsp;1.000 ×3</span>
+            <span className="num text-muted-foreground">burhan-core/4.1.1 · F1&nbsp;1.000 ×3</span>
           </li>
         </ul>
       </div>

@@ -1,4 +1,4 @@
-// Client-side API layer + shared types for the SENTINEL SaaS dashboard
+// Client-side API layer + shared types for the Burhan SaaS dashboard
 
 export type Role = "OWNER" | "ADMIN" | "MEMBER" | "VIEWER";
 

@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Security vulnerability in Sen itself
-    url: https://github.com/mememamaly-oss/Sen/security/advisories/new
+  - name: Security vulnerability in Burhan itself
+    url: https://github.com/mememamaly-oss/burhan/security/advisories/new
     about: Please use private vulnerability reporting (see SECURITY.md) — never a public issue.
   - name: Questions / usage help
-    url: https://github.com/mememamaly-oss/Sen/discussions
-    about: Ask questions and get help using Sen.
+    url: https://github.com/mememamaly-oss/burhan/discussions
+    about: Ask questions and get help using Burhan.

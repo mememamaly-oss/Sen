@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: REQUIRED INVARIANTS (spec §12)
+// Burhan — PHASE 02 L1: REQUIRED INVARIANTS (spec §12)
 //
 // INV-01  every node ID is unique (and every edge ID is unique)
 // INV-02  every edge points to existing nodes (from + to)

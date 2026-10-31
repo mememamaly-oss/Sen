@@ -27,8 +27,8 @@ PYTEST_RC=${PIPESTATUS[0]}
 echo "PYTEST_RC=$PYTEST_RC"
 
 echo "== STEP 3: real doctor run =="
-(timeout 90 python3 -m sentinel doctor 2>&1 || \
- timeout 90 python3 -m sentinel.cli doctor 2>&1) | tail -45
+(timeout 90 python3 -m burhan doctor 2>&1 || \
+ timeout 90 python3 -m burhan.cli doctor 2>&1) | tail -45
 echo "DOCTOR_PIPE_RC=$?"
 
 if [ "$PYTEST_RC" -ne 0 ]; then
@@ -38,8 +38,8 @@ if [ "$PYTEST_RC" -ne 0 ]; then
 fi
 
 echo "== STEP 4: commits =="
-git add sentinel/symbolic/models.py sentinel/symbolic/__init__.py \
-        sentinel/orchestrator.py
+git add burhan/symbolic/models.py burhan/symbolic/__init__.py \
+        burhan/orchestrator.py
 git commit -q -m "symbolic: replace hand-rolled axis-18 Ed25519 with the cryptography library (RFC 8032 direct signing; format change 2026-10-30)" \
   || { echo "FATAL: commit 1 failed"; exit 1; }
 git add tests/test_symbolic_rfc8032.py

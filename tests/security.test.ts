@@ -20,11 +20,11 @@ import { readFileSync } from "fs";
 // ---------------------------------------------------------------- SSRF policy
 
 describe("SSRF policy: normalizeScanOptions (audit 2026-10-23)", () => {
-  const ORIG_LAB = process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
+  const ORIG_LAB = process.env.BURHAN_ALLOW_PRIVATE_TARGETS;
 
   afterEach(() => {
-    if (ORIG_LAB === undefined) delete process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
-    else process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = ORIG_LAB;
+    if (ORIG_LAB === undefined) delete process.env.BURHAN_ALLOW_PRIVATE_TARGETS;
+    else process.env.BURHAN_ALLOW_PRIVATE_TARGETS = ORIG_LAB;
   });
 
   test("THE REGRESSION: client-supplied allowPrivate:true is IGNORED for non-demo public targets", () => {
@@ -52,36 +52,36 @@ describe("SSRF policy: normalizeScanOptions (audit 2026-10-23)", () => {
   });
 
   test("non-demo local URL is denied without explicit lab mode", () => {
-    delete process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
+    delete process.env.BURHAN_ALLOW_PRIVATE_TARGETS;
     expect(
       normalizeScanOptions(undefined, { url: "http://10.0.0.5:8080", isDemo: false }).allowPrivate
     ).toBe(false);
   });
 
   test("non-demo local URL is allowed ONLY in explicit lab mode", () => {
-    process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = "1";
+    process.env.BURHAN_ALLOW_PRIVATE_TARGETS = "1";
     expect(labModeEnabled()).toBe(true);
     expect(
       normalizeScanOptions(undefined, { url: "http://10.0.0.5:8080", isDemo: false }).allowPrivate
     ).toBe(true);
-    delete process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
+    delete process.env.BURHAN_ALLOW_PRIVATE_TARGETS;
     expect(
       normalizeScanOptions(undefined, { url: "http://10.0.0.5:8080", isDemo: false }).allowPrivate
     ).toBe(false);
   });
 
   test("2.8 guard: ONLY the exact string '1' enables lab mode — every other value stays OFF", () => {
-    const prev = process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
+    const prev = process.env.BURHAN_ALLOW_PRIVATE_TARGETS;
     try {
       for (const v of ["0", "false", "true", "yes", "", "2", "on", " 1", "1 "]) {
-        process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = v;
+        process.env.BURHAN_ALLOW_PRIVATE_TARGETS = v;
         expect(labModeEnabled()).toBe(false);
       }
-      process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = "1";
+      process.env.BURHAN_ALLOW_PRIVATE_TARGETS = "1";
       expect(labModeEnabled()).toBe(true);
     } finally {
-      if (prev === undefined) delete process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
-      else process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = prev;
+      if (prev === undefined) delete process.env.BURHAN_ALLOW_PRIVATE_TARGETS;
+      else process.env.BURHAN_ALLOW_PRIVATE_TARGETS = prev;
     }
   });
 
@@ -239,11 +239,11 @@ describe("production standalone fixes (QA gate 2026-10-23)", () => {
   test("ENGINE_DIR resolves to the real engine tree (standalone chdir regression)", async () => {
     // Before the fix, the standalone server chdir()s into .next/standalone,
     // making cwd-based ENGINE_DIR point at the build output — demo target
-    // 503'd and every scan FAILED. The resolver must find sentinel/cli.py.
+    // 503'd and every scan FAILED. The resolver must find burhan/cli.py.
     const { ENGINE_DIR } = await import("@/lib/engine");
     const fs = await import("fs");
     const path = await import("path");
-    expect(fs.existsSync(path.join(ENGINE_DIR, "sentinel", "cli.py"))).toBe(true);
+    expect(fs.existsSync(path.join(ENGINE_DIR, "burhan", "cli.py"))).toBe(true);
     expect(ENGINE_DIR.endsWith(".next/standalone")).toBe(false);
   });
 

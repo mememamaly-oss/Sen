@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL scans — run registry with status filter + deep links (?target=)
+// Burhan scans — run registry with status filter + deep links (?target=)
 // + REAL scan start on the filtered target (FG-1).
 
 import Link from "next/link";

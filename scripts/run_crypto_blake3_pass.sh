@@ -54,7 +54,7 @@ if [ "$MODE" = "full" ]; then
   # ================= PART 0 — repro.py gate =================
   echo "== PART 0 STEP 1: repro.py disclosure edits (guarded) =="
   python3 <<'PYEOF' || exit 1
-PATH_ = "sentinel/repro.py"
+PATH_ = "burhan/repro.py"
 s = open(PATH_, encoding="utf-8").read()
 
 OLD2 = """  §2  PRNG مُبذَّر      SeededPRNG — SplitMix64 خالص (ثوابت معلنة)؛
@@ -78,8 +78,8 @@ NEWJ = OLDJ + """  N-k (ليست CSPRNG — بوابة Part-0، 2026-10-30): م�
       derive_stream لا تحمي أي بيانات حساسة حقيقية ولا يجب أن تحميها:
       لا مستهلك تشغيلي واحد خارج هذا الملف (مثبت باختبار grep:
       tests/test_repro_prng_isolation.py)؛ المسار التاريخي الذي أسيء
-      استخدامه (audit-rb-1، أُغلق 2026-10-21 في sentinel/audit.py) أزيل
-      نهائياً؛ مسار الأسرار الحقيقي هو sentinel/vault.py (مفاتيح
+      استخدامه (audit-rb-1، أُغلق 2026-10-21 في burhan/audit.py) أزيل
+      نهائياً؛ مسار الأسرار الحقيقي هو burhan/vault.py (مفاتيح
       os.urandom + AEAD عبر مكتبة cryptography) المستقل تماماً.
 """
 if s.count(OLDJ) != 1:
@@ -113,7 +113,7 @@ deterministic-by-design (SplitMix64) for replay/determinism verification
 only — NOT a CSPRNG. This suite pins, by grep over the committed source,
 that its output is never used as real secret-protection key material:
 
-  1. no module outside sentinel/repro.py imports or executes its streams;
+  1. no module outside burhan/repro.py imports or executes its streams;
   2. the real secret paths (vault/proof/audit/orchestrator) carry no
      repro dependency at all;
   3. the historical misuse (audit-rb-1, closed 2026-10-21 — SeededPRNG
@@ -127,19 +127,19 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SENTINEL = ROOT / "sentinel"
+Burhan = ROOT / "burhan"
 
 IMPORT_RE = re.compile(
-    r"from\s+(?:\.|sentinel\.)repro\s+import|import\s+sentinel\.repro\b")
+    r"from\s+(?:\.|burhan\.)repro\s+import|import\s+burhan\.repro\b")
 WORD_RE = re.compile(r"\brepro\b")
 
 
 def _src(name):
-    return (SENTINEL / name).read_text(encoding="utf-8")
+    return (Burhan / name).read_text(encoding="utf-8")
 
 
 def test_no_runtime_module_consumes_repro_streams():
-    offenders = [p.name for p in sorted(SENTINEL.glob("*.py"))
+    offenders = [p.name for p in sorted(Burhan.glob("*.py"))
                  if p.name != "repro.py"
                  and IMPORT_RE.search(p.read_text(encoding="utf-8"))]
     assert offenders == [], \
@@ -170,7 +170,7 @@ def test_repro_declares_not_a_csprng():
 
 
 def test_subpackages_clean_too():
-    offenders = [str(p.relative_to(ROOT)) for p in SENTINEL.rglob("*.py")
+    offenders = [str(p.relative_to(ROOT)) for p in Burhan.rglob("*.py")
                  if p.name != "repro.py"
                  and IMPORT_RE.search(p.read_text(encoding="utf-8"))]
     assert offenders == [], f"repro stream consumers: {offenders}"
@@ -182,12 +182,12 @@ EOF
   echo "P0_PYTEST_RC=$P0_RC"
   [ "$P0_RC" -ne 0 ] && { echo "== RED — Part 0 NOT committed =="; exit 2; }
 
-  git add sentinel/repro.py tests/test_repro_prng_isolation.py
+  git add burhan/repro.py tests/test_repro_prng_isolation.py
   git commit -q -m "repro: Part-0 gate — SeededPRNG/derive_stream declared NOT a CSPRNG (deterministic by design, replay only)
 
 Investigation (2026-10-30): the splitmix64-derived sign_seed/aead_key of
 the default pipeline protect no real data — zero runtime importers of
-sentinel.repro exist (only tests/dev scripts; transparency.py references
+burhan.repro exist (only tests/dev scripts; transparency.py references
 the 'triple_run' evidence kind as data, not code). Decision per the
 gate: keep the deterministic PRNG (replacing it would break the
 determinism it exists to prove), add the explicit NOT-a-CSPRNG
@@ -209,7 +209,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, ".")
-from sentinel.blake3 import blake3   # the OLD hand-rolled implementation
+from burhan.blake3 import blake3   # the OLD hand-rolled implementation
 
 VECTORS = [
     (0, "af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262"),
@@ -262,7 +262,7 @@ for length, hexd in VECTORS:
     out["official_vectors"][str(length)] = got
     if got != hexd:
         drift.append(length)
-EXTRAS = [b"", b"abc", b"sentinel-pcs-empty-v1", bytes(1024),
+EXTRAS = [b"", b"abc", b"burhan-pcs-empty-v1", bytes(1024),
           bytes(range(256)) * 5, b"\x00" * 100000]
 for i, e in enumerate(EXTRAS):
     out["extra_probes"][str(i)] = {
@@ -277,10 +277,10 @@ print(f"PRESWAP BLAKE3 CAPTURE OK: {len(VECTORS)}/35 official vectors "
       f"match the OLD implementation; {len(EXTRAS)} extra probes recorded")
 PYEOF
 
-  echo "== PART 1 STEP 2: replace sentinel/blake3.py with the official-library wrapper =="
-  cat > sentinel/blake3.py <<'EOF'
+  echo "== PART 1 STEP 2: replace burhan/blake3.py with the official-library wrapper =="
+  cat > burhan/blake3.py <<'EOF'
 #!/usr/bin/env python3
-"""SENTINEL Axis-3 — BLAKE3 (hash mode, 32-byte output).
+"""Burhan Axis-3 — BLAKE3 (hash mode, 32-byte output).
 
 # ============================================================ 2026-10-30 swap
 # VERSION MARKER 2026-10-30: the hand-rolled pure-Python implementation
@@ -332,10 +332,10 @@ EOF
 
   echo "== PART 1 STEP 3: pcs.py header comment update (guarded) =="
   python3 <<'PYEOF' || exit 1
-PATH_ = "sentinel/pcs.py"
+PATH_ = "burhan/pcs.py"
 s = open(PATH_, encoding="utf-8").read()
-OLD = """       (sentinel/blake3.py, pure Python, zero deps); values are CANONICAL"""
-NEW = """       (sentinel/blake3.py — the official blake3 PyPI package since
+OLD = """       (burhan/blake3.py, pure Python, zero deps); values are CANONICAL"""
+NEW = """       (burhan/blake3.py — the official blake3 PyPI package since
        2026-10-30, output byte-identical to the pure-Python code it
        replaced); values are CANONICAL"""
 if s.count(OLD) != 1:
@@ -357,7 +357,7 @@ import json
 import sys
 
 sys.path.insert(0, ".")
-from sentinel.blake3 import blake3   # NOW the official-library wrapper
+from burhan.blake3 import blake3   # NOW the official-library wrapper
 
 cap = json.load(open("scripts/crypto_remediation/blake3_preswap_capture.json",
                      encoding="utf-8"))
@@ -369,7 +369,7 @@ bad = []
 for length, hexd in cap["official_vectors"].items():
     if blake3(gen(int(length))).hex() != hexd:
         bad.append(f"vector len {length}")
-EXTRAS = [b"", b"abc", b"sentinel-pcs-empty-v1", bytes(1024),
+EXTRAS = [b"", b"abc", b"burhan-pcs-empty-v1", bytes(1024),
           bytes(range(256)) * 5, b"\x00" * 100000]
 for i, e in enumerate(EXTRAS):
     if blake3(e).hex() != cap["extra_probes"][str(i)]["blake3_hex"]:
@@ -384,7 +384,7 @@ PYEOF
 
   echo "== PART 1 STEP 6: tests/test_axis3_pcs.py (official vectors + pcs consumers) =="
   cat > tests/test_axis3_pcs.py <<'EOF'
-"""SENTINEL Axis-3 — BLAKE3 + PCS test suite (official vectors).
+"""Burhan Axis-3 — BLAKE3 + PCS test suite (official vectors).
 
 Vector provenance — the BLAKE3 reference repository's official
 test_vectors.json (35 cases, input lengths 0..102400 covering every
@@ -397,7 +397,7 @@ filled with a repeating sequence of 251 bytes: 0, 1, 2, ..., 249, 250,
 0, 1, ..." i.e. input[i] = i % 251.
 
 This file is ALSO the correction of the stale reference that used to sit
-in sentinel/blake3.py's docstring: vectors were claimed to live in
+in burhan/blake3.py's docstring: vectors were claimed to live in
 tests/test_axis3_pcs.py while no such file had ever been committed
 (verified: git log --all on the path was empty). The vectors now
 genuinely live at this exact path, and the suite additionally covers the
@@ -407,8 +407,8 @@ of the store root).
 """
 import pytest
 
-from sentinel.blake3 import blake3
-from sentinel.pcs import (PCS, MerkleTree, PCSError, key_digest,
+from burhan.blake3 import blake3
+from burhan.pcs import (PCS, MerkleTree, PCSError, key_digest,
                           msgpack_encode)
 
 
@@ -558,9 +558,9 @@ def test_pcs_root_determinism_same_op_sequence():
 
 
 def test_fresh_store_root_anchor():
-    from sentinel import pcs as _pcs
+    from burhan import pcs as _pcs
     assert PCS().root() == _pcs._EMPTY_ROOT
-    assert _pcs._EMPTY_ROOT == blake3(b"sentinel-pcs-empty-v1")
+    assert _pcs._EMPTY_ROOT == blake3(b"burhan-pcs-empty-v1")
 EOF
   # fix the intentional typo guard: verify the file parses
   python3 -c "import ast; ast.parse(open('tests/test_axis3_pcs.py').read())" \
@@ -571,7 +571,7 @@ EOF
   P1_RC=${PIPESTATUS[0]}
   echo "P1_PYTEST_RC=$P1_RC"
   python3 scripts/crypto_remediation/repro_check.py || exit 1
-  timeout 120 python3 -m sentinel.cli doctor > /tmp/doctor_blake3.json 2>&1
+  timeout 120 python3 -m burhan.cli doctor > /tmp/doctor_blake3.json 2>&1
   DOCTOR_RC=$?
   echo "DOCTOR_RC=$DOCTOR_RC"
   python3 -c "
@@ -590,7 +590,7 @@ print('doctor status counts:', stat, '| overall:', d.get('status', 'n/a') if isi
     exit 2
   fi
 
-  git add sentinel/blake3.py sentinel/pcs.py requirements.txt \
+  git add burhan/blake3.py burhan/pcs.py requirements.txt \
           tests/test_axis3_pcs.py \
           scripts/crypto_remediation/blake3_preswap_capture.json
   git commit -q -m "blake3: replace the hand-rolled pure-Python implementation with the official blake3 PyPI package (reference-implementation bindings, blake3==1.0.11)
@@ -614,7 +614,7 @@ echo "== VERIFY-ONLY final checks (always run) =="
 git checkout -- .gitignore 2>/dev/null || true
 python3 -m pytest tests/ -q 2>&1 | tail -2
 echo "FINAL_PYTEST_RC=${PIPESTATUS[0]}"
-timeout 120 python3 -m sentinel.cli doctor >/dev/null 2>&1
+timeout 120 python3 -m burhan.cli doctor >/dev/null 2>&1
 echo "FINAL_DOCTOR_RC=$?"
 python3 scripts/crypto_remediation/repro_check.py | tail -1
 git log --oneline -5

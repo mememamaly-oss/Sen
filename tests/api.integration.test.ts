@@ -122,7 +122,7 @@ beforeAll(async () => {
   const env = {
     ...process.env,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET ?? "integration-test-secret",
-    SENTINEL_DATA_DIR: process.env.SENTINEL_DATA_DIR ?? "/tmp/sentinel-test-data",
+    BURHAN_DATA_DIR: process.env.BURHAN_DATA_DIR ?? "/tmp/burhan-test-data",
   };
 
   // boot the dev server
@@ -433,7 +433,7 @@ describe("public surface (P2-E) + server-side session guard (P2-B)", () => {
     const r = await fetch(`${BASE}/`, { redirect: "manual" });
     expect(r.status).toBe(200);
     const html = await r.text();
-    expect(html).toContain("SENTINEL");
+    expect(html).toContain("Burhan");
   });
 
   test("/login renders publicly", async () => {
@@ -515,7 +515,7 @@ describe("public surface (P2-E) + server-side session guard (P2-B)", () => {
       resultPath,
       JSON.stringify({
         run_id: "run-comp-test",
-        scanner: "sentinel-core/4.4.0",
+        scanner: "burhan-core/4.4.0",
         stats: { duration: 1.25, proofs: [] },
         findings: [
           {

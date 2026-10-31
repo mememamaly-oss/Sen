@@ -10,7 +10,7 @@ updates:
     labels:
       - dependencies
     # blake3 is pinned deliberately (byte-identical hashing across
-    # environments is a product property — see sentinel/blake3.py)
+    # environments is a product property — see burhan/blake3.py)
     # so major-version jumps need a manual look; everything else can ride.
     open-pull-requests-limit: 5
 

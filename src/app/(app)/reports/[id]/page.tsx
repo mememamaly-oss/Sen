@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL report viewer — HTML/GLASS render in a sandboxed iframe (srcDoc);
+// Burhan report viewer — HTML/GLASS render in a sandboxed iframe (srcDoc);
 // SARIF/EXECUTIVE (JSON) render as formatted raw content. Download as blob.
 
 import Link from "next/link";
@@ -44,7 +44,7 @@ export default function ReportViewerPage() {
       const blob = new Blob([d.content], { type: `${mime};charset=utf-8` });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `sentinel-report-${d.report.id.slice(-8)}.${d.ext}`;
+      a.download = `burhan-report-${d.report.id.slice(-8)}.${d.ext}`;
       a.click();
       URL.revokeObjectURL(a.href);
     } catch {

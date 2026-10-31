@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: DETERMINISTIC FIXTURES (spec §13)
+// Burhan — PHASE 02 L1: DETERMINISTIC FIXTURES (spec §13)
 //
 // Ten synthetic raw engine outputs covering the required scenarios. Each
 // fixture documents expected nodes / edges / provenance / conflicts, and the
@@ -40,7 +40,7 @@ function finding(id: string, type: string, url: string, opts: Partial<Record<str
 // ── F01: complete twin — every dimension present ─────────────────────────────
 export function f01Complete(): RawEngineResult {
   return {
-    run_id: "run-f01complete0", scanner: "sentinel-core/4.1.1", target: `${BASE}/`,
+    run_id: "run-f01complete0", scanner: "burhan-core/4.1.1", target: `${BASE}/`,
     findings: [
       finding("F-f01aaa0001", "sql_injection", `${BASE}/catalog`, { parameter: "category", severity: "critical" }),
       finding("F-f01bbb0002", "credential_exposure", `${BASE}/config`, { parameter: "aws_key", severity: "high" }),
@@ -154,7 +154,7 @@ export function f01Complete(): RawEngineResult {
 // ── F02: partial twin — most sections missing ────────────────────────────────
 export function f02Partial(): RawEngineResult {
   return {
-    run_id: "run-f02partial0", scanner: "sentinel-core/4.1.1", target: `${BASE}/partial`,
+    run_id: "run-f02partial0", scanner: "burhan-core/4.1.1", target: `${BASE}/partial`,
     findings: [],
     stats: {
       coverage: {
@@ -174,7 +174,7 @@ export function f02Partial(): RawEngineResult {
 // ── F03: inferred nodes — entities / objects / generated hypotheses ──────────
 export function f03Inferred(): RawEngineResult {
   return {
-    run_id: "run-f03inferred", scanner: "sentinel-core/4.1.1", target: `${BASE}/inferred`,
+    run_id: "run-f03inferred", scanner: "burhan-core/4.1.1", target: `${BASE}/inferred`,
     findings: [],
     stats: {
       coverage: {
@@ -200,7 +200,7 @@ export function f03Inferred(): RawEngineResult {
 // ── F04: verified evidence — passed verification + proofs ────────────────────
 export function f04Verified(): RawEngineResult {
   return {
-    run_id: "run-f04verified", scanner: "sentinel-core/4.1.1", target: `${BASE}/verified`,
+    run_id: "run-f04verified", scanner: "burhan-core/4.1.1", target: `${BASE}/verified`,
     findings: [
       finding("F-f04aaa0001", "xss_reflected", `${BASE}/verified/search`, {
         parameter: "q", severity: "high",
@@ -232,7 +232,7 @@ export function f04Verified(): RawEngineResult {
 // ── F05: refuted claim — rejected candidate + tested:refuted hypothesis ──────
 export function f05Refuted(): RawEngineResult {
   return {
-    run_id: "run-f05refuted0", scanner: "sentinel-core/4.1.1", target: `${BASE}/refuted`,
+    run_id: "run-f05refuted0", scanner: "burhan-core/4.1.1", target: `${BASE}/refuted`,
     findings: [],
     rejected_candidates: [
       finding("F-f05rrr0001", "sql_injection", `${BASE}/refuted/item`, {
@@ -261,7 +261,7 @@ export function f05Refuted(): RawEngineResult {
 // ── F06: unknown state — untestable / unverified / unknown auth ──────────────
 export function f06Unknown(): RawEngineResult {
   return {
-    run_id: "run-f06unknown0", scanner: "sentinel-core/4.1.1", target: `${BASE}/unknown`,
+    run_id: "run-f06unknown0", scanner: "burhan-core/4.1.1", target: `${BASE}/unknown`,
     findings: [
       // status=verified but verification.passed missing → claim MUST stay UNKNOWN
       finding("F-f06uuu0001", "open_redirect", `${BASE}/unknown/go`, {
@@ -290,7 +290,7 @@ export function f06Unknown(): RawEngineResult {
 // ── F07: missing identity — roles exercised, names not serialized ────────────
 export function f07MissingIdentity(): RawEngineResult {
   return {
-    run_id: "run-f07missing0", scanner: "sentinel-core/4.1.1", target: `${BASE}/ident`,
+    run_id: "run-f07missing0", scanner: "burhan-core/4.1.1", target: `${BASE}/ident`,
     findings: [],
     stats: {
       coverage: {
@@ -310,7 +310,7 @@ export function f07MissingIdentity(): RawEngineResult {
 // ── F08: missing authorization — authz never ran ─────────────────────────────
 export function f08MissingAuthz(): RawEngineResult {
   return {
-    run_id: "run-f08noauthz0", scanner: "sentinel-core/4.1.1", target: `${BASE}/noauthz`,
+    run_id: "run-f08noauthz0", scanner: "burhan-core/4.1.1", target: `${BASE}/noauthz`,
     findings: [],
     stats: {
       coverage: {
@@ -328,7 +328,7 @@ export function f08MissingAuthz(): RawEngineResult {
 // ── F09: blocked boundary ────────────────────────────────────────────────────
 export function f09BlockedBoundary(): RawEngineResult {
   return {
-    run_id: "run-f09blocked0", scanner: "sentinel-core/4.1.1", target: `${BASE}/blocked`,
+    run_id: "run-f09blocked0", scanner: "burhan-core/4.1.1", target: `${BASE}/blocked`,
     findings: [],
     stats: {
       coverage: {
@@ -354,7 +354,7 @@ export function f09BlockedBoundary(): RawEngineResult {
 // ── F10: conflicting evidence ────────────────────────────────────────────────
 export function f10Conflicting(): RawEngineResult {
   return {
-    run_id: "run-f10conflict", scanner: "sentinel-core/4.1.1", target: `${BASE}/conflict`,
+    run_id: "run-f10conflict", scanner: "burhan-core/4.1.1", target: `${BASE}/conflict`,
     findings: [
       finding("F-f10vvv0001", "sql_injection", `${BASE}/conflict/search`, { parameter: "q" }),
     ],
@@ -396,7 +396,7 @@ export function f10Conflicting(): RawEngineResult {
 // KEEPS VERIFIED and the rejected claim keeps its own state.
 export function f11VacuousRejection(): RawEngineResult {
   return {
-    run_id: "run-f11vacuous", scanner: "sentinel-core/4.1.1", target: `${BASE}/vacuous`,
+    run_id: "run-f11vacuous", scanner: "burhan-core/4.1.1", target: `${BASE}/vacuous`,
     findings: [
       finding("F-f11vvv0001", "sql_injection", `${BASE}/vacuous/search`, { parameter: "q" }),
     ],
@@ -431,7 +431,7 @@ export function f11VacuousRejection(): RawEngineResult {
 /** GraphQL schema observed, no verified vulnerability → no VERIFIED claim. */
 export function advGraphqlNoVuln(): RawEngineResult {
   return {
-    run_id: "run-adv-gql-novuln", scanner: "sentinel-core/4.1.1", target: `${BASE}/advgql`,
+    run_id: "run-adv-gql-novuln", scanner: "burhan-core/4.1.1", target: `${BASE}/advgql`,
     findings: [],
     stats: {
       coverage: { discovered: 1, tested: 1, endpoints: [covEndpoint("POST", `${BASE}/advgql/graphql`)] },
@@ -445,7 +445,7 @@ export function advGraphqlNoVuln(): RawEngineResult {
 /** WebSocket channel with no auth proof → auth state UNKNOWN, no fabricated auth edge. */
 export function advWsNoAuthProof(): RawEngineResult {
   return {
-    run_id: "run-adv-ws-noauth", scanner: "sentinel-core/4.1.1", target: `${BASE}/advws`,
+    run_id: "run-adv-ws-noauth", scanner: "burhan-core/4.1.1", target: `${BASE}/advws`,
     findings: [],
     stats: {
       coverage: { discovered: 1, tested: 1, endpoints: [covEndpoint("GET", `${BASE}/advws/socket`)] },
@@ -459,7 +459,7 @@ export function advWsNoAuthProof(): RawEngineResult {
 /** Role present, no identity ever observed exercising it. */
 export function advRoleNoIdentity(): RawEngineResult {
   return {
-    run_id: "run-adv-role-noident", scanner: "sentinel-core/4.1.1", target: `${BASE}/advrole`,
+    run_id: "run-adv-role-noident", scanner: "burhan-core/4.1.1", target: `${BASE}/advrole`,
     findings: [],
     stats: {
       coverage: { discovered: 1, tested: 1, endpoints: [covEndpoint("GET", `${BASE}/advrole/panel`)] },
@@ -473,7 +473,7 @@ export function advRoleNoIdentity(): RawEngineResult {
 /** Object without ownership evidence → no ownership relation fabricated. */
 export function advObjectNoOwnership(): RawEngineResult {
   return {
-    run_id: "run-adv-obj-noown", scanner: "sentinel-core/4.1.1", target: `${BASE}/advobj`,
+    run_id: "run-adv-obj-noown", scanner: "burhan-core/4.1.1", target: `${BASE}/advobj`,
     findings: [],
     stats: {
       coverage: { discovered: 1, tested: 1, endpoints: [covEndpoint("GET", `${BASE}/advobj/files`)] },
@@ -487,7 +487,7 @@ export function advObjectNoOwnership(): RawEngineResult {
 /** Incomplete workflow (single step, no oracle) → no states, no fabricated completion. */
 export function advIncompleteWorkflow(): RawEngineResult {
   return {
-    run_id: "run-adv-wf-incomplete", scanner: "sentinel-core/4.1.1", target: `${BASE}/advwf`,
+    run_id: "run-adv-wf-incomplete", scanner: "burhan-core/4.1.1", target: `${BASE}/advwf`,
     findings: [],
     stats: {
       coverage: { discovered: 1, tested: 1, endpoints: [covEndpoint("POST", `${BASE}/advwf/submit`)] },
@@ -510,7 +510,7 @@ export function advIncompleteWorkflow(): RawEngineResult {
 /** Finding whose evidence chain is empty and verification absent → claim UNKNOWN. */
 export function advMissingEvidence(): RawEngineResult {
   return {
-    run_id: "run-adv-no-evidence", scanner: "sentinel-core/4.1.1", target: `${BASE}/advev`,
+    run_id: "run-adv-no-evidence", scanner: "burhan-core/4.1.1", target: `${BASE}/advev`,
     findings: [{
       id: "F-adv0000001", type: "info_leak", severity: "info", status: "candidate",
       confidence: 0.2, method: "GET", url: `${BASE}/advev/leak`, parameter: "",

@@ -28,3 +28,6 @@ results/
 qa-results/greengate_benchmark_output.json
 external/
 .transparency-seed
+
+# agent-session scratch (never committed)
+tmp/

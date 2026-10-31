@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: INPUT SANITIZATION (spec §23 — malicious input safety)
+// Burhan — PHASE 02 L1: INPUT SANITIZATION (spec §23 — malicious input safety)
 //
 // The twin NEVER executes input. Every raw string entering the normalized
 // graph passes through here: control characters stripped, length capped.

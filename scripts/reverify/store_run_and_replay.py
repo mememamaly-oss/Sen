@@ -5,7 +5,7 @@ Mirrors the benchmark configuration exactly (same fixture code via its own
 spawn, same seed, same auth/authz/workflow/logic/race batteries,
 max_requests=0) so the finding set is the full-platform one, and persists
 run + proofs to a Store DB so each finding can be replayed from a clean
-engine via sentinel.evidence.replay_finding — the same primitive the CLI's
+engine via burhan.evidence.replay_finding — the same primitive the CLI's
 `reproduce --replay` uses.
 
 Outputs (under evidence/full-reverify/fixtures-vulnapp/):
@@ -40,11 +40,11 @@ assert probe == 200, probe
 print(f"fixture up on {BASE} (pid {fixture.pid})")
 
 # ---- 2. full-platform engine run (benchmark config) -------------------------
-from sentinel.auth import AuthProfile
-from sentinel.core import EventBus, ScopeRule
-from sentinel.oast import OastServer
-from sentinel.orchestrator import ScanConfig, SentinelScanner
-from sentinel.store import Store
+from burhan.auth import AuthProfile
+from burhan.core import EventBus, ScopeRule
+from burhan.oast import OastServer
+from burhan.orchestrator import ScanConfig, BurhanScanner
+from burhan.store import Store
 
 auth = AuthProfile(login_url=BASE + "/login", username="demo",
                    password="demo123", user_field="uid", pass_field="passw",
@@ -58,7 +58,7 @@ try:
                      authz=authz_cfg, workflow=True, logic_active=True,
                      max_requests=0, race=True, race_parallel=10,
                      race_variance=0.005, symbolic=True)
-    sc = SentinelScanner(BASE, cfg)
+    sc = BurhanScanner(BASE, cfg)
     rep = sc.run()
 finally:
     oast.stop()
@@ -71,9 +71,9 @@ print(f"scan done in {scan_s:.1f}s: requests={rep['stats']['requests']} "
       f"findings={len(findings)} persisted={n}")
 
 # ---- 3. independent clean-engine replay of EVERY finding --------------------
-from sentinel.evidence import replay_finding
+from burhan.evidence import replay_finding
 from urllib.parse import urlsplit
-from sentinel.oast import OastServer
+from burhan.oast import OastServer
 
 proofs = (rep.get("stats") or {}).get("proofs") or []
 by_id = {p.get("finding_id"): p for p in proofs}

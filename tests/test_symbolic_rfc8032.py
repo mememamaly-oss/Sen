@@ -1,9 +1,9 @@
 """RFC 8032 §7.1 official test vectors for the AXIS-18 signing path
-(sentinel/symbolic/models.py).
+(burhan/symbolic/models.py).
 
 Parallel to tests/test_proof_rfc8032.py — the same three §7.1 vectors,
 copied verbatim — for the second Ed25519 consumer, whose hand-rolled
-point arithmetic and "sentinel-axis18/" pre-hash prefix were removed on
+point arithmetic and "burhan-axis18/" pre-hash prefix were removed on
 2026-10-30 in favor of the audited cryptography library. Byte-for-byte
 agreement with RFC 8032 is the pass bar.
 
@@ -18,7 +18,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PublicKey)
 
-from sentinel.symbolic.models import (
+from burhan.symbolic.models import (
     Constraint, Solution, SymbolicResult, canonical_json, ed25519_sign,
     ed25519_verify, sign_result, verify_result_signature)
 
