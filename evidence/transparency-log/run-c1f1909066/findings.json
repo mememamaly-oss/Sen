@@ -1,0 +1,3190 @@
+{
+ "findings": [
+  {
+   "id": "F-d87e076184",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-e1905ae570",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/assets/public/favicon_js.ico",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/assets/public/favicon_js.ico",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-25c6a416c2",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/styles.css",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/styles.css",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-b1f4322515",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rolldown-runtime-BoHGiXSq.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rolldown-runtime-BoHGiXSq.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-c24e7241ad",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/chunk-DBPdFzgj.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/chunk-DBPdFzgj.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-9cf2214227",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/chunk-Cv2YgWUq.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/chunk-Cv2YgWUq.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-c5ab4f0265",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/chunk-1qQQGal7.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/chunk-1qQQGal7.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-6492271cfc",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/polyfills.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/polyfills.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-227f45fe06",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/scripts.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/scripts.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-d957c89634",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/main.js",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/main.js",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-bd68def87e",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/{{href}}",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/{{href}}",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-70eaa000f3",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/basket",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/basket",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-9edaade375",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/redirect",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/redirect",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-9e3c79b837",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/api/Feedbacks",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/api/Feedbacks",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-9480c178c0",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/web3",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/web3",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-3dd822a66f",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/nftUnlocked",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/nftUnlocked",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-4199197dbe",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/nftMintListen",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/nftMintListen",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-2a136d6bd1",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/api/Challenges/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/api/Challenges/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-554bb4f9ff",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/submitKey",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/submitKey",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-d51954ae4c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/walletNFTVerify",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/walletNFTVerify",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-0d2218108a",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/walletExploitAddress",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/walletExploitAddress",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-ab37e2c748",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/api/Challenges",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/api/Challenges",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-71201e3ad3",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/repeat-notification",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/repeat-notification",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-e622d37832",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/continue-code",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/continue-code",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-c8b4bc8786",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/continue-code-findIt",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/continue-code-findIt",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-34c8b51209",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/continue-code-fixIt",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/continue-code-fixIt",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-5a2e13d836",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/continue-code/apply/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/continue-code/apply/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-e55fb2d775",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/continue-code-findIt/apply/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/continue-code-findIt/apply/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-6474bd959b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/continue-code-fixIt/apply/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/continue-code-fixIt/apply/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-5543b9ea82",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/address/edit/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/address/edit/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-a3f5418689",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/api/Users",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/api/Users",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-2691719886",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/user/authentication-details/",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/user/authentication-details/",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-558da9b747",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/user/login",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/user/login",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-e56f351686",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/user/change-password",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/user/change-password",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-3e6fffb82c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/user/reset-password",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/user/reset-password",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-e9586fb63d",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/user/whoami",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/user/whoami",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-ca2d9e7968",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/saveLoginIp",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/saveLoginIp",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-f0b11fb17f",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/deluxe-membership",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/deluxe-membership",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-79f9585bb6",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/api/Addresss",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/api/Addresss",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-a831d5e4f3",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/delivery-method",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/delivery-method",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-6f50e0271b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/address/create",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/address/create",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-f215f006df",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/api/Recycles",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/api/Recycles",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-f68f115ec3",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/admin",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/admin",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-f023f64887",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/application-configuration",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/application-configuration",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-a005bae498",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/rest/country-mapping",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/rest/country-mapping",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-f1a217fb6b",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/engine.io",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/engine.io",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-70c9f2502c",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/socket.io",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/socket.io",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-132a74069d",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/coding-challenge",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/coding-challenge",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-62855a7bde",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/application-version",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/application-version",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-d3a7396aaa",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/api/BasketItems",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/api/BasketItems",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-ade750b2d0",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/search",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/search",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-e18f5eeec7",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/profile",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/profile",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-5873f2f8a9",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/dataerasure",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/dataerasure",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-b87e95a233",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/login",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/login",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-90a2d6cee4",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/accounting",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/accounting",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-093cd50567",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/order-history",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/order-history",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-794f13f92e",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/recycle",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/recycle",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-9e55135fb0",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/address/saved",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/address/saved",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  },
+  {
+   "id": "F-bff13b7023",
+   "type": "missing_security_headers",
+   "severity": "low",
+   "status": "verified",
+   "confidence": 0.7,
+   "method": "GET",
+   "url": "http://127.0.0.1:3000/saved-payment-methods",
+   "parameter": "",
+   "evidence": [
+    {
+     "kind": "header_absent",
+     "detail": "missing: strict-transport-security, content-security-policy, referrer-policy"
+    }
+   ],
+   "verification": {
+    "method": "single-response-evidence",
+    "passed": true,
+    "confidence": 0.7,
+    "rounds": 1,
+    "notes": "presence-based proof (weakest evidence class in the engine): established from ONE response — no replay oracle exists for this class by nature"
+   },
+   "scanner": "sentinel-core/4.4.0",
+   "run_id": "",
+   "risk": 14,
+   "impact": {
+    "grade": "indicated",
+    "statement": "Protective headers absent — defense-in-depth gap (no browser-enforced XSS/clickjacking/framing protections).",
+    "safe_proof": "non-destructive verification: fresh-input replay / differential oracle / marker read — no data extraction, no state change, no destructive payload",
+    "evidence_chain": {
+     "request": "GET http://127.0.0.1:3000/saved-payment-methods",
+     "parameter": "",
+     "evidence_kinds": [
+      "header_absent"
+     ],
+     "out_of_band": false,
+     "verification": "single-response-evidence",
+     "verification_passed": true
+    }
+   },
+   "compliance": {
+    "type": "missing_security_headers",
+    "mapped": true,
+    "cwe": "CWE-693",
+    "cwe_label": "Protection Mechanism Failure",
+    "owasp_2021": "A05:2021",
+    "owasp_2021_title": "Security Misconfiguration",
+    "owasp_2021_src": "scope",
+    "owasp_2025": "A06:2025",
+    "owasp_2025_title": "Insecure Design",
+    "owasp_2025_src": "official",
+    "pci_dss": "6.4.2"
+   }
+  }
+ ]
+}
