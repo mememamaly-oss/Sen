@@ -24,8 +24,14 @@ export default function DeploymentDocsPage() {
         <pre className="num mt-3 overflow-auto rounded-xl border bg-muted/50 p-4 text-[11.5px] leading-5" dir="ltr">
 {`# docker compose (loopback only) — or any managed PostgreSQL
 POSTGRES_PASSWORD=$(openssl rand -hex 16) docker compose up -d
-export DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan
+# 1) migrations + role provisioning run as the OWNER (one-shot per deploy)
+export MIGRATION_DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan
 bunx prisma migrate deploy
+export BURHAN_APP_DB_PASSWORD=$(openssl rand -hex 16)
+bash scripts/db_app_role.sh   # idempotent; provisions the limited role
+# 2) the APP runs as the LIMITED burhan_app role (DML only — no TRUNCATE/DDL;
+#    the audit trail's trigger cannot block TRUNCATE, the missing privilege can)
+export DATABASE_URL=postgresql://burhan_app:$BURHAN_APP_DB_PASSWORD@127.0.0.1:5432/burhan
 bash scripts/verify_postgres.sh   # end-to-end verification`}
         </pre>
       </section>

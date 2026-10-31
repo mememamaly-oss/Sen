@@ -72,6 +72,12 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/burhan
       NEXTAUTH_SECRET: ci-only-secret-not-for-production
       BURHAN_DATA_DIR: /tmp/burhan-ci-data
+      # PRIVILEGE SEPARATION (owner order 2026-10-31, items 1.2+2.3): the
+      # owner identity (DATABASE_URL above) runs migrations + role
+      # provisioning ONLY; the app identity burhan_app (DML only — no
+      # TRUNCATE/DDL) is derived below and used by the unit + integration
+      # suites, so CI proves on every push the app runs privilege-limited.
+      BURHAN_APP_DB_PASSWORD: ci-burhan-app-not-for-production
     steps:
       - uses: actions/checkout@v4
 
@@ -97,6 +103,14 @@ jobs:
       # Missing step = P2021 "table RateLimitBucket does not exist" (observed).
       - name: Prisma migrate deploy
         run: bunx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/burhan
+
+      # privilege separation (items 1.2+2.3): derive the LIMITED app
+      # identity. Every later DB consumer in this job (unit tests, the
+      # integration server + suites) runs as burhan_app — DML only.
+      - name: Provision the limited app DB role (burhan_app — DML only)
+        run: echo "APP_DB_URL=$(bash scripts/db_app_role.sh)" >> "$GITHUB_ENV"
 
       - name: Lint
         run: bun run lint
@@ -110,11 +124,16 @@ jobs:
         run: bun run test
         env:
           NODE_ENV: test
+          DATABASE_URL: ${{ env.APP_DB_URL }}
 
-      # the runner consumes DATABASE_URL (the service container above) and
-      # applies the REAL migration files — every CI run re-validates them
+      # the runner consumes the OWNER url (migrations + role provisioning)
+      # and re-derives the burhan_app URL itself; every suite then runs
+      # with the limited identity (tests/privsplit.integration.test.ts
+      # asserts it — a privilege regression is a red build)
       - name: Integration tests (bash-managed server — the supported path)
         run: bash scripts/run_integration_tests.sh
+        env:
+          MIGRATION_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/burhan
 
       - name: Production build
         run: bun run build

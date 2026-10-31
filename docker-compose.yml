@@ -6,8 +6,18 @@
 # saas-data/stores — and are NOT migrated. See prisma/schema.prisma.
 #
 # Start:  POSTGRES_PASSWORD=... docker compose up -d
-# Then:   DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan \
-#           bunx prisma migrate deploy
+#
+# TWO database identities (owner order 2026-10-31, items 1.2+2.3 —
+# privilege separation; the audit trail's immutability trigger cannot
+# block TRUNCATE or DISABLE TRIGGER, only missing privileges can):
+#   1. MIGRATIONS + role provisioning (owner `burhan`, one-shot per deploy):
+#        MIGRATION_DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan \
+#          bunx prisma migrate deploy
+#        MIGRATION_DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan \
+#          BURHAN_APP_DB_PASSWORD=<random> bash scripts/db_app_role.sh
+#      (the script is idempotent and prints the app URL)
+#   2. THE APP (limited `burhan_app` — DML only, no TRUNCATE/DDL):
+#        DATABASE_URL=postgresql://burhan_app:<BURHAN_APP_DB_PASSWORD>@127.0.0.1:5432/burhan
 services:
   postgres:
     image: postgres:17-alpine
