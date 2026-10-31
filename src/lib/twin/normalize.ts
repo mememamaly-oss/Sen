@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: TWIN NORMALIZER (spec §1/§3/§4/§5/§6)
+// Burhan — PHASE 02 L1: TWIN NORMALIZER (spec §1/§3/§4/§5/§6)
 //
 // Rebuilds a canonical Security Twin from the artifacts a COMPLETED scan
-// already produced. SENTINEL does not invent a twin: every node, edge and
+// already produced. Burhan does not invent a twin: every node, edge and
 // claim is either OBSERVED in the raw output, INFERRED by a documented rule
 // with sourceRefs, VERIFIED by engine evidence, REFUTED by an engine result,
 // or UNKNOWN. Deterministic: identical raw input → identical IDs, graph and

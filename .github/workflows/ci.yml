@@ -60,7 +60,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: sentinel
+          POSTGRES_DB: burhan
         ports:
           - 5432:5432
         options: >-
@@ -69,9 +69,9 @@ jobs:
           --health-timeout 3s
           --health-retries 12
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/sentinel
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/burhan
       NEXTAUTH_SECRET: ci-only-secret-not-for-production
-      SENTINEL_DATA_DIR: /tmp/sentinel-ci-data
+      BURHAN_DATA_DIR: /tmp/burhan-ci-data
     steps:
       - uses: actions/checkout@v4
 
@@ -82,7 +82,7 @@ jobs:
       - name: Install dependencies (frozen lockfile)
         run: bun install --frozen-lockfile
 
-      # the compliance parity test spawns `python3 -m sentinel.cli compliance
+      # the compliance parity test spawns `python3 -m burhan.cli compliance
       # --json` — the engine imports cryptography+blake3 at module level, so
       # the runner python needs them too
       - name: Install engine python dependencies (parity test)
@@ -138,7 +138,7 @@ jobs:
         run: pip install -r requirements-dev.txt
 
       - name: Engine doctor (19 checks)
-        run: python3 -m sentinel.cli doctor
+        run: python3 -m burhan.cli doctor
 
       - name: Python security tests (incl. compliance mapping parity)
         run: python3 -m pytest tests/ -q
@@ -185,7 +185,7 @@ jobs:
 
       - name: Benchmark regression gate (confusion vs ground truth)
         run: |
-          python3 -m sentinel.cli benchmark --race --out "$RUNNER_TEMP/ci-fixture/benchmark.json"
+          python3 -m burhan.cli benchmark --race --out "$RUNNER_TEMP/ci-fixture/benchmark.json"
           python3 - <<'PY'
           import json, os
           b = json.load(open(os.environ["RUNNER_TEMP"] + "/ci-fixture/benchmark.json"))
@@ -203,10 +203,10 @@ jobs:
           F="$RUNNER_TEMP/ci-fixture"
           RUN_ID=$(python3 -c "import json;print(json.load(open('$F/scan.json'))['run_id'])")
           for fmt in html json sarif executive glass; do
-            python3 -m sentinel.cli report --db "$F/store.db" \
+            python3 -m burhan.cli report --db "$F/store.db" \
               --run-id "$RUN_ID" --format "$fmt" --out "$F/report.$fmt"
           done
-          python3 -m sentinel.cli compliance --json > "$F/compliance.json"
+          python3 -m burhan.cli compliance --json > "$F/compliance.json"
 
       - name: Upload scan artifacts
         uses: actions/upload-artifact@v4
@@ -239,7 +239,7 @@ jobs:
             echo "::error::src/lib/compliance-registry.json is stale — regenerate with: python3 scripts/gen_compliance_registry.py"
             exit 1
           fi
-          echo "registry in sync with sentinel/compliance.py"
+          echo "registry in sync with burhan/compliance.py"
 
   real-targets:
     name: Real target (OWASP Juice Shop v20.3.0 — container, unauth)
@@ -424,15 +424,15 @@ jobs:
         uses: ./
         with:
           target: http://127.0.0.1:8788
-          out: sen-result.json
+          out: burhan-result.json
           allow-private: "true"
 
       - name: Assert the action's contract (signed result, findings, outputs)
         run: |
-          test -f sen-result.json
+          test -f burhan-result.json
           python3 - <<'PY'
           import json
-          rep = json.load(open("sen-result.json"))
+          rep = json.load(open("burhan-result.json"))
           audit = rep.get("audit") or {}
           assert audit.get("merkle_root"), "result must carry a signed audit block"
           assert audit.get("signature_b64"), "result must carry a signature"
@@ -462,19 +462,50 @@ jobs:
 
       # the EXTERNAL-CONSUMER path: resolve the action by its published tag,
       # exactly as a third-party workflow would
-      - name: Run the action (mememamaly-oss/Sen@v4.5.0)
+      # LEGACY-REF LIVE PROBE (owner order, part 1.8). Official behavior
+      # (docs.github.com — 'Renaming a repository'): "GitHub will not redirect
+      # calls to an action hosted by a renamed repository. Any workflow that
+      # uses that action will fail with the error `repository not found`."
+      # Web links and git operations DO redirect; action references DO NOT.
+      # This probe records the ACTUAL behavior of the pre-rename reference
+      # mememamaly-oss/Sen@v4.5.0 on every dispatch: expected conclusion is
+      # failure (continue-on-error keeps the job green while recording it).
+      # If GitHub ever starts following renames for `uses:`, this step turns
+      # green and the note above must be updated.
+      - name: Run the action — LEGACY pre-rename ref (mememamaly-oss/Sen@v4.5.0, expected to fail per docs)
         uses: mememamaly-oss/Sen@v4.5.0
+        continue-on-error: true
         with:
           target: http://127.0.0.1:8789
-          out: sen-result.json
+          out: legacy-sen-result.json
+          allow-private: "true"
+
+      - name: Assert the legacy-ref action's contract
+        run: |
+          test -f legacy-sen-result.json
+          python3 - <<'PY'
+          import json
+          rep = json.load(open("legacy-sen-result.json"))
+          audit = rep.get("audit") or {}
+          assert audit.get("merkle_root"), "result must carry a signed audit block"
+          assert audit.get("signature_b64"), "result must carry a signature"
+          assert len(rep.get("findings", [])) > 0, "fixture scan must produce findings"
+          print("legacy-ref action contract OK:", len(rep["findings"]), "findings")
+          PY
+
+      - name: Run the action (mememamaly-oss/burhan@v5.0.0 — current published tag)
+        uses: mememamaly-oss/burhan@v5.0.0
+        with:
+          target: http://127.0.0.1:8789
+          out: burhan-result.json
           allow-private: "true"
 
       - name: Assert the action's contract
         run: |
-          test -f sen-result.json
+          test -f burhan-result.json
           python3 - <<'PY'
           import json
-          rep = json.load(open("sen-result.json"))
+          rep = json.load(open("burhan-result.json"))
           audit = rep.get("audit") or {}
           assert audit.get("merkle_root"), "result must carry a signed audit block"
           assert audit.get("signature_b64"), "result must carry a signature"

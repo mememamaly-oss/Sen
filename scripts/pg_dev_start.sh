@@ -9,11 +9,11 @@
 #
 # The dev sandbox reaps background processes between commands, so this script
 # is IDEMPOTENT: it (re)starts the postmaster if it is not accepting
-# connections, waits until it is, ensures the `sentinel` database exists, and
+# connections, waits until it is, ensures the `burhan` database exists, and
 # prints the connection URI on stdout. It is safe to call at the top of every
 # chain that needs the database.
 #
-#   --reset   drop and recreate the `sentinel` database first (fresh state,
+#   --reset   drop and recreate the `burhan` database first (fresh state,
 #             e.g. before an integration run) — local/dev only.
 #
 # CI does NOT use this script: the GitHub workflow provisions a real
@@ -24,7 +24,7 @@ cd "$(dirname "$0")/.."
 BIN="$(python3 -c 'import pgserver,os,sys; sys.stdout.write(os.path.dirname(pgserver.__file__)+"/pginstall/bin")')"
 D="saas-data/pg-dev"
 PGDIR="$(pwd)/$D"
-URI="postgresql://postgres@127.0.0.1:55432/sentinel"
+URI="postgresql://postgres@127.0.0.1:55432/burhan"
 RESET=0
 [ "${1:-}" = "--reset" ] && RESET=1
 
@@ -60,10 +60,10 @@ fi
 }
 
 if [ "$RESET" = "1" ]; then
-  "$BIN/psql" "postgresql://postgres@127.0.0.1:55432/postgres" -c "DROP DATABASE IF EXISTS sentinel" >/dev/null
+  "$BIN/psql" "postgresql://postgres@127.0.0.1:55432/postgres" -c "DROP DATABASE IF EXISTS burhan" >/dev/null
 fi
 "$BIN/psql" "postgresql://postgres@127.0.0.1:55432/postgres" -tAc \
-  "SELECT 1 FROM pg_database WHERE datname='sentinel'" | grep -q 1 || \
-  "$BIN/psql" "postgresql://postgres@127.0.0.1:55432/postgres" -c "CREATE DATABASE sentinel" >/dev/null
+  "SELECT 1 FROM pg_database WHERE datname='burhan'" | grep -q 1 || \
+  "$BIN/psql" "postgresql://postgres@127.0.0.1:55432/postgres" -c "CREATE DATABASE burhan" >/dev/null
 
 echo "$URI"

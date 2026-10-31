@@ -19,9 +19,9 @@ from pathlib import Path
 
 import pytest
 
-from sentinel.compliance import (OFFICIAL_LISTS, PCI_DSS_REQUIREMENT,
+from burhan.compliance import (OFFICIAL_LISTS, PCI_DSS_REQUIREMENT,
                                  COMPLIANCE, compliance_for)
-from sentinel.report import SARIF_RULES
+from burhan.report import SARIF_RULES
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -103,7 +103,7 @@ def test_platform_registry_json_is_in_sync():
     fresh = json.loads(
         subprocess.run(
             [sys.executable, "-c",
-             "import json;from sentinel.compliance import compliance_json;"
+             "import json;from burhan.compliance import compliance_json;"
              "print(json.dumps(compliance_json()))"],
             capture_output=True, text=True, cwd=str(ROOT)).stdout)
     assert checked_in["types"] == fresh["types"], (

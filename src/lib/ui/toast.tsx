@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL toasts — minimal, accessible, reduced-motion safe.
+// Burhan toasts — minimal, accessible, reduced-motion safe.
 // One viewport, four variants, auto-dismiss with hover pause, RTL-aware.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";

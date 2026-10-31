@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: PROVENANCE MODEL (spec §2)
+// Burhan — PHASE 02 L1: PROVENANCE MODEL (spec §2)
 //
 // Exactly five values. This module is the single authority for provenance
 // semantics and construction rules:

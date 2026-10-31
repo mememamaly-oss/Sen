@@ -7,12 +7,12 @@ import { SessionProvider } from "@/lib/ui/session";
 
 export const metadata: Metadata = {
   title: {
-    default: "SENTINEL — منصة استخبارات الأمن",
-    template: "%s · SENTINEL",
+    default: "برهان — منصة استخبارات الأمن",
+    template: "%s · برهان",
   },
   description:
-    "SENTINEL — منصة استخبارات الأمن: فحص استباقي بأدلة قابلة للإعادة، تغطية مُوثّقة، وحدود معلنة بلا تهويل.",
-  applicationName: "SENTINEL",
+    "برهان — منصة استخبارات الأمن: فحص استباقي بأدلة قابلة للإعادة، تغطية مُوثّقة، وحدود معلنة بلا تهويل.",
+  applicationName: "Burhan",
   robots: { index: false, follow: false },
 };
 

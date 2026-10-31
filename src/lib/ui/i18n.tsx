@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL i18n — Arabic-first (default) with English. RTL/LTR follows the
+// Burhan i18n — Arabic-first (default) with English. RTL/LTR follows the
 // locale. UI strings only; user-generated content (target names, engine
 // finding types, audit actions) is displayed as-is.
 
@@ -10,7 +10,7 @@ export type Locale = "ar" | "en";
 
 const DICT = {
   ar: {
-    "brand.name": "SENTINEL",
+    "brand.name": "برهان",
     "brand.tagline": "منصة استخبارات الأمن",
     "nav.overview": "نظرة عامة",
     "nav.targets": "الأهداف",
@@ -160,7 +160,7 @@ const DICT = {
     "scans.start": "بدء فحص",
     "scans.starting": "جارٍ البدء…",
     "scans.startConfirmTitle": "بدء فحص جديد؟",
-    "scans.startConfirmBody": "سيشغّل المحرك (sentinel-core/4.1.1) فحصًا حقيقيًا لهذا الهدف الآن، ويمكنك مراقبته مباشرة.",
+    "scans.startConfirmBody": "سيشغّل المحرك (burhan-core/4.1.1) فحصًا حقيقيًا لهذا الهدف الآن، ويمكنك مراقبته مباشرة.",
     "scans.statusFilter.all": "كل الحالات",
     "scans.failedReason": "السبب",
     "findings.title": "الثغرات",
@@ -326,7 +326,7 @@ const DICT = {
     "demo.sourceLegend": "المصدر: رسمي = من قوائم CWE الرسمية للفئات؛ نطاق = تصنيف تحريري معلن",
   },
   en: {
-    "brand.name": "SENTINEL",
+    "brand.name": "Burhan",
     "brand.tagline": "Security Intelligence Platform",
     "nav.overview": "Overview",
     "nav.targets": "Targets",
@@ -476,7 +476,7 @@ const DICT = {
     "scans.start": "Start scan",
     "scans.starting": "Starting…",
     "scans.startConfirmTitle": "Start a new scan?",
-    "scans.startConfirmBody": "The engine (sentinel-core/4.1.1) will run a real scan against this target now — you can watch it live.",
+    "scans.startConfirmBody": "The engine (burhan-core/4.1.1) will run a real scan against this target now — you can watch it live.",
     "scans.statusFilter.all": "All statuses",
     "scans.failedReason": "Reason",
     "findings.title": "Findings",
@@ -661,7 +661,7 @@ const Ctx = createContext<I18nCtx | null>(null);
 
 function pick(): Locale {
   if (typeof window === "undefined") return "ar";
-  const saved = window.localStorage.getItem("sentinel.locale");
+  const saved = window.localStorage.getItem("burhan.locale");
   return saved === "en" || saved === "ar" ? saved : "ar";
 }
 
@@ -675,7 +675,7 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     try {
-      window.localStorage.setItem("sentinel.locale", l);
+      window.localStorage.setItem("burhan.locale", l);
     } catch {
       /* private mode */
     }

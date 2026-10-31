@@ -9,7 +9,7 @@ pinned unchanged.
 """
 import pytest
 
-from sentinel.proof import (ValidationError, hkdf_sha256, hkdf_sha256_expand,
+from burhan.proof import (ValidationError, hkdf_sha256, hkdf_sha256_expand,
                             hkdf_sha256_extract)
 
 # ---- RFC 5869 A.1: basic test case (SHA-256) --------------------------------

@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { spawn, spawnSync, type ChildProcess } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -5,14 +6,14 @@ import { db } from "@/lib/db";
 import { audit } from "@/lib/rbac";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ENGINE BRIDGE — the ONLY module that talks to the SENTINEL engine.
+// ENGINE BRIDGE — the ONLY module that talks to the Burhan engine.
 //
-// The engine (sentinel/ at repo root — final build v4.4.0, axes 1-18) is NEVER modified, NEVER imported, and
+// The engine (burhan/ at repo root — final build v4.4.0, axes 1-18) is NEVER modified, NEVER imported, and
 // NEVER re-implemented. It is invoked as a black-box CLI subprocess:
 //
-//   scan       python -m sentinel.cli scan <url> --out <result.json> --db <store.db> [opts]
-//   reproduce  python -m sentinel.cli reproduce --db <store.db> --finding F-xxx
-//   report     python -m sentinel.cli report  --db <store.db> --run-id <run> --format X --out <file>
+//   scan       python -m burhan.cli scan <url> --out <result.json> --db <store.db> [opts]
+//   reproduce  python -m burhan.cli reproduce --db <store.db> --finding F-xxx
+//   report     python -m burhan.cli report  --db <store.db> --run-id <run> --format X --out <file>
 //
 // Data layout (platform-owned, outside the engine tree):
 //   saas-data/scans/<scanId>/result.json   engine output
@@ -23,7 +24,7 @@ import { audit } from "@/lib/rbac";
 
 // SECURITY/QA (audit 2026-10-23, standalone fix): the Next.js standalone
 // production server chdir()s into .next/standalone at boot, so process.cwd()
-// points INSIDE the build output — spawning the engine (sentinel/) or the
+// points INSIDE the build output — spawning the engine (burhan/) or the
 // demo fixture (fixtures/vulnapp.py) from there failed with
 // "can't open file .../.next/standalone/fixtures/vulnapp.py" (503 on demo
 // target creation, FAILED scans). Resolve the real repo root by walking up
@@ -32,13 +33,13 @@ function resolveProjectRoot(): string {
   let dir = process.cwd();
   for (let i = 0; i < 8; i++) {
     // Skip directories inside .next — the standalone build TRACES a partial
-    // engine copy (.next/standalone/sentinel/cli.py ONLY, no fixtures/, no
+    // engine copy (.next/standalone/burhan/cli.py ONLY, no fixtures/, no
     // package tree) which must never win over the real repo root.
     if (dir.split(path.sep).includes(".next")) {
       dir = path.dirname(dir);
       continue;
     }
-    if (fs.existsSync(path.join(dir, "sentinel", "cli.py"))) return dir;
+    if (fs.existsSync(path.join(dir, "burhan", "cli.py"))) return dir;
     const parent = path.dirname(dir);
     if (parent === dir) break;
     dir = parent;
@@ -46,13 +47,13 @@ function resolveProjectRoot(): string {
   return process.cwd(); // fallback: current behavior (engine missing → loud error)
 }
 const PROJECT_ROOT = resolveProjectRoot();
-export const ENGINE_DIR = process.env.SENTINEL_ENGINE_DIR || PROJECT_ROOT;
-const PYTHON = process.env.SENTINEL_PYTHON || "python3";
+export const ENGINE_DIR = env("ENGINE_DIR") ?? PROJECT_ROOT;
+const PYTHON = env("PYTHON") ?? "python3";
 // Absolute override keeps artifacts OUTSIDE .next/standalone (which is wiped on
 // every rebuild) when running the production standalone server. The default
 // now uses the RESOLVED root (not the standalone chdir cwd).
-const DATA_DIR = process.env.SENTINEL_DATA_DIR
-  ? path.resolve(process.env.SENTINEL_DATA_DIR)
+const DATA_DIR = env("DATA_DIR")
+  ? path.resolve(env("DATA_DIR") as string)
   : path.join(PROJECT_ROOT, "saas-data");
 export const SCANS_DIR = path.join(DATA_DIR, "scans");
 export const STORES_DIR = path.join(DATA_DIR, "stores");
@@ -63,9 +64,9 @@ for (const d of [SCANS_DIR, STORES_DIR, REPORTS_DIR]) {
 }
 
 // in-memory handles (best-effort; reconcileScan survives restarts via pid + files)
-const g = globalThis as unknown as { __sentinelScans?: Map<string, ChildProcess> };
-g.__sentinelScans = g.__sentinelScans || new Map();
-const scanProcesses = g.__sentinelScans;
+const g = globalThis as unknown as { __burhanScans?: Map<string, ChildProcess> };
+g.__burhanScans = g.__burhanScans || new Map();
+const scanProcesses = g.__burhanScans;
 
 export type ScanOptions = {
   allowPrivate: boolean;
@@ -76,18 +77,18 @@ export type ScanOptions = {
 
 /**
  * LAB MODE (audit 2026-10-23, SSRF remediation):
- * When SENTINEL_ALLOW_PRIVATE_TARGETS=1 the operator explicitly opts the
+ * When BURHAN_ALLOW_PRIVATE_TARGETS=1 the operator explicitly opts the
  * deployment into "lab mode" — private-network targets are accepted for
  * non-demo targets too. Default OFF. This is a server-side deployment
  * decision, NEVER a per-request client decision.
  */
 export function labModeEnabled(): boolean {
-  return process.env.SENTINEL_ALLOW_PRIVATE_TARGETS === "1";
+  return env("ALLOW_PRIVATE_TARGETS") === "1";
 }
 
 /**
  * Heuristic pre-filter for "does this URL point at an internal network?".
- * This is NOT the security boundary — the engine (sentinel/http_engine.py +
+ * This is NOT the security boundary — the engine (burhan/http_engine.py +
  * core.is_private_ip) re-validates EVERY connection (DNS answers included,
  * redirect hops included) and fails closed. This function only decides
  * whether the *scan policy* may even consider private egress.
@@ -174,7 +175,7 @@ export function isLocalUrl(raw: string): boolean {
  *
  *   private egress allowed  ⟺  target.isDemo (the platform-managed local
  *                               fixture), OR the deployment is in explicit
- *                               lab mode (SENTINEL_ALLOW_PRIVATE_TARGETS=1,
+ *                               lab mode (BURHAN_ALLOW_PRIVATE_TARGETS=1,
  *                               an operator decision) AND the URL actually
  *                               points at an internal network.
  *
@@ -291,7 +292,7 @@ export async function engineStartScan(scanId: string, target: { id: string; url:
   const opts: ScanOptions = JSON.parse(scan.optionsJson);
 
   const args = [
-    "-m", "sentinel.cli", "scan", target.url,
+    "-m", "burhan.cli", "scan", target.url,
     "--out", resultPath,
     "--db", storePathFor(target.id),
     "--max-pages", String(opts.maxPages),
@@ -584,7 +585,7 @@ export async function engineReproduceFinding(
 ): Promise<Record<string, unknown> | null> {
   const r = spawnSync(
     PYTHON,
-    ["-m", "sentinel.cli", "reproduce", "--db", storePathFor(targetId), "--finding", engineId],
+    ["-m", "burhan.cli", "reproduce", "--db", storePathFor(targetId), "--finding", engineId],
     { cwd: ENGINE_DIR, timeout: 30000, maxBuffer: 10 * 1024 * 1024 }
   );
   if (r.status !== 0 || !r.stdout) {
@@ -618,7 +619,7 @@ export async function engineGenerateReport(
   const r = spawnSync(
     PYTHON,
     [
-      "-m", "sentinel.cli", "report",
+      "-m", "burhan.cli", "report",
       "--db", storePathFor(scan.targetId),
       "--run-id", scan.runId,
       "--format", format.toLowerCase(),

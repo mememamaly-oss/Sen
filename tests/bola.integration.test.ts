@@ -195,7 +195,7 @@ beforeAll(async () => {
       },
     })
   ).id;
-  const reportsDir = path.join(process.env.SENTINEL_DATA_DIR || "/tmp/sentinel-test-data", "reports");
+  const reportsDir = path.join(process.env.BURHAN_DATA_DIR || "/tmp/burhan-test-data", "reports");
   fs.mkdirSync(reportsDir, { recursive: true });
   const reportPath = path.join(reportsDir, `bola-${Date.now()}.html`);
   fs.writeFileSync(reportPath, "<html><body>bola report</body></html>");

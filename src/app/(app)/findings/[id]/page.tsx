@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL finding detail — the evidence-first view.
+// Burhan finding detail — the evidence-first view.
 // Tabs: Evidence / Verification / Impact / Reproduction / Remediation.
 // All content is engine output; the remediation tab is clearly labeled as
 // platform-side guidance. Nothing is fabricated.

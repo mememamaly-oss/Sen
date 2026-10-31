@@ -59,10 +59,10 @@ def main() -> int:
     print(f"target up: {args.base}")
 
     # 1. the scan — unauthenticated, seeded, core axes
-    from sentinel.compliance import compliance_for, compliance_summary
-    from sentinel.oast import OastServer
-    from sentinel.orchestrator import ScanConfig, SentinelScanner
-    from sentinel.store import Store
+    from burhan.compliance import compliance_for, compliance_summary
+    from burhan.oast import OastServer
+    from burhan.orchestrator import ScanConfig, BurhanScanner
+    from burhan.store import Store
 
     oast = OastServer()
     t0 = time.time()
@@ -71,7 +71,7 @@ def main() -> int:
                          timeout=15.0, seed="real430" * 8, oast=oast,
                          workflow=True, logic_active=True,
                          max_requests=args.max_requests)
-        sc = SentinelScanner(args.base, cfg)
+        sc = BurhanScanner(args.base, cfg)
         rep = sc.run()
     finally:
         oast.stop()
@@ -110,7 +110,7 @@ def main() -> int:
     import subprocess
     for fmt in ("json", "sarif"):
         r = subprocess.run(
-            [sys.executable, "-m", "sentinel.cli", "report",
+            [sys.executable, "-m", "burhan.cli", "report",
              "--db", str(out / "store.db"), "--run-id", str(run_id),
              "--format", fmt, "--out", str(out / f"report.{fmt}")],
             cwd=str(ROOT), capture_output=True, text=True)

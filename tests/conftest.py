@@ -1,5 +1,5 @@
 """Shared pytest configuration — put the repo root on sys.path so the
-`sentinel` package imports cleanly."""
+`burhan` package imports cleanly."""
 import os
 import sys
 

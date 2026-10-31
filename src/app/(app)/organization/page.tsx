@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL organization — identity card + members management
+// Burhan organization — identity card + members management
 // (add / role change / remove). Roles: OWNER > ADMIN > MEMBER > VIEWER.
 
 import { useState } from "react";

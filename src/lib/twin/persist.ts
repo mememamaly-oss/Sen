@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: TWIN PERSISTENCE (spec §9)
+// Burhan — PHASE 02 L1: TWIN PERSISTENCE (spec §9)
 //
 // TwinGraph storage with MANDATORY tenant isolation: every read/write is
 // scoped by orgId from the authorized access context (never a user-supplied

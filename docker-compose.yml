@@ -6,23 +6,23 @@
 # saas-data/stores — and are NOT migrated. See prisma/schema.prisma.
 #
 # Start:  POSTGRES_PASSWORD=... docker compose up -d
-# Then:   DATABASE_URL=postgresql://sentinel:<pw>@127.0.0.1:5432/sentinel \
+# Then:   DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan \
 #           bunx prisma migrate deploy
 services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: sentinel
+      POSTGRES_USER: burhan
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: sentinel
+      POSTGRES_DB: burhan
     # loopback only — never expose the tenant DB publicly
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sentinel -d sentinel"]
+      test: ["CMD-SHELL", "pg_isready -U burhan -d burhan"]
       interval: 5s
       timeout: 3s
       retries: 12

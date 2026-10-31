@@ -3,7 +3,7 @@
  *
  * The platform must render the ENGINE's registry — never re-derive it.
  * These tests fail when:
- *   - the checked-in registry JSON drifts from `python -m sentinel.cli
+ *   - the checked-in registry JSON drifts from `python -m burhan.cli
  *     compliance --json` (the single source of truth)
  *   - the registry loses shape (categories, official lists, PCI note)
  *   - lookup helpers return guesses instead of the honest unmapped shape
@@ -24,8 +24,8 @@ import {
 const ROOT = new URL("..", import.meta.url).pathname;
 
 describe("compliance registry (P2-C)", () => {
-  test("engine parity: checked-in JSON == sentinel CLI export", () => {
-    const r = spawnSync("python3", ["-m", "sentinel.cli", "compliance", "--json"], {
+  test("engine parity: checked-in JSON == burhan CLI export", () => {
+    const r = spawnSync("python3", ["-m", "burhan.cli", "compliance", "--json"], {
       cwd: ROOT,
       timeout: 30_000,
       maxBuffer: 10 * 1024 * 1024,

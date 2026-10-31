@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Independent verifier for the Sen transparency log and signed reports.
+"""Independent verifier for the Burhan transparency log and signed reports.
 
-WHY THIS FILE EXISTS, AND WHY IT IMPORTS NOTHING FROM `sentinel`
+WHY THIS FILE EXISTS, AND WHY IT IMPORTS NOTHING FROM `burhan`
 ----------------------------------------------------------------
-The point of a transparency log is that a third party can verify Sen's
+The point of a transparency log is that a third party can verify Burhan's
 signed scan results while trusting NOTHING about this project — not its
 maintainers, and deliberately not its own code. A verifier that imports
 the signer's modules would share any bug the signer has: if the signer
@@ -439,7 +439,7 @@ def verify_report(report_path: Path) -> dict:
 # ============================================================ CLI
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(
-        description="Independent verifier for Sen transparency log, "
+        description="Independent verifier for Burhan transparency log, "
                     "evidence bundles, and signed reports")
     sub = ap.add_subparsers(dest="cmd", required=True)
 

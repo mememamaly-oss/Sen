@@ -39,7 +39,7 @@ class Client:
     def req(self, method, path, body=None, form=None, is_json=True, redirect=True):
         url = BASE + path
         data = None
-        headers = {"User-Agent": "SEN-QA-Battery/1.0"}
+        headers = {"User-Agent": "Burhan-QA-Battery/1.0"}
         if self.cookies:
             headers["Cookie"] = self.header()
         if form is not None:
@@ -113,7 +113,7 @@ def main():
     def boot():
         cl = Client()
         s, _, bb = cl.req("POST", "/api/bootstrap", body={
-            "email": "owner@sentinel.test", "name": "Owner",
+            "email": "owner@burhan.test", "name": "Owner",
             "password": "Str0ngPass!123", "orgName": "QA Org"})
         results.append((s, jbody(bb)))
     threads = [threading.Thread(target=boot) for _ in range(10)]
@@ -127,14 +127,14 @@ def main():
 
     # A5 second bootstrap after user exists -> 409
     st, h, b = c.req("POST", "/api/bootstrap", body={
-        "email": "other@sentinel.test", "password": "Str0ngPass!123"})
+        "email": "other@burhan.test", "password": "Str0ngPass!123"})
     check("A5", "bootstrap after first admin -> 409", st == 409, f"HTTP {st} body={b[:100]!r}")
 
     # A6 login flow: csrf + credentials -> session
     st, h, b = c.req("GET", "/api/auth/csrf")
     csrf = jbody(b).get("csrfToken", "")
     st, h, b = c.req("POST", "/api/auth/callback/credentials", form={
-        "csrfToken": csrf, "email": "owner@sentinel.test",
+        "csrfToken": csrf, "email": "owner@burhan.test",
         "password": "Str0ngPass!123", "json": "true"}, redirect=False)
     has_session = any(k.startswith("next-auth.session-token") for k in c.cookies)
     check("A6", "credentials login yields session cookie",
@@ -144,7 +144,7 @@ def main():
     # A6.1 session validation
     st, h, b = c.req("GET", "/api/me")
     check("A6.1", "authenticated /api/me returns the owner",
-          st == 200 and jbody(b).get("user", {}).get("email") == "owner@sentinel.test",
+          st == 200 and jbody(b).get("user", {}).get("email") == "owner@burhan.test",
           f"HTTP {st} body={b[:140]!r}")
 
     # A6.2 session cookie attributes (WSTG-SESS)
@@ -155,7 +155,7 @@ def main():
     s3, h3, b3 = c2.req("GET", "/api/auth/csrf")
     csrf2 = jbody(b3).get("csrfToken", "")
     s3, h3, b3 = c2.req("POST", "/api/auth/callback/credentials", form={
-        "csrfToken": csrf2, "email": "owner@sentinel.test",
+        "csrfToken": csrf2, "email": "owner@burhan.test",
         "password": "Str0ngPass!123", "json": "true"}, redirect=False)
     # fetch raw set-cookie through a raw request (headers dict collapses dupes)
     import http.client
@@ -166,7 +166,7 @@ def main():
     conn.close()
     # login again with raw http to capture the session set-cookie
     conn = http.client.HTTPConnection("127.0.0.1", 3100, timeout=10)
-    body_form = urllib.parse.urlencode({"csrfToken": csrf2, "email": "owner@sentinel.test",
+    body_form = urllib.parse.urlencode({"csrfToken": csrf2, "email": "owner@burhan.test",
                                         "password": "Str0ngPass!123", "json": "true"})
     conn.request("POST", "/api/auth/callback/credentials", body=body_form, headers={
         "Content-Type": "application/x-www-form-urlencoded", "Cookie": c2.header()})
@@ -185,7 +185,7 @@ def main():
     st, h, b = c3.req("GET", "/api/auth/csrf")
     csrf3 = jbody(b).get("csrfToken", "")
     st, h, b = c3.req("POST", "/api/auth/callback/credentials", form={
-        "csrfToken": csrf3, "email": "owner@sentinel.test",
+        "csrfToken": csrf3, "email": "owner@burhan.test",
         "password": "WRONG-password", "json": "true"}, redirect=False)
     has_s = any(k.startswith("next-auth.session-token") for k in c3.cookies)
     check("A7", "wrong password -> no session cookie", not has_s,
@@ -271,10 +271,10 @@ def main():
 
     # A13 members: add MEMBER + VIEWER
     st, h, b = c.req("POST", f"/api/orgs/{org_id}/members", body={
-        "email": "member@sentinel.test", "name": "Member", "role": "MEMBER",
+        "email": "member@burhan.test", "name": "Member", "role": "MEMBER",
         "password": "Str0ngPass!123"})
     st2, h2, b2 = c.req("POST", f"/api/orgs/{org_id}/members", body={
-        "email": "viewer@sentinel.test", "name": "Viewer", "role": "VIEWER",
+        "email": "viewer@burhan.test", "name": "Viewer", "role": "VIEWER",
         "password": "Str0ngPass!123"})
     check("A13", "OWNER adds MEMBER and VIEWER", st == 200 and st2 == 200,
           f"member HTTP {st} viewer HTTP {st2}")
@@ -319,7 +319,7 @@ def main():
     for i in range(13):
         conn = _hc.HTTPConnection("127.0.0.1", 3100, timeout=15)
         t0 = time.time()
-        body_f = urllib.parse.urlencode({"csrfToken": csrf_b, "email": "brute2@sentinel.test",
+        body_f = urllib.parse.urlencode({"csrfToken": csrf_b, "email": "brute2@burhan.test",
                                         "password": "wrong-pass-" + str(i), "json": "true"})
         conn.request("POST", "/api/auth/callback/credentials", body=body_f,
                      headers={"Content-Type": "application/x-www-form-urlencoded",
@@ -372,7 +372,7 @@ def main():
     cv = Client()
     st, h, b = cv.req("GET", "/api/auth/csrf")
     st, h, b = cv.req("POST", "/api/auth/callback/credentials", form={
-        "csrfToken": jbody(b).get("csrfToken", ""), "email": "viewer@sentinel.test",
+        "csrfToken": jbody(b).get("csrfToken", ""), "email": "viewer@burhan.test",
         "password": "Str0ngPass!123", "json": "true"}, redirect=False)
     st, h, b = cv.req("POST", "/api/targets", body={
         "orgId": org_id, "name": "viewer-target", "url": "https://example.org/v"})
@@ -384,7 +384,7 @@ def main():
     cm = Client()
     st, h, b = cm.req("GET", "/api/auth/csrf")
     st, h, b = cm.req("POST", "/api/auth/callback/credentials", form={
-        "csrfToken": jbody(b).get("csrfToken", ""), "email": "member@sentinel.test",
+        "csrfToken": jbody(b).get("csrfToken", ""), "email": "member@burhan.test",
         "password": "Str0ngPass!123", "json": "true"}, redirect=False)
     st, h, b = cm.req("POST", "/api/scans", body={"orgId": org_id, "targetId": demo_target_id})
     check("B4.1", "MEMBER cannot scan OWNER's demo target (write-level)", st == 403,

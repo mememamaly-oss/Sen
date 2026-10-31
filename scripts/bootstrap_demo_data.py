@@ -16,9 +16,9 @@ import urllib.parse
 import http.cookiejar
 
 BASE = "http://localhost:3000"
-ADMIN_EMAIL = "admin@sentinel.local"
-ADMIN_PASS = "Sentinel-P0!Admin"
-ORG_NAME = "Sentinel SOC"
+ADMIN_EMAIL = "admin@burhan.local"
+ADMIN_PASS = "Burhan-P0!Admin"
+ORG_NAME = "Burhan SOC"
 
 
 class Client:
@@ -100,8 +100,8 @@ def main():
 
     # 4. team members (real users via members API)
     members = [
-        ("sara@sentinel.local", "سارة العتيبي", "MEMBER", "Sara-Member-1"),
-        ("khalid@sentinel.local", "خالد المطيري", "VIEWER", "Khalid-Viewer-1"),
+        ("sara@burhan.local", "سارة العتيبي", "MEMBER", "Sara-Member-1"),
+        ("khalid@burhan.local", "خالد المطيري", "VIEWER", "Khalid-Viewer-1"),
     ]
     for email, name, mrole, pw in members:
         code, r = c.post(f"/api/orgs/{org_id}/members",

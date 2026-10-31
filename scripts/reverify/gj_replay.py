@@ -12,9 +12,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from sentinel.core import EventBus, ScopeRule
-from sentinel.evidence import replay_finding
-from sentinel.store import Store
+from burhan.core import EventBus, ScopeRule
+from burhan.evidence import replay_finding
+from burhan.store import Store
 from urllib.parse import urlsplit
 
 EV = Path("evidence/full-reverify/ginandjuice-shop")

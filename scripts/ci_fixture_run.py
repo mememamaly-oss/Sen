@@ -46,11 +46,11 @@ def main() -> int:
     print(f"fixture up on {base} (pid {fixture.pid})")
 
     # 2. full-platform engine run (benchmark configuration, verbatim)
-    from sentinel.auth import AuthProfile
-    from sentinel.core import EventBus, ScopeRule  # noqa: F401 (parity with the campaign driver)
-    from sentinel.oast import OastServer
-    from sentinel.orchestrator import ScanConfig, SentinelScanner
-    from sentinel.store import Store
+    from burhan.auth import AuthProfile
+    from burhan.core import EventBus, ScopeRule  # noqa: F401 (parity with the campaign driver)
+    from burhan.oast import OastServer
+    from burhan.orchestrator import ScanConfig, BurhanScanner
+    from burhan.store import Store
 
     auth = AuthProfile(login_url=base + "/login", username="demo",
                        password="demo123", user_field="uid", pass_field="passw",
@@ -64,7 +64,7 @@ def main() -> int:
                          authz=authz_cfg, workflow=True, logic_active=True,
                          max_requests=0, race=True, race_parallel=10,
                          race_variance=0.005, symbolic=True)
-        sc = SentinelScanner(base, cfg)
+        sc = BurhanScanner(base, cfg)
         rep = sc.run()
     finally:
         oast.stop()
@@ -79,7 +79,7 @@ def main() -> int:
 
     # 3. gates — floors comfortably below the deterministic record
     #    (199 verified / 30 distinct types), above any honest floor.
-    from sentinel.compliance import compliance_for
+    from burhan.compliance import compliance_for
     verified = [f for f in findings if f.get("status") == "verified"]
     unmapped = [f["id"] for f in verified if not (f.get("compliance") or {}).get("mapped")]
     distinct = len({f["type"] for f in verified})
