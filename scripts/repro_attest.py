@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""PART 4B — reproducibility attestation for the canonical fixture scan.
+
+Two GENUINELY separate executions (each step spawns its own fixture
+process and its own engine process) must produce a byte-identical
+finding set. The compare step is a HARD GATE: any mismatch fails CI.
+
+Usage (three separate process invocations — do not merge):
+  python3 scripts/repro_attest.py --tag a --out-dir "$RUNNER_TEMP/repro"
+  python3 scripts/repro_attest.py --tag b --out-dir "$RUNNER_TEMP/repro"
+  python3 scripts/repro_attest.py --compare "$RUNNER_TEMP/repro"
+
+What is asserted by --compare (all three must match exactly):
+  merkle_root       Merkle root over the canonical findings (volatile keys
+                    stripped — the designed stable root)
+  findings_count    number of findings
+  findings_sha256   SHA-256 over the concatenated canonical finding bytes
+                    (the FULL finding set, byte-identical or the gate fails)
+
+run_id intentionally differs between executions (it is a per-run random
+identity, not part of the determinism claim) and is recorded as
+informational only.
+"""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+PORTS = {"a": 8791, "b": 8792}
+
+
+def run_scan(tag: str, out_dir: Path) -> dict:
+    """Spawn the fixture + run the canonical full-platform configuration
+    (the exact ScanConfig of scripts/ci_fixture_run.py)."""
+    port = PORTS[tag]
+    base = f"http://127.0.0.1:{port}"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    fixture = subprocess.Popen(
+        [sys.executable, str(ROOT / "fixtures" / "vulnapp.py")],
+        env={"PORT": str(port), "PATH": "/usr/bin:/bin"},
+        stdout=open(out_dir / f"fixture-{tag}.log", "w"),
+        stderr=subprocess.STDOUT)
+    time.sleep(1.5)
+    import urllib.request
+    probe = urllib.request.urlopen(base + "/", timeout=5).status
+    assert probe == 200, probe
+    print(f"[{tag}] fixture up on {base} (pid {fixture.pid})")
+
+    from sentinel.auth import AuthProfile
+    from sentinel.core import EventBus, ScopeRule  # noqa: F401
+    from sentinel.oast import OastServer
+    from sentinel.orchestrator import ScanConfig, SentinelScanner
+
+    auth = AuthProfile(login_url=base + "/login", username="demo",
+                       password="demo123", user_field="uid", pass_field="passw",
+                       success_marker="Sign Off")
+    authz_cfg = json.load(open(ROOT / "benchmarks" / "authz_accounts.json"))
+    oast = OastServer()
+    t0 = time.time()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=40, timeout=12.0,
+                         seed="bench430" * 8, oast=oast, auth=auth,
+                         authz=authz_cfg, workflow=True, logic_active=True,
+                         max_requests=0, race=True, race_parallel=10,
+                         race_variance=0.005, symbolic=True)
+        rep = SentinelScanner(base, cfg).run()
+    finally:
+        oast.stop()
+
+    # persist the full report for the artifact, compute the attestation
+    (out_dir / f"scan-{tag}.json").write_text(
+        json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
+
+    from sentinel.audit import canonical_finding, merkle_root_of_records
+    findings = rep["findings"]
+    canonical_blob = b"".join(
+        canonical_finding(f).encode("utf-8") for f in findings)
+    attestation = {
+        "tag": tag,
+        "run_id": rep.get("run_id", ""),
+        "seed": rep.get("seed", ""),
+        "scanner": rep.get("scanner", ""),
+        "target": rep.get("target", ""),
+        "merkle_root": merkle_root_of_records(findings),
+        "findings_count": len(findings),
+        "findings_sha256": hashlib.sha256(canonical_blob).hexdigest(),
+        "wall_seconds": round(time.time() - t0, 1),   # informational only
+    }
+    (out_dir / f"attestation-{tag}.json").write_text(
+        json.dumps(attestation, indent=1, ensure_ascii=False), encoding="utf-8")
+    print(f"[{tag}] scan done in {attestation['wall_seconds']}s: "
+          f"findings={len(findings)} root={attestation['merkle_root'][:16]}…")
+    return attestation
+
+
+def compare(out_dir: Path) -> int:
+    a = json.loads((out_dir / "attestation-a.json").read_text(encoding="utf-8"))
+    b = json.loads((out_dir / "attestation-b.json").read_text(encoding="utf-8"))
+    checks = {
+        "merkle_root": a["merkle_root"] == b["merkle_root"],
+        "findings_count": a["findings_count"] == b["findings_count"],
+        "findings_sha256": a["findings_sha256"] == b["findings_sha256"],
+    }
+    verdict = {
+        "run_a": a, "run_b": b, "checks": checks,
+        "reproducible": all(checks.values()),
+        "assertion": ("merkle_root == merkle_root AND findings_count == "
+                      "findings_count AND findings_sha256 == findings_sha256"),
+    }
+    (out_dir / "attestation.json").write_text(
+        json.dumps(verdict, indent=1, ensure_ascii=False), encoding="utf-8")
+
+    print(f"run A: root={a['merkle_root']} count={a['findings_count']} "
+          f"sha={a['findings_sha256']}")
+    print(f"run B: root={b['merkle_root']} count={b['findings_count']} "
+          f"sha={b['findings_sha256']}")
+    for name, ok in checks.items():
+        print(f"  {'MATCH  ' if ok else 'DIFFER '}: {name}")
+    print(f"REPRODUCIBLE: {verdict['reproducible']}")
+
+    # GitHub step summary (shown on the run page)
+    summary = out_dir / "step-summary.md"
+    if summary.parent.exists():
+        rows = "\n".join(
+            f"| {n} | {'match' if ok else '**DIFFER**} |"
+            for n, ok in checks.items())
+        summary.write_text(
+            "### Reproducibility attestation\n\n"
+            "| check | result |\n|---|---|\n" + rows +
+            f"\n\n**Byte-identical finding sets: "
+            f"{verdict['reproducible']}**\n", encoding="utf-8")
+
+    return 0 if verdict["reproducible"] else 1
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--tag", choices=["a", "b"])
+    ap.add_argument("--out-dir", type=Path)
+    ap.add_argument("--compare", type=Path, metavar="DIR",
+                    help="compare attestation-a.json vs attestation-b.json")
+    args = ap.parse_args()
+    if args.compare:
+        return compare(args.compare)
+    if not args.tag or not args.out_dir:
+        ap.error("--tag + --out-dir, or --compare DIR")
+    run_scan(args.tag, args.out_dir)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
