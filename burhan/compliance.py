@@ -157,6 +157,7 @@ CWE_LABELS: dict[str, str] = {
     "CWE-862": "Missing Authorization",
     "CWE-94": "Code Injection",
     "CWE-400": "Uncontrolled Resource Consumption",
+    "CWE-367": "Time-of-check Time-of-use (TOCTOU) Race Condition",
     "CWE-444": "Inconsistent Interpretation of HTTP Requests (Smuggling)",
     "CWE-915": "Mass Assignment",
     "CWE-1321": "Prototype Pollution",
@@ -368,6 +369,28 @@ COMPLIANCE: dict[str, dict[str, str]] = {
         "cwe": "CWE-915",
         "owasp_2021": "A08:2021", "owasp_2021_src": "scope",
         "owasp_2025": "A08:2025", "owasp_2025_src": "official",
+    },
+
+    # ---- owner order part 3 (2026-10-31): modern battery v2 families ----
+    "jwt_weak_secret": {
+        "cwe": "CWE-798",
+        "owasp_2021": "A07:2021", "owasp_2021_src": "scope",
+        "owasp_2025": "A07:2025", "owasp_2025_src": "scope",
+    },
+    "graphql_aliasing": {
+        "cwe": "CWE-400",
+        "owasp_2021": "A04:2021", "owasp_2021_src": "scope",
+        "owasp_2025": "A06:2025", "owasp_2025_src": "scope",
+    },
+    "excessive_data_exposure": {
+        "cwe": "CWE-200",
+        "owasp_2021": "A01:2021", "owasp_2021_src": "scope",
+        "owasp_2025": "A01:2025", "owasp_2025_src": "scope",
+    },
+    "rebind_toctou": {
+        "cwe": "CWE-367",
+        "owasp_2021": "A10:2021", "owasp_2021_src": "scope",
+        "owasp_2025": "A10:2025", "owasp_2025_src": "scope",
     },
     "prototype_pollution": {
         "cwe": "CWE-1321",
