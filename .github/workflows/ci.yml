@@ -91,6 +91,13 @@ jobs:
       - name: Prisma generate
         run: bunx prisma generate
 
+      # The 2026-10-31 shared-store rate limiter made the login-limiter unit
+      # tests PostgreSQL-backed; they run against THIS service container, so the
+      # schema must be migrated before `bun run test` (fresh DB per run).
+      # Missing step = P2021 "table RateLimitBucket does not exist" (observed).
+      - name: Prisma migrate deploy
+        run: bunx prisma migrate deploy
+
       - name: Lint
         run: bun run lint
 
