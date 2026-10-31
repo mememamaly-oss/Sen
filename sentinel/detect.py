@@ -11,6 +11,21 @@ from .http_engine import USER_AGENT, RequestEngine, RequestMutation
 from .discovery import (DESTRUCTIVE_GET_RE, STATE_CHANGE_GET_RE,
                         LOGOUT_PATH_RE, endpoint_gate_scope)
 
+
+def _stable_probe_id(*parts) -> int:
+    """Deterministic probe marker in [0, 99991): sha1 over the parts.
+
+    REPRO FIX (2026-10-31, caught by the CI reproducibility gate on its
+    first run): this used the BUILTIN hash(), which is PYTHONHASHSEED-
+    randomized per process — the same seeded scan produced different
+    sentinel-missing-<d> evidence text on every execution, moving the
+    audit Merkle root and violating the "same seed -> the same root,
+    always" contract. sha1 is stable across processes, runs and hosts.
+    """
+    import hashlib
+    return int(hashlib.sha1(
+        "|".join(str(p) for p in parts).encode("utf-8")).hexdigest()[:8], 16) % 99991
+
 # OWSP-21b: a param whose VALUE is command-shaped makes the whole endpoint
 # unprobeable — the BASE request of any battery executes the command (live:
 # 16 do=logout base requests through the authenticated jar on Mutillidae;
@@ -1038,7 +1053,7 @@ class TraversalDetector(Detector):
         the benchmark base is 6-7 deep, one depth still reaches it — keeping
         the added-coverage cost bounded (4 requests, not 8)."""
         import time as _t
-        missing = self.EXISTS_MISSING.format(d=abs(hash((ep.url, p.name))) % 99991)
+        missing = self.EXISTS_MISSING.format(d=_stable_probe_id(ep.url, p.name))
         for depth in depths:
             base_up = "../" * depth
             rk = self.engine.send(RequestMutation(endpoint=ep, param_name=p.name,
@@ -1096,7 +1111,7 @@ class TraversalDetector(Detector):
                 # payload must answer IDENTICALLY to the first -- only then is
                 # the differential attributable to the exists axis.
                 miss2b = self.EXISTS_MISSING.format(
-                    d=abs(hash((ep.url, p.name, depth))) % 99991)
+                    d=_stable_probe_id(ep.url, p.name, depth))
                 rm2b = self.engine.send(RequestMutation(
                     endpoint=ep, param_name=p.name,
                     param_value=base_up + "etc/" + miss2b,
@@ -2008,10 +2023,15 @@ class XxeDetector(Detector):
                 src = h.get("ip") or h.get("host") or "unknown"
                 ua = (h.get("ua") or "")[:60]
                 src_txt = f" from {src}" + (f" (ua={ua})" if ua else "")
+                # REPRO FIX (2026-10-31, caught by the CI reproducibility
+                # gate): the wall-clock 'at t+<epoch>' fragment is removed —
+                # a timestamp inside evidence text moved the audit root on
+                # every run. The interaction time remains recorded in the
+                # OAST interaction log (not hashed).
                 return Finding("xxe", Severity.CRITICAL, ep.url, elem, "POST",
                     [Evidence("oob_callback",
                               f"target fetched the external entity out-of-band{src_txt} "
-                              f"(interaction {iid} via {h.get('method', 'GET')} at t+{h.get('t', 0):.0f}) — "
+                              f"(interaction {iid} via {h.get('method', 'GET')}) — "
                               f"blind XXE: entity resolution proven with NO response oracle. "
                               f"recipe: root={root} element={elem} iid={iid}",
                               r.request_id)],

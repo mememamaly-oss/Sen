@@ -336,7 +336,7 @@ jobs:
         run: python3 tools/transparency_selftest.py --out "$RUNNER_TEMP/selftest"
 
       - name: Canonical scan run (the run to be signed)
-        run: python3 scripts/ci_fixture_run.py --port 8795 --out-dir "$RUNNER_TEMP/t"
+        run: python3 scripts/ci_fixture_run.py --port 8777 --out-dir "$RUNNER_TEMP/t"
 
       - name: Sign the transparency entry (project key; skipped when the secret is unavailable)
         env:
