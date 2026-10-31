@@ -75,6 +75,7 @@ import time
 import urllib.parse
 
 from .core import Evidence, Finding, Severity, FindingStatus, Verification
+from .core import ScopeRule as _ScopeRule, pin_transport_address
 
 # ------------------------------------------------------------------ constants
 # V411-WS-06 (live-caught on DVGA): GraphQL subscription transports are the
@@ -359,10 +360,16 @@ class WsClient:
     """Minimal RFC 6455 client over socket/ssl. Deterministic behavior; the
     handshake key is random (protocol-mandated) and never affects results."""
 
-    def __init__(self, url: str, timeout: float = 6.0, headers: dict | None = None):
+    def __init__(self, url: str, timeout: float = 6.0, headers: dict | None = None,
+                 scope: _ScopeRule | None = None):
         self.url = url
         self.timeout = timeout
         self.headers = dict(headers or {})
+        # SSRF fix 2026-10-31 (order 2.2): the raw-socket transport MUST
+        # carry the scan scope so the private-address policy is enforced
+        # here — before ANY connect(). scope=None = fail closed (private
+        # targets always refused).
+        self.scope = scope
         self.sock: socket.socket | ssl.SSLSocket | None = None
         self.handshake_status = 0
         self.handshake_body = ""
@@ -379,7 +386,19 @@ class WsClient:
         host, port = u.hostname or "127.0.0.1", u.port or (443 if secure else 80)
         path = (u.path or "/") + (("?" + u.query) if u.query else "")
         try:
-            raw = socket.create_connection((host, port), timeout=self.timeout)
+            # SSRF fix 2026-10-31 (order 2.2): resolve ONCE, validate every
+            # answer against the private-address policy, connect to the
+            # pinned address only. Without this, a scan of a private target
+            # (blocked correctly by the HTTP scope gate: 0 requests) still
+            # connected over raw sockets here — proven live, 9 connections.
+            allow_private = bool(getattr(self.scope, "allow_private", False)) if self.scope is not None else False
+            pinned, why = pin_transport_address(host, port, allow_private=allow_private)
+            if pinned is None:
+                self.handshake_status = 0
+                self.handshake_body = ("scope-blocked: %s" % why)[:200]
+                self.connected = False
+                return False
+            raw = socket.create_connection((pinned, port), timeout=self.timeout)
             if secure:
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False
@@ -705,7 +724,7 @@ class WebSocketEngine:
                 continue
             if not self._in_scope(url):
                 continue
-            c = WsClient(url, timeout=min(self.timeout, 4.0))
+            c = WsClient(url, timeout=min(self.timeout, 4.0), scope=self.scope)
             ok = c.connect()
             c.close()
             self.connections += 1
@@ -770,7 +789,7 @@ class WebSocketEngine:
                                          "authorize the elicitation hello",
                              provenance="websocket:permission-gate")
                 return "", "", []
-            client = WsClient(url, timeout=self.timeout)
+            client = WsClient(url, timeout=self.timeout, scope=self.scope)
             if not client.connect():
                 client.close()
                 return "", "", []
@@ -821,7 +840,7 @@ class WebSocketEngine:
             canary = _safe_canary()
             probe = {k: canary for k in shape}
             n = len(probe)
-            client = WsClient(url, timeout=self.timeout)
+            client = WsClient(url, timeout=self.timeout, scope=self.scope)
             if not client.connect():
                 client.close()
                 return findings
@@ -869,7 +888,7 @@ class WebSocketEngine:
     # vulnerability claim by itself).
     def _replay_probe(self, url: str, hello: str, first_reply: list[dict],
                       stats: dict) -> None:
-        client = WsClient(url, timeout=self.timeout)
+        client = WsClient(url, timeout=self.timeout, scope=self.scope)
         if not client.connect():
             client.close()
             return
@@ -914,7 +933,7 @@ class WebSocketEngine:
     def _origin_probe(self, url: str, stats: dict,
                       unauth_ok: bool = False) -> list[Finding]:
         findings: list[Finding] = []
-        client = WsClient(url, timeout=min(self.timeout, 5.0),
+        client = WsClient(url, timeout=min(self.timeout, 5.0), scope=self.scope,
                           headers={"Origin": FOREIGN_ORIGIN})
         ok = client.connect()
         self.connections += 1
@@ -982,7 +1001,7 @@ class WebSocketEngine:
                 self.coverage.dim_discover("websocket", url,
                                            {"source": cand["source"]})
             # ---- 1. unauthenticated connection + passive listen
-            client = WsClient(url, timeout=self.timeout)
+            client = WsClient(url, timeout=self.timeout, scope=self.scope)
             ok = client.connect()
             self.connections += 1
             stats["tests"] += 1

@@ -103,6 +103,60 @@ def is_private_ip(ip: str) -> bool:
         return True  # أي غموض = رفض
 
 
+def pin_transport_address(host, port, allow_private=False):
+    """RAW-SOCKET TRANSPORT GATE (SSRF fix 2026-10-31, owner order part 2.2).
+
+    Resolve a hostname ONCE, validate EVERY answer against the private-
+    address policy, and return (pinned_ip, None) or (None, reason).
+    Fail-closed on any ambiguity — the same doctrine as is_private_ip and
+    http_engine._pin_target. Every raw-socket transport (the websocket
+    client, the modernsec timing probes) MUST call this and connect to the
+    returned address: the DNS name is never re-resolved at connect time
+    (rebind-proof), and private/metadata answers are refused unless the
+    caller holds an explicit allow_private scope.
+
+    Proven necessary 2026-10-31: a live scan of a loopback target WITHOUT
+    --allow-private sent 0 HTTP requests (the HTTP scope gate held) yet the
+    websocket well-known-path probes connected 9 times over raw sockets —
+    the WS layer had NO private-address policy at all, and modernsec's
+    smuggling probe even carried an explicit 127.0.0.1/localhost carve-out.
+    """
+    if not host:
+        return None, "empty host"
+    bare = host.strip().strip("[]")
+    literal = False
+    addrs = []
+    try:
+        ipaddress.ip_address(bare)
+        addrs = [bare]
+        literal = True
+    except ValueError:
+        pass
+    if not literal:
+        try:
+            ais = socket.getaddrinfo(bare, port or 80, 0, socket.SOCK_STREAM)
+        except Exception as exc:
+            return None, ("dns-unresolvable (%s: %s)" % (type(exc).__name__, exc))[:120]
+        addrs = [a[4][0] for a in ais if a and a[4]]
+        if not addrs:
+            return None, "dns-empty-answer"
+    if not allow_private:
+        for a in addrs:
+            if is_private_ip(a):
+                return None, ("resolved %s unsafe for %s (rebind-guard)" % (a, host))[:120]
+    if not addrs:
+        return None, "no addresses"
+
+    def _order(a):
+        try:
+            o = ipaddress.ip_address(a)
+            return (o.version, int(o))
+        except ValueError:
+            return (9, 0)
+
+    return sorted(set(addrs), key=_order)[0], None
+
+
 # ---------------------------------------------------------------- Parameter / Endpoint
 class ParamLocation(str, Enum):
     QUERY="query"; PATH="path"; BODY="body"; JSON="json"; HEADER="header"; COOKIE="cookie"; MULTIPART="multipart"
