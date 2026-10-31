@@ -164,8 +164,14 @@ subprocess CLI (`src/lib/engine.ts`).
 - 2026-10-30: integrity pass (below).
 - 2026-10-31 (later): owner-ordered governance chain — (1) license
   Apache-2.0 -> PolyForm Shield 1.0.0 (official text verbatim;
-  resale-competing protection; the Apache public window 01:38:45Z ->
-  ~07:0xZ documented in README and the commit); (2) docs/phase3/
+  resale-competing protection; the Apache public window was exactly
+  2026-10-31T01:38:45Z (ff8af33) -> 06:58:21Z (2bcf544) = 5h19m36s;
+  GitHub traffic data shows no 10-31 clone row yet (lag) — window
+  clone count not enumerable; all 418 observed 14-day clones predate
+  the Apache LICENSE; GitHub license detection post-change = Other /
+  NOASSERTION, cause verified: licensee (GitHub detector) vendors 47
+  licenses, none PolyForm — expected for a non-choosealicense license;
+  the README badge is manual and correct); (2) docs/phase3/
   (pentest RFP / SOC2 readiness / hosted-tier design) removed from
   HEAD — it enumerated unresolved security gaps and control locations;
   replaced by a general external-roadmap note; full-history purge would
