@@ -38,10 +38,22 @@ def main():
 
         # ---- login through the real UI ----
         page.goto(f"{BASE}/login", wait_until="networkidle")
-        page.fill('#email', "bola-admin@integration.test")
-        page.fill('#pw', "Bola-Admin-Passw0rd!")
-        page.click('button[type="submit"]')
-        page.wait_for_url(lambda u: "/login" not in u, timeout=15000)
+        # discover a working admin by actually TRYING each candidate:
+        # bola-admin (solo runs) else the bootstrap winner racer0
+        # (main-suite runs) — same doctrine as the test suites.
+        logged_in = False
+        for email, pw in (("bola-admin@integration.test", "Bola-Admin-Passw0rd!"),
+                          ("racer0@integration.test", "Racer-Passw0rd!")):
+            page.fill('#email', email, timeout=5000)
+            page.fill('#pw', pw, timeout=5000)
+            page.click('button[type="submit"]')
+            try:
+                page.wait_for_url(lambda u: "/login" not in u, timeout=8000)
+                logged_in = True
+                break
+            except Exception:
+                continue
+        assert logged_in, "no admin credentials worked"
         check("UI login as the seeded admin", "/login" not in page.url, page.url)
 
         # ---- 2.3: the poisoned finding detail page ----

@@ -4,7 +4,12 @@ import fs from "fs";
 import path from "path";
 import { db } from "@/lib/db";
 
-const admin = await db.user.findUniqueOrThrow({ where: { email: "bola-admin@integration.test" } });
+let admin = await db.user.findUnique({ where: { email: "bola-admin@integration.test" } });
+if (!admin) {
+  // fresh DB from an integration run: the first user created IS the bootstrap
+  // winner (racer0@integration.test in the main suite)
+  admin = await db.user.findFirstOrThrow({ orderBy: { createdAt: "asc" } });
+}
 const membership = await db.membership.findFirstOrThrow({
   where: { userId: admin.id, role: "OWNER" },
   orderBy: { createdAt: "asc" },
