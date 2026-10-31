@@ -1,0 +1,14 @@
+{
+  "layer": "3B rebind_toctou",
+  "generated": "2026-10-31T15:02:52Z",
+  "target": "fixtures/rebind_fixture.py --role vuln (resolves twice: validate then fetch)",
+  "flip_dns": {
+    "public": "192.0.2.10",
+    "internal": "127.0.0.2",
+    "flip_after": 1,
+    "queries_total": 2
+  },
+  "probe_listener_hits": 1,
+  "result": "FINDING — the fetch landed on the internal address (re-resolved after validation)",
+  "detail": "the fetch landed on 127.0.0.2:42831 (internal address) — the surface re-resolved the hostname AFTER validation (DNS queries: 2); the validation/connection split is a rebindable TOCTOU"
+}

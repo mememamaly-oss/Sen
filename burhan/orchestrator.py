@@ -63,7 +63,8 @@ class ScanConfig:
                  allowed_domains=None, oast=None, browser=True, auth=None,
                  openapi=True, openapi_spec=None, authz=None, secrets=True,
                  vault=None, vault_key_file=None, workflow=False, logic_active=False,
-                 graphql=True, websocket=True, modern=True, exclude_urls=None,
+                 graphql=True, websocket=True, modern=True, modern_v2=False,
+                 exclude_urls=None,
                  max_requests: int = 500,
                  race: bool = False, race_parallel: int = 10,
                  race_variance: float = 0.005, symbolic=False):
@@ -94,6 +95,10 @@ class ScanConfig:
         self.modern = modern         # v4.4.0 (axis 13): modern vulnerability battery
         # (JWT algorithm confusion + none-acceptance, GraphQL batching,
         # request-smuggling timing, mass assignment, prototype pollution)
+        self.modern_v2 = modern_v2   # owner order part 3 (2026-10-31): NEW
+        # detection layers, OFF by default — jwt weak-secret (bounded offline
+        # wordlist, RFC 8725), graphql aliasing cost-DoS, excessive data
+        # exposure, rebind TOCTOU. Zero overlap with the v1 family set.
         self.exclude_urls = list(exclude_urls or [])
         # V411-EXC: operator-declared URL exclusions (substring match) — the
         # surface is neither page-fetched, kept in the endpoint map, nor
@@ -1413,6 +1418,47 @@ class BurhanScanner:
                                            f"{type(e).__name__}: {e}",
                                            evidence=f"failure {fid}",
                                            provenance="orchestrator:modernsec")
+
+        # ---- Owner order part 3 (2026-10-31): the modern-v2 battery —
+        # NEW detection layers, LAZY import, ONLY on the explicit opt-in flag
+        # (--modern-v2). The v1 battery above is untouched; this block shares
+        # no code path with it.
+        if self.cfg.modern_v2 and self.cfg.active:
+            try:
+                from .modernsec2 import run_modern_battery_v2
+                rebind_cfg = None
+                _rdns = os.environ.get("BURHAN_REBIND_DNS", "")
+                _rfetch = os.environ.get("BURHAN_REBIND_FETCH_URL", "")
+                if _rdns and _rfetch:
+                    rebind_cfg = {"dns_port": int(_rdns),
+                                  "fetch_url": _rfetch}
+                m2 = run_modern_battery_v2(self.engine, endpoints,
+                                           seed=self.seed,
+                                           rebind_cfg=rebind_cfg)
+                for f in m2.findings:
+                    f.run_id = self.run_id
+                    self.stats["candidates"] += 1
+                    self.bus.emit("CandidateCreated", type=f.type,
+                                  url=f.endpoint_url, param=f.parameter)
+                    _m2ep = next((e for e in endpoints
+                                  if e.url == f.endpoint_url), None)
+                    self.findings.append(self.verifier.verify(f, _m2ep))
+                self.stats["modern_v2"] = {"findings": len(m2.findings),
+                                           "boundaries": m2.boundaries,
+                                           "probe_counts": m2.probe_counts}
+                if m2.requests:
+                    self.stats["requests"] = self.stats["requests"] + m2.requests
+            except Exception as e:
+                fid = self.failures.record("modernsec2",
+                                           f"{type(e).__name__}: {e}", {})
+                self.bus.emit("ScannerFailed", scanner="modernsec2",
+                              failure=fid, error=str(e)[:200])
+                self.stats["modern_v2"] = {"enabled": True,
+                                           "error": str(e)[:160]}
+                self.boundary.tool_failure("modernsec2", self.target.url,
+                                           f"{type(e).__name__}: {e}",
+                                           evidence=f"failure {fid}",
+                                           provenance="orchestrator:modernsec2")
 
         # ---- AXIS-17 WIRE (ORD-002-WIRE): the race-condition battery —
         # pure WIRING of the closed burhan/race/ package through its four

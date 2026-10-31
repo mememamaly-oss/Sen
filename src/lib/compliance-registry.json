@@ -319,6 +319,7 @@
     "CWE-862": "Missing Authorization",
     "CWE-94": "Code Injection",
     "CWE-400": "Uncontrolled Resource Consumption",
+    "CWE-367": "Time-of-check Time-of-use (TOCTOU) Race Condition",
     "CWE-444": "Inconsistent Interpretation of HTTP Requests (Smuggling)",
     "CWE-915": "Mass Assignment",
     "CWE-1321": "Prototype Pollution"
@@ -530,6 +531,32 @@
       "owasp_2025": "A01:2025",
       "owasp_2025_title": "Broken Access Control",
       "owasp_2025_src": "official",
+      "pci_dss": "6.4.2"
+    },
+    "excessive_data_exposure": {
+      "type": "excessive_data_exposure",
+      "mapped": true,
+      "cwe": "CWE-200",
+      "cwe_label": "Exposure of Sensitive Information to an Unauthorized Actor",
+      "owasp_2021": "A01:2021",
+      "owasp_2021_title": "Broken Access Control",
+      "owasp_2021_src": "scope",
+      "owasp_2025": "A01:2025",
+      "owasp_2025_title": "Broken Access Control",
+      "owasp_2025_src": "scope",
+      "pci_dss": "6.4.2"
+    },
+    "graphql_aliasing": {
+      "type": "graphql_aliasing",
+      "mapped": true,
+      "cwe": "CWE-400",
+      "cwe_label": "Uncontrolled Resource Consumption",
+      "owasp_2021": "A04:2021",
+      "owasp_2021_title": "Insecure Design",
+      "owasp_2021_src": "scope",
+      "owasp_2025": "A06:2025",
+      "owasp_2025_title": "Insecure Design",
+      "owasp_2025_src": "scope",
       "pci_dss": "6.4.2"
     },
     "graphql_anonymous_access": {
@@ -753,6 +780,19 @@
       "owasp_2025_src": "scope",
       "pci_dss": "6.4.2"
     },
+    "jwt_weak_secret": {
+      "type": "jwt_weak_secret",
+      "mapped": true,
+      "cwe": "CWE-798",
+      "cwe_label": "",
+      "owasp_2021": "A07:2021",
+      "owasp_2021_title": "Identification and Authentication Failures",
+      "owasp_2021_src": "scope",
+      "owasp_2025": "A07:2025",
+      "owasp_2025_title": "Authentication Failures",
+      "owasp_2025_src": "scope",
+      "pci_dss": "6.4.2"
+    },
     "mass_assignment": {
       "type": "mass_assignment",
       "mapped": true,
@@ -828,6 +868,19 @@
       "owasp_2021_src": "scope",
       "owasp_2025": "A08:2025",
       "owasp_2025_title": "Software or Data Integrity Failures",
+      "owasp_2025_src": "scope",
+      "pci_dss": "6.4.2"
+    },
+    "rebind_toctou": {
+      "type": "rebind_toctou",
+      "mapped": true,
+      "cwe": "CWE-367",
+      "cwe_label": "Time-of-check Time-of-use (TOCTOU) Race Condition",
+      "owasp_2021": "A10:2021",
+      "owasp_2021_title": "Server Side Request Forgery (SSRF)",
+      "owasp_2021_src": "scope",
+      "owasp_2025": "A10:2025",
+      "owasp_2025_title": "Mishandling of Exceptional Conditions",
       "owasp_2025_src": "scope",
       "pci_dss": "6.4.2"
     },

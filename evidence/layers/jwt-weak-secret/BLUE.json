@@ -1,0 +1,9 @@
+{
+  "layer": "3A jwt_weak_secret",
+  "generated": "2026-10-31T15:02:52Z",
+  "method": "identical check against a 48-char non-wordlist secret",
+  "input_token_alg": "HS256",
+  "matched_secret": null,
+  "attempts": 27,
+  "result": "NO FINDING — the full documented cap ran without a match"
+}

@@ -79,14 +79,17 @@ jobs:
   responsibility, not the action's.
 
 
-## المراجع القديمة (قبل إعادة التسمية) — سلوك رسمي معلن
+## المراجع القديمة (قبل إعادة التسمية) — السلوك المُختبر حيّاً
 
-وفقاً لتوثيق GitHub الرسمي («Renaming a repository»):
-**«GitHub will not redirect calls to an action hosted by a renamed
-repository. Any workflow that uses that action will fail with the error
-`repository not found`.»** — أي أن مراجع Action مثل
-`uses: mememamaly-oss/Sen@v4.5.0` **تتوقف عن العمل** بعد إعادة التسمية
-(روابط الويب وعمليات git تُحوَّل تلقائياً، لكن مراجع Action لا).
-على المستهلكين الانتقال إلى `mememamaly-oss/burhan@v5.0.0`.
-تسجّل وظيفة `GitHub Action dogfood (published tag — external resolution)`
-(خطوة «LEGACY pre-rename ref») نتيجة المحاولة الفعلية على كل تشغيل يدوي.
+**النتيجة الحية (2026-10-31، تشغيل 41210962177 على هذا المستودع):** مرجع
+Action القديم `uses: mememamaly-oss/Sen@v4.5.0` **ظل يعمل** بعد إعادة
+التسمية — سجّل المُشغّل «Download action repository 'mememamaly-oss/Sen@v4.5.0'
+(SHA:33008a7…)» وأكمل الفحص الموقّع كاملاً (19 نتيجة، مع تحقق العقد).
+**ملاحظة مهمة:** صفحة توثيق GitHub («Renaming a repository») تنص على عكس ذلك
+(«GitHub will not redirect calls to an action hosted by a renamed
+repository…») — السلوك المُلاحظ يناقض التوثيق المكتوب. التعامل السليم:
+التحويل **مُلاحَظ يعمل لكنه ليس ضمانة** — على المستهلكين الانتقال إلى
+`mememamaly-oss/burhan@v5.0.0`. وظيفة
+`GitHub Action dogfood (published tag — external resolution)`
+(خطوة «LEGACY pre-rename ref») تسجّل نتيجة المحاولة الفعلية على كل تشغيل
+يدوي، فإذا تغيّر السلوك يظهر ذلك فوراً.

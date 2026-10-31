@@ -1,0 +1,45 @@
+{
+  "A1_hs512_weak_secret": {
+    "attempt": "weak HMAC secret under HS512 (validation used HS256)",
+    "result": "DETECTED",
+    "matched": "letmein",
+    "alg": "HS512",
+    "attempts": 23
+  },
+  "A2_corrupt_signature": {
+    "result": "UNEXPECTED",
+    "matched": null,
+    "attempts": 27
+  },
+  "A3_exposure_evasions": {
+    "attempt": "secret-ish fields hidden beyond the depth-3 walk, and prefixed names (user_password_hash)",
+    "depth4_password_hash_found": false,
+    "prefixed_user_password_hash_found": true,
+    "nested_profile_api_key_found": true,
+    "note": "any False above is an evasion (false negative) of the shape analysis — recorded as found for the report"
+  },
+  "A4_aliasing_reflector_false_positive": {
+    "attempt": "a pure reflector returns the aN keys with NO resolver work — does the aliasing check false-positive on it?",
+    "findings": [
+      "graphql_aliasing"
+    ],
+    "result": "FALSE POSITIVE (surface indicator fires without real execution — the finding is LOW severity and worded as a surface, this is its documented limit)"
+  },
+  "A5_rebind_flip_after_2": {
+    "attempt": "flip_after=2 — a target whose validation resolves twice (e.g. happy-eyeballs/retry) sees PUBLIC on both its validation queries and the flip lands on the 3rd query (the fetch). Does the detector still fire?",
+    "vulnerable_detected": false,
+    "dns_queries": 2,
+    "result": "MISSED — flip_after must match the target's per-operation query count; recorded as a tuning parameter, not a fix"
+  },
+  "A6_safe_pinned_public_no_false_positive": {
+    "attempt": "safe fetcher pinned to a REACHABLE public upstream — fetch succeeds; does the internal probe listener ever get hit (false positive)?",
+    "internal_listener_hits": 0,
+    "result": "NO FALSE POSITIVE"
+  },
+  "post_fix_note": {
+    "A3": "FIXED by the shape-regex change (pinned by test_adversarial_A3_*); depth>3 remains the documented cap",
+    "A4": "PINNED as the declared surface limit (LOW severity, shape-not-cost wording) — test_adversarial_A4",
+    "A5": "PINNED as the documented flip_after tuning limit — test_adversarial_A5",
+    "A1_A2_A6": "the checks held (HS512 detected; corrupt sig bounded-safe; pinned-public fetch never hits internal)"
+  }
+}

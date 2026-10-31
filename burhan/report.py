@@ -254,6 +254,11 @@ SARIF_RULES = {
     "graphql_batching_enabled":                "Burhan-GQL-008",
     "http_request_smuggling":                  "Burhan-SMK-001",
     "mass_assignment":                         "Burhan-MA-001",
+    # owner order part 3 (2026-10-31): modern battery v2 families
+    "jwt_weak_secret":                         "Burhan-JWT-002",
+    "graphql_aliasing":                        "Burhan-GQL-002",
+    "excessive_data_exposure":                 "Burhan-EDX-001",
+    "rebind_toctou":                           "Burhan-SSRF-002",
     "prototype_pollution":                     "Burhan-PP-001",
     # P2-C (2026-10-31): the engine emits this class (fixture battery) but it
     # was never registered — a real gap caught by the CI compliance check.

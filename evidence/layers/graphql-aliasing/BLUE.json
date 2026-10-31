@@ -1,0 +1,12 @@
+{
+  "layer": "graphql-aliasing",
+  "generated": "2026-10-31T15:02:52Z",
+  "target": "fixtures/modern2_fixture.py --mode safe",
+  "findings": [],
+  "boundary": {
+    "family": "graphql_aliasing",
+    "kind": "TESTED_NEGATIVE",
+    "detail": "server executed 0/20 aliases in a single request (complexity limiting or errors)"
+  },
+  "result": "ZERO findings on the hardened twin (TESTED_NEGATIVE)"
+}

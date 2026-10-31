@@ -319,6 +319,9 @@ def main():
     s = sub.add_parser("scan"); s.add_argument("target"); s.add_argument("--allow-private", action="store_true")
     s.add_argument("--max-pages", type=int, default=25); s.add_argument("--timeout", type=float, default=12.0)
     s.add_argument("--no-crawl", action="store_true"); s.add_argument("--seed")
+    s.add_argument("--modern-v2", action="store_true",
+                   help="owner order part 3: NEW detection layers (jwt weak-secret, "
+                        "graphql aliasing, excessive data exposure, rebind TOCTOU) — off by default")
     s.add_argument("--out", default="results/scan.json"); s.add_argument("--strategy-path")
     s.add_argument("--db", default="", help="persist run+findings to this SQLite store")
     s.add_argument("--no-oast", action="store_true",
@@ -589,7 +592,8 @@ def main():
                          workflow=a.workflow, logic_active=a.logic_active,
                          exclude_urls=a.exclude_url,
                          race=a.race, race_parallel=a.race_parallel,
-                         race_variance=a.race_variance, symbolic=a.symbolic)
+                         race_variance=a.race_variance, symbolic=a.symbolic,
+                         modern_v2=a.modern_v2)
         # AXIS-18: computed payloads are SENT to validation endpoints — a
         # loud, explicit notice before the first symbolic request leaves.
         if a.symbolic:

@@ -1,0 +1,9 @@
+{
+  "layer": "3A jwt_weak_secret",
+  "generated": "2026-10-31T15:02:52Z",
+  "method": "offline HMAC verification against the fixed 27-entry wordlist",
+  "input_token_alg": "HS256",
+  "matched_secret": "secret",
+  "attempts": 1,
+  "result": "FINDING — the token is forgeable by any party"
+}

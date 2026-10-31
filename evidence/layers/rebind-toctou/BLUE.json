@@ -1,0 +1,14 @@
+{
+  "layer": "3B rebind_toctou",
+  "generated": "2026-10-31T15:02:52Z",
+  "target": "fixtures/rebind_fixture.py --role safe (resolves once, pins the validated address)",
+  "flip_dns": {
+    "public": "192.0.2.10",
+    "internal": "127.0.0.2",
+    "flip_after": 1,
+    "queries_total": 1
+  },
+  "probe_listener_hits": 0,
+  "result": "NO FINDING — the internal address is never reached",
+  "detail": "no internal fetch within 8s (DNS queries: 1) — the surface pins or caches the validated address"
+}

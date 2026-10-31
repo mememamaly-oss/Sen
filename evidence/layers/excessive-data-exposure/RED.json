@@ -1,0 +1,17 @@
+{
+  "layer": "excessive-data-exposure",
+  "generated": "2026-10-31T15:02:52Z",
+  "target": "fixtures/modern2_fixture.py --mode vuln",
+  "finding": {
+    "type": "excessive_data_exposure",
+    "severity": "Severity.MEDIUM",
+    "url": "http://127.0.0.1:36005/api/users",
+    "evidence": [
+      {
+        "kind": "secret_fields_in_response",
+        "detail": "response exposes 2 secret-ish field NAME(S): is_internal, password_hash. The documented/expected response shape for an ordinary API read carries none of them — the OWASP API 'Excessive Data Exposure' pattern (field names reported; values not republished)."
+      }
+    ]
+  },
+  "result": "FINDING produced on the vulnerable fixture"
+}

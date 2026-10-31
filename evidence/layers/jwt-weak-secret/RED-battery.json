@@ -1,0 +1,43 @@
+{
+  "layer": "3A jwt_weak_secret (battery over HTTP)",
+  "generated": "2026-10-31T15:02:52Z",
+  "target": "fixtures/modern2_fixture.py --mode vuln /login",
+  "finding": {
+    "type": "jwt_weak_secret",
+    "severity": "Severity.HIGH",
+    "url": "http://127.0.0.1:36005/login",
+    "evidence": [
+      {
+        "kind": "weak_hmac_secret",
+        "detail": "HS-secret matches common-secret wordlist entry 'secret' after 1 offline verifications (cap = wordlist = 27); alg=HS256. Any party can forge tokens signed with this secret. RFC 8725 (JWT BCP) algorithm-agility guidance applies — the signature is only as strong as the secret."
+      },
+      {
+        "kind": "token_prefix",
+        "detail": "eyJhbGciOiJIUzI1NiIsInR5…"
+      }
+    ]
+  },
+  "probe_counts": {
+    "jwt_weak_secret": {
+      "sent": 1,
+      "offline": 1,
+      "cap": 2
+    },
+    "graphql_aliasing": {
+      "sent": 1,
+      "offline": 0,
+      "cap": 2
+    },
+    "excessive_data_exposure": {
+      "sent": 1,
+      "offline": 0,
+      "cap": 8
+    },
+    "rebind_toctou": {
+      "sent": 0,
+      "offline": 0,
+      "cap": 4
+    }
+  },
+  "result": "FINDING produced on the vulnerable fixture"
+}
