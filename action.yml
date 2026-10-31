@@ -1,0 +1,154 @@
+name: Sen DAST scan
+description: >-
+  Deterministic DAST scan of a web target with signed, independently
+  verifiable findings (Ed25519 + Merkle proofs) and OWASP Top 10 / CWE /
+  PCI DSS mappings per detection.
+icon: shield
+color: green
+
+# Marketplace listing requires the repository to be public; until then the
+# action is usable directly by tag: uses: mememamaly-oss/Sen@<tag>
+
+inputs:
+  target:
+    description: "Base URL to scan, e.g. http://127.0.0.1:8080"
+    required: true
+  out:
+    description: "Path for the enriched, signed JSON result"
+    required: false
+    default: "sen-result.json"
+  db:
+    description: "Path for the SQLite store (empty = do not persist)"
+    required: false
+    default: ""
+  seed:
+    description: "Run seed (>=32 bytes) — same seed, same scan, same signed findings"
+    required: false
+    default: ""
+  max-pages:
+    description: "Crawl page budget"
+    required: false
+    default: "25"
+  timeout:
+    description: "Per-request timeout in seconds"
+    required: false
+    default: "12.0"
+  allow-private:
+    description: "Allow private/loopback targets (for CI fixtures). Default false."
+    required: false
+    default: "false"
+  auth-user:
+    description: "Authenticated scanning — username"
+    required: false
+    default: ""
+  auth-pass:
+    description: "Authenticated scanning — password"
+    required: false
+    default: ""
+  auth-url:
+    description: "Login page URL (default: <target>/login.jsp)"
+    required: false
+    default: ""
+  auth-user-field:
+    description: "Username form field"
+    required: false
+    default: "uid"
+  auth-pass-field:
+    description: "Password form field"
+    required: false
+    default: "passw"
+  auth-success-marker:
+    description: "Marker that indicates a successful login"
+    required: false
+    default: ""
+  fail-on:
+    description: "Fail the job when VERIFIED findings of this severity or higher exist: critical | high | medium | low | none"
+    required: false
+    default: "none"
+
+outputs:
+  findings-count:
+    description: "Total findings reported"
+    value: ${{ steps.results.outputs.findings-count }}
+  critical-count:
+    description: "Verified findings with severity=critical"
+    value: ${{ steps.results.outputs.critical-count }}
+  high-count:
+    description: "Verified findings with severity=high"
+    value: ${{ steps.results.outputs.high-count }}
+  medium-count:
+    description: "Verified findings with severity=medium"
+    value: ${{ steps.results.outputs.medium-count }}
+  low-count:
+    description: "Verified findings with severity=low"
+    value: ${{ steps.results.outputs.low-count }}
+  result-path:
+    description: "Path of the written result file"
+    value: ${{ steps.results.outputs.result-path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install engine dependencies
+      shell: bash
+      run: pip install -r "${{ github.action_path }}/requirements.txt"
+
+    - name: Run Sen scan
+      shell: bash
+      run: |
+        set -euo pipefail
+        export PYTHONPATH="${{ github.action_path }}:${PYTHONPATH:-}"
+        ARGS=(--out "${{ inputs.out }}" --max-pages "${{ inputs.max-pages }}" --timeout "${{ inputs.timeout }}")
+        if [ "${{ inputs.allow-private }}" = "true" ]; then ARGS+=(--allow-private); fi
+        if [ -n "${{ inputs.seed }}" ]; then ARGS+=(--seed "${{ inputs.seed }}"); fi
+        if [ -n "${{ inputs.db }}" ]; then ARGS+=(--db "${{ inputs.db }}"); fi
+        if [ -n "${{ inputs.auth-user }}" ]; then
+          ARGS+=(--auth-user "${{ inputs.auth-user }}" --auth-pass "${{ inputs.auth-pass }}")
+          [ -n "${{ inputs.auth-url }}" ] && ARGS+=(--auth-url "${{ inputs.auth-url }}")
+          ARGS+=(--auth-user-field "${{ inputs.auth-user-field }}" --auth-pass-field "${{ inputs.auth-pass-field }}")
+          [ -n "${{ inputs.auth-success-marker }}" ] && ARGS+=(--auth-success-marker "${{ inputs.auth-success-marker }}")
+        fi
+        python3 -m sentinel.cli scan "${{ inputs.target }}" "${ARGS[@]}"
+
+    - name: Collect results and apply severity gate
+      id: results
+      shell: bash
+      run: |
+        set -euo pipefail
+        python3 - <<'PY'
+        import json, os
+        out = "${{ inputs.out }}"
+        with open(out, "r", encoding="utf-8") as fh:
+            rep = json.load(fh)
+        findings = rep.get("findings", [])
+        verified = [f for f in findings if f.get("status") == "verified"]
+        sev = {"critical": 0, "high": 0, "medium": 0, "low": 0}
+        for f in verified:
+            s = str(f.get("severity", "low")).lower()
+            if s in sev:
+                sev[s] += 1
+        def emit(k, v):
+            with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+                fh.write(f"{k}={v}\n")
+        emit("findings-count", len(findings))
+        for k, v in sev.items():
+            emit(f"{k}-count", v)
+        emit("result-path", out)
+        order = ["critical", "high", "medium", "low"]
+        fail_on = "${{ inputs.fail-on }}".strip().lower() or "none"
+        if fail_on != "none" and fail_on in order:
+            threshold = order.index(fail_on)
+            triggered = [s for s in order[:threshold + 1] if sev[s] > 0]
+            if triggered:
+                print(f"::error::severity gate: verified findings at or above "
+                      f"'{fail_on}': " +
+                      ", ".join(f"{s}={sev[s]}" for s in triggered))
+                raise SystemExit(1)
+        print(f"scan complete: {len(findings)} findings "
+              f"({len(verified)} verified) -> {out}")
+        PY
