@@ -122,6 +122,10 @@ def run_target(name: str, base: str, modern_types: list[str], out: Path,
         "boundaries": rep.get("boundaries", [])[:40],
         "axes": {k: stats.get(k) for k in ("modern2", "graphql") if k in stats},
     }
+    # the scan report is the product's EVIDENCE OUTPUT (verified findings of
+    # a deliberately-vulnerable training target, evidence strings verbatim);
+    # plaintext by design — the same class as every other CI report writer
+    # codeql[py/clear-text-storage-sensitive-data]
     (out / f"{name}-scan.json").write_text(
         json.dumps(rep, indent=1, ensure_ascii=False, default=str),
         encoding="utf-8")

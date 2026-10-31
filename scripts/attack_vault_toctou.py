@@ -81,7 +81,8 @@ def attacker(P: str, P_real: str, P_src: str, stop: mp.Value) -> None:
             shutil.copyfile(P_src, P)     # attacker material at the target path
             # intentional: the ATTACK must produce a world-readable file —
             # that is the exact bad state the perms gate exists to refuse
-            os.chmod(P, 0o644)  # codeql[py/overly-permissive-file]
+            # codeql[py/overly-permissive-file]
+            os.chmod(P, 0o644)
         except OSError:
             pass
         try:
