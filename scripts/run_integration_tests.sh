@@ -68,9 +68,31 @@ if [ "${READY}" != "1" ]; then
   echo "FATAL: integration server failed to start"; tail -30 "${LOG}"; exit 1
 fi
 
+# --- warm the public routes BEFORE the suite -----------------------------------
+# `next dev` compiles routes on first hit; on a cold shared CI runner the
+# landing page alone can exceed bun's 5s default test timeout (observed on
+# run 41149783779: '/' timed out at exactly 5000ms while every warmed route
+# passed). The runner's contract is a READY server — ready means the routes
+# the suite hits are compiled, not just the process listening. One shared
+# deadline (240s) bounds the whole phase; a route that cannot compile at
+# all surfaces fast through the suite instead of hanging here.
+WARM_DEADLINE=$(( $(date +%s) + 240 ))
+for p in / /login /docs /docs/compliance /docs/ci /docs/deployment /docs/security /demo; do
+  while ! curl -sf -m 15 "${URL}${p}" >/dev/null 2>&1; do
+    if [ "$(date +%s)" -ge "${WARM_DEADLINE}" ]; then
+      echo "WARN: warmup deadline hit before ${p} answered (suite will surface it)"
+      break
+    fi
+    sleep 1
+  done
+done
+echo "public routes warmed"
+
 # --- run the attached suite -----------------------------------------------------
+# timeout ceiling raised for cold-runner compile variance (warmup above makes
+# it rare; the ceiling makes it never fatal)
 INTEGRATION_SERVER_URL="${URL}" INTEGRATION_PORT="${PORT}" \
-  bun test tests/api.integration.test.ts
+  bun test --timeout 60000 tests/api.integration.test.ts
 RC=$?
 
 echo "--- integration runner done (rc=${RC}) ---"
