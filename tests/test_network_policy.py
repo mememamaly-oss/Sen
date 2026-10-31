@@ -72,8 +72,8 @@ def test_public_addresses_are_allowed(addr):
 
 
 def test_classifier_version_is_440():
-    # audit remediation: version constant aligned with README (v4.4.0)
-    assert VERSION == "4.4.0"
+    # v5.0.0: version constant aligned with README (the Burhan rename release)
+    assert VERSION == "5.0.0"
 
 
 # ----------------------------------------------------------------------------

@@ -174,4 +174,4 @@ def test_pcs_root_determinism_same_op_sequence():
 def test_fresh_store_root_anchor():
     from burhan import pcs as _pcs
     assert PCS().root() == _pcs._EMPTY_ROOT
-    assert _pcs._EMPTY_ROOT == blake3(b"burhan-pcs-empty-v1")
+    assert _pcs._EMPTY_ROOT == blake3(b"sentinel-pcs-empty-v1")

@@ -163,7 +163,7 @@ def _signing_message(d: dict) -> bytes:
 # `cryptography` library (pyca) per standard RFC 8032 — the actual payload
 # is signed directly, exactly as burhan/proof.py has since the
 # 2026-10-30 integrity pass. The deleted "axis-18" variant derived keys
-# via sha512(b"burhan-axis18/" + seed) with hand-rolled point arithmetic;
+# via sha512(b"sentinel-axis18/" + seed) with hand-rolled point arithmetic;
 # because of that prefix, the SAME seed now yields a DIFFERENT key, and
 # keys never mix across the two eras. Old axis-18 artifacts still verify
 # against their embedded public key (the signature equation was already
@@ -171,7 +171,7 @@ def _signing_message(d: dict) -> bytes:
 # No production artifact needed to remain verifiable under the old scheme
 # (owner-confirmed 2026-10-30).
 
-_DEFAULT_SEED = hashlib.sha256(b"burhan-axis18-default-seed").digest()
+_DEFAULT_SEED = hashlib.sha256(b"sentinel-axis18-default-seed").digest()
 # 32-byte deterministic default (RFC 8032 keying). The pre-2026-10-30
 # default was a 28-byte literal that only worked because the hand-rolled
 # expansion absorbed any length; it is derived here once, and documented.

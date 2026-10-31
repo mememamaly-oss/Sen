@@ -593,7 +593,7 @@ class Record:
         return blake3(msgpack_encode(self._payload()))
 
 
-_EMPTY_ROOT = blake3(b"burhan-pcs-empty-v1")
+_EMPTY_ROOT = blake3(b"sentinel-pcs-empty-v1")
 
 
 def _chain_sort_key(entry):

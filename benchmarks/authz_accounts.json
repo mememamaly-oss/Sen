@@ -10,7 +10,7 @@
    "role": "admin",
    "username": "demo",
    "password": "demo123",
-   "marker": "root-admin@sentinel-fixture.local",
+   "marker": "root-admin@burhan-fixture.local",
    "object_id": "1001"
   },
   {
@@ -18,7 +18,7 @@
    "role": "user",
    "username": "bob",
    "password": "bob123",
-   "marker": "bob-user@sentinel-fixture.local",
+   "marker": "bob-user@burhan-fixture.local",
    "object_id": "2002"
   },
   {
@@ -26,7 +26,7 @@
    "role": "user",
    "username": "carol",
    "password": "carol123",
-   "marker": "carol-user@sentinel-fixture.local",
+   "marker": "carol-user@burhan-fixture.local",
    "object_id": "3003"
   }
  ]

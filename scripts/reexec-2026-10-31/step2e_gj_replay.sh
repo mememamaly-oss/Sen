@@ -42,7 +42,7 @@ echo "progress cleared"
 echo "== [3] store contents (must be exactly the fresh run) =="
 python3 -c "
 import sys; sys.path.insert(0, '.')
-from burhan.store import Store
+from sentinel.store import Store
 st = Store('evidence/full-reverify/ginandjuice-shop/store.db')
 runs = st.list_runs(limit=10)
 print('runs in store:', len(runs), [r['run_id'] for r in runs])"

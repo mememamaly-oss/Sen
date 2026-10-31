@@ -192,7 +192,7 @@ def signed_message(run_id: str, root_hex: str, count: int,
 #     reproducibility claim (N7 preserved). Pre-remand reports with short
 #     seeds can no longer be re-derived; their embedded public keys still
 #     verify their existing signatures.
-_HKDF_SALT = b"Burhan-axis14-ed25519-HKDF-SHA256-v1"   # versioned + domain-separated
+_HKDF_SALT = b"SENTINEL-axis14-ed25519-HKDF-SHA256-v1"   # versioned + domain-separated
 _HKDF_INFO = b"axis14-ed25519-keypair"
 _HKDF_LEN = 32
 MIN_SEED_BYTES = 32
