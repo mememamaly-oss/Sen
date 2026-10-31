@@ -139,6 +139,11 @@ export async function POST(req: NextRequest) {
       await db.membership.create({
         data: { userId: user.id, orgId: org.id, role: "OWNER" },
       });
+      // FAIL-CLOSED AUDIT (item 1.3, 2026-10-31): the evidence write runs
+      // INSIDE the guarded block — if it cannot be persisted, compensation
+      // below removes the partial state and the request fails. The admin
+      // account is never created without its audit row.
+      await audit("bootstrap.admin_created", { orgId: org.id, userId: user.id, detail: { email } });
     } catch (e) {
       // COMPENSATION: remove the partial state and release the lock so a
       // retry is possible.
@@ -151,7 +156,6 @@ export async function POST(req: NextRequest) {
       throw e;
     }
 
-    await audit("bootstrap.admin_created", { orgId: org.id, userId: user.id, detail: { email } });
     return NextResponse.json({ ok: true, userId: user.id, orgId: org.id });
   } catch (e) {
     // on ANY failure after acquiring the lock with no user created, release

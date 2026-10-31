@@ -460,22 +460,32 @@ export async function reconcileScan(scanId: string): Promise<void> {
     const imported = created.filter(Boolean).length;
 
     const duration = Number(stats.duration) || null;
-    await db.scan.update({
-      where: { id: scanId },
-      data: {
-        status: "COMPLETED",
-        runId: parsed.run_id ?? null,
-        scanner: parsed.scanner ?? null,
-        statsJson: JSON.stringify(stats),
-        durationSec: duration,
-        finishedAt: new Date(),
-        error: null,
-      },
-    });
-    await audit("scan.completed", {
-      orgId: scan.orgId,
-      userId: scan.createdById,
-      detail: { scanId, runId: parsed.run_id, findings: imported, scanner: parsed.scanner },
+    // state advance + audit in ONE transaction (item 1.3, fail-closed): a
+    // scan never reaches COMPLETED without its evidence row; on audit
+    // failure the status stays un-advanced and the poller retries (the
+    // result file on disk is the durable input).
+    await db.$transaction(async (tx) => {
+      await tx.scan.update({
+        where: { id: scanId },
+        data: {
+          status: "COMPLETED",
+          runId: parsed.run_id ?? null,
+          scanner: parsed.scanner ?? null,
+          statsJson: JSON.stringify(stats),
+          durationSec: duration,
+          finishedAt: new Date(),
+          error: null,
+        },
+      });
+      await audit(
+        "scan.completed",
+        {
+          orgId: scan.orgId,
+          userId: scan.createdById,
+          detail: { scanId, runId: parsed.run_id, findings: imported, scanner: parsed.scanner },
+        },
+        tx
+      );
     });
     return;
   }
@@ -493,15 +503,18 @@ export async function reconcileScan(scanId: string): Promise<void> {
   const startedAt = scan.startedAt ? scan.startedAt.getTime() : Date.now();
   if (Date.now() - startedAt < 8000) return;
   const tail = readLogTail(scan.logPath || path.join(scanDirFor(scanId), "log.txt"), 3000);
-  await db.scan.update({
-    where: { id: scanId },
-    data: {
-      status: "FAILED",
-      error: (tail || "انتهت عملية المحرك دون مخرجات").slice(-1500),
-      finishedAt: new Date(),
-    },
+  // state advance + audit in ONE transaction (item 1.3, fail-closed)
+  await db.$transaction(async (tx) => {
+    await tx.scan.update({
+      where: { id: scanId },
+      data: {
+        status: "FAILED",
+        error: (tail || "انتهت عملية المحرك دون مخرجات").slice(-1500),
+        finishedAt: new Date(),
+      },
+    });
+    await audit("scan.failed", { orgId: scan.orgId, userId: scan.createdById, detail: { scanId } }, tx);
   });
-  await audit("scan.failed", { orgId: scan.orgId, userId: scan.createdById, detail: { scanId } });
 }
 
 // ── PROGRESS ─────────────────────────────────────────────────────────────────
@@ -569,11 +582,14 @@ export async function engineCancelScan(scanId: string): Promise<boolean> {
       }
     }, 3000).unref();
   }
-  await db.scan.update({
-    where: { id: scanId },
-    data: { status: "CANCELLED", finishedAt: new Date(), error: "أُلغي الفحص بواسطة المستخدم" },
+  // state advance + audit in ONE transaction (item 1.3, fail-closed)
+  await db.$transaction(async (tx) => {
+    await tx.scan.update({
+      where: { id: scanId },
+      data: { status: "CANCELLED", finishedAt: new Date(), error: "أُلغي الفحص بواسطة المستخدم" },
+    });
+    await audit("scan.cancelled", { orgId: scan.orgId, userId: scan.createdById, detail: { scanId } }, tx);
   });
-  await audit("scan.cancelled", { orgId: scan.orgId, userId: scan.createdById, detail: { scanId } });
   return true;
 }
 

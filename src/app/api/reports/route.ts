@@ -66,21 +66,29 @@ export async function POST(req: NextRequest) {
     const { filePath, sizeBytes } = generated;
 
     const title = `${scan.target.name} — تقرير ${format} — ${new Date().toISOString().slice(0, 16).replace("T", " ")}`;
-    const report = await db.report.create({
-      data: {
-        orgId: access.orgId,
-        scanId: scan.id,
-        createdById: user.id,
-        format,
-        title,
-        filePath,
-        sizeBytes,
-      },
-    });
-    await audit("report.created", {
-      orgId: access.orgId,
-      userId: user.id,
-      detail: { reportId: report.id, scanId: scan.id, format, runId: scan.runId },
+    // report row + audit row in ONE transaction (item 1.3, fail-closed)
+    const report = await db.$transaction(async (tx) => {
+      const created = await tx.report.create({
+        data: {
+          orgId: access.orgId,
+          scanId: scan.id,
+          createdById: user.id,
+          format,
+          title,
+          filePath,
+          sizeBytes,
+        },
+      });
+      await audit(
+        "report.created",
+        {
+          orgId: access.orgId,
+          userId: user.id,
+          detail: { reportId: created.id, scanId: scan.id, format, runId: scan.runId },
+        },
+        tx
+      );
+      return created;
     });
     return NextResponse.json({ id: report.id, title: report.title, format, sizeBytes });
   } catch (e) {

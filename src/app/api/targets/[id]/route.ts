@@ -39,8 +39,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
     if (body.description !== undefined) {
       data.description = body.description ? String(body.description).slice(0, 500) : null;
     }
-    await db.target.update({ where: { id: target.id }, data });
-    await audit("target.updated", { orgId: access.orgId, userId: user.id, detail: { targetId: target.id, fields: Object.keys(data) } });
+    // update + audit in ONE transaction (item 1.3, fail-closed)
+    await db.$transaction(async (tx) => {
+      await tx.target.update({ where: { id: target.id }, data });
+      await audit("target.updated", { orgId: access.orgId, userId: user.id, detail: { targetId: target.id, fields: Object.keys(data) } }, tx);
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return jsonError(e);
@@ -61,8 +64,11 @@ export async function DELETE(req: NextRequest, ctx: { params: Promise<{ id: stri
     });
     if (active) throw new ApiError(409, "لا يمكن حذف الهدف أثناء وجود فحص نشط عليه");
 
-    await db.target.delete({ where: { id: target.id } }); // cascades scans/findings
-    await audit("target.deleted", { orgId: access.orgId, userId: user.id, detail: { targetId: target.id, url: target.url } });
+    // delete + audit in ONE transaction (item 1.3, fail-closed)
+    await db.$transaction(async (tx) => {
+      await tx.target.delete({ where: { id: target.id } }); // cascades scans/findings
+      await audit("target.deleted", { orgId: access.orgId, userId: user.id, detail: { targetId: target.id, url: target.url } }, tx);
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return jsonError(e);

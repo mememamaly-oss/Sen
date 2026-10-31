@@ -38,17 +38,23 @@ export async function POST(req: NextRequest) {
       let slug = slugify(name);
       if (attempt > 0) slug = `${slug}-${Date.now().toString(36).slice(-4)}${attempt}`;
       try {
-        org = await db.organization.create({ data: { name, slug } });
+        // org + OWNER membership + audit row in ONE transaction (item 1.3,
+        // fail-closed): an audit write failure rolls the whole org back —
+        // an organization is never created without its evidence trail.
+        org = await db.$transaction(async (tx) => {
+          const created = await tx.organization.create({ data: { name, slug } });
+          await tx.membership.create({ data: { userId: user.id, orgId: created.id, role: "OWNER" } });
+          await audit("org.created", { orgId: created.id, userId: user.id, detail: { name, slug } }, tx);
+          return created;
+        });
         break;
       } catch (e) {
         const code = (e as { code?: string }).code;
-        if (code === "P2002" || code === "P2034") continue; // slug taken / sqlite write conflict — retry
+        if (code === "P2002" || code === "P2034") continue; // slug taken / write conflict — retry
         throw e;
       }
     }
     if (!org) throw new ApiError(500, "تعذر توليد معرف فريد للمنظمة — أعد المحاولة");
-    await db.membership.create({ data: { userId: user.id, orgId: org.id, role: "OWNER" } });
-    await audit("org.created", { orgId: org.id, userId: user.id, detail: { name, slug: org.slug } });
     return NextResponse.json({ id: org.id, name: org.name, slug: org.slug, role: "OWNER" });
   } catch (e) {
     return jsonError(e);

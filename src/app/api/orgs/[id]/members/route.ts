@@ -65,19 +65,29 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         if (!member) throw e;
       }
     }
+    // membership + audit in ONE transaction (item 1.3, fail-closed). The
+    // user-create above stays outside (P2002 adoption handles concurrency);
+    // an orphan user without membership is inert, an un-audited membership
+    // is an RBAC evidence gap — the transaction closes the latter.
     try {
-      await db.membership.create({ data: { userId: member.id, orgId: access.orgId, role } });
+      await db.$transaction(async (tx) => {
+        await tx.membership.create({ data: { userId: member.id, orgId: access.orgId, role } });
+        await audit(
+          "member.added",
+          {
+            orgId: access.orgId,
+            userId: user.id,
+            detail: { email, role, newAccount: isNewUser },
+          },
+          tx
+        );
+      });
     } catch (e) {
       if ((e as { code?: string }).code === "P2002") {
         throw new ApiError(409, "هذا المستخدم عضو في المنظمة بالفعل");
       }
       throw e;
     }
-    await audit("member.added", {
-      orgId: access.orgId,
-      userId: user.id,
-      detail: { email, role, newAccount: isNewUser },
-    });
     return NextResponse.json({ ok: true, userId: member.id, isNewUser, role });
   } catch (e) {
     return jsonError(e);

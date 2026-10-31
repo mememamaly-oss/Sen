@@ -135,6 +135,16 @@ jobs:
         env:
           MIGRATION_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/burhan
 
+      # item 1.3 permanent proof (fail-closed audit): a REAL failure
+      # injection — the app identity loses INSERT on AuditLog, then the
+      # first-instance bootstrap runs over real HTTP against a fresh
+      # throwaway DB. RED shape (action persisted, zero audit rows) fails
+      # the build; the fixed shape rejects the action.
+      - name: Audit fail-closed proof (audit-write failure rejects the action)
+        run: bash scripts/verify_audit_fail_closed.sh
+        env:
+          MIGRATION_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/burhan
+
       - name: Production build
         run: bun run build
         env:

@@ -85,20 +85,28 @@ export async function POST(req: NextRequest) {
       if (!demo.ok) throw new ApiError(503, demo.detail);
     }
 
-    const scan = await db.scan.create({
-      data: {
-        orgId: access.orgId,
-        targetId: target.id,
-        createdById: user.id,
-        status: "QUEUED",
-        optionsJson: JSON.stringify(options),
-      },
-    });
-
-    await audit("scan.started", {
-      orgId: access.orgId,
-      userId: user.id,
-      detail: { scanId: scan.id, targetId: target.id, url: target.url, options },
+    // scan row + audit row in ONE transaction (item 1.3, fail-closed):
+    // a scan is never recorded without its evidence trail
+    const scan = await db.$transaction(async (tx) => {
+      const created = await tx.scan.create({
+        data: {
+          orgId: access.orgId,
+          targetId: target.id,
+          createdById: user.id,
+          status: "QUEUED",
+          optionsJson: JSON.stringify(options),
+        },
+      });
+      await audit(
+        "scan.started",
+        {
+          orgId: access.orgId,
+          userId: user.id,
+          detail: { scanId: created.id, targetId: target.id, url: target.url, options },
+        },
+        tx
+      );
+      return created;
     });
 
     // SECURITY (19-axis audit 2026-10-23, G8 — scan-start TOCTOU):
@@ -116,14 +124,21 @@ export async function POST(req: NextRequest) {
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
     });
     if (winner && winner.id !== scan.id) {
-      await db.scan.update({
-        where: { id: scan.id },
-        data: { status: "CANCELLED", error: "فحص متزامن آخر بدأ على نفس الهدف", finishedAt: new Date() },
-      });
-      await audit("scan.cancelled_duplicate", {
-        orgId: access.orgId,
-        userId: user.id,
-        detail: { scanId: scan.id, targetId: target.id, keptScanId: winner.id },
+      // self-cancel + audit in ONE transaction (item 1.3, fail-closed)
+      await db.$transaction(async (tx) => {
+        await tx.scan.update({
+          where: { id: scan.id },
+          data: { status: "CANCELLED", error: "فحص متزامن آخر بدأ على نفس الهدف", finishedAt: new Date() },
+        });
+        await audit(
+          "scan.cancelled_duplicate",
+          {
+            orgId: access.orgId,
+            userId: user.id,
+            detail: { scanId: scan.id, targetId: target.id, keptScanId: winner.id },
+          },
+          tx
+        );
       });
       throw new ApiError(409, "يوجد فحص نشط على هذا الهدف بالفعل — فحص متزامن مكرر أُلغي (تسلسل الفحوصات لكل هدف)");
     }
