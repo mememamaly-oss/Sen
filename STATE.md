@@ -144,6 +144,82 @@ subprocess CLI (`src/lib/engine.ts`).
 - Secret scanning: `.pre-commit-config.yaml` (gitleaks hook); run
   `pre-commit install` once per clone.
 
+## 2026-10-31 — the comprehensive security-fix order (parts 0–4)
+
+Owner order executed end to end; full report in download/FINAL_REPORT.md
+(deliverable) and evidence/security-2026-10-31/ (in-repo proofs).
+
+- Part 0 (exposure): PublicEvent at repo CREATION (2026-10-02T22:11:54Z,
+  5 entries, no later ones visible), zero forks, Wayback/search = zero
+  external archives (17 URLs probed). Conclusion: case (b) — PUBLIC from
+  birth through 2026-10-23 (documented anon-200 observation), private
+  10-23-evening onward, public again from ~10-31 01:38Z to now. The
+  pre-rewrite history (with real captured session material) was publicly
+  cloneable during [10-02 → 10-23]; unprovable whether anyone did
+  (traffic API needs admin). docs/phase3 (3 files) remain LIVE-accessible
+  from the public git history (verified: raw.githubusercontent HTTP 200 at
+  fb334912ca8e...) — the owner's recorded deliberate non-purge; removal
+  needs a separate filter-repo pass (owner decision, still pending).
+- Part 1 (full-history rescan, every ref): gitleaks 8.30.1 over all 334
+  commits + tracked tree; trufflehog 3.99.7 verified-only. 174,809 raw /
+  1,620 distinct values, ALL classified (bench artifacts, fixture tokens,
+  vendored public source, junk-commit hashes, markers); real-credential
+  format battery: ZERO; product/config files: ZERO. trufflehog: zero.
+  ZERO real secrets.
+- Part 2 (nine items, each red->green or proven-safe with permanent
+  guards — see FINAL_REPORT.md for every pair):
+  2.1 BOLA: no vulnerability; 34-test permanent cross-tenant matrix.
+  NOTE: a suspected broken route dir ("id]") was a console display
+  artifact — the ANSI layer swallows the bytes "[m"; the dir is byte-exact
+  "[mid]" (hex 5b6d69645d) and works in dev AND prod. No production code
+  changed. (edd142c chain: b35a116.)
+  2.2 SSRF: REAL engine vulnerability — websocket client + modernsec
+  smuggling probe connected to PRIVATE targets over raw sockets without
+  --allow-private (9 live hits, requests:0), incl. an explicit
+  127.0.0.1/localhost allowlist carve-out. Fixed fail-closed with the
+  shared pin_transport_address gate (resolve once, validate every answer,
+  pin). Live red->green + 9 permanent tests + canonical fixture EXACT
+  reproduction (199/30/7162). (edd142c.)
+  2.3 XSS: safe at every layer (engine reports escaped — permanent tests;
+  UI — real-browser proof 9/9 on the production build; no
+  dangerouslySetInnerHTML in app code — guard). (d22833f.)
+  2.4 iframe sandbox: safe — real-browser proof (sandbox="" exact, parent
+  untouchable, opaque origin) + CSP headers captured + source tripwire.
+  (d22833f.)
+  2.5 vault: two real gaps fixed (tampered base64 escaped as unhandled
+  binascii.Error -> now VaultError; world-readable KEY file accepted ->
+  now refused like the vault file). 4 permanent key-hygiene tests.
+  (684d925.)
+  2.6 audit log: REAL — mutable at DB level (update/delete/deleteMany
+  succeeded; org deletion REWROTE rows via SetNull). Fixed with a
+  PostgreSQL BEFORE UPDATE OR DELETE trigger + FK removal (trail survives
+  org/user deletion). 5/5 green. (e13caa1.)
+  2.7 demo endpoint: REAL — GET polling had no limit (160-flood, zero
+  refusals). Fixed: 120/hour/IP shared-store budget. POST controls proven
+  over the wire (hostile body ignored — every finding URL from the
+  hardcoded fixture; single lane). (0c9be25.)
+  2.8 SENTINEL_ALLOW_PRIVATE_TARGETS: exact-string "1" semantics
+  documented + pinned by test; unset in every deployment file. (0d8dc46.)
+  2.9 rate limiter: REAL — per-process in-memory counters (two-process
+  proof: A 10/10 + B 5/5 on a 10-budget key). Fixed: shared PostgreSQL
+  store (RateLimitBucket) with pg_advisory_xact_lock atomicity; async
+  call sites (auth + demo). Two-process green proof + 5 permanent tests.
+  (8642945.)
+- Part 3 (enforce_admins): reported with both owner options; NEITHER
+  executed (order: await explicit owner choice).
+- Part 4 final numbers (all real runs): pytest 214/214; doctor 19/19;
+  bun unit 30/0 (173 expect); typecheck/lint/build PASS; canonical fixture
+  gate EXACT (199/30/7162); integration battery 79/0 across 6 files
+  (ratelimit 5 + api 28 + bola 34 + ssrf 3 + auditlog 5 + demo 4);
+  browser proof 9/9 on the final build; manual-crypto sweep: zero
+  hand-rolled primitives (full-tree, same pattern families as the
+  2026-10-30 campaign).
+- PUSH NOT EXECUTED: the token protocol is inline-only and the previous
+  session's context (which carried it) was lost; disk-wide search = zero
+  github_pat_ values. The 8 commits above are ready on local main (pure
+  ff of origin/main 33008a7). Awaiting a fresh fine-grained PAT
+  (Contents: Read & write on mememamaly-oss/Sen) from the owner.
+
 ## Chronology (condensed)
 
 - 2026-09/10: engine built in rounds (v2.x → v4.x) — detection families,
