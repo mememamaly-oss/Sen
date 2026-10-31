@@ -24,6 +24,13 @@ const DEMO_DIR = path.join(path.dirname(SCANS_DIR), "demo-scans");
 const DEMO_MAX_FINDINGS = 30;
 const DEMO_HITS = 3;
 const DEMO_WINDOW_MS = 60 * 60 * 1000;
+// 2.7 (2026-10-31): the GET polling side had NO limit — an unauthenticated
+// flood of polls was unbounded request processing on the public surface
+// (proven red: 160 consecutive polls, zero refusals). Legitimate polling of
+// a 1-2 minute scan at 2s intervals needs ~60 requests; 120/hour/IP leaves
+// headroom for two demo runs while cutting floods off hard.
+const DEMO_POLL_HITS = 120;
+const DEMO_POLL_WINDOW_MS = 60 * 60 * 1000;
 
 type DemoFinding = {
   id: string;
@@ -174,6 +181,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
+  // 2.7 (2026-10-31): per-IP poll budget BEFORE any work (fail-closed).
+  const pollVerdict = await rateLimit(
+    `demo-poll:ip:${clientIp(req)}`,
+    DEMO_POLL_HITS,
+    DEMO_POLL_WINDOW_MS
+  );
+  if (!pollVerdict.allowed) {
+    return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 });
+  }
   const id = req.nextUrl.searchParams.get("id");
   if (!id) {
     return NextResponse.json({ error: "id required" }, { status: 400 });
