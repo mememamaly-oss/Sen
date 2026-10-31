@@ -22,6 +22,7 @@ import { describe, test, expect, beforeAll, afterAll } from "bun:test";
 import { spawn, type ChildProcess } from "child_process";
 import fs from "fs";
 import path from "path";
+import { db } from "@/lib/db";
 
 const PORT = Number(process.env.INTEGRATION_PORT || 3177);
 const BASE = process.env.INTEGRATION_SERVER_URL || `http://127.0.0.1:${PORT}`;
@@ -161,6 +162,65 @@ describe("bootstrap atomicity + auth + RBAC over the wire", () => {
     const r = await fetch(`${BASE}/api/bootstrap`);
     expect(r.status).toBe(200);
     expect(((await r.json()) as { needsBootstrap: boolean }).needsBootstrap).toBe(true);
+  });
+
+  // --- RACE AUDIT 2026-10-31: deterministic regressions for the two
+  // reclaim-path behaviors. The stampede test below can only reach the
+  // reclaim interleaving by scheduler luck; these two FORCE it by seeding
+  // the PlatformLock row directly (Prisma, same database), so the
+  // stale-vs-in-flight discrimination is pinned forever.
+
+  test("stale lock (crashed attempt, 60s old) is reclaimed — bootstrap succeeds", async () => {
+    expect(await db.user.count()).toBe(0);
+    await db.platformLock.create({
+      data: { key: "bootstrap", createdAt: new Date(Date.now() - 60_000) },
+    });
+    const r = await fetch(`${BASE}/api/bootstrap`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "stale-reclaim@integration.test",
+        password: "Stale-Passw0rd!",
+        name: "Stale Reclaimer",
+        orgName: "Reclaimed Org",
+      }),
+    });
+    expect(r.status).toBe(200);
+    const body = (await r.json()) as { userId?: string; orgId?: string };
+    expect(body.userId).toBeTruthy();
+    expect(body.orgId).toBeTruthy();
+    expect(await db.user.count()).toBe(1);
+    // restore pristine fresh-instance state for the stampede test below
+    // (this suite is order-dependent by design); Membership cascades from
+    // both user and org, AuditLog is SetNull so it must go first.
+    await db.auditLog.deleteMany({});
+    await db.user.delete({ where: { id: body.userId! } });
+    await db.organization.delete({ where: { id: body.orgId! } });
+    await db.platformLock.deleteMany({});
+    expect(await db.user.count()).toBe(0);
+    expect(await db.platformLock.count()).toBe(0);
+  });
+
+  test("FRESH lock (attempt in flight) is NOT reclaimed — 409, no user created", async () => {
+    expect(await db.user.count()).toBe(0);
+    // createdAt = now: an attempt is in flight RIGHT NOW — the pre-fix code
+    // deleted exactly this row and let a second platform admin through
+    await db.platformLock.create({ data: { key: "bootstrap" } });
+    const r = await fetch(`${BASE}/api/bootstrap`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: "inflight@integration.test",
+        password: "Inflight-Passw0rd!",
+        name: "In Flight",
+        orgName: "Inflight Org",
+      }),
+    });
+    expect(r.status).toBe(409);
+    // the invariant that matters: an in-flight attempt's lock is untouchable
+    expect(await db.user.count()).toBe(0);
+    await db.platformLock.deleteMany({});
+    expect(await db.platformLock.count()).toBe(0);
   });
 
   test("RACE: 10 concurrent bootstrap POSTs — exactly ONE wins", async () => {
