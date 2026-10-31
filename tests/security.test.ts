@@ -258,3 +258,38 @@ describe("19-axis audit fixes (2026-10-23)", () => {
     void body;
   });
 });
+
+// --------------------------------------------------- 2.3/2.4 guards (2026-10-31)
+
+describe("report viewer + findings XSS posture (owner order 2026-10-31, 2.3/2.4)", () => {
+  // Source-contract tripwire: the report viewer MUST render engine HTML in
+  // an iframe with sandbox="" (opaque origin, scripts disabled). A refactor
+  // that drops the attribute or adds allow-scripts/allow-same-origin must
+  // fail HERE, not in a pentest. (Full DOM-level proof: the Playwright run
+  // scripts/final-2026-10-31/xss_iframe_browser_proof.py against a
+  // production build — 9/9 checks, evidence in download/.)
+  test("report viewer iframe keeps sandbox exactly empty (no allow-scripts / allow-same-origin)", () => {
+    const fs = require("fs") as typeof import("fs");
+    const src = fs.readFileSync("src/app/(app)/reports/[id]/page.tsx", "utf8");
+    // strip comment lines first — the historical audit note mentions the OLD
+    // (pre-fix) value sandbox="allow-same-origin" inside a comment
+    const code = src.replace(/^\s*\/\/.*$/gm, "");
+    if (!/sandbox=""/.test(code)) {
+      throw new Error('sandbox="" missing from the report viewer iframe');
+    }
+    if (/sandbox="[^"]*(allow-scripts|allow-same-origin)/.test(code)) {
+      throw new Error("report viewer sandbox must never include allow-scripts or allow-same-origin");
+    }
+  });
+
+  test("no dangerouslySetInnerHTML on any app page (React auto-escape stays the only HTML path)", () => {
+    const { execSync } = require("child_process") as typeof import("child_process");
+    const hits = execSync(
+      "grep -rn dangerouslySetInnerHTML src/app src/components/shell src/components/saas 2>/dev/null || true",
+      { encoding: "utf8" }
+    ).trim();
+    if (hits) {
+      throw new Error("dangerouslySetInnerHTML appeared in app code:\n" + hits);
+    }
+  });
+});
