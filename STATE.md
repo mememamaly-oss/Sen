@@ -114,6 +114,33 @@ subprocess CLI (`src/lib/engine.ts`).
     release, Pages enable, metadata/topics, visibility flip + post-flip
     secret-scanning/CodeQL verification) execute AFTER this chain's CI
     is green — recorded in the follow-up state update.
+- 2026-10-31 follow-up (post-green): CI on 52fc6fc = **9/9 green + 1
+  by-design skip** (run 41159065359) — including the reproducibility
+  HARD GATE, which required fixing FOUR real determinism bugs the gate
+  itself caught on its first runs: (1) builtin hash() probe markers
+  (PYTHONHASHSEED per-process randomization), (2) a wall-clock fragment
+  inside XXE oob evidence text, (3) OAST callback attribution via the
+  Host header (ephemeral listener port), (4) workflow attack walks
+  minting objects through the fixture's global sequential counter
+  (interleaving-dependent) — now content-addressed via a deterministic
+  per-walk marker. The attester also gained a loud pre-flight after a
+  stale local fixture silently captured a port. Local proof: two fresh
+  executions → identical merkle_root 214101804d3ee606… / identical
+  findings_sha256 / 199 findings each. **The 4B.3 break/revert proof**:
+  a wall-clock injection on throwaway branch qa/repro-gate-break-test
+  (break commit 0734619, run 41159472706) turned the reproducibility
+  job RED (roots e46771ff… vs e39fd3cd…, REPRODUCIBLE: False) while all
+  detection jobs stayed green; main green; branch deleted —
+  evidence/repro-gate-break-test/BREAK_PROOF.md. **The transparency log
+  carries its first two real entries**: the CI canonical fixture run
+  (run-d6b26b92d0, 199 findings, signed in CI with TRANSPARENCY_SEED)
+  and the Juice Shop real-target run (run-c1f1909066, 59 findings,
+  root 7cca176e…), both verified end-to-end by the independent verifier
+  (chain + pinned-key signatures + per-finding inclusion proofs).
+  Tag v4.5.0 + release created (initially at 996d757; moved to the final
+  commit before the visibility flip). Branch protection, Pages,
+  metadata/topics, private-vulnerability-reporting enable and the
+  Part-7 gate + visibility flip follow this commit, per the order.
 - Secret scanning: `.pre-commit-config.yaml` (gitleaks hook); run
   `pre-commit install` once per clone.
 
