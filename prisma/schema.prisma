@@ -208,3 +208,20 @@ model PlatformLock {
   key       String   @id
   createdAt DateTime @default(now())
 }
+
+// SHARED-STORE RATE LIMITER (owner order 2026-10-31, part 2.9): the login
+// brute-force guard and the public-demo guard previously kept their buckets
+// in a process-local Map — per-process counters that are NOT enforced across
+// processes. The buckets now live here, in the platform's existing
+// PostgreSQL (no new dependency); every decision runs inside a transaction
+// holding pg_advisory_xact_lock(hashtext(key)) so concurrent processes
+// decide atomically. hitsJson = JSON array of epoch-ms hit timestamps
+// (sliding window); blockedUntil persists the block past restarts.
+model RateLimitBucket {
+  key          String    @id
+  hitsJson     String
+  blockedUntil DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  @@index([updatedAt])
+}

@@ -91,7 +91,9 @@ function rollupCompliance(findings: DemoFinding[]): DemoState["compliance"] {
 export async function POST(req: NextRequest) {
   // rate limit FIRST (per-IP, fail-closed)
   const ip = clientIp(req);
-  const verdict = rateLimit(`demo:ip:${ip}`, DEMO_HITS, DEMO_WINDOW_MS);
+  // 2.9 (2026-10-31): shared PostgreSQL store — the demo budget is global
+  // across app processes too.
+  const verdict = await rateLimit(`demo:ip:${ip}`, DEMO_HITS, DEMO_WINDOW_MS);
   if (!verdict.allowed) {
     return NextResponse.json({ error: "RATE_LIMITED" }, { status: 429 });
   }
