@@ -70,7 +70,7 @@ EMPTY_ROOT_HEX = ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca"
 
 # Report-level audit key derivation (the recipe embedded in every report):
 # HKDF-SHA256 over the run seed with a versioned, domain-separated salt.
-AUDIT_HKDF_SALT = b"Burhan-axis14-ed25519-HKDF-SHA256-v1"
+AUDIT_HKDF_SALT = b"SENTINEL-axis14-ed25519-HKDF-SHA256-v1"
 AUDIT_HKDF_INFO = b"axis14-ed25519-keypair"
 
 ENTRY_CORE_FIELDS = (

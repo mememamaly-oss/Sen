@@ -1,6 +1,6 @@
 """PART 1 re-execution (2026-10-31): REAL fetch of the official BLAKE3
 test_vectors.json from the reference repository, then verify:
-  (1) live burhan.blake3() vs EVERY official vector (hash mode, 32B);
+  (1) live sentinel.blake3() vs EVERY official vector (hash mode, 32B);
   (2) the 35 literals embedded in tests/test_axis3_pcs.py vs official;
   (3) scripts/crypto_remediation/blake3_preswap_capture.json vs official
       (pre-swap byte-consistency evidence);
@@ -18,7 +18,7 @@ URL = ("https://raw.githubusercontent.com/BLAKE3-team/BLAKE3/"
        "master/test_vectors/test_vectors.json")
 
 sys.path.insert(0, "/home/z/my-project")
-from burhan.blake3 import blake3  # noqa: E402
+from sentinel.blake3 import blake3  # noqa: E402
 
 import blake3 as blake3_pkg  # the official package directly  # noqa: E402
 
@@ -46,7 +46,7 @@ def main():
 
     fails = 0
 
-    print("== [2] live burhan.blake3() vs ALL official vectors ==")
+    print("== [2] live sentinel.blake3() vs ALL official vectors ==")
     for c in cases:
         n = c["input_len"]
         expected = c["hash"][:64]  # first 32 bytes of extended output
@@ -104,7 +104,7 @@ def main():
               "byte-identical to reference — proven)")
 
     print("== [6] extra probes (FIXED input list per capture generator), live ==")
-    EXTRAS = [b"", b"abc", b"burhan-pcs-empty-v1", bytes(1024),
+    EXTRAS = [b"", b"abc", b"sentinel-pcs-empty-v1", bytes(1024),
               bytes(range(256)) * 5, b"\x00" * 100000]
     for i, e in enumerate(EXTRAS):
         rec = cap["extra_probes"][str(i)]

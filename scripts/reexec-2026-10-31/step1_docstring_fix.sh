@@ -1,6 +1,6 @@
 #!/bin/bash
 # STEP 1 (atomic): corrective commit for the micro-audit finding —
-# burhan/repro.py M2-provenance docstring references tests/test_axis11_repro.py,
+# sentinel/repro.py M2-provenance docstring references tests/test_axis11_repro.py,
 # a file NEVER committed to this repository (git log --all on the path is empty).
 # Branch discipline: branch -> edit -> full regression -> commit -> ff-merge to
 # LOCAL main. NO PUSH (push gate: green light + real external tests).
@@ -31,7 +31,7 @@ git checkout -b cleanup/repro-docstring-truth 2>&1 | tail -1
 echo "== [3] exact docstring correction =="
 python3 - <<'PYEOF'
 from pathlib import Path
-p = Path("burhan/repro.py")
+p = Path("sentinel/repro.py")
 src = p.read_text(encoding="utf-8")
 OLD = "الـمُسجَّل — tests/test_axis11_repro.py):"
 # exact line 4 anchor:
@@ -52,7 +52,7 @@ echo "== [4] full regression on the edited tree =="
 python3 -m pytest tests/ --no-header -q 2>&1 | tail -3
 
 echo "== [5] commit =="
-git add burhan/repro.py
+git add sentinel/repro.py
 git commit -q -m "repro: correct the M2-provenance docstring — the referenced tests/test_axis11_repro.py was never committed (git log --all on the path is empty); the committed pin since the Part-0 gate is tests/test_repro_prng_isolation.py
 
 Found by the 2026-10-31 strict micro-audit re-execution (same defect class as the blake3.py docstring lie fixed in fdf86fa: a claim pointing at a test file that git history cannot support)."
