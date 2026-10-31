@@ -3,21 +3,32 @@ name: CI
 # SECURITY (audit 2026-10-23): this pipeline is the regression wall for the
 # remediation — it must fail closed: a red CI is never merged.
 #
-# P2 (2026-10-31) — ONE workflow file, five jobs:
-#   web        — SaaS app: lint/typecheck/unit/integration/build on a REAL
-#                PostgreSQL service container (P2-D migration exercised on
-#                every run through prisma migrate deploy)
-#   engine     — doctor + the python suite (incl. compliance parity tests)
-#   secrets    — credential-pattern scan of tracked files
-#   fixture    — a REAL scan of the bundled fixture (vulnapp): benchmark
-#                against ground truth + all five report formats as artifacts
-#   drift      — compliance registry drift guard (generated file must match
-#                the engine source; stale check-ins can never ship)
+# P2 (2026-10-31) — ONE workflow file, six jobs:
+#   web          — SaaS app: lint/typecheck/unit/integration/build on a REAL
+#                  PostgreSQL service container (P2-D migration exercised on
+#                  every run through prisma migrate deploy)
+#   engine       — doctor + the python suite (incl. compliance parity tests)
+#   secrets      — credential-pattern scan of tracked files
+#   fixture      — a REAL scan of the bundled fixture (vulnapp): benchmark
+#                  against ground truth + all five report formats as artifacts.
+#                  Installs playwright+chromium: two ground-truth detections
+#                  (xss_dom, browser-discovered jsform) REQUIRE the render
+#                  engine — without it the run degrades to static fallback and
+#                  the deterministic 38/38 record is unreachable (observed on
+#                  the first CI runs: TP=36/FN=2).
+#   drift        — compliance registry drift guard (generated file must match
+#                  the engine source; stale check-ins can never ship)
+#   real-targets — OWASP Juice Shop v20.3.0 (pinned) in a container: the
+#                  honest EXTERNAL check — a real-world app the engine has
+#                  never seen, scanned unauthenticated, reports as artifacts.
+#                  First green run = the committed baseline floor; later runs
+#                  gate on reproducing it (scripts/ci_real_target_scan.py).
 
 on:
   push:
     branches: ["**"]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   web:
@@ -93,8 +104,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install engine dependencies (cryptography + blake3)
-        run: pip install -r requirements.txt
+      # requirements-dev = engine runtime deps + pytest (the python suite);
+      # the pre-fix job died with "No module named pytest" — pytest is a
+      # preinstalled convenience in the dev sandbox, NOT on a stock runner
+      - name: Install engine + test dependencies
+        run: pip install -r requirements-dev.txt
 
       - name: Engine doctor (19 checks)
         run: python3 -m sentinel.cli doctor
@@ -129,8 +143,14 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install engine dependencies (cryptography + blake3)
-        run: pip install -r requirements.txt
+      # playwright + chromium: the xss_dom execution phase and the
+      # browser-discovered /vuln/jsform-reflect surface both need a REAL
+      # render engine; without it the orchestrator falls back to static
+      # analysis and 2 of the 38 ground-truth detections are unreachable
+      - name: Install engine dependencies (+ playwright/chromium)
+        run: |
+          pip install -r requirements.txt playwright
+          python3 -m playwright install --with-deps chromium
 
       - name: Canonical full-platform run (verified campaign config; store persisted)
         run: |
@@ -193,3 +213,47 @@ jobs:
             exit 1
           fi
           echo "registry in sync with sentinel/compliance.py"
+
+  real-targets:
+    name: Real target (OWASP Juice Shop v20.3.0 — container, unauth)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install engine dependencies (+ playwright — the SPA is client-rendered)
+        run: |
+          pip install -r requirements.txt playwright
+          python3 -m playwright install --with-deps chromium
+
+      - name: Start OWASP Juice Shop (pinned real-world target)
+        run: |
+          docker run -d --name juice -p 3000:3000 bkimminich/juice-shop:v20.3.0
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:3000/ > /dev/null; then
+              echo "juice-shop up (attempt $i)"; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::juice-shop did not come up in 120s"
+          docker logs juice | tail -50
+          exit 1
+
+      - name: Scan the real target (unauthenticated baseline)
+        run: python3 scripts/ci_real_target_scan.py --base http://127.0.0.1:3000 --out-dir "$RUNNER_TEMP/real"
+
+      - name: Upload real-target artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-target-juiceshop
+          path: |
+            ${{ runner.temp }}/real/scan.json
+            ${{ runner.temp }}/real/summary.json
+            ${{ runner.temp }}/real/report.json
+            ${{ runner.temp }}/real/report.sarif
+            ${{ runner.temp }}/real/compliance.json
+          if-no-files-found: error
