@@ -1,7 +1,14 @@
 # SENTINEL — DAST Platform (axes 1-18, final build v4.4.0)
 
+[![CI](https://github.com/mememamaly-oss/Sen/actions/workflows/ci.yml/badge.svg)](https://github.com/memamaly-oss/Sen/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/badge/release-v4.4.0-blue)](https://github.com/mememamaly-oss/Sen/releases)
+
 منصة فحص اختراق تطبيقات الويب الآلي (DAST) — المحرك (Python stdlib نقي) + تطبيق
 إدارة SaaS (Next.js). هذا المستودع مُنظّف تشغيلياً: كود المحاور 1-18 فقط.
+
+كل نتيجة فحص موقّعة (Ed25519 فوق جذر Merkle فوق النتائج) وقابلة للتحقق
+المستقل بلا أي كود من هذا المشروع — انظر «سجل الشفافية» أدناه.
 
 ## بنية المستودع
 
@@ -54,9 +61,13 @@ python3 scripts/bootstrap_demo_data.py   # (اختياري) بيانات عرض 
 واحد ضد الـfixture المُدار) — المنصة نفسها خلف تسجيل الدخول مع حرس
 جانب الخادم (`src/app/(app)/layout.tsx`).
 
-CI: ملف واحد `.github/workflows/ci.yml` (خمس وظائف، منها فحص fixture حقيقي
-على إعدادات الحملة نفسها + حارس انجراف سجل الامتثال) وقالب GitLab
-`integrations/gitlab-ci/sen-scan.gitlab-ci.yml`.
+CI: ملف واحد `.github/workflows/ci.yml` (تسع وظائف: التطبيق على PostgreSQL
+حقيقي، المحرك، فحص الأسرار، فحص fixture حقيقي على إعدادات الحملة نفسها +
+بوابة F1==1.0/TP==38/FP==0، حارس انجراف سجل الامتثال، هدف حقيقي
+OWASP Juice Shop بأرضية مُلزِمة، شهادة قابلية إعادة الإنتاج بتشغيلين
+مستقلين، سجل الشفافية، وتجربة الـAction كمستهلك خارجي) وقالب GitLab
+`integrations/gitlab-ci/sen-scan.gitlab-ci.yml`، إضافة إلى فحص CodeQL
+(يعمل عند التحول للعامة).
 
 المحرك يُستدعى من التطبيق عبر `src/lib/engine.ts` (subprocess CLI — `ENGINE_DIR`
 افتراضياً جذر المستودع، قابل للتغيير بمتغير `SENTINEL_ENGINE_DIR`).
@@ -65,6 +76,46 @@ CI: ملف واحد `.github/workflows/ci.yml` (خمس وظائف، منها ف�
 
 `pre-commit install` مرة واحدة — خطاف gitleaks (`.pre-commit-config.yaml`)
 يفحص كل تغييرات staged قبل الالتزام.
+
+## استخدام المحرك كـ GitHub Action (سطر واحد في أي CI)
+
+```yaml
+- uses: mememamaly-oss/Sen@v4.5.0
+  with:
+    target: http://127.0.0.1:8080
+    fail-on: high          # افشل المهمة عند وجود نتائج high فأعلى
+```
+
+المدخلات والمخرجات الكاملة وقيود المتصفح (Playwright): `docs/github-action.md`.
+
+## سجل الشفافية والتحقق المستقل
+
+كل نتيجة فحص غنيّة تحمل قسماً موقّعاً (`audit`): جذر Merkle فوق النتائج
+(مع استبعاد الحقول الطائرة المعلنة) + توقيع Ed25519 فوق الهضم المركب.
+سجل `transparency-log/log.jsonl` يضيف طبقة المشروع: سلاسل هاش مترابطة
+موقعة بمفتاح المستودع المعلن `transparency-log/pubkey.hex`.
+
+التحقق لا يحتاج أي كود من المشروع:
+
+```bash
+pip install cryptography
+python3 tools/independent_verify.py verify-report result.json
+python3 tools/independent_verify.py verify-log transparency-log/log.jsonl \
+    --pubkey transparency-log/pubkey.hex
+```
+
+المحقق `tools/independent_verify.py` لا يستورد شيئاً من المحرك — أي خلل في
+الموقّع لا يمكن أن يختبئ في محقق يشاركه الكود. المواصفة الكاملة:
+`docs/transparency-log-format.md`.
+
+## الترخيص
+
+Apache-2.0 — انظر `LICENSE` (اختيار افتراضي ينتظر تأكيد المالك النهائي).
+
+## ملفات المجتمع
+
+`CONTRIBUTING.md` · `CODE_OF_CONDUCT.md` · `SECURITY.md` (الإفصاح المسؤول
+عن ثغرات في الأداة نفسها) · قوالب Issues/PR تحت `.github/`.
 
 ## حذف عمداً في تنظيف 2026-10-23 (قابل للاستعادة من وسم `backup/pre-clean-2026-10-23`)
 
