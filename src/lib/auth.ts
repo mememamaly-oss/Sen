@@ -63,9 +63,11 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) return null;
         const email = String(credentials.email).trim().toLowerCase();
 
-        // brute-force guard (fail-closed: throw = no session, no verify)
-        const verdict = rateLimit(`login:${email}`, LOGIN_MAX_HITS, LOGIN_WINDOW_MS);
-        const ipVerdict = rateLimit(
+        // brute-force guard (fail-closed: throw = no session, no verify).
+        // 2.9 (2026-10-31): the store is the shared PostgreSQL — the limit
+        // holds across ALL app processes, not just this one.
+        const verdict = await rateLimit(`login:${email}`, LOGIN_MAX_HITS, LOGIN_WINDOW_MS);
+        const ipVerdict = await rateLimit(
           `login-ip:${clientIpFromReq(req as { headers?: Record<string, unknown> } | undefined)}`,
           LOGIN_MAX_HITS * 5,
           LOGIN_WINDOW_MS

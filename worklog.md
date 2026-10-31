@@ -6107,3 +6107,66 @@ Full record: evidence/phase2-compliance-ci/RECORD.md.
   battery 5/5, committed-report independent verification (see the commit
   chain records). CI is the authority for the integration/web/fixture/
   real-target/reproducibility gates on the pushed commit.
+
+## 2026-10-31 — the comprehensive security-fix order (parts 0-4), full record
+
+Task: owner order "أمر إصلاح شامل ونهائي" — Part 0 historical exposure
+(PublicEvent/forks/Wayback/search), Part 1 full-history rescan (--all refs,
+gitleaks + trufflehog), Part 2 the nine phase3-listed vulnerabilities each
+red->green, Part 3 enforce_admins options (report only), Part 4 full final
+verification + per-item commits.
+
+Work log:
+- Token: NOT AVAILABLE this session (inline-only protocol; the previous
+  session's context was lost; disk-wide rg for github_pat_ patterns =
+  zero). Anonymous API worked in one window (rate limit): PublicEvent x5
+  ALL at repo creation 2026-10-02T22:11:54Z; forks 0; traffic API 401.
+  Wayback availability 17/17 NONE; CDX empty; exact-URL web search: no
+  results. Phase3 docs verified LIVE from public history (raw.gh HTTP 200,
+  three files at fb334912ca8e...).
+- Console-display artifact discovered and proven: the tool output layer
+  swallows the two bytes "[m" (ANSI reset) — "[mid]" renders as "id]",
+  "[abc]" renders intact, hex 5b6d69645d. This nearly caused a WRONG
+  "fix" (renaming a correct [mid] route dir to [id] would have BROKEN it);
+  the failed mv (filesystem race) saved the route; the artifact was then
+  proven with a controlled print test. Lesson recorded: verify byte-exact
+  with hex before acting on bracket-bearing names.
+- Part 1: gitleaks 8.30.1, every commit (334) individually (--all in one
+  pass OOM-kills the sandbox), merge with -m --first-parent, tracked tree
+  via git-archive export; trufflehog 3.99.7 (asset name
+  trufflehog_<v>_linux_amd64.tar.gz — the x64 pattern 404s).
+  174,809/1,620 + 614/72; fingerprint-diff vs the prior corpus (78/78
+  contained); real-format battery zero; product/config zero. ZERO real
+  secrets.
+- Part 2 chains (each: write tests -> run RED -> fix -> run GREEN ->
+  commit, atomically): b35a116 (BOLA matrix 34, no vuln, display-artifact
+  retraction documented), edd142c (SSRF raw-socket bypass: websocket
+  WsClient + modernsec _smug_pair carve-out; core.pin_transport_address
+  shared gate; live red 9 hits/requests:0 -> green 0/0 + allow-private
+  control; fixture 199/30/7162 EXACT), d22833f (XSS+iframe proven safe:
+  engine escaping tests 2, browser proof 9/9 on the PRODUCTION build —
+  dev-server HMR websocket fails in this sandbox so client hydration
+  stalls on dev; greengate doctrine), 684d925 (vault: _b64d fail-closed +
+  key-file perms gate; 4 tests), e13caa1 (audit-log DB trigger + FK drop;
+  4/5 red -> 5/5 green; /api/audit manual user resolution), 8642945
+  (shared PG limiter: RateLimitBucket + advisory xact lock; two-process
+  red/green; async call sites; old unit battery ported + skipIf no-PG),
+  0c9be25 (demo GET poll budget; hostile-body-over-the-wire proof; lane),
+  0d8dc46 + 39c628d (2.8 docs+guard; lint fixup).
+- Integration runner rewritten: one bun invocation per file (bun test
+  PARALLELIZES files — proven with a controlled experiment — and the
+  suites share one DB/server; a parallel beforeAll raced the bootstrap).
+- Part 4: pytest 214, doctor 19/19, bun 30/0, tsc/lint/build PASS,
+  fixture gate EXACT, integration 79/0 (6 files), browser 9/9 on the
+  final build, manual-crypto sweep zero.
+- Push: BLOCKED (no token). 8 commits ready, pure ff of origin/main.
+  Awaiting owner PAT (Contents RW).
+
+Stage summary:
+- 4 real vulnerabilities fixed with red->green pairs (2.2, 2.5x2, 2.6,
+  2.7, 2.9); 5 items proven already-safe with permanent guards (2.1, 2.3,
+  2.4, 2.8 + 2.5's leak invariants).
+- Part 0 conclusion: case (b) public during the critical pre-rewrite era;
+  zero external archives; phase3 still live from public history (owner
+  decision pending).
+- enforce_admins: both options presented, neither executed.

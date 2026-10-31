@@ -175,8 +175,15 @@ def _b64e(b: bytes) -> str:
 
 
 def _b64d(s: str) -> bytes:
-    return base64.b64decode(s)
-
+    """Decode envelope base64. TAMPER HARDENING (2026-10-31, order 2.5): a
+    corrupted/tampered vault file previously escaped as a raw binascii.Error
+    (ugly traceback, unclassified) — every malformed-envelope path now fails
+    closed as VaultError("malformed envelope"), the documented refusal."""
+    import binascii
+    try:
+        return base64.b64decode(s)
+    except (binascii.Error, ValueError) as e:
+        raise VaultError(f"malformed envelope: {type(e).__name__}") from e
 
 # ============================================================ key files
 
@@ -193,7 +200,14 @@ def keygen(path: str, label: str = "") -> dict:
 
 
 def load_key(path: str) -> tuple[str, bytes]:
-    """Load + validate a key file. Returns (key_id, 32-byte key material)."""
+    """Load + validate a key file. Returns (key_id, 32-byte key material).
+
+    KEY-FILE PERMISSION GATE (2026-10-31, order 2.5): the vault file was
+    already refused when group/world-readable, but the KEY file — which
+    holds the actual master material — was not. Same doctrine now: a key
+    file with group/world bits is refused (expected 0600, as keygen writes).
+    """
+    _warn_public_perms(path)
     try:
         kf = json.load(open(path))
     except (OSError, ValueError) as e:
