@@ -462,12 +462,19 @@ jobs:
 
       # the EXTERNAL-CONSUMER path: resolve the action by its published tag,
       # exactly as a third-party workflow would
-      # REDIRECT PROOF (owner order, part 1.8): the pre-rename action reference
-      # mememamaly-oss/Sen@<tag> must keep resolving after the repository was
-      # renamed to burhan. This step fails the job if GitHub ever stops
-      # following the redirect for `uses:` references.
-      - name: Run the action — LEGACY pre-rename ref (mememamaly-oss/Sen@v4.5.0)
+      # LEGACY-REF LIVE PROBE (owner order, part 1.8). Official behavior
+      # (docs.github.com — 'Renaming a repository'): "GitHub will not redirect
+      # calls to an action hosted by a renamed repository. Any workflow that
+      # uses that action will fail with the error `repository not found`."
+      # Web links and git operations DO redirect; action references DO NOT.
+      # This probe records the ACTUAL behavior of the pre-rename reference
+      # mememamaly-oss/Sen@v4.5.0 on every dispatch: expected conclusion is
+      # failure (continue-on-error keeps the job green while recording it).
+      # If GitHub ever starts following renames for `uses:`, this step turns
+      # green and the note above must be updated.
+      - name: Run the action — LEGACY pre-rename ref (mememamaly-oss/Sen@v4.5.0, expected to fail per docs)
         uses: mememamaly-oss/Sen@v4.5.0
+        continue-on-error: true
         with:
           target: http://127.0.0.1:8789
           out: legacy-sen-result.json

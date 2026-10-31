@@ -79,11 +79,14 @@ jobs:
   responsibility, not the action's.
 
 
-## التوافق مع المراجع القديمة (قبل إعادة التسمية)
+## المراجع القديمة (قبل إعادة التسمية) — سلوك رسمي معلن
 
-بعد إعادة تسمية المستودع من `mememamaly-oss/Sen` إلى `mememamaly-oss/burhan` تظل
-مراجع Action القديمة مثل `uses: mememamaly-oss/Sen@v4.5.0` تعمل عبر تحويل GitHub
-التلقائي — ويتحقق CI من ذلك بشكل دائم في وظيفة
-`GitHub Action dogfood (published tag — external resolution)`
-(خطوة «LEGACY pre-rename ref»). المرجع الحالي الموصى به هو
-`mememamaly-oss/burhan@v5.0.0`.
+وفقاً لتوثيق GitHub الرسمي («Renaming a repository»):
+**«GitHub will not redirect calls to an action hosted by a renamed
+repository. Any workflow that uses that action will fail with the error
+`repository not found`.»** — أي أن مراجع Action مثل
+`uses: mememamaly-oss/Sen@v4.5.0` **تتوقف عن العمل** بعد إعادة التسمية
+(روابط الويب وعمليات git تُحوَّل تلقائياً، لكن مراجع Action لا).
+على المستهلكين الانتقال إلى `mememamaly-oss/burhan@v5.0.0`.
+تسجّل وظيفة `GitHub Action dogfood (published tag — external resolution)`
+(خطوة «LEGACY pre-rename ref») نتيجة المحاولة الفعلية على كل تشغيل يدوي.
