@@ -81,10 +81,10 @@ def run_scan(tag: str, out_dir: Path) -> dict:
             f"hit a foreign server holding the port.")
     print(f"[{tag}] fixture up on {base} (pid {fixture.pid}) — liveness verified")
 
-    from sentinel.auth import AuthProfile
-    from sentinel.core import EventBus, ScopeRule  # noqa: F401
-    from sentinel.oast import OastServer
-    from sentinel.orchestrator import ScanConfig, SentinelScanner
+    from burhan.auth import AuthProfile
+    from burhan.core import EventBus, ScopeRule  # noqa: F401
+    from burhan.oast import OastServer
+    from burhan.orchestrator import ScanConfig, BurhanScanner
 
     auth = AuthProfile(login_url=base + "/login", username="demo",
                        password="demo123", user_field="uid", pass_field="passw",
@@ -98,7 +98,7 @@ def run_scan(tag: str, out_dir: Path) -> dict:
                          authz=authz_cfg, workflow=True, logic_active=True,
                          max_requests=0, race=True, race_parallel=10,
                          race_variance=0.005, symbolic=True)
-        rep = SentinelScanner(base, cfg).run()
+        rep = BurhanScanner(base, cfg).run()
     finally:
         oast.stop()
         # release the port so execution B can bind the SAME one (same target
@@ -113,7 +113,7 @@ def run_scan(tag: str, out_dir: Path) -> dict:
     (out_dir / f"scan-{tag}.json").write_text(
         json.dumps(rep, indent=1, ensure_ascii=False), encoding="utf-8")
 
-    from sentinel.audit import canonical_finding, merkle_root_of_records
+    from burhan.audit import canonical_finding, merkle_root_of_records
     findings = rep["findings"]
     canonical_blob = b"".join(
         canonical_finding(f).encode("utf-8") for f in findings)

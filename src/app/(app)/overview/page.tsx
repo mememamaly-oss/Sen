@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL overview — the executive dashboard. Every number comes from the
+// Burhan overview — the executive dashboard. Every number comes from the
 // platform APIs (org overview + membership counts). No invented metrics.
 
 import Link from "next/link";
@@ -63,7 +63,7 @@ export default function OverviewPage() {
         subtitle={t("overview.subtitle.exec")}
         meta={
           <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-            <span className="num">{q.data?.lastCompleted?.scanner ?? "sentinel-core/4.1.1"}</span>
+            <span className="num">{q.data?.lastCompleted?.scanner ?? "burhan-core/4.1.1"}</span>
             {last?.finishedAt ? <span>· {t("overview.lastScan")}: {relTime(last.finishedAt)}</span> : null}
           </p>
         }

@@ -47,7 +47,7 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
 }, {
   ignores: [
     "node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills",
-    // non-app trees: SENTINEL engine releases, evidence archives, python projects
+    // non-app trees: Burhan engine releases, evidence archives, python projects
     "build-v400/**", "build-v410/**", "build-v411/**", "pkg-v301/**", "verify-live/**",
     "readiness/**", "snapshot-0419/**", "live-targets/**", "gap-validation/**",
     "mini-services/**", "scripts/**", "saas-data/**", "download/**", "release-archives/**",

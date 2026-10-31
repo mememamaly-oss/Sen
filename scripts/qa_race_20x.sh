@@ -17,7 +17,7 @@ URL="http://127.0.0.1:${PORT}"
 
 export DATABASE_URL="$(bash scripts/pg_dev_start.sh --reset)" || { echo "FATAL: pg start failed"; exit 1; }
 export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-integration-test-secret}"
-export SENTINEL_DATA_DIR="${SENTINEL_DATA_DIR:-/tmp/sentinel-test-data}"
+export BURHAN_DATA_DIR="${BURHAN_DATA_DIR:-/tmp/burhan-test-data}"
 PG_BIN="$(python3 -c 'import pgserver,os,sys; sys.stdout.write(os.path.dirname(pgserver.__file__)+"/pginstall/bin")')"
 PSQL="$PG_BIN/psql"
 
@@ -44,7 +44,7 @@ TRUNCATE_SQL='TRUNCATE TABLE "User","Organization","Membership","Target","Scan",
 
 PASS=0; FAIL=0
 for i in $(seq 1 "$N"); do
-  "$PSQL" -h 127.0.0.1 -p 55432 -U postgres -d sentinel -c "$TRUNCATE_SQL" >/dev/null 2>&1 || { echo "iter $i: TRUNCATE FAILED"; FAIL=$((FAIL+1)); continue; }
+  "$PSQL" -h 127.0.0.1 -p 55432 -U postgres -d burhan -c "$TRUNCATE_SQL" >/dev/null 2>&1 || { echo "iter $i: TRUNCATE FAILED"; FAIL=$((FAIL+1)); continue; }
   OUT="$(INTEGRATION_SERVER_URL="${URL}" INTEGRATION_PORT="${PORT}" bun test --timeout 60000 tests/api.integration.test.ts -t "RACE" 2>&1)"
   RC=$?
   if [ $RC -eq 0 ]; then

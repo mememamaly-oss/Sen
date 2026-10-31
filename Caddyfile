@@ -1,4 +1,4 @@
-# SENTINEL production reverse proxy.
+# Burhan production reverse proxy.
 #
 # SECURITY (audit 2026-10-23): the previous configuration exposed a fully
 # unauthenticated SSRF relay — any client could pass ?XTransformPort=<port>

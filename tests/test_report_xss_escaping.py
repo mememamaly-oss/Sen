@@ -11,8 +11,8 @@ import re
 
 import pytest
 
-from sentinel.report import build_html, build_glass_html
-from sentinel.store import Store
+from burhan.report import build_html, build_glass_html
+from burhan.store import Store
 
 PAYLOAD = "<script>window.__engineReportPwned=1</script>"
 ATTR_PAYLOAD = "<img src=x onerror='window.__attrPwned=1'>"
@@ -23,7 +23,7 @@ def poisoned_store(tmp_path):
     store = Store(str(tmp_path / "store.db"))
     store.save_run({
         "run_id": "run-xss-proof",
-        "scanner": "sentinel-test",
+        "scanner": "burhan-test",
         "target": "https://target.invalid/?q=" + PAYLOAD,
         "stats": {"duration": 1.0, "requests": 3, "verified": 2,
                   "coverage": {"discovered": 2, "tested": 2, "untested": 0,

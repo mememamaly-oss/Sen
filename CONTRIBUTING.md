@@ -1,4 +1,4 @@
-# Contributing to Sen
+# Contributing to Burhan
 
 مساهمة الكود مرحّب بها — هذا الملف يشرح القواعد الفعلية المعمول بها
 في هذا المستودع حتى تبقى المساهمة سلسة للطرفين.
@@ -12,7 +12,7 @@ repository actually runs on — they are few, and they are enforced by CI.
 # engine (python)
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt        # runtime deps + pytest
-python3 -m sentinel.cli doctor            # 19 environment checks
+python3 -m burhan.cli doctor            # 19 environment checks
 
 # platform (bun / node)
 bun install
@@ -28,7 +28,7 @@ set:
 
 ```bash
 python3 -m pytest tests/ -q               # engine suite (incl. compliance + crypto vectors)
-python3 -m sentinel.cli doctor
+python3 -m burhan.cli doctor
 bun run test                              # platform unit (security + compliance)
 bun run lint && bun run typecheck
 bash scripts/run_integration_tests.sh     # full integration over a real server + PostgreSQL
@@ -50,7 +50,7 @@ Shop (`real-targets` job, floor-gated against
    the 2026-10-30 integrity pass and is re-checked by CI grep patterns.
 3. **Determinism is a product property.** Anything that enters a hash,
    a Merkle root, or a signature must be wall-clock-free (explicit
-   time parameters only — see `sentinel/audit.py` design rule 2). CI
+   time parameters only — see `burhan/audit.py` design rule 2). CI
    asserts byte-identical finding sets across two independent scan
    executions (`reproducibility` job).
 4. **New crypto must be library-backed and vector-tested.** Hand-rolled
@@ -65,7 +65,7 @@ Shop (`real-targets` job, floor-gated against
 ## Reporting bugs / proposing features
 
 Open an issue using the templates in `.github/ISSUE_TEMPLATE/`. For
-security issues in Sen itself, follow `SECURITY.md` — never a public
+security issues in Burhan itself, follow `SECURITY.md` — never a public
 issue.
 
 ## Licensing

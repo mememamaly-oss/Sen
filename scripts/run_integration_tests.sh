@@ -38,12 +38,12 @@ case "${DATABASE_URL:-}" in
 esac
 export DATABASE_URL
 export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-integration-test-secret}"
-export SENTINEL_DATA_DIR="${SENTINEL_DATA_DIR:-/tmp/sentinel-test-data}"
+export BURHAN_DATA_DIR="${BURHAN_DATA_DIR:-/tmp/burhan-test-data}"
 
 # --- clean state -------------------------------------------------------------
 pkill -f "next dev -p ${PORT}" 2>/dev/null && sleep 1
 rm -f "${LOG}"
-mkdir -p "${SENTINEL_DATA_DIR}"
+mkdir -p "${BURHAN_DATA_DIR}"
 
 # --- schema: the real migration files (never ad-hoc db push) ------------------
 if ! bunx prisma migrate deploy >>"${LOG}" 2>&1; then

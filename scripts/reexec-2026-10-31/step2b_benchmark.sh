@@ -13,7 +13,7 @@ EV=evidence/full-reverify/fixtures-vulnapp
 
 echo "== [1] benchmark CLI run (all detectors + race battery) =="
 T0=$(date +%s)
-timeout 540 python3 -m sentinel.cli benchmark --race \
+timeout 540 python3 -m burhan.cli benchmark --race \
   --out $EV/benchmark.json \
   > $EV/benchmark_stdout.log 2>&1
 RC=$?

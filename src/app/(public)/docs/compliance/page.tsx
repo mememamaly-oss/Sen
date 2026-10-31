@@ -1,7 +1,7 @@
 "use client";
 
 // P2-C: the public compliance map — rendered from src/lib/compliance-registry.json
-// (GENERATED from sentinel/compliance.py by scripts/gen_compliance_registry.py;
+// (GENERATED from burhan/compliance.py by scripts/gen_compliance_registry.py;
 // CI fails on drift). The page never hardcodes a mapping — single source of truth.
 
 import { useMemo, useState } from "react";

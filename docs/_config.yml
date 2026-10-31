@@ -1,4 +1,4 @@
-title: Sen — deterministic DAST with verifiable findings
+title: Burhan — deterministic DAST with verifiable findings
 description: >-
   Web application security scanner with signed, independently verifiable
   findings. OWASP Top 10 / CWE / PCI DSS mappings per detection.

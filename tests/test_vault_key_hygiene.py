@@ -21,7 +21,7 @@ import sys
 
 import pytest
 
-from sentinel.vault import Vault, VaultError, keygen, load_key
+from burhan.vault import Vault, VaultError, keygen, load_key
 
 
 def _leak_forms(key_bytes: bytes) -> set[str]:
@@ -46,7 +46,7 @@ def test_keygen_cli_output_never_contains_key_material(key, tmp_path):
     # the file — that is its contract, the material lands in the 0600 file).
     # The invariant under test is every OUTPUT surface: CLI stdout/stderr.
     p = subprocess.run(
-        [sys.executable, "-m", "sentinel.cli", "vault", "keygen",
+        [sys.executable, "-m", "burhan.cli", "vault", "keygen",
          "--out", str(tmp_path / "cli.key")],
         capture_output=True, text=True, timeout=60,
     )
@@ -92,7 +92,7 @@ def test_every_vaulterror_path_is_key_free(key, tmp_path):
         cases.append(("bad-format", str(e)))
     # 5. corrupted key file (32-byte check)
     bad = tmp_path / "bad.key"
-    bad.write_text(json.dumps({"format": "sentinel-vault-key/1", "key_id": "deadbeef",
+    bad.write_text(json.dumps({"format": "burhan-vault-key/1", "key_id": "deadbeef",
                                "data": base64.b64encode(b"short").decode()}))
     try:
         load_key(str(bad))
@@ -164,7 +164,7 @@ def test_scan_abort_path_prints_the_error_only(key, tmp_path):
     Vault.init(vpath, str(tmp_path / "designer.key"), "scan-org")
     keygen(str(tmp_path / "stranger.key"), label="stranger")
     p = subprocess.run(
-        [sys.executable, "-m", "sentinel.cli", "scan", "https://scan-target.invalid/",
+        [sys.executable, "-m", "burhan.cli", "scan", "https://scan-target.invalid/",
          "--vault", vpath, "--vault-key-file", str(tmp_path / "stranger.key"),
          "--out", str(tmp_path / "r.json"), "--db", str(tmp_path / "s.db"),
          "--no-browser", "--max-pages", "1"],

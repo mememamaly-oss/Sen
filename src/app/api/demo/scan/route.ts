@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { NextRequest, NextResponse } from "next/server";
 import { spawn, type ChildProcess } from "child_process";
 import fs from "fs";
@@ -63,13 +64,13 @@ type DemoState = {
 };
 
 const g = globalThis as unknown as {
-  __sentinelDemoScans?: Map<string, DemoState>;
-  __sentinelDemoProcs?: Map<string, ChildProcess>;
+  __burhanDemoScans?: Map<string, DemoState>;
+  __burhanDemoProcs?: Map<string, ChildProcess>;
 };
-g.__sentinelDemoScans = g.__sentinelDemoScans || new Map();
-g.__sentinelDemoProcs = g.__sentinelDemoProcs || new Map();
-const jobs = g.__sentinelDemoScans;
-const procs = g.__sentinelDemoProcs;
+g.__burhanDemoScans = g.__burhanDemoScans || new Map();
+g.__burhanDemoProcs = g.__burhanDemoProcs || new Map();
+const jobs = g.__burhanDemoScans;
+const procs = g.__burhanDemoProcs;
 
 function clientIp(req: NextRequest): string {
   const real = req.headers.get("x-real-ip");
@@ -127,9 +128,9 @@ export async function POST(req: NextRequest) {
 
   const out = fs.openSync(logPath, "a");
   const child = spawn(
-    process.env.SENTINEL_PYTHON || "python3",
+    env("PYTHON") ?? "python3",
     [
-      "-m", "sentinel.cli", "scan", DEMO_TARGET_URL,
+      "-m", "burhan.cli", "scan", DEMO_TARGET_URL,
       "--out", resultPath,
       "--db", path.join(dir, "store.db"),
       "--max-pages", "25",

@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL — PHASE 02 L1: the normalized Security Twin, rendered for real.
+// Burhan — PHASE 02 L1: the normalized Security Twin, rendered for real.
 //
 // Every number, node, edge, provenance value, conflict and why() answer below
 // comes from GET /api/v1/scans/:scanId/twin — the deterministic normalized
@@ -226,7 +226,7 @@ export default function TwinPage() {
             </div>
             <span className="h-4 w-px bg-border" aria-hidden />
             <span className="num text-[11px] text-muted-foreground">
-              {twin.scope.scanner || "sentinel"} · {twin.scope.runId || "—"} · {twinQ.data?.built ? t("twin.l1.built") : t("twin.l1.stored")}
+              {twin.scope.scanner || "burhan"} · {twin.scope.runId || "—"} · {twinQ.data?.built ? t("twin.l1.built") : t("twin.l1.stored")}
             </span>
             {twinQ.data?.invariants ? (
               <span className={cn("num rounded px-1.5 py-0.5 text-[10px] font-bold", twinQ.data.invariants.pass ? "bg-emerald-500/14 text-emerald-600 dark:text-emerald-400" : "bg-red-500/14 text-red-600 dark:text-red-400")}>

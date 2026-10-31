@@ -54,7 +54,7 @@ def _run_engine(url, tmp_path, extra_args=()):
     out = tmp_path / "result.json"
     db = tmp_path / "store.db"
     p = subprocess.run(
-        [sys.executable, "-m", "sentinel.cli", "scan", url,
+        [sys.executable, "-m", "burhan.cli", "scan", url,
          "--out", str(out), "--db", str(db),
          "--no-browser", "--max-pages", "2", *extra_args],
         capture_output=True, text=True, timeout=120,
@@ -82,9 +82,9 @@ def test_engine_connects_to_the_same_listener_WITH_allow_private(loopback_listen
 
 
 # ---------------------------------------------------------------- unit gates
-from sentinel.core import Endpoint, ScopeRule, pin_transport_address  # noqa: E402
-from sentinel.websocket import WsClient  # noqa: E402
-from sentinel.modernsec import _raw_post, _smug_pair  # noqa: E402
+from burhan.core import Endpoint, ScopeRule, pin_transport_address  # noqa: E402
+from burhan.websocket import WsClient  # noqa: E402
+from burhan.modernsec import _raw_post, _smug_pair  # noqa: E402
 
 
 def test_pin_transport_address_refuses_private_unless_explicit():

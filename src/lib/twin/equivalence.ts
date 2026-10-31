@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: EQUIVALENCE GATE (spec §11)
+// Burhan — PHASE 02 L1: EQUIVALENCE GATE (spec §11)
 //
 // Proves normalization does NOT change the meaning of engine data:
 //

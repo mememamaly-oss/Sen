@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: Security Twin Normalization — public API
+// Burhan — PHASE 02 L1: Security Twin Normalization — public API
 //
 //   raw engine output ──normalizeTwin()──▶ normalized twin (deterministic)
 //                          │

@@ -1,11 +1,11 @@
 # Transparency log — wire format v1
 
-This document specifies the Sen transparency log format precisely enough
+This document specifies the Burhan transparency log format precisely enough
 that a compatible verifier can be built in any language, from this
-document alone, without reading Sen's source code. A reference
+document alone, without reading Burhan's source code. A reference
 implementation exists at `tools/independent_verify.py` (Python; standard
 library + the `cryptography` package) — it deliberately imports nothing
-from the Sen codebase, because a verifier that shares code with the
+from the Burhan codebase, because a verifier that shares code with the
 signer would also share its bugs.
 
 ## 1. Files
@@ -25,7 +25,7 @@ One JSON object per line with exactly these fields:
 | `version` | int | `1` |
 | `kind` | string | `"scan-run"` (only kind defined by v1) |
 | `run_id` | string | the scan run identifier, as in the report |
-| `scanner` | string | scanner identity string, e.g. `"sentinel-core/4.4.0"` |
+| `scanner` | string | scanner identity string, e.g. `"burhan-core/4.4.0"` |
 | `target` | string | the scanned base URL |
 | `label` | string | human tag, e.g. `"fixture:vulnapp"` or `"juice-shop:20.3.0"` |
 | `seed` | string | the run seed — **public by design** (it is embedded in every report; it derives the per-run report key, §6) |
@@ -140,7 +140,7 @@ recipe (embedded verbatim in every enriched report):
 1. The Merkle root is computed exactly as §4.
 2. The keypair is derived from the run seed — HKDF-SHA256
    (RFC 5869, extract-then-expand, output length 32) with
-   `salt = "SENTINEL-axis14-ed25519-HKDF-SHA256-v1"` (UTF-8 bytes),
+   `salt = "Burhan-axis14-ed25519-HKDF-SHA256-v1"` (UTF-8 bytes),
    `info = "axis14-ed25519-keypair"` (UTF-8 bytes), and IKM = the seed:
    a seed that is ≥64 characters, even-length ASCII hex decodes as hex;
    any other seed uses its UTF-8 bytes (and must be ≥32 bytes).

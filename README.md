@@ -1,8 +1,8 @@
-# SENTINEL — DAST Platform (axes 1-18, final build v4.4.0)
+# Burhan — DAST Platform (axes 1-18, final build v5.0.0 — the Burhan rename release)
 
-[![CI](https://github.com/mememamaly-oss/Sen/actions/workflows/ci.yml/badge.svg)](https://github.com/memamaly-oss/Sen/actions/workflows/ci.yml)
+[![CI](https://github.com/mememamaly-oss/burhan/actions/workflows/ci.yml/badge.svg)](https://github.com/memamaly-oss/Burhan/actions/workflows/ci.yml)
 [![License: PolyForm Shield 1.0.0](https://img.shields.io/badge/License-PolyForm--Shield--1.0.0-orange)](LICENSE)
-[![Release](https://img.shields.io/badge/release-v4.4.0-blue)](https://github.com/mememamaly-oss/Sen/releases)
+[![Release](https://img.shields.io/badge/release-v5.0.0-blue)](https://github.com/mememamaly-oss/burhan/releases)
 
 منصة فحص اختراق تطبيقات الويب الآلي (DAST) — المحرك (Python stdlib نقي) + تطبيق
 إدارة SaaS (Next.js). هذا المستودع مُنظّف تشغيلياً: كود المحاور 1-18 فقط.
@@ -14,8 +14,8 @@
 
 | المسار | الوصف |
 |--------|-------|
-| `sentinel/` | محرك الفحص الكامل — كل المحاور 1-18 (بما فيها `race/` و`symbolic/`) |
-| `perf/` | طبقة أداء المحور-10 (actors / aio / columnar) — يستوردها `sentinel/infra.py` |
+| `burhan/` | محرك الفحص الكامل — كل المحاور 1-18 (بما فيها `race/` و`symbolic/`) |
+| `perf/` | طبقة أداء المحور-10 (actors / aio / columnar) — يستوردها `burhan/infra.py` |
 | `src/` | تطبيق SaaS (Next.js 16 + Prisma) — الواجهة والإدارة |
 | `prisma/` | مخطط قاعدة بيانات التطبيق |
 | `scripts/` | سكربتات التشغيل (بدء الخادم + بيانات العرض) |
@@ -24,11 +24,11 @@
 ## تشغيل المحرك مباشرة (CLI)
 
 ```bash
-python3 -m sentinel.cli scan <url> --out result.json --db store.db [opts]
-python3 -m sentinel.cli reproduce --db store.db --finding F-xxx
-python3 -m sentinel.cli report --db store.db --run-id <run> --format html --out report.html
-python3 -m sentinel.cli compliance [--json]   # سجل خرائط OWASP/CWE/PCI لكل مكتشف
-python3 -m sentinel.cli doctor
+python3 -m burhan.cli scan <url> --out result.json --db store.db [opts]
+python3 -m burhan.cli reproduce --db store.db --finding F-xxx
+python3 -m burhan.cli report --db store.db --run-id <run> --format html --out report.html
+python3 -m burhan.cli compliance [--json]   # سجل خرائط OWASP/CWE/PCI لكل مكتشف
+python3 -m burhan.cli doctor
 ```
 
 أعلام المحور-17/18 (اختيارية): `--race`, `--symbolic` (افتراضياً OFF).
@@ -70,7 +70,7 @@ OWASP Juice Shop بأرضية مُلزِمة، شهادة قابلية إعاد�
 (يعمل عند التحول للعامة).
 
 المحرك يُستدعى من التطبيق عبر `src/lib/engine.ts` (subprocess CLI — `ENGINE_DIR`
-افتراضياً جذر المستودع، قابل للتغيير بمتغير `SENTINEL_ENGINE_DIR`).
+افتراضياً جذر المستودع، قابل للتغيير بمتغير `BURHAN_ENGINE_DIR`).
 
 ## فحص الأسرار قبل الالتزام
 
@@ -80,7 +80,7 @@ OWASP Juice Shop بأرضية مُلزِمة، شهادة قابلية إعاد�
 ## استخدام المحرك كـ GitHub Action (سطر واحد في أي CI)
 
 ```yaml
-- uses: mememamaly-oss/Sen@v4.5.0
+- uses: mememamaly-oss/burhan@v4.5.0
   with:
     target: http://127.0.0.1:8080
     fail-on: high          # افشل المهمة عند وجود نتائج high فأعلى
@@ -147,3 +147,34 @@ python3 tools/independent_verify.py verify-log transparency-log/log.jsonl \
 الاختبارات (tests)، fixtures، benchmarks، نتائج الحملات (campaign, saas-data,
 audit-results)، أدلة التحقق (INDEPENDENT_*.md)، نسخ build-v400..v430 القديمة،
 وثائق المحاور والأرشيفات (docs, PHASE_02, release-archives)، و~125 سكربت حملات.
+
+
+## ترحيل الإعدادات من الإصدارات قبل v5.0.0 (إعادة التسمية إلى برهان / Burhan)
+
+أعيدت تسمية المشروع من Sen/SENTINEL إلى **برهان / Burhan** في v5.0.0. هذا تغيير كاسر
+للنشرات القائمة. المتغير القديم يظل يعمل مع **تحذير واضح عند الإقلاع** (وليس تجاهلاً
+صامتاً)، وسيُزال في إصدار رئيسي لاحق:
+
+| قبل v5.0.0 | اعتباراً من v5.0.0 |
+|---|---|
+| `SENTINEL_ALLOW_PRIVATE_TARGETS` | `BURHAN_ALLOW_PRIVATE_TARGETS` |
+| `SENTINEL_DATA_DIR` | `BURHAN_DATA_DIR` |
+| `SENTINEL_PYTHON` | `BURHAN_PYTHON` |
+| `SENTINEL_ENGINE_DIR` | `BURHAN_ENGINE_DIR` |
+| `SENTINEL_TARGET_URL` | `BURHAN_TARGET_URL` |
+| `SENTINEL_TIMEOUT` | `BURHAN_TIMEOUT` |
+| `SENTINEL_MAX_PAGES` | `BURHAN_MAX_PAGES` |
+| `SENTINEL_TEST_FILTER` | `BURHAN_TEST_FILTER` |
+
+تغييرات كاسرة أخرى في v5.0.0:
+
+- حزمة بايثون `sentinel/` أصبحت `burhan/` — استدعاء CLI: `python3 -m burhan.cli …`
+- اسم الحزمة في `package.json` أصبح `burhan-saas`، وواجهة GitHub Action أصبحت
+  `Burhan DAST scan` مع ملف نتيجة افتراضي `burhan-result.json`
+- خدمة قاعدة البيانات في docker-compose: المستخدم/القاعدة `sentinel` أصبحا `burhan`
+  (`POSTGRES_USER`/`POSTGRES_DB`) — أعد إنشاء الحاوية بعد السحب
+- وظائف قالب GitLab CI أعيدت تسميتها (`sentinel:scan` → `burhan:scan`) واسم الملف
+  أصبح `integrations/gitlab-ci/burhan-scan.gitlab-ci.yml`
+- روابط المستودع القديمة (`github.com/mememamaly-oss/Sen`) ومراجع Action القديمة
+  (`mememamaly-oss/Sen@<tag>`) تُحوَّل تلقائياً إلى `mememamaly-oss/burhan` (سلوك
+  GitHub بعد إعادة التسمية؛ يتحقق منه عمل CI بشكل دائم)

@@ -73,7 +73,7 @@ echo "== STEP 6: repro determinism check =="
 python3 scripts/crypto_remediation/repro_check.py || exit 1
 
 echo "== STEP 7: real doctor run =="
-timeout 120 python3 -m sentinel.cli doctor > /tmp/doctor_out.json 2>/tmp/doctor_err.txt
+timeout 120 python3 -m burhan.cli doctor > /tmp/doctor_out.json 2>/tmp/doctor_err.txt
 DOCTOR_RC=$?
 echo "DOCTOR_RC=$DOCTOR_RC"
 tail -c 600 /tmp/doctor_out.json; [ -s /tmp/doctor_err.txt ] && tail -3 /tmp/doctor_err.txt
@@ -86,8 +86,8 @@ fi
 
 if [ "${SKIP_APPLY:-0}" = "0" ]; then
   echo "== STEP 8: commit =="
-  git add sentinel/proof.py sentinel/audit.py sentinel/vault.py \
-          sentinel/orchestrator.py
+  git add burhan/proof.py burhan/audit.py burhan/vault.py \
+          burhan/orchestrator.py
   git add tests/test_proof_aead_rfc8439.py tests/test_proof_hkdf_rfc5869.py \
           tests/test_audit_hkdf_rfc5869.py tests/test_vault_aead_rfc8439.py
   git add scripts/crypto_remediation/

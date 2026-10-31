@@ -24,7 +24,7 @@ export default function DeploymentDocsPage() {
         <pre className="num mt-3 overflow-auto rounded-xl border bg-muted/50 p-4 text-[11.5px] leading-5" dir="ltr">
 {`# docker compose (loopback only) — or any managed PostgreSQL
 POSTGRES_PASSWORD=$(openssl rand -hex 16) docker compose up -d
-export DATABASE_URL=postgresql://sentinel:<pw>@127.0.0.1:5432/sentinel
+export DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan
 bunx prisma migrate deploy
 bash scripts/verify_postgres.sh   # end-to-end verification`}
         </pre>
@@ -43,9 +43,9 @@ bash scripts/verify_postgres.sh   # end-to-end verification`}
       <section className="mt-8">
         <h2 className="text-sm font-extrabold" dir="ltr">3 · Engine bridge</h2>
         <pre className="num mt-3 overflow-auto rounded-xl border bg-muted/50 p-4 text-[11.5px] leading-5" dir="ltr">
-{`SENTINEL_PYTHON=python3            # default
-SENTINEL_DATA_DIR=/var/lib/sen      # scans/ stores/ reports/
-SENTINEL_ALLOW_PRIVATE_TARGETS=0    # lab mode OFF by default`}
+{`BURHAN_PYTHON=python3            # default
+BURHAN_DATA_DIR=/var/lib/sen      # scans/ stores/ reports/
+BURHAN_ALLOW_PRIVATE_TARGETS=0    # lab mode OFF by default`}
         </pre>
         <p className="mt-2 text-xs text-muted-foreground" dir="ltr">
           SSRF posture: private-network egress is allowed only for the managed

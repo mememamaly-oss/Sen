@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Signer side of the Sen transparency log (format v1).
+"""Signer side of the Burhan transparency log (format v1).
 
 Appends a signed entry for a completed scan run to
 `transparency-log/log.jsonl` and writes the matching evidence bundle
 under `evidence/transparency-log/<run_id>/`.
 
-The signer is ALLOWED to use the engine's own primitives (sentinel.audit
-+ sentinel.proof) — independence is the VERIFIER's job, and the verifier
+The signer is ALLOWED to use the engine's own primitives (burhan.audit
++ burhan.proof) — independence is the VERIFIER's job, and the verifier
 (tools/independent_verify.py) deliberately shares no code with this file.
 After every append this tool re-verifies its own output THROUGH the
 independent verifier as a subprocess and rolls the append back if that
@@ -43,8 +43,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from sentinel.audit import merkle_root_of_records  # noqa: E402
-from sentinel.proof import ed25519_public_key, ed25519_sign, merkle_prove  # noqa: E402
+from burhan.audit import merkle_root_of_records  # noqa: E402
+from burhan.proof import ed25519_public_key, ed25519_sign, merkle_prove  # noqa: E402
 
 FORMAT_VERSION = 1
 GENESIS_PREV = "0" * 64
@@ -109,7 +109,7 @@ def build_entry(report: dict, label: str, seed_hex: str,
 
 def build_proofs(findings) -> list[dict]:
     """One inclusion proof per finding, leaf order = findings order."""
-    from sentinel.audit import canonical_finding
+    from burhan.audit import canonical_finding
     leaves = [canonical_finding(f).encode("utf-8") for f in findings]
     proofs = []
     for i, finding in enumerate(findings):

@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL ui-kit — severity + status language. ONE scale, everywhere.
+// Burhan ui-kit — severity + status language. ONE scale, everywhere.
 
 import { Badge } from "@/components/ui/badge";
 import { useI18n } from "@/lib/ui/i18n";

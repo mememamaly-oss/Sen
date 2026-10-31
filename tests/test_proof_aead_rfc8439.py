@@ -9,7 +9,7 @@ ValidationError on bad key/nonce lengths) is pinned as-is.
 """
 import pytest
 
-from sentinel.proof import (IntegrityError, ValidationError,
+from burhan.proof import (IntegrityError, ValidationError,
                             chacha20poly1305_decrypt,
                             chacha20poly1305_encrypt)
 

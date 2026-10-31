@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL theme — dark default (command-deck), light mode. Hand-rolled:
+// Burhan theme — dark default (command-deck), light mode. Hand-rolled:
 // no new dependencies. Applies the .dark class + persists the choice.
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -13,7 +13,7 @@ const Ctx = createContext<ThemeCtx | null>(null);
 
 function pick(): Theme {
   if (typeof window === "undefined") return "dark";
-  const saved = window.localStorage.getItem("sentinel.theme");
+  const saved = window.localStorage.getItem("burhan.theme");
   return saved === "light" || saved === "dark" ? saved : "dark";
 }
 
@@ -32,7 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setTheme = useCallback((t: Theme) => {
     setThemeState(t);
     try {
-      window.localStorage.setItem("sentinel.theme", t);
+      window.localStorage.setItem("burhan.theme", t);
     } catch {
       /* private mode */
     }
@@ -42,7 +42,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState((cur) => {
       const next: Theme = cur === "dark" ? "light" : "dark";
       try {
-        window.localStorage.setItem("sentinel.theme", next);
+        window.localStorage.setItem("burhan.theme", next);
       } catch {
         /* private mode */
       }

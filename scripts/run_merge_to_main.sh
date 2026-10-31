@@ -56,7 +56,7 @@ if [ "$ALREADY" = "0" ]; then
   python3 -m pytest tests/ -q 2>&1 | tail -2
   TIP_PYTEST_RC=${PIPESTATUS[0]}
   echo "TIP_PYTEST_RC=$TIP_PYTEST_RC"
-  timeout 120 python3 -m sentinel.cli doctor >/tmp/doctor_tip.json 2>&1
+  timeout 120 python3 -m burhan.cli doctor >/tmp/doctor_tip.json 2>&1
   TIP_DOCTOR_RC=$?
   echo "TIP_DOCTOR_RC=$TIP_DOCTOR_RC"
   timeout 180 bun test --preload ./tests/setup.ts tests/security.test.ts \
@@ -95,7 +95,7 @@ git checkout -- .gitignore 2>/dev/null || true
 python3 -m pytest tests/ -q 2>&1 | tail -2
 M_PYTEST_RC=${PIPESTATUS[0]}
 echo "MERGED_PYTEST_RC=$M_PYTEST_RC"
-timeout 120 python3 -m sentinel.cli doctor >/tmp/doctor_merged.json 2>&1
+timeout 120 python3 -m burhan.cli doctor >/tmp/doctor_merged.json 2>&1
 M_DOCTOR_RC=$?
 echo "MERGED_DOCTOR_RC=$M_DOCTOR_RC"
 python3 -c "

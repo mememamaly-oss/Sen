@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: RAW LOADER
+// Burhan — PHASE 02 L1: RAW LOADER
 //
 // Assembles the RawEngineResult for a COMPLETED scan, preferring the
 // authoritative engine output on disk (result.json) and falling back to a

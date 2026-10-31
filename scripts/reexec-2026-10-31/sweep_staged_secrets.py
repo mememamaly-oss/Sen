@@ -7,7 +7,7 @@ Gate logic:
   1. The session token's literal prefix must appear NOWHERE in the diff.
   2. Every real-secret-FORMAT hit (ghp_ / github_pat_ / AKIA / PEM blocks)
      must be explainable as a source-planted literal (fixtures/vulnapp.py),
-     an engine-injected canary (sentinel/ source), or an engine redaction
+     an engine-injected canary (burhan/ source), or an engine redaction
      marker. Unexplained hits -> exit 1 (commit aborted).
   3. Prints every distinct hit with character ordinals for the record.
 """
@@ -66,9 +66,9 @@ for rx in (re.compile(r"ghp_[A-Za-z0-9]{20,}"),
     planted.update(rx.findall(fx))
 print("fixture-planted literals:", sorted(planted))
 
-# engine-injected canaries: literals + runtime-assembled pieces in sentinel/
+# engine-injected canaries: literals + runtime-assembled pieces in burhan/
 engine_texts = {}
-for f in sorted(glob.glob("sentinel/**/*.py", recursive=True)):
+for f in sorted(glob.glob("burhan/**/*.py", recursive=True)):
     engine_texts[f] = open(f, encoding="utf-8").read()
 engine_all = "\n".join(engine_texts.values())
 canary_literals = set()

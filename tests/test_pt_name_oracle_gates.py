@@ -81,8 +81,8 @@ def mock_sinks():
 
 
 def _mk():
-    from sentinel.core import ScopeRule, EventBus
-    from sentinel.http_engine import RequestEngine
+    from burhan.core import ScopeRule, EventBus
+    from burhan.http_engine import RequestEngine
     scope = ScopeRule(allowed_domains=["127.0.0.1"], allow_private=True)
     bus = EventBus("pt-gates-test")
     return scope, bus, RequestEngine(scope, bus, timeout=6.0)
@@ -92,8 +92,8 @@ def test_ptd2_input_crash_differential_is_not_a_file_oracle(mock_sinks):
     """PT-D2: probe 500 (ORM crash on the odd NAME) vs control 200 must stay
     SILENT — the exists-oracle interpretation is disqualified when exactly
     one side is a 5xx."""
-    from sentinel.core import Endpoint
-    from sentinel.detect import HeaderNameTraversalDetector, ParamNameTraversalDetector
+    from burhan.core import Endpoint
+    from burhan.detect import HeaderNameTraversalDetector, ParamNameTraversalDetector
 
     for Det, name in ((HeaderNameTraversalDetector, "trav_hname"),
                       (ParamNameTraversalDetector, "trav_pname")):
@@ -108,8 +108,8 @@ def test_ptd2_input_crash_differential_is_not_a_file_oracle(mock_sinks):
 def test_ptd1_nondeterministic_endpoint_is_noise_not_oracle(mock_sinks):
     """PT-D1: an endpoint whose bodies vary on their own (captcha shape) must
     stay SILENT after the second-control determinism sample."""
-    from sentinel.core import Endpoint
-    from sentinel.detect import HeaderNameTraversalDetector, ParamNameTraversalDetector
+    from burhan.core import Endpoint
+    from burhan.detect import HeaderNameTraversalDetector, ParamNameTraversalDetector
 
     for Det, name in ((HeaderNameTraversalDetector, "trav_hname"),
                       (ParamNameTraversalDetector, "trav_pname")):
@@ -123,8 +123,8 @@ def test_ptd1_nondeterministic_endpoint_is_noise_not_oracle(mock_sinks):
 def test_true_header_name_oracle_still_fires(mock_sinks):
     """Control case: the Benchmark exists-flip oracle must STILL fire through
     both new gates (deterministic + same response class)."""
-    from sentinel.core import Endpoint
-    from sentinel.detect import HeaderNameTraversalDetector
+    from burhan.core import Endpoint
+    from burhan.detect import HeaderNameTraversalDetector
 
     scope, bus, engine = _mk()
     det = HeaderNameTraversalDetector(engine, bus)
@@ -135,8 +135,8 @@ def test_true_header_name_oracle_still_fires(mock_sinks):
 
 def test_true_param_name_oracle_still_fires(mock_sinks):
     """Control case: the param-NAME exists-flip oracle must STILL fire."""
-    from sentinel.core import Endpoint
-    from sentinel.detect import ParamNameTraversalDetector
+    from burhan.core import Endpoint
+    from burhan.detect import ParamNameTraversalDetector
 
     scope, bus, engine = _mk()
     det = ParamNameTraversalDetector(engine, bus)

@@ -9,7 +9,7 @@ from old seeds).
 """
 import pytest
 
-from sentinel.audit import (SeedPolicyError, _hkdf_sha256, derive_keypair)
+from burhan.audit import (SeedPolicyError, _hkdf_sha256, derive_keypair)
 
 # ---- RFC 5869 Appendix A (SHA-256), verbatim --------------------------------
 A1 = {

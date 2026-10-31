@@ -24,7 +24,7 @@ cd /home/z/my-project
 
 TESTED_TIP="d26513ec20392ec93634cf3cc48a315f5c15d739"
 LAST_KNOWN_REMOTE="d51a5c119e2c5f7b2d5b2bbcabda5c19335cda9a"
-REPO_API="https://api.github.com/repos/mememamaly-oss/Sen"
+REPO_API="https://api.github.com/repos/mememamaly-oss/burhan"
 CLEANUP_PREFIX="cleanup/"
 
 if [ -z "${GH_TOKEN:-}" ]; then
