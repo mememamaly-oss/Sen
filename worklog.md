@@ -6042,3 +6042,68 @@ Phase-2 items 5/6/7 + groundwork for 8–10. One session, executed end to end:
   trusting mere presence. Next-16 single-dev-server-per-dir lock hit again
   (platform dev server on :3000) — kill, run suite, restore.
 Full record: evidence/phase2-compliance-ci/RECORD.md.
+
+## 2026-10-31 — public-readiness campaign (owner order: Parts 1–7)
+
+- Item P1: gitleaks 8.30.1 over EXACTLY the post-rewrite delta
+  fd54110..main (35 commits; cutoff = the rewritten tip recorded in the
+  2026-10-30 integrity pass, verified ancestor) + a tracked-tree scan +
+  targeted patterns with the regexes printed in the report: 497/613
+  findings, 71 distinct values, every one classified (fixture markers
+  sentineltb1/tb2markerzz, echo+sentinelargvmark1, fixture-issued
+  HS256/JWE tokens, the public Juice Shop demo tokens incl. the
+  documented /rest/memories exposure, labeled CI dummies, docs
+  placeholders) — ZERO real secrets. Remote refs: main only; all 12
+  tags merge-base-verified contained in main (no pre-rewrite exposure).
+  evidence/security-sweep-2026-10-31/SWEEP_REPORT.md.
+- Item P2: LICENSE (Apache-2.0 — declared DEFAULT pending owner
+  confirmation), CONTRIBUTING.md, CODE_OF_CONDUCT.md (Contributor
+  Covenant 2.1), SECURITY.md (private vulnerability reporting; honest
+  7-day ack / 30-day assessment targets), bug/feature issue templates +
+  config.yml, PR template. Stray tracked files `--` (empty) and
+  `.backup-stage-19axis.list` removed. README/docs comparative-claims
+  grep re-run on the current tree: zero (patterns archived in the sweep
+  report).
+- Item P3: .github/dependabot.yml (pip + npm, weekly);
+  .github/workflows/codeql.yml (javascript-typescript + python,
+  security-extended; job guarded by repository_visibility == 'public'
+  because CodeQL needs public/GHAS — first real run happens at the
+  visibility flip).
+- Item P4A: transparency log format v1 — transparency-log/{log.jsonl,
+  pubkey.hex, README.md}; signer tools/append_transparency.py (uses
+  sentinel primitives; duplicate-run_id refusal; independent re-verify +
+  rollback after every append); INDEPENDENT verifier
+  tools/independent_verify.py (stdlib + cryptography ONLY — verified by
+  test to never import sentinel/*); tamper battery
+  tools/transparency_selftest.py: 5/5 PASS (untampered verifies; single-
+  char tampers of evidence/signature/merkle-path each rejected;
+  different-keypair rejected under the pinned key); the COMMITTED
+  199-finding fixture report verifies through verify-report; format
+  spec docs/transparency-log-format.md (cross-language rebuildable);
+  docs/AUDIT_VERIFICATION.md created (was referenced by audit.py
+  RECIPE_DOC but missing). Project keypair: pubkey committed, seed in
+  .transparency-seed (gitignored) + TRANSPARENCY_SEED CI secret.
+- Item P4B: scripts/repro_attest.py — two SEPARATE executions (fresh
+  fixture process + fresh engine process each) of the canonical
+  benchmark config; HARD GATE: merkle_root AND findings_count AND
+  findings_sha256 (full canonical finding set) must be identical;
+  attestation artifacts uploaded. CI job `reproducibility`.
+- Item P5: action.yml — composite GitHub Action (setup-python, pip
+  install from the action repo's requirements, `python3 -m sentinel.cli
+  scan`, severity gate fail-on + per-severity count outputs);
+  docs/github-action.md; CI job `action-demo` dogfoods `uses: ./` on a
+  live fixture target and asserts the signed-result contract (tag-ref
+  variant on workflow_dispatch once v4.5.0 exists).
+- Item P6: docs/index.md + docs/_config.yml (GitHub Pages source),
+  docs/social-preview.png (PIL-generated; the actual upload is UI-only —
+  flagged as an owner action), README: CI/License/Release badges +
+  Action + transparency + license + community sections; CI description
+  updated to the nine-job truth.
+- CI: ci.yml now web · engine · secrets · fixture · drift · real-targets
+  · reproducibility · transparency · action-demo (the transparency job
+  also verifies the COMMITTED log + every committed bundle with the
+  independent verifier on every run).
+- Local verification pre-push: full pytest suite, doctor, bun unit,
+  battery 5/5, committed-report independent verification (see the commit
+  chain records). CI is the authority for the integration/web/fixture/
+  real-target/reproducibility gates on the pushed commit.
