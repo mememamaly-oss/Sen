@@ -38,9 +38,14 @@ case "$OWNER_URL" in
   *) OWNER_URL="$(bash scripts/pg_dev_start.sh)" ;;
 esac
 
-# host/port/db from the owner URL (everything before the path is identical
-# for the app URL; Prisma URLs here never carry a query string)
-HOSTPORT="$(echo "$OWNER_URL" | sed -E 's#^postgres(ql)?://([^/]+).*#\2#')"
+# host/port/db from the owner URL. The netloc is taken WITHOUT any
+# userinfo (user[:pass]@ must be stripped — with the owner credentials
+# left in, the emitted app URL double-stacks userinfo and libpq then
+# authenticates burhan_app with a corrupted password; observed in CI:
+# "credentials for `burhan_app` are not valid" while trust-auth local
+# clusters silently passed).
+NETLOC="$(echo "$OWNER_URL" | sed -E 's#^postgres(ql)?://([^/?]+).*#\2#')"
+HOSTPORT="${NETLOC##*@}"
 DBNAME="$(echo "$OWNER_URL" | sed -E 's#^.*/([^/?]+)([?].*)?$#\1#')"
 case "$DBNAME" in *[!A-Za-z0-9_]*|'') echo "FATAL: unusable database name from URL: '$DBNAME'" >&2; exit 1;; esac
 case "$APP_USER" in *[!a-z0-9_]*|'') echo "FATAL: app role name must be [a-z0-9_]: '$APP_USER'" >&2; exit 1;; esac
