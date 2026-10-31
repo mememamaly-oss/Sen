@@ -79,6 +79,7 @@ import hmac
 import json
 import os
 import shutil
+import stat
 import tempfile
 import time
 from typing import Any, Callable
@@ -206,12 +207,13 @@ def load_key(path: str) -> tuple[str, bytes]:
     already refused when group/world-readable, but the KEY file — which
     holds the actual master material — was not. Same doctrine now: a key
     file with group/world bits is refused (expected 0600, as keygen writes).
+
+    TOCTOU HARDENING (2026-10-31, order item 1.5): the path is resolved
+    ONCE and the permission check runs on the OPEN descriptor
+    (_open_private_json) — the stat-then-reopen window that a
+    same-directory writer could race is gone.
     """
-    _warn_public_perms(path)
-    try:
-        kf = json.load(open(path))
-    except (OSError, ValueError) as e:
-        raise VaultError(f"key file unreadable: {e}")
+    kf = _open_private_json(path, "key file")
     if kf.get("format") != KEY_FORMAT:
         raise VaultError(f"not a burhan vault key file: {path}")
     data = _b64d(kf.get("data", ""))
@@ -253,15 +255,45 @@ def _write_private_json(path: str, obj: dict) -> None:
         raise
 
 
-def _warn_public_perms(path: str) -> None:
+def _open_private_json(path: str, what: str) -> dict:
+    """TOCTOU-hardened open + permissions gate (owner order 2026-10-31, item 1.5).
+
+    The path is resolved ONCE; permissions are checked with fstat() on the
+    OPEN descriptor and the JSON is read from THAT descriptor — what was
+    checked is exactly what is read. The previous gate stat'ed the path and
+    then opened the path AGAIN by name: a same-directory writer could race
+    the window (stat sees the legit 0600 file, open reads the attacker's
+    0644 file) — proven live by scripts/attack_vault_toctou.py (1 bypass in
+    a 20-second real two-process race, pre-fix).
+
+    O_NOFOLLOW (where the platform provides it) additionally refuses
+    symlinked vault/key files.
+    """
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
     try:
-        mode = os.stat(path).st_mode & 0o777
-    except OSError:
-        return
-    if mode & 0o077:
-        raise VaultError(
-            f"refusing {path}: permissions {oct(mode)} are group/world "
-            f"accessible (expected 0600) — chmod it first")
+        fd = os.open(path, flags)
+    except OSError as e:
+        raise VaultError(f"{what} unreadable: {e}")
+    try:
+        st = os.fstat(fd)
+        mode = st.st_mode & 0o777
+        if mode & 0o077:
+            raise VaultError(
+                f"refusing {path}: permissions {oct(mode)} are group/world "
+                f"accessible (expected 0600) — chmod it first")
+        if not stat.S_ISREG(st.st_mode):
+            raise VaultError(f"refusing {path}: not a regular file")
+        with os.fdopen(fd, "r") as fh:
+            fd = -1  # ownership transferred to the file object
+            return json.load(fh)
+    except ValueError as e:
+        raise VaultError(f"{what} unreadable: invalid JSON: {e}")
+    finally:
+        if fd >= 0:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
 
 
 # ============================================================ the vault
@@ -319,12 +351,13 @@ class Vault:
 
     @classmethod
     def open(cls, path: str, key_file: str) -> "Vault":
-        """Open + unlock a vault with an authorized key file."""
-        _warn_public_perms(path)
-        try:
-            envelope = json.load(open(path))
-        except (OSError, ValueError) as e:
-            raise VaultError(f"vault unreadable: {e}")
+        """Open + unlock a vault with an authorized key file.
+
+        TOCTOU HARDENING (item 1.5): the vault file is opened and
+        permission-checked through ONE descriptor (_open_private_json),
+        same as the key file.
+        """
+        envelope = _open_private_json(path, "vault")
         if envelope.get("format") != VAULT_FORMAT:
             raise VaultError(f"not a burhan vault file: {path}")
         key_id, key_data = load_key(key_file)
