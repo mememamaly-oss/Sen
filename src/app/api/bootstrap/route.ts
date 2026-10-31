@@ -25,6 +25,26 @@ import { audit, jsonError, ApiError, slugify } from "@/lib/rbac";
 //   3. Crash-safety: a lock row without any user means a previous attempt
 //      died mid-way (no admin was ever created) — the stale lock is
 //      reclaimed and bootstrap proceeds.
+//
+// RACE AUDIT 2026-10-31 (20× instrumented stampede, fresh DB each run):
+// the reclaim path above as originally written could NOT tell a CRASHED
+// attempt (lock row, zero users, safe to reclaim) from a winner STILL IN
+// FLIGHT (lock row, zero users YET — scrypt + sequential writes take
+// ~70-150ms). Both look identical to `user.count() === 0`. In 17/20
+// stampedes a losing request deleted the in-flight winner's lock and
+// re-created its own; the ONLY thing that preserved the single-winner
+// invariant was the defense-in-depth count below — a non-atomic
+// count-then-act check whose observed margin was ~1-2ms. Under different
+// scheduling (a slower winner / faster loser — e.g. a loaded shared CI
+// runner) that count passes before the winner's user commits and TWO
+// platform admins get created. The fix: the reclaim is now AGE-GUARDED
+// and ATOMIC — a single UPDATE ... WHERE created_at < now - LOCK_STALE_MS.
+// A bootstrap attempt completes in well under 1s (measured ~0.2s worst
+// case, scrypt included), so a lock older than LOCK_STALE_MS cannot be an
+// in-flight attempt; and exactly one of N concurrent reclaimers can win
+// that UPDATE. The compensation delete is likewise holder-scoped (it
+// matches the createdAt value THIS request wrote), so a failed attempt
+// can never delete another holder's lock.
 
 export async function GET() {
   try {
@@ -35,8 +55,17 @@ export async function GET() {
   }
 }
 
+// A bootstrap attempt's full critical path (validation + scrypt + the
+// sequential user/org/membership/audit writes) measures ~70-150ms locally;
+// 30s is a 200-400× margin. Residual exposure (documented, accepted): a
+// winner that stalls > 30s mid-path without its user write committing could
+// have its lock reclaimed by a later request; if the stalled write then
+// lands anyway, two admins exist. Requires a 30s+ stall inside a 0.2s path.
+const LOCK_STALE_MS = 30_000;
+
 export async function POST(req: NextRequest) {
   let lockHeld = false;
+  let myLockAt: Date | null = null; // the createdAt value THIS request wrote
   try {
     // fast path: already bootstrapped
     if ((await db.user.count()) > 0) {
@@ -52,22 +81,34 @@ export async function POST(req: NextRequest) {
 
     // THE RACE GUARD — one atomic INSERT, no transaction needed.
     try {
-      await db.platformLock.create({ data: { key: "bootstrap" } });
+      const row = await db.platformLock.create({ data: { key: "bootstrap" } });
+      myLockAt = row.createdAt;
       lockHeld = true;
     } catch (e) {
       const code = (e as { code?: string }).code;
       if (code === "P2002") {
         // someone holds/held the lock:
         //   users exist  -> genuinely bootstrapped -> 409
-        //   users == 0   -> stale lock from a crashed attempt -> reclaim
+        //   users == 0   -> EITHER a crashed attempt OR a winner still in
+        //                   flight — indistinguishable by row content, so
+        //                   discriminate by AGE (see RACE AUDIT above):
+        //                   only a lock older than LOCK_STALE_MS is
+        //                   reclaimable, via ONE atomic guarded UPDATE.
         if ((await db.user.count()) > 0) {
           throw new ApiError(409, "الحساب الأول موجود بالفعل (تمت عملية إعداد متزامنة)");
         }
-        try {
-          await db.platformLock.delete({ where: { key: "bootstrap" } });
-          await db.platformLock.create({ data: { key: "bootstrap" } });
-          lockHeld = true;
-        } catch {
+        const now = new Date();
+        const reclaimed = await db.platformLock.updateMany({
+          where: { key: "bootstrap", createdAt: { lt: new Date(now.getTime() - LOCK_STALE_MS) } },
+          data: { createdAt: now },
+        });
+        if (reclaimed.count === 1) {
+          myLockAt = now;
+          lockHeld = true; // a stale (crashed-attempt) lock — safely ours now
+        } else {
+          // lock exists but is FRESH: a bootstrap attempt is in flight right
+          // now — do NOT touch it (this is the exact spot the pre-fix code
+          // deleted an in-flight winner's lock)
           throw new ApiError(409, "سباق إعداد جارٍ — أعد المحاولة بعد لحظات");
         }
       } else {
@@ -115,10 +156,15 @@ export async function POST(req: NextRequest) {
   } catch (e) {
     // on ANY failure after acquiring the lock with no user created, release
     // it (failed bootstrap must not brick the instance)
-    if (lockHeld) {
+    if (lockHeld && myLockAt) {
       try {
         if ((await db.user.count()) === 0) {
-          await db.platformLock.deleteMany({ where: { key: "bootstrap" } });
+          // holder-scoped: delete only the lock row THIS request wrote
+          // (createdAt equality) — never another in-flight/reclaiming
+          // holder's row
+          await db.platformLock.deleteMany({
+            where: { key: "bootstrap", createdAt: myLockAt },
+          });
         }
       } catch {
         /* best effort */
