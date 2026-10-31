@@ -94,7 +94,7 @@ echo "public routes warmed"
 # database + one server (a parallel beforeAll races the bootstrap). Exit
 # codes aggregate — any red file fails the run.
 RC=0
-for F in tests/api.integration.test.ts tests/bola.integration.test.ts tests/ssrf.integration.test.ts tests/auditlog.integration.test.ts; do
+for F in tests/ratelimit.integration.test.ts tests/api.integration.test.ts tests/bola.integration.test.ts tests/ssrf.integration.test.ts tests/auditlog.integration.test.ts; do
   echo "--- bun test ${F} ---"
   INTEGRATION_SERVER_URL="${URL}" INTEGRATION_PORT="${PORT}" \
     bun test --timeout 60000 "${F}" || RC=1

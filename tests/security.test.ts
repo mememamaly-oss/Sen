@@ -137,33 +137,41 @@ describe("isLocalUrl heuristic", () => {
 
 // ------------------------------------------------------------- rate limiter
 
-describe("login rate limiter (audit 2026-10-23)", () => {
-  beforeEach(() => resetRateLimits());
+// 2.9 (2026-10-31): the limiter is now a SHARED-STORE (PostgreSQL)
+// async API. These unit checks require a postgres DATABASE_URL (CI's web
+// job provides the service container); without one they skip — the
+// authoritative proofs, including the two-process red/green, live in
+// tests/ratelimit.integration.test.ts.
+describe("login rate limiter (audit 2026-10-23; shared store 2026-10-31)", () => {
+  const PG = (process.env.DATABASE_URL || "").startsWith("postgres");
+  beforeEach(async () => {
+    if (PG) await resetRateLimits();
+  });
 
-  test("allows up to N hits then blocks, with retryAfter", () => {
+  test.skipIf(!PG)("allows up to N hits then blocks, with retryAfter", async () => {
     for (let i = 0; i < 10; i++) {
-      const v = rateLimit("k1", 10, 60_000);
+      const v = await rateLimit("k1", 10, 60_000);
       expect(v.allowed).toBe(true);
     }
-    const blocked = rateLimit("k1", 10, 60_000);
+    const blocked = await rateLimit("k1", 10, 60_000);
     expect(blocked.allowed).toBe(false);
     expect(blocked.retryAfterSec).toBeGreaterThan(0);
     expect(blocked.retryAfterSec).toBeLessThanOrEqual(60);
   });
 
-  test("keys are isolated", () => {
-    for (let i = 0; i < 10; i++) rateLimit("a", 10, 60_000);
-    expect(rateLimit("a", 10, 60_000).allowed).toBe(false);
-    expect(rateLimit("b", 10, 60_000).allowed).toBe(true);
+  test.skipIf(!PG)("keys are isolated", async () => {
+    for (let i = 0; i < 10; i++) await rateLimit("a", 10, 60_000);
+    expect((await rateLimit("a", 10, 60_000)).allowed).toBe(false);
+    expect((await rateLimit("b", 10, 60_000)).allowed).toBe(true);
   });
 
-  test("window slides (expired hits free the key)", async () => {
+  test.skipIf(!PG)("window slides (expired hits free the key)", async () => {
     // 3 hits / 80ms window: the 4th is blocked, but after the window
     // passes the bucket frees itself (no permanent lockout).
-    for (let i = 0; i < 3; i++) rateLimit("slide", 3, 80);
-    expect(rateLimit("slide", 3, 80).allowed).toBe(false);
+    for (let i = 0; i < 3; i++) await rateLimit("slide", 3, 80);
+    expect((await rateLimit("slide", 3, 80)).allowed).toBe(false);
     await new Promise((r) => setTimeout(r, 120));
-    const later = rateLimit("slide", 3, 80);
+    const later = await rateLimit("slide", 3, 80);
     expect(later.allowed).toBe(true);
   });
 });
