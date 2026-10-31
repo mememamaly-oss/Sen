@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Python engine — requirements.txt + requirements-dev.txt live at the root
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps(pip)"
+    labels:
+      - dependencies
+    # blake3 is pinned deliberately (byte-identical hashing across
+    # environments is a product property — see sentinel/blake3.py)
+    # so major-version jumps need a manual look; everything else can ride.
+    open-pull-requests-limit: 5
+
+  # Platform — package.json at the root (bun lockfile is honored)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps(npm)"
+    labels:
+      - dependencies
+    open-pull-requests-limit: 5
