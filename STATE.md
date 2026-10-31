@@ -14,12 +14,10 @@ subprocess CLI (`src/lib/engine.ts`).
 
 ## Current state (2026-10-31)
 
-- Branch `main`: origin/main = fb725eb — pushed 2026-10-31 in verified
-  fast-forwards (2fba859: the three CI fixes + the real-target job;
-  fb725eb: the web warmup fix). **CI is GREEN for the first time:
-  run 41150402123, 6/6 jobs** (web · engine · secrets · fixture · drift ·
-  real-targets). Full diagnosis→fix→green ladder:
-  evidence/ci-green-2026-10-31/RECORD.md.
+- Branch `main`: origin/main = ee7fc87 — the first-green-CI state
+  (run 41150402123, 6/6 jobs) — followed by the public-readiness
+  campaign below, pushed through the same gate. Remote branches:
+  main only.
 - **Real-target validation now exists**: a CI job scanning OWASP Juice
   Shop v20.3.0 (pinned container) unauthenticated — the engine's first
   live real-world scan (59 verified / 1 type / 0 unmapped, budget-capped
@@ -68,21 +66,54 @@ subprocess CLI (`src/lib/engine.ts`).
   independent-verification/. Owner actions pending: the VPS runner
   (DVWA/crAPI/full-budget Juice Shop/WebGoat deep/OWASP Benchmark) and the
   bug-bounty shortlist (docs/independent-verification/BUG_BOUNTY_SHORTLIST.md).
-- 2026-10-31 Phase-2 commercial campaign (P2, this push): compliance
-  registry for all 54 detector classes (OWASP Top 10 2021 + 2025 FINAL,
-  CWE, PCI DSS 6.4.2 = 6.6 in v3.2.1) with machine-checked official/scope
-  source tags, wired into result.json + all five report formats + the
-  platform (complianceJson column, finding UI chips, /docs/compliance,
-  live demo). SQLite->PostgreSQL migration with REAL migrations. Public
-  landing + docs + demo (/api/demo/scan: hardcoded target, per-IP
-  limits, single lane, no tenant writes). CI rebuilt as ONE workflow
-  file with five jobs (PG service container, canonical fixture run +
-  benchmark gate F1==1.0/TP==38/FP==0, compliance drift guard) + a
-  GitLab CI template (integrations/gitlab-ci/). secure_cookie was found
-  unregistered BY the new check — fixed (SEN-CKI-001, CWE-614).
-  Phase-3 groundwork docs (pentest RFP / SOC 2 readiness / hosted free
-  tier) under docs/phase3/. Full record:
-  evidence/phase2-compliance-ci/RECORD.md.
+- 2026-10-31 public-readiness campaign (this chain, owner-ordered
+  consolidated Parts 1–7):
+  - **P1 sweep**: gitleaks 8.30.1 over EXACTLY fd54110..main (35
+    post-rewrite commits) + tracked-tree scan + printed targeted
+    patterns: 497/613 findings, 71 distinct values, ALL classified
+    (fixture markers, fixture-issued JWT/JWE, public Juice Shop demo
+    tokens, labeled CI dummies) — **zero real secrets**; remote = main
+    only, all 12 tags contained in main (no pre-rewrite exposure);
+    evidence/security-sweep-2026-10-31/.
+  - **P2 hygiene**: LICENSE (Apache-2.0 — DEFAULT, pending owner
+    confirmation), CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
+    (private-vuln-reporting channel, honest 7d/30d targets), issue/PR
+    templates; stray tracked files `--` and `.backup-stage-19axis.list`
+    removed; README comparative-claims grep re-run — zero.
+  - **P3 GitHub-native security**: .github/dependabot.yml (npm+pip,
+    weekly); .github/workflows/codeql.yml (js-ts + python, guarded to
+    activate only when public — CodeQL needs public/GHAS).
+  - **P4A transparency log v1**: transparency-log/log.jsonl (append-only,
+    hash-chained, Ed25519-signed with the pinned project key
+    transparency-log/pubkey.hex), signer tools/append_transparency.py,
+    INDEPENDENT verifier tools/independent_verify.py (zero sentinel
+    imports; verifies log chain, bundles incl. per-finding inclusion
+    proofs, and report audit blocks), tamper battery 5/5 PASS (untampered
+    accepts; single-char evidence/signature/merkle-path tampers rejected;
+    different-keypair rejected) — evidence/transparency-log/selftest/;
+    the committed 199-finding fixture report verifies independently;
+    format spec docs/transparency-log-format.md; the missing
+    docs/AUDIT_VERIFICATION.md (referenced by audit.py RECIPE_DOC)
+    created. Signing seed: .transparency-seed (gitignored, local) + the
+    TRANSPARENCY_SEED CI secret.
+  - **P4B reproducibility attestation**: scripts/repro_attest.py — two
+    SEPARATE executions of the canonical fixture scan; HARD GATE asserts
+    identical merkle_root + findings_count + full-set sha256; CI job
+    `reproducibility` runs it on every push.
+  - **P5 action packaging**: action.yml (composite: setup-python, deps,
+    scan, severity gate + count outputs) + docs/github-action.md; CI job
+    `action-demo` exercises it via `uses: ./` (and via the published tag
+    on workflow_dispatch).
+  - **P6 public polish**: docs/index.md + docs/_config.yml (GitHub Pages
+    source), docs/social-preview.png (upload is UI-only — owner action),
+    README badges (CI/License/Release) + Action/transparency/license
+    sections.
+  - CI now NINE jobs: web · engine · secrets · fixture · drift ·
+    real-targets · reproducibility · transparency · action-demo.
+  - Remaining P3/P7 items (branch protection, break-proof branch, tag+
+    release, Pages enable, metadata/topics, visibility flip + post-flip
+    secret-scanning/CodeQL verification) execute AFTER this chain's CI
+    is green — recorded in the follow-up state update.
 - Secret scanning: `.pre-commit-config.yaml` (gitleaks hook); run
   `pre-commit install` once per clone.
 

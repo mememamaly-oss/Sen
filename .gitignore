@@ -27,3 +27,4 @@ qa-results/*.pid
 results/
 qa-results/greengate_benchmark_output.json
 external/
+.transparency-seed
