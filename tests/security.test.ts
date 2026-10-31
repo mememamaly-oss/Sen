@@ -68,6 +68,21 @@ describe("SSRF policy: normalizeScanOptions (audit 2026-10-23)", () => {
     ).toBe(false);
   });
 
+  test("2.8 guard: ONLY the exact string '1' enables lab mode — every other value stays OFF", () => {
+    const prev = process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
+    try {
+      for (const v of ["0", "false", "true", "yes", "", "2", "on", " 1", "1 "]) {
+        process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = v;
+        expect(labModeEnabled()).toBe(false);
+      }
+      process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = "1";
+      expect(labModeEnabled()).toBe(true);
+    } finally {
+      if (prev === undefined) delete process.env.SENTINEL_ALLOW_PRIVATE_TARGETS;
+      else process.env.SENTINEL_ALLOW_PRIVATE_TARGETS = prev;
+    }
+  });
+
   test("numeric option clamping survives (regression guard)", () => {
     const opts = normalizeScanOptions(
       { maxPages: 99999, timeout: 999, noBrowser: true } as never,
