@@ -23,6 +23,26 @@ name: CI
 #                  never seen, scanned unauthenticated, reports as artifacts.
 #                  First green run = the committed baseline floor; later runs
 #                  gate on reproducing it (scripts/ci_real_target_scan.py).
+#   reproducibility (2026-10-31, public-readiness PART 4B) — the SAME scan
+#                  against the SAME target in TWO genuinely separate
+#                  executions (fresh fixture process + fresh engine process
+#                  per step); the compare step asserts byte-identical
+#                  finding sets (merkle root + count + full-set sha256) and
+#                  FAILS THE BUILD on any mismatch.
+#   transparency (2026-10-31, PART 4A) — signs this run's entry for the
+#                  public transparency log (project key from the
+#                  TRANSPARENCY_SEED secret; skipped with a notice on
+#                  forks/PRs where the secret is unavailable) and verifies
+#                  the COMMITTED log + every committed evidence bundle with
+#                  the independent verifier (tools/independent_verify.py —
+#                  zero code shared with the signer). Tampering with any
+#                  committed evidence turns CI red.
+#   action-demo (2026-10-31, PART 5.3) — dogfoods the packaged GitHub
+#                  Action (action.yml) exactly as an external consumer
+#                  would invoke it: fixture target up, then `uses:` with
+#                  inputs, then the contract asserted (signed result with
+#                  findings + severity outputs). On workflow_dispatch it
+#                  additionally runs the PUBLISHED TAG ref.
 
 on:
   push:
@@ -257,3 +277,151 @@ jobs:
             ${{ runner.temp }}/real/report.sarif
             ${{ runner.temp }}/real/compliance.json
           if-no-files-found: error
+
+  reproducibility:
+    name: Reproducibility attestation (two independent executions)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # playwright + chromium: the canonical run needs the render engine for
+      # the browser-dependent detections (same requirement as the fixture job)
+      - name: Install engine dependencies (+ playwright/chromium)
+        run: |
+          pip install -r requirements.txt playwright
+          python3 -m playwright install --with-deps chromium
+
+      - name: Execution A (fresh fixture process + fresh engine process)
+        run: python3 scripts/repro_attest.py --tag a --out-dir "$RUNNER_TEMP/repro"
+
+      - name: Execution B (fresh fixture process + fresh engine process)
+        run: python3 scripts/repro_attest.py --tag b --out-dir "$RUNNER_TEMP/repro"
+
+      - name: HARD GATE — both executions must be byte-identical
+        run: python3 scripts/repro_attest.py --compare "$RUNNER_TEMP/repro"
+
+      - name: Upload reproducibility attestations
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reproducibility-attestation
+          path: |
+            ${{ runner.temp }}/repro/attestation-a.json
+            ${{ runner.temp }}/repro/attestation-b.json
+            ${{ runner.temp }}/repro/attestation.json
+          if-no-files-found: error
+
+  transparency:
+    name: Transparency log (sign this run + verify the committed log)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install engine dependencies
+        run: pip install -r requirements.txt
+
+      - name: Tamper battery (5 checks, ephemeral keys, independent verifier)
+        run: python3 tools/transparency_selftest.py --out "$RUNNER_TEMP/selftest"
+
+      - name: Canonical scan run (the run to be signed)
+        run: python3 scripts/ci_fixture_run.py --port 8795 --out-dir "$RUNNER_TEMP/t"
+
+      - name: Sign the transparency entry (project key; skipped when the secret is unavailable)
+        env:
+          TRANSPARENCY_SEED: ${{ secrets.TRANSPARENCY_SEED }}
+        run: |
+          if [ -z "$TRANSPARENCY_SEED" ]; then
+            echo "::notice::TRANSPARENCY_SEED not available (fork/PR context) — entry signing skipped; committed-log verification still runs below"
+            exit 0
+          fi
+          python3 tools/append_transparency.py --report "$RUNNER_TEMP/t/scan.json" \
+            --label "fixture:vulnapp (CI)" --no-append \
+            --seed-hex "$TRANSPARENCY_SEED" \
+            --bundle-root "$RUNNER_TEMP/t-bundle" \
+            --out-entry "$RUNNER_TEMP/t/entry.json"
+
+      - name: Upload the signed entry + bundle (adopted into the repo by the gated push)
+        uses: actions/upload-artifact@v4
+        with:
+          name: transparency-entry
+          path: |
+            ${{ runner.temp }}/t/entry.json
+            ${{ runner.temp }}/t/scan.json
+            ${{ runner.temp }}/t-bundle/**
+          if-no-files-found: warn
+
+      - name: Verify the COMMITTED transparency log + every committed bundle
+        run: |
+          python3 tools/independent_verify.py verify-log transparency-log/log.jsonl \
+            --pubkey transparency-log/pubkey.hex
+          found=0
+          for d in evidence/transparency-log/*/; do
+            case "$d" in *selftest*) continue ;; esac
+            [ -f "$d/entry.json" ] || continue
+            found=1
+            python3 tools/independent_verify.py verify-bundle "$d" \
+              --pubkey transparency-log/pubkey.hex \
+              --log transparency-log/log.jsonl
+          done
+          if [ "$found" = "1" ]; then echo "committed bundles verified"; else echo "no committed bundles yet (first cycle)"; fi
+
+  action-demo:
+    name: GitHub Action dogfood (external-consumer simulation)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start the fixture target (the "external app" being scanned)
+        run: |
+          PORT=8788 nohup python3 fixtures/vulnapp.py > /tmp/fixture.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8788/ > /dev/null; then echo "fixture up (attempt $i)"; exit 0; fi
+            sleep 1
+          done
+          echo "::error::fixture did not come up in 30s"
+          cat /tmp/fixture.log
+          exit 1
+
+      # push/PR context: exercise the action code from THIS commit
+      - name: Run the action (local ref — this commit's action.yml)
+        if: github.event_name != 'workflow_dispatch'
+        uses: ./
+        with:
+          target: http://127.0.0.1:8788
+          out: sen-result.json
+          allow-private: "true"
+
+      # manual dispatch: exercise the PUBLISHED TAG exactly as an external
+      # consumer's resolver would fetch it (available once v4.5.0 is tagged)
+      - name: Run the action (published tag — external resolution)
+        if: github.event_name == 'workflow_dispatch'
+        uses: mememamaly-oss/Sen@v4.5.0
+        with:
+          target: http://127.0.0.1:8788
+          out: sen-result.json
+          allow-private: "true"
+
+      - name: Assert the action's contract (signed result, findings, outputs)
+        run: |
+          test -f sen-result.json
+          python3 - <<'PY'
+          import json
+          rep = json.load(open("sen-result.json"))
+          audit = rep.get("audit") or {}
+          assert audit.get("merkle_root"), "result must carry a signed audit block"
+          assert audit.get("signature_b64"), "result must carry a signature"
+          assert len(rep.get("findings", [])) > 0, "fixture scan must produce findings"
+          print("action contract OK:", len(rep["findings"]), "findings, root",
+                audit["merkle_root"][:16] + "…")
+          PY
