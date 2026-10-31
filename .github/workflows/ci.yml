@@ -327,8 +327,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install engine dependencies
-        run: pip install -r requirements.txt
+      - name: Install engine dependencies (+ playwright — the canonical run needs the render engine)
+        run: |
+          pip install -r requirements.txt playwright
+          python3 -m playwright install --with-deps chromium
 
       - name: Tamper battery (5 checks, ephemeral keys, independent verifier)
         run: python3 tools/transparency_selftest.py --out "$RUNNER_TEMP/selftest"
