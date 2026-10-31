@@ -68,14 +68,14 @@ def test_engine_scan_smoke_on_fixture(vulnapp, tmp_path):
     policy shape (allow_private for the loopback demo target). A short scan
     must complete, return a result dict, and find the fixture's known
     vulnerable surface."""
-    from sentinel.orchestrator import SentinelScanner, ScanConfig
+    from burhan.orchestrator import BurhanScanner, ScanConfig
 
     cfg = ScanConfig(
         allow_private=True,   # loopback fixture = the demo-target policy
         max_pages=6,          # quick smoke, not the full 40-page benchmark
         timeout=8.0,
     )
-    scanner = SentinelScanner(vulnapp, cfg)
+    scanner = BurhanScanner(vulnapp, cfg)
     data = scanner.run()
     assert isinstance(data, dict)
     findings = data.get("findings", [])
@@ -90,7 +90,7 @@ def test_engine_scan_smoke_on_fixture(vulnapp, tmp_path):
 
 def test_doctor_no_failures():
     """The engine doctor must report zero FAIL (WARN allowed: browser env)."""
-    from sentinel.orchestrator import doctor
+    from burhan.orchestrator import doctor
     report = doctor()
     checks = report["checks"] if isinstance(report, dict) and "checks" in report else report
     fails = [c for c in checks if c.get("status") == "FAIL"]

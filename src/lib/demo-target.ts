@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { spawn } from "child_process";
 import fs from "fs";
 import path from "path";
@@ -8,9 +9,9 @@ import { ENGINE_DIR, SCANS_DIR } from "@/lib/engine";
 // Port 8777 is the fixture's fixed port (127.0.0.1 only).
 
 export const DEMO_TARGET_URL = "http://127.0.0.1:8777";
-export const DEMO_TARGET_NAME = "Sentinel Demo App (vulnapp محلي)";
+export const DEMO_TARGET_NAME = "Burhan Demo App (vulnapp محلي)";
 
-const g = globalThis as unknown as { __sentinelDemoStarted?: boolean };
+const g = globalThis as unknown as { __burhanDemoStarted?: boolean };
 
 export async function demoTargetHealthy(): Promise<boolean> {
   try {
@@ -26,10 +27,10 @@ export async function demoTargetHealthy(): Promise<boolean> {
 
 export async function ensureDemoTarget(): Promise<{ ok: boolean; detail: string }> {
   if (await demoTargetHealthy()) {
-    g.__sentinelDemoStarted = true;
+    g.__burhanDemoStarted = true;
     return { ok: true, detail: "demo target جاهز بالفعل" };
   }
-  if (g.__sentinelDemoStarted) {
+  if (g.__burhanDemoStarted) {
     // we started it this session but health check failed — give it a moment
     await new Promise((r) => setTimeout(r, 1200));
     if (await demoTargetHealthy()) return { ok: true, detail: "demo target جاهز" };
@@ -41,13 +42,13 @@ export async function ensureDemoTarget(): Promise<{ ok: boolean; detail: string 
   // child try to bind 127.0.0.1:3000 (the dev server itself) -> EADDRINUSE.
   // The demo target's contract is the fixture's designed fixed port 8777.
   const child = spawn(
-    process.env.SENTINEL_PYTHON || "python3",
+    env("PYTHON") ?? "python3",
     ["fixtures/vulnapp.py"],
     { cwd: ENGINE_DIR, stdio: ["ignore", out, out], detached: true, env: { ...process.env, PORT: "8777" } }
   );
   child.unref();
   fs.closeSync(out);
-  g.__sentinelDemoStarted = true;
+  g.__burhanDemoStarted = true;
   for (let i = 0; i < 12; i++) {
     await new Promise((r) => setTimeout(r, 500));
     if (await demoTargetHealthy()) {

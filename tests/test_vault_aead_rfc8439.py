@@ -12,8 +12,8 @@ import os
 
 import pytest
 
-import sentinel.vault as vault
-from sentinel.vault import Vault, VaultError, _derive, crypto_selftest
+import burhan.vault as vault
+from burhan.vault import Vault, VaultError, _derive, crypto_selftest
 
 
 def test_rfc8439_official_vector_selftest():

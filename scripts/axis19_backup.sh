@@ -53,7 +53,7 @@ rm -f .list19
 echo "[5/6] tarball restore spot-check..."
 TDIR=".backup-verify-tar"; rm -rf "$TDIR"; mkdir -p "$TDIR"
 tar -xzf "$BK/sen-working-state-2026-10-23.tar.gz" -C "$TDIR"
-[ -f "$TDIR/sen-working-state/package.json" ] && [ -d "$TDIR/sen-working-state/sentinel" ] \
+[ -f "$TDIR/sen-working-state/package.json" ] && [ -d "$TDIR/sen-working-state/burhan" ] \
   && echo "TAR-RESTORE-OK" || { echo "TAR-RESTORE-FAIL"; exit 1; }
 rm -rf "$TDIR" "$VDIR"
 

@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL ui-kit — executive KPI card + page header.
+// Burhan ui-kit — executive KPI card + page header.
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";

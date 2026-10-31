@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: TWIN SERVICE (API-facing orchestration)
+// Burhan — PHASE 02 L1: TWIN SERVICE (API-facing orchestration)
 //
 // get-or-build the normalized Security Twin for a scan:
 //   1. tenant-scoped read of the stored TwinGraph (persist.ts)

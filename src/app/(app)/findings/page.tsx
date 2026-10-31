@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL findings explorer — pick a scan, then search/filter/sort its
+// Burhan findings explorer — pick a scan, then search/filter/sort its
 // findings. Verification language comes from the engine only.
 
 import Link from "next/link";

@@ -2,12 +2,12 @@
 
 ## Scope
 
-This policy covers security vulnerabilities **in Sen itself** — the scan
-engine (`sentinel/`), the SaaS platform (`src/`), the CI integrations
+This policy covers security vulnerabilities **in Burhan itself** — the scan
+engine (`burhan/`), the SaaS platform (`src/`), the CI integrations
 (`.github/`, `integrations/`), and the published artifacts of this
 repository.
 
-It does **not** cover the applications Sen scans. Sen is a DAST scanner:
+It does **not** cover the applications Burhan scans. Burhan is a DAST scanner:
 finding vulnerabilities in *targets* is the product. If your scanned
 application reports issues, use the normal issue tracker.
 
@@ -33,7 +33,7 @@ Please include, where possible:
 ## What you can expect from us
 
 - **Acknowledgement within 7 days** of a report arriving through the
-  private channel. Sen is maintained by a single maintainer; this is an
+  private channel. Burhan is maintained by a single maintainer; this is an
   honest, deliberate commitment rather than an enterprise SLA.
 - An initial assessment (severity, affected versions, fix approach)
   **within 30 days**.

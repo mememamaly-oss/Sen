@@ -35,11 +35,11 @@ def test_tamper_battery(tmp_path):
     assert results["all_pass"]
 
 
-def test_independent_verifier_never_imports_sentinel():
+def test_independent_verifier_never_imports_burhan():
     """The whole point of the independent verifier is that it shares NO
     code with the signer. Guard that property forever."""
     src = (ROOT / "tools" / "independent_verify.py").read_text(encoding="utf-8")
-    for forbidden in ("import sentinel", "from sentinel", "import append_transparency",
+    for forbidden in ("import burhan", "from burhan", "import append_transparency",
                       "from append_transparency", "import transparency_selftest",
                       "from transparency_selftest"):
         assert forbidden not in src, \

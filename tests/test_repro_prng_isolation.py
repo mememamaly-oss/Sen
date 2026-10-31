@@ -3,7 +3,7 @@ deterministic-by-design (SplitMix64) for replay/determinism verification
 only — NOT a CSPRNG. This suite pins, by grep over the committed source,
 that its output is never used as real secret-protection key material:
 
-  1. no module outside sentinel/repro.py imports or executes its streams;
+  1. no module outside burhan/repro.py imports or executes its streams;
   2. the real secret paths (vault/proof/audit/orchestrator) carry no
      repro dependency at all;
   3. the historical misuse (audit-rb-1, closed 2026-10-21 — SeededPRNG
@@ -17,19 +17,19 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SENTINEL = ROOT / "sentinel"
+Burhan = ROOT / "burhan"
 
 IMPORT_RE = re.compile(
-    r"from\s+(?:\.|sentinel\.)repro\s+import|import\s+sentinel\.repro\b")
+    r"from\s+(?:\.|burhan\.)repro\s+import|import\s+burhan\.repro\b")
 WORD_RE = re.compile(r"\brepro\b")
 
 
 def _src(name):
-    return (SENTINEL / name).read_text(encoding="utf-8")
+    return (Burhan / name).read_text(encoding="utf-8")
 
 
 def test_no_runtime_module_consumes_repro_streams():
-    offenders = [p.name for p in sorted(SENTINEL.glob("*.py"))
+    offenders = [p.name for p in sorted(Burhan.glob("*.py"))
                  if p.name != "repro.py"
                  and IMPORT_RE.search(p.read_text(encoding="utf-8"))]
     assert offenders == [], \
@@ -60,7 +60,7 @@ def test_repro_declares_not_a_csprng():
 
 
 def test_subpackages_clean_too():
-    offenders = [str(p.relative_to(ROOT)) for p in SENTINEL.rglob("*.py")
+    offenders = [str(p.relative_to(ROOT)) for p in Burhan.rglob("*.py")
                  if p.name != "repro.py"
                  and IMPORT_RE.search(p.read_text(encoding="utf-8"))]
     assert offenders == [], f"repro stream consumers: {offenders}"

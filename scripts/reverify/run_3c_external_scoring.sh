@@ -18,7 +18,7 @@ if [ -f $EV/ginandjuice-shop/scan.json ]; then
   echo "scan.json exists — skipping the scan (resume mode)"
 else
   T0=$(date +%s)
-  timeout 480 python3 -m sentinel.cli scan https://ginandjuice.shop/ \
+  timeout 480 python3 -m burhan.cli scan https://ginandjuice.shop/ \
     --workflow --logic-active --race --symbolic \
     --max-pages 25 --timeout 12.0 \
     --out $EV/ginandjuice-shop/scan.json \
@@ -39,9 +39,9 @@ else
 import json, sys
 from pathlib import Path
 sys.path.insert(0, ".")
-from sentinel.store import Store
-from sentinel.evidence import replay_finding
-from sentinel.core import EventBus, ScopeRule
+from burhan.store import Store
+from burhan.evidence import replay_finding
+from burhan.core import EventBus, ScopeRule
 from urllib.parse import urlsplit
 
 EV = Path("evidence/full-reverify/ginandjuice-shop")

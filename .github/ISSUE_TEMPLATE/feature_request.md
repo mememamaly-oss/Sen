@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: Propose a new capability for Sen
+about: Propose a new capability for Burhan
 title: "[feat] "
 labels: enhancement
 assignees: ''
@@ -10,7 +10,7 @@ assignees: ''
 A description of the problem, e.g. "I'm always frustrated when [...]".
 
 **Describe the solution you'd like**
-What should Sen do differently? For a new detector, name the vulnerability
+What should Burhan do differently? For a new detector, name the vulnerability
 class and — if possible — a public reference (OWASP category, CWE, spec).
 
 **Describe alternatives you've considered**

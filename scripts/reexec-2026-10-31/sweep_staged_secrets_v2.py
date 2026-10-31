@@ -62,7 +62,7 @@ for name, rx in FORMATS.items():
     for s in rx.findall(fx):
         allowed[h(s)] = f"fixture-source:{name}"
 eng = "\n".join(open(f, encoding="utf-8").read()
-                for f in sorted(glob.glob("sentinel/**/*.py", recursive=True)))
+                for f in sorted(glob.glob("burhan/**/*.py", recursive=True)))
 for name, rx in FORMATS.items():
     for s in rx.findall(eng):
         allowed[h(s)] = f"engine-source:{name}"

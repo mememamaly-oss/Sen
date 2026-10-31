@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Independent verifier for the Sen transparency log and signed reports.
+"""Independent verifier for the Burhan transparency log and signed reports.
 
-WHY THIS FILE EXISTS, AND WHY IT IMPORTS NOTHING FROM `sentinel`
+WHY THIS FILE EXISTS, AND WHY IT IMPORTS NOTHING FROM `burhan`
 ----------------------------------------------------------------
-The point of a transparency log is that a third party can verify Sen's
+The point of a transparency log is that a third party can verify Burhan's
 signed scan results while trusting NOTHING about this project — not its
 maintainers, and deliberately not its own code. A verifier that imports
 the signer's modules would share any bug the signer has: if the signer
@@ -70,7 +70,7 @@ EMPTY_ROOT_HEX = ("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca"
 
 # Report-level audit key derivation (the recipe embedded in every report):
 # HKDF-SHA256 over the run seed with a versioned, domain-separated salt.
-AUDIT_HKDF_SALT = b"SENTINEL-axis14-ed25519-HKDF-SHA256-v1"
+AUDIT_HKDF_SALT = b"Burhan-axis14-ed25519-HKDF-SHA256-v1"
 AUDIT_HKDF_INFO = b"axis14-ed25519-keypair"
 
 ENTRY_CORE_FIELDS = (
@@ -439,7 +439,7 @@ def verify_report(report_path: Path) -> dict:
 # ============================================================ CLI
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(
-        description="Independent verifier for Sen transparency log, "
+        description="Independent verifier for Burhan transparency log, "
                     "evidence bundles, and signed reports")
     sub = ap.add_subparsers(dest="cmd", required=True)
 

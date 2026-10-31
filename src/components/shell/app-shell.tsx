@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL app shell — sidebar + topbar + mobile drawer + auth guard.
+// Burhan app shell — sidebar + topbar + mobile drawer + auth guard.
 // RTL-aware via logical utilities; keyboard accessible; reduced-motion safe.
 
 import Link from "next/link";

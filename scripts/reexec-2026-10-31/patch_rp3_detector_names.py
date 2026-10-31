@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """RP-3 patch: stamp detector= on the remaining ambiguous Finding sites in
-sentinel/detect.py (path_traversal x2, cmdi x2, cmdi_echo x3, trav_hname,
+burhan/detect.py (path_traversal x2, cmdi x2, cmdi_echo x3, trav_hname,
 trav_pname). Anchors are unique Evidence-kind strings; each patch finds its
 anchor then the NEXT status=FindingStatus.CANDIDATE) close (asserted within
 1200 chars = same call). Idempotency guard: skips if the close already
@@ -8,7 +8,7 @@ carries detector=.
 """
 from pathlib import Path
 
-P = Path("/home/z/my-project/sentinel/detect.py")
+P = Path("/home/z/my-project/burhan/detect.py")
 src = P.read_text(encoding="utf-8")
 CLOSE = "status=FindingStatus.CANDIDATE)"
 SITES = [

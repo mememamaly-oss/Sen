@@ -17,8 +17,8 @@ from urllib.parse import urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from sentinel.core import EventBus, ScopeRule
-from sentinel.evidence import replay_finding
+from burhan.core import EventBus, ScopeRule
+from burhan.evidence import replay_finding
 
 EV = Path(__file__).resolve().parents[2] / "evidence/full-reverify/ginandjuice-shop"
 scan = json.loads((EV / "scan.json").read_text(encoding="utf-8"))

@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL — standardized async state for pages: loading/error/ready + retry.
+// Burhan — standardized async state for pages: loading/error/ready + retry.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 

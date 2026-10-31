@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL reports — the gallery. Format filter + deep links to /reports/[id].
+// Burhan reports — the gallery. Format filter + deep links to /reports/[id].
 
 import Link from "next/link";
 import { useMemo, useState } from "react";

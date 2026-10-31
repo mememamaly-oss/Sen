@@ -1,4 +1,4 @@
-// SENTINEL SaaS Platform schema (P0) — multi-tenant layer on top of the
+// Burhan SaaS Platform schema (P0) — multi-tenant layer on top of the
 // UNMODIFIED security engine (build-v411, tagged v4.1.1).
 // Tenant isolation: every business row carries orgId and every query is
 // membership-guarded at the API layer (src/lib/rbac.ts).
@@ -88,7 +88,7 @@ model Scan {
   status      String
   optionsJson String       // snapshot of the options the operator chose
   runId       String? // engine run id (run-xxxxxxxx)
-  scanner     String? // e.g. sentinel-core/4.1.1
+  scanner     String? // e.g. burhan-core/5.0.0
   statsJson   String? // full engine stats incl. coverage + boundary
   enginePid   Int?
   resultPath  String?

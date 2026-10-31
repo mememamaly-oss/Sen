@@ -22,7 +22,7 @@ ok = fail = 0
 for f in s["findings"]:
     if f["type"] == "missing_security_headers":
         req = urllib.request.Request(f["url"], method="GET",
-                                     headers={"User-Agent": "sentinel-reverify"})
+                                     headers={"User-Agent": "burhan-reverify"})
         try:
             resp = urllib.request.urlopen(req, timeout=20)
             present = {h.lower() for h in resp.headers.keys()}
@@ -39,7 +39,7 @@ for f in s["findings"]:
                                "reobservation_agrees": agree})
     elif f["type"] == "vulnerable_js_dependency":
         req = urllib.request.Request(f["url"], method="GET",
-                                     headers={"User-Agent": "sentinel-reverify"})
+                                     headers={"User-Agent": "burhan-reverify"})
         try:
             body = urllib.request.urlopen(req, timeout=20).read()
             is_angular_177 = (b"1.7.7" in body and b"angular" in body.lower())

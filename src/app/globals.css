@@ -4,11 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   SENTINEL — Premium Security Intelligence design system (Phase 01)
+   Burhan — Premium Security Intelligence design system (Phase 01)
 
    Principles:
    1. One severity scale everywhere: critical/high/medium/low/info.
-   2. Calm surfaces, precise borders, ONE accent (sentinel cyan) — the product
+   2. Calm surfaces, precise borders, ONE accent (burhan cyan) — the product
       is a security console, not a toy.
    3. Motion budget ≤ 180ms; every animation honors prefers-reduced-motion.
    4. RTL-first: logical properties only (ms/me/ps/pe, start/end).

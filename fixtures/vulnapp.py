@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""SENTINEL Benchmark Fixture v1 — locally-hosted intentionally vulnerable app.
+"""Burhan Benchmark Fixture v1 — locally-hosted intentionally vulnerable app.
 GROUND TRUTH (see benchmarks/ground_truth.json):
   /vuln/sqli_error.php?id      -> sql_injection (error-based)
   /vuln/sqli_blind.php?id      -> sql_injection (boolean oracle 200/500)
   /vuln/xss.php?q              -> xss_reflected (raw reflection)
-  /vuln/traversal.php?file     -> path_traversal (reads SENTINEL-SECRET-FILE)
+  /vuln/traversal.php?file     -> path_traversal (reads BURHAN-SECRET-FILE)
   /vuln/redirect.php?url       -> open_redirect (Location header)
   /vuln/jsparam.php?cat        -> sql_injection (500-on-quote, no DB string) +
                                   xss_reflected (slash-escaping app: <> raw, / escaped) +
@@ -64,7 +64,7 @@ from urllib.parse import urlparse, parse_qs, unquote
 
 DELAY_MS = float(os.environ.get("DELAY_MS", "0"))   # for chaos/repair demos: artificial per-request latency
 
-SECRET_FILE = "SENTINEL-SECRET-FILE: benchmark-fixture-secret-do-not-leak\n"
+SECRET_FILE = "BURHAN-SECRET-FILE: benchmark-fixture-secret-do-not-leak\n"
 
 # Fake filesystem for the XXE endpoint (entity resolution simulation — the real
 # ginandjuice.shop oracle behaved exactly like this: distinct response per readable
@@ -76,7 +76,7 @@ FAKE_FS = {
     "/etc/lsb-release": "DISTRIB_ID=Ubuntu\nDISTRIB_RELEASE=22.04\n",
 }
 
-HEADER_TMPL = """<!DOCTYPE html><html><head><title>Sentinel Fixture</title></head><body>
+HEADER_TMPL = """<!DOCTYPE html><html><head><title>Burhan Fixture</title></head><body>
 <div class="menubar"><a href="/">home</a>
  - <a href="/vuln/ssti?name=world">ssti</a> - <a href="/safe/ssti?name=world">safe ssti</a>
  - <a href="/vuln/hostbuild">host header</a> - <a href="/safe/hostbuild">safe host</a>
@@ -235,11 +235,11 @@ CSRF_TOKEN = _hl.sha1((CSRF_SESSION + "|csrf").encode()).hexdigest()[:16]
 # carrying several markers at once is a directory, not object-level access).
 AUTH_USERS = {
     "demo":  {"pass": "demo123",  "role": "admin", "uid": "1001",
-              "email": "root-admin@sentinel-fixture.local"},
+              "email": "root-admin@burhan-fixture.local"},
     "bob":   {"pass": "bob123",   "role": "user",  "uid": "2002",
-              "email": "bob-user@sentinel-fixture.local"},
+              "email": "bob-user@burhan-fixture.local"},
     "carol": {"pass": "carol123", "role": "user",  "uid": "3003",
-              "email": "carol-user@sentinel-fixture.local"},
+              "email": "carol-user@burhan-fixture.local"},
 }
 PROFILES = {u["uid"]: {"user_id": uid, "username": name, "email": u["email"],
                        "role": u["role"]}
@@ -250,7 +250,7 @@ ADMIN_STATS = {"admins": 3, "monthly_revenue": "9137", "flag": "ADMIN-ONLY-VIEW"
 # hardened twin whose values are masked placeholders (hygiene, NOT secrets).
 LEAK_CONFIG = {"app": "fixture", "env": "prod",
                "aws_access_key_id": "AKIAIOSFODNN7EXAMPLE",
-               "github_token": "ghp_SENTINELFIXTUREGHPTOKEN1234567890",
+               "github_token": "ghp_BURHANFIXTUREGHPTOKEN1234567890",
                "database_url": "mysql://app:s3nt1nelDbPw@10.0.0.5:3306/fixture"}
 SAFE_LEAK_CONFIG = {"app": "fixture", "env": "prod",
                     "aws_access_key_id": "AKIA********************",
@@ -399,7 +399,7 @@ def _jwt(header: dict, payload: dict, secret: str | None) -> str:
 # deterministic tokens (fixed claims, no timestamps — reproducible scans)
 VULN_JWT = _jwt({"alg": "none", "typ": "JWT"}, {"sub": "demo", "role": "user"}, None)
 SAFE_JWT = _jwt({"alg": "HS256", "typ": "JWT"}, {"sub": "demo", "role": "user"},
-                "sentinel-fixture-secret-v7")
+                "burhan-fixture-secret-v7")
 # guard: the tokens must never contain the SSTI oracle values "49"/"132" — an ambient
 # match inside a base64 string would be a false SSTI signal on the JWT surfaces
 assert "49" not in VULN_JWT and "132" not in VULN_JWT, VULN_JWT
@@ -565,7 +565,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(code)
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Server", "Sentinel-Fixture/1.0")   # banner disclosure (positive passive)
+        self.send_header("Server", "Burhan-Fixture/1.0")   # banner disclosure (positive passive)
         for k, v in (headers or {}).items(): self.send_header(k, v)
         self.end_headers()
         self.wfile.write(body)
@@ -584,7 +584,7 @@ class Handler(BaseHTTPRequestHandler):
         path = unquote(u.path)
 
         if path == "/" :
-            return self._send(200, HEADER_TMPL.format(body="<h1>Sentinel Benchmark Fixture</h1>"))
+            return self._send(200, HEADER_TMPL.format(body="<h1>Burhan Benchmark Fixture</h1>"))
 
         # ---------------- Phase 55: SSTI / Host-header surfaces ----------------
         if path == "/vuln/ssti":
@@ -1109,7 +1109,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(400, '"invalid JSON"')
             user = str(data.get("user", "demo"))[:32]
             token = _jwt({"alg": "HS256", "typ": "JWT"},
-                         {"sub": user, "role": "user"}, "sentinel-fixture-secret-v7")
+                         {"sub": user, "role": "user"}, "burhan-fixture-secret-v7")
             return self._send(200, json.dumps({"token": token, "ok": True}),
                               {"Content-Type": "application/json"})
 
@@ -1422,5 +1422,5 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8777"))
     srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"SENTINEL fixture listening on 127.0.0.1:{port} delay={DELAY_MS}ms")
+    print(f"Burhan fixture listening on 127.0.0.1:{port} delay={DELAY_MS}ms")
     srv.serve_forever()

@@ -1,4 +1,4 @@
-name: Sen DAST scan
+name: Burhan DAST scan
 description: >-
   Deterministic DAST scan of a web target with signed, independently
   verifiable findings (Ed25519 + Merkle proofs) and OWASP Top 10 / CWE /
@@ -7,7 +7,7 @@ icon: shield
 color: green
 
 # Marketplace listing requires the repository to be public; until then the
-# action is usable directly by tag: uses: mememamaly-oss/Sen@<tag>
+# action is usable directly by tag: uses: mememamaly-oss/burhan@<tag>
 
 inputs:
   target:
@@ -16,7 +16,7 @@ inputs:
   out:
     description: "Path for the enriched, signed JSON result"
     required: false
-    default: "sen-result.json"
+    default: "burhan-result.json"
   db:
     description: "Path for the SQLite store (empty = do not persist)"
     required: false
@@ -98,7 +98,7 @@ runs:
       shell: bash
       run: pip install -r "${{ github.action_path }}/requirements.txt"
 
-    - name: Run Sen scan
+    - name: Run Burhan scan
       shell: bash
       run: |
         set -euo pipefail
@@ -113,7 +113,7 @@ runs:
           ARGS+=(--auth-user-field "${{ inputs.auth-user-field }}" --auth-pass-field "${{ inputs.auth-pass-field }}")
           [ -n "${{ inputs.auth-success-marker }}" ] && ARGS+=(--auth-success-marker "${{ inputs.auth-success-marker }}")
         fi
-        python3 -m sentinel.cli scan "${{ inputs.target }}" "${ARGS[@]}"
+        python3 -m burhan.cli scan "${{ inputs.target }}" "${ARGS[@]}"
 
     - name: Collect results and apply severity gate
       id: results

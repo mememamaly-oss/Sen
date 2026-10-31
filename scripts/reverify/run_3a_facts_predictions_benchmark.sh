@@ -68,7 +68,7 @@ sha256sum $EV/predictions.json
 
 echo "== P3.2: benchmark CLI run (actual engine, all detectors + race battery) =="
 T0=$(date +%s)
-timeout 540 python3 -m sentinel.cli benchmark --race \
+timeout 540 python3 -m burhan.cli benchmark --race \
   --out $EV/fixtures-vulnapp/benchmark.json \
   > $EV/fixtures-vulnapp/benchmark_stdout.log 2>&1
 RC=$?

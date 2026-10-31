@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Apply the AXIS-18 Ed25519 replacement order (STRICT FOLLOW-UP).
 
-Replaces the hand-rolled point arithmetic and the "sentinel-axis18/"
-pre-hash prefix in sentinel/symbolic/models.py with the audited
-cryptography library, per RFC 8032, mirroring sentinel/proof.py.
+Replaces the hand-rolled point arithmetic and the "burhan-axis18/"
+pre-hash prefix in burhan/symbolic/models.py with the audited
+cryptography library, per RFC 8032, mirroring burhan/proof.py.
 
 Idempotent: exits 0 without touching anything if already applied.
 Generates the old-scheme fixture from the live pre-change module BEFORE
@@ -16,9 +16,9 @@ import types
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MODELS = ROOT / "sentinel" / "symbolic" / "models.py"
-INIT = ROOT / "sentinel" / "symbolic" / "__init__.py"
-ORCH = ROOT / "sentinel" / "orchestrator.py"
+MODELS = ROOT / "burhan" / "symbolic" / "models.py"
+INIT = ROOT / "burhan" / "symbolic" / "__init__.py"
+ORCH = ROOT / "burhan" / "orchestrator.py"
 TEST = ROOT / "tests" / "test_symbolic_rfc8032.py"
 
 
@@ -38,7 +38,7 @@ src = MODELS.read_text()
 if "FORMAT CHANGE (2026-10-30)" in src:
     print("already applied — nothing to do")
     sys.exit(0)
-if 'sha512(b"sentinel-axis18/"' not in src:
+if 'sha512(b"burhan-axis18/"' not in src:
     die("old axis-18 anchor missing — wrong base?")
 
 # ------------------------------------------------- 1. old-scheme live fixture
@@ -57,9 +57,9 @@ print("[fixture] old-scheme sig:", old_sig.hex())
 NEW_SECTION = '''# ---------------------------------------------------------------- Ed25519
 # FORMAT CHANGE (2026-10-30): signing now goes through the audited
 # `cryptography` library (pyca) per standard RFC 8032 — the actual payload
-# is signed directly, exactly as sentinel/proof.py has since the
+# is signed directly, exactly as burhan/proof.py has since the
 # 2026-10-30 integrity pass. The deleted "axis-18" variant derived keys
-# via sha512(b"sentinel-axis18/" + seed) with hand-rolled point arithmetic;
+# via sha512(b"burhan-axis18/" + seed) with hand-rolled point arithmetic;
 # because of that prefix, the SAME seed now yields a DIFFERENT key, and
 # keys never mix across the two eras. Old axis-18 artifacts still verify
 # against their embedded public key (the signature equation was already
@@ -67,7 +67,7 @@ NEW_SECTION = '''# -------------------------------------------------------------
 # No production artifact needed to remain verifiable under the old scheme
 # (owner-confirmed 2026-10-30).
 
-_DEFAULT_SEED = hashlib.sha256(b"sentinel-axis18-default-seed").digest()
+_DEFAULT_SEED = hashlib.sha256(b"burhan-axis18-default-seed").digest()
 # 32-byte deterministic default (RFC 8032 keying). The pre-2026-10-30
 # default was a 28-byte literal that only worked because the hand-rolled
 # expansion absorbed any length; it is derived here once, and documented.
@@ -78,7 +78,7 @@ def _seed32(seed: bytes) -> bytes:
     other lengths (engine run ids, the doctor selftest); those are
     normalized by a single SHA-256 — an input rule, not a signature-format
     rule. The ed25519_* layer below accepts nothing but 32 bytes, exactly
-    like sentinel/proof.py."""
+    like burhan/proof.py."""
     if len(seed) == 32:
         return seed
     return hashlib.sha256(seed).digest()
@@ -146,12 +146,12 @@ new_src = replace_once(
 
 new_src = replace_once(
     new_src,
-    'pub, sig = ed25519_sign(_signing_message(d), seed or b"sentinel-axis18-default-seed")',
+    'pub, sig = ed25519_sign(_signing_message(d), seed or b"burhan-axis18-default-seed")',
     'pub, sig = ed25519_sign(_signing_message(d), _seed32(seed or _DEFAULT_SEED))',
     "sign_result seed handling")
 
 MODELS.write_text(new_src)
-print("[edited] sentinel/symbolic/models.py")
+print("[edited] burhan/symbolic/models.py")
 
 # ------------------------------------------------------------- 3. __init__.py
 init = INIT.read_text()
@@ -167,18 +167,18 @@ init = replace_once(
     "                     HONEST_BOUNDARIES)",
     "__init__ import list (ed25519_keypair removed — zero callers in tree)")
 INIT.write_text(init)
-print("[edited] sentinel/symbolic/__init__.py (ed25519_keypair export dropped)")
+print("[edited] burhan/symbolic/__init__.py (ed25519_keypair export dropped)")
 
 # ----------------------------------------------------------- 4. orchestrator
 orch = ORCH.read_text()
 orch = replace_once(
     orch,
     "        # ---- AXIS-18 (ORD-003): symbolic execution analysis. OFF by default —\n"
-    "        # without --symbolic the sentinel/symbolic/ package is never imported,\n"
+    "        # without --symbolic the burhan/symbolic/ package is never imported,\n"
     "        # never invoked, sends nothing, and no section appears (bomb-tested in\n"
     "        # tests/test_axis18_symbolic.py; bench x3 zero-drift at the gate).",
     "        # ---- AXIS-18 (ORD-003): symbolic execution analysis. OFF by default —\n"
-    "        # without --symbolic the sentinel/symbolic/ package is never imported,\n"
+    "        # without --symbolic the burhan/symbolic/ package is never imported,\n"
     "        # never invoked, sends nothing, and no section appears (the historical\n"
     "        # bomb-test file tests/test_axis18_symbolic.py is not part of the\n"
     "        # current tree; the signing path is covered by\n"
@@ -192,15 +192,15 @@ orch = replace_once(
     "    # (RFC 8032 via the audited cryptography library; externally verifiable).",
     "doctor selftest comment (stdlib-only claim was stale)")
 ORCH.write_text(orch)
-print("[edited] sentinel/orchestrator.py (2 stale comments)")
+print("[edited] burhan/orchestrator.py (2 stale comments)")
 
 # --------------------------------------------------------------- 5. the test
 TEST_TEMPLATE = '''"""RFC 8032 §7.1 official test vectors for the AXIS-18 signing path
-(sentinel/symbolic/models.py).
+(burhan/symbolic/models.py).
 
 Parallel to tests/test_proof_rfc8032.py — the same three §7.1 vectors,
 copied verbatim — for the second Ed25519 consumer, whose hand-rolled
-point arithmetic and "sentinel-axis18/" pre-hash prefix were removed on
+point arithmetic and "burhan-axis18/" pre-hash prefix were removed on
 2026-10-30 in favor of the audited cryptography library. Byte-for-byte
 agreement with RFC 8032 is the pass bar.
 
@@ -215,7 +215,7 @@ import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PublicKey)
 
-from sentinel.symbolic.models import (
+from burhan.symbolic.models import (
     Constraint, Solution, SymbolicResult, canonical_json, ed25519_sign,
     ed25519_verify, sign_result, verify_result_signature)
 

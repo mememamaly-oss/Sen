@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL targets — the attack-surface registry. Search + sort + add
+// Burhan targets — the attack-surface registry. Search + sort + add
 // (managed demo app / custom URL) + REAL scan start (api.startScan → live
 // monitor). All rows are real platform rows.
 

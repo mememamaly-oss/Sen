@@ -1,6 +1,6 @@
 "use client";
 
-// SENTINEL scan monitor — the live scan experience.
+// Burhan scan monitor — the live scan experience.
 // While RUNNING: progress strip + engine log terminal (poll 2.5s).
 // On COMPLETED: engine stats, findings, coverage, boundary + report generation.
 // Every number is engine-sourced; nothing is invented.

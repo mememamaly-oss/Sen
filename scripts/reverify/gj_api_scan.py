@@ -1,5 +1,5 @@
 """ginandjuice.shop engine run via the Python API (the CLI is a thin
-wrapper over SentinelScanner) with an explicit request budget so the run
+wrapper over BurhanScanner) with an explicit request budget so the run
 BOUNDS itself and always completes — the single-call process limit of this
 environment kills anything that overruns, and the CLI exposes no
 --max-requests switch.
@@ -16,10 +16,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from sentinel.core import ScopeRule
-from sentinel.oast import make_oast
-from sentinel.orchestrator import ScanConfig, SentinelScanner
-from sentinel.store import Store
+from burhan.core import ScopeRule
+from burhan.oast import make_oast
+from burhan.orchestrator import ScanConfig, BurhanScanner
+from burhan.store import Store
 
 MAX_PAGES = int(os.environ.get("GJ_MAX_PAGES", "12"))
 MAX_REQ = int(os.environ.get("GJ_MAX_REQ", "250"))
@@ -40,7 +40,7 @@ cfg = ScanConfig(allow_private=False, max_pages=MAX_PAGES, timeout=TIMEOUT,
                  max_requests=MAX_REQ)
 t0 = time.time()
 try:
-    sc = SentinelScanner("https://ginandjuice.shop/", cfg)
+    sc = BurhanScanner("https://ginandjuice.shop/", cfg)
     rep = sc.run()
 finally:
     if oast is not None:

@@ -17,8 +17,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import pytest
 
-from sentinel.core import ScopeRule, EventBus, is_private_ip, VERSION
-from sentinel.http_engine import RequestEngine as HttpEngine
+from burhan.core import ScopeRule, EventBus, is_private_ip, VERSION
+from burhan.http_engine import RequestEngine as HttpEngine
 
 
 # ----------------------------------------------------------------------------
@@ -237,7 +237,7 @@ def test_authz_accounts_json_loads():
 
 
 def test_cli_default_fixture_path_resolves():
-    # cli.py computes fixtures/vulnapp.py relative to sentinel/.. — verify
+    # cli.py computes fixtures/vulnapp.py relative to burhan/.. — verify
     # the path it would use actually exists on this tree.
-    fixture = os.path.join(ROOT, "sentinel", "..", "fixtures", "vulnapp.py")
+    fixture = os.path.join(ROOT, "burhan", "..", "fixtures", "vulnapp.py")
     assert os.path.exists(os.path.abspath(fixture))

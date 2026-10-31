@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// SENTINEL — PHASE 02 L1: DETERMINISTIC IDs + CANONICAL SERIALIZATION + HASH
+// Burhan — PHASE 02 L1: DETERMINISTIC IDs + CANONICAL SERIALIZATION + HASH
 //
 // Rules (spec §7/§8):
 //   • Node/Edge/Conflict/KnownUnknown IDs are content-derived (sha256 of the
