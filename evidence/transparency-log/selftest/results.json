@@ -1,0 +1,37 @@
+{
+ "tool": "/home/z/my-project/tools/independent_verify.py",
+ "cases": {
+  "case_1_untampered": {
+   "expectation": "verify-log rc==0 AND verify-bundle rc==0",
+   "rc_log": 0,
+   "rc_bundle": 0,
+   "verifier_output": "OK: 3 findings: leaves + inclusion proofs + entry signature verified; entry found and chain-verified in the log (1 entries)\nverification PASSED (verify-bundle)",
+   "pass": true
+  },
+  "case_2_tamper_evidence": {
+   "expectation": "verify-bundle rc==1 (tamper rejected)",
+   "rc": 1,
+   "verifier_output": "FAIL: proof[0]: leaf hash mismatch — finding content does not hash to the claimed leaf\nverification FAILED (verify-bundle)",
+   "pass": true
+  },
+  "case_3_tamper_signature": {
+   "expectation": "verify-bundle rc==1 (tamper rejected)",
+   "rc": 1,
+   "verifier_output": "FAIL: entry signature invalid under pinned key\nverification FAILED (verify-bundle)",
+   "pass": true
+  },
+  "case_4_tamper_merkle_path": {
+   "expectation": "verify-bundle rc==1 (tamper rejected)",
+   "rc": 1,
+   "verifier_output": "FAIL: proof[0]: inclusion path folds to 1c4501544405cc37… not the entry's merkle_root\nverification FAILED (verify-bundle)",
+   "pass": true
+  },
+  "case_5_different_keypair": {
+   "expectation": "verify-bundle rc==1 (entry signed with a different keypair is rejected under the pinned key)",
+   "rc": 1,
+   "verifier_output": "FAIL: entry public_key is not the pinned project key\nverification FAILED (verify-bundle)",
+   "pass": true
+  }
+ },
+ "all_pass": true
+}
