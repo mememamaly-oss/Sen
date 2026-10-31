@@ -92,7 +92,7 @@ echo "public routes warmed"
 # timeout ceiling raised for cold-runner compile variance (warmup above makes
 # it rare; the ceiling makes it never fatal)
 INTEGRATION_SERVER_URL="${URL}" INTEGRATION_PORT="${PORT}" \
-  bun test --timeout 60000 tests/api.integration.test.ts
+  bun test --timeout 60000 tests/api.integration.test.ts tests/bola.integration.test.ts
 RC=$?
 
 echo "--- integration runner done (rc=${RC}) ---"
