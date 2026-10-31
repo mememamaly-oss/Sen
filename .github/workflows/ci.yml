@@ -243,8 +243,8 @@ jobs:
           docker logs juice | tail -50
           exit 1
 
-      - name: Scan the real target (unauthenticated baseline)
-        run: python3 scripts/ci_real_target_scan.py --base http://127.0.0.1:3000 --out-dir "$RUNNER_TEMP/real"
+      - name: Scan the real target (baseline floor enforced)
+        run: python3 scripts/ci_real_target_scan.py --base http://127.0.0.1:3000 --out-dir "$RUNNER_TEMP/real" --floor evidence/real-targets/juice-shop/floor.json
 
       - name: Upload real-target artifacts
         uses: actions/upload-artifact@v4
