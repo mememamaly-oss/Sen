@@ -1,7 +1,7 @@
 # SENTINEL — DAST Platform (axes 1-18, final build v4.4.0)
 
 [![CI](https://github.com/mememamaly-oss/Sen/actions/workflows/ci.yml/badge.svg)](https://github.com/memamaly-oss/Sen/actions/workflows/ci.yml)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![License: PolyForm Shield 1.0.0](https://img.shields.io/badge/License-PolyForm--Shield--1.0.0-orange)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v4.4.0-blue)](https://github.com/mememamaly-oss/Sen/releases)
 
 منصة فحص اختراق تطبيقات الويب الآلي (DAST) — المحرك (Python stdlib نقي) + تطبيق
@@ -110,7 +110,26 @@ python3 tools/independent_verify.py verify-log transparency-log/log.jsonl \
 
 ## الترخيص
 
-Apache-2.0 — انظر `LICENSE` (اختيار افتراضي ينتظر تأكيد المالك النهائي).
+ترخيص **PolyForm Shield 1.0.0** — النص الكامل في `LICENSE` (منسوخ حرفياً من
+[polyformproject.org](https://polyformproject.org/licenses/shield/1.0.0)).
+
+بلغة مباشرة، دون مصطلحات قانونية:
+
+- **الكود مفتوح للقراءة والدراسة والاستخدام والمساهمة**: يمكنك تشغيله وتعديله
+  ودمجه داخل منتجاتك وأدواتك الداخلية، لأي غرض لا ينافس المنتج نفسه.
+- **الممنوع الجوهري الوحيد**: تقديم هذا المنتج (أو نسخة منه) لمستخدمين
+  خارجيين كخدمة مستضافة (hosted) أو أداة تُباع — أي منتج **ينافس** ما يقدمه
+  المالك من خلال هذا البرنامج. هذا الاستخدام يحتاج ترخيصاً تجارياً منفصلاً
+  ومكتوباً من المالك.
+- **عند توزيع نسخ أو تعديلات**: مرّر نص الترخيص (أو رابطه) مع كل نسخة، مع
+  سطر `Required Notice` الموجود أعلى ملف `LICENSE`.
+
+**سجل تغيير الترخيص (للشفافية)**: كان المستودع تحت Apache-2.0 من 2026-10-31
+01:38 UTC (الالتزام `ff8af33` الذي أضاف أول ملف LICENSE) حتى هذا التغيير
+(2026-10-31). أي نسخة نُسخت (clone/fork) خلال تلك النافذة تبقى محكومة
+بترخيص Apache-2.0 لتلك النسخة تحديداً — هذا التغيير لا يسحب ذلك بأثر رجعي.
+قبل `ff8af33` لم يكن في المستودع أي ملف ترخيص أصلاً، رغم أن المستودع كان
+عاماً منذ إنشائه في 2026-10-02.
 
 ## ملفات المجتمع
 

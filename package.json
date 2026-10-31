@@ -2,6 +2,7 @@
   "name": "sentinel-saas",
   "version": "0.3.0",
   "private": true,
+  "license": "PolyForm-Shield-1.0.0",
   "scripts": {
     "dev": "bash -c 'set -o pipefail; next dev -p 3000 2>&1 | tee dev.log'",
     "build": "next build --webpack && cp -r .next/static .next/standalone/.next/ && cp -r public .next/standalone/",

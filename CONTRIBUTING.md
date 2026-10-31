@@ -71,4 +71,8 @@ issue.
 ## Licensing
 
 By contributing, you agree that your contributions are licensed under
-the repository license (`LICENSE`, Apache-2.0).
+the repository license (`LICENSE`, PolyForm Shield 1.0.0). The license
+permits reading, internal use, modification, and distribution of
+changes; it does not permit offering this software (or a competing
+product built on it) as a hosted or paid service without a separate
+commercial license from the owner.
