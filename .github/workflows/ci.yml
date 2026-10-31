@@ -378,7 +378,7 @@ jobs:
           if [ "$found" = "1" ]; then echo "committed bundles verified"; else echo "no committed bundles yet (first cycle)"; fi
 
   action-demo:
-    name: GitHub Action dogfood (external-consumer simulation)
+    name: GitHub Action dogfood (this commit, local ref)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -395,20 +395,12 @@ jobs:
           cat /tmp/fixture.log
           exit 1
 
-      # push/PR context: exercise the action code from THIS commit
+      # NOTE (observed on run 41156398201): GitHub resolves EVERY `uses:` ref
+      # at job-preparation time, before step `if:` conditions are evaluated —
+      # a tag-ref step inside this job broke the job until the tag existed.
+      # The tag-usage test therefore lives in its own dispatch-only job below.
       - name: Run the action (local ref — this commit's action.yml)
-        if: github.event_name != 'workflow_dispatch'
         uses: ./
-        with:
-          target: http://127.0.0.1:8788
-          out: sen-result.json
-          allow-private: "true"
-
-      # manual dispatch: exercise the PUBLISHED TAG exactly as an external
-      # consumer's resolver would fetch it (available once v4.5.0 is tagged)
-      - name: Run the action (published tag — external resolution)
-        if: github.event_name == 'workflow_dispatch'
-        uses: mememamaly-oss/Sen@v4.5.0
         with:
           target: http://127.0.0.1:8788
           out: sen-result.json
@@ -426,4 +418,45 @@ jobs:
           assert len(rep.get("findings", [])) > 0, "fixture scan must produce findings"
           print("action contract OK:", len(rep["findings"]), "findings, root",
                 audit["merkle_root"][:16] + "…")
+          PY
+
+  action-demo-tag:
+    name: GitHub Action dogfood (published tag — external resolution)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start the fixture target
+        run: |
+          PORT=8789 nohup python3 fixtures/vulnapp.py > /tmp/fixture.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:8789/ > /dev/null; then echo "fixture up (attempt $i)"; exit 0; fi
+            sleep 1
+          done
+          echo "::error::fixture did not come up in 30s"
+          cat /tmp/fixture.log
+          exit 1
+
+      # the EXTERNAL-CONSUMER path: resolve the action by its published tag,
+      # exactly as a third-party workflow would
+      - name: Run the action (mememamaly-oss/Sen@v4.5.0)
+        uses: mememamaly-oss/Sen@v4.5.0
+        with:
+          target: http://127.0.0.1:8789
+          out: sen-result.json
+          allow-private: "true"
+
+      - name: Assert the action's contract
+        run: |
+          test -f sen-result.json
+          python3 - <<'PY'
+          import json
+          rep = json.load(open("sen-result.json"))
+          audit = rep.get("audit") or {}
+          assert audit.get("merkle_root"), "result must carry a signed audit block"
+          assert audit.get("signature_b64"), "result must carry a signature"
+          assert len(rep.get("findings", [])) > 0, "fixture scan must produce findings"
+          print("tag-resolution action contract OK:", len(rep["findings"]), "findings")
           PY

@@ -131,7 +131,7 @@ def compare(out_dir: Path) -> int:
     summary = out_dir / "step-summary.md"
     if summary.parent.exists():
         rows = "\n".join(
-            f"| {n} | {'match' if ok else '**DIFFER**} |"
+            f"| {n} | {'match' if ok else '**DIFFER**'} |"
             for n, ok in checks.items())
         summary.write_text(
             "### Reproducibility attestation\n\n"
