@@ -1,4 +1,4 @@
-# STATE.md — Sen (SENTINEL) repository record
+# STATE.md — Burhan (formerly Sen/SENTINEL) repository record
 
 Single ordered record, maintained since the 2026-10-30 integrity pass.
 Full historical detail (round-by-round ledgers, gate logs, evidence packs)
@@ -336,6 +336,135 @@ Known-not-done (2026-10-30):
   remains a custom (non-RFC-8032-pure, domain-prefixed) implementation;
   replacing it would change every deterministic signature it has ever
   produced and was out of the pass's ordered scope.
+
+## 2026-10-31 (II) — rename merge, docs/phase3 purge, adversarial fixes 1.2–1.5, GitHub hardening (parts 3+4)
+
+All commit SHAs in this section belong to the REWRITTEN history (see the
+purge below); pre-rewrite SHAs are prefixed `old-`.
+
+### Merged pull requests (rewrite-era refs)
+
+- PR #4 `rename/burhan` — the Sen(tinel)→burhan rename release, merged
+  2026-10-31T14:36:55Z; tag v5.0.0 points at its merge commit
+  (652fb58 after the rewrite; tree identical to old-6298e89).
+- PR #6 `detection-layers-modern` — modern battery v2 (3A jwt_weak_secret,
+  3B rebind_toctou, 3C graphql_aliasing, 3D excessive_data_exposure,
+  feature-flagged OFF by default) + the part-5 adversarial sweep of those
+  layers; merged 2026-10-31 (pre-purge SHA old-0c25b8d, rewritten to
+  05f543e).
+- PR #7 `adversarial-original-fixes` — the four fixes + CI additions of
+  this section (see below).
+
+### docs/phase3 history purge (owner order part 1)
+
+- Exposure: `docs/phase3/{pentest-rfp,soc2-readiness,hosted-free-tier}.md`
+  introduced at old-fb33491 (2026-10-30T23:41:06Z), removed from the tip at
+  old-6cf7a0e (2026-10-31T06:58:39Z) but alive in history — verified
+  publicly reachable (raw.githubusercontent HTTP 200) before the purge.
+- Purge: git-filter-repo `--invert-paths` on the three paths in a fresh
+  PUBLIC mirror clone (no credentials on disk); verification gate
+  (purge-work/verify_purge.sh) ALL PASS: the three blobs absent from the
+  object store, 0 `docs/phase3` paths in `rev-list --all --objects`,
+  per-ref tree diffs are phase3-only (main's tree IDENTICAL — the files
+  were already gone from the tip), fsck clean, 356→355 commits (one
+  emptied commit pruned). Tag SHA movement recorded in
+  purge-work/sha-movement.txt: main old-0c25b8d→05f543e, v5.0.0→652fb58,
+  v4.5.0→d76dd10, both dependabot heads rewritten, 12 older tags
+  unchanged.
+- Push window: 2026-10-31T22:18:35.919Z→22:18:42.189Z (6.27 s). The plan's
+  assumption (lifting only allow_force_pushes suffices) was DISPROVEN
+  live: GH006 rejected main — the require-PR rule blocks every direct
+  push, and a PR can never rewrite history (merging keeps old commits as
+  ancestors). The observed minimal workable window also lifted
+  required_pull_request_reviews, then (after a second GH006) the 9
+  required status checks; enforce_admins, allow_deletions and everything
+  else stayed ON throughout. Protection restored immediately and verified
+  field-by-field IDENTICAL to the saved baseline
+  (purge-work/protection-main-before.json).
+- Exposure windows (publicly reachable history): from introduction
+  (2026-10-30T23:41:06Z) to the accepted push (2026-10-31T22:18:41.307Z)
+  = 22 h 37 m 35 s; from the rename merge (14:36:55Z) = 7 h 41 m 47 s.
+- CAVEAT (owner action outstanding): raw.githubusercontent.com and the
+  git-blobs API STILL serve the three old blobs by SHA (GitHub's
+  server-side cache of unreachable objects). A fresh clone contains none
+  of them (verified), but by-SHA fetch requests continue to work until
+  GitHub runs internal gc — requires a GitHub Support request.
+
+### Adversarial fixes (owner order parts 0–2; each with a live red/blue)
+
+| item | red (proven live) | fix | blue (proven live) |
+|---|---|---|---|
+| 1.2+2.3 privilege separation | the app's own Prisma connection (DB owner) could TRUNCATE "AuditLog" (trail erased, row triggers never fire on TRUNCATE), DISABLE TRIGGER + rewrite, DROP TABLE | scripts/db_app_role.sh provisions burhan_app (DML-only); runner+CI use MIGRATION_DATABASE_URL (owner) for DDL and DATABASE_URL (burhan_app) for the app/suites | all four destruction paths denied (PG 42501); full integration suite green under the limited identity; tests/privsplit.integration.test.ts is the permanent wall |
+| 1.3 fail-closed audit | with INSERT on AuditLog revoked, bootstrap returned HTTP 200 with user+org persisted and ZERO audit rows | audit() throws and takes a transaction client; every write path pairs action+audit in ONE transaction | HTTP 500, users=0, orgs=0; scripts/verify_audit_fail_closed.sh runs in CI every push |
+| 1.4 proxy-secret gate | 130 demo-poll GETs with 130 distinct forged X-Forwarded-For → ZERO 429s (fresh bucket per forged header) | src/lib/forwarded.ts: forwarded headers honored only with matching X-Proxy-Secret (constant-time); Caddyfile injects it | forgery gets no fresh buckets; valid secret keeps per-IP attribution; tests/proxygate.integration.test.ts in CI |
+| 1.5 vault TOCTOU | real two-process race: 1 bypass in 20 s — gate stat'ed the 0600 file, open() read the attacker's 0644 file | _open_private_json: open ONCE (O_NOFOLLOW), fstat THAT fd, read THAT fd (both key + vault files) | identical 20 s race: 176k legit loads, 2.2M refusals, ZERO bypasses; deterministic pins in tests/test_vault_key_hygiene.py |
+| G8 re-opened by 1.3 | CI-proven: 3 concurrent scan starts, TWO accepted (the 1.3 tx delayed row visibility to COMMIT, breaking earliest-wins) | per-target pg_advisory_xact_lock serializes starts; create+audit stay atomic | 3 consecutive fresh-DB suite runs 90/90 with the race test green each time |
+
+Session-continuity note: the first three fixes were rebuilt this session
+after a sandbox recycle lost the prior local commits (never pushed);
+each red/blue pair was committed immediately (user discipline), so the
+loss cost re-execution, not correctness.
+
+### CI regression wall map (part 2.2 — verified against the current ci.yml)
+
+| regression | test(s) | CI job → step |
+|---|---|---|
+| 2.1 BOLA matrix | tests/bola.integration.test.ts (34) | web → "Integration tests (bash-managed server — the supported path)" |
+| 2.2 SSRF private-target | tests/ssrf.integration.test.ts (3) + tests/test_ssrf_live_refusal.py + security.test.ts "SSRF policy" | web → Integration tests; engine → "Python security tests"; web → "Unit tests" |
+| 2.3 XSS/iframe | tests/test_report_xss_escaping.py + security.test.ts "report viewer + findings XSS posture" | engine → Python security tests; web → Unit tests; fixture → "Benchmark regression gate" (browser-render detections) |
+| 2.4 vault crypto/perms | tests/test_vault_key_hygiene.py, test_vault_aead_rfc8439.py, test_proof_hkdf/aead | engine → "Python security tests (incl. compliance mapping parity)" |
+| 2.5 auth brute force | security.test.ts "login rate limiter" + api.integration "11th bad attempt" | web → Unit tests; web → Integration tests. NOTE: the enumeration-timing half (dummy scrypt) has no CI assertion — gap, honest |
+| 2.6 audit immutability | tests/auditlog.integration.test.ts (5) | web → Integration tests |
+| 2.7 demo poll budget | tests/demo.integration.test.ts (4) | web → Integration tests |
+| 2.8 lab-mode guard | security.test.ts "2.8 guard" + ssrf integration allowPrivate-ignore | web → Unit tests; web → Integration tests |
+| 2.9 shared PG limiter | tests/ratelimit.integration.test.ts (5, two-process) | web → Integration tests |
+| NEW TRUNCATE/privilege (1.2+2.3) | tests/privsplit.integration.test.ts (7) | web → Integration tests (runs FIRST in the list) |
+| NEW XFF forgery (1.4) | tests/proxygate.integration.test.ts (4) | web → Integration tests |
+| NEW fail-closed audit (1.3) | scripts/verify_audit_fail_closed.sh | web → "Audit fail-closed proof (audit-write failure rejects the action)" |
+| NEW vault TOCTOU (1.5) | deterministic pins in tests/test_vault_key_hygiene.py | engine → Python security tests (the 20 s race driver scripts/attack_vault_toctou.py is on-demand, not CI-flaky) |
+| NEW scan-start race (G8) | api.integration.test.ts "G8 RACE" | web → Integration tests |
+
+### Parts 3+4 (GitHub-native security surfaces)
+
+- live-validation.yml: crAPI v1.1.5 (official OWASP compose, pinned) for
+  3A+3D and DVGA (dolevf/dvga) for 3C; ground truth recorded from the
+  official docs BEFORE any scan with pre-scan SHA-256s captured in-job;
+  scripts/live_validate_modern2.py scores confirmed-positive / unjudged /
+  expected-miss (misses recorded, never hidden). Weekly cron + dispatch.
+- security-ops.yml: OSSF Scorecard (weekly + main, results to the
+  Security tab AND api.securityscorecards.dev for the README badge),
+  dependency-review-action on every PR (fail-on-severity: high), SPDX
+  SBOM from GitHub's dependency graph attached to every release.
+- ci.yml fixture job: the engine's own fixture SARIF is uploaded to the
+  code-scanning Security tab (category burhan-engine-fixture) — artifact
+  URIs remapped to fixtures/vulnapp.py (GitHub requires repo-relative
+  paths; the target URL stays verbatim in each result message).
+- CodeQL: `security-extended` for BOTH python and javascript-typescript
+  (verified in codeql.yml); 28 open alerts triaged: 2 hardened by code
+  (input length caps; readLogTail fd-pinned), 2 suppressed with
+  justification (the intentional world-readable chmod in the TOCTOU
+  attack driver and its hygiene-test twin), the remainder documented
+  false-positives-by-context (scanner parser regexes vs sanitizers,
+  SHA-1 internal id derivation, deliberate fixture vulnerabilities,
+  test-only files, CI report scripts).
+- Dependabot: 0 open alerts; weekly schedules for pip+npm verified.
+  PRs #1/#2 post-rewrite: mergeable=True but their bases predate the
+  scripts/repro_attest.py syntax fix (byte-verified missing closing
+  quote) — @dependabot recreate posted on both; Dependabot recreated
+  them on the rewritten main.
+
+### Known-not-done (2026-10-31 II)
+
+- GitHub Support request to purge the server-side cache of the three old
+  phase3 blobs (owner action — needs the repo owner's support channel).
+- CodeQL alert DISMISSALS via API were not performed (requires a
+  security-events write permission the current PAT does not carry); the
+  triage table above is the documented record; owner can dismiss from
+  the UI using these reasons.
+- The enumeration-TIMING equalization (2.5's dummy-scrypt path) has no
+  CI assertion (only the brute-force half does) — honest gap.
+- Live-validation first run: dispatched after PR #7 merges; results land
+  as the live-validation-crapi-dvga artifact + this record's follow-up.
 
 ## Where to find things
 
