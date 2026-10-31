@@ -14,6 +14,8 @@ import {
 import { rateLimit, resetRateLimits } from "@/lib/rate-limit";
 import { hashPassword, verifyPassword } from "@/lib/passwords";
 import { slugify, roleAtLeast } from "@/lib/rbac";
+import { execSync } from "child_process";
+import { readFileSync } from "fs";
 
 // ---------------------------------------------------------------- SSRF policy
 
@@ -292,8 +294,7 @@ describe("report viewer + findings XSS posture (owner order 2026-10-31, 2.3/2.4)
   // scripts/final-2026-10-31/xss_iframe_browser_proof.py against a
   // production build — 9/9 checks, evidence in download/.)
   test("report viewer iframe keeps sandbox exactly empty (no allow-scripts / allow-same-origin)", () => {
-    const fs = require("fs") as typeof import("fs");
-    const src = fs.readFileSync("src/app/(app)/reports/[id]/page.tsx", "utf8");
+    const src = readFileSync("src/app/(app)/reports/[id]/page.tsx", "utf8");
     // strip comment lines first — the historical audit note mentions the OLD
     // (pre-fix) value sandbox="allow-same-origin" inside a comment
     const code = src.replace(/^\s*\/\/.*$/gm, "");
@@ -306,7 +307,6 @@ describe("report viewer + findings XSS posture (owner order 2026-10-31, 2.3/2.4)
   });
 
   test("no dangerouslySetInnerHTML on any app page (React auto-escape stays the only HTML path)", () => {
-    const { execSync } = require("child_process") as typeof import("child_process");
     const hits = execSync(
       "grep -rn dangerouslySetInnerHTML src/app src/components/shell src/components/saas 2>/dev/null || true",
       { encoding: "utf8" }
