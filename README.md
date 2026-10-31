@@ -175,6 +175,8 @@ audit-results)، أدلة التحقق (INDEPENDENT_*.md)، نسخ build-v400..v
   (`POSTGRES_USER`/`POSTGRES_DB`) — أعد إنشاء الحاوية بعد السحب
 - وظائف قالب GitLab CI أعيدت تسميتها (`sentinel:scan` → `burhan:scan`) واسم الملف
   أصبح `integrations/gitlab-ci/burhan-scan.gitlab-ci.yml`
-- روابط المستودع القديمة (`github.com/mememamaly-oss/Sen`) ومراجع Action القديمة
-  (`mememamaly-oss/Sen@<tag>`) تُحوَّل تلقائياً إلى `mememamaly-oss/burhan` (سلوك
-  GitHub بعد إعادة التسمية؛ يتحقق منه عمل CI بشكل دائم)
+- روابط الويب وعمليات git القديمة (`github.com/mememamaly-oss/Sen`) تُحوَّل تلقائياً
+  إلى `mememamaly-oss/burhan`، لكن **مراجع Action القديمة
+  (`uses: mememamaly-oss/Sen@<tag>`) تتوقف عن العمل** برسالة
+  `repository not found` — هذا سلوك GitHub المعلن لإعادة التسمية؛
+  على المستهلكين استخدام `mememamaly-oss/burhan@v5.0.0`
