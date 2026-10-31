@@ -52,6 +52,10 @@ esac
 export MIGRATION_DATABASE_URL
 export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-integration-test-secret}"
 export BURHAN_DATA_DIR="${BURHAN_DATA_DIR:-/tmp/burhan-test-data}"
+# item 1.4 (2026-10-31): the proxy-secret gate proof needs the server AND
+# the test process to share the secret (positive controls send it as a
+# header; forgery tests omit it / send a wrong one)
+export TRUSTED_PROXY_SECRET="${TRUSTED_PROXY_SECRET:-integration-proxy-secret}"
 
 # --- clean state -------------------------------------------------------------
 pkill -f "next dev -p ${PORT}" 2>/dev/null && sleep 1
@@ -115,7 +119,7 @@ echo "public routes warmed"
 # database + one server (a parallel beforeAll races the bootstrap). Exit
 # codes aggregate — any red file fails the run.
 RC=0
-for F in tests/privsplit.integration.test.ts tests/ratelimit.integration.test.ts tests/api.integration.test.ts tests/bola.integration.test.ts tests/ssrf.integration.test.ts tests/auditlog.integration.test.ts tests/demo.integration.test.ts; do
+for F in tests/privsplit.integration.test.ts tests/ratelimit.integration.test.ts tests/api.integration.test.ts tests/bola.integration.test.ts tests/ssrf.integration.test.ts tests/auditlog.integration.test.ts tests/demo.integration.test.ts tests/proxygate.integration.test.ts; do
   echo "--- bun test ${F} ---"
   INTEGRATION_SERVER_URL="${URL}" INTEGRATION_PORT="${PORT}" \
     bun test --timeout 60000 "${F}" || RC=1

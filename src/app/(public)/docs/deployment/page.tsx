@@ -64,9 +64,13 @@ BURHAN_ALLOW_PRIVATE_TARGETS=0    # lab mode OFF by default`}
       <section className="mt-8">
         <h2 className="text-sm font-extrabold" dir="ltr">4 · Reverse proxy</h2>
         <p className="mt-2 text-xs leading-6 text-muted-foreground" dir="ltr">
-          Caddyfile at the repo root: TLS automatic, <code>X-Real-IP</code> /
-          <code> X-Forwarded-For</code> forwarded (used by the login rate limiter),
-          loopback-only upstreams.
+          Caddyfile at the repo root: TLS automatic, loopback-only upstreams.{" "}
+          <code>X-Real-IP</code> / <code>X-Forwarded-For</code> are honored by
+          the login limiter <strong>only together with the shared proxy secret</strong>{" "}
+          (<code>X-Proxy-Secret</code> from the Caddyfile&apos;s{" "}
+          <code>PROXY_SECRET</code> env, matched against the app&apos;s{" "}
+          <code>TRUSTED_PROXY_SECRET</code>) — a direct client forging
+          <code> X-Forwarded-For</code> gets no fresh rate-limit bucket (fail-closed).
         </p>
       </section>
 

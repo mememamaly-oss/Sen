@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { db } from "@/lib/db";
 import { verifyPassword, hashPassword } from "@/lib/passwords";
 import { rateLimit } from "@/lib/rate-limit";
+import { trustedForwardedIp } from "@/lib/forwarded";
 
 // SECURITY (audit 2026-10-23):
 //   1. Account-enumeration timing: unknown emails previously took the fast
@@ -25,16 +26,18 @@ const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 10 attempts / 15 minutes
 // random salt) — verification cost equals a real check, result discarded.
 const DUMMY_HASH = hashPassword("not-a-real-password");
 
-/** Best-effort client IP for rate limiting (proxy-aware).
- * The Caddyfile forwards X-Real-IP / X-Forwarded-For; direct dev access
- * has none, in which case a shared "local" bucket applies. */
+/** Best-effort client IP for rate limiting (proxy-aware, SECRET-GATED).
+ * Item 1.4 (2026-10-31): forwarded headers are honored ONLY when the
+ * request carries the shared proxy secret (see src/lib/forwarded.ts) —
+ * before the gate, ANY client could forge a fresh per-IP bucket per
+ * request. Unproven requests share the "local" bucket: fail-closed. */
 function clientIpFromReq(req: { headers?: Record<string, unknown> } | undefined): string {
   const h = req?.headers ?? {};
-  const real = (h["x-real-ip"] || h["x-real-IP"]) as string | undefined;
-  if (real) return String(real).split(",")[0].trim();
-  const xff = (h["x-forwarded-for"] || h["x-forwarded-For"]) as string | undefined;
-  if (xff) return String(xff).split(",")[0].trim();
-  return "local";
+  const get = (name: string) => {
+    const v = h[name] ?? h[name.toLowerCase()] ?? h[name.toUpperCase()];
+    return v === undefined || v === null ? null : String(v);
+  };
+  return trustedForwardedIp(get) ?? "local";
 }
 
 if (process.env.NODE_ENV === "production" && !process.env.NEXTAUTH_SECRET) {
