@@ -2,4 +2,4 @@
 # Runtime engine deps stay in requirements.txt — this file adds the test
 # toolchain only.
 -r requirements.txt
-pytest>=8.0
+pytest>=9.2.0
