@@ -257,8 +257,31 @@ jobs:
           if-no-files-found: error
 
       # DOGFOODING (part 4.3): the engine's own findings for its fixture,
-      # in the repository's Security tab (code-scanning). The upload runs on
-      # every push/PR so the tab always reflects the current engine.
+      # in the repository's Security tab (code-scanning). Code-scanning
+      # requires artifact URIs to be REPO-RELATIVE FILE PATHS — the raw
+      # engine SARIF carries the scanned TARGET's absolute http URLs (first
+      # attempt failed: "SARIF URI scheme http did not match the checkout
+      # URI scheme file"). The fixture IS a repo file: each result's
+      # artifact is remapped to fixtures/vulnapp.py, and the exact target
+      # URL stays in the result message (verbatim, already there).
+      - name: Dogfood — remap SARIF artifacts to the fixture source file
+        working-directory: ${{ runner.temp }}/ci-fixture
+        run: |
+          python3 - <<'PY'
+          import json
+          p = "report.sarif"
+          d = json.load(open(p, encoding="utf-8"))
+          n = 0
+          for run in d.get("runs", []):
+              for res in run.get("results", []):
+                  for loc in res.get("locations", []):
+                      al = loc.get("physicalLocation", {}).get("artifactLocation", {})
+                      if str(al.get("uri", "")).startswith("http"):
+                          al["uri"] = "fixtures/vulnapp.py"
+                          n += 1
+          json.dump(d, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+          print(f"remapped {n} artifact URIs to the fixture source file")
+          PY
       - name: Dogfood — upload the engine's own SARIF to the Security tab
         uses: github/codeql-action/upload-sarif@v3
         with:
