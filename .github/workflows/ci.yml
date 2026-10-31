@@ -462,16 +462,21 @@ jobs:
 
       # the EXTERNAL-CONSUMER path: resolve the action by its published tag,
       # exactly as a third-party workflow would
-      # LEGACY-REF LIVE PROBE (owner order, part 1.8). Official behavior
-      # (docs.github.com — 'Renaming a repository'): "GitHub will not redirect
+      # LEGACY-REF LIVE PROBE (owner order, part 1.8). The official docs
+      # page ('Renaming a repository') states: "GitHub will not redirect
       # calls to an action hosted by a renamed repository. Any workflow that
       # uses that action will fail with the error `repository not found`."
-      # Web links and git operations DO redirect; action references DO NOT.
-      # This probe records the ACTUAL behavior of the pre-rename reference
-      # mememamaly-oss/Sen@v4.5.0 on every dispatch: expected conclusion is
-      # failure (continue-on-error keeps the job green while recording it).
-      # If GitHub ever starts following renames for `uses:`, this step turns
-      # green and the note above must be updated.
+      # LIVE-EVIDENCE (2026-10-31, dispatch run 41210962177 on this repo):
+      # the pre-rename reference mememamaly-oss/Sen@v4.5.0 DID resolve — the
+      # runner logged "Download action repository 'mememamaly-oss/Sen@v4.5.0'
+      # (SHA:33008a7...)" and the action completed a full signed scan (19
+      # findings, contract asserted). Observed behavior CONTRADICTS the docs
+      # page; this probe stays continue-on-error so it keeps recording the
+      # actual behavior on every dispatch. If GitHub ever starts enforcing
+      # the documented behavior, this step turns red and the note in
+      # docs/github-action.md must be updated. Consumers should still move
+      # to mememamaly-oss/burhan@v5.0.0 — the redirect is observed-working,
+      # not a guarantee.
       - name: Run the action — LEGACY pre-rename ref (mememamaly-oss/Sen@v4.5.0, expected to fail per docs)
         uses: mememamaly-oss/Sen@v4.5.0
         continue-on-error: true
