@@ -640,6 +640,62 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   pin, era bridge, override file list, resolvable upstream host,
   in-dind scan, checksum path) are merged.
 
+- OWNER AUDIT (follow-up 2026-11-01, JWT finding story): the owner
+  caught an over-broad miss label in the run-8 report. AUDIT ANSWER,
+  with artifact evidence: the jwt_algorithm_confusion check (fam1,
+  axis 13 — the purpose-built check for challenge 15's mechanism) was
+  NEVER live-tested against crAPI. The run-8 artifact records fam1
+  NOT_DISCOVERED 'no auth-shaped endpoint in flight' with 0/12 probes
+  sent: the scan ran unauthenticated (form-mode login 415s against
+  crAPI's JSON API — auth stats: logins 1, authenticated false), and
+  the crawl never left the SPA's static assets, so no auth-shaped
+  endpoint was ever in flight. The 'expected miss' label in the run-8
+  summary was correct ONLY for 3A jwt_weak_secret (the wordlist
+  check); fam1's miss was NOT an expected miss — the report blurred
+  the two. Root causes traced: (a) AuthProfile spoke only
+  form-encoded logins; (b) auth-flow requests are excluded from the
+  endpoint map by design, so even a successful login would not have
+  fed fam1's harvest; (c) fam1 had ZERO test coverage — every JWT
+  fixture exercised alg=none, never the RS/HS confusion differential.
+- FAM1 LIVE CHAIN (branch jwt-alg-confusion-live, this PR):
+  AUTH-06 json_login mode (AuthProfile.json_login — credential params
+  ride ParamLocation.JSON per ENG-04, oracle = 2xx + success_marker in
+  the body, no redirect expectation); on success the CREDENTIALED
+  login endpoint is contributed to the endpoint map (new
+  DiscoverySource.AUTH 'auth:login' — audit-visible in api_inventory)
+  and stashed on the engine; the VR-29/30 fresh harvest now replays
+  the stashed endpoint (a bare GET on a JSON login can never re-obtain
+  the token — this would have rejected every true fam1 positive
+  against a JSON-API target); fam1's differential target excludes the
+  harvest source itself ('/auth/api/login' matches the PROTECTED
+  vocabulary 'api' and would swallow the differential). Fixture: a
+  stdlib-RSA (fixed primes) RS256 JWT surface in vulnapp — strict
+  Content-Type login, /.well-known/jwks.json, protected dashboard,
+  with the challenge-15 confusion acceptance (HS256 signed with the
+  public key as the HMAC secret) gated behind CONFUSION=1 so the stock
+  benchmark stays byte-identical. The fixture's DER/SPKI builder is an
+  INDEPENDENT implementation cross-checked against the engine's
+  rsa_pem_body_from_jwks (a shared bug would otherwise hide itself).
+  Tests (tests/test_jwt_confusion.py, 4/4): necessity (form-mode login
+  415s, 0 probes), chain (json_login authenticates + the endpoint
+  enters the map with source auth:login), RED (the confusion twin
+  fires fam1 AND survives the VR-29 fresh-differential re-verify),
+  BLUE (the strict twin: TESTED_NEGATIVE, 2 probes, zero findings).
+  Full suite 243/243.
+- LIVE HARNESS (same PR): the crAPI scan now authenticates with the
+  OFFICIAL seeded demo user (test@example.com — crAPI's own public
+  TestUsers.java constant, pre-verified so no mailhog round-trip),
+  validate_url = /identity/api/v2/user/dashboard (AUTH-required in
+  crAPI's official OpenAPI spec — the crawl seeds from it, giving fam1
+  its differential target); jwt_algorithm_confusion +
+  jwt_none_acceptance joined the scored modern_types; the summary
+  axes now surface the LEGACY battery stats (stats.modern — fam1/fam2
+  boundaries + probe counts; run 41314804418's summary hid fam1's
+  NOT_DISCOVERED there). Ground truth records challenge 15 as the
+  confusion mechanism with the honest scoring note: a fam1 hit is a
+  CONFIRMED POSITIVE (the exact documented challenge); a miss is a
+  REAL coverage gap, not an honest negative.
+
 ## Where to find things
 
 - Round-by-round history: `git log`, worklog.md (current + history).

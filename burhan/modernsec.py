@@ -278,7 +278,12 @@ def _none_variant(hdr: dict, claims: dict) -> str:
 def _jwt_families(st: _St, eps):
     fam1, fam2 = "jwt_algorithm_confusion", "jwt_none_acceptance"
     auth_ep = next((ep for ep in eps if _word_hit(ep.url, AUTHISH)), None)
-    prot_eps = [ep for ep in eps if _word_hit(ep.url, PROTECTED_WORDS)][:3]
+    # AUTH-06: the harvest source itself often matches PROTECTED_WORDS
+    # ("/auth/api/login" contains "api") — but the differential needs a
+    # DIFFERENT protected surface; probing the login endpoint answers
+    # identically for forged and corrupt tokens and swallows the signal.
+    prot_eps = [ep for ep in eps if ep is not auth_ep
+                and _word_hit(ep.url, PROTECTED_WORDS)][:3]
     if auth_ep is None:
         for f in (fam1, fam2):
             st.boundary(f, "NOT_DISCOVERED", "no auth-shaped endpoint in flight")
@@ -660,6 +665,17 @@ def recipe_of(finding) -> dict:
 
 
 def _fresh_harvest(engine, auth_url: str):
+    # AUTH-06: on a JSON-API login the token only appears when the endpoint
+    # is replayed WITH its credential parameters (a bare GET answers 405/401
+    # and the fresh harvest — and with it every VR-29/30 re-verification —
+    # would fail against exactly the targets this family exists for). The
+    # orchestrator stashes the credentialed endpoint on the engine after a
+    # successful json_login; credentials stay out of finding evidence.
+    ep = getattr(engine, "auth_harvest_endpoint", None)
+    if ep is not None and ep.url == auth_url:
+        r = engine.send(RequestMutation(endpoint=ep, note="modern-vr-harvest"))
+        if _mine_jwt(r):
+            return _mine_jwt(r)
     r = engine.send(RequestMutation(endpoint=Endpoint(url=auth_url, method="GET"),
                                     note="modern-vr-harvest"))
     return _mine_jwt(r)

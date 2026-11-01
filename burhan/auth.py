@@ -48,6 +48,17 @@ class AuthProfile:
     login_marker: str = "login"       # a redirect hop whose path contains this = session gate
     max_reauth: int = 5               # AUTH-03 budget cap (prevents credential hammering)
     validate_url: str = ""            # page fetched to confirm the session; default = landing
+    # ---- AUTH-06 (owner order follow-up 2026-11-01): JSON API login mode.
+    # crAPI-style targets authenticate with POST {user,pass} as a JSON
+    # object and answer 200 + a token in the BODY (no redirect, no cookie
+    # session) — the form flow's redirect oracle and x-www-form-urlencoded
+    # body can never pass there. When json_login is set the credential
+    # params ride ParamLocation.JSON (ENG-04: Content-Type application/json)
+    # and the oracle is 2xx + success_marker in the response body. The
+    # successful login endpoint is stashed (login_endpoint) so the caller
+    # can contribute the credentialed surface to the endpoint map — the
+    # JWT families harvest their token by REPLAYING exactly this endpoint.
+    json_login: bool = False
     # ---- AUTH-05 token mode
     token: str = ""                   # non-empty => token mode (form fields ignored)
     auth_header: str = "Authorization"
@@ -65,6 +76,7 @@ class AuthProfile:
 @dataclass
 class AuthState:
     authenticated: bool = False
+    login_endpoint: object = None      # AUTH-06: the credentialed POST endpoint (json_login)
     landing_url: str = ""
     logins: int = 0
     reauths: int = 0
@@ -102,20 +114,29 @@ class AuthEngine:
             self.bus.emit("AuthFailed", reason="prime", error=self.state.last_error)
             return False
 
-        # 2. learn the form (action + fields incl. hidden CSRF tokens)
-        action, fields = self._parse_login_form(r0.body or "")
-        target = self.p.action_url or action or base
-        action_abs = urllib.parse.urljoin(base, target)
-        # credential fields first, then profile extras, then the form's own
-        # hidden fields (CSRF rides verbatim — Parameter.classify marks it TOKEN)
-        params = [Parameter(self.p.user_field, ParamLocation.BODY, self.p.username),
-                  Parameter(self.p.pass_field, ParamLocation.BODY, self.p.password)]
-        for n, v in self.p.extra_fields.items():
-            params.append(Parameter(n, ParamLocation.BODY, v))
-        for n, v in fields:
-            if n in (self.p.user_field, self.p.pass_field) or any(x.name == n for x in params):
-                continue
-            params.append(Parameter(n, ParamLocation.BODY, v).classify())
+        # 2. learn the form (action + fields incl. hidden CSRF tokens).
+        # AUTH-06 json_login: there is no HTML form on an API login — the
+        # credential object is built directly and serialized as JSON.
+        if self.p.json_login:
+            action_abs = urllib.parse.urljoin(base, self.p.action_url or base)
+            loc = ParamLocation.JSON
+            params = [Parameter(self.p.user_field, loc, self.p.username),
+                      Parameter(self.p.pass_field, loc, self.p.password)]
+            params += [Parameter(n, loc, v) for n, v in self.p.extra_fields.items()]
+        else:
+            action, fields = self._parse_login_form(r0.body or "")
+            target = self.p.action_url or action or base
+            action_abs = urllib.parse.urljoin(base, target)
+            # credential fields first, then profile extras, then the form's own
+            # hidden fields (CSRF rides verbatim — Parameter.classify marks it TOKEN)
+            params = [Parameter(self.p.user_field, ParamLocation.BODY, self.p.username),
+                      Parameter(self.p.pass_field, ParamLocation.BODY, self.p.password)]
+            for n, v in self.p.extra_fields.items():
+                params.append(Parameter(n, ParamLocation.BODY, v))
+            for n, v in fields:
+                if n in (self.p.user_field, self.p.pass_field) or any(x.name == n for x in params):
+                    continue
+                params.append(Parameter(n, ParamLocation.BODY, v).classify())
 
         # 3. submit (ENG-06 serializes the body; ENG-05 replays the session cookie)
         ep = Endpoint(url=action_abs, method="POST", parameters=params)
@@ -147,6 +168,30 @@ class AuthEngine:
             self.bus.emit("AuthFailed", reason="submit", error=self.state.last_error)
             return False
 
+        # 4. AUTH-06 json_login oracle: a JSON API login answers 2xx with
+        # the token in the BODY — there is no redirect and no cookie landing
+        # page to validate; success_marker (required in this mode) is the
+        # deterministic oracle on the login response itself.
+        if self.p.json_login:
+            body = r.body or ""
+            if r.status and r.status < 400 and self.p.success_marker \
+                    and self.p.success_marker in body:
+                self.state.authenticated = True
+                # landing = validate_url when given: the crawl seeds from it,
+                # so an authenticated surface (the natural post-login page)
+                # enters the endpoint map — the JWT differential target.
+                self.state.landing_url = (self.p.validate_url or base)
+                self.state.login_endpoint = ep
+                self.bus.emit("AuthSuccess", mode="json", url=base,
+                              status=r.status)
+                return True
+            self.state.last_error = (f"json login rejected: POST {base} -> "
+                                     f"status {r.status}, marker "
+                                     f"{self.p.success_marker!r} "
+                                     f"{'present' if self.p.success_marker in body else 'missing'}")
+            self.bus.emit("AuthFailed", reason="json-oracle",
+                          error=self.state.last_error)
+            return False
         # 4. AUTH-02 deterministic success oracle
         hop = r.hop_location()
         redirected_to_login = bool(hop) and self._login_marker_hit(hop)

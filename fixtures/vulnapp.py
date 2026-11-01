@@ -405,6 +405,100 @@ SAFE_JWT = _jwt({"alg": "HS256", "typ": "JWT"}, {"sub": "demo", "role": "user"},
 assert "49" not in VULN_JWT and "132" not in VULN_JWT, VULN_JWT
 assert "49" not in SAFE_JWT and "132" not in SAFE_JWT, SAFE_JWT
 
+# ----------------------------------------------------------------------------
+# AUTH-06 surface (owner-order follow-up 2026-11-01): a crAPI-style JSON login
+# + RS256 JWT + JWKS + a protected dashboard. Exercises the jwt_algorithm_
+# confusion family (fam1) end-to-end: harvest by replaying the credentialed
+# login, discover /.well-known/jwks.json, forge HS256 with the public key.
+# The confusion acceptance (HS256 with sig == HMAC-SHA256 over the DER SPKI
+# body — the challenge-15 mechanism) exists ONLY when CONFUSION=1: the stock
+# benchmark fixture stays byte-identical in behavior (strict verification).
+# Independent DER/SPKI implementation — a cross-check against the engine's
+# rsa_pem_body_from_jwks (a shared bug would otherwise hide itself).
+RSA_P = 110077594987710470207800484624134509469875351818391455353408794781855460744503
+RSA_Q = 95672615738626720462437910616365881261689005006921392231164722218820895834059
+RSA_N = RSA_P * RSA_Q
+RSA_E = 65537
+RSA_D = pow(RSA_E, -1, (RSA_P - 1) * (RSA_Q - 1))
+_RSA_K = (RSA_N.bit_length() + 7) // 8
+_SHA256_PREFIX = bytes.fromhex("3031300d060960864801650304020105000420")
+
+def _b64u_enc(b: bytes) -> str:
+    return _b64.urlsafe_b64encode(b).decode().rstrip("=")
+
+def _b64u_dec(s: str) -> bytes:
+    return _b64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
+
+def _der(tag: int, payload: bytes) -> bytes:
+    if len(payload) < 128:
+        ln = bytes([len(payload)])
+    else:
+        raw = len(payload).to_bytes((len(payload).bit_length() + 7) // 8, "big")
+        ln = bytes([0x80 | len(raw)]) + raw
+    return bytes([tag]) + ln + payload
+
+def _der_int(x: int) -> bytes:
+    b = x.to_bytes((x.bit_length() + 7) // 8 or 1, "big")
+    return _der(0x02, b"\x00" + b if b and b[0] >= 0x80 else b)
+
+def fixture_spki_body() -> str:
+    """PEM body (no armor) of the RSA public key — INDEPENDENT of the engine."""
+    rsa_pub = _der(0x30, _der_int(RSA_N) + _der_int(RSA_E))
+    bit = _der(0x03, b"\x00" + rsa_pub)
+    alg = _der(0x30, _der(0x06, b"\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01")
+               + _der(0x05, b""))
+    spki = _der(0x30, alg + bit)
+    b64 = _b64.b64encode(spki).decode()
+    return "".join(b64[i:i + 64] for i in range(0, len(b64), 64))
+
+def _rsa_sign(payload_b64: str) -> str:
+    t = _SHA256_PREFIX + _hl.sha256(payload_b64.encode()).digest()
+    em = b"\x00\x01" + b"\xff" * (_RSA_K - len(t) - 3) + b"\x00" + t
+    return _b64u_enc(pow(int.from_bytes(em, "big"), RSA_D, RSA_N)
+                     .to_bytes(_RSA_K, "big"))
+
+def rs256_jwt() -> str:
+    # deterministic claims (fixture ethos: no timestamps — reproducible scans)
+    h = _b64u_enc(json.dumps({"alg": "RS256", "typ": "JWT"}, sort_keys=True).encode())
+    pl = _b64u_enc(json.dumps({"sub": "demo", "role": "user",
+                               "email": "user@fixture.test"}, sort_keys=True).encode())
+    return f"{h}.{pl}.{_rsa_sign(pl)}"
+
+JWKS_DOC = json.dumps({"keys": [{
+    "kty": "RSA",
+    "n": _b64u_enc(RSA_N.to_bytes(_RSA_K, "big")),
+    "e": _b64u_enc(RSA_E.to_bytes(3, "big")),
+    "alg": "RS256", "use": "sig"}]})
+
+def _dashboard_verdict(auth: str) -> tuple[int, str]:
+    """(status, body) for a Bearer token on the protected dashboard.
+    RS256-valid -> 200. HS256 with sig == HMAC-SHA256(SPKI body) -> 200
+    ONLY under CONFUSION=1 (the challenge-15 mechanism). Else 401."""
+    tok = (auth[7:] if auth[:7].lower() == "bearer " else "").strip()
+    parts = tok.split(".")
+    if len(parts) != 3:
+        return (401, '{"error": "malformed token"}')
+    try:
+        hdr = json.loads(_b64u_dec(parts[0]))
+        sig = _b64u_dec(parts[2])
+    except Exception:
+        return (401, '{"error": "malformed token"}')
+    if hdr.get("alg") == "RS256":
+        t = _SHA256_PREFIX + _hl.sha256(parts[1].encode()).digest()
+        em = b"\x00\x01" + b"\xff" * (_RSA_K - len(t) - 3) + b"\x00" + t
+        if len(sig) == _RSA_K and \
+                pow(int.from_bytes(sig, "big"), RSA_E, RSA_N) \
+                .to_bytes(_RSA_K, "big") == em:
+            return (200, '{"account": "demo", "role": "user"}')
+        return (401, '{"error": "invalid signature"}')
+    if hdr.get("alg") == "HS256" and os.environ.get("CONFUSION") == "1":
+        # the platform bug: the RSA public key is accepted as the HMAC secret
+        expect = _hmac.new(fixture_spki_body().encode(),
+                           f"{parts[0]}.{parts[1]}".encode(), "sha256").digest()
+        if _hmac.compare_digest(sig, expect):
+            return (200, '{"account": "demo", "role": "user"}')
+    return (401, '{"error": "invalid token"}')
+
 LAB_PAGE = """<h2>Ledger lab</h2>
 <p>Subscribe to the newsletter (state-changing POST):</p>
 <form action="/vuln/csrf-action" method="POST">
@@ -617,6 +711,13 @@ class Handler(BaseHTTPRequestHandler):
                 body='<p>Visit <a href="http://configured-base.example/about">our site</a> for details.</p>'))
         if path == "/lab":
             return self._send(200, HEADER_TMPL.format(body=LAB_PAGE))
+        # ---------------- AUTH-06: JWKS + the protected dashboard ----------------
+        if path == "/.well-known/jwks.json":
+            return self._send(200, JWKS_DOC,
+                              {"Content-Type": "application/json"})
+        if path == "/api/account/dashboard":
+            code, body = _dashboard_verdict(self.headers.get("Authorization") or "")
+            return self._send(code, body, {"Content-Type": "application/json"})
         if path == "/robots.txt":
             return self._send(200, "User-agent: *\nDisallow: /admin/\nDisallow: /backup/db.sql\n")
         if path == "/app.js":
@@ -1030,6 +1131,21 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, '{"ok": true, "role": "admin"}')   # operator match -> bypass
             if data == NOSQL_VALID:
                 return self._send(200, '{"ok": true, "role": "admin"}')
+            return self._send(401, '{"error": "invalid credentials"}')
+        # AUTH-06: crAPI-style JSON login — strict Content-Type (415 on
+        # x-www-form-urlencoded, exactly what a @RequestBody Spring endpoint
+        # answers), 200 + {"token": RS256-JWT} on valid credentials.
+        if path == "/auth/api/login":
+            if "json" not in ctype:
+                return self._send(415, '{"error": "Content-Type must be application/json"}')
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '{"error": "invalid JSON"}')
+            if data.get("email") == "user@fixture.test" \
+                    and data.get("password") == "fixture-pass-123":
+                return self._send(200, json.dumps(
+                    {"token": rs256_jwt(), "email": "user@fixture.test"}))
             return self._send(401, '{"error": "invalid credentials"}')
         if path == "/safe/nosql-login":
             # Hardened twin: values are type-checked (strings only) BEFORE any

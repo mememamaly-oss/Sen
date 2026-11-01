@@ -24,6 +24,7 @@ class DiscoverySource(str, Enum):
     SEED = "seed"; CRAWL_HTML = "crawl:html"; CRAWL_FORM = "crawl:form"; ROBOTS = "robots.txt"
     JS_STATIC = "js:static"; SITEMAP = "sitemap"; MANUAL = "manual"
     DOM = "dom:browser"     # Phase 50: discovered only by rendering in a real browser
+    AUTH = "auth:login"     # AUTH-06: the credentialed login endpoint observed in flight
 
 
 # ---------------------------------------------------------------- Target / Scope

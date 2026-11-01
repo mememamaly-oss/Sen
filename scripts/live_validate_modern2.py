@@ -63,6 +63,22 @@ GROUND_TRUTH = {
             "mechanism": "challenges 4+5: endpoints leaking sensitive data of "
                          "other users and an internal video property.",
         },
+        # challenge 15 IS the algorithm-confusion mechanism (fam1, axis 13).
+        # Follow-up 2026-11-01: run 41314804418 recorded fam1 NOT_DISCOVERED
+        # with 0/12 probes — the scan ran unauthenticated so no auth-shaped
+        # endpoint was ever in flight. The chain is now wired (json_login
+        # with the official seeded demo user + the JWKS endpoint crAPI
+        # serves at /.well-known/jwks.json): a hit is a CONFIRMED POSITIVE
+        # (the exact documented challenge), and a miss is a REAL coverage
+        # gap — check stats.axes.modern boundaries for which skip kind.
+        "jwt_algorithm_confusion": {
+            "documented": True,
+            "mechanism": "challenge 15: forge valid JWT tokens. crAPI issues "
+                         "RS256 and serves the public key at /.well-known/"
+                         "jwks.json — the documented forgery is HS256 signed "
+                         "with that public key (the confusion differential "
+                         "fam1 runs verbatim).",
+        },
     },
     "dvga": {
         "source": "github.com/dolevf/Damn-Vulnerable-GraphQL-Application @ "
@@ -132,7 +148,11 @@ def run_target(name: str, base: str, modern_types: list[str], out: Path,
                                     "evidence", "sha256")}
             for f in m2],
         "boundaries": rep.get("boundaries", [])[:40],
-        "axes": {k: stats.get(k) for k in ("modern2", "graphql") if k in stats},
+        # "modern" = the LEGACY battery (axis 13) — fam1/fam2 boundaries and
+        # probe counts. Run 41314804418's summary hid fam1's NOT_DISCOVERED
+        # there; surfacing it keeps the JWT story auditable.
+        "axes": {k: stats.get(k) for k in
+                 ("modern", "modern2", "graphql") if k in stats},
     }
     # plaintext by design — the product's evidence output; see write_report
     write_report(out, name, rep)
@@ -193,16 +213,27 @@ def main() -> int:
             print(f"crAPI signup failed (continuing unauthenticated): {e}")
         try:
             from burhan.auth import AuthProfile
+            # crAPI's own OFFICIAL seeded demo user (services/identity/
+            # .../constant/TestUsers.java in the public repo — the documented
+            # demo login, pre-verified so no mailhog round-trip is needed).
+            # json_login: crAPI authenticates with a JSON body and answers
+            # 200 + {"token": ...}; a form-mode POST 415s (live-proven in
+            # run 41314804418: logins 1, authenticated false). The dashboard
+            # (AUTH-required in the official OpenAPI spec) is the validate
+            # URL: the crawl seeds from it, giving fam1 its differential
+            # target.
             login = AuthProfile(
                 login_url=args.crapi + "/identity/api/auth/login",
-                username=f"burhan{int(time.time())}@integration.test",
-                password="Burhan-Live-123!",
-                user_field="email", pass_field="password")
+                username="test@example.com", password="Test!123",
+                user_field="email", pass_field="password",
+                json_login=True, success_marker='"token"',
+                validate_url=args.crapi + "/identity/api/v2/user/dashboard")
         except Exception:  # noqa: BLE001
             login = None
         results["crapi"] = run_target(
             "crapi", args.crapi,
-            ["jwt_weak_secret", "excessive_data_exposure"], out, auth=login)
+            ["jwt_weak_secret", "excessive_data_exposure",
+             "jwt_algorithm_confusion", "jwt_none_acceptance"], out, auth=login)
         scores["crapi"] = score("crapi", results["crapi"])
 
     if args.dvga:
