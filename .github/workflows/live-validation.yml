@@ -62,13 +62,17 @@ jobs:
           # neither, nginx dies with "no host in upstream" (template line
           # 73, verified by extracting the template from the image). Bridge:
           # MAILHOG_WEB_SERVICE points at the real mailhog service;
-          # CHATBOT_SERVICE is a stub host — only /chatbot/ would 502, and
-          # this battery never scans it (challenges 4/5/15 only).
+          # CHATBOT_SERVICE must name a REAL host: nginx resolves
+          # upstream hostnames at config-parse time and dies on an
+          # unknown name (run 41285571697: 'host not found in upstream
+          # "chatbot"'). crapi-workshop exists in this stack; /chatbot/
+          # would proxy to it and 404 — the battery scans challenges
+          # 4/5/15 only and never touches /chatbot/.
           cat > docker-compose.override.yml <<'YAML'
           services:
             crapi-web:
               environment:
-                - CHATBOT_SERVICE=chatbot:8080
+                - CHATBOT_SERVICE=crapi-workshop:8000
                 - MAILHOG_WEB_SERVICE=mailhog:8025
           YAML
           # ports publish INSIDE the dind service container's namespace —
