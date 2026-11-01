@@ -621,6 +621,24 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
 - PRs merged this order so far, all green: #7 (0071c70), #8 (83227b3),
   #9 (844f32e), #10 (0757269), #11 (79adf94), #13 (ce59378); #12
   (3ee6970) carried the in-dind scan redesign + these STATE records.
+- run 41314804418 (run 8, after PR #14, main 458f30e): GREEN — and the
+  graphql axis COMPLETED against DVGA with the null-data fix in
+  production: candidates 1, endpoint observed
+  (http://127.0.0.1:5013/graphql), boundaries 1, NO error field.
+  3C graphql_aliasing stays expected-miss for a now-precise structural
+  reason: introspection yielded no schema (introspected: 0, queries: 0,
+  tests_run: 0), and the aliasing attack needs a known operation/field
+  to alias. OPEN OBSERVATION (not yet determined): whether DVGA denies
+  introspection by default (correctly no schema) or its introspection
+  response trips another engine parsing gap — the run-8 artifact
+  (live-validation-crapi-dvga) carries the probe evidence; the weekly
+  cron keeps this under validation. crAPI side unchanged (280 requests,
+  15 findings, modern2 expected-miss as documented).
+- FINAL STATE OF MAIN (458f30e): CI green, CodeQL green, security-ops
+  green (Scorecard-limitation + SBOM), live-validation green — every
+  workflow on main is green, and all six live-validation fixes (tag
+  pin, era bridge, override file list, resolvable upstream host,
+  in-dind scan, checksum path) are merged.
 
 ## Where to find things
 
