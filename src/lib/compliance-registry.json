@@ -780,6 +780,19 @@
       "owasp_2025_src": "scope",
       "pci_dss": "6.4.2"
     },
+    "jwt_signature_not_enforced": {
+      "type": "jwt_signature_not_enforced",
+      "mapped": true,
+      "cwe": "CWE-347",
+      "cwe_label": "Improper Verification of Cryptographic Signature",
+      "owasp_2021": "A07:2021",
+      "owasp_2021_title": "Identification and Authentication Failures",
+      "owasp_2021_src": "scope",
+      "owasp_2025": "A07:2025",
+      "owasp_2025_title": "Authentication Failures",
+      "owasp_2025_src": "scope",
+      "pci_dss": "6.4.2"
+    },
     "jwt_weak_secret": {
       "type": "jwt_weak_secret",
       "mapped": true,

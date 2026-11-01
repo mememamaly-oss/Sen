@@ -349,6 +349,11 @@ COMPLIANCE: dict[str, dict[str, str]] = {
         "owasp_2021": "A07:2021", "owasp_2021_src": "scope",
         "owasp_2025": "A07:2025", "owasp_2025_src": "scope",
     },
+    "jwt_signature_not_enforced": {
+        "cwe": "CWE-347",
+        "owasp_2021": "A07:2021", "owasp_2021_src": "scope",
+        "owasp_2025": "A07:2025", "owasp_2025_src": "scope",
+    },
     "jwt_none_acceptance": {
         "cwe": "CWE-347",
         "owasp_2021": "A07:2021", "owasp_2021_src": "scope",

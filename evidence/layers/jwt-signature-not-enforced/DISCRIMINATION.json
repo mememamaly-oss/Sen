@@ -1,0 +1,25 @@
+{
+  "layer": "jwt-signature-not-enforced",
+  "generated": "2026-11-01T23:01:23Z",
+  "target": "fixtures/vulnapp.py (env: {'CONFUSION': '1'})",
+  "label": "DISCRIMINATION — confusion accepted but corrupted control rejected: jwt_algorithm_confusion fires, jwt_signature_not_enforced stays silent",
+  "battery_findings": [
+    "jwt_algorithm_confusion"
+  ],
+  "fam1_probes_sent": 2,
+  "fam1_boundaries": [],
+  "fam2_boundaries": [
+    {
+      "family": "jwt_none_acceptance",
+      "kind": "TESTED_NEGATIVE",
+      "detail": "the differential held: none-variant rejected (HTTP 401), corrupted original rejected (HTTP 401)"
+    }
+  ],
+  "finding": null,
+  "vr35_reverify": {
+    "ok": null,
+    "notes": "n/a — no finding"
+  },
+  "confusion_finding_present": true,
+  "none_acceptance_finding_present": false
+}

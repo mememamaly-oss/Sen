@@ -45,7 +45,7 @@ from burhan.auth import AuthProfile                               # noqa: E402
 from burhan.core import Endpoint, EventBus, Parameter, \
     ParamLocation, ScopeRule                                      # noqa: E402
 from burhan.http_engine import RequestEngine                      # noqa: E402
-from burhan.modernsec import replay_confusion, \
+from burhan.modernsec import replay_confusion, replay_sig347, \
     run_modern_battery                                            # noqa: E402
 from burhan.orchestrator import BurhanScanner, ScanConfig         # noqa: E402
 
@@ -58,11 +58,13 @@ def _free_port() -> int:
     return port
 
 
-def _spawn_vulnapp(confusion: bool):
+def _spawn_vulnapp(confusion: bool, signoff: bool = False):
     port = _free_port()
     env = {**os.environ, "PORT": str(port)}
     if confusion:
         env["CONFUSION"] = "1"
+    if signoff:
+        env["SIGNOFF"] = "1"
     proc = subprocess.Popen(
         [sys.executable, os.path.join(ROOT, "fixtures", "vulnapp.py")],
         env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -84,6 +86,13 @@ def _spawn_vulnapp(confusion: bool):
 @pytest.fixture(scope="module")
 def confusion_base():
     port, proc = _spawn_vulnapp(confusion=True)
+    yield f"http://127.0.0.1:{port}"
+    proc.terminate()
+
+
+@pytest.fixture(scope="module")
+def signoff_base():
+    port, proc = _spawn_vulnapp(confusion=False, signoff=True)
     yield f"http://127.0.0.1:{port}"
     proc.terminate()
 
@@ -167,10 +176,18 @@ def test_confusion_twin_fires_and_reverifies(confusion_base):
     assert fam1, [(b["family"], b["kind"]) for b in mres.boundaries]
     assert mres.probe_counts["jwt_algorithm_confusion"]["sent"] == 2, \
         mres.probe_counts["jwt_algorithm_confusion"]
+    assert not [f for f in mres.findings
+                if f.type == "jwt_signature_not_enforced"], \
+        [f.type for f in mres.findings]
     # VR-29: a FRESH end-to-end differential — fresh harvest (through the
     # stashed credentialed endpoint), fresh key discovery, fresh forged pair
     ok, notes = replay_confusion(engine, fam1[0])
     assert ok, notes
+    # discrimination: the corrupted control was REJECTED here (the differential
+    # isolated) — signatures ARE enforced; the CWE-347 class must stay silent
+    assert not [f for f in mres.findings
+                if f.type == "jwt_signature_not_enforced"], \
+        [f.type for f in mres.findings]
 
 
 def test_strict_twin_is_tested_negative(strict_base):
@@ -183,3 +200,30 @@ def test_strict_twin_is_tested_negative(strict_base):
         [(b["family"], b["kind"], b["detail"]) for b in mres.boundaries]
     assert mres.probe_counts["jwt_algorithm_confusion"]["sent"] == 2, \
         mres.probe_counts["jwt_algorithm_confusion"]
+    assert not [f for f in mres.findings
+                if f.type == "jwt_signature_not_enforced"], \
+        [f.type for f in mres.findings]
+
+
+# ------------------------------------------- PART ZERO: CWE-347 (SIGNOFF=1)
+def test_signoff_twin_fires_signature_not_enforced(signoff_base):
+    """The run-9 crAPI live behavior, modeled: the filter parses tokens and
+    reads the claims but never verifies signatures. The corrupted-signature
+    CONTROL is accepted — jwt_signature_not_enforced fires (CWE-347), the
+    confusion differential honestly cannot isolate (both arms pass)."""
+    engine, mres, _ = _battery(signoff_base)
+    sig = [f for f in mres.findings if f.type == "jwt_signature_not_enforced"]
+    assert sig, [(b["family"], b["kind"]) for b in mres.boundaries]
+    # exactly one finding for the endpoint (fam1 and fam2 both hold controls)
+    assert len(sig) == 1, [f.type for f in mres.findings]
+    # the confusion finding must NOT fire — both arms were accepted
+    assert not [f for f in mres.findings
+                if f.type == "jwt_algorithm_confusion"], \
+        [f.type for f in mres.findings]
+    # fam1's differential probes ran (the control acceptance came from there)
+    assert mres.probe_counts["jwt_algorithm_confusion"]["sent"] == 2, \
+        mres.probe_counts["jwt_algorithm_confusion"]
+    # VR-35: a FRESH corrupted-signature token against a FRESH harvest —
+    # the acceptance must reproduce
+    ok, notes = replay_sig347(engine, sig[0])
+    assert ok, notes

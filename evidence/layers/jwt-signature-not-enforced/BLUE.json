@@ -1,0 +1,29 @@
+{
+  "layer": "jwt-signature-not-enforced",
+  "generated": "2026-11-01T23:01:23Z",
+  "target": "fixtures/vulnapp.py (env: strict)",
+  "label": "BLUE — signatures enforced: the corrupted control is rejected",
+  "battery_findings": [],
+  "fam1_probes_sent": 2,
+  "fam1_boundaries": [
+    {
+      "family": "jwt_algorithm_confusion",
+      "kind": "TESTED_NEGATIVE",
+      "detail": "the differential held: forged rejected (HTTP 401), control rejected (HTTP 401)"
+    }
+  ],
+  "fam2_boundaries": [
+    {
+      "family": "jwt_none_acceptance",
+      "kind": "TESTED_NEGATIVE",
+      "detail": "the differential held: none-variant rejected (HTTP 401), corrupted original rejected (HTTP 401)"
+    }
+  ],
+  "finding": null,
+  "vr35_reverify": {
+    "ok": null,
+    "notes": "n/a — no finding"
+  },
+  "confusion_finding_present": false,
+  "none_acceptance_finding_present": false
+}

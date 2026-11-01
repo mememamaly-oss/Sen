@@ -1948,6 +1948,17 @@ class VerificationEngine:
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok29 else FindingStatus.REJECTED
 
+        elif f.type == "jwt_signature_not_enforced":
+            # VR-35 (run-9 class): a FRESH corrupted-signature token against a
+            # FRESH harvest — the acceptance must reproduce.
+            from .modernsec import replay_sig347
+            ok35, notes35 = replay_sig347(self.engine, f)
+            v = Verification(method="re-test:fresh-corrupt-acceptance",
+                             passed=ok35, confidence=0.9 if ok35 else 0.15,
+                             rounds=2, notes=notes35)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if ok35 else FindingStatus.REJECTED
+
         elif f.type == "jwt_none_acceptance":
             # VR-30 (axis 13): a fresh none pair against a fresh harvest.
             from .modernsec import replay_none
