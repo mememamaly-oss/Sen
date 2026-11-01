@@ -43,9 +43,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install engine dependencies
-        run: pip install -r requirements.txt
-
       - name: Start crAPI (official compose v1.1.5 + latest images, bridge vars)
         run: |
           set +e
@@ -85,19 +82,11 @@ jobs:
           # non-fatal: a service exiting during compose-up must not end the
           # step before we can capture its container logs
           docker compose -f docker-compose.yml -f docker-compose.override.yml --compatibility up -d
-          UP=$?
-          echo "compose up exit: $UP"
-          for i in $(seq 1 90); do
-            if curl -sf -m 3 http://docker:8888/ >/dev/null 2>&1; then
-              echo "crAPI up (attempt $i)"; exit 0
-            fi
-            sleep 2
-          done
-          echo "::error::crAPI did not come up in 180s"
-          echo "--- compose ps ---"; docker compose -f docker-compose.yml -f docker-compose.override.yml ps -a || true
-          echo "--- web logs ---"; docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail 40 crapi-web || true
-          echo "--- identity logs ---"; docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail 40 crapi-identity || true
-          exit 1
+          echo "compose up exit: $?"
+          # readiness is probed in the scan step, from a --network host
+          # container inside the dind — the SAME network path the scan
+          # itself uses (run 41286864928 lesson: the job runner could
+          # not reach the dind's published ports at all)
 
       - name: Start DVGA (official Docker Hub image)
         run: |
@@ -105,15 +94,7 @@ jobs:
           # publish on the dind interface (reachable as http://docker:PORT
           # from the job runner), not the dind's loopback
           docker run -d --name dvga -p 5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga
-          for i in $(seq 1 30); do
-            if curl -sf -m 3 http://docker:5013/ >/dev/null 2>&1; then
-              echo "DVGA up (attempt $i)"; exit 0
-            fi
-            sleep 2
-          done
-          echo "::error::DVGA did not come up in 60s"
-          docker logs dvga | tail -30 || true
-          exit 1
+          # readiness probed from the scan container (same path as the scan)
 
       - name: Record pre-scan ground-truth checksums
         run: |
@@ -132,11 +113,72 @@ jobs:
           PY
 
       - name: Run live validation (3A + 3D vs crAPI, 3C vs DVGA)
+        # run 41286864928: the whole crAPI stack was healthy and ports
+        # published on the dind's 0.0.0.0 — but the JOB RUNNER could not
+        # reach them (the dind service container's network namespace is
+        # not the runner's). Fix: the scan runs INSIDE the dind, in a
+        # python container on the dind's host network, where the
+        # published ports are reachable as 127.0.0.1 — and the readiness
+        # probes use the exact same path the scan will use.
+        # No pip install needed: the scanner's import chain is pure
+        # stdlib (verified — orchestrator and everything it pulls avoid
+        # the cryptography/blake3 requirements, those are for vault/
+        # proof/signing, which the live battery does not exercise).
         run: |
-          python3 scripts/live_validate_modern2.py \
-            --crapi http://docker:8888 \
-            --dvga http://docker:5013 \
-            --out-dir "$RUNNER_TEMP/live"
+          set -e
+          export DOCKER_HOST=unix:///var/run/docker.sock
+          docker volume create scanout >/dev/null
+          docker run -d --name scanbox --network host \
+            -v scanout:/out python:3.12-slim sleep 900 >/dev/null
+          docker exec scanbox mkdir -p /ws
+          # stage the engine (tar-pipe through the API; skip .git etc.)
+          tar --exclude=.git --exclude=node_modules --exclude=.next \
+            -cf - . | docker exec -i scanbox tar -xf - -C /ws
+          # readiness: both targets, through the scan's own network path
+          docker exec scanbox python3 - <<'PY'
+          import sys, time, urllib.request
+          targets = [
+              ("crAPI", "http://127.0.0.1:8888/web/health"),
+              ("DVGA",  "http://127.0.0.1:5013/"),
+          ]
+          for name, url in targets:
+              for attempt in range(90):
+                  try:
+                      with urllib.request.urlopen(url, timeout=3) as r:
+                          if r.status < 500:
+                              print(f"{name} up (attempt {attempt + 1})")
+                              break
+                  except Exception:
+                      pass
+                  time.sleep(2)
+              else:
+                  print(f"::error::{name} did not come up in 180s "
+                        f"({url}, probed from inside the dind)")
+                  sys.exit(1)
+          PY
+          docker exec scanbox python3 /ws/scripts/live_validate_modern2.py \
+            --crapi http://127.0.0.1:8888 \
+            --dvga http://127.0.0.1:5013 \
+            --out-dir /out/live
+          # pull the results back to the runner through the docker API
+          mkdir -p "$RUNNER_TEMP/live"
+          docker cp scanbox:/out/live/. "$RUNNER_TEMP/live/"
+          docker rm -f scanbox >/dev/null
+          docker volume rm scanout >/dev/null
+
+      - name: Dump diagnostics (targets failed)
+        if: failure()
+        run: |
+          export DOCKER_HOST=unix:///var/run/docker.sock
+          cd /tmp/crAPI-1.1.5/deploy/docker 2>/dev/null || true
+          echo "--- compose ps ---"
+          docker compose -f docker-compose.yml -f docker-compose.override.yml ps -a 2>/dev/null || true
+          echo "--- web logs ---"
+          docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail 40 crapi-web 2>/dev/null || true
+          echo "--- identity logs ---"
+          docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail 40 crapi-identity 2>/dev/null || true
+          echo "--- dvga logs ---"
+          docker logs dvga 2>/dev/null | tail -30 || true
 
       - name: Upload live-validation artifacts
         if: always()
