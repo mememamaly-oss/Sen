@@ -1,0 +1,23 @@
+{
+  "layer": "race-prober",
+  "generated": "2026-11-01T23:44:50Z",
+  "target": "fixtures/vulnapp.py (env RACE_MODE=broken)",
+  "label": "RED — non-atomic check-then-set (40ms window)",
+  "burst_width": 6,
+  "quota": 1,
+  "runs": 10,
+  "winners_distribution": [
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6,
+    6
+  ],
+  "violations": 10,
+  "sample_evidence": "race condition (CWE-362): 6 concurrent requests WON where the declared invariant allows at most 1 — the limited-resource check is not atomic. Burst of 6 simultaneous POST /api/coupon/redeem: statuses [200, 200, 200, 200, 200, 200], winners 6"
+}

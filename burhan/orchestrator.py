@@ -67,6 +67,7 @@ class ScanConfig:
                  exclude_urls=None,
                  max_requests: int = 500,
                  race: bool = False, race_parallel: int = 10,
+                 race_candidates: list | None = None,
                  race_variance: float = 0.005, symbolic=False):
         self.allow_private = allow_private
         self.max_pages = max_pages
@@ -114,6 +115,10 @@ class ScanConfig:
         self.race = bool(race)                      # --race (explicit operator opt-in)
         self.race_parallel = int(race_parallel)     # --race-parallel N (concurrency cap)
         self.race_variance = float(race_variance)   # --race-variance F (decision threshold)
+        # 3F (order 2026-11-01): the operator's EXPLICIT race-prober opt-in —
+        # a list of candidate endpoints; the prober never selects targets on
+        # its own (the never-blind constraint, documented in the family)
+        self.race_candidates = list(race_candidates or [])
         # ---- AXIS-18 (ORD-003): symbolic execution analysis. OFF by default —
         # without --symbolic the burhan/symbolic/ package is never imported,
         # never invoked, sends nothing, and no section appears (the historical
@@ -1456,7 +1461,8 @@ class BurhanScanner:
                 m2 = run_modern_battery_v2(self.engine, endpoints,
                                            seed=self.seed,
                                            rebind_cfg=rebind_cfg,
-                                           authz_sessions=authz_sessions)
+                                           authz_sessions=authz_sessions,
+                                           race_candidates=self.cfg.race_candidates)
                 for f in m2.findings:
                     f.run_id = self.run_id
                     self.stats["candidates"] += 1

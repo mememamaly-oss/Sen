@@ -58,7 +58,7 @@ Fixture v9 (Phase 58 — Workflow / Business-Logic Intelligence ground truth):
                              refused with the right status and NO state change
                              (ledger = the state oracle that proves it either way)
 """
-import json, os, re, time
+import json, os, re, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs, unquote
 
@@ -463,6 +463,13 @@ def rs256_jwt() -> str:
     pl = _b64u_enc(json.dumps({"sub": "demo", "role": "user",
                                "email": "user@fixture.test"}, sort_keys=True).encode())
     return f"{h}.{pl}.{_rsa_sign(pl)}"
+
+# 3F race-prober surface: a single-use coupon redeem. RACE_MODE selects the
+# twin: "broken" = check-then-set with a deliberate 40ms window (the classic
+# non-atomic read-modify-write — a concurrent burst all pass the check, all
+# win); "locked" = the SAME handler under a mutex (exactly one winner).
+RACE_LOCK = threading.Lock()
+COUPONS: dict = {}                 # code -> redeemer (None while unredeemed)
 
 JWKS_DOC = json.dumps({"keys": [{
     "kty": "RSA",
@@ -1188,6 +1195,36 @@ class Handler(BaseHTTPRequestHandler):
                 {"rotated": True, "rotated_by": srec["role"],
                  "admin_marker": "root-admin@burhan-fixture.local"}),
                 {"Content-Type": "application/json"})
+        if path == "/api/coupon/redeem":
+            # 3F: single-use code redemption — the invariant is at most ONE
+            # winner per code. RACE_MODE=broken leaves the check-then-set
+            # window open; =locked holds the mutex across it.
+            try:
+                data = json.loads(raw)
+            except Exception:
+                return self._send(400, '{"error": "invalid JSON"}',
+                                  {"Content-Type": "application/json"})
+            code = str(data.get("code") or "")[:64]
+            if not code:
+                return self._send(400, '{"error": "code required"}',
+                                  {"Content-Type": "application/json"})
+            if os.environ.get("RACE_MODE") == "broken":
+                if COUPONS.get(code) is None:
+                    time.sleep(0.04)                 # the non-atomic window
+                    COUPONS[code] = "redeemed"
+                    return self._send(200, json.dumps(
+                        {"redeemed": True, "code": code}),
+                        {"Content-Type": "application/json"})
+                return self._send(409, '{"error": "already redeemed"}',
+                                  {"Content-Type": "application/json"})
+            with RACE_LOCK:
+                if COUPONS.get(code) is None:
+                    COUPONS[code] = "redeemed"
+                    return self._send(200, json.dumps(
+                        {"redeemed": True, "code": code}),
+                        {"Content-Type": "application/json"})
+                return self._send(409, '{"error": "already redeemed"}',
+                                  {"Content-Type": "application/json"})
         if path == "/safe/nosql-login":
             # Hardened twin: values are type-checked (strings only) BEFORE any
             # matching — operator objects are rejected as malformed, never matched.

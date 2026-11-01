@@ -76,14 +76,15 @@ from .core import (Endpoint, EventBus, Finding, FindingStatus, Severity,
 from .http_engine import RequestEngine, RequestMutation
 
 MODERN2_TYPES = ("jwt_weak_secret", "graphql_aliasing",
-                 "excessive_data_exposure", "rebind_toctou", "bfla")
+                 "excessive_data_exposure", "rebind_toctou", "bfla",
+                 "race_condition")
 
 # request caps per family (offline wordlist attempts are counted separately:
 # jwt_weak_secret sends at most 2 harvest requests; its 27 offline signature
 # verifications are the documented wordlist cap, not network traffic)
 FAMILY2_CAPS = {"jwt_weak_secret": 2, "graphql_aliasing": 2,
                 "excessive_data_exposure": 8, "rebind_toctou": 4,
-                "bfla": 18}
+                "bfla": 18, "race_condition": 48}
 
 # 3A: the COMPLETE, EXPLICIT wordlist — the cap is its length (27). This is a
 # detection capability, not an open brute-force tool: no user-extensible
@@ -98,6 +99,11 @@ WEAK_SECRET_WORDLIST = (
 
 ALIAS_CAP = 20          # aliases in the single probe request (3C)
 EXPOSURE_EP_CAP = 8     # JSON endpoints examined (3D)
+RACE_CAND_CAP = 4       # operator-named candidates per scan (3F)
+RACE_DEFAULT_N = 6      # concurrent requests per burst (3F default)
+RACE_MAX_N = 12         # hard ceiling on the operator-declared N (3F);
+                         # the substrate gate (race/gates) allows 64 —
+                         # the family stays far below it on purpose
 BFLA_EP_CAP = 6         # admin-shaped non-GET endpoints examined (3E);
                          # each costs 3 replays (anon + high + low) -> the
                          # family cap above is 18 requests, hard-stopped
@@ -642,9 +648,118 @@ def _bfla(st: "_St2", eps, authz_sessions):
                     "replays (or was untestable above) — no boundary broken")
 
 
+# ------------------------------------------------------------------ 3F
+def _race_prober(st: "_St2", eps, candidates):
+    """3F — the generic limited-resource race prober (CWE-362): for each
+    OPERATOR-NAMED candidate endpoint, fire ONE bounded concurrent burst
+    and assert the declared invariant — at most `quota` winners (default
+    1) across the burst. More winners than the resource should allow is
+    the finding.
+
+    Design basis — the methodology proven twice in this codebase: the
+    bootstrap concurrency fix (scripts/axis18_load_test.py, POST
+    /api/bootstrap) and the G8 concurrent-scan-start gate
+    (scripts/axis19_gap_probe.py: "concurrent scan start on same target
+    -> exactly 1 wins"). The concurrency substrate is the same proven
+    engine: burhan/race/engine.send_concurrent (bounded, ordered
+    results, honest boundaries per request). This family is
+    INVARIANT-based (count the winners), not the axis-17
+    timing-variance battery — the two are complementary.
+
+    *** NEVER BLIND — an explicit, hard constraint (order 2.2) ***
+    The prober runs ONLY on endpoints the operator explicitly named
+    (cfg.race_candidates). It never heuristically selects POSTs to
+    concurrency-bomb: firing concurrent requests at arbitrary endpoints
+    of a live target not under the operator's control risks state
+    corruption (real writes racing) and unintended load. The fixture and
+    Docker-isolated targets share nothing with anyone else; a shared
+    public target is never a race target (Part 4 forbids it).
+
+    Candidate schema (all fields except url optional):
+      {"url": ..., "method": "POST", "params": {...}, "quota": 1,
+       "concurrent": 6, "win_statuses": [200, 201],
+       "verify_params": {...}}   # VR-37's fresh-burst params — declare a
+                                # SECOND single-use code when the resource
+                                # is consumed by the first burst; without
+                                # it VR-37 replays the same params and
+                                # fail-closes on a consumed resource."""
+    fam = "race_condition"
+    from urllib.parse import urlsplit
+    if not candidates:
+        st.boundary(fam, "NOT_DISCOVERED",
+                    "no explicit opt-in candidate list (cfg.race_candidates) "
+                    "— the prober NEVER fires concurrent load at "
+                    "endpoints the operator did not name (state corruption "
+                    "and unintended load on live targets; see the family "
+                    "docstring)")
+        return
+    from .race.engine import send_concurrent
+    fired_any = False
+    for cand in candidates[:RACE_CAND_CAP]:
+        if st.counts[fam]["sent"] >= FAMILY2_CAPS[fam]:
+            st.boundary(fam, "NOT_SUPPORTED",
+                        "family request cap reached (4 candidates x 1 burst "
+                        "x N concurrent, documented)")
+            break
+        url = str(cand.get("url") or "")
+        method = str(cand.get("method") or "POST").upper()
+        params = cand.get("params") or {}
+        quota = int(cand.get("quota") or 1)
+        n = min(int(cand.get("concurrent") or RACE_DEFAULT_N), RACE_MAX_N)
+        win = tuple(int(x) for x in (cand.get("win_statuses") or (200, 201)))
+        if not url or n < 2:
+            st.boundary(fam, "UNTESTABLE",
+                        f"candidate {url!r}: missing url or concurrent < 2 "
+                        f"(a race needs at least two simultaneous requests)")
+            continue
+        req = {"method": method, "url": url,
+               "headers": {"Content-Type": "application/json"},
+               "body": json.dumps(params)}
+        results = send_concurrent([dict(req) for _ in range(n)],
+                                  max_concurrent=n, timeout=10.0)
+        st.requests += n
+        st.counts[fam]["sent"] += n
+        statuses = [r.get("status") or 0 for r in results]
+        winners = sum(1 for x in statuses if x in win)
+        if winners > quota:
+            fired_any = True
+            ep = Endpoint(url=url, method=method)
+            st.find(fam, Severity.HIGH, ep, "-", [
+                Evidence("invariant_violated",
+                         f"race condition (CWE-362): {winners} concurrent "
+                         f"requests WON where the declared invariant allows "
+                         f"at most {quota} — the limited-resource check is "
+                         f"not atomic. Burst of {n} simultaneous "
+                         f"{method} {urlsplit(url).path}: statuses "
+                         f"{statuses}, winners {winners}", None),
+                Evidence("probe_recipe",
+                         f"url={url}; method={method}; quota={quota}; "
+                         f"concurrent={n}; win_statuses={list(win)}; "
+                         f"params={json.dumps(params, sort_keys=True)}",
+                         None)])
+            # VR-37 stash: the verifier fires a FRESH burst — with
+            # verify_params when the operator declared a second sample
+            # for a single-use resource
+            stash = getattr(st.engine, "race_verify", None)
+            if stash is None:
+                stash = st.engine.race_verify = {}
+            stash[url] = {"candidate": dict(cand), "n": n, "quota": quota,
+                          "win": win, "method": method}
+        else:
+            st.boundary(fam, "TESTED_NEGATIVE",
+                        f"{url}: invariant held — {winners} winner(s) <= "
+                        f"quota {quota} across a {n}-wide concurrent burst "
+                        f"(statuses {statuses})")
+    if not fired_any and not any(
+            b["family"] == fam and b["kind"] == "TESTED_NEGATIVE"
+            for b in st.boundaries):
+        pass  # per-candidate boundaries above already carry the record
+
+
 def run_modern_battery_v2(engine: RequestEngine, endpoints, seed=None,
                           rebind_cfg: dict | None = None,
-                          authz_sessions: dict | None = None) -> Modern2Result:
+                          authz_sessions: dict | None = None,
+                          race_candidates: list | None = None) -> Modern2Result:
     """Entry point — mirrors modernsec.run_modern_battery (deterministic order)."""
     st = _St2(engine, seed)
     eps = sorted(endpoints or [], key=lambda e: (e.url, e.method))
@@ -653,5 +768,6 @@ def run_modern_battery_v2(engine: RequestEngine, endpoints, seed=None,
     _excessive_exposure(st, eps)
     _rebind_toctou(st, eps, rebind_cfg)
     _bfla(st, eps, authz_sessions or {})
+    _race_prober(st, eps, race_candidates or [])
     return Modern2Result(st.findings, st.boundaries, probe_counts_of(st),
                          st.requests)

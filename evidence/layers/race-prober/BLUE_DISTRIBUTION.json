@@ -1,0 +1,23 @@
+{
+  "layer": "race-prober",
+  "generated": "2026-11-01T23:44:50Z",
+  "target": "fixtures/vulnapp.py (env RACE_MODE=locked)",
+  "label": "BLUE — the same handler under a mutex",
+  "burst_width": 6,
+  "quota": 1,
+  "runs": 10,
+  "winners_distribution": [
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+  ],
+  "violations": 0,
+  "sample_evidence": "http://127.0.0.1:46351/api/coupon/redeem: invariant held — 1 winner(s) <= quota 1 across a 6-wide concurrent burst (statuses [200, 409, 409, 409, 409, 409])"
+}
