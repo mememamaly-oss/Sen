@@ -77,10 +77,10 @@ jobs:
           # network, not public), not the dind's loopback
           sed -i 's|^LISTEN_IP=.*|LISTEN_IP=0.0.0.0|' .env
           export DOCKER_HOST=unix:///var/run/docker.sock
-          docker compose pull
+          docker compose -f docker-compose.yml -f docker-compose.override.yml pull
           # non-fatal: a service exiting during compose-up must not end the
           # step before we can capture its container logs
-          docker compose -f docker-compose.yml --compatibility up -d
+          docker compose -f docker-compose.yml -f docker-compose.override.yml --compatibility up -d
           UP=$?
           echo "compose up exit: $UP"
           for i in $(seq 1 90); do
@@ -90,9 +90,9 @@ jobs:
             sleep 2
           done
           echo "::error::crAPI did not come up in 180s"
-          echo "--- compose ps ---"; docker compose -f docker-compose.yml ps -a || true
-          echo "--- web logs ---"; docker compose -f docker-compose.yml logs --tail 40 crapi-web || true
-          echo "--- identity logs ---"; docker compose -f docker-compose.yml logs --tail 40 crapi-identity || true
+          echo "--- compose ps ---"; docker compose -f docker-compose.yml -f docker-compose.override.yml ps -a || true
+          echo "--- web logs ---"; docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail 40 crapi-web || true
+          echo "--- identity logs ---"; docker compose -f docker-compose.yml -f docker-compose.override.yml logs --tail 40 crapi-identity || true
           exit 1
 
       - name: Start DVGA (official Docker Hub image)
