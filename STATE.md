@@ -525,8 +525,27 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
 - Supersessions of the "Known-not-done (2026-10-31 II)" list above: the
   CodeQL dismissals WERE executed (27 alerts, documented reasons, via
   the fresh PAT with code-scanning-alerts write — 29658dd); the
-  live-validation first run HAS now happened (outcome above; re-run
-  lands after the fix branch merges).
+  live-validation first run HAS now happened (outcomes below).
+- live-validation run 41282389250 (after PR #8): compose-up now clean
+  (tag-pinned compose started; identity/community/workshop/mailhog/
+  mongo/postgres ALL healthy). New root cause found and fixed: crapi-web
+  died with `nginx: no host in upstream ""` at rendered conf line 73.
+  Verified by extracting the nginx template FROM THE IMAGE via the
+  Docker registry API (crAPI publishes no versioned tags — registry
+  check: 1.1.5/v1.1.5/1.1.4 all 404, only :latest exists — so an
+  image-version pin is impossible by construction): the latest web
+  template renders an /chatbot/ upstream and a MailHog upstream from
+  CHATBOT_SERVICE / MAILHOG_WEB_SERVICE, and the v1.1.5 compose sets
+  neither. Fix (branch live-validation-bridge-fix): a compose override
+  adds MAILHOG_WEB_SERVICE=mailhog:8025 (the real service) and a
+  CHATBOT_SERVICE stub (only /chatbot/ would 502; the battery scans
+  challenges 4/5/15 only). Second finding fixed in the same pass: the
+  published ports bind inside the DIND service container's namespace —
+  the job runner reaches them via the service hostname, so LISTEN_IP
+  is set to 0.0.0.0 (dind's private runner network) and the probe +
+  scan now target http://docker:8888 and http://docker:5013.
+- security-ops after PR #8: GREEN on push and dispatch — the Scorecard
+  limitation job (documented, artifact) + SPDX SBOM both pass.
 
 ## Where to find things
 
