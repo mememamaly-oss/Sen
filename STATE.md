@@ -544,6 +544,15 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   the job runner reaches them via the service hostname, so LISTEN_IP
   is set to 0.0.0.0 (dind's private runner network) and the probe +
   scan now target http://docker:8888 and http://docker:5013.
+- live-validation run 41284222655 (after PR #9): the override did NOT
+  reach the container — `docker compose -f docker-compose.yml ...`
+  REPLACES compose's default file list, so docker-compose.override.yml
+  was silently ignored (the container env dump proves it: no
+  CHATBOT_SERVICE / MAILHOG_WEB_SERVICE). Fix: every compose invocation
+  now names BOTH files explicitly (-f docker-compose.yml -f
+  docker-compose.override.yml on pull, up, ps and the failure-path
+  logs). The namespace half of PR #9 worked as designed (mailhog
+  visible on 0.0.0.0:8025 in the dind).
 - security-ops after PR #8: GREEN on push and dispatch — the Scorecard
   limitation job (documented, artifact) + SPDX SBOM both pass.
 
