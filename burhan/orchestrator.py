@@ -548,6 +548,27 @@ class BurhanScanner:
         # clobbers the authenticated session cookie with a fresh anonymous one)
         d = DiscoveryEngine(self.engine, self.cfg.max_pages)
         endpoints: list[Endpoint] = [Endpoint(url=self.target.url, source=DiscoverySource.SEED)]
+        # ---- AUTH-06: a successful json_login contributes the CREDENTIALED
+        # login endpoint to the map. The JWT families harvest their token by
+        # replaying exactly this surface (form-encoded replay would 415 on a
+        # JSON API); auth-flow requests stay excluded from endpoint TESTING —
+        # this is the harvest source, contributed only under the explicit
+        # json_login flag so every existing gate is untouched.
+        if self.cfg.auth is not None and getattr(self.cfg.auth, "json_login", False) \
+                and self.auth_engine is not None \
+                and getattr(self.auth_engine.state, "login_endpoint", None) is not None:
+            _lep = self.auth_engine.state.login_endpoint
+            _lep.source = DiscoverySource.AUTH
+            if all(e.id != _lep.id for e in endpoints):
+                endpoints.append(_lep)
+            # the verifier's fresh harvest (VR-29/30) replays THIS endpoint —
+            # a bare GET on a JSON login can never re-obtain the token
+            self.engine.auth_harvest_endpoint = _lep
+            # audit trail: the api_inventory lists the endpoint with source
+            # "auth:login"; the bus event carries the same fact for consumers
+            self.bus.emit("AuthSurfaceContributed", url=_lep.url,
+                          note="credentialed json_login endpoint in the map as "
+                               "the JWT harvest source")
         _excl = [u for u in (self.cfg.exclude_urls or []) if u]
         if self.cfg.crawl:
             found, js, crawl_stats = d.crawl(self.target.url, extra_seeds=auth_seeds,
