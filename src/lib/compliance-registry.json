@@ -325,6 +325,19 @@
     "CWE-1321": "Prototype Pollution"
   },
   "types": {
+    "bfla": {
+      "type": "bfla",
+      "mapped": true,
+      "cwe": "CWE-285",
+      "cwe_label": "",
+      "owasp_2021": "A01:2021",
+      "owasp_2021_title": "Broken Access Control",
+      "owasp_2021_src": "scope",
+      "owasp_2025": "A01:2025",
+      "owasp_2025_title": "Broken Access Control",
+      "owasp_2025_src": "scope",
+      "pci_dss": "6.4.2"
+    },
     "business_logic_approval_bypass": {
       "type": "business_logic_approval_bypass",
       "mapped": true,

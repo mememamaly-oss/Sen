@@ -1455,7 +1455,8 @@ class BurhanScanner:
                                   "fetch_url": _rfetch}
                 m2 = run_modern_battery_v2(self.engine, endpoints,
                                            seed=self.seed,
-                                           rebind_cfg=rebind_cfg)
+                                           rebind_cfg=rebind_cfg,
+                                           authz_sessions=authz_sessions)
                 for f in m2.findings:
                     f.run_id = self.run_id
                     self.stats["candidates"] += 1

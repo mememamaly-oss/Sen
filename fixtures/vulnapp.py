@@ -551,6 +551,22 @@ LAB_PAGE = """<h2>Ledger lab</h2>
 </div>
 <div>End of lab.</div>"""
 
+# 3E BFLA discovery surface (BFLA=1 only): two POST form divs on the lab
+# page — the broken admin function and its hardened twin. Gated so every
+# stock benchmark scan stays byte-identical in behavior.
+_BFLA_DIVS = """
+<div id="nl-bfla" class="form" data-method="post" data-action="/api/admin/rotate-keys">
+<input required type="text" name="reason" value="monthly-rotation">
+<button class="button" type="submit">Rotate keys (admin)</button>
+</div>
+<div id="nl-bfla-secure" class="form" data-method="post" data-action="/api/secure/admin/rotate-keys">
+<input required type="text" name="reason" value="monthly-rotation">
+<button class="button" type="submit">Rotate keys (admin, secure)</button>
+</div>
+<div>End of lab.</div>"""
+if os.environ.get("BFLA") == "1":
+    LAB_PAGE = LAB_PAGE.replace("<div>End of lab.</div>", _BFLA_DIVS)
+
 NOSQL_VALID = {"user": "admin", "pass": "hunter2"}   # the only literal credentials that match
 
 # bench-adv (2026-10-03): /api/nosql-lockout rate-limiter state. Module-level on
@@ -1156,6 +1172,22 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, json.dumps(
                     {"token": rs256_jwt(), "email": "user@fixture.test"}))
             return self._send(401, '{"error": "invalid credentials"}')
+        if path in ("/api/admin/rotate-keys", "/api/secure/admin/rotate-keys"):
+            # 3E BFLA surface: an admin-only FUNCTION (POST), not a view.
+            # Broken twin: any AUTHENTICATED session executes it (no role
+            # check — the API5:2023 class). Secure twin: role enforced 403.
+            su = _sess_user(self)
+            if su is None:
+                return self._send(401, '{"error": "authentication required"}',
+                                  {"Content-Type": "application/json"})
+            _, srec = su
+            if "secure" in path and srec["role"] != "admin":
+                return self._send(403, '{"error": "admin role required"}',
+                                  {"Content-Type": "application/json"})
+            return self._send(200, json.dumps(
+                {"rotated": True, "rotated_by": srec["role"],
+                 "admin_marker": "root-admin@burhan-fixture.local"}),
+                {"Content-Type": "application/json"})
         if path == "/safe/nosql-login":
             # Hardened twin: values are type-checked (strings only) BEFORE any
             # matching — operator objects are rejected as malformed, never matched.

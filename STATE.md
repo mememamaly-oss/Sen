@@ -749,6 +749,40 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   Suite 244/244. Evidence: evidence/layers/jwt-signature-not-enforced/
   (RED/BLUE/DISCRIMINATION + SHA256SUMS).
 
+- PART 1 (order 2026-11-01, branch detection-layer-bfla): 3E BFLA
+  (Broken Function Level Authorization) — CWE-285, OWASP API Security
+  Top 10 2023 API5 ("requests to administrative HTTP endpoints should
+  be denied for regular users"). A new modern2-battery family (rides
+  the modern_v2 flag, OFF by default; zero change to the BOLA/authz
+  detectors — 3E only READS the authz battery's logged-in sessions,
+  nothing logs in inside it). The differential, per admin-shaped
+  non-GET endpoint the crawl discovered (ADMIN_PATH_RE reused, cap 6
+  endpoints x 3 replays = the family's 18-request cap, documented):
+  a FRESH anonymous engine replays the request (the boundary must
+  exist: 401/403 or a login-shaped redirect), the highest-privilege
+  session replays it (the function must execute — the oracle), then
+  EVERY lower-privilege session replays the exact method+path+body; a
+  2xx there is the finding (body similarity to the privileged response
+  corroborates; a role-agnostic surface — anon ungated + low
+  similarity — is an honest TESTED_NEGATIVE, the OWSP-28 lesson).
+  VR-36: a fresh replay of the exact endpoint through the SAME stashed
+  lower-privilege session engine; the execution must reproduce
+  (credentials never enter finding evidence). Compliance CWE-285 /
+  A01 scope; report ID Burhan-AUT-002. Fixture: POST
+  /api/admin/rotate-keys (any authenticated session executes the admin
+  function — the API5 class) + POST /api/secure/admin/rotate-keys
+  (role enforced, 403), both discovered via BFLA=1-gated lab divs (the
+  stock benchmark never sees these surfaces). Live-caught while
+  building: the routes initially landed in do_GET (a POST never
+  reached them — every replay 404'd); relocated to do_POST.
+  RED/BLUE (tests/test_bfla.py 2/2, suite 246/246): one scan carries
+  both twins — the broken function fires and VR-36 re-verifies (fresh
+  bob-session replay -> HTTP 200), the hardened twin stays silent.
+  FULL-REPO REGRESSION: the standard fixture with the same authz +
+  modern_v2 config — zero bfla findings, 0 probes, NOT_DISCOVERED (no
+  admin-shaped non-GET surface exists there). Evidence:
+  evidence/layers/bfla/ (RED_BLUE + REGRESSION + SHA256SUMS).
+
 ## Where to find things
 
 - Round-by-round history: `git log`, worklog.md (current + history).

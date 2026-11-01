@@ -1948,6 +1948,31 @@ class VerificationEngine:
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok29 else FindingStatus.REJECTED
 
+        elif f.type == "bfla":
+            # VR-36 (3E): a FRESH replay of the exact endpoint through the
+            # SAME stashed lower-privilege session engine — the execution
+            # must reproduce.
+            stash = getattr(self.engine, "bfla_verify", {}) or {}
+            slot = stash.get(f.endpoint_url)
+            if slot is None:
+                v = Verification(method="re-test:bfla-fresh-replay",
+                                 passed=False, confidence=0.15, rounds=2,
+                                 notes="no stashed low-privilege session — "
+                                       "cannot re-run (fail closed)")
+            else:
+                r = slot["engine"].send(RequestMutation(
+                    endpoint=slot["endpoint"], note="m2-vr36"))
+                from .modernsec2 import _ok as _m2ok
+                ok36 = _m2ok(r)
+                v = Verification(method="re-test:bfla-fresh-replay",
+                                 passed=ok36, confidence=0.9 if ok36 else 0.15,
+                                 rounds=2,
+                                 notes=(f"fresh lower-privilege replay of "
+                                        f"{f.method} {f.endpoint_url} -> HTTP "
+                                        f"{getattr(r, 'status', 0)}"))
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if v.passed else FindingStatus.REJECTED
+
         elif f.type == "jwt_signature_not_enforced":
             # VR-35 (run-9 class): a FRESH corrupted-signature token against a
             # FRESH harvest — the acceptance must reproduce.
