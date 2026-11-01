@@ -331,7 +331,11 @@ class GraphqlEngine:
             payload = json.loads((r.body or "").lstrip())
         except Exception:
             return None
-        if payload.get("errors") and not payload.get("data", {}).get("__schema"):
+        # "data": null with errors is the SPEC-LEGAL GraphQL error shape
+        # (DVGA answers introspection exactly this way, run 41312545521):
+        # .get("data", {}) returns None — the key EXISTS with a null
+        # value, the default only covers MISSING keys
+        if payload.get("errors") and not (payload.get("data") or {}).get("__schema"):
             return None
         schema = ((payload.get("data") or {}).get("__schema") or {})
         if not schema.get("types"):

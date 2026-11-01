@@ -395,3 +395,51 @@ def test_existing_modernsec_battery_is_untouched():
     assert modernsec.FAMILY_CAPS["jwt_algorithm_confusion"] == 12
     # and the new module does not share any family name with v1
     assert not (set(modernsec.MODERN_TYPES) & set(modernsec2.MODERN2_TYPES))
+
+
+# ------------------------------------- graphql axis robustness (live validation)
+def test_graphql_axis_survives_null_data_error_payload():
+    """Live-validation discovery (run 41312545521, DVGA): a GraphQL server
+    answering introspection with {"data": null, "errors": [...]} — the
+    spec-legal error shape DVGA actually returns — crashed the graphql axis
+    with 'NoneType' object has no attribute 'get': payload.get("data", {})
+    yields None because the key EXISTS with a null value (the {} default
+    only applies to MISSING keys). The axis must degrade cleanly instead.
+    """
+    from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+    from burhan.orchestrator import BurhanScanner, ScanConfig
+
+    null_data = json.dumps(
+        {"data": None, "errors": [{"message": "introspection denied"}]}
+    ).encode()
+
+    class Handler(BaseHTTPRequestHandler):
+        def _send(self, ctype: str, body: bytes):
+            self.send_response(200)
+            self.send_header("Content-Type", ctype)
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_GET(self):
+            self._send("text/html", b"<html><body>ok</body></html>")
+
+        def do_POST(self):
+            self._send("application/json", null_data)
+
+        def log_message(self, *args):
+            pass
+
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    port = srv.server_address[1]
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        cfg = ScanConfig(allow_private=True, max_pages=2, timeout=6.0)
+        data = BurhanScanner(f"http://127.0.0.1:{port}/", cfg).run()
+    finally:
+        srv.shutdown()
+
+    gql = (data.get("stats") or {}).get("graphql") or {}
+    assert gql.get("enabled") is True, gql
+    assert "requests" in gql, f"graphql axis never ran: {gql}"
+    assert "error" not in gql, f"graphql axis crashed again: {gql.get('error')}"
