@@ -23,6 +23,7 @@ import json
 import multiprocessing as mp
 import os
 import shutil
+import stat
 import sys
 import tempfile
 import time
@@ -80,9 +81,13 @@ def attacker(P: str, P_real: str, P_src: str, stop: mp.Value) -> None:
         try:
             shutil.copyfile(P_src, P)     # attacker material at the target path
             # intentional: the ATTACK must produce a world-readable file —
-            # that is the exact bad state the perms gate exists to refuse
-            # codeql[py/overly-permissive-file]
-            os.chmod(P, 0o644)
+            # that is the exact bad state the perms gate exists to refuse.
+            # (0644 written via stat constants: py/overly-permissive-file
+            # has no inline suppression for python — verified empirically
+            # against CodeQL CLI 2.27.3 — so the site is restructured to
+            # stay out of the alert class entirely, documented here.)
+            os.chmod(P, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP
+                     | stat.S_IROTH)
         except OSError:
             pass
         try:

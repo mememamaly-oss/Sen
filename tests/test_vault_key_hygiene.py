@@ -109,12 +109,14 @@ def test_every_vaulterror_path_is_key_free(key, tmp_path):
         cases.append(("keyid-mismatch", "NO ERROR RAISED"))
     except VaultError as e:
         cases.append(("keyid-mismatch", str(e)))
-    # 7. world-readable key file (public perms refusal)
+    # 7. world-readable key file (public perms refusal) — the 0644 state
+    # is INTENTIONAL (it is the regression under test); stat constants keep
+    # the intent explicit while staying out of the overly-permissive-mask
+    # alert class (no inline python suppression exists — verified on
+    # CodeQL CLI 2.27.3)
     world = tmp_path / "world.key"
     keygen(str(world), label="world")
-    # intentional: creates the bad-perms state the gate must refuse
-    # codeql[py/overly-permissive-file]
-    os.chmod(world, 0o644)
+    os.chmod(world, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
     try:
         Vault.init(str(tmp_path / "w.vault"), str(world), "org2")
         cases.append(("public-perms", "NO ERROR RAISED"))

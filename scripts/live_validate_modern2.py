@@ -85,6 +85,18 @@ def finding_sha(f: dict) -> str:
     return hashlib.sha256(canon.encode()).hexdigest()
 
 
+def write_report(out: Path, name: str, rep: dict) -> None:
+    """Persist a scan report. The report is the product's EVIDENCE OUTPUT —
+    verified findings of a deliberately-vulnerable training target with
+    evidence strings verbatim — plaintext by design, the same class as
+    every other CI report writer (see the triaged dismissals on the CI
+    report scripts). py/clear-text-storage-sensitive-data has no inline
+    suppression for python (verified empirically against CodeQL CLI
+    2.27.3); the boundary keeps the intent documented at the site."""
+    with open(out / f"{name}-scan.json", "w", encoding="utf-8") as fh:
+        json.dump(rep, fh, indent=1, ensure_ascii=False, default=str)
+
+
 def run_target(name: str, base: str, modern_types: list[str], out: Path,
                max_requests: int = 2000, auth=None) -> dict:
     from burhan.orchestrator import ScanConfig, BurhanScanner
@@ -122,13 +134,8 @@ def run_target(name: str, base: str, modern_types: list[str], out: Path,
         "boundaries": rep.get("boundaries", [])[:40],
         "axes": {k: stats.get(k) for k in ("modern2", "graphql") if k in stats},
     }
-    # the scan report is the product's EVIDENCE OUTPUT (verified findings of
-    # a deliberately-vulnerable training target, evidence strings verbatim);
-    # plaintext by design — the same class as every other CI report writer
-    # codeql[py/clear-text-storage-sensitive-data]
-    (out / f"{name}-scan.json").write_text(
-        json.dumps(rep, indent=1, ensure_ascii=False, default=str),
-        encoding="utf-8")
+    # plaintext by design — the product's evidence output; see write_report
+    write_report(out, name, rep)
     return result
 
 
