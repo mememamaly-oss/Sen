@@ -2,11 +2,11 @@ name: Security ops (Scorecard / dependency review / SBOM)
 
 # PART 4 (owner order 2026-10-31): the free GitHub supply-chain surfaces,
 # wired permanently into CI:
-#   scorecard         — OSSF Scorecard (free for public repos), independent
-#                       supply-chain assessment, results published to the
-#                       Security tab + a badge in the README. Weekly + on
-#                       push to main (Scorecard publishes only from the
-#                       default branch).
+#   scorecard         — OSSF Scorecard CANNOT run here: the action proxy
+#                       does not resolve ossf/scorecard-action, and the
+#                       tool is github.com-public-only by design (this
+#                       repo is a private mirror). The job records that
+#                       limitation honestly each run. Weekly + on push.
 #   dependency-review — blocks merging a PR that introduces a dependency
 #                       with a KNOWN vulnerability (the preventive gate;
 #                       Dependabot alerts are the detective one).
@@ -27,35 +27,59 @@ permissions: read-all
 
 jobs:
   scorecard:
-    name: OSSF Scorecard (supply-chain assessment, Security tab)
+    # First-run finding (2026-11-01, run 41278076030): this runner's action
+    # proxy cannot resolve `ossf/scorecard-action@v2` at all, and OSSF
+    # Scorecard is github.com-public-repo-only BY DESIGN — its checks query
+    # api.github.com and publish_results pushes to api.securityscorecards.dev
+    # — so it can never assess a private repository on this GitHub instance.
+    # The badge that read api.securityscorecards.dev was removed from the
+    # README for the same reason. This job therefore records the limitation
+    # explicitly instead of leaving a permanently-red main.
+    name: OSSF Scorecard — environment-limited (documented, see step summary)
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     permissions:
-      security-events: write
-      id-token: write
       contents: read
-      actions: read
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Run Scorecard
-        uses: ossf/scorecard-action@v2
-        with:
-          results_file: scorecard.sarif
-          results_format: sarif
-          # publish_results pushes the scan to
-          # api.securityscorecards.dev (public data; the badge reads it)
-          publish_results: true
-      - name: Upload Scorecard results to the Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: scorecard.sarif
-          category: "ossf-scorecard"
+      - name: Record the Scorecard limitation (verified twice)
+        run: |
+          cat > scorecard-limitation.md <<'EOF'
+          # OSSF Scorecard — not executable in this environment
+
+          Two independently verified blockers (2026-11-01, runs 41278059457
+          and 41278076030):
+
+          1. The runner's action proxy cannot resolve
+             `ossf/scorecard-action@v2` — the job fails at action
+             resolution, before any step runs.
+          2. Even with the action resolved, OSSF Scorecard assesses PUBLIC
+             github.com repositories: its checks call api.github.com and
+             the publish flow sends results to api.securityscorecards.dev.
+             This repository is a private repository on this GitHub
+             instance; it has no github.com API identity, so no Scorecard
+             run is possible by design, regardless of the action version.
+
+          Supply-chain coverage that IS in place here: CodeQL
+          security-extended (both languages, weekly + per push, results in
+          the Security tab), the engine's own SARIF dogfooded into the
+          Security tab (category burhan-engine-fixture), dependency review
+          on every PR (fail-on-severity: high), Dependabot weekly
+          (pip + npm), and the SPDX SBOM from the dependency graph
+          (attached to every release).
+          EOF
+          cat scorecard-limitation.md
+          {
+            echo "### OSSF Scorecard: not executable in this environment"
+            echo
+            echo "\`ossf/scorecard-action@v2\` is not resolvable by this runner's action proxy, and Scorecard is github.com-public-repo-only by design — this private mirror can never be its target. Full note in the \`scorecard-limitation\` artifact. In-place supply-chain coverage: CodeQL security-extended, engine SARIF dogfood, dependency review (PR), Dependabot weekly, SPDX SBOM."
+          } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:
-          name: ossf-scorecard
-          path: scorecard.sarif
+          name: scorecard-limitation
+          path: scorecard-limitation.md
           if-no-files-found: error
 
   dependency-review:

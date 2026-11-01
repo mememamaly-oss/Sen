@@ -3,7 +3,6 @@
 [![CI](https://github.com/mememamaly-oss/burhan/actions/workflows/ci.yml/badge.svg)](https://github.com/memamaly-oss/Burhan/actions/workflows/ci.yml)
 [![License: PolyForm Shield 1.0.0](https://img.shields.io/badge/License-PolyForm--Shield--1.0.0-orange)](LICENSE)
 [![Release](https://img.shields.io/badge/release-v5.0.0-blue)](https://github.com/mememamaly-oss/burhan/releases)
-[![OSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/mememamaly-oss/burhan/badge)](https://securityscorecards.dev/viewer/?uri=github.com/mememamaly-oss/burhan)
 
 منصة فحص اختراق تطبيقات الويب الآلي (DAST) — المحرك (Python stdlib نقي) + تطبيق
 إدارة SaaS (Next.js). هذا المستودع مُنظّف تشغيلياً: كود المحاور 1-18 فقط.
