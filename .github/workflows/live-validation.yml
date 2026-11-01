@@ -109,7 +109,12 @@ jobs:
             "dvga_readme": sha("https://raw.githubusercontent.com/dolevf/Damn-Vulnerable-GraphQL-Application/master/README.md"),
           }
           print(json.dumps(gt, indent=1))
-          open("$RUNNER_TEMP/ground-truth-sha.json", "w").write(json.dumps(gt))
+          # RUNNER_TEMP via os.environ — the quoted heredoc does not
+          # expand $RUNNER_TEMP, and a literal '$RUNNER_TEMP/...' path
+          # does not exist (run 41310908793: FileNotFoundError)
+          import os
+          out = os.path.join(os.environ["RUNNER_TEMP"], "ground-truth-sha.json")
+          open(out, "w").write(json.dumps(gt))
           PY
 
       - name: Run live validation (3A + 3D vs crAPI, 3C vs DVGA)
