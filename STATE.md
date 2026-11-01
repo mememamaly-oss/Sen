@@ -555,6 +555,38 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   visible on 0.0.0.0:8025 in the dind).
 - security-ops after PR #8: GREEN on push and dispatch — the Scorecard
   limitation job (documented, artifact) + SPDX SBOM both pass.
+- live-validation run 41285571697 (after PR #10): the override reached
+  the container this time (CHATBOT_SERVICE visible in the env dump),
+  but nginx died with 'host not found in upstream "chatbot"' — nginx
+  resolves static upstream hostnames at CONFIG-PARSE time, so a stub
+  name with no DNS entry in the compose network is fatal. Fix (PR #11,
+  79adf94): the stub points at a REAL service in this stack,
+  crapi-workshop:8000 — /chatbot/ would proxy to the workshop app and
+  404, and the battery scans challenges 4/5/15 only.
+- live-validation run 41286864928 (after PR #11): THE WHOLE crAPI STACK
+  UP AND HEALTHY — crapi-web Up (healthy) on 0.0.0.0:8888 with the
+  bridged config rendered, identity/community/workshop/mailhog/mongo/
+  postgres all healthy. The remaining red was the LAST HOP only: the
+  readiness probe from the JOB RUNNER could not reach the port the dind
+  service container published — the dind's network namespace is not the
+  runner's (compose ps proved the stack; 180s of failed curls proved
+  the unreachable path).
+- LAST-HOP FIX (branch live-validation-last-hop, 5f70c2f): the scan no
+  longer runs on the job runner at all. It runs INSIDE the dind, in a
+  python:3.12-slim container on the dind's HOST network
+  (--network host), where both published targets are reachable as
+  127.0.0.1:8888 and 127.0.0.1:5013 — and the readiness probes use the
+  EXACT same network path the scan uses (a probe that passes means the
+  scan path works). The engine is staged via tar-pipe through the
+  docker API (no .git/node_modules/.next); results are pulled back with
+  docker cp. No pip install: the scanner's import chain was verified
+  pure-stdlib by AST trace (orchestrator and everything it pulls avoid
+  the cryptography/blake3 requirements — those live in vault/proof/
+  signing, which the live battery does not exercise). Runner-side probe
+  loops and the pip-install step were removed; a failure-diagnostics
+  step (compose ps + web/identity/dvga logs) was added.
+- PRs merged this order so far, all green: #7 (0071c70), #8 (83227b3),
+  #9 (844f32e), #10 (0757269), #11 (79adf94).
 
 ## Where to find things
 
