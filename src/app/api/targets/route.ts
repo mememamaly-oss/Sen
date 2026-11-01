@@ -96,20 +96,28 @@ export async function POST(req: NextRequest) {
     const dup = await db.target.findFirst({ where: { orgId: access.orgId, url } });
     if (dup) throw new ApiError(409, "هذا الهدف مسجل بالفعل في المنظمة");
 
-    const target = await db.target.create({
-      data: {
-        orgId: access.orgId,
-        createdById: user.id, // target ownership
-        name,
-        url,
-        description,
-        isDemo,
-      },
-    });
-    await audit("target.created", {
-      orgId: access.orgId,
-      userId: user.id,
-      detail: { targetId: target.id, url, isDemo },
+    // target + audit row in ONE transaction (item 1.3, fail-closed)
+    const target = await db.$transaction(async (tx) => {
+      const created = await tx.target.create({
+        data: {
+          orgId: access.orgId,
+          createdById: user.id, // target ownership
+          name,
+          url,
+          description,
+          isDemo,
+        },
+      });
+      await audit(
+        "target.created",
+        {
+          orgId: access.orgId,
+          userId: user.id,
+          detail: { targetId: created.id, url, isDemo },
+        },
+        tx
+      );
+      return created;
     });
     return NextResponse.json({ id: target.id, name: target.name, url: target.url, isDemo: target.isDemo });
   } catch (e) {

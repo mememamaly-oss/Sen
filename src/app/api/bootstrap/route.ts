@@ -76,6 +76,13 @@ export async function POST(req: NextRequest) {
     const name = String(body.name || "").trim() || email.split("@")[0];
     const password = String(body.password || "");
     const orgName = String(body.orgName || "").trim() || "منظمتي الأولى";
+    // input length caps BEFORE the validation regexes: an unbounded JSON
+    // field costs parse+regex time before any validation runs (measured:
+    // the email regex is linear on V8, but bounded input is still cheaper
+    // by construction — and 254 is the RFC 5321 path limit)
+    if (email.length > 254 || name.length > 120 || orgName.length > 120 || password.length > 256) {
+      throw new ApiError(400, "أحد الحقول طويل جدًا");
+    }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new ApiError(400, "البريد الإلكتروني غير صالح");
     if (password.length < 8) throw new ApiError(400, "كلمة المرور يجب أن تكون 8 أحرف على الأقل");
 
@@ -139,6 +146,11 @@ export async function POST(req: NextRequest) {
       await db.membership.create({
         data: { userId: user.id, orgId: org.id, role: "OWNER" },
       });
+      // FAIL-CLOSED AUDIT (item 1.3, 2026-10-31): the evidence write runs
+      // INSIDE the guarded block — if it cannot be persisted, compensation
+      // below removes the partial state and the request fails. The admin
+      // account is never created without its audit row.
+      await audit("bootstrap.admin_created", { orgId: org.id, userId: user.id, detail: { email } });
     } catch (e) {
       // COMPENSATION: remove the partial state and release the lock so a
       // retry is possible.
@@ -151,7 +163,6 @@ export async function POST(req: NextRequest) {
       throw e;
     }
 
-    await audit("bootstrap.admin_created", { orgId: org.id, userId: user.id, detail: { email } });
     return NextResponse.json({ ok: true, userId: user.id, orgId: org.id });
   } catch (e) {
     // on ANY failure after acquiring the lock with no user created, release

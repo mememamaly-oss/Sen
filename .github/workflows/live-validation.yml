@@ -1,0 +1,116 @@
+name: Live validation (crAPI + DVGA — modern battery v2)
+
+# PART 3 (owner order 2026-10-31): the modern battery v2 layers against two
+# MORE real-world targets the engine has never seen — same honesty contract
+# as the Juice Shop job: official images, ground truth recorded from each
+# project's official documentation BEFORE any scan, every finding scored
+# confirmed-positive / unjudged / expected-miss. Misses are RECORDED, never
+# hidden; they are not gate failures (this is validation, not a benchmark).
+#
+#   crAPI (OWASP/crAPI, pinned VERSION 1.1.5 via the official deploy compose)
+#     3A jwt_weak_secret          — docs challenge 15 (JWT forgery; the
+#                                   documented mechanism is algorithm
+#                                   confusion, NOT a wordlist secret — an
+#                                   engine miss is an honest NOT-FOUND)
+#     3D excessive_data_exposure  — docs challenges 4+5 (sensitive data of
+#                                   other users; internal video property)
+#   DVGA (dolevf/dvga, Docker Hub)
+#     3C graphql_aliasing         — README "Aliases based Attack" scenario
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1" # weekly, Monday — same cadence as CodeQL
+
+permissions:
+  contents: read
+
+jobs:
+  live-validation:
+    name: Real targets (crAPI v1.1.5 + DVGA — modern v2 layers)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      docker:
+        image: docker:27-dind
+        options: >-
+          --privileged
+          --name docker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install engine dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start crAPI (official compose, pinned VERSION)
+        run: |
+          curl -sL -o /tmp/crapi.zip https://github.com/OWASP/crAPI/archive/refs/heads/main.zip
+          unzip -q /tmp/crapi.zip -d /tmp
+          cd /tmp/crAPI-main/deploy/docker
+          # pin the same version the ground truth was recorded from
+          echo "VERSION=1.1.5" >> .env
+          # loopback-only web port; dind service exposes the docker daemon
+          sed -i 's/LISTEN_IP=0.0.0.0/LISTEN_IP=127.0.0.1/' .env 2>/dev/null || true
+          DOCKER_HOST=unix:///var/run/docker.sock docker compose pull
+          DOCKER_HOST=unix:///var/run/docker.sock docker compose -f docker-compose.yml --compatibility up -d
+          for i in $(seq 1 90); do
+            if curl -sf -m 3 http://127.0.0.1:8888/ >/dev/null 2>&1; then
+              echo "crAPI up (attempt $i)"; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::crAPI did not come up in 180s"
+          DOCKER_HOST=unix:///var/run/docker.sock docker compose -f docker-compose.yml logs --tail 40 || true
+          exit 1
+
+      - name: Start DVGA (official Docker Hub image)
+        run: |
+          docker run -d --name dvga -p 127.0.0.1:5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga
+          for i in $(seq 1 30); do
+            if curl -sf -m 3 http://127.0.0.1:5013/ >/dev/null 2>&1; then
+              echo "DVGA up (attempt $i)"; exit 0
+            fi
+            sleep 2
+          done
+          echo "::error::DVGA did not come up in 60s"
+          docker logs dvga | tail -30 || true
+          exit 1
+
+      - name: Record pre-scan ground-truth checksums
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, urllib.request
+          def sha(url):
+              with urllib.request.urlopen(url, timeout=30) as r:
+                  return hashlib.sha256(r.read()).hexdigest()
+          gt = {
+            "crapi_challenges_md": sha("https://raw.githubusercontent.com/OWASP/crAPI/main/docs/challenges.md"),
+            "crapi_jwtprovider": sha("https://raw.githubusercontent.com/OWASP/crAPI/main/services/identity/src/main/java/com/crapi/config/JwtProvider.java"),
+            "dvga_readme": sha("https://raw.githubusercontent.com/dolevf/Damn-Vulnerable-GraphQL-Application/master/README.md"),
+          }
+          print(json.dumps(gt, indent=1))
+          open("$RUNNER_TEMP/ground-truth-sha.json", "w").write(json.dumps(gt))
+          PY
+
+      - name: Run live validation (3A + 3D vs crAPI, 3C vs DVGA)
+        run: |
+          python3 scripts/live_validate_modern2.py \
+            --crapi http://127.0.0.1:8888 \
+            --dvga http://127.0.0.1:5013 \
+            --out-dir "$RUNNER_TEMP/live"
+
+      - name: Upload live-validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-validation-crapi-dvga
+          path: |
+            ${{ runner.temp }}/live/live-validation.json
+            ${{ runner.temp }}/live/crapi-scan.json
+            ${{ runner.temp }}/live/dvga-scan.json
+            ${{ runner.temp }}/ground-truth-sha.json
+          if-no-files-found: error

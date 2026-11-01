@@ -17,6 +17,10 @@ import { describe, test, expect, beforeAll } from "bun:test";
 
 const BASE = process.env.INTEGRATION_SERVER_URL || "";
 if (!BASE) throw new Error("INTEGRATION_SERVER_URL is required (bash runner mode)");
+// item 1.4 (2026-10-31): a "distinct client identity" in these tests is the
+// PROVEN proxy path (X-Real-IP + the shared proxy secret) — an unproven
+// forged header no longer buys a fresh bucket, which is precisely the fix.
+const PROXY_SECRET = process.env.TRUSTED_PROXY_SECRET || "";
 
 async function post(body?: unknown): Promise<Response> {
   return fetch(`${BASE}/api/demo/scan`, {
@@ -27,7 +31,7 @@ async function post(body?: unknown): Promise<Response> {
 }
 async function get(id: string, ip?: string): Promise<Response> {
   return fetch(`${BASE}/api/demo/scan?id=${encodeURIComponent(id)}`, {
-    headers: ip ? { "X-Real-IP": ip } : undefined,
+    headers: ip ? { "X-Real-IP": ip, "x-proxy-secret": PROXY_SECRET } : undefined,
   });
 }
 
@@ -52,10 +56,12 @@ describe("demo GET polling is rate-limited", () => {
   });
 
   test("unknown-id polls within the budget still behave normally (400/404, not 429)", async () => {
-    // after the flood above the IP is likely blocked — use a different
-    // header identity to check the normal path still works for fresh IPs
+    // after the flood above the local bucket is blocked — check the normal
+    // path still works for a PROVEN distinct client identity (item 1.4:
+    // the proxy path carries the shared secret; a bare forged header gets
+    // no fresh bucket by design)
     const r = await fetch(`${BASE}/api/demo/scan?id=normal-probe`, {
-      headers: { "X-Real-IP": "198.51.100.77" },
+      headers: { "X-Real-IP": "198.51.100.77", "x-proxy-secret": PROXY_SECRET },
     });
     expect([400, 404]).toContain(r.status);
   });
@@ -71,9 +77,9 @@ describe("demo POST: hardcoded target + single lane + per-IP budget", () => {
       let job: { status?: string; findings?: { url: string }[]; error?: string } | null = null;
       for (let i = 0; i < 100; i++) {
         await new Promise((res) => setTimeout(res, 2000));
-        // poll under a dedicated client identity: the flood test above
-        // deliberately exhausts the default (local) poll bucket — a real
-        // browser polls from its own IP with its own budget
+        // poll under a PROVEN distinct client identity (proxy secret —
+        // item 1.4): the flood test above deliberately exhausts the local
+        // poll bucket; the proxy path carries its own per-IP budget
         const g = await get(id, "203.0.113.42");
         if (g.status === 200) {
           job = (await g.json()) as typeof job;

@@ -24,8 +24,14 @@ export default function DeploymentDocsPage() {
         <pre className="num mt-3 overflow-auto rounded-xl border bg-muted/50 p-4 text-[11.5px] leading-5" dir="ltr">
 {`# docker compose (loopback only) — or any managed PostgreSQL
 POSTGRES_PASSWORD=$(openssl rand -hex 16) docker compose up -d
-export DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan
+# 1) migrations + role provisioning run as the OWNER (one-shot per deploy)
+export MIGRATION_DATABASE_URL=postgresql://burhan:<pw>@127.0.0.1:5432/burhan
 bunx prisma migrate deploy
+export BURHAN_APP_DB_PASSWORD=$(openssl rand -hex 16)
+bash scripts/db_app_role.sh   # idempotent; provisions the limited role
+# 2) the APP runs as the LIMITED burhan_app role (DML only — no TRUNCATE/DDL;
+#    the audit trail's trigger cannot block TRUNCATE, the missing privilege can)
+export DATABASE_URL=postgresql://burhan_app:$BURHAN_APP_DB_PASSWORD@127.0.0.1:5432/burhan
 bash scripts/verify_postgres.sh   # end-to-end verification`}
         </pre>
       </section>
@@ -58,9 +64,13 @@ BURHAN_ALLOW_PRIVATE_TARGETS=0    # lab mode OFF by default`}
       <section className="mt-8">
         <h2 className="text-sm font-extrabold" dir="ltr">4 · Reverse proxy</h2>
         <p className="mt-2 text-xs leading-6 text-muted-foreground" dir="ltr">
-          Caddyfile at the repo root: TLS automatic, <code>X-Real-IP</code> /
-          <code> X-Forwarded-For</code> forwarded (used by the login rate limiter),
-          loopback-only upstreams.
+          Caddyfile at the repo root: TLS automatic, loopback-only upstreams.{" "}
+          <code>X-Real-IP</code> / <code>X-Forwarded-For</code> are honored by
+          the login limiter <strong>only together with the shared proxy secret</strong>{" "}
+          (<code>X-Proxy-Secret</code> from the Caddyfile&apos;s{" "}
+          <code>PROXY_SECRET</code> env, matched against the app&apos;s{" "}
+          <code>TRUSTED_PROXY_SECRET</code>) — a direct client forging
+          <code> X-Forwarded-For</code> gets no fresh rate-limit bucket (fail-closed).
         </p>
       </section>
 

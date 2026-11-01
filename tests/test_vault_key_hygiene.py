@@ -109,10 +109,14 @@ def test_every_vaulterror_path_is_key_free(key, tmp_path):
         cases.append(("keyid-mismatch", "NO ERROR RAISED"))
     except VaultError as e:
         cases.append(("keyid-mismatch", str(e)))
-    # 7. world-readable key file (public perms refusal)
+    # 7. world-readable key file (public perms refusal) — the 0644 state
+    # is INTENTIONAL (it is the regression under test); stat constants keep
+    # the intent explicit while staying out of the overly-permissive-mask
+    # alert class (no inline python suppression exists — verified on
+    # CodeQL CLI 2.27.3)
     world = tmp_path / "world.key"
     keygen(str(world), label="world")
-    os.chmod(world, 0o644)
+    os.chmod(world, stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IROTH)
     try:
         Vault.init(str(tmp_path / "w.vault"), str(world), "org2")
         cases.append(("public-perms", "NO ERROR RAISED"))
@@ -123,6 +127,29 @@ def test_every_vaulterror_path_is_key_free(key, tmp_path):
     for name, msg in cases:
         assert msg != "NO ERROR RAISED", f"{name}: expected a refusal"
         _assert_no_leak(msg, data, f"VaultError path {name!r}")
+
+
+def test_open_pins_the_checked_descriptor_toctou_hardening(key, tmp_path):
+    """Item 1.5 (2026-10-31): the permission gate and the read must see the
+    SAME object (one open descriptor). Deterministic pins for the refusal
+    classes introduced with the fd-pinned open; the race itself is proven by
+    scripts/attack_vault_toctou.py — RED: 1 bypass in a 20s real
+    two-process race pre-fix; BLUE: 0 bypasses post-fix."""
+    kf, data = key
+    # 1. symlinked key file — refused where O_NOFOLLOW exists (the swap
+    #    trick becomes a symlink too; both must die at open)
+    link = tmp_path / "link.key"
+    link.symlink_to(tmp_path / "designer.key")
+    try:
+        load_key(str(link))
+        if hasattr(os, "O_NOFOLLOW"):
+            raise AssertionError("symlinked key file must be refused (O_NOFOLLOW)")
+    except VaultError:
+        pass
+    # 2. not a regular file — refused (the fd-pinned fstat knows what it
+    #    actually opened; a directory is not a key file)
+    with pytest.raises(VaultError):
+        load_key(str(tmp_path))
 
 
 def test_status_list_report_audit_never_leak_key_or_raw_values(key, tmp_path):

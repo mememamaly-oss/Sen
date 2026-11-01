@@ -16,7 +16,10 @@
 #   * internal services (engine, fixture app on 127.0.0.1:8777, Prisma,
 #     anything else) MUST bind to loopback and MUST NOT be exposed by any
 #     other proxy rule or port mapping;
-#   * do not reintroduce query/header-driven upstream selection.
+#   * do not reintroduce query/header-driven upstream selection;
+#   * the app trusts forwarded IP headers ONLY together with the shared
+#     proxy secret below (item 1.4) — keep PROXY_SECRET (Caddy env) and
+#     TRUSTED_PROXY_SECRET (app env) identical: openssl rand -hex 32.
 :81 {
         handle {
                 reverse_proxy localhost:3000 {
@@ -24,6 +27,12 @@
                         header_up X-Forwarded-For {remote_host}
                         header_up X-Forwarded-Proto {scheme}
                         header_up X-Real-IP {remote_host}
+                        # PROXY-SECRET GATE (owner order 2026-10-31, item 1.4):
+                        # without it, any DIRECT client could forge
+                        # X-Forwarded-For and buy a fresh per-IP rate-limit
+                        # bucket per request (proven: 130 distinct forged
+                        # values, zero refusals against a 120/hour budget).
+                        header_up X-Proxy-Secret {$PROXY_SECRET}
                 }
         }
 }

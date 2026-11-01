@@ -1,0 +1,108 @@
+name: Security ops (Scorecard / dependency review / SBOM)
+
+# PART 4 (owner order 2026-10-31): the free GitHub supply-chain surfaces,
+# wired permanently into CI:
+#   scorecard         — OSSF Scorecard (free for public repos), independent
+#                       supply-chain assessment, results published to the
+#                       Security tab + a badge in the README. Weekly + on
+#                       push to main (Scorecard publishes only from the
+#                       default branch).
+#   dependency-review — blocks merging a PR that introduces a dependency
+#                       with a KNOWN vulnerability (the preventive gate;
+#                       Dependabot alerts are the detective one).
+#   sbom              — SPDX SBOM from GitHub's own dependency graph,
+#                       attached to every release (enterprise-readiness).
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+  release:
+    types: [published]
+  schedule:
+    - cron: "23 5 * * 1" # weekly, Monday — new vulns appear without code changes
+  workflow_dispatch:
+
+permissions: read-all
+
+jobs:
+  scorecard:
+    name: OSSF Scorecard (supply-chain assessment, Security tab)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    permissions:
+      security-events: write
+      id-token: write
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Run Scorecard
+        uses: ossf/scorecard-action@v2
+        with:
+          results_file: scorecard.sarif
+          results_format: sarif
+          # publish_results pushes the scan to
+          # api.securityscorecards.dev (public data; the badge reads it)
+          publish_results: true
+      - name: Upload Scorecard results to the Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: scorecard.sarif
+          category: "ossf-scorecard"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ossf-scorecard
+          path: scorecard.sarif
+          if-no-files-found: error
+
+  dependency-review:
+    name: Dependency review (block known-vulnerable dependency changes)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review new dependencies for known vulnerabilities
+        uses: actions/dependency-review-action@v4
+        with:
+          # block the merge when a PR introduces a vulnerable dep
+          fail-on-severity: high
+
+  sbom:
+    name: SBOM (GitHub dependency graph, SPDX) -> release artifact
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+    steps:
+      - name: Export the SBOM from GitHub's dependency graph
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "/repos/${REPO}/dependency-graph/sbom" \
+            > sbom.spdx.json
+          python3 - <<'PY'
+          import json
+          d = json.load(open("sbom.spdx.json"))
+          g = d.get("sbom", d)
+          pkgs = g.get("packages", []) or g.get("spdxPackages", [])
+          print("SBOM ok: spdxVersion", g.get("spdxVersion"),
+                "| packages:", len(pkgs) if isinstance(pkgs, list) else "?")
+          PY
+      - name: Attach the SBOM to the release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          gh release upload "$TAG" sbom.spdx.json --clobber
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-spdx
+          path: sbom.spdx.json
+          if-no-files-found: error

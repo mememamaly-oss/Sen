@@ -23,8 +23,11 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ id: strin
       const owners = await db.membership.count({ where: { orgId: access.orgId, role: "OWNER" } });
       if (owners <= 1) throw new ApiError(409, "لا يمكن إزالة آخر OWNER من المنظمة");
     }
-    await db.membership.update({ where: { id: mid }, data: { role } });
-    await audit("member.role_changed", { orgId: access.orgId, userId: user.id, detail: { mid, from: target.role, to: role } });
+    // role change + audit in ONE transaction (item 1.3, fail-closed)
+    await db.$transaction(async (tx) => {
+      await tx.membership.update({ where: { id: mid }, data: { role } });
+      await audit("member.role_changed", { orgId: access.orgId, userId: user.id, detail: { mid, from: target.role, to: role } }, tx);
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return jsonError(e);
@@ -47,8 +50,11 @@ export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ id: str
       if (owners <= 1) throw new ApiError(409, "لا يمكن إزالة آخر OWNER من المنظمة");
     }
     if (target.userId === user.id) throw new ApiError(409, "لا يمكنك إزالة نفسك — اطلب من مدير آخر");
-    await db.membership.delete({ where: { id: mid } });
-    await audit("member.removed", { orgId: access.orgId, userId: user.id, detail: { mid, hadRole: target.role } });
+    // removal + audit in ONE transaction (item 1.3, fail-closed)
+    await db.$transaction(async (tx) => {
+      await tx.membership.delete({ where: { id: mid } });
+      await audit("member.removed", { orgId: access.orgId, userId: user.id, detail: { mid, hadRole: target.role } }, tx);
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     return jsonError(e);

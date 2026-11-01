@@ -45,6 +45,11 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
     if (role === "OWNER" && access.role !== "OWNER") {
       throw new ApiError(403, "فقط OWNER يمكنه منح دور OWNER");
     }
+    // input length caps BEFORE the validation regexes (RFC 5321 path limit
+    // for the email; bounded parse+regex cost by construction)
+    if (email.length > 254 || name.length > 120 || password.length > 256) {
+      throw new ApiError(400, "أحد الحقول طويل جدًا");
+    }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new ApiError(400, "البريد الإلكتروني غير صالح");
     if (password.length < 8) throw new ApiError(400, "كلمة المرور يجب أن تكون 8 أحرف على الأقل");
 
@@ -65,19 +70,29 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ id: string
         if (!member) throw e;
       }
     }
+    // membership + audit in ONE transaction (item 1.3, fail-closed). The
+    // user-create above stays outside (P2002 adoption handles concurrency);
+    // an orphan user without membership is inert, an un-audited membership
+    // is an RBAC evidence gap — the transaction closes the latter.
     try {
-      await db.membership.create({ data: { userId: member.id, orgId: access.orgId, role } });
+      await db.$transaction(async (tx) => {
+        await tx.membership.create({ data: { userId: member.id, orgId: access.orgId, role } });
+        await audit(
+          "member.added",
+          {
+            orgId: access.orgId,
+            userId: user.id,
+            detail: { email, role, newAccount: isNewUser },
+          },
+          tx
+        );
+      });
     } catch (e) {
       if ((e as { code?: string }).code === "P2002") {
         throw new ApiError(409, "هذا المستخدم عضو في المنظمة بالفعل");
       }
       throw e;
     }
-    await audit("member.added", {
-      orgId: access.orgId,
-      userId: user.id,
-      detail: { email, role, newAccount: isNewUser },
-    });
     return NextResponse.json({ ok: true, userId: member.id, isNewUser, role });
   } catch (e) {
     return jsonError(e);

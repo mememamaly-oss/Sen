@@ -59,22 +59,34 @@ export function slugify(name: string): string {
   return base || `org-${Date.now().toString(36)}`;
 }
 
+/**
+ * FAIL-CLOSED AUDIT (owner order 2026-10-31, item 1.3): an audit entry that
+ * cannot be written must STOP the guarded operation — previously this
+ * helper swallowed write failures (console.error only), so a privileged
+ * action whose evidence could not be persisted still completed (proven
+ * live: bootstrap HTTP 200, user+org persisted, zero audit rows, with
+ * INSERT on AuditLog revoked from the app identity —
+ * scripts/verify_audit_fail_closed.sh).
+ *
+ * Callers that pair the audited action with an audit row MUST run both in
+ * ONE Prisma interactive transaction and pass `tx` here — then an audit
+ * failure rolls the action back. Denial-path callers may use the default
+ * client: a failed audit there surfaces as an error response, which is
+ * still fail-closed (no access is granted).
+ */
 export async function audit(
   action: string,
-  opts: { orgId?: string | null; userId?: string | null; detail?: unknown } = {}
+  opts: { orgId?: string | null; userId?: string | null; detail?: unknown } = {},
+  tx: Pick<typeof db, "auditLog"> = db
 ) {
-  try {
-    await db.auditLog.create({
-      data: {
-        action,
-        orgId: opts.orgId ?? null,
-        userId: opts.userId ?? null,
-        detail: opts.detail === undefined ? null : JSON.stringify(opts.detail).slice(0, 4000),
-      },
-    });
-  } catch (e) {
-    console.error("[audit] failed to record", action, e);
-  }
+  await tx.auditLog.create({
+    data: {
+      action,
+      orgId: opts.orgId ?? null,
+      userId: opts.userId ?? null,
+      detail: opts.detail === undefined ? null : JSON.stringify(opts.detail).slice(0, 4000),
+    },
+  });
 }
 
 export type SessionUser = { id: string; email: string; name: string | null };

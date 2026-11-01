@@ -85,48 +85,45 @@ export async function POST(req: NextRequest) {
       if (!demo.ok) throw new ApiError(503, demo.detail);
     }
 
-    const scan = await db.scan.create({
-      data: {
-        orgId: access.orgId,
-        targetId: target.id,
-        createdById: user.id,
-        status: "QUEUED",
-        optionsJson: JSON.stringify(options),
-      },
-    });
-
-    await audit("scan.started", {
-      orgId: access.orgId,
-      userId: user.id,
-      detail: { scanId: scan.id, targetId: target.id, url: target.url, options },
-    });
-
-    // SECURITY (19-axis audit 2026-10-23, G8 — scan-start TOCTOU):
-    // the active-scan check above is check-then-act. Three concurrent POSTs
-    // all passed it and spawned THREE engine processes against the same
-    // target (proven live: 3 scan rows RUNNING + 3 engine scan dirs).
-    // Earliest-wins compensation: every participant re-reads the active
-    // scans for this target under a total order (createdAt asc, id asc).
-    // The globally-earliest scan sees itself and proceeds; every later scan
-    // deterministically sees the earliest, cancels ITSELF before the engine
-    // is spawned, and returns 409 — concurrent duplicate engine runs are
-    // impossible regardless of how the requests interleave.
-    const winner = await db.scan.findFirst({
-      where: { targetId: target.id, status: { in: ["QUEUED", "RUNNING"] } },
-      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-    });
-    if (winner && winner.id !== scan.id) {
-      await db.scan.update({
-        where: { id: scan.id },
-        data: { status: "CANCELLED", error: "فحص متزامن آخر بدأ على نفس الهدف", finishedAt: new Date() },
+    // SECURITY (19-axis audit 2026-10-23, G8 — scan-start TOCTOU; re-serialized
+    // 2026-10-31): the active-scan check above is check-then-act. The original
+    // earliest-wins compensation relied on each participant's scan row being
+    // VISIBLE before the next participant's re-read — the item-1.3 change
+    // (scan + audit in ONE transaction) delayed row visibility to COMMIT and
+    // the race re-opened (CI-proven on this branch: 3 concurrent starts,
+    // TWO accepted as winners). The per-target advisory transaction lock now
+    // SERIALIZES scan starts: a concurrent starter waits for the first's
+    // COMMIT, re-reads, sees the QUEUED row and is refused — exactly one
+    // engine per target regardless of interleaving. Scan-create + audit
+    // remain ONE atomic unit (item 1.3, fail-closed).
+    const scan = await db.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`scan-start:${target.id}`}))`;
+      const active = await tx.scan.findFirst({
+        where: { targetId: target.id, status: { in: ["QUEUED", "RUNNING"] } },
       });
-      await audit("scan.cancelled_duplicate", {
-        orgId: access.orgId,
-        userId: user.id,
-        detail: { scanId: scan.id, targetId: target.id, keptScanId: winner.id },
+      if (active) {
+        throw new ApiError(409, "يوجد فحص نشط على هذا الهدف بالفعل — انتظر انتهاءه أو ألغِه أولًا (تسلسل الفحوصات لكل هدف)");
+      }
+      const created = await tx.scan.create({
+        data: {
+          orgId: access.orgId,
+          targetId: target.id,
+          createdById: user.id,
+          status: "QUEUED",
+          optionsJson: JSON.stringify(options),
+        },
       });
-      throw new ApiError(409, "يوجد فحص نشط على هذا الهدف بالفعل — فحص متزامن مكرر أُلغي (تسلسل الفحوصات لكل هدف)");
-    }
+      await audit(
+        "scan.started",
+        {
+          orgId: access.orgId,
+          userId: user.id,
+          detail: { scanId: created.id, targetId: target.id, url: target.url, options },
+        },
+        tx
+      );
+      return created;
+    });
 
     try {
       await engineStartScan(scan.id, { id: target.id, url: target.url });

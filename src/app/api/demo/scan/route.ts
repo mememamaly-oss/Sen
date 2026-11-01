@@ -6,6 +6,7 @@ import path from "path";
 import { ENGINE_DIR, SCANS_DIR } from "@/lib/engine";
 import { DEMO_TARGET_URL, ensureDemoTarget } from "@/lib/demo-target";
 import { rateLimit } from "@/lib/rate-limit";
+import { trustedForwardedIp } from "@/lib/forwarded";
 
 // P2-E (2026-10-31): the PUBLIC live demo — ONE real engine scan against the
 // platform-managed fixture (vulnapp on 127.0.0.1:8777). No sign-up.
@@ -73,11 +74,11 @@ const jobs = g.__burhanDemoScans;
 const procs = g.__burhanDemoProcs;
 
 function clientIp(req: NextRequest): string {
-  const real = req.headers.get("x-real-ip");
-  if (real) return real.split(",")[0].trim();
-  const xff = req.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0].trim();
-  return "local";
+  // SECRET-GATED (item 1.4, 2026-10-31): forwarded headers only count when
+  // the request proves it came through the proxy (x-proxy-secret); forged
+  // XFF from a direct client must NOT buy a fresh rate-limit bucket
+  // (proven red: 130 distinct forged XFF values, zero refusals).
+  return trustedForwardedIp((n) => req.headers.get(n)) ?? "local";
 }
 
 function rollupCompliance(findings: DemoFinding[]): DemoState["compliance"] {
