@@ -587,6 +587,40 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   step (compose ps + web/identity/dvga logs) was added.
 - PRs merged this order so far, all green: #7 (0071c70), #8 (83227b3),
   #9 (844f32e), #10 (0757269), #11 (79adf94).
+- run 41310908793 (run 6, after PR #12 + dispatch): the crAPI stack
+  came up, DVGA started, the three ground-truth checksums downloaded
+  and printed — then died on FileNotFoundError at the LITERAL path
+  '$RUNNER_TEMP/ground-truth-sha.json': the heredoc delimiter is quoted
+  ('PY') so bash never expanded the variable (a bug written in the
+  first parts-3+4 batch, never reached before because every earlier
+  run died upstream of it). Fixed in PR #13 (ce59378) via
+  os.environ["RUNNER_TEMP"].
+- run 41312545521 (run 7, after PR #13): **GREEN — THE LIVE VALIDATION
+  BATTERY COMPLETED AGAINST BOTH REAL TARGETS.** Artifacts
+  (live-validation-crapi-dvga, 13086575538): crAPI 280 requests /
+  15 findings (7 missing_security_headers, 7 server_banner_disclosure,
+  1 weak_random); DVGA 834 requests / 26 findings (21
+  missing_security_headers, 2 secure_cookie, 3 weak_random); modern2
+  layers: 0 hits on both targets — every miss scored expected-miss with
+  the documented reason (crAPI challenge 15 is algorithm confusion, not
+  a wordlist-weak secret; DVGA aliasing is a DoS-family attack).
+  Ground-truth SHA-256s recorded pre-scan and archived.
+- ENGINE GAP DISCOVERED BY THE LIVE BATTERY (this is the battery
+  working as designed): the graphql axis ERRORED against DVGA with
+  'NoneType' object has no attribute 'get' — burhan/graphql.py:334 used
+  payload.get("data", {}).get("__schema"), and {"data": null, "errors":
+  [...]} is the SPEC-LEGAL GraphQL error shape DVGA actually answers
+  introspection with: the "data" key EXISTS with a null value, so the
+  {} default never applies and .get() runs on None. No test covered
+  GraphqlEngine directly, which is why this survived to production CI.
+  Fixed (red/blue): a permanent regression test spins a live HTTP
+  server answering every POST with the null-data error payload and runs
+  the full scanner — RED on the old code (reproduced the exact
+  production error message), GREEN after a one-expression fix
+  ((payload.get("data") or {})); full affected suites pass (25/25).
+- PRs merged this order so far, all green: #7 (0071c70), #8 (83227b3),
+  #9 (844f32e), #10 (0757269), #11 (79adf94), #13 (ce59378); #12
+  (3ee6970) carried the in-dind scan redesign + these STATE records.
 
 ## Where to find things
 
