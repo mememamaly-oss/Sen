@@ -46,17 +46,26 @@ jobs:
       - name: Install engine dependencies
         run: pip install -r requirements.txt
 
-      - name: Start crAPI (official compose, pinned VERSION)
+      - name: Start crAPI (official compose, pinned TAG v1.1.5)
         run: |
-          curl -sL -o /tmp/crapi.zip https://github.com/OWASP/crAPI/archive/refs/heads/main.zip
+          set +e
+          # download the v1.1.5 TAG — compose AND .env from one consistent
+          # source, the same version the ground truth was recorded from
+          # (a main-HEAD compose with a pinned VERSION env is a mismatch
+          # risk: the compose layout can drift past the pinned images)
+          curl -sL -o /tmp/crapi.zip https://github.com/OWASP/crAPI/archive/refs/tags/v1.1.5.zip
           unzip -q /tmp/crapi.zip -d /tmp
-          cd /tmp/crAPI-main/deploy/docker
-          # pin the same version the ground truth was recorded from
-          echo "VERSION=1.1.5" >> .env
+          ls /tmp/ | grep -i crapi
+          cd /tmp/crAPI-1.1.5/deploy/docker
           # loopback-only web port; dind service exposes the docker daemon
           sed -i 's/LISTEN_IP=0.0.0.0/LISTEN_IP=127.0.0.1/' .env 2>/dev/null || true
-          DOCKER_HOST=unix:///var/run/docker.sock docker compose pull
-          DOCKER_HOST=unix:///var/run/docker.sock docker compose -f docker-compose.yml --compatibility up -d
+          export DOCKER_HOST=unix:///var/run/docker.sock
+          docker compose pull
+          # non-fatal: a dependency service exiting during compose-up must
+          # not end the step before we can capture its container logs
+          docker compose -f docker-compose.yml --compatibility up -d
+          UP=$?
+          echo "compose up exit: $UP"
           for i in $(seq 1 90); do
             if curl -sf -m 3 http://127.0.0.1:8888/ >/dev/null 2>&1; then
               echo "crAPI up (attempt $i)"; exit 0
@@ -64,11 +73,15 @@ jobs:
             sleep 2
           done
           echo "::error::crAPI did not come up in 180s"
-          DOCKER_HOST=unix:///var/run/docker.sock docker compose -f docker-compose.yml logs --tail 40 || true
+          echo "--- compose ps ---"; docker compose -f docker-compose.yml ps -a || true
+          echo "--- identity logs ---"; docker compose -f docker-compose.yml logs --tail 60 crapi-identity || true
+          echo "--- db logs ---"; docker compose -f docker-compose.yml logs --tail 30 crapi-db || true
+          echo "--- web logs ---"; docker compose -f docker-compose.yml logs --tail 30 crapi-web || true
           exit 1
 
       - name: Start DVGA (official Docker Hub image)
         run: |
+          export DOCKER_HOST=unix:///var/run/docker.sock
           docker run -d --name dvga -p 127.0.0.1:5013:5013 -e WEB_HOST=0.0.0.0 dolevf/dvga
           for i in $(seq 1 30); do
             if curl -sf -m 3 http://127.0.0.1:5013/ >/dev/null 2>&1; then

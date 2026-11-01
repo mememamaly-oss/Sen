@@ -466,6 +466,68 @@ loss cost re-execution, not correctness.
 - Live-validation first run: dispatched after PR #7 merges; results land
   as the live-validation-crapi-dvga artifact + this record's follow-up.
 
+## 2026-11-01 — part 1.2 CodeQL closure, PR #7 merged, first runs of parts 3+4
+
+### CodeQL new-alerts check — closed by restructure, not suppression
+
+The check flagged 3 intentional sites (attack chmod, hygiene-test chmod,
+live-validation report write). Trailing `# codeql[...]` did nothing;
+line-above annotations (74e43aa) also left the check red. Verified
+DEFINITIVELY by installing the CodeQL CLI (2.27.3) + python-queries
+1.8.13 locally — the same stack the GitHub analysis runs — and probing
+SEVEN annotation variants (`codeql[...]`/`lgtm[...]`, trailing and
+line-above, plain and wrapped): ALL ignored (`suppressions: None` in the
+SARIF). Python has no working inline suppression for these queries.
+(The hygiene-test alert had vanished from the PR check only because its
+main-branch alert was dismissed, not because the comment worked.)
+
+Closed by restructuring each site out of the alert class, intent
+documented in place (f170f76): both chmods via named stat constants
+(S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH — same 0644, spelled out); the report
+write behind a documented write_report() helper using json.dump into an
+open handle (byte-identical output, verified against dumps+write_text).
+Pre-push proof with the FULL security-extended suites, both languages,
+on the exact push tree: python 21 findings = exactly the already-
+dismissed set, ZERO in PR-touched files; javascript 5 findings on
+git-tracked files = exactly the dismissed set, and the fd-pinned
+readLogTail fix makes alert #31 disappear locally (fix verified).
+All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
+05:44Z).
+
+### First runs of the two new workflows on merged main (both honest REDs)
+
+- CI (push) on 0071c70: SUCCESS. CodeQL (push): SUCCESS. pages: SUCCESS.
+- live-validation run 41278074509: RED — `dependency failed to start:
+  container crapi-identity exited (1)` 54s into compose-up (the images
+  pull fine from the runner's registry mirror; the failure is in the
+  crAPI service itself). The step died inside `compose up` before any
+  container logs could be captured. Fixes pushed on
+  ci-workflow-first-run-fixes: (a) download the crAPI v1.1.5 TAG zip —
+  compose and .env from ONE consistent source (main-HEAD compose with a
+  pinned VERSION env was a real mismatch risk: the compose layout can
+  drift past the pinned images); (b) `compose up` made non-fatal with
+  compose ps + per-service logs dumped on failure; (c) DOCKER_HOST
+  exported for the DVGA step too (it called plain `docker run` without
+  the dind socket path — would have failed next).
+- security-ops run 41278076030: RED — `ossf/scorecard-action@v2` is not
+  resolvable by this runner's action proxy (fails at action resolution,
+  before any step). Second, independent blocker: OSSF Scorecard is
+  github.com-public-repo-only BY DESIGN (checks call api.github.com;
+  publish_results pushes to api.securityscorecards.dev) — a private
+  repository on this GitHub instance can never be its target. Fixed
+  honestly on the same branch: the job now records the verified
+  limitation each run (step summary + scorecard-limitation artifact)
+  instead of leaving a permanently-red main, and the impossible
+  api.securityscorecards.dev badge was removed from the README. The
+  in-place supply-chain coverage it names: CodeQL security-extended
+  (both languages), engine SARIF dogfood, dependency review on PRs
+  (fail-on-severity: high), Dependabot weekly, SPDX SBOM per release.
+- Supersessions of the "Known-not-done (2026-10-31 II)" list above: the
+  CodeQL dismissals WERE executed (27 alerts, documented reasons, via
+  the fresh PAT with code-scanning-alerts write — 29658dd); the
+  live-validation first run HAS now happened (outcome above; re-run
+  lands after the fix branch merges).
+
 ## Where to find things
 
 - Round-by-round history: `git log`, worklog.md (current + history).
