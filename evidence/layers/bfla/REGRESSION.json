@@ -1,0 +1,31 @@
+{
+  "layer": "bfla",
+  "generated": "2026-11-01T23:25:57Z",
+  "target": "fixtures/vulnapp.py (stock)",
+  "label": "FULL-REPO REGRESSION — standard fixture, zero BFLA surfaces",
+  "authz": {
+    "accounts_configured": 2,
+    "accounts_logged_in": 2,
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "matrix_endpoints": 22,
+    "login_errors": [],
+    "requests": 58,
+    "ran": true
+  },
+  "battery_probe_counts": {
+    "sent": 0,
+    "offline": 0,
+    "cap": 18
+  },
+  "battery_boundaries": [
+    {
+      "family": "bfla",
+      "kind": "NOT_DISCOVERED",
+      "detail": "no admin-shaped non-GET endpoints in flight"
+    }
+  ],
+  "findings": []
+}

@@ -1,0 +1,41 @@
+{
+  "layer": "bfla",
+  "generated": "2026-11-01T23:25:52Z",
+  "target": "fixtures/vulnapp.py (env BFLA=1)",
+  "label": "RED+BLUE — broken admin function vs hardened twin, one scan",
+  "authz": {
+    "accounts_configured": 2,
+    "accounts_logged_in": 2,
+    "roles": [
+      "admin",
+      "user"
+    ],
+    "matrix_endpoints": 22,
+    "login_errors": [],
+    "requests": 58,
+    "ran": true
+  },
+  "battery_probe_counts": {
+    "sent": 6,
+    "offline": 0,
+    "cap": 18
+  },
+  "battery_boundaries": [],
+  "findings": [
+    {
+      "url": "http://127.0.0.1:38459/api/admin/rotate-keys",
+      "status": "verified",
+      "verification": "fresh lower-privilege replay of POST http://127.0.0.1:38459/api/admin/rotate-keys -> HTTP 200",
+      "evidence": [
+        {
+          "kind": "function_level_boundary_bypass",
+          "detail": "BFLA (CWE-285; OWASP API5:2023): the admin-only FUNCTION POST /api/admin/rotate-keys EXECUTED for a lower-privilege session (role=user, account=bob) — anonymous replay gated (HTTP 401), highest-privilege session (role=admin) -> HTTP 200, lower-privilege replay -> HTTP 200 with body similarity 0.95 t"
+        },
+        {
+          "kind": "probe_recipe",
+          "detail": "high=admin; low=bob; method=POST"
+        }
+      ]
+    }
+  ]
+}

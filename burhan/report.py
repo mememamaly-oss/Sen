@@ -213,6 +213,7 @@ SARIF_RULES = {
     # Phase 56 (v2.8.0): the Intelligence Layer classes
     "idor_bola":                        "Burhan-IDOR-001",
     "vertical_privilege_escalation":    "Burhan-AUT-001",
+    "bfla":                               "Burhan-AUT-002",
     "credential_exposure":              "Burhan-SEC-001",
     # v3.0.0/v4.0.0: workflow/business-logic + detector classes with stable rule ids
     "csrf":                             "Burhan-CSRF-001",
