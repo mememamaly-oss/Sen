@@ -696,6 +696,40 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   CONFIRMED POSITIVE (the exact documented challenge); a miss is a
   REAL coverage gap, not an honest negative.
 
+- LIVE RUN 9 (41343990283, after PR #16, main 0fcf9c8): GREEN — and
+  the fam1 chain RAN LIVE FOR THE FIRST TIME. The evidence (artifact
+  live-validation-crapi-dvga, request journal):
+  - json_login AUTHENTICATED against real crAPI: POST /identity/api/
+    auth/login -> 200 {"token":"eyJhbGciOiJSUzI1NiJ9..."} (RS256,
+    sub=test@example.com — the official seeded demo user).
+  - fam1 probes SENT (2/12): the HS256-forged token (public key as
+    HMAC secret — the challenge-15 mechanism) got 200 WITH THE ACCOUNT
+    DATA ({"id":4,"name":"Test","email":"test@example.com",...}).
+  - BUT the corrupted-signature CONTROL also got 200 with the same
+    data — as did fam2's alg=none token and its corrupt control. The
+  dashboard (/identity/api/v2/user/dashboard) reads the token's sub
+  claim WITHOUT verifying the signature: unauthenticated GETs get 404
+  "Given Email is not registered", ANY token-shaped Bearer with a
+  registered sub gets the account. Both differentials therefore
+  recorded OBSERVED_ANOMALY (the engine's honest third state: "the
+  protected endpoint accepted the forged token AND the corrupted
+  control") instead of a finding — the forging WORKED, the target is
+  just sloppier than the differential assumes (consistent with
+  challenge 15's own wording: "vulnerable to various attacks. Find
+  any one way to forge").
+  - Scan grew with the authenticated surface: 503 requests (was 280),
+  20 findings (was 15).
+- ENGINE GAP DISCOVERED BY RUN 9 (next work item, precisely scoped):
+  the CORRUPTED CONTROL's acceptance is itself a vulnerability class
+  the engine currently only labels OBSERVED_ANOMALY — a target that
+  accepts a corrupted-signature token does not enforce JWT signatures
+  at all (CWE-347). fam1/fam2 already HAVE the control response in
+  hand; a jwt_signature_not_enforced finding on `_ok(control)` with a
+  clean harvest would have been a REAL CONFIRMED POSITIVE against the
+  documented challenge (forgery works — any way). Needs: family type
+  + compliance mapping + report ID + VR rule + a third fixture mode
+  (corrupt-accepting) + red/blue tests.
+
 ## Where to find things
 
 - Round-by-round history: `git log`, worklog.md (current + history).
