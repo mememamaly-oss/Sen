@@ -251,6 +251,7 @@ SARIF_RULES = {
     # CVE-class families (see docs/SPEC_AXES_13_16.md §13.1)
     "jwt_algorithm_confusion":                 "Burhan-JWT-002",
     "jwt_none_acceptance":                     "Burhan-JWT-003",
+    "jwt_signature_not_enforced":              "Burhan-JWT-004",
     "graphql_batching_enabled":                "Burhan-GQL-008",
     "http_request_smuggling":                  "Burhan-SMK-001",
     "mass_assignment":                         "Burhan-MA-001",

@@ -483,6 +483,15 @@ def _dashboard_verdict(auth: str) -> tuple[int, str]:
         sig = _b64u_dec(parts[2])
     except Exception:
         return (401, '{"error": "malformed token"}')
+    if os.environ.get("SIGNOFF") == "1":
+        # PART ZERO mode: the filter parses the token and reads the claims but
+        # NEVER verifies the signature — any token-shaped Bearer with a
+        # parseable payload gets the account (the run-9 crAPI live behavior).
+        try:
+            json.loads(_b64u_dec(parts[1]) or b"null")
+            return (200, '{"account": "demo", "role": "user"}')
+        except Exception:
+            return (401, '{"error": "malformed token"}')
     if hdr.get("alg") == "RS256":
         t = _SHA256_PREFIX + _hl.sha256(parts[1].encode()).digest()
         em = b"\x00\x01" + b"\xff" * (_RSA_K - len(t) - 3) + b"\x00" + t

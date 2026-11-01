@@ -730,6 +730,25 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   + compliance mapping + report ID + VR rule + a third fixture mode
   (corrupt-accepting) + red/blue tests.
 
+- PART ZERO (strict consolidated order 2026-11-01, branch
+  part0-jwt-signature-not-enforced): the run-9-discovered CWE-347 gap
+  closed. jwt_signature_not_enforced fires when the CORRUPTED-SIGNATURE
+  CONTROL of the confusion/none differentials is itself accepted — the
+  endpoint does not verify token signatures at all (zero new requests:
+  the finding rides the existing fam1/fam2 probes; deduped per endpoint
+  across the two families). VR-35 = a fresh harvest + a fresh corrupted
+  token + a fresh probe; acceptance must reproduce. Compliance CWE-347 /
+  A07, report ID Burhan-JWT-004. Fixture: vulnapp SIGNOFF=1 (the filter
+  parses tokens, reads claims, never verifies — the exact run-9 crAPI
+  live behavior). RED: the SIGNOFF twin fires exactly one
+  jwt_signature_not_enforced and VR-35 re-verifies, while the confusion
+  finding honestly stays silent (both arms accepted — the differential
+  cannot isolate). BLUE: the strict twin stays silent (2 probes, control
+  rejected). DISCRIMINATION: the confusion twin fires confusion while
+  sig347 stays silent (its control is rejected — signatures enforced).
+  Suite 244/244. Evidence: evidence/layers/jwt-signature-not-enforced/
+  (RED/BLUE/DISCRIMINATION + SHA256SUMS).
+
 ## Where to find things
 
 - Round-by-round history: `git log`, worklog.md (current + history).

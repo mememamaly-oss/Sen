@@ -198,6 +198,27 @@ def probe_counts_of(st: _St) -> dict:
             for fam in MODERN_TYPES}
 
 
+def _sig_not_enforced(st: "_St", prot: Endpoint, ct, hdr: dict,
+                       claims: dict, recipe: str, variant: str):
+    """CWE-347, the broader class under the confusion/none differentials:
+    the CORRUPTED-SIGNATURE control itself was ACCEPTED — the endpoint does
+    not verify token signatures at all. Discovered live by run 9 against
+    crAPI challenge 15 (both differentials saw the control pass); this is
+    the finding that situation deserves. Deduped per endpoint: fam1 and
+    fam2 each hold a corrupted-signature control."""
+    if any(f.type == "jwt_signature_not_enforced" and f.endpoint_url == prot.url
+           for f in st.findings):
+        return
+    st.find("jwt_signature_not_enforced", Severity.HIGH, prot, "-", [
+        Evidence("signature_control_accepted",
+                 f"signature not enforced (CWE-347): a token with a CORRUPTED "
+                 f"signature (one mid-signature character flipped) was ACCEPTED "
+                 f"(HTTP {ct.status}) by the protected endpoint — {variant}. "
+                 f"original alg={hdr.get('alg')!r}; claims: {sorted(claims)}",
+                 ct.request_id),
+        Evidence("probe_recipe", recipe, ct.request_id)])
+
+
 # --------------------------------------------------------- §4 the JWT families
 def _mine_jwt(r) -> str | None:
     if r is None or getattr(r, "error", True) or not getattr(r, "status", 0):
@@ -327,16 +348,28 @@ def _jwt_families(st: _St, eps):
                              f"claims: {sorted(claims)}", pr.request_id),
                     Evidence("probe_recipe", recipe + f"; jwks={jwks_used}",
                              pr.request_id)])
-            elif _ok(pr) and _ok(ct):
-                st.boundary(fam1, "OBSERVED_ANOMALY",
-                            "the protected endpoint accepted the forged token AND the "
-                            "corrupted control — the verifier does not check signatures "
-                            "at all; recorded as a boundary, not a finding")
             else:
-                st.boundary(fam1, "TESTED_NEGATIVE",
-                            f"the differential held: forged rejected (HTTP "
-                            f"{getattr(pr, 'status', 0)}), control rejected (HTTP "
-                            f"{getattr(ct, 'status', 0)})")
+                if _ok(ct):
+                    # run-9 class (crAPI challenge 15, live): the control itself
+                    # was accepted — signatures are not enforced at all
+                    _sig_not_enforced(st, prot, ct, hdr, claims,
+                                      recipe + f"; jwks={jwks_used}",
+                                      "the confusion differential\u2019s control")
+                if _ok(pr) and _ok(ct):
+                    st.boundary(fam1, "OBSERVED_ANOMALY",
+                                "the protected endpoint accepted the forged token AND "
+                                "the corrupted control — the confusion differential "
+                                "cannot isolate (both arms passed); the signature "
+                                "bypass is reported as jwt_signature_not_enforced")
+                elif _ok(ct):
+                    st.boundary(fam1, "OBSERVED_ANOMALY",
+                                "the corrupted control was ACCEPTED while the forged "
+                                "token was not — reported as jwt_signature_not_enforced")
+                else:
+                    st.boundary(fam1, "TESTED_NEGATIVE",
+                                f"the differential held: forged rejected (HTTP "
+                                f"{getattr(pr, 'status', 0)}), control rejected (HTTP "
+                                f"{getattr(ct, 'status', 0)})")
     else:
         st.boundary(fam1, "NOT_DISCOVERED",
                     f"no asymmetric issuance in flight (alg={alg!r}) — the confusion "
@@ -363,10 +396,18 @@ def _jwt_families(st: _St, eps):
                      f"{sorted(claims)}", pr2.request_id),
             Evidence("probe_recipe", recipe, pr2.request_id)])
     elif _ok(pr2) and _ok(ct2):
+        _sig_not_enforced(st, prot, ct2, hdr, claims, recipe,
+                          "the none-acceptance differential\u2019s control")
         st.boundary(fam2, "OBSERVED_ANOMALY",
                     "the verifier accepted the none-variant AND the corrupted original "
-                    "— it does not verify signatures at all; recorded as a boundary, "
-                    "not a finding")
+                    "— it does not verify signatures at all; the signature bypass is "
+                    "reported as jwt_signature_not_enforced")
+    elif _ok(ct2):
+        _sig_not_enforced(st, prot, ct2, hdr, claims, recipe,
+                          "the none-acceptance differential\u2019s control")
+        st.boundary(fam2, "OBSERVED_ANOMALY",
+                    "the corrupted ORIGINAL was ACCEPTED while the none-variant was "
+                    "not — reported as jwt_signature_not_enforced")
     else:
         st.boundary(fam2, "TESTED_NEGATIVE",
                     f"the differential held: none-variant rejected (HTTP "
@@ -710,6 +751,28 @@ def replay_confusion(engine, finding):
     ok = _ok(pr) and not _ok(ct)
     return ok, (f"fresh differential: forged HTTP {getattr(pr, 'status', 0)} vs "
                 f"corrupted HTTP {getattr(ct, 'status', 0)}")
+
+
+def replay_sig347(engine, finding):
+    """VR-35: a FRESH corrupt acceptance — fresh harvest, fresh corrupted-
+    signature token, fresh probe; the acceptance must reproduce."""
+    rec = recipe_of(finding)
+    auth, prot = rec.get("auth", ""), rec.get("protected") or getattr(
+        finding, "endpoint_url", "")
+    if not auth or not prot:
+        return False, "recipe incomplete (auth/protected missing) — cannot re-run"
+    token = _fresh_harvest(engine, auth)
+    if not token:
+        return False, "no JWT on the fresh harvest"
+    hdr = _decode_seg(token.split(".")[0])
+    claims = _decode_seg(token.split(".")[1])
+    bad = _corrupt_sig(token)
+    r = engine.send(RequestMutation(
+        endpoint=Endpoint(url=prot, method="GET"),
+        extra_headers={"Authorization": f"Bearer {bad}"}, note="modern-vr35"))
+    ok = _ok(r)
+    return ok, (f"fresh corrupted-signature token (orig alg={hdr.get('alg')!r}) "
+                f"-> HTTP {getattr(r, 'status', 0)} on {prot}")
 
 
 def replay_none(engine, finding):

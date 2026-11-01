@@ -1,0 +1,45 @@
+{
+  "layer": "jwt-signature-not-enforced",
+  "generated": "2026-11-01T23:01:23Z",
+  "target": "fixtures/vulnapp.py (env: {'SIGNOFF': '1'})",
+  "label": "RED — the filter reads claims, never verifies signatures",
+  "battery_findings": [
+    "jwt_signature_not_enforced"
+  ],
+  "fam1_probes_sent": 2,
+  "fam1_boundaries": [
+    {
+      "family": "jwt_algorithm_confusion",
+      "kind": "OBSERVED_ANOMALY",
+      "detail": "the protected endpoint accepted the forged token AND the corrupted control — the confusion differential cannot isolate (both arms passed); the signature bypass is reported as jwt_signature_not_enforced"
+    }
+  ],
+  "fam2_boundaries": [
+    {
+      "family": "jwt_none_acceptance",
+      "kind": "OBSERVED_ANOMALY",
+      "detail": "the verifier accepted the none-variant AND the corrupted original — it does not verify signatures at all; the signature bypass is reported as jwt_signature_not_enforced"
+    }
+  ],
+  "finding": {
+    "type": "jwt_signature_not_enforced",
+    "severity": "Severity.HIGH",
+    "url": "http://127.0.0.1:42417/api/account/dashboard",
+    "evidence": [
+      {
+        "kind": "signature_control_accepted",
+        "detail": "signature not enforced (CWE-347): a token with a CORRUPTED signature (one mid-signature character flipped) was ACCEPTED (HTTP 200) by the protected endpoint — the confusion differential’s control. original alg='RS256'; claims: ['email', 'role', 'sub']"
+      },
+      {
+        "kind": "probe_recipe",
+        "detail": "auth=http://127.0.0.1:42417/auth/api/login; protected=http://127.0.0.1:42417/api/account/dashboard; jwks=http://127.0.0.1:42417/.well-known/jwks.json"
+      }
+    ]
+  },
+  "vr35_reverify": {
+    "ok": true,
+    "notes": "fresh corrupted-signature token (orig alg='RS256') -> HTTP 200 on http://127.0.0.1:42417/api/account/dashboard"
+  },
+  "confusion_finding_present": false,
+  "none_acceptance_finding_present": false
+}
