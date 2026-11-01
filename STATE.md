@@ -783,6 +783,41 @@ All 27 checks green on f170f76; PR #7 MERGED (0071c70, 2026-11-01
   admin-shaped non-GET surface exists there). Evidence:
   evidence/layers/bfla/ (RED_BLUE + REGRESSION + SHA256SUMS).
 
+- PART 2 (order 2026-11-01, branch detection-layer-race-prober): 3F
+  the generic limited-resource race prober — CWE-362 (Burhan-RACE-001),
+  INVARIANT-based, complementary to the axis-17 timing-variance battery.
+  Design basis cited in the family docstring: the methodology proven
+  twice in this codebase — the bootstrap concurrency fix
+  (scripts/axis18_load_test.py, POST /api/bootstrap) and the G8
+  concurrent-scan-start gate (scripts/axis19_gap_probe.py, "concurrent
+  scan start on same target -> exactly 1 wins"); the concurrency
+  substrate is the same proven burhan/race/engine.send_concurrent
+  (bounded, ordered, honest per-request boundaries). NEVER BLIND
+  (order 2.2, verbatim in the docstring AND the NOT_DISCOVERED
+  boundary): the prober runs ONLY on operator-named candidates
+  (cfg.race_candidates) — concurrent requests at arbitrary endpoints
+  of a live target risk state corruption and unintended load; shared
+  public targets are never race targets (Part 4 enforces it). Caps:
+  RACE_CAND_CAP=4 candidates/scan, default N=6 concurrent per burst,
+  hard ceiling 12 (the substrate gate allows 64 — the family stays far
+  below on purpose). Candidate schema: {url, method, params, quota=1,
+  concurrent, win_statuses=[200,201], verify_params}. VR-37: a FRESH
+  burst must reproduce the violation — verify_params declares a SECOND
+  single-use sample (a single-use resource is consumed by the first
+  burst; without verify_params the same-params replay fail-closes with
+  the honest note). Fixture: POST /api/coupon/redeem {"code"} —
+  RACE_MODE=broken (check-then-set with a 40ms window) vs =locked
+  (the same handler under a mutex). THE REAL DISTRIBUTION (order 2.5,
+  10 real concurrent bursts per twin, fresh code each): RED winners
+  [6,6,6,6,6,6,6,6,6,6] — 10/10 violations; BLUE [1,1,1,1,1,1,1,1,1,1]
+  — 0/10. Full-scan wiring proven end-to-end (VR-37 on verify_params:
+  fresh 6-wide burst -> 6 winners vs quota 1). Live-caught while
+  building: the battery call read self.race_candidates (the scanner)
+  instead of self.cfg.race_candidates — the modern_v2 stats carried the
+  honest error record and the wiring test caught it. Suite 250/250.
+  Evidence: evidence/layers/race-prober/ (RED_DISTRIBUTION +
+  BLUE_DISTRIBUTION + WIRING_VR37 + SHA256SUMS).
+
 ## Where to find things
 
 - Round-by-round history: `git log`, worklog.md (current + history).

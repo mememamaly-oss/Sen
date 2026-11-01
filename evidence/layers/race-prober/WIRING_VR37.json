@@ -1,0 +1,16 @@
+{
+  "layer": "race-prober",
+  "generated": "2026-11-01T23:44:53Z",
+  "target": "fixtures/vulnapp.py (env RACE_MODE=broken) — full BurhanScanner scan",
+  "label": "WIRING + VR-37 — cfg.race_candidates reaches the battery; the finding survives a fresh burst on verify_params (the 2nd single-use sample — the first burst consumed the first code)",
+  "finding": {
+    "url": "http://127.0.0.1:39469/api/coupon/redeem",
+    "status": "verified"
+  },
+  "vr37_notes": "fresh 6-wide burst: winners 6 vs quota 1 (statuses [200, 200, 200, 200, 200, 200])",
+  "battery_probe_counts": {
+    "sent": 6,
+    "offline": 0,
+    "cap": 48
+  }
+}

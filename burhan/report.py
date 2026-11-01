@@ -214,6 +214,7 @@ SARIF_RULES = {
     "idor_bola":                        "Burhan-IDOR-001",
     "vertical_privilege_escalation":    "Burhan-AUT-001",
     "bfla":                               "Burhan-AUT-002",
+    "race_condition":                      "Burhan-RACE-001",
     "credential_exposure":              "Burhan-SEC-001",
     # v3.0.0/v4.0.0: workflow/business-logic + detector classes with stable rule ids
     "csrf":                             "Burhan-CSRF-001",

@@ -1948,6 +1948,46 @@ class VerificationEngine:
             f.verification, f.confidence = v, v.confidence
             f.status = FindingStatus.VERIFIED if ok29 else FindingStatus.REJECTED
 
+        elif f.type == "race_condition":
+            # VR-37 (3F): a FRESH concurrent burst — the invariant violation
+            # must reproduce. With verify_params declared (a second sample
+            # for a single-use resource) the fresh burst spends THAT; without
+            # it the same params replay and a consumed resource fail-closes.
+            import json as _rj
+            from .modernsec2 import (RACE_MAX_N as _rmaxn, RACE_DEFAULT_N as _rdn)
+            stash = getattr(self.engine, "race_verify", {}) or {}
+            slot = stash.get(f.endpoint_url)
+            if slot is None:
+                v = Verification(method="re-test:race-fresh-burst",
+                                 passed=False, confidence=0.15, rounds=2,
+                                 notes="no stashed candidate — cannot re-run")
+            else:
+                from .race.engine import send_concurrent as _rsc
+                cand = dict(slot["candidate"])
+                vp = cand.get("verify_params")
+                params = vp if vp is not None else cand.get("params") or {}
+                n = min(int(cand.get("concurrent") or _rdn), _rmaxn)
+                method = str(cand.get("method") or "POST").upper()
+                req = {"method": method, "url": f.endpoint_url,
+                       "headers": {"Content-Type": "application/json"},
+                       "body": _rj.dumps(params)}
+                results = _rsc([dict(req) for _ in range(n)],
+                               max_concurrent=n, timeout=10.0)
+                statuses = [r.get("status") or 0 for r in results]
+                winners = sum(1 for x in statuses if x in slot["win"])
+                ok37 = winners > slot["quota"]
+                note = (f"fresh {n}-wide burst: winners {winners} vs quota "
+                        f"{slot['quota']} (statuses {statuses})"
+                        + ("" if vp is not None
+                           else "; no verify_params declared — same-params "
+                                "replay, a consumed single-use resource "
+                                "fail-closes"))
+                v = Verification(method="re-test:race-fresh-burst",
+                                 passed=ok37, confidence=0.9 if ok37 else 0.15,
+                                 rounds=2, notes=note)
+            f.verification, f.confidence = v, v.confidence
+            f.status = FindingStatus.VERIFIED if v.passed else FindingStatus.REJECTED
+
         elif f.type == "bfla":
             # VR-36 (3E): a FRESH replay of the exact endpoint through the
             # SAME stashed lower-privilege session engine — the execution
