@@ -1,6 +1,6 @@
 {
   "layer": "shadow-api",
-  "generated": "2026-11-01T23:55:01Z",
+  "generated": "2026-11-02T00:08:23Z",
   "target": "fixtures/vulnapp.py (env SHADOW=1) — full BurhanScanner scan",
   "label": "BLUE — the twin spec matches live reality exactly",
   "spec": "declares: /api/filter (live), /api/v1/users (live, not deprecated), /api/v2/internal/telemetry (live) — nothing dead, nothing missing",

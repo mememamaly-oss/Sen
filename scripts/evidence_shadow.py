@@ -120,6 +120,7 @@ for name, doc in (("RED.json", red), ("BLUE.json", blue)):
     with open(os.path.join(out, name), "w", encoding="utf-8") as fh:
         json.dump(doc, fh, indent=2, ensure_ascii=False)
 
-print("RED  findings:", [(f["type"], f["url"], f["status"]) for f in red["findings"]])
-print("BLUE findings:", blue["findings"])
+print(f"RED  findings: {len(red['findings'])} "
+      f"({[f['type'] for f in red['findings']]}) — details in RED.json")
+print(f"BLUE findings: {len(blue['findings'])} — details in BLUE.json")
 print("ALL EVIDENCE ASSERTIONS PASS")

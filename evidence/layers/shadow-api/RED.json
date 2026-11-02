@@ -1,6 +1,6 @@
 {
   "layer": "shadow-api",
-  "generated": "2026-11-01T23:54:57Z",
+  "generated": "2026-11-02T00:08:19Z",
   "target": "fixtures/vulnapp.py (env SHADOW=1) — full BurhanScanner scan",
   "label": "RED — the spec mismatches reality in EXACTLY the two documented ways",
   "spec": "declares: /api/filter (live), /api/v1/users (deprecated:true, live), /api/v2/ghost (never existed); MISSING /api/v2/internal/telemetry (live JSON)",
@@ -38,7 +38,7 @@
         },
         {
           "kind": "probe_recipe",
-          "detail": "live=http://127.0.0.1:57917/api/v2/internal/telemetry; spec_paths=['/api/filter', '/api/v1/users', '/api/v2/ghost']"
+          "detail": "live=http://127.0.0.1:50533/api/v2/internal/telemetry; spec_paths=['/api/filter', '/api/v1/users', '/api/v2/ghost']"
         }
       ]
     },
@@ -53,7 +53,7 @@
         },
         {
           "kind": "probe_recipe",
-          "detail": "declared=http://127.0.0.1:57917/api/v1/users; deprecated=true; live_status=200"
+          "detail": "declared=http://127.0.0.1:50533/api/v1/users; deprecated=true; live_status=200"
         }
       ]
     },
@@ -68,7 +68,7 @@
         },
         {
           "kind": "probe_recipe",
-          "detail": "declared=http://127.0.0.1:57917/api/v2/ghost; live_status=404"
+          "detail": "declared=http://127.0.0.1:50533/api/v2/ghost; live_status=404"
         }
       ]
     }
